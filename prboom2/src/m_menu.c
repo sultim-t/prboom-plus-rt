@@ -3176,13 +3176,12 @@ setup_menu_t gen_settings4[] = { // General Settings screen3
 
 setup_menu_t gen_settings5[] = { // General Settings screen3
   {"Mouse",                       S_SKIP|S_TITLE,m_null,G_X, G_Y+1*8},
-  {"Mouse Handling",              S_CHOICE, m_null,G_X,G_Y+2*8, {"mouse_handler"}, 0, 0, M_ChangeAltMouseHandling, mousemodes},
-  {"Dbl-Click As Use",            S_YESNO, m_null,G_X,G_Y+3*8, {"mouse_doubleclick_as_use"}},
-  {"Mouse / OpenGL",              S_SKIP|S_TITLE,m_null,G_X,G_Y+5*8},
+  {"Dbl-Click As Use",            S_YESNO, m_null,G_X,G_Y+2*8, {"mouse_doubleclick_as_use"}},
+  {"Mouse / OpenGL",              S_SKIP|S_TITLE,m_null,G_X,G_Y+4*8},
 //#ifdef GL_DOOM
-  {"Always Mouselook",            S_YESNO, m_null,G_X,G_Y+6*8, {"movement_mouselook"}, 0, 0, M_ChangeMouseLook},
-  {"Invert Mouse",                S_YESNO, m_null,G_X,G_Y+7*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
-  {"Max View Pitch",              S_NUM,   m_null,G_X,G_Y+8*8, {"movement_maxviewpitch"}, 0, 0, M_ChangeMaxViewPitch},
+  {"Always Mouselook",            S_YESNO, m_null,G_X,G_Y+5*8, {"movement_mouselook"}, 0, 0, M_ChangeMouseLook},
+  {"Invert Mouse",                S_YESNO, m_null,G_X,G_Y+6*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
+  {"Max View Pitch",              S_NUM,   m_null,G_X,G_Y+7*8, {"movement_maxviewpitch"}, 0, 0, M_ChangeMaxViewPitch},
 //#endif
   {"<- PREV",S_SKIP|S_PREV, m_null,KB_PREV, KB_Y+20*8, {gen_settings4}},
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings6}},
@@ -5845,7 +5844,6 @@ void M_Init(void)
   M_ChangeMouseLook();
   M_ChangeMouseInvert();
   M_ChangeFOV();
-  if (gametic) M_ChangeAltMouseHandling();
 //  M_ChangeUseDetail();
   M_ChangeScreenMultipleFactor();
   M_ChangeInterlacedScanning();

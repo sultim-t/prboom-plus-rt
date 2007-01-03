@@ -96,9 +96,6 @@
 #define DEFAULT_SPECHIT_MAGIC (0x01C09C98)
 //#define DEFAULT_SPECHIT_MAGIC (0x84000000)
 
-mousemode_t mousemode;
-const char *mousemodes[] = {"sdl","Win32"};
-
 spriteclipmode_t gl_spriteclip;
 const char *gl_spriteclipmodes[] = {"constant","always", "smart"};
 int gl_sprite_offset;
@@ -240,7 +237,7 @@ static boolean saved_nomusicparm;
 #ifdef _WIN32
 static HWND GetHWND(void);
 void SwitchToWindow(HWND hwnd);
-static void I_CenterMouse(long x, long y);
+//static void I_CenterMouse(void);
 #endif
 //--------------------------------------------------
 
@@ -403,37 +400,6 @@ void M_ChangeSpriteClip(void)
   }
 }
 
-void M_ChangeAltMouseHandling(void)
-{
-#ifndef _WIN32
-  mouse_handler = sdl_mousemode;
-  mousemode = sdl_mousemode;
-#else
-  if ((int)GetVersion() < 0 && desired_fullscreen) // win9x
-  {
-    //movement_altmousesupport = false;
-    mousemode = sdl_mousemode;
-  }
-  else
-  {
-    if (mouse_handler != sdl_mousemode)
-    {
-      SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
-      SDL_WM_GrabInput(SDL_GRAB_OFF);
-      I_StartWin32Mouse();
-      mousemode = win32_mousemode;
-    }
-    else
-    {
-      SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
-      SDL_WM_GrabInput(SDL_GRAB_ON);
-      I_EndWin32Mouse();
-      mousemode = sdl_mousemode;
-    }
-  }
-#endif
-}
-
 void M_ChangeSpeed(void)
 {
   extern int sidemove[2];
@@ -461,13 +427,13 @@ void M_ChangeMouseLook(void)
   viewpitch = 0;
   if(movement_mouselook)
   {
+    gen_settings5[4].m_flags &= ~(S_SKIP|S_SELECT);
     gen_settings5[5].m_flags &= ~(S_SKIP|S_SELECT);
-    gen_settings5[6].m_flags &= ~(S_SKIP|S_SELECT);
   }
   else
   {
+    gen_settings5[4].m_flags |= (S_SKIP|S_SELECT);
     gen_settings5[5].m_flags |= (S_SKIP|S_SELECT);
-    gen_settings5[6].m_flags |= (S_SKIP|S_SELECT);
   }
 //#endif
 }
@@ -1057,8 +1023,6 @@ void e6y_G_DoWorldDone(void)
 //--------------------------------------------------
 
 #ifdef _WIN32
-static long MousePrevX, MousePrevY;
-static boolean MakeMouseEvents;
 HWND GetHWND(void)
 {
   static HWND Window = NULL; 
@@ -1072,94 +1036,6 @@ HWND GetHWND(void)
   return Window;
 }
 #endif
-
-static void I_CenterMouse(long x, long y)
-{
-#ifdef _WIN32
-  RECT rect;
-  HWND hwnd = GetHWND();
-	
-  GetWindowRect (hwnd, &rect);
-
-  MousePrevX = rect.left + REAL_SCREENWIDTH/2;
-  MousePrevY = rect.top + REAL_SCREENHEIGHT/2;
-
-  if (MousePrevX != x || MousePrevY != y)
-  {
-    SetCursorPos (MousePrevX, MousePrevY);
-  }
-#endif
-}
-
-void I_ProcessWin32Mouse(void)
-{
-#ifdef _WIN32
-  extern int usemouse;
-  int I_SDLtoDoomMouseState(Uint8 buttonstate);
-
-  if (mousemode == win32_mousemode && usemouse && MakeMouseEvents)
-  {
-    POINT pos;
-    int x, y;
-    GetCursorPos (&pos);
-
-    x = pos.x - MousePrevX;
-    y = MousePrevY - pos.y;
-
-    if (x | y)
-    {
-      event_t event;
-
-      I_CenterMouse(pos.x, pos.y);
-
-      event.type = ev_mouse;
-      event.data1 = I_SDLtoDoomMouseState(SDL_GetMouseState(NULL, NULL));
-      event.data2 = x << 5;
-      event.data3 = y << 5;
-      D_PostEvent (&event);
-    }
-  }
-#endif
-}
-
-void I_StartWin32Mouse(void)
-{
-#ifdef _WIN32
-  RECT rect;
-  HWND hwnd = GetHWND();
-
-  ClipCursor (NULL);
-  GetClientRect (hwnd, &rect);
-
-  ClientToScreen (hwnd, (LPPOINT)&rect.left);
-  ClientToScreen (hwnd, (LPPOINT)&rect.right);
-
-  ClipCursor (&rect);
-  I_CenterMouse(-1, -1);
-  MakeMouseEvents = true;
-
-  {
-    SDL_Event Event;
-    while ( SDL_PollEvent(&Event) )
-      ;
-  }
-#endif
-}
-
-void I_EndWin32Mouse(void)
-{
-#ifdef _WIN32
-  ClipCursor(NULL);
-  MakeMouseEvents = false;
-#endif
-}
-
-void e6y_I_InitInputs(void)
-{
-  M_ChangeAltMouseHandling();
-  MouseAccelChanging();
-  atexit(I_EndWin32Mouse);
-}
 
 int AccelerateMouse(int val)
 {

@@ -69,6 +69,15 @@
 #include "i_simd.h"
 #include "e6y.h"//e6y
 
+//e6y: new mouse code
+static boolean window_focused;
+//static int AccelerateMouse(int val);
+static void CenterMouse(void);
+static void I_ReadMouse(void);
+static boolean MouseShouldBeGrabbed();
+static void UpdateFocus(void);
+static void UpdateGrab(void);
+
 int gl_colorbuffer_bits=16;
 int gl_depthbuffer_bits=16;
 
@@ -89,7 +98,6 @@ int             leds_always_off = 0; // Expected by m_misc, not relevant
 // Mouse handling
 extern int     usemouse;        // config file var
 static boolean grabMouse;       // internal var
-static int mouse_currently_grabbed;
 
 /////////////////////////////////////////////////////////////////////////////////
 // Keyboard handling
@@ -198,7 +206,7 @@ static void I_GetEvent(SDL_Event *Event)
 
   case SDL_MOUSEBUTTONDOWN:
   case SDL_MOUSEBUTTONUP:
-  if (mousemode == win32_mousemode || mouse_currently_grabbed)//e6y
+  if (window_focused)
   {
     event.type = ev_mouse;
     event.data1 = I_SDLtoDoomMouseState(SDL_GetMouseState(NULL, NULL));
@@ -207,26 +215,9 @@ static void I_GetEvent(SDL_Event *Event)
   }
   break;
 
-  case SDL_MOUSEMOTION:
-  if (mouse_currently_grabbed) {
-    event.type = ev_mouse;
-    event.data1 = I_SDLtoDoomMouseState(Event->motion.state);
-    event.data2 = Event->motion.xrel << 5;
-    event.data3 = -Event->motion.yrel << 5;
-    D_PostEvent(&event);
-  }
-  break;
-
   //e6y
   case SDL_ACTIVEEVENT:
-    if (mousemode == win32_mousemode)
-    {
-      Uint8 state = SDL_GetAppState();
-      if ((state&(SDL_APPACTIVE|SDL_APPINPUTFOCUS)) == (SDL_APPACTIVE|SDL_APPINPUTFOCUS))
-        I_StartWin32Mouse();
-      else
-        I_EndWin32Mouse();
-    }
+    UpdateFocus();
     break;
 
   case SDL_QUIT:
@@ -246,30 +237,12 @@ static void I_GetEvent(SDL_Event *Event)
 void I_StartTic (void)
 {
   SDL_Event Event;
-  if (mousemode == sdl_mousemode)
-  {
-     //e6y: allowing of grabbing mouse in camera mode
-    /*e6y
-    int should_be_grabbed = grabMouse && 
-      !(paused || (gamestate != GS_LEVEL) || demoplayback)
-    */
-    int should_be_grabbed = grabMouse && 
-      (gamestate == GS_LEVEL) && ((!demoplayback && !paused) || (walkcamera.type));
-
-    if (mouse_currently_grabbed != should_be_grabbed)
-      SDL_WM_GrabInput((mouse_currently_grabbed = should_be_grabbed)
-          ? SDL_GRAB_ON : SDL_GRAB_OFF);
-  }
-
-  // e6y
-  // Moved from D_PostEvent()
-  // Is this condition needed here? I ask you.
-  // if (gametic < 3) return;
-
-  I_ProcessWin32Mouse();
 
   while ( SDL_PollEvent(&Event) )
     I_GetEvent(&Event);
+
+  //e6y
+  I_ReadMouse();
 
   I_PollJoystick();
 }
@@ -289,12 +262,16 @@ static void I_InitInputs(void)
 {
   // check if the user wants to grab the mouse
   grabMouse = M_CheckParm("-nomouse") ? false : usemouse ? true : false;
-  // e6y: fix for turn-snapping bug on fullscreen in software mode
-  if (!M_CheckParm("-nomouse"))
-    SDL_WarpMouse((unsigned short)(REAL_SCREENWIDTH/2), (unsigned short)(REAL_SCREENHEIGHT/2));
+  
+  //e6y
+  if (grabMouse)
+  {
+    CenterMouse();
+    SDL_WM_GrabInput(SDL_GRAB_OFF);
+    MouseAccelChanging();
+  }
 
   I_InitJoystick();
-  e6y_I_InitInputs();//e6y
 }
 /////////////////////////////////////////////////////////////////////////////
 
@@ -377,6 +354,7 @@ static void I_UploadNewPalette(int pal)
 
 void I_ShutdownGraphics(void)
 {
+  SDL_ShowCursor(1);
 }
 
 //
@@ -394,6 +372,9 @@ static int newpal = 0;
 
 void I_FinishUpdate (void)
 {
+  //e6y
+  UpdateGrab();
+
   if (I_SkipFrame()) return;
 
 #ifdef MONITOR_VISIBILITY
@@ -681,6 +662,8 @@ void I_InitGraphics(void)
     /* Initialize the input system */
     I_InitInputs();
 
+    UpdateFocus();
+    UpdateGrab();
     //e6y: clear out any events waiting at the start
     {
       SDL_Event dummy;
@@ -760,8 +743,6 @@ void I_UpdateVideoMode(void)
 
   lprintf(LO_INFO, "I_UpdateVideoMode: 0x%x, %s, %s\n", init_flags, screen->pixels ? "SDL buffer" : "own buffer", SDL_MUSTLOCK(screen) ? "lock-and-copy": "direct access");
 
-  mouse_currently_grabbed = false;
-
   // Get the info needed to render to the display
   if (screen_multiply==1 && !SDL_MUSTLOCK(screen))
   {
@@ -812,4 +793,128 @@ void I_UpdateVideoMode(void)
 #endif
   }
   I_AfterUpdateVideoMode();//e6y
+}
+
+/*static int AccelerateMouse(int val)
+{
+  if (val < 0)
+    return -AccelerateMouse(-val);
+
+  if (val > mouse_threshold)
+  {
+    return (val - mouse_threshold) * mouse_acceleration + mouse_threshold;
+  }
+  else
+  {
+    return val;
+  }
+}*/
+
+// Warp the mouse back to the middle of the screen
+static void CenterMouse(void)
+{
+  // Warp the the screen center
+  SDL_WarpMouse(screen->w / 2, screen->h / 2);
+
+  // Clear any relative movement caused by warping
+  SDL_PumpEvents();
+  SDL_GetRelativeMouseState(NULL, NULL);
+}
+
+//
+// Read the change in mouse state to generate mouse motion events
+//
+// This is to combine all mouse movement for a tic into one mouse
+// motion event.
+static void I_ReadMouse(void)
+{
+  int x, y;
+  event_t ev;
+
+  if (!usemouse)
+    return;
+
+  SDL_GetRelativeMouseState(&x, &y);
+
+  if (x != 0 || y != 0) 
+  {
+    ev.type = ev_mouse;
+    ev.data1 = I_SDLtoDoomMouseState(SDL_GetMouseState(NULL, NULL));
+    ev.data2 = x << 5;
+    ev.data3 = (-y) << 5;
+
+    D_PostEvent(&ev);
+  }
+
+  if (MouseShouldBeGrabbed())
+  {
+    CenterMouse();
+  }
+}
+
+static boolean MouseShouldBeGrabbed()
+{
+  // never grab the mouse when in screensaver mode
+
+  //if (screensaver_mode)
+  //    return false;
+
+  // if the window doesnt have focus, never grab it
+  if (!window_focused)
+    return false;
+
+  // always grab the mouse when full screen (dont want to 
+  // see the mouse pointer)
+  if (desired_fullscreen)
+    return true;
+
+  // if we specify not to grab the mouse, never grab
+  if (!grabMouse)
+    return false;
+
+  // when menu is active or game is paused, release the mouse 
+  if (menuactive || paused)
+    return false;
+
+  // only grab mouse when playing levels (but not demos)
+  return (gamestate == GS_LEVEL) && !demoplayback;
+}
+
+// Update the value of window_focused when we get a focus event
+//
+// We try to make ourselves be well-behaved: the grab on the mouse
+// is removed if we lose focus (such as a popup window appearing),
+// and we dont move the mouse around if we aren't focused either.
+static void UpdateFocus(void)
+{
+  Uint8 state;
+
+  state = SDL_GetAppState();
+
+  // We should have input (keyboard) focus and be visible 
+  // (not minimised)
+  window_focused = (state & SDL_APPINPUTFOCUS) && (state & SDL_APPACTIVE);
+
+  // Should the screen be grabbed?
+  //    screenvisible = (state & SDL_APPACTIVE) != 0;
+}
+
+static void UpdateGrab(void)
+{
+  static boolean currently_grabbed = false;
+  boolean grab;
+
+  grab = MouseShouldBeGrabbed();
+
+  if (grab && !currently_grabbed)
+  {
+    SDL_ShowCursor(0);
+  }
+
+  if (!grab && currently_grabbed)
+  {
+    SDL_ShowCursor(1);
+  }
+
+  currently_grabbed = grab;
 }

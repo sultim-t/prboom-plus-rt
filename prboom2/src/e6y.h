@@ -101,10 +101,6 @@ typedef struct camera_s
   int type;
 } camera_t;
 
-typedef enum { sdl_mousemode, win32_mousemode } mousemode_t;
-extern mousemode_t mousemode;
-extern const char *mousemodes[];
-
 typedef enum { spriteclip_const, spriteclip_always, spriteclip_smart } spriteclipmode_t;
 extern spriteclipmode_t gl_spriteclip;
 extern const char *gl_spriteclipmodes[];
@@ -243,7 +239,6 @@ void G_SkipDemoStop(void);
 const byte* G_ReadDemoHeader(const byte* demo_p);
 
 void M_ChangeSpriteClip(void);
-void M_ChangeAltMouseHandling(void);
 void M_ChangeSpeed(void);
 void M_ChangeMouseLook(void);
 void M_ChangeMaxViewPitch(void);
@@ -337,7 +332,6 @@ void e6y_G_DoWorldDone(void);
 void I_ProcessWin32Mouse(void);
 void I_StartWin32Mouse(void);
 void I_EndWin32Mouse(void);
-void e6y_I_InitInputs(void);
 int AccelerateMouse(int val);
 void MouseAccelChanging(void);
 
