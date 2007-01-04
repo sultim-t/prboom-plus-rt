@@ -48,6 +48,10 @@
 #endif
 
 #include "SDL.h"
+//e6y
+#ifdef _WIN32
+#include <SDL_syswm.h>
+#endif
 
 #include "m_argv.h"
 #include "doomstat.h"
@@ -70,7 +74,14 @@
 #include "e6y.h"//e6y
 
 //e6y: new mouse code
+static SDL_Cursor* cursors[2] = {NULL, NULL};
 static boolean window_focused;
+
+#ifdef _WIN32
+static HWND GetHWND(void);
+#endif
+static void ActivateMouse(void);
+static void DeactivateMouse(void);
 //static int AccelerateMouse(int val);
 static void CenterMouse(void);
 static void I_ReadMouse(void);
@@ -266,6 +277,11 @@ static void I_InitInputs(void)
   //e6y
   if (grabMouse)
   {
+    Uint8 data[1] = {0};
+    cursors[0] = SDL_GetCursor();
+    cursors[1] = SDL_CreateCursor(data, data, 1, 1, 0, 0);
+    SDL_SetCursor(cursors[1]);
+
     CenterMouse();
     SDL_WM_GrabInput(SDL_GRAB_OFF);
     MouseAccelChanging();
@@ -354,7 +370,8 @@ static void I_UploadNewPalette(int pal)
 
 void I_ShutdownGraphics(void)
 {
-  SDL_ShowCursor(1);
+  SDL_FreeCursor(cursors[1]);
+  DeactivateMouse();
 }
 
 //
@@ -810,11 +827,69 @@ void I_UpdateVideoMode(void)
   }
 }*/
 
+#ifdef _WIN32
+static HWND GetHWND(void)
+{
+  static HWND Window = NULL; 
+  if(!Window)
+  {
+    SDL_SysWMinfo wminfo;
+    SDL_VERSION(&wminfo.version);
+    SDL_GetWMInfo(&wminfo);
+    Window = wminfo.window;
+  }
+  return Window;
+}
+#endif
+
+static void ActivateMouse(void)
+{
+  SDL_SetCursor(cursors[1]);
+  SDL_ShowCursor(1);
+
+#ifdef _WIN32
+  {
+    int width, height;
+    RECT window_rect;
+    HWND hwnd;
+    
+    hwnd = GetHWND();
+    
+    width = GetSystemMetrics (SM_CXSCREEN);
+    height = GetSystemMetrics (SM_CYSCREEN);
+    
+    GetWindowRect(hwnd, &window_rect);
+    if (window_rect.left < 0)
+      window_rect.left = 0;
+    if (window_rect.top < 0)
+      window_rect.top = 0;
+    if (window_rect.right >= width)
+      window_rect.right = width - 1;
+    if (window_rect.bottom >= height - 1)
+      window_rect.bottom = height - 1;
+    
+    SetCapture (hwnd);
+    ClipCursor (&window_rect);
+  }
+#endif
+}
+
+static void DeactivateMouse(void)
+{
+  SDL_SetCursor(cursors[0]);
+  SDL_ShowCursor(1);
+
+#ifdef _WIN32
+  ClipCursor(NULL);
+  ReleaseCapture();
+#endif
+}
+
 // Warp the mouse back to the middle of the screen
 static void CenterMouse(void)
 {
   // Warp the the screen center
-  SDL_WarpMouse(screen->w / 2, screen->h / 2);
+  SDL_WarpMouse((unsigned short)(REAL_SCREENWIDTH/2), (unsigned short)(REAL_SCREENHEIGHT/2));
 
   // Clear any relative movement caused by warping
   SDL_PumpEvents();
@@ -908,12 +983,12 @@ static void UpdateGrab(void)
 
   if (grab && !currently_grabbed)
   {
-    SDL_ShowCursor(0);
+    ActivateMouse();
   }
 
   if (!grab && currently_grabbed)
   {
-    SDL_ShowCursor(1);
+    DeactivateMouse();
   }
 
   currently_grabbed = grab;

@@ -235,8 +235,8 @@ static boolean saved_nomusicparm;
 
 //--------------------------------------------------
 #ifdef _WIN32
-static HWND GetHWND(void);
-void SwitchToWindow(HWND hwnd);
+static HWND WIN32_GetHWND(void);
+static void SwitchToWindow(HWND hwnd);
 //static void I_CenterMouse(void);
 #endif
 //--------------------------------------------------
@@ -803,7 +803,7 @@ void I_vWarning(const char *message, va_list argList)
     Init_ConsoleWin();
     if (con_hWnd) SwitchToWindow(con_hWnd);
     MessageBox(con_hWnd,msg,"PrBoom-Plus",MB_OK | MB_TASKMODAL | MB_TOPMOST);
-    SwitchToWindow(GetHWND());
+    SwitchToWindow(WIN32_GetHWND());
   }
 #endif
 }
@@ -1023,7 +1023,7 @@ void e6y_G_DoWorldDone(void)
 //--------------------------------------------------
 
 #ifdef _WIN32
-HWND GetHWND(void)
+HWND WIN32_GetHWND(void)
 {
   static HWND Window = NULL; 
   if(!Window)
