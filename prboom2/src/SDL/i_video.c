@@ -77,9 +77,6 @@
 static SDL_Cursor* cursors[2] = {NULL, NULL};
 static boolean window_focused;
 
-#ifdef _WIN32
-static HWND GetHWND(void);
-#endif
 static void ActivateMouse(void);
 static void DeactivateMouse(void);
 //static int AccelerateMouse(int val);
@@ -280,10 +277,10 @@ static void I_InitInputs(void)
     Uint8 data[1] = {0};
     cursors[0] = SDL_GetCursor();
     cursors[1] = SDL_CreateCursor(data, data, 1, 1, 0, 0);
-    SDL_SetCursor(cursors[1]);
 
+    SDL_WM_GrabInput(SDL_GRAB_ON);
     CenterMouse();
-    SDL_WM_GrabInput(SDL_GRAB_OFF);
+
     MouseAccelChanging();
   }
 
@@ -769,9 +766,6 @@ void I_UpdateVideoMode(void)
 
   V_AllocScreens();
 
-  // Hide pointer while over this window
-  SDL_ShowCursor(0);
-
   R_InitBuffer(SCREENWIDTH, SCREENHEIGHT);
 
   if (V_GetMode() == VID_MODEGL) {
@@ -807,77 +801,16 @@ void I_UpdateVideoMode(void)
   I_AfterUpdateVideoMode();//e6y
 }
 
-/*static int AccelerateMouse(int val)
-{
-  if (val < 0)
-    return -AccelerateMouse(-val);
-
-  if (val > mouse_threshold)
-  {
-    return (val - mouse_threshold) * mouse_acceleration + mouse_threshold;
-  }
-  else
-  {
-    return val;
-  }
-}*/
-
-#ifdef _WIN32
-static HWND GetHWND(void)
-{
-  static HWND Window = NULL; 
-  if(!Window)
-  {
-    SDL_SysWMinfo wminfo;
-    SDL_VERSION(&wminfo.version);
-    SDL_GetWMInfo(&wminfo);
-    Window = wminfo.window;
-  }
-  return Window;
-}
-#endif
-
 static void ActivateMouse(void)
 {
   SDL_SetCursor(cursors[1]);
   SDL_ShowCursor(1);
-
-#ifdef _WIN32
-  {
-    int width, height;
-    RECT window_rect;
-    HWND hwnd;
-    
-    hwnd = GetHWND();
-    
-    width = GetSystemMetrics (SM_CXSCREEN);
-    height = GetSystemMetrics (SM_CYSCREEN);
-    
-    GetWindowRect(hwnd, &window_rect);
-    if (window_rect.left < 0)
-      window_rect.left = 0;
-    if (window_rect.top < 0)
-      window_rect.top = 0;
-    if (window_rect.right >= width)
-      window_rect.right = width - 1;
-    if (window_rect.bottom >= height - 1)
-      window_rect.bottom = height - 1;
-    
-    SetCapture (hwnd);
-    ClipCursor (&window_rect);
-  }
-#endif
 }
 
 static void DeactivateMouse(void)
 {
   SDL_SetCursor(cursors[0]);
   SDL_ShowCursor(1);
-
-#ifdef _WIN32
-  ClipCursor(NULL);
-  ReleaseCapture();
-#endif
 }
 
 // Warp the mouse back to the middle of the screen
