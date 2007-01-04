@@ -188,7 +188,7 @@ extern int render_aspect_width;
 extern int render_aspect_height;
 extern float render_aspect_ratio;
 
-extern int sound_noquitsound;
+extern int misc_fastexit;
 
 extern int test_dots;
 

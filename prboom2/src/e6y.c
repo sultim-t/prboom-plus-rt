@@ -180,7 +180,7 @@ int render_aspect_width;
 int render_aspect_height;
 float render_aspect_ratio;
 
-int sound_noquitsound;
+int misc_fastexit;
 
 int test_dots;
 unsigned int spechit_magic;

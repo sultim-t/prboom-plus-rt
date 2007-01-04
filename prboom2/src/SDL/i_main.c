@@ -228,6 +228,13 @@ static void I_EndDoom(void)
 {
   int lump_eb, lump_ed, lump = -1;
 
+  //e6y
+  if (misc_fastexit)
+  {
+    lprintf(LO_INFO,"I_EndDoom: All following output is skipped because of \"Fast Exit\" option\n");
+    return;
+  }
+
   /* CPhipps - ENDOOM/ENDBOOM selection */
   lump_eb = W_CheckNumForName("ENDBOOM");/* jff 4/1/98 sign our work    */
   lump_ed = W_CheckNumForName("ENDOOM"); /* CPhipps - also maybe ENDOOM */
