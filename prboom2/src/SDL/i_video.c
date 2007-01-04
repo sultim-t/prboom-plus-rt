@@ -226,7 +226,7 @@ static void I_GetEvent(SDL_Event *Event)
   }
   break;
 
-  //e6y
+  //e6y: new mouse code
   case SDL_ACTIVEEVENT:
     UpdateFocus();
     break;
@@ -389,7 +389,7 @@ static int newpal = 0;
 
 void I_FinishUpdate (void)
 {
-  //e6y
+  //e6y: new mouse code
   UpdateGrab();
 
   if (I_SkipFrame()) return;
@@ -679,6 +679,7 @@ void I_InitGraphics(void)
     /* Initialize the input system */
     I_InitInputs();
 
+    //e6y: new mouse code
     UpdateFocus();
     UpdateGrab();
   }
