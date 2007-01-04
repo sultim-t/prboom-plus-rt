@@ -926,12 +926,12 @@ static char* L_HistoryGetStr(waddata_t *data)
     {
       *str = realloc(*str, strlen(*str) + strlen(data->wadfiles[i].name) + 8);
       strcat(*str, " + ");
-      strcat(*str, data->wadfiles[i].name);
+      strcat(*str, PathFindFileName(data->wadfiles[i].name));
     }
     else
     {
       *str = malloc(strlen(data->wadfiles[i].name) + 8);
-      strcpy(*str, data->wadfiles[i].name);
+      strcpy(*str, PathFindFileName(data->wadfiles[i].name));
     }
   }
 
@@ -945,20 +945,20 @@ static char* L_HistoryGetStr(waddata_t *data)
   
   if (pwad)
   {
-    strcat(result, strlwr(PathFindFileName(pwad)));
+    strcat(result, strlwr(pwad));
     if (deh)
       strcat(result, " + ");
     free(pwad);
   }
   if (deh)
   {
-    strcat(result, strlwr(PathFindFileName(deh)));
+    strcat(result, strlwr(deh));
     free(deh);
   }
   if (iwad)
   {
     strcat(result, " @ ");
-    strcat(result, strupr(PathFindFileName(iwad)));
+    strcat(result, strupr(iwad));
     free(iwad);
   }
 
