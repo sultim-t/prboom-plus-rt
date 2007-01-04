@@ -681,12 +681,6 @@ void I_InitGraphics(void)
 
     UpdateFocus();
     UpdateGrab();
-    //e6y: clear out any events waiting at the start
-    {
-      SDL_Event dummy;
-      while (SDL_PollEvent(&dummy))
-        ;
-    }
   }
 }
 
