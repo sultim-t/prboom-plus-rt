@@ -278,7 +278,6 @@ static void I_InitInputs(void)
     cursors[0] = SDL_GetCursor();
     cursors[1] = SDL_CreateCursor(data, data, 1, 1, 0, 0);
 
-    SDL_WM_GrabInput(SDL_GRAB_ON);
     CenterMouse();
 
     MouseAccelChanging();
@@ -804,12 +803,14 @@ void I_UpdateVideoMode(void)
 static void ActivateMouse(void)
 {
   SDL_SetCursor(cursors[1]);
+  SDL_WM_GrabInput(SDL_GRAB_ON);
   SDL_ShowCursor(1);
 }
 
 static void DeactivateMouse(void)
 {
   SDL_SetCursor(cursors[0]);
+  SDL_WM_GrabInput(SDL_GRAB_OFF);
   SDL_ShowCursor(1);
 }
 
