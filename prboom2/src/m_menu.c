@@ -4318,7 +4318,7 @@ boolean M_Responder (event_t* ev) {
 
   } else {
    // Process mouse input
-
+   /* e6y
     if (ev->type == ev_mouse && mousewait < I_GetTime()) {
       mousey += ev->data3;
       if (mousey < lasty-30)
@@ -4371,7 +4371,7 @@ boolean M_Responder (event_t* ev) {
     mousewait = I_GetTime() + 15;
     }
     }
-    else
+    else*/
 
       // Process keyboard input
 
