@@ -274,9 +274,9 @@ static void I_InitInputs(void)
   //e6y
   if (grabMouse)
   {
-    Uint8 data[1] = {0};
+    Uint8 data[1] = {0x00};
     cursors[0] = SDL_GetCursor();
-    cursors[1] = SDL_CreateCursor(data, data, 1, 1, 0, 0);
+    cursors[1] = SDL_CreateCursor(data, data, 8, 1, 0, 0);
 
     CenterMouse();
 
