@@ -2,6 +2,9 @@
 #define PACKAGE "prboom-plus"
 #define VERSION "2.4.8.1"
 
+/* Numeric version number of package */
+#define PACKAGEVERSION 0x00002481
+
 #ifdef DEBUG
 
 /* Define to enable internal range checking */

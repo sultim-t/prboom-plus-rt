@@ -1247,8 +1247,9 @@ void M_LoadDefaults (void)
               // e6y: arrays
               if (defaults[i].type == def_arr)
               {
-                free((char*)*(defaults[i].location.ppsz));
-                (char*)*(defaults[i].location.ppsz) = NULL;
+                char** ppsz=((char**)(defaults[i].location.ppsz));
+                free(*ppsz);
+                *ppsz = NULL;
                 *(defaults[i].location.ppsz) = newstring;
                 item = &defaults[i];
                 continue;
