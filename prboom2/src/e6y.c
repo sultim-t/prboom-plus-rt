@@ -74,7 +74,7 @@
 #include "info.h"
 #include "i_simd.h"
 #include "e6y.h"
-#include ".\..\ICONS\resource.h"
+#include "./../ICONS/resource.h"
 
 #ifndef _MSC_VER
 #ifdef HAVE_LIBPCREPOSIX
