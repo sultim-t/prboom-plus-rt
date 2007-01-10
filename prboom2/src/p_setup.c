@@ -1322,35 +1322,6 @@ static void P_AddLineToSector(line_t* li, sector_t* sector)
   M_AddToBox (bbox, li->v2->x, li->v2->y);
 }
 
-// e6y: REJECT overrun emulation code
-// It's emulated successfully if the size of overflow no more than 16 bytes.
-// No more desync on teeth-32.wad\teeth-32.lmp.
-// http://www.doomworld.com/vb/showthread.php?s=&threadid=35214
-int rjlen;
-int rjreq;
-static void RejectOverrunAddInt(int k)
-{
-//  extern byte *rejectmatrix;
-  int i = 0;
-
-  if (rjlen < rjreq && demo_compatibility
-    && (overrun_reject_warn || overrun_reject_emulate))
-  {
-    if (overrun_reject_warn)
-      ShowOverflowWarning(overrun_reject_emulate, &overrun_reject_promted, rjreq - rjlen > 16, "REJECT", "");
-    
-    if (overrun_reject_emulate)
-    {
-      while (rjlen < rjreq)
-      {
-        ((byte*)rejectmatrix)[rjlen++] = (k & 0x000000ff);
-        k >>= 8;
-        if ((++i)==4) break;
-      }
-    }
-  }
-}
-
 // modified to return totallines (needed by P_LoadReject)
 static int P_GroupLines (void)
 {
