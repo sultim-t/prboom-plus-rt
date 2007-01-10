@@ -301,9 +301,9 @@ void D_Display (void)
 
     // Now do the drawing
 //e6y    if (viewactive)
-      use_boom_cm=true; //e6y
+      use_boom_cm=true; //e6y: Boom's colormaps should be applied for everything in R_RenderPlayerView
       R_RenderPlayerView (&players[displayplayer]);
-      use_boom_cm=false; //e6y
+      use_boom_cm=false; //e6y: but should NOT be applied for automap, statusbar and HUD
 
     if (automapmode & am_active)
       AM_Drawer();
