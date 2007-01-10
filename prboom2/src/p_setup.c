@@ -1271,7 +1271,8 @@ static void P_LoadReject(int lumpnum, int totallines)
   if (demo_compatibility && (overrun_reject_warn || overrun_reject_emulate))
   {
     if (overrun_reject_warn)
-      ShowOverflowWarning(overrun_reject_emulate, &overrun_reject_promted, required - length > 16, "REJECT", "");
+      ShowOverflowWarning(overrun_reject_emulate, &overrun_reject_promted, 
+        (required - length > 16) || (length%4!=0), "REJECT", "");
 
     if (overrun_reject_emulate)
     {
