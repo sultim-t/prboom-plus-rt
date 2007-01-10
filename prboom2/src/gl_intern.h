@@ -53,6 +53,7 @@ typedef struct
   int buffer_width,buffer_height;
   int buffer_size;
   int glTexID[CR_LIMIT+MAXPLAYERS];
+  int *glCMTexID; //e6y: Boom's color maps
   GLTexType textype;
   boolean mipmap;
   GLint wrap_mode;//e6y

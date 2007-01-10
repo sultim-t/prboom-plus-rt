@@ -90,6 +90,11 @@ extern int numcolormaps;    // killough 4/4/98: dynamic number of maps
 extern const lighttable_t **colormaps;
 // killough 3/20/98, 4/4/98: end dynamic colormaps
 
+//e6y: for Boom's color maps in OpenGL mode
+extern boolean use_boom_cm;
+extern int boom_cm;         // current colormap
+extern int last_boom_cm;    // previous colormap
+
 extern int          extralight;
 extern const lighttable_t *fixedcolormap;
 

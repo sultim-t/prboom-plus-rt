@@ -109,6 +109,11 @@ const lighttable_t **colormaps;
 
 // killough 3/20/98, 4/4/98: end dynamic colormaps
 
+//e6y: for Boom's color maps in OpenGL mode
+boolean use_boom_cm;
+int boom_cm;         // current colormap
+int last_boom_cm=-1; // previous colormap
+
 int extralight;                           // bumped light from gun blasts
 
 //
@@ -475,6 +480,10 @@ static void R_SetupFrame (player_t *player)
     }
   else
     cm = 0;
+
+  //e6y: saving previous and current colormaps
+  last_boom_cm = boom_cm;
+  boom_cm = cm;
 
   fullcolormap = colormaps[cm];
   zlight = c_zlight[cm];

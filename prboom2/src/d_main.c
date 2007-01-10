@@ -301,7 +301,9 @@ void D_Display (void)
 
     // Now do the drawing
 //e6y    if (viewactive)
+      use_boom_cm=true; //e6y
       R_RenderPlayerView (&players[displayplayer]);
+      use_boom_cm=false; //e6y
 
     if (automapmode & am_active)
       AM_Drawer();
