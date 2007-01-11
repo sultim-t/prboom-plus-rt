@@ -1871,7 +1871,13 @@ void gld_EndDrawScene(void)
   { // don't draw on side views
     R_DrawPlayerSprites();
   }
-  if (player->fixedcolormap == 32) {
+  
+  // e6y
+  // Effect of invulnerability uses a colormap instead of hard-coding now
+  // See nuts.wad
+  // http://www.doomworld.com/idgames/index.php?id=11402
+
+  /*if (player->fixedcolormap == 32) {
 		glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
 		glColor4f(1,1,1,1);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -1884,7 +1890,7 @@ void gld_EndDrawScene(void)
 		  glVertex2f( (float)SCREENWIDTH, (float)SCREENHEIGHT);
     glEnd();
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  }
+  }*/
   if (extra_alpha>0.0f)
   {
     glDisable(GL_ALPHA_TEST);

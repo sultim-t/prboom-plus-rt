@@ -94,6 +94,7 @@ extern const lighttable_t **colormaps;
 extern boolean use_boom_cm;
 extern int boom_cm;         // current colormap
 extern int last_boom_cm;    // previous colormap
+extern int last_fixedcolormap;
 
 extern int          extralight;
 extern const lighttable_t *fixedcolormap;

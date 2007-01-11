@@ -113,6 +113,7 @@ const lighttable_t **colormaps;
 boolean use_boom_cm;
 int boom_cm;         // current colormap
 int last_boom_cm=-1; // previous colormap
+int last_fixedcolormap=-1;
 
 int extralight;                           // bumped light from gun blasts
 
