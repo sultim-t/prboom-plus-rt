@@ -2669,7 +2669,7 @@ static void gld_DrawSprite(GLSprite *sprite)
   //e6y
   if (!render_paperitems)
   {
-    if (!(sprite->thing->flags&MF_SOLID))
+    if (!(sprite->thing->flags&(MF_SOLID|MF_SPAWNCEILING)))
     {
       glRotatef(paperitems_pitch,1.0f,0.0f,0.0f);
     }
