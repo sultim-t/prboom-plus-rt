@@ -543,7 +543,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   else
     cmd->angleturn -= mousex; /* mead now have enough dynamic range 2-10-00 */
 
-  if (!walkcamera.type) //e6y
+  if (!walkcamera.type || menuactive) //e6y
     mousex = mousey = 0;
 
   if (forward > MAXPLMOVE)
@@ -3096,7 +3096,7 @@ void P_WalkTicker()
   int side;
   int angturn;
 
-  if (!walkcamera.type)
+  if (!walkcamera.type || menuactive)
     return;
 
   strafe = gamekeydown[key_strafe] || mousebuttons[mousebstrafe]

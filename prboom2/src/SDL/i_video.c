@@ -84,7 +84,6 @@ static void CenterMouse(void);
 static void I_ReadMouse(void);
 static boolean MouseShouldBeGrabbed();
 static void UpdateFocus(void);
-static void UpdateGrab(void);
 
 int gl_colorbuffer_bits=16;
 int gl_depthbuffer_bits=16;
@@ -876,6 +875,11 @@ static boolean MouseShouldBeGrabbed()
   if (!grabMouse)
     return false;
 
+  // always grab the mouse in camera mode when playing levels 
+  // and menu is not active
+  if (walkcamera.type)
+    return (demoplayback && gamestate == GS_LEVEL && !menuactive);
+
   // when menu is active or game is paused, release the mouse 
   if (menuactive || paused)
     return false;
@@ -903,7 +907,7 @@ static void UpdateFocus(void)
   //    screenvisible = (state & SDL_APPACTIVE) != 0;
 }
 
-static void UpdateGrab(void)
+void UpdateGrab(void)
 {
   static boolean currently_grabbed = false;
   boolean grab;
