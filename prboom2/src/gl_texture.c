@@ -241,7 +241,7 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
   
   //e6y
   if (patch->flags&PATCH_HASHOLES)
-    gltexture->hasHole = true;
+    gltexture->flags |= GLTEXTURE_HASHOLES;
 
   for (x=xs;x<xe;x++)
   {
@@ -292,7 +292,7 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
           }
 #endif
           //e6y: Boom's color maps
-          if (use_boom_cm)
+          if (use_boom_cm && !(comp[comp_skymap] && (gltexture->flags&GLTEXTURE_SKY)))
           {
             const lighttable_t *colormap = (fixedcolormap ? fixedcolormap : fullcolormap);
             buffer[pos+0]=playpal[colormap[source[j]]*3+0];
@@ -328,7 +328,6 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const rp
     return;
   if (!patch)
     return;
-  //if (useboomcolormaps)
   if ((cm==CR_DEFAULT) || (cm==CR_LIMIT))
   {
     gld_AddPatchToTexture_UnTranslated(gltexture,buffer,patch,originx,originy, paletted);
@@ -352,7 +351,7 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const rp
 
   //e6y
   if (patch->flags&PATCH_HASHOLES)
-    gltexture->hasHole = true;
+    gltexture->flags |= GLTEXTURE_HASHOLES;
 
   for (x=xs;x<xe;x++)
   {
@@ -524,7 +523,7 @@ GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap, boolean force)
     if (gltexture->realtexheight>gltexture->buffer_height)
       return gltexture;
     gltexture->textype=GLDT_TEXTURE;
-    gltexture->hasHole = false;//e6y
+    gltexture->flags = 0;//e6y
   }
   return gltexture;
 }

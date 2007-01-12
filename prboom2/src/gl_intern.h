@@ -43,6 +43,12 @@ typedef enum
   GLDT_FLAT
 } GLTexType;
 
+typedef enum
+{
+  GLTEXTURE_HASHOLES  = 0x00000004,
+  GLTEXTURE_SKY       = 0x00000008,
+} GLTexture_flag_t;
+
 typedef struct
 {
   int index;
@@ -56,7 +62,7 @@ typedef struct
   GLTexType textype;
   boolean mipmap;
   GLint wrap_mode;//e6y
-  boolean hasHole;//e6y
+  unsigned int flags;//e6y
 } GLTexture;
 
 extern int gld_max_texturesize;

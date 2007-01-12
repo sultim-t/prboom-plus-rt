@@ -2155,6 +2155,7 @@ static void gld_DrawWall(GLWall *wall)
     wall.skyyaw=-2.0f*((-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)/90.0f);\
     wall.skyymid = 200.0f/319.5f*(((float)s->rowoffset/(float)FRACUNIT - 28.0f)/100.0f);\
     wall.flag = l->special==272 ? GLDWF_SKY : GLDWF_SKYFLIP;\
+    wall.gltexture->flags |= GLTEXTURE_SKY;\
   }\
   else\
   if ((sky2) & PL_SKYFLAT)\
@@ -2165,6 +2166,7 @@ static void gld_DrawWall(GLWall *wall)
     wall.skyyaw=-2.0f*((-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)/90.0f);\
     wall.skyymid = 200.0f/319.5f*(((float)s->rowoffset/(float)FRACUNIT - 28.0f)/100.0f);\
     wall.flag = l->special==272 ? GLDWF_SKY : GLDWF_SKYFLIP;\
+    wall.gltexture->flags |= GLTEXTURE_SKY;\
   }\
   else\
   {\
@@ -2172,6 +2174,7 @@ static void gld_DrawWall(GLWall *wall)
     wall.skyyaw=-2.0f*((yaw+90.0f)/90.0f);\
     wall.skyymid = 200.0f/319.5f*((100.0f)/100.0f);\
     wall.flag = GLDWF_SKY;\
+    wall.gltexture->flags |= GLTEXTURE_SKY;\
   };
 
 #define ADDWALL(wall)\
@@ -2954,7 +2957,7 @@ static void gld_ProcessWall(int i, boolean *gl_alpha_blended)
       if (gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex].flag==k)
       {
         wall = gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex];
-        if (!wall.seg->backsector && wall.gltexture->hasHole)
+        if (!wall.seg->backsector && (wall.gltexture->flags&GLTEXTURE_HASHOLES))
         {
           if (*gl_alpha_blended)
           {
