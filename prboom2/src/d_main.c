@@ -1524,7 +1524,15 @@ static void D_DoomMainSetup(void)
       // until end of parms or another - preceded parm
       modifiedgame = true;            // homebrew levels
       while (++p != myargc && *myargv[p] != '-')
-        D_AddFile(myargv[p],source_pwad);
+      {
+        //e6y: %DOOMWADDIR%, etc has no effect for PWADs without that
+        char *file = I_FindFile(myargv[p], ".wad");
+        if (file)
+        {
+          D_AddFile(file,source_pwad);
+          free(file);
+        }
+      }
     }
 
   if (!(p = M_CheckParm("-playdemo")) || p >= myargc-1) {   /* killough */
