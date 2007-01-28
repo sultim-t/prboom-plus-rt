@@ -533,9 +533,7 @@ void gld_BindTexture(GLTexture *gltexture)
   const rpatch_t *patch;
   int i;
   unsigned char *buffer;
-
-  //e6y
-  int *glTexID = &gltexture->glTexID[(fixedcolormap?0:1)][CR_DEFAULT][boom_cm];
+  int *glTexID;
 
   if (gltexture==last_gltexture && boom_cm==last_boom_cm && !!fixedcolormap==last_fixedcolormap)
     return;
@@ -554,6 +552,9 @@ void gld_BindTexture(GLTexture *gltexture)
     last_cm = -1;
     return;
   }
+
+  //e6y
+  glTexID = &gltexture->glTexID[(fixedcolormap?0:1)][CR_DEFAULT][boom_cm];
 
   if (*glTexID!=0)
   {
@@ -688,9 +689,7 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   const rpatch_t *patch;
   int i;
   unsigned char *buffer;
-
-  //e6y
-  int *glTexID = &gltexture->glTexID[(fixedcolormap||!use_boom_cm?0:1)][cm][boom_cm];
+  int *glTexID;
 
   if ((gltexture==last_gltexture) && (cm==last_cm) && (boom_cm==last_boom_cm) && (!!fixedcolormap==last_fixedcolormap))
     return;
@@ -706,6 +705,9 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
     last_cm = -1;
     return;
   }
+
+  //e6y
+  glTexID = &gltexture->glTexID[(fixedcolormap||!use_boom_cm?0:1)][cm][boom_cm];
 
   if (*glTexID!=0)
   {
@@ -822,9 +824,7 @@ void gld_BindFlat(GLTexture *gltexture)
   const unsigned char *flat;
   int i;
   unsigned char *buffer;
-
-  //e6y
-  int *glTexID = &gltexture->glTexID[(fixedcolormap?0:1)][CR_DEFAULT][boom_cm];
+  int *glTexID;
 
   if (gltexture==last_gltexture && boom_cm==last_boom_cm && !!fixedcolormap==last_fixedcolormap)
     return;
@@ -839,6 +839,9 @@ void gld_BindFlat(GLTexture *gltexture)
     last_cm = -1;
     return;
   }
+
+  //e6y
+  glTexID = &gltexture->glTexID[(fixedcolormap?0:1)][CR_DEFAULT][boom_cm];
 
   if (*glTexID!=0)
   {
