@@ -326,8 +326,4 @@ prboom2/src/POSIX/Makefile.am eol=lf
 prboom2/src/SDL/Makefile.am eol=lf
 prboom2/src/i_simd.c -text
 prboom2/src/i_simd.h -text
-prboom2/src/memio.c -text
-prboom2/src/memio.h -text
-prboom2/src/mus2mid.c -text
-prboom2/src/mus2mid.h -text
 prboom2/tests/demo-testing.csv -text
