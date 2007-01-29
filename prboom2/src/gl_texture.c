@@ -401,9 +401,21 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const rp
             return;
           }
 #endif
-          buffer[pos]=playpal[outr[source[j]]*3];
-          buffer[pos+1]=playpal[outr[source[j]]*3+1];
-          buffer[pos+2]=playpal[outr[source[j]]*3+2];
+          //e6y: Boom's color maps
+          if (use_boom_cm)
+          {
+            const lighttable_t *colormap = (fixedcolormap ? fixedcolormap : fullcolormap);
+            buffer[pos+0]=playpal[colormap[outr[source[j]]]*3+0];
+            buffer[pos+1]=playpal[colormap[outr[source[j]]]*3+1];
+            buffer[pos+2]=playpal[colormap[outr[source[j]]]*3+2];
+
+          }
+          else
+          {
+            buffer[pos+0]=playpal[outr[source[j]]*3+0];
+            buffer[pos+1]=playpal[outr[source[j]]*3+1];
+            buffer[pos+2]=playpal[outr[source[j]]*3+2];
+          }
           buffer[pos+3]=255;
         }
       }
