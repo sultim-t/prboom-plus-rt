@@ -612,11 +612,19 @@ SOURCE=..\src\md5.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\Mmus2mid.c
+SOURCE=..\src\memio.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\Mmus2mid.h
+SOURCE=..\src\memio.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\mus2mid.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\mus2mid.h
 # End Source File
 # Begin Source File
 
@@ -1112,44 +1120,44 @@ SOURCE=..\Icons\icons.rc
 
 !IF  "$(CFG)" == "Doom - Win32 Release"
 
-# ADD BASE RSC /l 0x419 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
-# ADD RSC /l 0x409 /i "./../VisualC6" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD BASE RSC /l 0x419 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD RSC /l 0x409 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug"
 
-# ADD BASE RSC /l 0x419 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
-# ADD RSC /l 0x409 /i "./../VisualC6" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD BASE RSC /l 0x419 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD RSC /l 0x409 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL"
 
-# ADD BASE RSC /l 0x419 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
-# ADD RSC /l 0x419 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD BASE RSC /l 0x419 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD RSC /l 0x419 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
 # SUBTRACT RSC /i "./../VisualC6"
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL"
 
-# ADD BASE RSC /l 0x419 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
-# ADD RSC /l 0x409 /i "./../VisualC6" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD BASE RSC /l 0x419 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD RSC /l 0x409 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release NOASM"
 
-# ADD BASE RSC /l 0x419 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
-# ADD RSC /l 0x409 /i "./../VisualC6" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD BASE RSC /l 0x419 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD RSC /l 0x409 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL NOASM"
 
-# ADD BASE RSC /l 0x419 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
-# ADD RSC /l 0x409 /i "./../VisualC6" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD BASE RSC /l 0x419 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD RSC /l 0x409 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
 
-# ADD BASE RSC /l 0x419 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
-# ADD RSC /l 0x409 /i "./../VisualC6" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD BASE RSC /l 0x419 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD RSC /l 0x409 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
 
-# ADD BASE RSC /l 0x419 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
-# ADD RSC /l 0x409 /i "./../VisualC6" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD BASE RSC /l 0x419 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD RSC /l 0x409 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
 
 !ENDIF 
 
