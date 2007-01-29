@@ -1707,6 +1707,8 @@ int DemoNameToWadData(const char * demoname, waddata_t *waddata, char *pattern_n
   int i;
   size_t maxlen = 0;
   char *pattern;
+
+  char *demofilename = PathFindFileName(demoname);
   
   memset(waddata, 0, sizeof(*waddata));
 
@@ -1749,8 +1751,8 @@ int DemoNameToWadData(const char * demoname, waddata_t *waddata, char *pattern_n
       }
       else
       {
-        result = regexec(&preg, demoname, 1, &demo_match[0], REG_NOTBOL);
-        if (result == 0 && demo_match[0].rm_so == 0 && demo_match[0].rm_eo == strlen(demoname))
+        result = regexec(&preg, demofilename, 1, &demo_match[0], 0);
+        if (result == 0 && demo_match[0].rm_so == 0 && demo_match[0].rm_eo == strlen(demofilename))
         {
           lprintf(LO_INFO, " used %s%d\n", demo_patterns_mask, i);
 
