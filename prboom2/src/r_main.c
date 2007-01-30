@@ -586,6 +586,7 @@ void R_RenderPlayerView (player_t* player)
   // The head node is the last node output.
 #ifndef GL_DOOM //e6y
   R_RenderBSPNode (numnodes-1);
+  R_ResetColumnBuffer();
 
   //e6y
 #else
