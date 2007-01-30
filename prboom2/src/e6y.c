@@ -1752,7 +1752,7 @@ int DemoNameToWadData(const char * demoname, waddata_t *waddata, char *pattern_n
       else
       {
         result = regexec(&preg, demofilename, 1, &demo_match[0], 0);
-        if (result == 0 && demo_match[0].rm_so == 0 && demo_match[0].rm_eo == strlen(demofilename))
+        if (result == 0 && demo_match[0].rm_so == 0 && demo_match[0].rm_eo == (int)strlen(demofilename))
         {
           lprintf(LO_INFO, " used %s%d\n", demo_patterns_mask, i);
 
