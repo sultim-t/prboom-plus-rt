@@ -713,7 +713,7 @@ int I_RegisterSong(const void *data, size_t len)
     mem_fclose(instream);
     mem_fclose(outstream);
   } else {
-    MidiIsReady = fwrite(data, len, 1, midfile) == len;
+    MidiIsReady = fwrite(data, len, 1, midfile) == 1;
   }
   fclose(midfile);
 
