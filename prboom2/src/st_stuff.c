@@ -395,7 +395,7 @@ static void ST_refreshBackground(void)
       if (V_GetMode() == VID_MODEGL)
         y=ST_Y;
       V_DrawNumPatch(ST_X, y, screen, stbarbg.lumpnum, CR_DEFAULT, VPT_STRETCH);
-      V_DrawNumPatch(ST_ARMSBGX, 0, screen, armsbg.lumpnum, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNumPatch(ST_ARMSBGX, y, screen, armsbg.lumpnum, CR_DEFAULT, VPT_STRETCH);
 
       // killough 3/7/98: make face background change with displayplayer
       if (netgame)
