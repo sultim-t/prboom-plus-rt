@@ -80,27 +80,55 @@ typedef struct {
                        // data never set to NULL. Used i.e. with SDL doublebuffer.
   int width;           // the width of the surface
   int height;          // the height of the surface, used when mallocing
-  int pitch;           // tha actual width of one line, used when mallocing
+  int byte_pitch;      // tha actual width of one line, used when mallocing
+  int short_pitch;     // tha actual width of one line, used when mallocing
+  int int_pitch;       // tha actual width of one line, used when mallocing
 } screeninfo_t;
 
 #define NUM_SCREENS 6
 extern screeninfo_t screens[NUM_SCREENS];
 extern int          usegamma;
 
+// Varying bit-depth support -POPE
+//
+// For bilinear filtering, each palette color is pre-weighted and put in a
+// table for fast blending operations. These macros decide how many weights
+// to create for each color. The lower the number, the lower the blend
+// accuracy, which can produce very bad artifacts in texture filtering.
+#define VID_NUMCOLORWEIGHTS 64
+#define VID_COLORWEIGHTMASK (VID_NUMCOLORWEIGHTS-1)
+#define VID_COLORWEIGHTBITS 6
+
+// Palettes for converting from 8 bit color to 16 and 32 bit. Also
+// contains the weighted versions of each palette color for filtering
+// operations
+extern unsigned short *V_Palette15;
+extern unsigned short *V_Palette16;
+extern unsigned int *V_Palette32;
+
+#define VID_PAL15(color, weight) V_Palette15[ (color)*VID_NUMCOLORWEIGHTS + (weight) ]
+#define VID_PAL16(color, weight) V_Palette16[ (color)*VID_NUMCOLORWEIGHTS + (weight) ]
+#define VID_PAL32(color, weight) V_Palette32[ (color)*VID_NUMCOLORWEIGHTS + (weight) ]
+
 // The available bit-depth modes
 typedef enum {
-  VID_MODE8   = 0,
-//  VID_MODE16  = 1,
-//  VID_MODE32  = 2,
-  VID_MODEGL  = 1
+  VID_MODE8,
+  VID_MODE15,
+  VID_MODE16,
+  VID_MODE32,
+  VID_MODEGL,
+  VID_MODEMAX
 } video_mode_t;
 
-extern video_mode_t default_videomode;
+extern const char *default_videomode;
 
 void V_InitMode(video_mode_t mode);
 
 // video mode query interface
 video_mode_t V_GetMode(void);
+int V_GetModePixelDepth(video_mode_t mode);
+int V_GetNumPixelBits(void);
+int V_GetPixelDepth(void);
 
 //jff 4/24/98 loads color translation lumps
 void V_InitColorTranslation(void);
@@ -144,6 +172,7 @@ extern V_DrawNumPatch_f V_DrawNumPatch;
 typedef void (*V_DrawBackground_f)(const char* flatname, int scrn);
 extern V_DrawBackground_f V_DrawBackground;
 
+void V_DestroyUnusedTrueColorPalettes(void);
 // CPhipps - function to set the palette to palette number pal.
 void V_SetPalette(int pal);
 

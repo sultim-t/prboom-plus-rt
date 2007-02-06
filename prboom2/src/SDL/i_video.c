@@ -389,9 +389,9 @@ void I_FinishUpdate (void)
       h=screen->h;
       for (; h>0; h--)
       {
-        memcpy(dest,src,SCREENWIDTH);
+        memcpy(dest,src,SCREENWIDTH*V_GetPixelDepth());
         dest+=screen->pitch;
-        src+=screens[0].pitch;
+        src+=screens[0].byte_pitch;
       }
       SDL_UnlockSurface(screen);
   }
@@ -420,8 +420,8 @@ void I_ReadScreen (screeninfo_t *dest)
   height = min(screens[0].height, dest->height);
   for (h=height; h>0; h--) {
     memcpy(dstofs, srcofs, width);
-    srcofs += screens[0].pitch;
-    dstofs += dest->pitch;
+    srcofs += screens[0].byte_pitch;
+    dstofs += dest->byte_pitch;
   }
 }
 
@@ -536,9 +536,9 @@ void I_CalculateRes(unsigned int width, unsigned int height)
     SCREENWIDTH = (width+15) & ~15;
     SCREENHEIGHT = height;
     if (!(SCREENWIDTH % 1024)) {
-      SCREENPITCH = SCREENWIDTH+32;
+      SCREENPITCH = SCREENWIDTH*V_GetPixelDepth()+32;
     } else {
-      SCREENPITCH = SCREENWIDTH;
+      SCREENPITCH = SCREENWIDTH*V_GetPixelDepth();
     }
   }
 }
@@ -556,13 +556,17 @@ void I_SetRes(void)
   for (i=0; i<3; i++) {
     screens[i].width = SCREENWIDTH;
     screens[i].height = SCREENHEIGHT;
-    screens[i].pitch = SCREENPITCH;
+    screens[i].byte_pitch = SCREENPITCH;
+    screens[i].short_pitch = SCREENPITCH / V_GetModePixelDepth(VID_MODE16);
+    screens[i].int_pitch = SCREENPITCH / V_GetModePixelDepth(VID_MODE32);
   }
 
   // statusbar
   screens[4].width = SCREENWIDTH;
   screens[4].height = (ST_SCALED_HEIGHT+1);
-  screens[4].pitch = SCREENPITCH;
+  screens[4].byte_pitch = SCREENPITCH;
+  screens[4].short_pitch = SCREENPITCH / V_GetModePixelDepth(VID_MODE16);
+  screens[4].int_pitch = SCREENPITCH / V_GetModePixelDepth(VID_MODE32);
 
   lprintf(LO_INFO,"I_SetRes: Using resolution %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
 }
@@ -593,6 +597,24 @@ void I_InitGraphics(void)
   }
 }
 
+int I_GetModeFromString(const char *modestr)
+{
+  video_mode_t mode;
+
+  if (!stricmp(modestr,"15")) {
+    mode = VID_MODE15;
+  } else if (!stricmp(modestr,"16")) {
+    mode = VID_MODE16;
+  } else if (!stricmp(modestr,"32")) {
+    mode = VID_MODE32;
+  } else if (!stricmp(modestr,"gl")) {
+    mode = VID_MODEGL;
+  } else {
+    mode = VID_MODE8;
+  }
+  return mode;
+}
+
 void I_UpdateVideoMode(void)
 {
   int init_flags;
@@ -601,20 +623,13 @@ void I_UpdateVideoMode(void)
 
   lprintf(LO_INFO, "I_UpdateVideoMode: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, desired_fullscreen ? "fullscreen" : "nofullscreen");
 
-  mode = default_videomode;
+  mode = I_GetModeFromString(default_videomode);
   if ((i=M_CheckParm("-vidmode")) && i<myargc-1) {
-    /*if (!stricmp(myargv[i+1],"16")) {
-      mode = VID_MODE16;
-    } else if (!stricmp(myargv[i+1],"32")) {
-      mode = VID_MODE32;
-    } else*/ if (!stricmp(myargv[i+1],"gl")) {
-      mode = VID_MODEGL;
-    } else {
-      mode = VID_MODE8;
-    }
+    mode = I_GetModeFromString(myargv[i+1]);
   }
-  V_InitMode(mode);
 
+  V_InitMode(mode);
+  V_DestroyUnusedTrueColorPalettes();
   V_FreeScreens();
 
   I_SetRes();
@@ -650,7 +665,7 @@ void I_UpdateVideoMode(void)
     SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
     screen = SDL_SetVideoMode(SCREENWIDTH, SCREENHEIGHT, gl_colorbuffer_bits, init_flags);
   } else {
-    screen = SDL_SetVideoMode(SCREENWIDTH, SCREENHEIGHT, 8, init_flags);
+    screen = SDL_SetVideoMode(SCREENWIDTH, SCREENHEIGHT, V_GetNumPixelBits(), init_flags);
   }
 
   if(screen == NULL) {
@@ -666,7 +681,9 @@ void I_UpdateVideoMode(void)
   {
     screens[0].not_on_heap = true;
     screens[0].data = (unsigned char *) (screen->pixels);
-    screens[0].pitch = screen->pitch;
+    screens[0].byte_pitch = screen->pitch;
+    screens[0].short_pitch = screen->pitch / V_GetModePixelDepth(VID_MODE16);
+    screens[0].int_pitch = screen->pitch / V_GetModePixelDepth(VID_MODE32);
   }
   else
   {

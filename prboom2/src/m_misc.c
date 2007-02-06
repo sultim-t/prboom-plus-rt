@@ -305,12 +305,12 @@ default_t defaults[] =
   {"Video settings",{NULL},{0},UL,UL,def_none,ss_none},
 #ifdef GL_DOOM
   #ifdef _MSC_VER
-    {"videomode",{(int*)&default_videomode},{VID_MODEGL}, VID_MODE8, VID_MODEGL, def_int,ss_none},
+    {"videomode",{NULL, &default_videomode},{0,"gl"},UL,UL,def_str,ss_none},
   #else
-    {"videomode",{(int*)&default_videomode},{VID_MODE8}, VID_MODE8, VID_MODEGL, def_int,ss_none},
+    {"videomode",{NULL, &default_videomode},{0,"8"},UL,UL,def_str,ss_none},
   #endif
 #else
-  {"videomode",{(int*)&default_videomode},{VID_MODE8}, VID_MODE8, VID_MODE8, def_int,ss_none},
+  {"videomode",{NULL, &default_videomode},{0,"8"},UL,UL,def_str,ss_none},
 #endif
   /* 640x480 default resolution */
   {"screen_width",{&desired_screenwidth},{640}, 320, MAX_SCREENWIDTH,
@@ -1039,7 +1039,7 @@ static void WritePNGfile(FILE* fp, const byte* data,
 {
   png_structp png_ptr;
   png_infop info_ptr;
-  boolean gl = !palette;
+  boolean gl = V_GetMode() == VID_MODEGL;
 
   png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, png_error_ptr_NULL, error_fn, NULL);
   png_set_compression_level(png_ptr, 2);
@@ -1293,7 +1293,7 @@ void M_DoScreenShot (const char* fname)
   if (V_GetMode() == VID_MODEGL) {
     screenshot.width = screens[0].width;
     screenshot.height = screens[0].height;
-    screenshot.pitch = screens[0].width*3;
+    screenshot.byte_pitch = screens[0].width*3;
     screenshot.not_on_heap = false;
     V_AllocScreen(&screenshot);
     // munge planar buffer to linear
@@ -1307,13 +1307,12 @@ void M_DoScreenShot (const char* fname)
   #ifdef HAVE_LIBPNG
     WritePNGfile(fp, screenshot.data, SCREENWIDTH, SCREENHEIGHT, NULL);
   #else
-    WriteTGAfile
-      (fp, screenshot.data, SCREENWIDTH, SCREENHEIGHT);
+    WriteTGAfile(fp, screenshot.data, SCREENWIDTH, SCREENHEIGHT);
   #endif
   } else {
     screenshot.width = screens[0].width;
     screenshot.height = screens[0].height;
-    screenshot.pitch = screens[0].width;
+    screenshot.byte_pitch = screens[0].width;
     screenshot.not_on_heap = false;
     V_AllocScreen(&screenshot);
     // munge planar buffer to linear
@@ -1328,8 +1327,7 @@ void M_DoScreenShot (const char* fname)
   #ifdef HAVE_LIBPNG
     WritePNGfile(fp, screenshot.data, SCREENWIDTH, SCREENHEIGHT, pal + 3*256*st_palette);
   #else
-    WriteBMPfile
-      (fp, screenshot.data, SCREENWIDTH, SCREENHEIGHT, pal + 3*256*st_palette);
+    WriteBMPfile(fp, screenshot.data, SCREENWIDTH, SCREENHEIGHT, pal + 3*256*st_palette);
   #endif
 
     // cph - free the palette

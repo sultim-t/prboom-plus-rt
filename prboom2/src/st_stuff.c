@@ -383,14 +383,13 @@ static void ST_Stop(void);
 static void ST_refreshBackground(void)
 {
   int y=0;
-  int screen=BG;
 
   if (st_statusbaron)
     {
       // proff 05/17/2000: draw to the frontbuffer in OpenGL
       if (V_GetMode() == VID_MODEGL)
         y=ST_Y;
-      V_DrawNamePatch(ST_X, y, screen, "STBAR", CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatch(ST_X, y, BG, "STBAR", CR_DEFAULT, VPT_STRETCH);
 
       // killough 3/7/98: make face background change with displayplayer
       if (netgame)
@@ -400,7 +399,7 @@ static void ST_refreshBackground(void)
            displayplayer ? (VPT_TRANS | VPT_STRETCH) : VPT_STRETCH);
       }
 
-      V_CopyRect(ST_X, y, screen, ST_SCALED_WIDTH, ST_SCALED_HEIGHT, ST_X, ST_SCALED_Y, FG, VPT_NONE);
+      V_CopyRect(ST_X, y, BG, ST_SCALED_WIDTH, ST_SCALED_HEIGHT, ST_X, ST_SCALED_Y, FG, VPT_NONE);
     }
 }
 
@@ -745,8 +744,14 @@ static void ST_doPaletteStuff(void)
       else
         palette = 0;
 
-  if (palette != st_palette)
+  if (palette != st_palette) {
     V_SetPalette(st_palette = palette); // CPhipps - use new palette function
+
+    // have to redraw the entire status bar when the palette changes
+    // in truecolor modes - POPE
+    if (V_GetMode() == VID_MODE15 || V_GetMode() == VID_MODE16 || V_GetMode() == VID_MODE32)
+      st_firsttime = true;
+  }
 }
 
 static void ST_drawWidgets(boolean refresh)
