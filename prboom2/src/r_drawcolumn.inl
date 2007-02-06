@@ -29,11 +29,7 @@
  *-----------------------------------------------------------------------------*/
 
 
-#if (R_DRAWCOLUMN_PIPELINE & RDC_TRANSLUCENT)
-#define GETDESTCOLOR(col) (tranmap[(*dest<<8)+(col)])
-#else
 #define GETDESTCOLOR(col) (col)
-#endif
 
 #if (R_DRAWCOLUMN_PIPELINE & RDC_TRANSLATED)
 #define GETCOL8_MAPPED(col) (translation[(col)])
@@ -177,10 +173,9 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
 
       if(!temp_x)
       {
-         ++temp_x;
          startx = dcvars->x;
-         *tempyl = commontop = dcvars->yl;
-         *tempyh = commonbot = dcvars->yh;
+         tempyl[0] = commontop = dcvars->yl;
+         tempyh[0] = commonbot = dcvars->yh;
          temptype = COLTYPE;
 #if (R_DRAWCOLUMN_PIPELINE & RDC_TRANSLUCENT)
          temptranmap = tranmap;
@@ -200,8 +195,9 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
          if(dcvars->yh < commonbot)
             commonbot = dcvars->yh;
       
-         dest = &tempbuf[(dcvars->yl << 2) + temp_x++];
+         dest = &tempbuf[(dcvars->yl << 2) + temp_x];
       }
+      temp_x += 1;
    }
 
 // do nothing else when drawin fuzz columns
