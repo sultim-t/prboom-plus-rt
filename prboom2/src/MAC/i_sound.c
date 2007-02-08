@@ -63,7 +63,7 @@
 
 #include <Carbon/Carbon.h>
 #include <QuickTime/Movies.h>
-#include "mmus2mid.h"
+#include "mus2mid.h"
 
 static int playFile(const char *filename);
 
@@ -165,6 +165,7 @@ void I_UnRegisterSong(int handle)
 
 int I_RegisterSong(const void *data, size_t len)
 {
+#if 0
   MIDI *mididata;
   FILE *midfile;
 
@@ -194,6 +195,7 @@ int I_RegisterSong(const void *data, size_t len)
   fclose(midfile);
 
   return playFile(music_tmp);
+#endif
 }
 
 int I_RegisterMusic( const char* filename, musicinfo_t *song )
