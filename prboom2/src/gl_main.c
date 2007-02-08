@@ -2325,14 +2325,14 @@ void gld_AddWall(seg_t *seg)
       wall.gltexture=temptex;
       if ( (LINE->flags & ML_DONTPEGBOTTOM) >0)
       {
-        if (seg->backsector->ceilingheight<=seg->frontsector->floorheight)
+        if (backsector->ceilingheight<=frontsector->floorheight)
           goto bottomtexture;
         floor_height=MAX(seg->frontsector->floorheight,seg->backsector->floorheight)+(seg->sidedef->rowoffset);
         ceiling_height=floor_height+(wall.gltexture->realtexheight<<FRACBITS);
       }
       else
       {
-        if (seg->backsector->ceilingheight<=seg->frontsector->floorheight)
+        if (backsector->ceilingheight<=frontsector->floorheight)
           goto bottomtexture;
         ceiling_height=MIN(seg->frontsector->ceilingheight,seg->backsector->ceilingheight)+(seg->sidedef->rowoffset);
         floor_height=ceiling_height-(wall.gltexture->realtexheight<<FRACBITS);
