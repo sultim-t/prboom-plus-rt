@@ -2090,9 +2090,17 @@ void A_BossDeath(mobj_t *mo)
     }
   else
     {
-      // Simplified comp_666 code, from prboom-plus
-      if (comp[comp_666] && gameepisode < 4) // Does not apply to episode 4
+      // e6y
+      // Additional check of gameepisode is necessary, because 
+      // there is no right or wrong solution for E4M6 in original EXEs,
+      // there's nothing to emulate.
+      if (comp[comp_666] && gameepisode < 4)
       {
+        // e6y
+        // Only following checks are present in doom2.exe ver. 1.666 and 1.9
+        // instead of separate checks for each episode in doomult.exe, plutonia.exe and tnt.exe
+        // There is no more desync on doom.wad\episode3.lmp
+        // http://www.doomworld.com/idgames/index.php?id=6909
         if (gamemap != 8)
           return;
         if (mo->type == MT_BRUISER && gameepisode != 1) 
@@ -2152,6 +2160,7 @@ void A_BossDeath(mobj_t *mo)
           break;
         }
       }
+
     }
 
   // make sure there is a player alive for victory
