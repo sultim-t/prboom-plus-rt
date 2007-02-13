@@ -2090,21 +2090,31 @@ void A_BossDeath(mobj_t *mo)
     }
   else
     {
+      // Simplified comp_666 code, from prboom-plus
+      if (comp[comp_666] && gameepisode < 4) // Does not apply to episode 4
+      {
+        if (gamemap != 8)
+          return;
+        if (mo->type == MT_BRUISER && gameepisode != 1) 
+          return;
+      }
+      else
+      {
       switch(gameepisode)
         {
         case 1:
           if (gamemap != 8)
             return;
 
-	  if (mo->type != MT_BRUISER && !comp[comp_666])
-	    return;
+          if (mo->type != MT_BRUISER)
+            return;
           break;
 
         case 2:
           if (gamemap != 8)
             return;
 
-          if (mo->type != MT_CYBORG && !comp[comp_666])
+          if (mo->type != MT_CYBORG)
             return;
           break;
 
@@ -2112,7 +2122,7 @@ void A_BossDeath(mobj_t *mo)
           if (gamemap != 8)
             return;
 
-          if (mo->type != MT_SPIDER && !comp[comp_666])
+          if (mo->type != MT_SPIDER)
             return;
 
           break;
@@ -2141,7 +2151,7 @@ void A_BossDeath(mobj_t *mo)
             return;
           break;
         }
-
+      }
     }
 
   // make sure there is a player alive for victory
