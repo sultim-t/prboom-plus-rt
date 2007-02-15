@@ -328,9 +328,9 @@ static void V_DrawMemPatch8(int x, int y, int scrn, const rpatch_t *patch,
     int   col;
     int   w = (patch->width << 16) - 1; // CPhipps - -1 for faster flipping
     int   left, right, top, bottom;
-    int   DX  = (SCREENWIDTH<<16)  / 320;
+    //e6y int   DX  = (SCREENWIDTH<<16)  / 320;
     int   DXI = (320<<16)          / SCREENWIDTH;
-    int   DY  = (SCREENHEIGHT<<16) / 200;
+    //e6y int   DY  = (SCREENHEIGHT<<16) / 200;
     int   DYI = (200<<16)          / SCREENHEIGHT;
     R_DrawColumn_f colfunc;
     draw_column_vars_t dcvars;
@@ -348,10 +348,16 @@ static void V_DrawMemPatch8(int x, int y, int scrn, const rpatch_t *patch,
       colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_STANDARD, drawvars.filterpatch, RDRAW_FILTER_NONE);
     }
 
+    /* e6y
     left = ( x * DX ) >> FRACBITS;
     top = ( y * DY ) >> FRACBITS;
     right = ( (x + patch->width) * DX ) >> FRACBITS;
     bottom = ( (y + patch->height) * DY ) >> FRACBITS;
+    */
+    left = ( (x * SCREENWIDTH) / 320 );
+    top = ( (y * SCREENHEIGHT) / 200 );
+    right = ( ((x + patch->width) * SCREENWIDTH) / 320 );
+    bottom = ( ((y + patch->height) * SCREENHEIGHT) / 200 );
 
     dcvars.texheight = patch->height;
     dcvars.iscale = DYI;
@@ -389,8 +395,12 @@ static void V_DrawMemPatch8(int x, int y, int scrn, const rpatch_t *patch,
         const rpost_t *post = &column->posts[i];
         int yoffset = 0;
 
+        /* e6y
         dcvars.yl = (((y + post->topdelta) * DY)>>FRACBITS);
         dcvars.yh = (((y + post->topdelta + post->length) * DY - (FRACUNIT>>1))>>FRACBITS);
+        */
+        dcvars.yl = ( (((y + post->topdelta) * SCREENHEIGHT) / 200) );
+        dcvars.yh = ( (((y + post->topdelta + post->length) * SCREENHEIGHT) / 200) - 1 );
         dcvars.edgeslope = post->slope;
 
         if ((dcvars.yh < 0) || (dcvars.yh < top))
