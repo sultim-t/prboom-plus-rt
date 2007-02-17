@@ -2325,6 +2325,13 @@ void P_SpawnBrainTargets(void)  // killough 3/26/98: renamed old function
 
 void A_BrainAwake(mobj_t *mo)
 {
+  //e6y
+  if (demo_compatibility && !force_boom_brainawake)
+  {
+    brain.targeton = 0;
+    brain.easy = 0;
+  }
+
   S_StartSound(NULL,sfx_bossit); // killough 3/26/98: only generates sound now
 }
 
