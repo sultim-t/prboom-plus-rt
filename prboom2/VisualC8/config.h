@@ -150,9 +150,6 @@
 /* Version number of package */
 #define VERSION "2.4.8.2"
 
-/* Numeric version number of package */
-#define PACKAGEVERSION 0x00002482
-
 #ifdef _WIN32
 
 /* Define if you want to have PrBoom-Plus.wad in the exe  */

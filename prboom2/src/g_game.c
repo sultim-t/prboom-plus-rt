@@ -1872,13 +1872,31 @@ void G_SaveGameName(char *name, size_t size, int slot, boolean demoplayback)
 #endif
 }
 
+static int PACKAGEVERSION = 0; //e6y
+
 static void G_DoSaveGame (boolean menu)
 {
   char name[PATH_MAX+1];
   char name2[VERSIONSIZE];
   char *description;
   int  length, i;
-  int packageversion = PACKAGEVERSION; //e6y: numeric version number of package
+  int packageversion; //e6y: numeric version number of package
+  
+  //e6y: "2.4.8.2" -> 0x02040802
+  if (PACKAGEVERSION == 0)
+  {
+    int b[4], k = 1;
+    int count = sscanf(VERSION, "%d.%d.%d.%d", &b[0], &b[1], &b[2], &b[3]);
+    for (i = count - 1; i >= 0; i--, k *= 256)
+    {
+#ifdef RANGECHECK
+      if (b[i] >= 256)
+        I_Error("Wrong version number of package: %s", VERSION);
+#endif
+      PACKAGEVERSION += b[i] * k;
+    }
+  }
+  packageversion = PACKAGEVERSION;
 
   gameaction = ga_nothing; // cph - cancel savegame at top of this function,
     // in case later problems cause a premature exit
@@ -1955,20 +1973,10 @@ static void G_DoSaveGame (boolean menu)
   memcpy(save_p, &leveltime, sizeof leveltime);
   save_p += sizeof leveltime;
 
-  //e6y: total level times are always saved since 2.4.8.1
-  if (packageversion >= 0x00002481)
-  {
-    memcpy(save_p, &totalleveltimes, sizeof totalleveltimes);
-    save_p += sizeof totalleveltimes;
-  }
-  else
-
   /* cph - total episode time */
-  if (compatibility_level >= prboom_2_compatibility) {
-    memcpy(save_p, &totalleveltimes, sizeof totalleveltimes);
-    save_p += sizeof totalleveltimes;
-  }
-  else totalleveltimes = 0;
+  //e6y: always saved since 2.4.8
+  memcpy(save_p, &totalleveltimes, sizeof totalleveltimes);
+  save_p += sizeof totalleveltimes;
 
   // killough 11/98: save revenant tracer state
   *save_p++ = (gametic-basetic) & 255;
