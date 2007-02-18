@@ -800,7 +800,24 @@ static void R_DrawPSprite (pspdef_t *psp, int lightlevel)
   else if (psp->state->frame & FF_FULLBRIGHT)
     vis->colormap = fullcolormap;            // full bright // killough 3/20/98
   else
-    vis->colormap = R_ColourMap(lightlevel,pspritescale);  // local light
+    // e6y
+    // In PRBoom the player's weapon is displayed much darker than in other ports.
+    // Eternity, Chocolate Doom, and ZDoom are all identical.
+    // This patch corrects the bug in software rendering.
+    //
+    // old code: vis->colormap = R_ColourMap(lightlevel,pspritescale);  // local light
+    //
+    // dynamic version of new code (slower):
+    // {
+    //   int lightnum = BETWEEN(0, LIGHTLEVELS-1, (lightlevel >> LIGHTSEGSHIFT)+extralight);
+    //   int level = ((LIGHTLEVELS-1-lightnum)*2)*NUMCOLORMAPS/LIGHTLEVELS -
+    //     (MAXLIGHTSCALE-1)*SCREENWIDTH/viewwidth/2;
+    //   vis->colormap = (fixedcolormap ? fixedcolormap : fullcolormap) +
+    //     BETWEEN(0, NUMCOLORMAPS-1, level) * 256;
+    // }
+    vis->colormap = (fixedcolormap ? fixedcolormap : fullcolormap) + 
+      scalelight_offset[BETWEEN(0, LIGHTLEVELS-1, 
+      (lightlevel >> LIGHTSEGSHIFT)+extralight)][MAXLIGHTSCALE-1];
 
   // proff 11/99: don't use software stuff in OpenGL
   if (V_GetMode() != VID_MODEGL)

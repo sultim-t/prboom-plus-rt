@@ -101,6 +101,9 @@ angle_t xtoviewangle[MAX_SCREENWIDTH+1];   // killough 2/8/98
 // killough 3/20/98: Support dynamic colormaps, e.g. deep water
 // killough 4/4/98: support dynamic number of them as well
 
+//e6y
+int scalelight_offset[LIGHTLEVELS][MAXLIGHTSCALE];
+
 int numcolormaps;
 const lighttable_t *(*c_zlight)[LIGHTLEVELS][MAXLIGHTZ];
 const lighttable_t *(*zlight)[MAXLIGHTZ];
@@ -397,6 +400,20 @@ void R_ExecuteSetViewSize (void)
       fixed_t cosadj = D_abs(finecosine[xtoviewangle[i]>>ANGLETOFINESHIFT]);
       distscale[i] = FixedDiv(FRACUNIT,cosadj);
     }
+
+  // e6y
+  // Calculate the light levels to use
+  //  for each level / scale combination.
+  for (i=0 ; i< LIGHTLEVELS ; i++)
+  {
+    int j, startmap, level;
+    startmap = ((LIGHTLEVELS-1-i)*2)*NUMCOLORMAPS/LIGHTLEVELS;
+    for (j=0 ; j<MAXLIGHTSCALE ; j++)
+    {
+      level = BETWEEN(0, NUMCOLORMAPS - 1, startmap - j*SCREENWIDTH/(viewwidth)/DISTMAP);
+      scalelight_offset[i][j] = level*256;
+    }
+  }
 
 }
 
