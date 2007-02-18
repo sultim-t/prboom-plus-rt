@@ -53,6 +53,10 @@ typedef unsigned char byte;
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
 #endif
+#ifndef BETWEEN
+#define BETWEEN(l,u,x) ((l)>(x)?(l):(x)>(u)?(u):(x))
+#endif
+
 
 /* cph - Wrapper for the long long type, as Win32 used a different name.
  * Except I don't know what to test as it's compiler specific
