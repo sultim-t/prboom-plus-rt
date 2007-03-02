@@ -58,7 +58,7 @@ typedef struct
   int realtexwidth, realtexheight;
   int buffer_width,buffer_height;
   int buffer_size;
-  int *glTexID[2][CR_LIMIT+MAXPLAYERS];//e6y: support for Boom's colormaps
+  int *glTexID[NUMCOLORMAPS+1][CR_LIMIT+MAXPLAYERS];//e6y: support for Boom's colormaps
   GLTexType textype;
   boolean mipmap;
   GLint wrap_mode;//e6y

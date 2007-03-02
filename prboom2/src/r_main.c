@@ -117,6 +117,7 @@ boolean use_boom_cm;
 int boom_cm;         // current colormap
 int last_boom_cm=-1; // previous colormap
 int last_fixedcolormap=-1;
+int frame_fixedcolormap = 0;
 
 int extralight;                           // bumped light from gun blasts
 
@@ -505,6 +506,13 @@ static void R_SetupFrame (player_t *player)
 
   fullcolormap = colormaps[cm];
   zlight = c_zlight[cm];
+
+  //e6y
+  frame_fixedcolormap = player->fixedcolormap;
+  if (frame_fixedcolormap < 0 || frame_fixedcolormap > NUMCOLORMAPS)
+  {
+    I_Error("<fixedcolormap> value out of range: %d\n", player->fixedcolormap);
+  }
 
   if (player->fixedcolormap)
     {
