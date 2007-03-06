@@ -1172,7 +1172,7 @@ typedef enum
   S_DETONATE2,
   S_DETONATE3,
 
-#ifdef DOGS
+  // always count dog states, even if dogs are disabled
   S_DOGS_STND,      /* killough 7/19/98: Marine's best friend :) */
   S_DOGS_STND2,
   S_DOGS_RUN1,
@@ -1200,7 +1200,6 @@ typedef enum
   S_DOGS_RAISE4,
   S_DOGS_RAISE5,
   S_DOGS_RAISE6,
-#endif
 
   // add dummy beta bfg / lost soul frames for dehacked compatibility
   // fixes bug #1576151 (part 2)

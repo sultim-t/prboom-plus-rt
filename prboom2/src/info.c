@@ -1110,6 +1110,35 @@ state_t states[NUMSTATES] = {
   {SPR_DOGS,10,5,NULL,S_DOGS_RAISE5}, // S_DOGS_RAISE4
   {SPR_DOGS,9,5,NULL,S_DOGS_RAISE6},  // S_DOGS_RAISE5
   {SPR_DOGS,8,5,NULL,S_DOGS_RUN1},  // S_DOGS_RAISE6
+#else
+  // if dogs are disabled, dummy states are required for dehacked compatibility
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_STND
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_STND2
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_RUN1
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_RUN2
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_RUN3
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_RUN4
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_RUN5
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_RUN6
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_RUN7
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_RUN8
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_ATK1
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_ATK2
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_ATK3
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_PAIN
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_PAIN2
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_DIE1
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_DIE2
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_DIE3
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_DIE4
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_DIE5
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_DIE6
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_RAISE1
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_RAISE2
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_RAISE3
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_RAISE4
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_RAISE5
+  {0,0,-1,NULL,S_NULL}, // S_DOGS_RAISE6
 #endif
 
   // add dummy beta bfg / lost soul frames for dehacked compatibility
