@@ -39,6 +39,7 @@
 
 #endif // DEBUG
 
+#define DOGS 1
 #define MONITOR_VISIBILITY 1
 /*#define DISABLE_LUMP_CACHING*/
 

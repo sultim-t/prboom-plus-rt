@@ -2727,11 +2727,15 @@ enum {
   enem_friction,
   enem_help_friends,
 
+#ifdef DOGS
   enem_helpers,
+#endif
 
   enem_distfriend,
 
+#ifdef DOGS
   enem_dog_jumping,
+#endif
 
   enem_end
 };
@@ -2756,6 +2760,7 @@ setup_menu_t enem_settings1[] =  // Enemy Settings screen
 
   {"Rescue Dying Friends",S_YESNO,m_null,E_X,E_Y+ enem_help_friends*8, {"help_friends"}},
 
+#ifdef DOGS
   // killough 7/19/98
   {"Number Of Single-Player Helper Dogs",S_NUM|S_LEVWARN,m_null,E_X,E_Y+ enem_helpers*8, {"player_helpers"}},
 
@@ -2763,6 +2768,7 @@ setup_menu_t enem_settings1[] =  // Enemy Settings screen
   {"Distance Friends Stay Away",S_NUM,m_null,E_X,E_Y+ enem_distfriend*8, {"friend_distance"}},
 
   {"Allow dogs to jump down",S_YESNO,m_null,E_X,E_Y+ enem_dog_jumping*8, {"dog_jumping"}},
+#endif
 
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
