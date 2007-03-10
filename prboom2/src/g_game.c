@@ -310,27 +310,13 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 
   forward = side = 0;
 
+  //e6y
   if ((doSkip) &&
      ((startmap<=1 && demo_skiptics>0 && gametic>demo_skiptics) ||
      (demo_warp && gametic-levelstarttic>demo_skiptics)))
     G_SkipDemoStop();
-  if (_demofp && !feof(_demofp))
+  if (democontinue)
   {
-    char buf[4];
-    int readed = fread(&buf[0], sizeof(char), sizeof(buf), _demofp);
-    if (readed == sizeof(buf))
-    {
-      cmd->forwardmove = buf[0];
-      cmd->sidemove = buf[1];
-      cmd->angleturn = buf[2]<<8;
-      cmd->buttons = buf[3];
-    }
-
-    if (readed != sizeof(buf) || gamekeydown[key_demo_jointogame] || joybuttons[joybuse])
-    {
-      _demofp = 0;
-    }
-
     mousex = mousey = 0;
     return;
   }
@@ -909,6 +895,10 @@ void G_Ticker (void)
           ticcmd_t *cmd = &players[i].cmd;
 
           memcpy(cmd, &netcmds[i][buf], sizeof *cmd);
+
+          //e6y
+          if (democontinue)
+            G_ReadDemoContinueTiccmd (cmd);
 
           if (demoplayback)
             G_ReadDemoTiccmd (cmd);
@@ -2421,7 +2411,7 @@ void G_RecordDemo (const char* name)
   /* cph - Record demos straight to file
    * If file already exists, try to continue existing demo
    */
-  if (access(demoname, F_OK)||demo_recordfromto||demo_compatibility) {//e6ye6y
+  if (access(demoname, F_OK)||democontinue||demo_compatibility) {//e6ye6y
     demofp = fopen(demoname, "wb");
   } else {
     demofp = fopen(demoname, "rb+");//e6y
@@ -3222,6 +3212,29 @@ void P_ResetWalkcam(boolean ResetCoord, boolean ResetSight)
     {
       walkcamera.x = players[displayplayer].mo->x;
       walkcamera.y = players[displayplayer].mo->y;
+    }
+  }
+}
+
+void G_ReadDemoContinueTiccmd (ticcmd_t* cmd)
+{
+  if (_demofp && !feof(_demofp))
+  {
+    int count;
+    char buf[4];
+    count = fread(&buf[0], sizeof(char), sizeof(buf), _demofp);
+    if (count == sizeof(buf))
+    {
+      cmd->forwardmove = buf[0];
+      cmd->sidemove = buf[1];
+      cmd->angleturn = buf[2]<<8;
+      cmd->buttons = buf[3];
+    }
+
+    if (count != sizeof(buf) || gamekeydown[key_demo_jointogame] || joybuttons[joybuse])
+    {
+      _demofp = 0;
+      democontinue = false;
     }
   }
 }

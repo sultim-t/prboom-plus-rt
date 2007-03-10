@@ -117,7 +117,7 @@ extern int totalleveltimes;
 extern int secretfound;
 extern int messagecenter_counter;
 extern int demo_skiptics;
-extern int demo_recordfromto;
+extern int democontinue;
 extern int demo_tics_count;
 extern int demo_curr_tic;
 extern char demo_len_st[80];

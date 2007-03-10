@@ -109,7 +109,7 @@ boolean wasWiped = false;
 int secretfound;
 int messagecenter_counter;
 int demo_skiptics;
-int demo_recordfromto = false;
+int democontinue = false;
 int demo_tics_count;
 int demo_curr_tic;
 char demo_len_st[80];
@@ -295,7 +295,7 @@ void e6y_D_DoomMainSetup(void)
       fseek(_demofp, len, SEEK_SET);
       if (demo_compatibility)
       {
-        demo_recordfromto = true;
+        democontinue = true;
         singledemo = true;
         autostart = true;
         G_RecordDemo(myargv[p+2]);
@@ -310,7 +310,7 @@ void e6y_D_DoomMainSetup(void)
 
   if ((p = M_CheckParm("-skipsec")) && (p < myargc-1))
     demo_skiptics = (int)(atof(myargv[p+1]) * 35);
-  if ((gameaction == ga_playdemo||demo_recordfromto) && (startmap > 1 || demo_skiptics))
+  if ((gameaction == ga_playdemo||democontinue) && (startmap > 1 || demo_skiptics))
     G_SkipDemoStart();
   if ((p = M_CheckParm("-avidemo")) && (p < myargc-1))
     avi_shot_fname = myargv[p+1];
