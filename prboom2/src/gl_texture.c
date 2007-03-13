@@ -668,7 +668,12 @@ GLTexture *gld_RegisterPatch(int lump, int cm)
     gltexture->textype=GLDT_BROKEN;
     gltexture->index=lump;
     gltexture->mipmap=false;
-    gltexture->wrap_mode = (patch->flags&PATCH_REPEAT?GL_REPEAT:GL_CLAMP); //e6y
+    
+    //e6y
+    gltexture->wrap_mode = (patch->flags&PATCH_REPEAT?
+      (GL_REPEAT) :
+      (glversion >= OPENGL_VERSION_1_2 ? GL_CLAMP_TO_EDGE : GL_CLAMP));
+
     gltexture->realtexwidth=patch->width;
     gltexture->realtexheight=patch->height;
     gltexture->leftoffset=patch->leftoffset;

@@ -96,6 +96,8 @@
 #define DEFAULT_SPECHIT_MAGIC (0x01C09C98)
 //#define DEFAULT_SPECHIT_MAGIC (0x84000000)
 
+int glversion;
+
 spriteclipmode_t gl_spriteclip;
 const char *gl_spriteclipmodes[] = {"constant","always", "smart"};
 int gl_sprite_offset;
@@ -592,7 +594,33 @@ void e6y_PreprocessLevel(void)
   }
 }
 
-void e6y_InitExtensions(void)
+void gld_InitGLVersion(void)
+{
+  char ver[256];
+  int MajorVersion, MinorVersion;
+  glversion = OPENGL_VERSION_1_0;
+  strncpy(ver, glGetString(GL_VERSION), sizeof(ver));
+  if (sscanf(ver, "%d.%d", &MajorVersion, &MinorVersion) == 2)
+  {
+    if (MajorVersion > 1)
+    {
+      glversion = OPENGL_VERSION_2_0;
+      if (MinorVersion > 0) glversion = OPENGL_VERSION_2_1;
+    }
+    else
+    {
+      glversion = OPENGL_VERSION_1_0;
+      if (MinorVersion > 0) glversion = OPENGL_VERSION_1_1;
+      if (MinorVersion > 1) glversion = OPENGL_VERSION_1_2;
+      if (MinorVersion > 2) glversion = OPENGL_VERSION_1_3;
+      if (MinorVersion > 3) glversion = OPENGL_VERSION_1_4;
+      if (MinorVersion > 4) glversion = OPENGL_VERSION_1_5;
+    }
+  }
+
+}
+
+void gld_InitExtensionsEx(void)
 {
 #define isExtensionSupported(ext) strstr(extensions, ext)
   static int imageformats[5] = {0, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_RGB, GL_RGBA};

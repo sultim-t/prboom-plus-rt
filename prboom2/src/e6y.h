@@ -101,6 +101,20 @@ typedef struct camera_s
   int type;
 } camera_t;
 
+//OpenGL version
+typedef enum {
+  OPENGL_VERSION_1_0,
+  OPENGL_VERSION_1_1,
+  OPENGL_VERSION_1_2,
+  OPENGL_VERSION_1_3,
+  OPENGL_VERSION_1_4,
+  OPENGL_VERSION_1_5,
+  OPENGL_VERSION_2_0,
+  OPENGL_VERSION_2_1,
+} glversion_t;
+
+extern int glversion;
+
 typedef enum { spriteclip_const, spriteclip_always, spriteclip_smart } spriteclipmode_t;
 extern spriteclipmode_t gl_spriteclip;
 extern const char *gl_spriteclipmodes[];
@@ -270,7 +284,8 @@ extern TAnimItemParam *anim_flats;
 extern TAnimItemParam *anim_textures;
 
 float distance2piece(float x0, float y0, float x1, float y1, float x2, float y2);
-void e6y_InitExtensions(void);
+void gld_InitGLVersion(void);
+void gld_InitExtensionsEx(void);
 void e6y_PreprocessLevel(void);
 void MarkAnimatedTextures(void);
 
