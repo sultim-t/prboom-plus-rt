@@ -596,11 +596,9 @@ void e6y_PreprocessLevel(void)
 
 void gld_InitGLVersion(void)
 {
-  char ver[256];
   int MajorVersion, MinorVersion;
   glversion = OPENGL_VERSION_1_0;
-  strncpy(ver, glGetString(GL_VERSION), sizeof(ver));
-  if (sscanf(ver, "%d.%d", &MajorVersion, &MinorVersion) == 2)
+  if (sscanf(glGetString(GL_VERSION), "%d.%d", &MajorVersion, &MinorVersion) == 2)
   {
     if (MajorVersion > 1)
     {
