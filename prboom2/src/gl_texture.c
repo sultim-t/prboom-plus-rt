@@ -744,6 +744,23 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   else
     memset(buffer,0,gltexture->buffer_size);
   gld_AddPatchToTexture(gltexture, buffer, patch, 0, 0, cm, gl_paletted_texture);
+
+  // e6y
+  // Post-process the texture data after the buffer has been created.
+  // Smooth the edges of transparent fields in the texture.
+  //
+  // It is a workaround to set the color of all transparent pixels
+  // that border on a non-transparent pixel to the color
+  // of one bordering non-transparent pixel.
+  // It is necessary for textures that are not power of two
+  // to avoid the lines (boxes) around the elements that change
+  // on the intermission screens in Doom1 (E2, E3)
+  if (gltexture->tex_width != gltexture->realtexwidth || 
+      gltexture->tex_height != gltexture->realtexheight)
+  {
+    SmoothEdges(buffer, gltexture->tex_width, gltexture->tex_height);
+  }
+
   if (*glTexID==0)
     glGenTextures(1,glTexID);
   glBindTexture(GL_TEXTURE_2D, *glTexID);

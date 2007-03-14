@@ -489,4 +489,6 @@ int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t Buff
 void I_vWarning(const char *message, va_list argList);
 void I_Warning(const char *message, ...);
 
+boolean SmoothEdges(unsigned char * buffer,int w, int h);
+
 #endif

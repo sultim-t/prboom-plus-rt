@@ -2025,3 +2025,85 @@ int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t Buff
   return false;
 }
 #endif
+
+//Begin of GZDoom code
+/*
+**---------------------------------------------------------------------------
+** Copyright 2004-2005 Christoph Oelckers
+** All rights reserved.
+**
+** Redistribution and use in source and binary forms, with or without
+** modification, are permitted provided that the following conditions
+** are met:
+**
+** 1. Redistributions of source code must retain the above copyright
+**    notice, this list of conditions and the following disclaimer.
+** 2. Redistributions in binary form must reproduce the above copyright
+**    notice, this list of conditions and the following disclaimer in the
+**    documentation and/or other materials provided with the distribution.
+** 3. The name of the author may not be used to endorse or promote products
+**    derived from this software without specific prior written permission.
+** 4. When not used as part of GZDoom or a GZDoom derivative, this code will be
+**    covered by the terms of the GNU Lesser General Public License as published
+**    by the Free Software Foundation; either version 2.1 of the License, or (at
+**    your option) any later version.
+*/
+
+//===========================================================================
+// 
+// smooth the edges of transparent fields in the texture
+// returns false when nothing is manipulated to save the work on further
+// levels
+
+// 28/10/2003: major optimization: This function was far too pedantic.
+// taking the value of one of the neighboring pixels is fully sufficient
+//
+//===========================================================================
+
+#define CHKPIX(ofs) \
+	(l1[(ofs)*4+3]==255 ? (( ((long*)l1)[0] = ((long*)l1)[ofs]&0xffffff), trans=true ) : false)
+
+boolean SmoothEdges(unsigned char * buffer,int w, int h)
+{
+	int x,y;
+	boolean trans=buffer[3]==0; // If I set this to false here the code won't detect textures 
+							 // that only contain transparent pixels.
+	unsigned char * l1;
+
+	if (h<=1 || w<=1) return false;	// makes (a) no sense and (b) doesn't work with this code!
+
+	l1=buffer;
+
+
+	if (l1[3]==0 && !CHKPIX(1)) CHKPIX(w);
+	l1+=4;
+	for(x=1;x<w-1;x++, l1+=4)
+	{
+		if (l1[3]==0 &&	!CHKPIX(-1) && !CHKPIX(1)) CHKPIX(w);
+	}
+	if (l1[3]==0 && !CHKPIX(-1)) CHKPIX(w);
+	l1+=4;
+
+	for(y=1;y<h-1;y++)
+	{
+		if (l1[3]==0 && !CHKPIX(-w) && !CHKPIX(1)) CHKPIX(w);
+		l1+=4;
+		for(x=1;x<w-1;x++, l1+=4)
+		{
+			if (l1[3]==0 &&	!CHKPIX(-w) && !CHKPIX(-1) && !CHKPIX(1)) CHKPIX(w);
+		}
+		if (l1[3]==0 && !CHKPIX(-w) && !CHKPIX(-1)) CHKPIX(w);
+		l1+=4;
+	}
+
+	if (l1[3]==0 && !CHKPIX(-w)) CHKPIX(1);
+	l1+=4;
+	for(x=1;x<w-1;x++, l1+=4)
+	{
+		if (l1[3]==0 &&	!CHKPIX(-w) && !CHKPIX(-1)) CHKPIX(1);
+	}
+	if (l1[3]==0 && !CHKPIX(-w)) CHKPIX(-1);
+
+	return trans;
+}
+//End of GZDoom code
