@@ -125,6 +125,7 @@ int             basetic;       /* killough 9/29/98: for demo sync */
 int             totalkills, totallive, totalitems, totalsecret;    // for intermission
 boolean         demorecording;
 boolean         demoplayback;
+int             demover;
 boolean         singledemo;           // quit after playing a demo from cmdline
 wbstartstruct_t wminfo;               // parms for world map / intermission
 boolean         haswolflevels = false;// jff 4/18/98 wolf levels present
@@ -1381,6 +1382,7 @@ void G_DoCompleted (void)
   gamestate = GS_INTERMISSION;
   automapmode &= ~am_active;
 
+  lprintf(LO_DEBUG, "FINISHED: %d %d\n", gameepisode, gamemap);
   WI_Start (&wminfo);
 }
 
@@ -2635,7 +2637,6 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
 {
   skill_t skill;
   int i, episode, map;
-  int demover;
   const byte *option_p = NULL;      /* killough 11/98 */
 
   basetic = gametic;  // killough 9/29/98
