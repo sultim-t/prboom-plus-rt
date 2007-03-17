@@ -1943,7 +1943,7 @@ void G_Compatibility(void)
     // comp_pursuit - MBF AI change, limited pursuit?
     { mbf_compatibility, mbf_compatibility },
     // comp_doorstuck - monsters stuck in doors fix
-    { boom_compatibility, mbf_compatibility },
+    { boom_202_compatibility, mbf_compatibility },
     // comp_staylift - MBF AI change, monsters try to stay on lifts
     { mbf_compatibility, mbf_compatibility },
     // comp_zombie - prevent dead players triggering stuff
