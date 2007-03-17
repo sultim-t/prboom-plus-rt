@@ -770,7 +770,10 @@ boolean P_TryMove(mobj_t* thing,fixed_t x,fixed_t y,
       if (!(thing->flags & (MF_DROPOFF|MF_FLOAT))) {
   if (comp[comp_dropoff])
     {
-      if ((compatibility || !dropoff) && (tmfloorz - tmdropoffz > 24*FRACUNIT))
+      if ((compatibility || !dropoff
+            // fix demosync bug in mbf compatibility mode
+            || (mbf_features && compatibility_level <= prboom_2_compatibility))
+          && (tmfloorz - tmdropoffz > 24*FRACUNIT))
         return false;                      // don't stand over a dropoff
     }
   else
