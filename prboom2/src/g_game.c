@@ -1382,7 +1382,6 @@ void G_DoCompleted (void)
   gamestate = GS_INTERMISSION;
   automapmode &= ~am_active;
 
-  lprintf(LO_DEBUG, "FINISHED: %d %d\n", gameepisode, gamemap);
   WI_Start (&wminfo);
 }
 
