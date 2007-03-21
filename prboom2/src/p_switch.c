@@ -220,12 +220,10 @@ P_UseSpecialLine
   int           side )
 {
 
-  // The test for pressing a switch from the front was missed out of Boom 2.01,
-  // and from "compatibility" demos recorded by it.
-  if (side //jff 6/1/98 fix inadvertent deletion of side test
-      && !(compatibility_level == boom_201_compatibility)
-      && !(compatibility_level == boom_compatibility_compatibility 
-        && demoplayback && demover == 201))
+  // e6y
+  // b.m. side test was broken in boom201
+  if ((demoplayback ? (demover != 201) : (compatibility_level != boom_201_compatibility)))
+  if (side) //jff 6/1/98 fix inadvertent deletion of side test
     return false;
 
   //jff 02/04/98 add check here for generalized floor/ceil mover
