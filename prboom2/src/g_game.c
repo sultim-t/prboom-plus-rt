@@ -1382,6 +1382,15 @@ void G_DoCompleted (void)
   gamestate = GS_INTERMISSION;
   automapmode &= ~am_active;
 
+  // lmpwatch.pl engine-side demo testing support
+  // print "FINISHED: <mapname>" when the player exits the current map
+  if (nodrawers && (demoplayback || timingdemo)) {
+    if (gamemode == commercial)
+      lprintf(LO_INFO, "FINISHED: MAP%02d\n", gamemap);
+    else
+      lprintf(LO_INFO, "FINISHED: E%dM%d\n", gameepisode, gamemap);
+  }
+
   WI_Start (&wminfo);
 }
 
