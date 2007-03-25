@@ -68,5 +68,7 @@ else
 WAD_SRC = w_memcache.c
 endif
 
-prboom_plus_SOURCES = mmus2mid.c mmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC) $(USE_GL_SRC) $(WAD_SRC)
+MUS2MID_SRC = memio.c memio.h mus2mid.c mus2mid.h
+
+prboom_plus_SOURCES = $(COMMON_SRC) $(NET_CLIENT_SRC) $(USE_GL_SRC) $(WAD_SRC) $(MUS2MID_SRC)
 prboom_plus_LDADD = SDL/libsdldoom.a @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ @GL_LIBS@ @MATH_LIB@

@@ -3,7 +3,7 @@ AC_INIT([prboom-plus],[2.4.8.2])
 AC_CONFIG_AUX_DIR(autotools)
 
 dnl --- Fire up automake
-AM_INIT_AUTOMAKE([check-news foreign -Woverride -Wobsolete -Wportability -Wsyntax -Wunsupported])
+AM_INIT_AUTOMAKE([foreign -Woverride -Wobsolete -Wportability -Wsyntax -Wunsupported])
 AM_MAINTAINER_MODE
 AM_CONFIG_HEADER(config.h)
 
