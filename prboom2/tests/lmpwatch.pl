@@ -8,7 +8,7 @@ use Getopt::Std; $Getopt::Std::STANDARD_HELP_VERSION = 1;
 sub VERSION_MESSAGE
 {
   print <<"EOF";
-lmpwatch.pl: a clone of PrBoom-plus's automated demo playback system.
+lmpwatch.pl: a clone of PrBoom-Plus's automated demo playback system.
 EOF
 }
 
@@ -21,7 +21,7 @@ Options:
     -d x    name of doom executable (try "echo" to test the program)
     -e x    any extra options to pass to doom
     -p x    name of patterns file from lmpwatch.zip
-    -s x    colon-separated search path, may contain wildcards
+    -s x    colon- or space-separated search path, may contain wildcards
     -t      test demo sync (not fully implemented, needs engine-side support)
     -v      print lots of debugging output
 
@@ -51,8 +51,8 @@ my $demo_opts = $testing ? "-nodraw -nosound -timedemo" : "-playdemo";
 
 # paths to search for files, these will be subject to filename globbing
 my @paths = do {
-  # expand colon-separated string into list
-  my @s = defined($opts{'s'}) ? split(/:/, $opts{'s'}) : ();
+  # expand colon- or space-separated string into list
+  my @s = defined($opts{'s'}) ? split(/[: ]+/, $opts{'s'}) : ();
 
   # expand paths that contain wildcards
   map { glob $_ } grep { defined $_ } (@s, $ENV{"DOOMWADDIR"},
@@ -95,7 +95,7 @@ while (@ARGV) {
   print "\n" if $verbose;
 }
 
-close PATTERNS;
+close $PATTERNS;
 
 exit 0;
 
@@ -150,7 +150,6 @@ sub parse_patterns
     # stop at the first match (conflict avoidance)
     last if $demo =~ m/$pattern/
   }
-  close PATTERNS;
 
   return ($comment, $iwad, @files);
 }
