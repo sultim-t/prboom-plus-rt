@@ -1166,7 +1166,9 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
   int         ok;
 
   //  Things that should never trigger lines
-  if (!thing->player)
+  //
+  // e6y: Improved support for Doom v1.2
+  if (!thing->player && compatibility_level > doom_12_compatibility)
   {
     // Things that should NOT trigger specials...
     switch(thing->type)
