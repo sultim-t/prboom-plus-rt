@@ -1609,12 +1609,20 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 
   // if deathmatch, randomly spawn the active players
   if (deathmatch)
+  {
     for (i=0; i<MAXPLAYERS; i++)
       if (playeringame[i])
         {
           players[i].mo = NULL;
           G_DeathMatchSpawnPlayer(i);
         }
+  }
+  else // if !deathmatch, check all necessary player starts actually exist
+  {
+    for (i=0; i<MAXPLAYERS; i++)
+      if (playeringame[i] && !players[i].mo)
+        I_Error("P_SetupLevel: missing player %d start\n", i+1);
+  }
 
   // killough 3/26/98: Spawn icon landings:
   if (gamemode==commercial)
