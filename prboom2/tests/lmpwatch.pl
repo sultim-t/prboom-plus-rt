@@ -75,10 +75,14 @@ while (@ARGV) {
 
   # filename globbing and switch prepending for wad files
   $iwad = path_expand($iwad, @paths) or next; # not strictly necessary
-  @files = map { prepend_switch(path_expand($_, @paths)) or next; } @files;
+  @files = map { path_expand($_, @paths) or next; } @files;
+  my @deh = grep { /\.(deh|bex)$/i } @files;
+  unshift @deh, "-deh" if @deh;
+  my @wad = grep { /\.wad$/i } @files;
+  unshift @wad, "-file" if @wad; # should be "-merge" for chocolate-doom?
 
-  my $command = sprintf("%s -iwad %s %s %s %s %s",
-    $DOOM, $iwad, "@files", $demo_opts, $demo, $extra);
+  my $command = sprintf("%s -iwad %s %s %s %s %s %s",
+    $DOOM, $iwad, "@wad", "@deh", $demo_opts, $demo, $extra);
   print "RUNNING: $command\n" if $verbose;
 
   if ($testing) {
@@ -173,24 +177,6 @@ sub path_expand
   }
   warn "$0: cannot find $file\n";
   return undef;
-}
-
-# prepend appropriate command line switch
-sub prepend_switch
-{
-  my ($file) = @_;
-  my $switch;
-
-  return "" if !$file;
-
-  # ugh, filename extensions are such a DOSism
-  if ($file =~ m/(\.deh|\.bex)$/) {
-    $switch = "-deh";
-  } else {
-    # should this be -merge if doom engine is chocolate-doom ?
-    $switch = "-file";
-  }
-  return $switch." ".$file;
 }
 
 # vim:set sts=2 sw=2 ts=8 et:
