@@ -1708,7 +1708,7 @@ int ParseDemoPattern(const char *str, waddata_t* waddata, char **missed)
         int len = strlen(p);
         if (!strcasecmp(&p[len-4],".wad"))
           wadfiles[numwadfiles].src = source_pwad;
-        if (!strcasecmp(&p[len-4],".deh"))
+        if (!strcasecmp(&p[len-4],".deh") || !strcasecmp(&p[len-4],".bex"))
           wadfiles[numwadfiles].src = source_deh;
       }
       numwadfiles++;

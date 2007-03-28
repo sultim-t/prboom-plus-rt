@@ -309,6 +309,7 @@ static void L_CommandOnChange(void)
 
     e6y_I_FindFile("*.wad");
     e6y_I_FindFile("*.deh");
+    e6y_I_FindFile("*.bex");
 
     L_GameOnChange();
 
@@ -382,7 +383,7 @@ static boolean L_GetFileType(const char *filename, fileitem_t *item)
   
   len = strlen(filename);
 
-  if (!strcasecmp(&filename[len-4],".deh"))
+  if (!strcasecmp(&filename[len-4],".deh") || !strcasecmp(&filename[len-4],".bex"))
   {
     item->source = source_deh;
     return true;
@@ -1066,6 +1067,7 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
       
       e6y_I_FindFile("*.wad");
       e6y_I_FindFile("*.deh");
+      e6y_I_FindFile("*.bex");
 
       L_FillGameList();
       L_FillHistoryList();
