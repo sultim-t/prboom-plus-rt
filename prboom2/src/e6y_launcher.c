@@ -47,6 +47,7 @@
 #include "m_argv.h"
 #include "i_main.h"
 #include ".\..\ICONS\resource.h"
+#include "pcreposix.h"
 #include "e6y.h"
 #include "e6y_launcher.h"
 
@@ -1000,7 +1001,7 @@ static void L_FillHistoryList(void)
       waddata_t *waddata = malloc(sizeof(*waddata));
       memset(waddata, 0, sizeof(*waddata));
 
-      ParseDemoPattern(str, waddata, true);
+      ParseDemoPattern(str, waddata, NULL);
       p = L_HistoryGetStr(waddata);
 
       if (p)
@@ -1027,7 +1028,6 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
       int i;
       HMODULE hMod;
       waddata_t data;
-      char pattern_name[PATH_MAX];
 
       launcher.HWNDClient = hDlg;
       launcher.listIWAD = GetDlgItem(launcher.HWNDClient, IDC_IWADCOMBO);
@@ -1074,13 +1074,17 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
       {
         if (wadfiles[i].src == source_lmp)
         {
-          if (DemoNameToWadData(wadfiles[i].name, &data, pattern_name, sizeof(pattern_name)))
+          patterndata_t patterndata;
+          memset(&patterndata, 0, sizeof(patterndata));
+
+          if (DemoNameToWadData(wadfiles[i].name, &data, &patterndata))
           {
             L_GUISelect(&data);
-            SendMessage(launcher.staticFileName, WM_SETTEXT, 0, (LPARAM)pattern_name);
+            SendMessage(launcher.staticFileName, WM_SETTEXT, 0, (LPARAM)patterndata.pattern_name);
             WadDataFree(&data);
             break;
           }
+          free(patterndata.missed);
         }
       }
       

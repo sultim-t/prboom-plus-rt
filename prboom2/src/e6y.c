@@ -1671,17 +1671,22 @@ void WadDataFree(waddata_t *waddata)
   }
 }
 
-int ParseDemoPattern(const char *str, waddata_t* waddata, boolean silent)
+int ParseDemoPattern(const char *str, waddata_t* waddata, char **missed)
 {
   int processed = 0;
   wadfile_info_t *wadfiles = NULL;
   size_t numwadfiles = 0;
   char *pStr = strdup(str);
   char *pToken = pStr;
+  
+  if (missed)
+  {
+    *missed = NULL;
+  }
 
   for (;(pToken = strtok(pToken,"|"));pToken = NULL)
   {
-    char *token;
+    char *token = NULL;
     processed++;
 #ifdef _MSC_VER
     token = malloc(PATH_MAX);
@@ -1690,30 +1695,31 @@ int ParseDemoPattern(const char *str, waddata_t* waddata, boolean silent)
     if ((token = I_FindFile(pToken, ".wad")))
 #endif
     {
-      if (token)
+      wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
+      wadfiles[numwadfiles].name = token;
+      
+      if (pToken == pStr)
       {
-        wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
-        wadfiles[numwadfiles].name = token;
-
-        if (pToken == pStr)
-        {
-          wadfiles[numwadfiles].src = source_iwad;
-        }
-        else
-        {
-          char *p = (char*)wadfiles[numwadfiles].name;
-          int len = strlen(p);
-          if (!strcasecmp(&p[len-4],".wad"))
-            wadfiles[numwadfiles].src = source_pwad;
-          if (!strcasecmp(&p[len-4],".deh"))
-            wadfiles[numwadfiles].src = source_deh;
-        }
-        numwadfiles++;
+        wadfiles[numwadfiles].src = source_iwad;
       }
       else
       {
-        if (!silent)
-          lprintf(LO_WARN, " not found %s\n", pToken);
+        char *p = (char*)wadfiles[numwadfiles].name;
+        int len = strlen(p);
+        if (!strcasecmp(&p[len-4],".wad"))
+          wadfiles[numwadfiles].src = source_pwad;
+        if (!strcasecmp(&p[len-4],".deh"))
+          wadfiles[numwadfiles].src = source_deh;
+      }
+      numwadfiles++;
+    }
+    else
+    {
+      if (missed)
+      {
+        int len = (*missed ? strlen(*missed) : 0);
+        *missed = realloc(*missed, len + strlen(pToken) + 100);
+        sprintf(*missed + len, " %s not found\n", pToken);
       }
     }
   }
@@ -1729,7 +1735,7 @@ int ParseDemoPattern(const char *str, waddata_t* waddata, boolean silent)
 }
 
 #ifdef HAVE_LIBPCREPOSIX
-int DemoNameToWadData(const char * demoname, waddata_t *waddata, char *pattern_name, int pattern_maxsize)
+int DemoNameToWadData(const char * demoname, waddata_t *waddata, patterndata_t *patterndata)
 {
   int numwadfiles_required = 0;
   int i;
@@ -1782,21 +1788,23 @@ int DemoNameToWadData(const char * demoname, waddata_t *waddata, char *pattern_n
         result = regexec(&preg, demofilename, 1, &demo_match[0], 0);
         if (result == 0 && demo_match[0].rm_so == 0 && demo_match[0].rm_eo == (int)strlen(demofilename))
         {
-          lprintf(LO_INFO, " used %s%d\n", demo_patterns_mask, i);
-
-          numwadfiles_required = ParseDemoPattern(buf + pmatch[3].rm_so, waddata, false);
+          numwadfiles_required = ParseDemoPattern(buf + pmatch[3].rm_so, waddata,
+            (patterndata ? &patterndata->missed : NULL));
 
           waddata->wadfiles = realloc(waddata->wadfiles, sizeof(*wadfiles)*(waddata->numwadfiles+1));
           waddata->wadfiles[waddata->numwadfiles].name = strdup(demoname);
           waddata->wadfiles[waddata->numwadfiles].src = source_lmp;
           waddata->numwadfiles++;
 
-          if (pattern_name)
+          if (patterndata)
           {
-            len = MIN(pmatch[1].rm_eo - pmatch[1].rm_so, pattern_maxsize - 1);
-            strncpy(pattern_name, buf, len);
-            pattern_name[len] = '\0';
+            len = MIN(pmatch[1].rm_eo - pmatch[1].rm_so, sizeof(patterndata->pattern_name) - 1);
+            strncpy(patterndata->pattern_name, buf, len);
+            patterndata->pattern_name[len] = '\0';
+
+            patterndata->pattern_num = i;
           }
+
           break;
         }
       }
@@ -1900,15 +1908,29 @@ void CheckAutoDemo(void)
     {
       if (wadfiles[i].src == source_lmp)
       {
-        int numwadfiles_required = DemoNameToWadData(wadfiles[i].name, &waddata, NULL, 0);
+        int numwadfiles_required;
+        
+        patterndata_t patterndata;
+        memset(&patterndata, 0, sizeof(patterndata));
+
+        numwadfiles_required = DemoNameToWadData(wadfiles[i].name, &waddata, &patterndata);
+        
         if (waddata.numwadfiles)
         {
-          if ((size_t)numwadfiles_required + 1 != waddata.numwadfiles)
+          if ((size_t)numwadfiles_required + 1 != waddata.numwadfiles && patterndata.missed)
           {
-            I_Warning("PlayAutoDemo: Not all required files are found, may not work");
+            I_Warning(
+              "DataAutoload: pattern #%i is used\n"
+              "%s not all required files are found, may not work\n",
+              patterndata.pattern_num, patterndata.missed);
+          }
+          else
+          {
+            lprintf(LO_WARN,"DataAutoload: pattern #%i is used\n", patterndata.pattern_num);
           }
           WadDataToWadFiles(&waddata);
         }
+        free(patterndata.missed);
         WadDataFree(&waddata);
         break;
       }
