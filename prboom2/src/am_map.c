@@ -1412,10 +1412,30 @@ static void AM_drawThings(void)
   // for all sectors
   for (i=0;i<numsectors;i++)
   {
+   // e6y
+   // Two-pass method for better usability of automap:
+   // The first one will draw all things except enemies
+   // The second one is for enemies only
+   // Stop after first pass if the current sector has no enemies
+   int pass;
+   int enemies = 0;
+   for (pass = 0; pass < 2; pass += (enemies ? 1 : 2))
+   {
+
     t = sectors[i].thinglist;
     while (t) // for all things in that sector
     {
       fixed_t x = t->x >> FRACTOMAPBITS, y = t->y >> FRACTOMAPBITS;//e6y
+
+      //e6y: stop if all enemies from current sector already has been drawn
+      if (pass == 1 && enemies == 0)
+        break;
+      if (pass == ((t->flags & (MF_COUNTKILL | MF_CORPSE)) == MF_COUNTKILL ?
+        (pass == 0 ? enemies++: enemies--), 0 : 1))
+      {
+        t = t->snext;
+        continue;
+      }
 
       if (automapmode & am_rotate)
   AM_rotate(&x, &y, ANG90-plr->mo->angle, plr->mo->x, plr->mo->y);
@@ -1483,6 +1503,7 @@ static void AM_drawThings(void)
       );
       t = t->snext;
     }
+   }
   }
 }
 
