@@ -819,6 +819,44 @@ static void R_DrawPSprite (pspdef_t *psp, int lightlevel)
       scalelight_offset[BETWEEN(0, LIGHTLEVELS-1, 
       (lightlevel >> LIGHTSEGSHIFT)+extralight)][MAXLIGHTSCALE-1];
 
+  //e6y: interpolation for weapon bobbing
+  if (movement_smooth)
+  {
+    typedef struct interpolate_s
+    {
+      int x1;
+      int x1_prev;
+      int texturemid;
+      int texturemid_prev;
+      int lump;
+    } psp_interpolate_t;
+
+    static psp_interpolate_t psp_inter;
+
+    if (realframe)
+    {
+      psp_inter.x1 = psp_inter.x1_prev;
+      psp_inter.texturemid = psp_inter.texturemid_prev;
+    }
+
+    psp_inter.x1_prev = vis->x1;
+    psp_inter.texturemid_prev = vis->texturemid;
+
+    if (lump == psp_inter.lump)
+    {
+      int deltax = vis->x2 - vis->x1;
+      vis->x1 = psp_inter.x1 + FixedMul (tic_vars.frac, (vis->x1 - psp_inter.x1));
+      vis->x2 = vis->x1 + deltax;
+      vis->texturemid = psp_inter.texturemid + FixedMul (tic_vars.frac, (vis->texturemid - psp_inter.texturemid));
+    }
+    else
+    {
+      psp_inter.x1 = vis->x1;
+      psp_inter.texturemid = vis->texturemid;
+      psp_inter.lump=lump;
+    }
+  }
+
   // proff 11/99: don't use software stuff in OpenGL
   if (V_GetMode() != VID_MODEGL)
   {
