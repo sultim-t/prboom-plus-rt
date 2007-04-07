@@ -184,7 +184,7 @@ int P_GetMoveFactor(const mobj_t *mo, int *frictionp)
   int movefactor, friction;
 
   //e6y
-  if (!mbf_features)
+  if (!mbf_features && !prboom_comp[PC_PRBOOM_FRICTION].state)
   {
     int momentum;
 
@@ -846,7 +846,7 @@ boolean P_TryMove(mobj_t* thing,fixed_t x,fixed_t y,
       // http://competn.doom2.net/pub/sda/t-z/v2-2822.zip
       // http://www.doomworld.com/idgames/index.php?id=11138
       boolean compatibility_no_dropoff = 
-        !force_no_dropoff && 
+        !prboom_comp[PC_NO_DROPOFF].state && 
         compatibility_level >= mbf_compatibility && 
         compatibility_level <= prboom_2_compatibility;
       if ((compatibility || compatibility_no_dropoff || !dropoff) && (tmfloorz - tmdropoffz > 24*FRACUNIT))
@@ -1131,7 +1131,7 @@ void P_HitSlideLine (line_t* ld)
    * cph - DEMOSYNC - should only affect players in Boom demos? */
 
   //e6y
-  if (mbf_features)
+  if (mbf_features || prboom_comp[PC_PRBOOM_FRICTION].state)
   {
     icyfloor =
     P_AproxDistance(tmxmove, tmymove) > 4*FRACUNIT &&

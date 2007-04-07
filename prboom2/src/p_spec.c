@@ -2528,7 +2528,8 @@ void P_SpawnSpecials (void)
     if (sector->special&SECRET_MASK) //jff 3/15/98 count extended
       totalsecret++;                 // secret sectors too
 
-    switch ((demo_compatibility && !force_truncated_sector_specials) ? sector->special : sector->special&31)
+    switch ((demo_compatibility && !prboom_comp[PC_TRUNCATED_SECTOR_SPECIALS].state) ? 
+      sector->special : sector->special&31)
     {
       case 1:
         // random off
@@ -3085,7 +3086,7 @@ static void P_SpawnFriction(void)
             // at level startup, and then uses this friction value.
 
             //e6y: boom's friction code for boom compatibility
-            if (!demo_compatibility && !mbf_features)
+            if (!demo_compatibility && !mbf_features && !prboom_comp[PC_PRBOOM_FRICTION].state)
               Add_Friction(friction,movefactor,s);
 
             sectors[s].friction = friction;

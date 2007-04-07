@@ -323,8 +323,6 @@ static void P_XYMovement (mobj_t* mo)
       // killough 10/98:
       // Don't affect main player when voodoo dolls stop, except in old demos:
 
-//    if ( player&&(unsigned)((player->mo->state - states)- S_PLAY_RUN1) < 4)
-//      P_SetMobjState (player->mo, S_PLAY);
       if (player && (unsigned)(player->mo->state - states - S_PLAY_RUN1) < 4
     && (player->mo == mo || compatibility_level >= lxdoom_1_compatibility))
   P_SetMobjState(player->mo, S_PLAY);
@@ -357,7 +355,7 @@ static void P_XYMovement (mobj_t* mo)
        */
 
       //e6y
-      if (compatibility_level <= boom_201_compatibility)
+      if (compatibility_level <= boom_201_compatibility && !prboom_comp[PC_PRBOOM_FRICTION].state)
       {
         // phares 3/17/98
         // Friction will have been adjusted by friction thinkers for icy
@@ -367,7 +365,7 @@ static void P_XYMovement (mobj_t* mo)
         mo->momy = FixedMul(mo->momy,mo->friction);
         mo->friction = ORIG_FRICTION; // reset to normal for next tic
       }
-      else if (compatibility_level <= lxdoom_1_compatibility)
+      else if (compatibility_level <= lxdoom_1_compatibility && !prboom_comp[PC_PRBOOM_FRICTION].state)
       {
         // phares 9/10/98: reduce bobbing/momentum when on ice & up against wall
 

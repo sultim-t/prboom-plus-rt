@@ -215,12 +215,6 @@ float skyYShift;
 
 float internal_render_fov = FOV90;
 
-int force_monster_avoid_hazards = false;
-//int force_remove_slime_trails = false;
-int force_truncated_sector_specials = false;
-int force_no_dropoff = false;
-int force_boom_brainawake = false;
-
 #ifdef GL_DOOM
 unsigned int idDetail;
 boolean gl_arb_multitexture;
@@ -277,12 +271,21 @@ void ParamsMatchingCheck()
     I_Error("Params are not matching: Can not being played back and recorded at the same time.");
 }
 
+prboom_comp_t prboom_comp[PC_MAX] = {
+  {0x00000000, 0x02020621, 0, "-force_monster_avoid_hazards"},
+  {0x00000000, 0x02040601, 0, "-force_remove_slime_trails"},
+  {0x02020200, 0x02040801, 0, "-force_no_dropoff"},
+  {0x00000000, 0x02040801, 0, "-force_truncated_sector_specials"},
+  {0x00000000, 0x02040802, 0, "-force_boom_brainawake"},
+  {0x00000000, 0x02040802, 0, "-force_prboom_friction"},
+};
+
 void e6y_D_DoomMainSetup(void)
 {
   void G_RecordDemo (const char* name);
   void G_BeginRecording (void);
 
-  int p;
+  int i, p;
   
   if ((p = M_CheckParm("-recordfromto")) && (p < myargc - 2))
   {
@@ -316,16 +319,42 @@ void e6y_D_DoomMainSetup(void)
     G_SkipDemoStart();
   if ((p = M_CheckParm("-avidemo")) && (p < myargc-1))
     avi_shot_fname = myargv[p+1];
-//  force_remove_slime_trails = M_CheckParm("-force_remove_slime_trails");
-  force_monster_avoid_hazards = M_CheckParm("-force_monster_avoid_hazards");
-  force_truncated_sector_specials = M_CheckParm("-force_truncated_sector_specials");
-  force_no_dropoff = M_CheckParm("-force_no_dropoff");
-  force_boom_brainawake = M_CheckParm("-force_boom_brainawake");
   stats_level = M_CheckParm("-levelstat");
+
+  {
+    //"2.4.8.2" -> 0x02040802
+    if ((p = M_CheckParm("-emulate")) && (p < myargc-1))
+    {
+      unsigned int emulated_version = 0;
+      int b[4], k = 1;
+      int count = sscanf(myargv[p+1], "%d.%d.%d.%d", &b[0], &b[1], &b[2], &b[3]);
+      for (i = count - 1; i >= 0; i--, k *= 256)
+      {
+#ifdef RANGECHECK
+        if (b[i] >= 256)
+          I_Error("Wrong version number of package: %s", VERSION);
+#endif
+        emulated_version += b[i] * k;
+      }
+      
+      for (i = 0; i < PC_MAX; i++)
+      {
+        prboom_comp[i].state = 
+          (emulated_version >= prboom_comp[i].minver && 
+           emulated_version <  prboom_comp[i].maxver);
+      }
+    }
+
+    for (i = 0; i < PC_MAX; i++)
+    {
+      if (M_CheckParm(prboom_comp[i].cmd))
+        prboom_comp[i].state = true;
+    }
+  }
 
   // TAS-tracers
   {
-    long i, value, count;
+    long value, count;
     traces_present = false;
 
     for (i=0;i<3;i++)

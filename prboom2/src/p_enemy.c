@@ -432,7 +432,8 @@ static boolean P_SmartMove(mobj_t *actor)
 {
   mobj_t *target = actor->target;
   int on_lift, dropoff = false, under_damage;
-  int tmp_monster_avoid_hazards = (force_monster_avoid_hazards?true:(demo_compatibility?false:monster_avoid_hazards));//e6y
+  int tmp_monster_avoid_hazards = (prboom_comp[PC_MONSTER_AVOID_HAZARDS].state ? 
+    true : (demo_compatibility ? false : monster_avoid_hazards));//e6y
 
   /* killough 9/12/98: Stay on a lift if target is on one */
   on_lift = !comp[comp_staylift]
@@ -2326,7 +2327,7 @@ void P_SpawnBrainTargets(void)  // killough 3/26/98: renamed old function
 void A_BrainAwake(mobj_t *mo)
 {
   //e6y
-  if (demo_compatibility && !force_boom_brainawake)
+  if (demo_compatibility && !prboom_comp[PC_BOOM_BRAINAWAKE].state)
   {
     brain.targeton = 0;
     brain.easy = 0;

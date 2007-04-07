@@ -84,7 +84,7 @@ void P_Thrust(player_t* player,angle_t angle,fixed_t move)
 static void P_Bob(player_t *player, angle_t angle, fixed_t move)
 {
   //e6y
-  if (!mbf_features)
+  if (!mbf_features && !prboom_comp[PC_PRBOOM_FRICTION].state)
     return;
 
   player->momx += FixedMul(move,finecosine[angle >>= ANGLETOFINESHIFT]);
@@ -122,7 +122,8 @@ void P_CalcHeight (player_t* player)
         FixedMul(player->momy,player->momy))>>2 : 0;
 
     //e6y
-    if (compatibility_level >= boom_202_compatibility && 
+    if (!prboom_comp[PC_PRBOOM_FRICTION].state &&
+        compatibility_level >= boom_202_compatibility && 
         compatibility_level <= lxdoom_1_compatibility &&
         player->mo->friction > ORIG_FRICTION) // ice?
     {
@@ -224,7 +225,8 @@ void P_MovePlayer (player_t* player)
   // thrust applied to the movement varies with 'movefactor'.
 
   //e6y
-  if ((!demo_compatibility && !mbf_features) || (cmd->forwardmove | cmd->sidemove)) // killough 10/98
+  if ((!demo_compatibility && !mbf_features && !prboom_comp[PC_PRBOOM_FRICTION].state) || 
+    (cmd->forwardmove | cmd->sidemove)) // killough 10/98
     {
       if (onground || mo->flags & MF_BOUNCES) // killough 8/9/98
       {

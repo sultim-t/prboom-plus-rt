@@ -304,11 +304,25 @@ void e6y_MultisamplingCheck(void);
 void e6y_MultisamplingSet(void);
 void e6y_MultisamplingPrint(void);
 
-extern int force_monster_avoid_hazards;
-//extern int force_remove_slime_trails;
-extern int force_truncated_sector_specials;
-extern int force_no_dropoff;
-extern int force_boom_brainawake;
+typedef struct prboom_comp_s
+{
+  unsigned int minver;
+  unsigned int maxver;
+  boolean state;
+  char *cmd;
+} prboom_comp_t;
+
+typedef enum {
+  PC_MONSTER_AVOID_HAZARDS,
+  PC_REMOVE_SLIME_TRAILS,
+  PC_NO_DROPOFF,
+  PC_TRUNCATED_SECTOR_SPECIALS,
+  PC_BOOM_BRAINAWAKE,
+  PC_PRBOOM_FRICTION,
+  PC_MAX
+};
+
+extern prboom_comp_t prboom_comp[];
 
 int StepwiseSum(int value, int direction, int step, int minval, int maxval, int defval);
 
