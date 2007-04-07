@@ -1255,10 +1255,11 @@ void WI_drawDeathmatchStats(void)
 //
 // Note: The term "Netgame" means a coop game
 //
-static short *cnt_kills;
-static short *cnt_items;
-static short *cnt_secret;
-static short *cnt_frags;
+// e6y: int instead of short to avoid an overflowing
+static int *cnt_kills;
+static int *cnt_items;
+static int *cnt_secret;
+static int *cnt_frags;
 static int    dofrags;
 static int    ng_state;
 
