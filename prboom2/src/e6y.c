@@ -321,6 +321,7 @@ void e6y_D_DoomMainSetup(void)
     avi_shot_fname = myargv[p+1];
   stats_level = M_CheckParm("-levelstat");
 
+  if (gameaction == ga_playdemo)
   {
     //"2.4.8.2" -> 0x02040802
     if ((p = M_CheckParm("-emulate")) && (p < myargc-1))
