@@ -115,7 +115,6 @@ enum {
 
   //e6y
   comp_ouchface,
-  comp_oofsound,
   comp_maxhealth,
   comp_translucency,
 

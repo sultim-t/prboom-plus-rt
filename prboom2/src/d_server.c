@@ -260,7 +260,7 @@ nosuch,nosuch,nosuch,nosuch, // RNG seed
 "monster_infighting","player_helpers",nosuch,nosuch,
 nosuch,nosuch, // distfriend
 "monster_backing","monster_avoid_hazards","monster_friction","help_friends","dog_jumping","monkeys",
-"comp_telefrag","comp_dropoff","comp_vile","comp_pain","comp_skull","comp_blazing","comp_doorlight","comp_model","comp_god","comp_falloff","comp_floors","comp_skymap","comp_pursuit","comp_doorstuck","comp_staylift","comp_zombie","comp_stairs","comp_infcheat","comp_zerotags","comp_moveblock","comp_respawn","comp_sound","comp_666","comp_maskedanim","comp_ouchface","comp_oofsound","comp_maxhealth","comp_translucency" };//e6y
+"comp_telefrag","comp_dropoff","comp_vile","comp_pain","comp_skull","comp_blazing","comp_doorlight","comp_model","comp_god","comp_falloff","comp_floors","comp_skymap","comp_pursuit","comp_doorstuck","comp_staylift","comp_zombie","comp_stairs","comp_infcheat","comp_zerotags","comp_moveblock","comp_respawn","comp_sound","comp_666","comp_maskedanim","comp_ouchface","comp_maxhealth","comp_translucency" };//e6y
 
 const int num_gameopts = sizeof gameopt_config_names / sizeof gameopt_config_names[0];
 

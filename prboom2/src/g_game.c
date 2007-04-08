@@ -2097,8 +2097,6 @@ void G_Compatibility(void)
     //e6y
     // comp_ouchface - Use Doom's buggy "Ouch" face code
     { prboom_1_compatibility, prboom_6_compatibility },
-    // comp_oofsound - Dead players make "oof" sound when landing
-    { prboom_1_compatibility, prboom_6_compatibility },
     // comp_maxhealth - Max Health in DEH applies only to potions
     { boom_compatibility_compatibility, prboom_6_compatibility },
     // comp_translucency - No predefined translucency for some things
