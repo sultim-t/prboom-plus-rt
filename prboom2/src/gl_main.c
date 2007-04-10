@@ -2531,9 +2531,9 @@ static void gld_DrawFlat(GLFlat *flat)
       for (vertexnum=currentloop->vertexindex; vertexnum<(currentloop->vertexindex+currentloop->vertexcount); vertexnum++)
       {
         // set texture coordinate of this vertex
-	    glTexCoord2fv(&gld_texcoords[vertexnum*2]);
+        glTexCoord2fv((GLfloat*)&gld_texcoords[vertexnum]);
         // set vertex coordinate
-        glVertex3fv(&gld_vertexes[vertexnum*3]);
+        glVertex3fv((GLfloat*)&gld_vertexes[vertexnum]);
       }
       // end of loop
       glEnd();
