@@ -195,7 +195,7 @@ task(:image => :bundle) do |t|
 	imagePath = "/Volumes/#{imageName}"
 
 	if File::directory?(imagePath)
-		sh("diskutil unmount #{imagePath}")
+		sh("diskutil eject #{imagePath}")
 	end
 
 	sh("hdiutil create -fs HFS+ -volname #{imageName} -ov -type SPARSE -attach #{imageName}")
