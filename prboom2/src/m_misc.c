@@ -298,6 +298,7 @@ default_t defaults[] =
   {"comp_translucency",{&default_comp[comp_translucency]},{0},0,1,def_bool,ss_comp,&comp[comp_translucency]},
 
   {"Sound settings",{NULL},{0},UL,UL,def_none,ss_none},
+  {"snd_pcspeaker",{&snd_pcspeaker},{0}, 0, 1, def_bool,ss_none},
   {"sound_card",{&snd_card},{-1},-1,7,       // jff 1/18/98 allow Allegro drivers
    def_int,ss_none}, // select sounds driver (DOS), -1 is autodetect, 0 is none; in Linux, non-zero enables sound
   {"music_card",{&mus_card},{-1},-1,9,       //  to be set,  -1 = autodetect
@@ -722,6 +723,7 @@ default_t defaults[] =
   {"hudadd_demoprogressbar", {&hudadd_demoprogressbar},  {0},0,1,
    def_bool,ss_stat},
 
+  //e6y
   {"Prboom-plus mouse settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"mouse_acceleration",{&mouse_acceleration},{0},0,UL,
    def_int,ss_none},

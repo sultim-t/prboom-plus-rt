@@ -2195,6 +2195,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\i_pcsound.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\i_pcsound.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\i_simd.c"
 				>
 			</File>
@@ -4687,10 +4695,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\protocol.h"
-				>
-			</File>
-			<File
 				RelativePath="..\src\r_bsp.c"
 				>
 				<FileConfiguration
@@ -6677,6 +6681,34 @@
 			</File>
 			<File
 				RelativePath="..\Icons\skull.ico"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="PCSound Source Files"
+			>
+			<File
+				RelativePath="..\src\pcsound\pcsound.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\pcsound\pcsound.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\pcsound\pcsound_linux.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\pcsound\pcsound_sdl.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\pcsound\pcsound_win32.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\protocol.h"
 				>
 			</File>
 		</Filter>

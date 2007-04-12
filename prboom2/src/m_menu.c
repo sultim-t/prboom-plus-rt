@@ -2942,13 +2942,14 @@ enum {
 //  general_sndcard,
 //  general_muscard,
 //  general_detvoices,
+  general_sndpcspeaker,
   general_sndchan,
   general_pitch
 };
 
 #define G_X 250
 #define G_YA  44
-#define G_YA2 (G_YA+9*8)
+#define G_YA2 (G_YA+8*8)
 #define G_YA3 (G_YA2+5*8)
 #define GF_X 76
 
@@ -3013,6 +3014,9 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
   {"Autodetect Number of Voices", S_YESNO|S_PRGWARN, m_null, G_X,
    G_YA2 + general_detvoices*8, {"detect_voices"}},
 #endif
+
+  {"PC Speaker emulation",     S_YESNO|S_PRGWARN, m_null,G_X,
+   G_YA3 + general_sndpcspeaker*8, {"snd_pcspeaker"}},
 
   {"Number of Sound Channels", S_NUM|S_PRGWARN, m_null, G_X,
    G_YA3 + general_sndchan*8, {"snd_channels"}},

@@ -68,6 +68,12 @@
 
 #include "d_main.h"
 
+//e6y
+#include "i_pcsound.h"
+#include "e6y.h"
+
+int snd_pcspeaker;
+
 // The number of internal mixing channels,
 //  the samples calculated for each mixing step,
 //  the size of the 16bit, 2 hardware channel (stereo)
@@ -176,6 +182,10 @@ static void updateSoundParams(int handle, int volume, int seperation, int pitch)
   if ((handle < 0) || (handle >= MAX_CHANNELS))
     I_Error("I_UpdateSoundParams: handle out of range");
 #endif
+
+  if (snd_pcspeaker)
+    return;
+
   // Set stepping
   // MWM 2000-12-24: Calculates proportion of channel samplerate
   // to global samplerate for mixing purposes.
@@ -267,9 +277,14 @@ void I_SetChannels(void)
 //
 int I_GetSfxLumpNum(sfxinfo_t* sfx)
 {
-    char namebuf[9];
-    sprintf(namebuf, "ds%s", sfx->name);
-    return W_GetNumForName(namebuf);
+  char namebuf[9];
+  char *prefix;
+
+  // Different prefix for PC speaker sound effects.
+  prefix = (snd_pcspeaker ? "dp" : "ds");
+
+  sprintf(namebuf, "%s%s", prefix, sfx->name);
+  return W_GetNumForName(namebuf);
 }
 
 //
@@ -296,6 +311,9 @@ int I_StartSound(int id, int channel, int vol, int sep, int pitch, int priority)
 #else
     return -1;
 #endif
+
+  if (snd_pcspeaker)
+    return I_PCS_StartSound(id, channel, vol, sep, pitch, priority);
 
   lump = S_sfx[id].lumpnum;
 
@@ -335,6 +353,13 @@ void I_StopSound (int handle)
   if ((handle < 0) || (handle >= MAX_CHANNELS))
     I_Error("I_StopSound: handle out of range");
 #endif
+
+  if (snd_pcspeaker)
+  {
+    I_PCS_StopSound(handle);
+    return;
+  }
+
   SDL_LockAudio();
   stopchan(handle);
   SDL_UnlockAudio();
@@ -347,6 +372,10 @@ boolean I_SoundIsPlaying(int handle)
   if ((handle < 0) || (handle >= MAX_CHANNELS))
     I_Error("I_SoundIsPlaying: handle out of range");
 #endif
+
+  if (snd_pcspeaker)
+    return I_PCS_SoundIsPlaying(handle);
+
   return channelinfo[handle].data != NULL;
 }
 
@@ -355,6 +384,9 @@ boolean I_AnySoundStillPlaying(void)
 {
   boolean result = false;
   int i;
+
+  if (snd_pcspeaker)
+    return false;
 
   for (i=0; i<MAX_CHANNELS; i++)
     result |= channelinfo[i].data != NULL;
@@ -392,6 +424,9 @@ static void I_UpdateSound(void *unused, Uint8 *stream, int len)
 
   // Mixing channel index.
   int       chan;
+
+  if (snd_pcspeaker)
+    return;
 
     // Left and right channel
     //  are in audio stream, alternating.
@@ -552,6 +587,10 @@ void I_InitSound(void)
     atexit(I_ShutdownSound);
     first_sound_init = false;
   }
+
+  // If we are using the PC speaker, we now need to initialise it.
+  if (snd_pcspeaker)
+    I_PCS_InitSound();
 
   if (!nomusicparm)
     I_InitMusic();

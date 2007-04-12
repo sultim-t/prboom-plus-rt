@@ -500,6 +500,14 @@ SOURCE=..\src\i_network.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\i_pcsound.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\i_pcsound.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\i_simd.c
 # End Source File
 # Begin Source File
@@ -1120,44 +1128,44 @@ SOURCE=..\Icons\icons.rc
 
 !IF  "$(CFG)" == "Doom - Win32 Release"
 
-# ADD BASE RSC /l 0x419 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
-# ADD RSC /l 0x409 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD BASE RSC /l 0x419 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD RSC /l 0x409 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons"
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug"
 
-# ADD BASE RSC /l 0x419 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
-# ADD RSC /l 0x409 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD BASE RSC /l 0x419 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD RSC /l 0x409 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons"
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL"
 
-# ADD BASE RSC /l 0x419 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
-# ADD RSC /l 0x419 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD BASE RSC /l 0x419 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD RSC /l 0x419 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons"
 # SUBTRACT RSC /i "./../VisualC6"
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL"
 
-# ADD BASE RSC /l 0x419 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
-# ADD RSC /l 0x409 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD BASE RSC /l 0x419 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD RSC /l 0x409 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons"
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release NOASM"
 
-# ADD BASE RSC /l 0x419 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
-# ADD RSC /l 0x409 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD BASE RSC /l 0x419 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD RSC /l 0x409 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons"
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL NOASM"
 
-# ADD BASE RSC /l 0x419 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
-# ADD RSC /l 0x409 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD BASE RSC /l 0x419 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD RSC /l 0x409 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons"
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
 
-# ADD BASE RSC /l 0x419 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
-# ADD RSC /l 0x409 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD BASE RSC /l 0x419 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD RSC /l 0x409 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons"
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
 
-# ADD BASE RSC /l 0x419 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
-# ADD RSC /l 0x409 /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD BASE RSC /l 0x419 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons"
+# ADD RSC /l 0x409 /i "\andre\prg\doom\prboom-plus\branches\prboom-plus-24\Icons" /i "\andre\prg\prboom-plus\branches\prboom-plus-24\Icons"
 
 !ENDIF 
 
@@ -1173,6 +1181,30 @@ SOURCE=..\Icons\resource.h
 # Begin Source File
 
 SOURCE=..\Icons\skull.ico
+# End Source File
+# End Group
+# Begin Group "PCSound Source Files"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\src\pcsound\pcsound.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\pcsound\pcsound.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\pcsound\pcsound_linux.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\pcsound\pcsound_sdl.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\pcsound\pcsound_win32.c
 # End Source File
 # End Group
 # Begin Source File

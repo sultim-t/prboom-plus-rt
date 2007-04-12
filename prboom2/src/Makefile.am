@@ -52,7 +52,8 @@ COMMON_SRC = \
  r_patch.c      r_patch.h          r_fps.c          r_fps.h \
  e6y.c          e6y.h              i_simd.c         i_simd.h \
  r_filter.c     r_filter.h         r_drawcolumn.inl r_drawflush.inl \
- r_drawspan.inl
+ r_drawspan.inl \
+ i_pcsound.c    i_pcsound.h
 
 NET_CLIENT_SRC = d_client.c
 
