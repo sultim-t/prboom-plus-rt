@@ -144,9 +144,9 @@ static GLTexture *gld_AddNewGLTexture(int texture_num)
     gld_GLTextures[texture_num]->textype=GLDT_UNREGISTERED;
 
     //e6y
-    for (i=0; i<NUMCOLORMAPS+1; i++)
+    for (i=0; i<(CR_LIMIT+MAXPLAYERS); i++)
     {
-      for (j=0; j<(CR_LIMIT+MAXPLAYERS); j++)
+      for (j=0; j<NUMCOLORMAPS+1; j++)
       {
         size = sizeof(gld_GLTextures[texture_num]->glTexID[0][0][0]);
         gld_GLTextures[texture_num]->glTexID[i][j] = Z_Malloc(numcolormaps * size, PU_STATIC, 0);
@@ -179,9 +179,9 @@ static GLTexture *gld_AddNewGLPatchTexture(int lump)
     gld_GLPatchTextures[lump]->textype=GLDT_UNREGISTERED;
 
     //e6y
-    for (i=0; i<NUMCOLORMAPS+1; i++)
+    for (i=0; i<(CR_LIMIT+MAXPLAYERS); i++)
     {
-      for (j=0; j<(CR_LIMIT+MAXPLAYERS); j++)
+      for (j=0; j<NUMCOLORMAPS+1; j++)
       {
         size = sizeof(gld_GLPatchTextures[lump]->glTexID[0][0][0]);
         gld_GLPatchTextures[lump]->glTexID[i][j] = Z_Malloc(numcolormaps * size, PU_STATIC, 0);
@@ -566,7 +566,7 @@ void gld_BindTexture(GLTexture *gltexture)
   }
 
   //e6y
-  glTexID = &gltexture->glTexID[frame_fixedcolormap][CR_DEFAULT][boom_cm];
+  glTexID = &gltexture->glTexID[CR_DEFAULT][boom_cm][frame_fixedcolormap];
 
   if (*glTexID!=0)
   {
@@ -724,7 +724,7 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   }
 
   //e6y
-  glTexID = &gltexture->glTexID[frame_fixedcolormap][cm][boom_cm];
+  glTexID = &gltexture->glTexID[cm][boom_cm][frame_fixedcolormap];
 
   if (*glTexID!=0)
   {
@@ -875,7 +875,7 @@ void gld_BindFlat(GLTexture *gltexture)
   }
 
   //e6y
-  glTexID = &gltexture->glTexID[frame_fixedcolormap][CR_DEFAULT][boom_cm];
+  glTexID = &gltexture->glTexID[CR_DEFAULT][boom_cm][frame_fixedcolormap];
 
   if (*glTexID!=0)
   {
@@ -969,10 +969,14 @@ static void gld_CleanTextures(void)
   {
     if (gld_GLTextures[i])
     {
-      for (n=0; n<NUMCOLORMAPS+1; n++)
-        for (j=0; j<(CR_LIMIT+MAXPLAYERS); j++)
+      for (j=0; j<(CR_LIMIT+MAXPLAYERS); j++)
+        for (n=0; n<NUMCOLORMAPS+1; n++)
+        {
           for (cm=0; cm<numcolormaps; cm++)
-            glDeleteTextures(1,&(gld_GLTextures[i]->glTexID[n][j][cm]));
+            glDeleteTextures(1,&(gld_GLTextures[i]->glTexID[j][n][cm]));
+          Z_Free(gld_GLTextures[i]->glTexID[j][n]);
+          gld_GLTextures[i]->glTexID[j][n] = NULL;
+        }
 
       Z_Free(gld_GLTextures[i]);
     }
@@ -990,11 +994,14 @@ static void gld_CleanPatchTextures(void)
   {
     if (gld_GLPatchTextures[i])
     {
-      //e6y: support for Boom's colormaps
-      for (n=0; n<NUMCOLORMAPS+1; n++)
-        for (j=0; j<(CR_LIMIT+MAXPLAYERS); j++)
+      for (j=0; j<(CR_LIMIT+MAXPLAYERS); j++)
+        for (n=0; n<NUMCOLORMAPS+1; n++)
+        {
           for (cm=0; cm<numcolormaps; cm++)
-            glDeleteTextures(1,&(gld_GLPatchTextures[i]->glTexID[n][j][cm]));
+            glDeleteTextures(1,&(gld_GLPatchTextures[i]->glTexID[j][n][cm]));
+          Z_Free(gld_GLPatchTextures[i]->glTexID[j][n]);
+          gld_GLPatchTextures[i]->glTexID[j][n] = NULL;
+        }
 
       Z_Free(gld_GLPatchTextures[i]);
     }
