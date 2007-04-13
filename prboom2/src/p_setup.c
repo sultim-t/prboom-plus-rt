@@ -1536,7 +1536,16 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 
 #ifdef GL_DOOM
 // proff 11/99: clean the memory from textures etc.
-  gld_CleanMemory();
+  {
+    static int previous_episode = -1;
+    static int previous_map = -1;
+    if (episode != previous_episode || map != previous_map)
+    {
+      gld_CleanMemory();
+      previous_episode = episode;
+      previous_map = map;
+    }
+  }
 #endif
 
   P_InitThinkers();
