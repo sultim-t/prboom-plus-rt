@@ -31,7 +31,8 @@
 #include "pcsound.h"
 
 //e6y
-#include ".\..\src\doomtype.h"
+#include "doomtype.h"
+#include "lprintf.h"
 
 #ifdef _WIN32
 extern pcsound_driver_t pcsound_win32_driver;
@@ -85,7 +86,7 @@ int PCSound_Init(pcsound_callback_func callback_func)
                 }
                 else
                 {
-                    printf("Failed to initialise PC sound driver: %s\n",
+                    lprintf(LO_WARN, "Failed to initialise PC sound driver: %s\n",
                            drivers[i]->name);
                     break;
                 }
@@ -108,12 +109,12 @@ int PCSound_Init(pcsound_callback_func callback_func)
     
     if (pcsound_driver != NULL)
     {
-        printf("Using PC sound driver: %s\n", pcsound_driver->name);
+        lprintf(LO_INFO, "Using PC sound driver: %s\n", pcsound_driver->name);
         return 1;
     }
     else
     {
-        printf("Failed to find a working PC sound driver.\n");
+        lprintf(LO_WARN, "Failed to find a working PC sound driver.\n");
         return 0;
     }
 }

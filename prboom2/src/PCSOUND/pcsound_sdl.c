@@ -31,6 +31,9 @@
 
 #include "pcsound.h"
 
+//e6y
+#include "lprintf.h"
+
 #define SQUARE_WAVE_AMP 0x2000
 
 static pcsound_callback_func callback;
@@ -151,7 +154,7 @@ static int PCSound_SDL_Init(pcsound_callback_func callback_func)
 
     if (mixing_format != AUDIO_S16SYS || mixing_channels != 2)
     {
-        fprintf(stderr, 
+        lprintf(LO_WARN, 
                 "PCSound_SDL only supports native signed 16-bit LSB, "
                 "stereo format!\n");
         return 0;
