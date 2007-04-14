@@ -1584,6 +1584,9 @@ void WI_initStats(void)
 //
 void WI_updateStats(void)
 {
+  //e6y
+  static boolean play_early_explosion = true;
+
   WI_updateAnimatedBack();
 
   if (acceleratestage && sp_state != 10)
@@ -1651,7 +1654,7 @@ void WI_updateStats(void)
   }
   else if (sp_state == 8)
   {
-    if (!(bcnt&3))
+    if (!(bcnt&3) && play_early_explosion) //e6y: do not play count sound after explosion sound
       S_StartSound(0, sfx_pistol);
 
     cnt_time += 3;
@@ -1666,13 +1669,27 @@ void WI_updateStats(void)
 
     cnt_par += 3;
 
+    // e6y
+    // if par time is hidden (if modifiedgame is true)
+    // the game should play explosion sound immediately after
+    // the counter will reach level time instead of par time
+    if (modifiedgame && play_early_explosion)
+    {
+      if ((cnt_time >= plrs[me].stime / TICRATE) && (compatibility_level < lxdoom_1_compatibility || cnt_total_time >= wbs->totaltimes / TICRATE))
+      {
+        S_StartSound(0, sfx_barexp);
+        play_early_explosion = false; // do not play it twice or more
+      }
+    }
+
     if (cnt_par >= wbs->partime / TICRATE)
     {
       cnt_par = wbs->partime / TICRATE;
 
       if ((cnt_time >= plrs[me].stime / TICRATE) && (compatibility_level < lxdoom_1_compatibility || cnt_total_time >= wbs->totaltimes / TICRATE))
       {
-        S_StartSound(0, sfx_barexp);
+        if (!modifiedgame) //e6y: do not play explosion sound if it was already played
+          S_StartSound(0, sfx_barexp);
         sp_state++;
       }
     }
@@ -1691,6 +1708,7 @@ void WI_updateStats(void)
   }
   else if (sp_state & 1)
   {
+    play_early_explosion = true; //e6y
     if (!--cnt_pause)
     {
       sp_state++;
