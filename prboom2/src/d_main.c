@@ -1474,7 +1474,8 @@ static void D_DoomMainSetup(void)
         else {
           D_AddFile(fpath,source_auto_load);
         }
-        modifiedgame = true;
+        if (i % MAXLOADFILES != MAXLOADFILES - 1)
+          modifiedgame = true;
         free(fpath);
       }
     }
@@ -1483,7 +1484,6 @@ static void D_DoomMainSetup(void)
 //e6y
 #ifdef ALL_IN_ONE
   D_AddFile("$$$all_in_one_lump$$$", source_pre);
-  modifiedgame = true;
 #endif
 
   // e6y: DEH files preloaded in wrong order
