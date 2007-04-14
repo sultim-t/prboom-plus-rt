@@ -566,7 +566,7 @@ void gld_BindTexture(GLTexture *gltexture)
   }
 
   //e6y
-  glTexID = &gltexture->glTexID[CR_DEFAULT][boom_cm][frame_fixedcolormap];
+  glTexID = &gltexture->glTexID[CR_DEFAULT][frame_fixedcolormap][boom_cm];
 
   if (*glTexID!=0)
   {
@@ -724,7 +724,7 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   }
 
   //e6y
-  glTexID = &gltexture->glTexID[cm][boom_cm][frame_fixedcolormap];
+  glTexID = &gltexture->glTexID[cm][frame_fixedcolormap][boom_cm];
 
   if (*glTexID!=0)
   {
@@ -875,7 +875,7 @@ void gld_BindFlat(GLTexture *gltexture)
   }
 
   //e6y
-  glTexID = &gltexture->glTexID[CR_DEFAULT][boom_cm][frame_fixedcolormap];
+  glTexID = &gltexture->glTexID[CR_DEFAULT][frame_fixedcolormap][boom_cm];
 
   if (*glTexID!=0)
   {
