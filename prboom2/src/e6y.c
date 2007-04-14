@@ -1907,9 +1907,15 @@ void WadDataToWadFiles(waddata_t *waddata)
   for (i = 0; (size_t)i < waddata->numwadfiles; i++)
   {
     if (waddata->wadfiles[i].src == source_iwad && i != iwadindex)
+    {
       D_AddFile(waddata->wadfiles[i].name, source_pwad);
+      modifiedgame = true;
+    }
     if (waddata->wadfiles[i].src == source_pwad)
+    {
       D_AddFile(waddata->wadfiles[i].name, source_pwad);
+      modifiedgame = true;
+    }
     if (waddata->wadfiles[i].src == source_deh)
       ProcessDehFile(waddata->wadfiles[i].name, D_dehout(), 0);
   }

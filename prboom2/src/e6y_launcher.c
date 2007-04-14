@@ -598,7 +598,10 @@ static boolean L_PrepareToLaunch(void)
     fileitem_t *item = &launcher.files[index];
 
     if (item->source == source_pwad || item->source == source_iwad)
+    {
       D_AddFile(item->name, source_pwad);
+      modifiedgame = true;
+    }
 
     if (item->source == source_deh)
       ProcessDehFile(item->name, D_dehout(),0);

@@ -1473,9 +1473,9 @@ static void D_DoomMainSetup(void)
           ProcessDehFile(fpath, D_dehout(), 0);
         else {
           D_AddFile(fpath,source_auto_load);
+          if (i != MAXLOADFILES - 1)
+            modifiedgame = true;
         }
-        if (i % MAXLOADFILES != MAXLOADFILES - 1)
-          modifiedgame = true;
         free(fpath);
       }
     }
