@@ -38,6 +38,7 @@
 #include "p_setup.h"
 #include "m_bbox.h"
 #include "lprintf.h"
+#include "e6y.h" //e6y
 
 //
 // P_CheckSight
@@ -108,7 +109,7 @@ static boolean P_CrossSubsector(int num)
      * cph - this is causing demo desyncs on original Doom demos.
      *  Who knows why. Exclude test for those.
      */
-    if (!demo_compatibility)
+    if (!demo_compatibility || prboom_comp[PC_FORCE_LXDOOM_DEMO_COMPATIBILITY].state)
     if (line->bbox[BOXLEFT  ] > los.bbox[BOXRIGHT ] ||
   line->bbox[BOXRIGHT ] < los.bbox[BOXLEFT  ] ||
   line->bbox[BOXBOTTOM] > los.bbox[BOXTOP   ] ||
@@ -160,7 +161,9 @@ static boolean P_CrossSubsector(int num)
     // cph - if bottom >= top or top < minz or bottom > maxz then it must be
     // solid wrt this LOS
     if (!(line->flags & ML_TWOSIDED) || (openbottom >= opentop) ||
-  (opentop < los.minz) || (openbottom > los.maxz))
+  (prboom_comp[PC_FORCE_LXDOOM_DEMO_COMPATIBILITY].state ?
+  (opentop <= los.minz) || (openbottom >= los.maxz) :
+  (opentop < los.minz) || (openbottom > los.maxz)))
   return false;
 
     { // crosses a two sided line
@@ -245,7 +248,7 @@ static boolean P_CrossBSPNode_PrBoom(int bspnum)
 static boolean P_CrossBSPNode(int bspnum)
 {
   /* cph - LxDoom used some R_* funcs here */
-  if (compatibility_level == lxdoom_1_compatibility)
+  if (compatibility_level == lxdoom_1_compatibility || prboom_comp[PC_FORCE_LXDOOM_DEMO_COMPATIBILITY].state)
     return P_CrossBSPNode_LxDoom(bspnum);
   else
     return P_CrossBSPNode_PrBoom(bspnum);
@@ -319,8 +322,8 @@ boolean P_CheckSight(mobj_t *t1, mobj_t *t2)
   /* cph - calculate min and max z of the potential line of sight
    * For old demos, we disable this optimisation by setting them to
    * the extremes */
-  switch (compatibility_level) {
-  case lxdoom_1_compatibility:
+  if (compatibility_level == lxdoom_1_compatibility || prboom_comp[PC_FORCE_LXDOOM_DEMO_COMPATIBILITY].state)
+  {
     if (los.sightzstart < t2->z) {
       los.maxz = t2->z + t2->height; los.minz = los.sightzstart;
     } else if (los.sightzstart > t2->z + t2->height) {
@@ -328,8 +331,9 @@ boolean P_CheckSight(mobj_t *t1, mobj_t *t2)
     } else {
       los.maxz = t2->z + t2->height; los.minz = t2->z;
     }
-    break;
-  default:
+  }
+  else
+  {
     los.maxz = INT_MAX; los.minz = INT_MIN;
   }
 

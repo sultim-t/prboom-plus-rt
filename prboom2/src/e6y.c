@@ -279,6 +279,7 @@ prboom_comp_t prboom_comp[PC_MAX] = {
   {0x00000000, 0x02040802, 0, "-force_boom_brainawake"},
   {0x00000000, 0x02040802, 0, "-force_prboom_friction"},
   {0x02020500, 0x02040000, 0, "-reject_pad_with_ff"},
+  {0xffffffff, 0x02040802, 0, "-force_lxdoom_demo_compatibility"},
 };
 
 void e6y_D_DoomMainSetup(void)
