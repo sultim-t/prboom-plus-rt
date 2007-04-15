@@ -1644,6 +1644,29 @@ static const struct {
 
 static const size_t num_version_headers = sizeof(version_headers) / sizeof(version_headers[0]);
 
+//e6y
+unsigned int GetPackageVersion(void)
+{
+  static unsigned int PACKAGEVERSION = 0;
+
+  //e6y: "2.4.8.2" -> 0x02040802
+  if (PACKAGEVERSION == 0)
+  {
+    int b[4], i, k = 1;
+    memset(b, 0, sizeof(b));
+    sscanf(VERSION, "%d.%d.%d.%d", &b[0], &b[1], &b[2], &b[3]);
+    for (i = 3; i >= 0; i--, k *= 256)
+    {
+#ifdef RANGECHECK
+      if (b[i] >= 256)
+        I_Error("Wrong version number of package: %s", VERSION);
+#endif
+      PACKAGEVERSION += b[i] * k;
+    }
+  }
+  return PACKAGEVERSION;
+}
+
 void G_DoLoadGame(void)
 {
   int  length, i;
@@ -1651,7 +1674,7 @@ void G_DoLoadGame(void)
   char name[PATH_MAX+1];     // killough 3/22/98
   int savegame_compatibility = -1;
   //e6y: numeric version number of package should be zero before initializing from savegame
-  int packageversion = 0;
+  unsigned int packageversion = 0;
 
   G_SaveGameName(name,sizeof(name),savegameslot, demoplayback);
 
@@ -1716,6 +1739,16 @@ void G_DoLoadGame(void)
     memcpy(&packageversion, save_p, sizeof packageversion);
     save_p += sizeof packageversion;
   }
+  //e6y: let's show the warning if savegame is from the previous version of prboom
+  if (packageversion != GetPackageVersion())
+  {
+    if (!forced_loadgame)
+    {
+      G_LoadGameErr("Incompatible Savegame version!!!\n\nAre you sure?");
+      return;
+    } else
+      lprintf(LO_WARN, "G_DoLoadGame: Incompatible savegame version\n");
+  }
 
   compatibility_level = (savegame_compatibility >= prboom_4_compatibility) ? *save_p : savegame_compatibility;
   if (savegame_compatibility < prboom_6_compatibility)
@@ -1745,20 +1778,10 @@ void G_DoLoadGame(void)
   memcpy(&leveltime, save_p, sizeof leveltime);
   save_p += sizeof leveltime;
 
-  //e6y: total level times are always saved since 2.4.8.1
-  if (packageversion >= 0x00002481)
-  {
-    memcpy(&totalleveltimes, save_p, sizeof totalleveltimes);
-    save_p += sizeof totalleveltimes;
-  }
-  else
-
   /* cph - total episode time */
-  if (compatibility_level >= prboom_2_compatibility) {
-    memcpy(&totalleveltimes, save_p, sizeof totalleveltimes);
-    save_p += sizeof totalleveltimes;
-  }
-  else totalleveltimes = 0;
+  //e6y: total level times are always saved since 2.4.8.1
+  memcpy(&totalleveltimes, save_p, sizeof totalleveltimes);
+  save_p += sizeof totalleveltimes;
 
   // killough 11/98: load revenant tracer state
   basetic = gametic - *save_p++;
@@ -1862,31 +1885,14 @@ void G_SaveGameName(char *name, size_t size, int slot, boolean demoplayback)
 #endif
 }
 
-static int PACKAGEVERSION = 0; //e6y
-
 static void G_DoSaveGame (boolean menu)
 {
   char name[PATH_MAX+1];
   char name2[VERSIONSIZE];
   char *description;
   int  length, i;
-  int packageversion; //e6y: numeric version number of package
-  
-  //e6y: "2.4.8.2" -> 0x02040802
-  if (PACKAGEVERSION == 0)
-  {
-    int b[4], k = 1;
-    int count = sscanf(VERSION, "%d.%d.%d.%d", &b[0], &b[1], &b[2], &b[3]);
-    for (i = count - 1; i >= 0; i--, k *= 256)
-    {
-#ifdef RANGECHECK
-      if (b[i] >= 256)
-        I_Error("Wrong version number of package: %s", VERSION);
-#endif
-      PACKAGEVERSION += b[i] * k;
-    }
-  }
-  packageversion = PACKAGEVERSION;
+  //e6y: numeric version number of package
+  unsigned int packageversion = GetPackageVersion();
 
   gameaction = ga_nothing; // cph - cancel savegame at top of this function,
     // in case later problems cause a premature exit
