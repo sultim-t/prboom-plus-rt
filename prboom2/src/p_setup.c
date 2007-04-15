@@ -1260,7 +1260,7 @@ static void P_LoadReject(int lumpnum, int totallines)
   // This command line switch is needed for all potential demos 
   // recorded with these versions of PrBoom on maps with too short REJECT
   // I don't think there are any demos that will need it but yes that seems sensible
-  pad = M_CheckParm("-reject_pad_with_ff") ? 0xff : 0;
+  pad = prboom_comp[REJECT_PAD_WITH_FF].state ? 0xff : 0;
 
   memset(newreject + length, pad, required - length);
   // unlock the original lump, it is no longer needed
