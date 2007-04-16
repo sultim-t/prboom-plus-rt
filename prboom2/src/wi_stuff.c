@@ -1677,6 +1677,10 @@ void WI_updateStats(void)
     {
       if ((cnt_time >= plrs[me].stime / TICRATE) && (compatibility_level < lxdoom_1_compatibility || cnt_total_time >= wbs->totaltimes / TICRATE))
       {
+        // for ExM8 levels if the player won't have pressed <Use>
+        if (compatibility_level < lxdoom_1_compatibility)
+          cnt_total_time = wbs->totaltimes / TICRATE;
+
         S_StartSound(0, sfx_barexp);
         play_early_explosion = false; // do not play it twice or more
       }
@@ -1688,6 +1692,10 @@ void WI_updateStats(void)
 
       if ((cnt_time >= plrs[me].stime / TICRATE) && (compatibility_level < lxdoom_1_compatibility || cnt_total_time >= wbs->totaltimes / TICRATE))
       {
+        //e6y: for ExM8 levels
+        if (compatibility_level < lxdoom_1_compatibility)
+          cnt_total_time = wbs->totaltimes / TICRATE;
+
         if (!modifiedgame) //e6y: do not play explosion sound if it was already played
           S_StartSound(0, sfx_barexp);
         sp_state++;
