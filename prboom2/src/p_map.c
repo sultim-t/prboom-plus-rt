@@ -2280,6 +2280,7 @@ void P_CreateSecNodeList(mobj_t* thing,fixed_t x,fixed_t y)
    * OTOH for Boom/MBF demos we have to preserve the buggy behavior.
    *  Fun. We restore its previous value unless we're in a Boom/MBF demo.
    */
+  if (!prboom_comp[PC_FORCE_LXDOOM_DEMO_COMPATIBILITY].state)
   if ((compatibility_level < boom_compatibility_compatibility) ||
       (compatibility_level >= prboom_3_compatibility))
     tmthing = saved_tmthing;
