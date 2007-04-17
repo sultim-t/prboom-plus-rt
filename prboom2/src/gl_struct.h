@@ -47,6 +47,7 @@ void gld_FillBlock(int x, int y, int width, int height, int col);
 void gld_SetPalette(int palette);
 void gld_ReadScreen (byte* scr);
 
+void gld_CleanVertexData();//e6y
 void gld_CleanMemory(void);
 void gld_PreprocessLevel(void);
 

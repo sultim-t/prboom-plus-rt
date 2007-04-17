@@ -6574,6 +6574,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath="..\src\gl_vertex.c"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"

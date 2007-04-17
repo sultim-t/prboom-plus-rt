@@ -66,9 +66,6 @@
 #include "e6y.h"//e6y
 
 //e6y
-extern PFNGLACTIVETEXTUREARBPROC        GLEXT_glActiveTextureARB;
-extern PFNGLCLIENTACTIVETEXTUREARBPROC  GLEXT_glClientActiveTextureARB;
-extern PFNGLMULTITEXCOORD2FARBPROC      GLEXT_glMultiTexCoord2fARB;
 static boolean SkyDrawed;
 
 extern int tran_filter_pct;
@@ -99,9 +96,6 @@ static float extra_blue=0.0f;
 static float extra_alpha=0.0f;
 
 GLfloat gl_whitecolor[4]={1.0f,1.0f,1.0f,1.0f};
-
-#define MAP_COEFF 128.0f
-#define MAP_SCALE (MAP_COEFF*(float)FRACUNIT)
 
 /*
  * lookuptable for lightvalues
@@ -830,12 +824,6 @@ typedef struct
   GLLoopDef loop; // the loops itself
 } GLSubSector;
 
-typedef struct
-{
-  float x1,x2;
-  float z1,z2;
-} GLSeg;
-
 GLSeg *gl_segs=NULL;
 
 #define GLDWF_TOP 1
@@ -844,20 +832,6 @@ GLSeg *gl_segs=NULL;
 #define GLDWF_BOT 4
 #define GLDWF_SKY 5
 #define GLDWF_SKYFLIP 6
-
-typedef struct
-{
-  GLSeg *glseg;
-  float ytop,ybottom;
-  float ul,ur,vt,vb;
-  float light;
-  float alpha;
-  float skyymid;
-  float skyyaw;
-  GLTexture *gltexture;
-  byte flag;
-  seg_t *seg;
-} GLWall;
 
 typedef struct
 {
@@ -2003,16 +1977,49 @@ static void gld_DrawWall(GLWall *wall)
           glTranslatef(skyXShift,skyYShift,0.0f);
         }
       }
-      if (!SkyDrawed && GetMouseLook())
+      if (!SkyDrawed)
       {             
         float maxcoord = 255.0f;
+        boolean mlook = GetMouseLook();
         SkyDrawed = true;
-        glBegin(GL_TRIANGLE_STRIP);
+        if (mlook)
+        {
+          glBegin(GL_TRIANGLE_STRIP);
           glVertex3f(-maxcoord,+maxcoord,+maxcoord);
           glVertex3f(+maxcoord,+maxcoord,+maxcoord);
           glVertex3f(-maxcoord,+maxcoord,-maxcoord);
           glVertex3f(+maxcoord,+maxcoord,-maxcoord);
-        glEnd();
+          glEnd();
+        }
+
+        if(test_skybox)
+        {
+          if (mlook)
+          {
+            glBegin(GL_TRIANGLE_STRIP);
+            glVertex3f(-maxcoord,-maxcoord,+maxcoord);
+            glVertex3f(+maxcoord,-maxcoord,+maxcoord);
+            glVertex3f(-maxcoord,-maxcoord,-maxcoord);
+            glVertex3f(+maxcoord,-maxcoord,-maxcoord);
+            glEnd();
+          }
+          
+          glBegin(GL_TRIANGLE_STRIP);
+          glVertex3f(+maxcoord,+maxcoord,+maxcoord);
+          glVertex3f(+maxcoord,-maxcoord,+maxcoord);
+          glVertex3f(+maxcoord,+maxcoord,-maxcoord);
+          glVertex3f(+maxcoord,-maxcoord,-maxcoord);
+
+          glVertex3f(-maxcoord,+maxcoord,-maxcoord);
+          glVertex3f(-maxcoord,-maxcoord,-maxcoord);
+          
+          glVertex3f(-maxcoord,+maxcoord,+maxcoord);
+          glVertex3f(-maxcoord,-maxcoord,+maxcoord);
+
+          glVertex3f(+maxcoord,+maxcoord,+maxcoord);
+          glVertex3f(+maxcoord,-maxcoord,+maxcoord);
+          glEnd();
+        }
       }
 
     }
@@ -2030,63 +2037,99 @@ static void gld_DrawWall(GLWall *wall)
   }
   else
   {
-  //e6y
-  if (gl_arb_multitexture && render_detailedwalls &&
+    //e6y
+    if (gl_arb_multitexture && render_detailedwalls &&
       distance2piece(xCamera, yCamera, 
-        wall->glseg->x1, wall->glseg->z1,
-        wall->glseg->x2, wall->glseg->z2) < DETAIL_DISTANCE)
-  {
-    float w, h, s;
-    GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
-    glEnable(GL_TEXTURE_2D);
-    if (anim_textures[wall->gltexture->index].count==0)
+      wall->glseg->x1, wall->glseg->z1,
+      wall->glseg->x2, wall->glseg->z2) < DETAIL_DISTANCE)
     {
-      s = 0.0f;
-    }
-    else
-    {
-      s = 1.0f/anim_textures[wall->gltexture->index].count*
-        (anim_textures[wall->gltexture->index].index);
-      if (s < 0.001) s = 0.0f;
-    }
-    w = s + wall->gltexture->realtexwidth / 18.0f;
-    h = s + wall->gltexture->realtexheight / 18.0f;
-    gld_StaticLightAlpha(wall->light, wall->alpha);
-    glBegin(GL_TRIANGLE_STRIP);
-      GLEXT_glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ul,wall->vt);
-      GLEXT_glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ul*w,wall->vt*h);
-      glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
+      float w, h, s;
+      GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
+      glEnable(GL_TEXTURE_2D);
+      if (anim_textures[wall->gltexture->index].count==0)
+      {
+        s = 0.0f;
+      }
+      else
+      {
+        s = 1.0f/anim_textures[wall->gltexture->index].count*
+          (anim_textures[wall->gltexture->index].index);
+        if (s < 0.001) s = 0.0f;
+      }
+      w = s + wall->gltexture->realtexwidth / 18.0f;
+      h = s + wall->gltexture->realtexheight / 18.0f;
+      gld_StaticLightAlpha(wall->light, wall->alpha);
+
+      glBegin(GL_TRIANGLE_FAN);
+
+      // lower left corner
       GLEXT_glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ul,wall->vb); 
       GLEXT_glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ul*w,wall->vb*h);
       glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
+
+      // split left edge of wall
+      if (gl_seamless && wall->glseg->fracleft == 0)
+        gld_SplitLeftEdge(wall, true, w, h);
+
+      // upper left corner
+      GLEXT_glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ul,wall->vt);
+      GLEXT_glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ul*w,wall->vt*h);
+      glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
+
+      // upper right corner
       GLEXT_glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ur,wall->vt); 
       GLEXT_glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ur*w,wall->vt*h);
       glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
+
+      // split right edge of wall
+      if (gl_seamless && wall->glseg->fracright == 1)
+        gld_SplitRightEdge(wall, true, w, h);
+
+      // lower right corner
       GLEXT_glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ur,wall->vb); 
       GLEXT_glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ur*w,wall->vb*h);
       glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
-    glEnd();
-    glDisable(GL_TEXTURE_2D);
-    GLEXT_glActiveTextureARB(GL_TEXTURE0_ARB);
-  }
-  else
-  {
-    gld_StaticLightAlpha(wall->light, wall->alpha);
-    glBegin(GL_TRIANGLE_STRIP);
-      glTexCoord2f(wall->ul,wall->vt); glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
-      glTexCoord2f(wall->ul,wall->vb); glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
-      glTexCoord2f(wall->ur,wall->vt); glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
-      glTexCoord2f(wall->ur,wall->vb); glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
-    glEnd();
-  }
 
-  }//e6y
+      glEnd();
+
+      glDisable(GL_TEXTURE_2D);
+      GLEXT_glActiveTextureARB(GL_TEXTURE0_ARB);
+    }
+    else
+    {
+      gld_StaticLightAlpha(wall->light, wall->alpha);
+
+      glBegin(GL_TRIANGLE_FAN);
+
+      // lower left corner
+      glTexCoord2f(wall->ul,wall->vb); glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
+
+      // split left edge of wall
+      if (gl_seamless && wall->glseg->fracleft == 0)
+        gld_SplitLeftEdge(wall, false, 0.0f, 0.0f);
+
+      // upper left corner
+      glTexCoord2f(wall->ul,wall->vt); glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
+
+      // upper right corner
+      glTexCoord2f(wall->ur,wall->vt); glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
+
+      // split right edge of wall
+      if (gl_seamless && wall->glseg->fracright == 1)
+        gld_SplitRightEdge(wall, false, 0.0f, 0.0f);
+
+      // lower right corner
+      glTexCoord2f(wall->ur,wall->vb); glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
+
+      glEnd();
+    }
+  }
 }
 
 #define LINE seg->linedef
 #define CALC_Y_VALUES(w, lineheight, floor_height, ceiling_height)\
-  (w).ytop=((float)(ceiling_height)/(float)MAP_SCALE)+0.001f;\
-  (w).ybottom=((float)(floor_height)/(float)MAP_SCALE)-0.001f;\
+  (w).ytop=((float)(ceiling_height)/(float)MAP_SCALE)+SMALLDELTA;\
+  (w).ybottom=((float)(floor_height)/(float)MAP_SCALE)-SMALLDELTA;\
   lineheight=((float)fabs(((ceiling_height)/(float)FRACUNIT)-((floor_height)/(float)FRACUNIT)))
 
 #define OU(w,seg) (((float)((seg)->sidedef->textureoffset+(seg)->offset)/(float)FRACUNIT)/(float)(w).gltexture->buffer_width)
@@ -2461,12 +2504,6 @@ static void gld_PreprocessSegs(void)
     gl_segs[i].z1= (float)segs[i].v1->y/(float)MAP_SCALE;
     gl_segs[i].x2=-(float)segs[i].v2->x/(float)MAP_SCALE;
     gl_segs[i].z2= (float)segs[i].v2->y/(float)MAP_SCALE;
-    //e6y
-    if (test_dots)
-    {
-      gl_segs[i].x1 -= (gl_segs[i].x2-gl_segs[i].x1)*0.001f;
-      gl_segs[i].z1 -= (gl_segs[i].z2-gl_segs[i].z1)*0.001f;
-    }
   }
 }
 
@@ -2973,6 +3010,46 @@ static void gld_ProcessWall(int i, boolean *gl_alpha_blended)
           EnableAlphaBlend(gl_alpha_blended);
         }
         
+        // e6y
+        // The ultimate 'ATI sucks' fix: Some of ATIs graphics cards are so unprecise when 
+        // rendering geometry that each and every border between polygons must be seamless, 
+        // otherwise there are rendering artifacts worse than anything that could be seen 
+        // on Geforce 2's! Made this a menu option because the speed impact is quite severe
+        // and this special handling is not necessary on modern NVidia cards.
+        if (gl_seamless)
+        {
+          GLWall *wall = &gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex];
+          seg_t *seg = wall->seg;
+          vertex_t *v1, *v2;
+          
+          if (seg->sidedef == &sides[seg->linedef->sidenum[0]])
+          {
+            v1 = seg->linedef->v1;
+            v2 = seg->linedef->v2;
+          }
+          else
+          {
+            v1 = seg->linedef->v2;
+            v2 = seg->linedef->v1;
+          }
+          wall->glseg->fracleft = 0;
+          wall->glseg->fracright = 1;
+
+          if (D_abs(v1->x - v2->x) > D_abs(v1->y - v2->y))
+          {
+            wall->glseg->fracleft  = (float)(seg->v1->x - v1->x) / (float)(v2->x - v1->x);
+            wall->glseg->fracright = (float)(seg->v2->x - v1->x) / (float)(v2->x - v1->x);
+          }
+          else
+          {
+            wall->glseg->fracleft  = (float)(seg->v1->y - v1->y) / (float)(v2->y - v1->y);
+            wall->glseg->fracright = (float)(seg->v2->y - v1->y) / (float)(v2->y - v1->y);
+          }
+
+          gld_RecalcVertexHeights(seg->v1);
+          gld_RecalcVertexHeights(seg->v2);
+        }
+
         rendered_segs++;
         count++;
         gld_DrawWall(&gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex]);
@@ -3110,4 +3187,5 @@ void gld_PreprocessLevel(void)
   e6y_PreprocessLevel();//e6y
   glTexCoordPointer(2,GL_FLOAT,0,gld_texcoords);
   glVertexPointer(3,GL_FLOAT,0,gld_vertexes);
+  gld_InitVertexData();//e6y
 }

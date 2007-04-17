@@ -204,7 +204,7 @@ extern float render_aspect_ratio;
 
 extern int misc_fastexit;
 
-extern int test_dots;
+extern int test_skybox;
 
 extern unsigned int spechit_magic;
 

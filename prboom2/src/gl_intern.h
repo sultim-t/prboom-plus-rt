@@ -34,6 +34,11 @@
 #ifndef _GL_INTERN_H
 #define _GL_INTERN_H
 
+#define MAP_COEFF 128.0f
+#define MAP_SCALE (MAP_COEFF*(float)FRACUNIT)
+
+#define SMALLDELTA 0.001f
+
 typedef enum
 {
   GLDT_UNREGISTERED,
@@ -65,6 +70,27 @@ typedef struct
   unsigned int flags;//e6y
 } GLTexture;
 
+typedef struct
+{
+  float x1,x2;
+  float z1,z2;
+  float fracleft, fracright; //e6y: fractional offset of the 2 vertices on the linedef
+} GLSeg;
+
+typedef struct
+{
+  GLSeg *glseg;
+  float ytop,ybottom;
+  float ul,ur,vt,vb;
+  float light;
+  float alpha;
+  float skyymid;
+  float skyyaw;
+  GLTexture *gltexture;
+  byte flag;
+  seg_t *seg;
+} GLWall;
+
 extern int gld_max_texturesize;
 extern char *gl_tex_format_string;
 extern int gl_tex_format;
@@ -79,6 +105,13 @@ extern unsigned char gld_palmap[256];
 extern GLTexture *last_gltexture;
 extern int last_cm;
 
+//e6y
+extern int gl_seamless;
+
+extern PFNGLACTIVETEXTUREARBPROC        GLEXT_glActiveTextureARB;
+extern PFNGLCLIENTACTIVETEXTUREARBPROC  GLEXT_glClientActiveTextureARB;
+extern PFNGLMULTITEXCOORD2FARBPROC      GLEXT_glMultiTexCoord2fARB;
+
 //e6y: in some cases textures with a zero index (NO_TEXTURE) should be registered
 GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap, boolean force);
 void gld_BindTexture(GLTexture *gltexture);
@@ -90,6 +123,12 @@ void gld_InitPalettedTextures(void);
 int gld_GetTexDimension(int value);
 void gld_SetTexturePalette(GLenum target);
 void gld_Precache(void);
+
+//e6y: from gl_vertex
+void gld_InitVertexData();
+void gld_SplitLeftEdge(const GLWall *wall, boolean detail, float detail_w, float detail_h);
+void gld_SplitRightEdge(const GLWall *wall, boolean detail, float detail_w, float detail_h);
+void gld_RecalcVertexHeights(const vertex_t *v);
 
 PFNGLCOLORTABLEEXTPROC gld_ColorTableEXT;
 

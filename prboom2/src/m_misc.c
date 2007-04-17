@@ -163,6 +163,7 @@ extern int gl_drawskys;
 extern int gl_sortsprites;
 extern int gl_use_paletted_texture;
 extern int gl_use_shared_texture_palette;
+extern int gl_seamless;
 #endif
 //e6y: removed from #ifdef GL_DOOM
 extern int gl_sprite_offset;
@@ -787,7 +788,9 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"render_paperitems", {&render_paperitems},  {1},0,1,
    def_bool,ss_stat},
-  {"test_dots", {&test_dots},  {1},0,1,
+  {"test_skybox", {&test_skybox},  {0},0,1,
+   def_bool,ss_stat},
+  {"gl_seamless", {&gl_seamless},  {0},0,1,
    def_bool,ss_stat},
 //#endif
   {"Prboom-plus emulation settings",{NULL},{0},UL,UL,def_none,ss_none},

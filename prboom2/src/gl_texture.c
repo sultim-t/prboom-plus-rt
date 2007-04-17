@@ -1083,6 +1083,7 @@ void gld_Precache(void)
 
 void gld_CleanMemory(void)
 {
+  gld_CleanVertexData();//e6y
   gld_CleanTextures();
   gld_CleanPatchTextures();
 }

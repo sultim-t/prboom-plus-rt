@@ -184,7 +184,8 @@ float render_aspect_ratio;
 
 int misc_fastexit;
 
-int test_dots;
+int test_skybox;
+
 unsigned int spechit_magic;
 
 char *sdl_videodriver;
