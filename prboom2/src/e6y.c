@@ -2022,7 +2022,7 @@ void HU_DrawDemoProgress(void)
 {
   if (demoplayback && hudadd_demoprogressbar)
   {
-    int len = MIN(SCREENWIDTH, SCREENWIDTH * demo_curr_tic / demo_tics_count);
+    int len = MIN(SCREENWIDTH, (int)((int_64_t)SCREENWIDTH * demo_curr_tic / demo_tics_count));
     
     V_FillRect(0, 0, SCREENHEIGHT - 4, len - 0, 4, 4);
     if (len > 4)
