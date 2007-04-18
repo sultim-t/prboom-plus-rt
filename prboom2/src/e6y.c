@@ -424,20 +424,6 @@ void G_SkipDemoStop(void)
   S_Start();
 }
 
-void M_ChangeSpriteClip(void)
-{
-  extern setup_menu_t gen_settings6[];
-
-  if(gl_spriteclip == spriteclip_const)
-  {
-    gen_settings6[11].m_flags &= ~(S_SKIP|S_SELECT);
-  }
-  else
-  {
-    gen_settings6[11].m_flags |= (S_SKIP|S_SELECT);
-  }
-}
-
 void M_ChangeSpeed(void)
 {
   extern int sidemove[2];
@@ -458,9 +444,9 @@ void M_ChangeSpeed(void)
   }
 }
 
+#ifdef GL_DOOM
 void M_ChangeMouseLook(void)
 {
-//#ifdef GL_DOOM
   extern setup_menu_t gen_settings5[];
   viewpitch = 0;
   if(movement_mouselook)
@@ -473,30 +459,32 @@ void M_ChangeMouseLook(void)
     gen_settings5[4].m_flags |= (S_SKIP|S_SELECT);
     gen_settings5[5].m_flags |= (S_SKIP|S_SELECT);
   }
-//#endif
+}
+
+void M_ChangeMouseInvert(void)
+{
 }
 
 void M_ChangeMaxViewPitch(void)
 {
-//#ifdef GL_DOOM
   int angle = (int)((float)movement_maxviewpitch / 45.0f * ANG45);
   maxViewPitch = (angle - (1<<ANGLETOFINESHIFT));
   minViewPitch = (-angle + (1<<ANGLETOFINESHIFT));
 
   viewpitch = 0;
-//#endif
 }
+#endif
 
 void M_ChangeScreenMultipleFactor(void)
 {
   extern setup_menu_t gen_settings6[];
   if(render_screen_multiply != 1)
   {
-    gen_settings6[15].m_flags &= ~(S_SKIP|S_SELECT);
+    gen_settings6[3].m_flags &= ~(S_SKIP|S_SELECT);
   }
   else
   {
-    gen_settings6[15].m_flags |= (S_SKIP|S_SELECT);
+    gen_settings6[3].m_flags |= (S_SKIP|S_SELECT);
   }
 }
 
@@ -530,7 +518,8 @@ void CheckPitch(signed int *pitch)
   }
 }
 
-void M_ChangeMouseInvert(void)
+#ifdef GL_DOOM
+void M_ChangeMultiSample(void)
 {
 }
 
@@ -576,11 +565,20 @@ void M_ChangeUseDetail(void)
     render_usedetail = (render_canusedetail) && (render_detailedflats || render_detailedwalls);
 }
 
-void M_ChangeMultiSample(void)
+void M_ChangeSpriteClip(void)
 {
-#ifdef GL_DOOM
-#endif
+  extern setup_menu_t gen_settings6[];
+
+  if(gl_spriteclip == spriteclip_const)
+  {
+    gen_settings6[11].m_flags &= ~(S_SKIP|S_SELECT);
+  }
+  else
+  {
+    gen_settings6[11].m_flags |= (S_SKIP|S_SELECT);
+  }
 }
+#endif
 
 void M_Mouse(int choice, int *sens);
 void M_MouseMLook(int choice)
@@ -1679,7 +1677,9 @@ char *demo_patterns_list_def[9];
 
 void I_AfterUpdateVideoMode(void)
 {
+#ifdef GL_DOOM
   M_ChangeFOV();
+#endif
 }
 
 int force_singletics_to = 0;

@@ -163,10 +163,9 @@ extern int gl_drawskys;
 extern int gl_sortsprites;
 extern int gl_use_paletted_texture;
 extern int gl_use_shared_texture_palette;
+extern int gl_sprite_offset;
 extern int gl_seamless;
 #endif
-//e6y: removed from #ifdef GL_DOOM
-extern int gl_sprite_offset;
 
 extern int realtic_clock_rate;         // killough 4/13/98: adjustable timer
 extern int tran_filter_pct;            // killough 2/21/98
@@ -760,16 +759,14 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"palette_onpowers", {&palette_onpowers},  {1},0,1,
    def_bool,ss_stat},
-//#ifndef GL_DOOM
   {"render_wipescreen", {&render_wipescreen},  {1},0,1,
    def_bool,ss_stat},
   {"render_screen_multiply", {&render_screen_multiply},  {1},1,4,
    def_int,ss_stat},
   {"render_interlaced_scanning", {&render_interlaced_scanning},  {0},0,1,
    def_bool,ss_stat},
-//#endif
 
-//#ifdef GL_DOOM
+#ifdef GL_DOOM
   {"Prboom-plus OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"render_detailedwalls", {&render_detailedwalls},  {0},0,1,
    def_bool,ss_stat},
@@ -792,7 +789,7 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"gl_seamless", {&gl_seamless},  {0},0,1,
    def_bool,ss_stat},
-//#endif
+#endif
   {"Prboom-plus emulation settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"overrun_spechit_warn", {&overrun_spechit_warn},  {0},0,1,
    def_bool,ss_stat},

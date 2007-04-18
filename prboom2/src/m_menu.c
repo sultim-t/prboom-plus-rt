@@ -3178,22 +3178,27 @@ setup_menu_t gen_settings4[] = { // General Settings screen3
 setup_menu_t gen_settings5[] = { // General Settings screen3
   {"Mouse",                       S_SKIP|S_TITLE,m_null,G_X, G_Y+1*8},
   {"Dbl-Click As Use",            S_YESNO, m_null,G_X,G_Y+2*8, {"mouse_doubleclick_as_use"}},
+#ifdef GL_DOOM
   {"Mouse / OpenGL",              S_SKIP|S_TITLE,m_null,G_X,G_Y+4*8},
-//#ifdef GL_DOOM
   {"Always Mouselook",            S_YESNO, m_null,G_X,G_Y+5*8, {"movement_mouselook"}, 0, 0, M_ChangeMouseLook},
   {"Invert Mouse",                S_YESNO, m_null,G_X,G_Y+6*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
   {"Max View Pitch",              S_NUM,   m_null,G_X,G_Y+7*8, {"movement_maxviewpitch"}, 0, 0, M_ChangeMaxViewPitch},
-//#endif
+#endif
+  {"Common Render",               S_SKIP|S_TITLE,m_null,G_X,G_Y+9*8},
+  {"Change Palette On Pain",      S_YESNO,m_null,G_X,G_Y+ 10*8, {"palette_ondamage"}},
+  {"Change Palette On Bonus",     S_YESNO,m_null,G_X,G_Y+ 11*8, {"palette_onbonus"}},
+  {"Change Palette On Powers",    S_YESNO,m_null,G_X,G_Y+ 12*8, {"palette_onpowers"}},
   {"<- PREV",S_SKIP|S_PREV, m_null,KB_PREV, KB_Y+20*8, {gen_settings4}},
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings6}},
   {0,S_SKIP|S_END,m_null}
 };
 
 setup_menu_t gen_settings6[] = { // General Settings screen4
-  {"Common Render"             ,S_SKIP|S_TITLE,m_null,G_X,G_Y+1*8},
-  {"Change Palette On Pain"    ,S_YESNO,m_null,G_X,G_Y+ 2*8, {"palette_ondamage"}},
-  {"Change Palette On Bonus"   ,S_YESNO,m_null,G_X,G_Y+ 3*8, {"palette_onbonus"}},
-  {"Change Palette On Powers"  ,S_YESNO,m_null,G_X,G_Y+ 4*8, {"palette_onpowers"}},
+  {"Soft Render"               ,S_SKIP|S_TITLE,m_null,G_X,G_Y+1*8},
+  {"Wipe Screen Effect"        ,S_YESNO,m_null,G_X,G_Y+2*8, {"render_wipescreen"}},
+  {"Screen Multiple Factor (1-None)" ,S_NUM|S_PRGWARN,m_null,G_X,G_Y+3*8, {"render_screen_multiply"}, 0, 0, M_ChangeScreenMultipleFactor},
+  {"Interlaced Scanning"       ,S_YESNO,m_null,G_X,G_Y+4*8, {"render_interlaced_scanning"}, 0, 0, M_ChangeInterlacedScanning},
+#ifdef GL_DOOM
   {"OpenGL Render"             ,S_SKIP|S_TITLE,m_null,G_X,G_Y+6*8},
   {"Multisampling (0-None)"    ,S_NUM|S_PRGWARN|S_CANT_GL_ARB_MULTISAMPLEFACTOR,m_null,G_X,G_Y+7*8, {"render_multisampling"}, 0, 0, M_ChangeMultiSample},
   {"Detailed Walls"            ,S_YESNO,m_null,G_X,G_Y+ 8*8, {"render_detailedwalls"}, 0, 0, M_ChangeUseDetail},
@@ -3202,10 +3207,7 @@ setup_menu_t gen_settings6[] = { // General Settings screen4
   {"Paper Items"               ,S_YESNO,m_null,G_X,G_Y+11*8, {"render_paperitems"}},
   {"Adjust Sprite Clipping"    ,S_CHOICE,m_null,G_X,G_Y+12*8, {"gl_spriteclip"}, 0, 0, M_ChangeSpriteClip, gl_spriteclipmodes},
   {"Item out of Floor offset"  ,S_NUM  ,m_null,G_X,G_Y+13*8, {"gl_sprite_offset"}},
-  {"Soft Render"               ,S_SKIP|S_TITLE,m_null,G_X,G_Y+15*8},
-  {"Wipe Screen Effect"        ,S_YESNO,m_null,G_X,G_Y+16*8, {"render_wipescreen"}},
-  {"Screen Multiple Factor (1-None)" ,S_NUM|S_PRGWARN,m_null,G_X,G_Y+17*8, {"render_screen_multiply"}, 0, 0, M_ChangeScreenMultipleFactor},
-  {"Interlaced Scanning"       ,S_YESNO,m_null,G_X,G_Y+18*8, {"render_interlaced_scanning"}, 0, 0, M_ChangeInterlacedScanning},
+#endif
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {gen_settings5}},
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings7}},
   {0,S_SKIP|S_END,m_null}
@@ -5836,11 +5838,13 @@ void M_Init(void)
   
   //e6y
   M_ChangeSpeed();
+#ifdef GL_DOOM
   M_ChangeMaxViewPitch();
   M_ChangeMouseLook();
   M_ChangeMouseInvert();
   M_ChangeFOV();
-//  M_ChangeUseDetail();
+  M_ChangeSpriteClip();
+#endif
   M_ChangeScreenMultipleFactor();
   M_ChangeInterlacedScanning();
 
