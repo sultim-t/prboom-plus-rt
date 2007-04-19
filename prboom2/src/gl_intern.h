@@ -106,8 +106,6 @@ extern GLTexture *last_gltexture;
 extern int last_cm;
 
 //e6y
-extern int gl_seamless;
-
 extern PFNGLACTIVETEXTUREARBPROC        GLEXT_glActiveTextureARB;
 extern PFNGLCLIENTACTIVETEXTUREARBPROC  GLEXT_glClientActiveTextureARB;
 extern PFNGLMULTITEXCOORD2FARBPROC      GLEXT_glMultiTexCoord2fARB;
@@ -125,7 +123,6 @@ void gld_SetTexturePalette(GLenum target);
 void gld_Precache(void);
 
 //e6y: from gl_vertex
-void gld_InitVertexData();
 void gld_SplitLeftEdge(const GLWall *wall, boolean detail, float detail_w, float detail_h);
 void gld_SplitRightEdge(const GLWall *wall, boolean detail, float detail_w, float detail_h);
 void gld_RecalcVertexHeights(const vertex_t *v);

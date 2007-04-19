@@ -787,8 +787,8 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"test_skybox", {&test_skybox},  {0},0,1,
    def_bool,ss_stat},
-  {"gl_seamless", {&gl_seamless},  {0},0,1,
-   def_bool,ss_stat},
+  {"gl_render_precise",{(int*)&gl_render_precise},{gl_render_precise_speed}, 
+   gl_render_precise_speed, gl_render_precise_quality, def_int,ss_none},
 #endif
   {"Prboom-plus emulation settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"overrun_spechit_warn", {&overrun_spechit_warn},  {0},0,1,

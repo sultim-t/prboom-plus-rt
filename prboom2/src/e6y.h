@@ -252,14 +252,17 @@ void G_SkipDemoStart(void);
 void G_SkipDemoStop(void);
 const byte* G_ReadDemoHeader(const byte* demo_p);
 
-void M_ChangeSpriteClip(void);
-void M_ChangeSpeed(void);
+#ifdef GL_DOOM
 void M_ChangeMouseLook(void);
 void M_ChangeMaxViewPitch(void);
 void M_ChangeMouseInvert(void);
 void M_ChangeFOV(void);
 void M_ChangeUseDetail(void);
 void M_ChangeMultiSample(void);
+void M_ChangeGLRenderPrecise(void);
+void M_ChangeSpriteClip(void);
+#endif
+void M_ChangeSpeed(void);
 void M_ChangeScreenMultipleFactor(void);
 void M_ChangeInterlacedScanning(void);
 void M_MouseMLook(int choice);

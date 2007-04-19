@@ -3207,6 +3207,7 @@ setup_menu_t gen_settings6[] = { // General Settings screen4
   {"Paper Items"               ,S_YESNO,m_null,G_X,G_Y+11*8, {"render_paperitems"}},
   {"Adjust Sprite Clipping"    ,S_CHOICE,m_null,G_X,G_Y+12*8, {"gl_spriteclip"}, 0, 0, M_ChangeSpriteClip, gl_spriteclipmodes},
   {"Item out of Floor offset"  ,S_NUM  ,m_null,G_X,G_Y+13*8, {"gl_sprite_offset"}},
+  {"Rendering quality",         S_CHOICE, m_null,G_X,G_Y+14*8, {"gl_render_precise"}, 0, 0, M_ChangeGLRenderPrecise, gl_render_precises},
 #endif
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {gen_settings5}},
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings7}},
@@ -5844,6 +5845,7 @@ void M_Init(void)
   M_ChangeMouseInvert();
   M_ChangeFOV();
   M_ChangeSpriteClip();
+  M_ChangeGLRenderPrecise();
 #endif
   M_ChangeScreenMultipleFactor();
   M_ChangeInterlacedScanning();

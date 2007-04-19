@@ -67,6 +67,8 @@
 
 //e6y
 static boolean SkyDrawed;
+gl_render_precise_t gl_render_precise;
+const char *gl_render_precises[] = {"Speed","Quality"};
 
 extern int tran_filter_pct;
 

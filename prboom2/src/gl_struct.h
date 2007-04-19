@@ -36,6 +36,14 @@
 
 extern int nodesVersion;
 
+//e6y
+typedef enum { gl_render_precise_speed, gl_render_precise_quality } gl_render_precise_t;
+extern gl_render_precise_t gl_render_precise;
+extern const char *gl_render_precises[];
+extern int gl_seamless;
+void gld_InitVertexData();
+void gld_CleanVertexData();
+
 void gld_Init(int width, int height);
 void gld_InitCommandLine();
 
@@ -47,7 +55,6 @@ void gld_FillBlock(int x, int y, int width, int height, int col);
 void gld_SetPalette(int palette);
 void gld_ReadScreen (byte* scr);
 
-void gld_CleanVertexData();//e6y
 void gld_CleanMemory(void);
 void gld_PreprocessLevel(void);
 

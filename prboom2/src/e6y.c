@@ -73,6 +73,7 @@
 #include "i_video.h"
 #include "info.h"
 #include "i_simd.h"
+#include "gl_struct.h"
 #include "e6y.h"
 #include "./../ICONS/resource.h"
 
@@ -472,6 +473,20 @@ void M_ChangeMaxViewPitch(void)
   minViewPitch = (-angle + (1<<ANGLETOFINESHIFT));
 
   viewpitch = 0;
+}
+
+void M_ChangeGLRenderPrecise(void)
+{
+  if (gl_render_precise)
+  {
+    gl_seamless = true;
+    gld_InitVertexData();
+  }
+  else
+  {
+    gl_seamless = false;
+    gld_CleanVertexData();
+  }
 }
 #endif
 
