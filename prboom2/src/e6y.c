@@ -1692,6 +1692,37 @@ char *demo_patterns_list_def[9];
 
 void I_AfterUpdateVideoMode(void)
 {
+#ifdef _WIN32
+  // Move the window to the screen center if SDL create it in not working area.
+  if (!desired_fullscreen)
+  {
+    struct SDL_SysWMinfo wmInfo;
+    SDL_VERSION(&wmInfo.version);
+    
+    if(SDL_GetWMInfo(&wmInfo))
+    {
+      int SDL_width, SDL_height;
+      RECT rectSDL, rectSCR;
+      HWND hwndSDL = wmInfo.window;
+      
+      GetWindowRect(hwndSDL, &rectSDL);
+      SDL_width = rectSDL.right - rectSDL.left;
+      SDL_height = rectSDL.bottom - rectSDL.top;
+      
+      SystemParametersInfo(SPI_GETWORKAREA, 0, &rectSCR, 0);
+      
+      if (rectSDL.left < rectSCR.left || rectSDL.right > rectSCR.right || 
+        rectSDL.top < rectSCR.top  || rectSDL.bottom > rectSCR.bottom)
+      {
+        MoveWindow(hwndSDL,
+          MAX(rectSCR.left, rectSCR.left + (rectSCR.right - rectSCR.left - SDL_width) / 2),
+          MAX(rectSCR.top, rectSCR.top + (rectSCR.bottom - rectSCR.top - SDL_height) / 2),
+          SDL_width, SDL_height, TRUE);
+      }
+    }
+  }
+#endif
+
 #ifdef GL_DOOM
   M_ChangeFOV();
 #endif
