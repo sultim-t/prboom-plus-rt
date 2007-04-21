@@ -2783,6 +2783,12 @@ const byte* G_ReadDemoHeader(const byte *demo_p)
   int i, episode, map;
   // e6y demover should be global. See P_UseSpecialLine()
   // int demover;
+
+  // e6y
+  // The local variable should be used instead of demobuffer,
+  // because demobuffer can be uninitialized
+  const byte *header_p = demo_p;
+
   const byte *option_p = NULL;      /* killough 11/98 */
 
   basetic = gametic;  // killough 9/29/98
@@ -2876,7 +2882,7 @@ const byte* G_ReadDemoHeader(const byte *demo_p)
       case 203:
 	/* LxDoom or MBF - determine from signature
 	 * cph - load compatibility level */
-	switch (demobuffer[2]) {
+	switch (*(header_p + 2)) {
 	case 'B': /* LxDoom */
 	  /* cph - DEMOSYNC - LxDoom demos recorded in compatibility modes support dropped */
 	  compatibility_level = lxdoom_1_compatibility;
