@@ -298,9 +298,8 @@ void e6y_D_DoomMainSetup(void)
     {
       byte buf[200];
       byte *demo_p = buf;
-      size_t len;
-      fread(buf, 1, sizeof(buf), _demofp);
-      len = G_ReadDemoHeader(buf) - buf;
+      size_t len = fread(buf, 1, sizeof(buf), _demofp);
+      len = G_ReadDemoHeader(buf, len, true) - buf;
       fseek(_demofp, len, SEEK_SET);
       if (demo_compatibility)
       {

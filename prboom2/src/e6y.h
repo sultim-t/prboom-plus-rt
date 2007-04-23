@@ -250,7 +250,7 @@ void P_ResetWalkcam(boolean ResetCoord, boolean ResetSight);
 void e6y_I_uSleep(unsigned long usecs);
 void G_SkipDemoStart(void);
 void G_SkipDemoStop(void);
-const byte* G_ReadDemoHeader(const byte* demo_p);
+const byte* G_ReadDemoHeader(const byte* demo_p, size_t size, boolean failonerror);
 
 #ifdef GL_DOOM
 void M_ChangeMouseLook(void);
