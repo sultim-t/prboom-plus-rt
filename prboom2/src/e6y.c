@@ -301,18 +301,12 @@ void e6y_D_DoomMainSetup(void)
       size_t len = fread(buf, 1, sizeof(buf), _demofp);
       len = G_ReadDemoHeader(buf, len, true) - buf;
       fseek(_demofp, len, SEEK_SET);
-      if (demo_compatibility)
-      {
-        democontinue = true;
-        singledemo = true;
-        autostart = true;
-        G_RecordDemo(myargv[p+2]);
-        G_BeginRecording();
-      }
-      else
-      {
-        fclose(_demofp);
-      }
+
+      democontinue = true;
+      singledemo = true;
+      autostart = true;
+      G_RecordDemo(myargv[p+2]);
+      G_BeginRecording();
     }
   }
 
