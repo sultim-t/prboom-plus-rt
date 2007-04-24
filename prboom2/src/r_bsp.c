@@ -554,6 +554,18 @@ static void R_Subsector(int num)
     if ((frontsector->no_bottomtextures) || (!floorplane))
     {
       int i=frontsector->linecount;
+      
+      //e6y: this gives a huge speedup on levels with sectors which have many lines
+      static fixed_t dummyfloorplane_height;
+      static int dummyfloorplane_lightlevel;
+      if(frontsector->validcount2 == validcount)
+      {
+        dummyfloorplane.height = dummyfloorplane_height;
+        dummyfloorplane.lightlevel = dummyfloorplane_lightlevel;
+      }
+      else
+      {
+      frontsector->validcount2 = validcount;
 
       dummyfloorplane.height=INT_MIN;
       while (i--)
@@ -574,6 +586,12 @@ static void R_Subsector(int num)
               dummyfloorplane.lightlevel=tmpline->frontsector->lightlevel;
             }
       }
+      
+      //e6y
+      dummyfloorplane_height = dummyfloorplane.height;
+      dummyfloorplane_lightlevel = dummyfloorplane.lightlevel;
+      }
+
       if (dummyfloorplane.height!=INT_MIN)
         floorplane=&dummyfloorplane;
     }
@@ -581,6 +599,18 @@ static void R_Subsector(int num)
     if ((frontsector->no_toptextures) || (!ceilingplane))
     {
       int i=frontsector->linecount;
+
+      //e6y: this gives a huge speedup on levels with sectors which have many lines
+      static fixed_t dummyceilingplane_height;
+      static int dummyceilingplane_lightlevel;
+      if(frontsector->validcount2 == validcount)
+      {
+        dummyceilingplane.height = dummyceilingplane_height;
+        dummyceilingplane.lightlevel = dummyceilingplane_lightlevel;
+      }
+      else
+      {
+      frontsector->validcount2 = validcount;
 
       dummyceilingplane.height=INT_MAX;
       while (i--)
@@ -601,6 +631,12 @@ static void R_Subsector(int num)
               dummyceilingplane.lightlevel=tmpline->frontsector->lightlevel;
             }
       }
+      
+      //e6y
+      dummyceilingplane_height = dummyceilingplane.height;
+      dummyceilingplane_lightlevel = dummyceilingplane.lightlevel;
+      }
+
       if (dummyceilingplane.height!=INT_MAX)
         ceilingplane=&dummyceilingplane;
     }

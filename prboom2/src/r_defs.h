@@ -153,6 +153,9 @@ typedef struct
   short special;
   short oldspecial;      //jff 2/16/98 remembers if sector WAS secret (automap)
   short tag;
+
+  //e6y
+  int validcount2;
 } sector_t;
 
 //
