@@ -274,7 +274,7 @@ void ParamsMatchingCheck()
 }
 
 prboom_comp_t prboom_comp[PC_MAX] = {
-  {0xffffffff, 0x02020621, 0, "-force_monster_avoid_hazards"},
+  {0xffffffff, 0x02020615, 0, "-force_monster_avoid_hazards"},
   {0x00000000, 0x02040601, 0, "-force_remove_slime_trails"},
   {0x02020200, 0x02040801, 0, "-force_no_dropoff"},
   {0x00000000, 0x02040801, 0, "-force_truncated_sector_specials"},
@@ -282,6 +282,7 @@ prboom_comp_t prboom_comp[PC_MAX] = {
   {0x00000000, 0x02040802, 0, "-force_prboom_friction"},
   {0x02020500, 0x02040000, 0, "-reject_pad_with_ff"},
   {0xffffffff, 0x02040802, 0, "-force_lxdoom_demo_compatibility"},
+  {0x00000000, 0x0202061b, 0, "-allow_ssg_direct"},
 };
 
 void e6y_D_DoomMainSetup(void)
