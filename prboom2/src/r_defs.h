@@ -155,7 +155,8 @@ typedef struct
   short tag;
 
   //e6y
-  int validcount2;
+  int floor_validcount;
+  int ceil_validcount;
 } sector_t;
 
 //

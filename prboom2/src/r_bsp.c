@@ -558,14 +558,14 @@ static void R_Subsector(int num)
       //e6y: this gives a huge speedup on levels with sectors which have many lines
       static fixed_t dummyfloorplane_height;
       static int dummyfloorplane_lightlevel;
-      if(frontsector->validcount2 == validcount)
+      if(frontsector->floor_validcount == validcount)
       {
         dummyfloorplane.height = dummyfloorplane_height;
         dummyfloorplane.lightlevel = dummyfloorplane_lightlevel;
       }
       else
       {
-      frontsector->validcount2 = validcount;
+      frontsector->floor_validcount = validcount;
 
       dummyfloorplane.height=INT_MIN;
       while (i--)
@@ -603,14 +603,14 @@ static void R_Subsector(int num)
       //e6y: this gives a huge speedup on levels with sectors which have many lines
       static fixed_t dummyceilingplane_height;
       static int dummyceilingplane_lightlevel;
-      if(frontsector->validcount2 == validcount)
+      if(frontsector->ceil_validcount == validcount)
       {
         dummyceilingplane.height = dummyceilingplane_height;
         dummyceilingplane.lightlevel = dummyceilingplane_lightlevel;
       }
       else
       {
-      frontsector->validcount2 = validcount;
+      frontsector->ceil_validcount = validcount;
 
       dummyceilingplane.height=INT_MAX;
       while (i--)
