@@ -283,46 +283,49 @@ prboom_comp_t prboom_comp[PC_MAX] = {
   {0x02020500, 0x02040000, 0, "-reject_pad_with_ff"},
   {0xffffffff, 0x02040802, 0, "-force_lxdoom_demo_compatibility"},
   {0x00000000, 0x0202061b, 0, "-allow_ssg_direct"},
+  {0x00000000, 0x02040601, 0, "-treat_no_clipping_things_as_not_blocking"},
+  {0x00000000, 0x02040601, 0, "-force_incorrect_processing_of_respawn_frame_entry"},
+  {0x00000000, 0x02040601, 0, "-force_correct_code_for_3_keys_doors_in_mbf"},
+  {0x00000000, 0x02040601, 0, "-uninitialize_crush_field_for_stairs"},
 };
 
-void e6y_D_DoomMainSetup(void)
+char democontinuename[PATH_MAX];
+
+void e6y_InitCommandLine(void)
 {
-  void G_RecordDemo (const char* name);
-  void G_BeginRecording (void);
-
   int i, p;
-  
-  if ((p = M_CheckParm("-recordfromto")) && (p < myargc - 2))
-  {
-    _demofp = fopen(myargv[p+1], "rb");
-    if (_demofp)
-    {
-      byte buf[200];
-      byte *demo_p = buf;
-      size_t len = fread(buf, 1, sizeof(buf), _demofp);
-      len = G_ReadDemoHeader(buf, len, true) - buf;
-      fseek(_demofp, len, SEEK_SET);
 
+  //-recordfromto x y
+  {
+    char demoname[PATH_MAX];
+    boolean bDemoContinue = false;
+    democontinue = false;
+
+    if ((p = M_CheckParm("-recordfromto")) && (p < myargc - 2))
+    {
+      bDemoContinue = true;
+      AddDefaultExtension(strcpy(demoname, myargv[p + 1]), ".lmp");
+      AddDefaultExtension(strcpy(democontinuename, myargv[p + 2]), ".lmp");
+    }
+
+    if (bDemoContinue && (_demofp = fopen(demoname, "rb")))
+    {
       democontinue = true;
-      singledemo = true;
-      autostart = true;
-      G_RecordDemo(myargv[p+2]);
-      G_BeginRecording();
     }
   }
 
   if ((p = M_CheckParm("-skipsec")) && (p < myargc-1))
-    demo_skiptics = (int)(atof(myargv[p+1]) * 35);
-  if ((gameaction == ga_playdemo||democontinue) && (startmap > 1 || demo_skiptics))
+    demo_skiptics = (int)(atof(myargv[p + 1]) * 35);
+  if ((IsDemoPlayback() || democontinue) && (startmap > 1 || demo_skiptics))
     G_SkipDemoStart();
   if ((p = M_CheckParm("-avidemo")) && (p < myargc-1))
-    avi_shot_fname = myargv[p+1];
+    avi_shot_fname = myargv[p + 1];
   stats_level = M_CheckParm("-levelstat");
 
-  if (gameaction == ga_playdemo)
+  if (IsDemoPlayback())
   {
     //"2.4.8.2" -> 0x02040802
-    if ((p = M_CheckParm("-emulate")) && (p < myargc-1))
+    if ((p = M_CheckParm("-emulate")) && (p < myargc - 1))
     {
       unsigned int emulated_version = 0;
       int b[4], k = 1;
@@ -381,6 +384,26 @@ void e6y_D_DoomMainSetup(void)
   {
     if (!StrToInt(myargv[p+1], (long*)&spechit_magic))
       spechit_magic = DEFAULT_SPECHIT_MAGIC;
+  }
+}
+
+void G_CheckDemoContinue(void)
+{
+  if (democontinue)
+  {
+    void G_RecordDemo (const char* name);
+    void G_BeginRecording (void);
+
+    byte buf[512];
+    byte *demo_p = buf;
+    size_t len = fread(buf, 1, sizeof(buf), _demofp);
+    len = G_ReadDemoHeader(buf, len, true) - buf;
+    fseek(_demofp, len, SEEK_SET);
+
+    singledemo = true;
+    autostart = true;
+    G_RecordDemo(democontinuename);
+    G_BeginRecording();
   }
 }
 
@@ -2127,6 +2150,16 @@ int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t Buff
   return false;
 }
 #endif
+
+int IsDemoPlayback()
+{
+  int p =
+    (((p = M_CheckParm("-fastdemo")) ||
+      (p = M_CheckParm("-timedemo")) ||
+      (p = M_CheckParm("-playdemo")))
+     && p < myargc - 1);
+  return p;
+}
 
 //Begin of GZDoom code
 /*

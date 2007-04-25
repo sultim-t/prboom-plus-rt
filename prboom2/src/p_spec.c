@@ -977,13 +977,13 @@ boolean P_CanUnlockGenDoor
             !player->cards[it_redskull]) ||
           (!player->cards[it_bluecard] &&
             !player->cards[it_blueskull]) ||
-          // e6y: Compatibility with buggy MBF behavior
-          // (3-key door works with only 2 keys)
-          // http://prboom.sourceforge.net/mbf-bugs.html
+          // e6y
+          // Compatibility with buggy MBF behavior when 3-key door works with only 2 keys
           // There is no more desync on 10sector.wad\ts27-137.lmp
           // http://www.doomworld.com/tas/ts27-137.zip
           (!player->cards[it_yellowcard] &&
-            (compatibility_level==mbf_compatibility ? 
+            (compatibility_level == mbf_compatibility && 
+             !prboom_comp[PC_FORCE_CORRECT_CODE_FOR_3_KEYS_DOORS_IN_MBF].state ? 
              player->cards[it_yellowskull] :
              !player->cards[it_yellowskull]))
         )

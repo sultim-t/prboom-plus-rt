@@ -633,10 +633,9 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
 
   // e6y
   // Correction of wrong return value with demo_compatibility.
-  // There is no more desync on http://www.doomworld.com/sda/dwdemo/w303-115.zip
+  // There is no more synch on http://www.doomworld.com/sda/dwdemo/w303-115.zip
   // (with correction in setMobjInfoValue)
-  // http://sourceforge.net/tracker/index.php?func=detail&aid=1545036&group_id=148658&atid=772943
-  if (demo_compatibility)
+  if (demo_compatibility && !prboom_comp[PC_TREAT_NO_CLIPPING_THINGS_AS_NOT_BLOCKING].state)
     return !(thing->flags & MF_SOLID);
   else
 

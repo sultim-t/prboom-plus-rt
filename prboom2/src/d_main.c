@@ -1582,6 +1582,7 @@ static void D_DoomMainSetup(void)
   D_InitNetGame();
 
   //e6y
+  e6y_InitCommandLine();
 #ifdef _WIN32
   LauncherShow();
 #endif
@@ -1700,7 +1701,8 @@ static void D_DoomMainSetup(void)
     singledemo = true;          // quit after one demo
   }
 
-  e6y_D_DoomMainSetup();//e6y
+  G_CheckDemoContinue(); //e6y
+
   if (slot && ++slot < myargc)
     {
       slot = atoi(myargv[slot]);        // killough 3/16/98: add slot info

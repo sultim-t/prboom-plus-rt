@@ -242,7 +242,8 @@ extern char hud_centermsg[80];
 void e6y_assert(const char *format, ...);
 
 void ParamsMatchingCheck();
-void e6y_D_DoomMainSetup(void);
+void e6y_InitCommandLine(void);
+void G_CheckDemoContinue(void);
 
 void P_WalkTicker ();
 void P_ResetWalkcam(boolean ResetCoord, boolean ResetSight);
@@ -325,6 +326,10 @@ typedef enum {
   PC_REJECT_PAD_WITH_FF,
   PC_FORCE_LXDOOM_DEMO_COMPATIBILITY,
   PC_ALLOW_SSG_DIRECT,
+  PC_TREAT_NO_CLIPPING_THINGS_AS_NOT_BLOCKING,
+  PC_FORCE_INCORRECT_PROCESSING_OF_RESPAWN_FRAME_ENTRY,
+  PC_FORCE_CORRECT_CODE_FOR_3_KEYS_DOORS_IN_MBF,
+  PC_UNINITIALIZE_CRUSH_FIELD_FOR_STAIRS,
   PC_MAX
 };
 
@@ -515,6 +520,8 @@ int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t Buff
 
 void I_vWarning(const char *message, va_list argList);
 void I_Warning(const char *message, ...);
+
+int IsDemoPlayback();
 
 boolean SmoothEdges(unsigned char * buffer,int w, int h);
 

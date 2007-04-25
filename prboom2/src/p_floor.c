@@ -781,15 +781,16 @@ manual_stair://e6y
         if (!demo_compatibility)
           floor->crush = false; //jff 2/27/98 fix uninitialized crush field
         // e6y
-        // It will be not a 0 (false) and not 1 (true) with higher probability
+        // Uninitialized crush field will not be equal to 0 or 1 (true)
+        // with high probability. So, initialize it with any other value
         // There is no more desync on icarus.wad/ic29uv.lmp
         // http://competn.doom2.net/pub/sda/i-o/icuvlmps.zip
         // http://www.doomworld.com/idgames/index.php?id=5191
-        // http://sourceforge.net/tracker/index.php?func=detail&aid=1546647&group_id=148658&atid=772943
         else
         {
-          floor->crush = 10;
-          lprintf(LO_WARN,"Warning: stairs may lead to desync with -complevel %d\n", compatibility_level);
+          if (!prboom_comp[PC_UNINITIALIZE_CRUSH_FIELD_FOR_STAIRS].state)
+            floor->crush = 10;
+          lprintf(LO_WARN, "Warning: stairs may lead to desync with -complevel %d\n", compatibility_level);
         }
 
         break;
@@ -799,15 +800,13 @@ manual_stair://e6y
         if (!demo_compatibility)
           floor->crush = true;  //jff 2/27/98 fix uninitialized crush field
         // e6y
-        // It will be not a 0 (false) and not 1 (true) with higher probability
-        // There is no more desync on icarus.wad/ic29uv.lmp
-        // http://competn.doom2.net/pub/sda/i-o/icuvlmps.zip
-        // http://www.doomworld.com/idgames/index.php?id=5191
-        // http://sourceforge.net/tracker/index.php?func=detail&aid=1546647&group_id=148658&atid=772943
+        // Uninitialized crush field will not be equal to 0 or 1 (true)
+        // with high probability. So, initialize it with any other value
         else
         {
-          floor->crush = 10;
-          lprintf(LO_WARN,"Warning: stairs may lead to desync with -complevel %d\n", compatibility_level);
+          if (!prboom_comp[PC_UNINITIALIZE_CRUSH_FIELD_FOR_STAIRS].state)
+            floor->crush = 10;
+          lprintf(LO_WARN, "Warning: stairs may lead to desync with -complevel %d\n", compatibility_level);
         }
 
         break;
@@ -882,15 +881,13 @@ manual_stair://e6y
         if (!demo_compatibility)
           floor->crush = type==build8? false : true;
         // e6y
-        // It will be not a 0 (false) and not 1 (true) with higher probability
-        // There is no more desync on icarus.wad/ic29uv.lmp
-        // http://competn.doom2.net/pub/sda/i-o/icuvlmps.zip
-        // http://www.doomworld.com/idgames/index.php?id=5191
-        // http://sourceforge.net/tracker/index.php?func=detail&aid=1546647&group_id=148658&atid=772943
+        // Uninitialized crush field will not be equal to 0 or 1 (true)
+        // with high probability. So, initialize it with any other value
         else
         {
-          floor->crush = 10;
-          lprintf(LO_WARN,"Warning: stairs may lead to desync with -complevel %d\n", compatibility_level);
+          if (!prboom_comp[PC_UNINITIALIZE_CRUSH_FIELD_FOR_STAIRS].state)
+            floor->crush = 10;
+          lprintf(LO_WARN, "Warning: stairs may lead to desync with -complevel %d\n", compatibility_level);
         }
 
         ok = 1;
