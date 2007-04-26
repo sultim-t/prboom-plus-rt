@@ -424,6 +424,8 @@ void G_SkipDemoStart(void)
   I_Init2();
 }
 
+boolean sound_inited_once = false;
+
 void G_SkipDemoStop(void)
 {
   fastdemo = saved_fastdemo;
@@ -437,7 +439,13 @@ void G_SkipDemoStop(void)
   doSkip = false;
   demo_skiptics = 0;
   startmap = 0;
+
   I_Init2();
+  if (!sound_inited_once && !(nomusicparm && nosfxparm))
+  {
+    void I_InitSound(void);
+    I_InitSound();
+  }
   S_Init(snd_SfxVolume, snd_MusicVolume);
   S_Start();
 }

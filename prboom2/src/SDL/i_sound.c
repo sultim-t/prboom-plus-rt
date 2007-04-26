@@ -555,6 +555,7 @@ void I_InitSound(void)
     lprintf(LO_INFO,"couldn't open audio with desired format\n");
     return;
   }
+  sound_inited_once = true;//e6y
   sound_inited = true;
   SAMPLECOUNT = audio_buffers;
   Mix_SetPostMix(I_UpdateSound, NULL);

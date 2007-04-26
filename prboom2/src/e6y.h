@@ -248,6 +248,7 @@ void G_CheckDemoContinue(void);
 void P_WalkTicker ();
 void P_ResetWalkcam(boolean ResetCoord, boolean ResetSight);
 
+extern boolean sound_inited_once;
 void e6y_I_uSleep(unsigned long usecs);
 void G_SkipDemoStart(void);
 void G_SkipDemoStop(void);
