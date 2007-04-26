@@ -1718,6 +1718,9 @@ void M_Setup(int choice)
 #define CR_HILITE CR_ORANGE
 #define CR_SELECT CR_GRAY
 
+//e6y
+#define CR_DISABLE CR_GRAY
+
 // Data used by the Automap color selection code
 
 #define CHIP_SIZE 7 // size of color block for colored items
@@ -1780,6 +1783,7 @@ static void M_DrawItem(const setup_menu_t* s)
     char *p, *t;
     int w = 0;
     int color =
+  flags & S_DISABLE ? CR_DISABLE : //e6y
   flags & S_SELECT ? CR_SELECT :
   flags & S_HILITE ? CR_HILITE :
   flags & (S_TITLE|S_NEXT|S_PREV) ? CR_TITLE : CR_ITEM; // killough 10/98
@@ -1826,7 +1830,9 @@ static void M_DrawSetting(const setup_menu_t* s)
   // Determine color of the text. This may or may not be used later,
   // depending on whether the item is a text string or not.
 
-  color = flags & S_SELECT ? CR_SELECT : flags & S_HILITE ? CR_HILITE : CR_SET;
+  color =
+    flags & S_DISABLE ? CR_DISABLE : //e6y
+    flags & S_SELECT ? CR_SELECT : flags & S_HILITE ? CR_HILITE : CR_SET;
 
   // Is the item a YES/NO item?
 
@@ -3255,9 +3261,9 @@ void M_ChangeDemoSmoothTurns(void)
   extern setup_menu_t gen_settings4[];
 
   if (demo_smoothturns)
-    gen_settings4[3].m_flags &= ~(S_SKIP|S_SELECT);
+    gen_settings4[3].m_flags &= ~(S_SKIP|S_DISABLE);
   else
-    gen_settings4[3].m_flags |= (S_SKIP|S_SELECT);
+    gen_settings4[3].m_flags |= (S_SKIP|S_DISABLE);
 
   R_SmoothPlaying_Reset(NULL);
 }

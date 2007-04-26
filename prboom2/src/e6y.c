@@ -449,13 +449,13 @@ void M_ChangeSpeed(void)
 
   if(movement_strafe50)
   {
-    gen_settings4[6].m_flags &= ~(S_SKIP|S_SELECT);
+    gen_settings4[6].m_flags &= ~(S_SKIP|S_DISABLE);
     sidemove[0] = sidemove_strafe50[0];
     sidemove[1] = sidemove_strafe50[1];
   }
   else
   {
-    gen_settings4[6].m_flags |= (S_SKIP|S_SELECT);
+    gen_settings4[6].m_flags |= (S_SKIP|S_DISABLE);
     movement_strafe50onturns = false;
     sidemove[0] = sidemove_normal[0];
     sidemove[1] = sidemove_normal[1];
@@ -469,13 +469,13 @@ void M_ChangeMouseLook(void)
   viewpitch = 0;
   if(movement_mouselook)
   {
-    gen_settings5[4].m_flags &= ~(S_SKIP|S_SELECT);
-    gen_settings5[5].m_flags &= ~(S_SKIP|S_SELECT);
+    gen_settings5[4].m_flags &= ~(S_SKIP|S_DISABLE);
+    gen_settings5[5].m_flags &= ~(S_SKIP|S_DISABLE);
   }
   else
   {
-    gen_settings5[4].m_flags |= (S_SKIP|S_SELECT);
-    gen_settings5[5].m_flags |= (S_SKIP|S_SELECT);
+    gen_settings5[4].m_flags |= (S_SKIP|S_DISABLE);
+    gen_settings5[5].m_flags |= (S_SKIP|S_DISABLE);
   }
 }
 
@@ -512,11 +512,11 @@ void M_ChangeScreenMultipleFactor(void)
   extern setup_menu_t gen_settings6[];
   if(render_screen_multiply != 1)
   {
-    gen_settings6[3].m_flags &= ~(S_SKIP|S_SELECT);
+    gen_settings6[3].m_flags &= ~(S_SKIP|S_DISABLE);
   }
   else
   {
-    gen_settings6[3].m_flags |= (S_SKIP|S_SELECT);
+    gen_settings6[3].m_flags |= (S_SKIP|S_DISABLE);
   }
 }
 
@@ -603,11 +603,11 @@ void M_ChangeSpriteClip(void)
 
   if(gl_spriteclip == spriteclip_const)
   {
-    gen_settings6[11].m_flags &= ~(S_SKIP|S_SELECT);
+    gen_settings6[11].m_flags &= ~(S_SKIP|S_DISABLE);
   }
   else
   {
-    gen_settings6[11].m_flags |= (S_SKIP|S_SELECT);
+    gen_settings6[11].m_flags |= (S_SKIP|S_DISABLE);
   }
 }
 #endif

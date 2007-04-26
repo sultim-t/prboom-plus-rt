@@ -112,6 +112,9 @@ extern int warning_about_changes, print_warning_about_changes;
 #define S_BADVID  0x400000  // killough 12/98: video mode change error
 #define S_CHOICE  0x800000  // this item has several values
 
+//e6y
+#define S_DISABLE  0x1000000
+
 /* S_SHOWDESC  = the set of items whose description should be displayed
  * S_SHOWSET   = the set of items whose setting should be displayed
  * S_STRING    = the set of items whose settings are strings -- killough 10/98:
