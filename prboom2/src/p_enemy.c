@@ -2462,7 +2462,8 @@ void A_SpawnFly(mobj_t *mo)
   /* killough 7/18/98: brain friendliness is transferred */
   newmobj->flags = (newmobj->flags & ~MF_FRIEND) | (mo->flags & MF_FRIEND);
 
-  newmobj->flags |= MF_RESSURECTED;//e6y
+  //e6y: monsters spawned by Icon of Sin should not be countable for total killed.
+  newmobj->flags |= MF_RESSURECTED;
 
   /* killough 8/29/98: add to appropriate thread */
   P_UpdateThinker(&newmobj->thinker);
