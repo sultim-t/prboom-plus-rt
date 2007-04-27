@@ -862,10 +862,10 @@ void ST_Drawer(boolean statusbaron, boolean refresh)
   ST_doPaletteStuff();  // Do red-/gold-shifts from damage/items
 
   if (statusbaron) {
-//e6y    if (st_firsttime || (V_GetMode() == VID_MODEGL))
+    if (st_firsttime || (V_GetMode() == VID_MODEGL))
       ST_doRefresh();     /* If just after ST_Start(), refresh all */
-//e6y    else
-//e6y      ST_diffDraw();      /* Otherwise, update as little as possible */
+    else
+      ST_diffDraw();      /* Otherwise, update as little as possible */
   }
 }
 
