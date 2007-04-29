@@ -37,10 +37,19 @@
 extern int nodesVersion;
 
 //e6y
+typedef struct tagTAnimItemParam
+{
+  int count;
+  int index;
+} TAnimItemParam;
+extern TAnimItemParam *anim_flats;
+extern TAnimItemParam *anim_textures;
 typedef enum { gl_render_precise_speed, gl_render_precise_quality } gl_render_precise_t;
 extern gl_render_precise_t gl_render_precise;
 extern const char *gl_render_precises[];
 extern int gl_seamless;
+extern boolean gl_arb_multitexture;
+extern int render_canusedetail;
 void gld_InitVertexData();
 void gld_CleanVertexData();
 

@@ -101,20 +101,6 @@ typedef struct camera_s
   int type;
 } camera_t;
 
-//OpenGL version
-typedef enum {
-  OPENGL_VERSION_1_0,
-  OPENGL_VERSION_1_1,
-  OPENGL_VERSION_1_2,
-  OPENGL_VERSION_1_3,
-  OPENGL_VERSION_1_4,
-  OPENGL_VERSION_1_5,
-  OPENGL_VERSION_2_0,
-  OPENGL_VERSION_2_1,
-} glversion_t;
-
-extern int glversion;
-
 typedef enum { spriteclip_const, spriteclip_always, spriteclip_smart } spriteclipmode_t;
 extern spriteclipmode_t gl_spriteclip;
 extern const char *gl_spriteclipmodes[];
@@ -231,9 +217,6 @@ extern float skyYShift;
 
 extern float internal_render_fov;
 
-extern boolean gl_arb_multitexture;
-extern unsigned int idDetail;
-
 extern hu_textline_t  w_hudadd;
 extern hu_textline_t  w_centermsg;
 extern char hud_add[80];
@@ -273,28 +256,6 @@ void M_ChangeCompTranslucency(void);
 void CheckPitch(signed int *pitch);
 void I_Init2(void);
 boolean GetMouseLook(void);
-
-#ifdef GL_DOOM
-
-#define DETAIL_DISTANCE 9
-
-typedef struct tagTAnimItemParam
-{
-  int count;
-  int index;
-} TAnimItemParam;
-
-extern float xCamera,yCamera;
-extern TAnimItemParam *anim_flats;
-extern TAnimItemParam *anim_textures;
-
-float distance2piece(float x0, float y0, float x1, float y1, float x2, float y2);
-void gld_InitGLVersion(void);
-void gld_InitExtensionsEx(void);
-void e6y_PreprocessLevel(void);
-void MarkAnimatedTextures(void);
-
-#endif //GL_DOOM
 
 extern float viewPitch;
 extern boolean transparentpresent;

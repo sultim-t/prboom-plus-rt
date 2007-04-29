@@ -91,6 +91,130 @@ typedef struct
   seg_t *seg;
 } GLWall;
 
+typedef struct
+{
+  int sectornum;
+  float light; // the lightlevel of the flat
+  float uoffs,voffs; // the texture coordinates
+  float z; // the z position of the flat (height)
+  GLTexture *gltexture;
+  boolean ceiling;
+} GLFlat;
+
+/* GLLoopDef is the struct for one loop. A loop is a list of vertexes
+ * for triangles, which is calculated by the gluTesselator in gld_PrecalculateSector
+ * and in gld_PreprocessCarvedFlat
+ */
+typedef struct
+{
+  GLenum mode; // GL_TRIANGLES, GL_TRIANGLE_STRIP or GL_TRIANGLE_FAN
+  int vertexcount; // number of vertexes in this loop
+  int vertexindex; // index into vertex list
+} GLLoopDef;
+
+// GLSector is the struct for a sector with a list of loops.
+
+typedef struct
+{
+  int loopcount; // number of loops for this sector
+  GLLoopDef *loops; // the loops itself
+} GLSector;
+
+typedef struct
+{
+  GLfloat x;
+  GLfloat y;
+  GLfloat z;
+} GLVertex;
+
+typedef struct
+{
+  GLfloat u;
+  GLfloat v;
+} GLTexcoord;
+
+typedef struct
+{
+  GLLoopDef loop; // the loops itself
+} GLSubSector;
+
+extern GLSeg *gl_segs;
+
+#define GLDWF_TOP 1
+#define GLDWF_M1S 2
+#define GLDWF_M2S 3
+#define GLDWF_BOT 4
+#define GLDWF_SKY 5
+#define GLDWF_SKYFLIP 6
+
+typedef struct
+{
+  int cm;
+  float x,y,z;
+  float vt,vb;
+  float ul,ur;
+  float x1,y1;
+  float x2,y2;
+  float light;
+  fixed_t scale;
+  GLTexture *gltexture;
+  boolean shadow;
+  boolean trans;
+  mobj_t *thing;//e6y
+} GLSprite;
+
+typedef enum
+{
+  GLDIT_NONE,
+  GLDIT_WALL,
+  GLDIT_TWALL, //e6y: transparent walls
+  GLDIT_FLAT,
+  GLDIT_SPRITE,
+  GLDIT_TSPRITE //e6y: transparent sprites
+} GLDrawItemType;
+
+typedef struct
+{
+  GLDrawItemType itemtype;
+  int itemcount;
+  int firstitemindex;
+  byte rendermarker;
+} GLDrawItem;
+
+typedef struct
+{
+  GLWall *walls;
+  int num_walls;
+  int max_walls;
+  GLFlat *flats;
+  int num_flats;
+  int max_flats;
+  GLSprite *sprites;
+  int num_sprites;
+  int max_sprites;
+  
+  //e6y: transparent walls
+  GLWall *twalls;
+  int num_twalls;
+  int max_twalls;
+  //e6y: transparent sprites
+  GLSprite *tsprites;
+  int num_tsprites;
+  int max_tsprites;
+
+  GLDrawItem *drawitems;
+  int num_drawitems;
+  int max_drawitems;
+} GLDrawInfo;
+
+void gld_StaticLightAlpha(float light, float alpha);
+#define gld_StaticLight(light) gld_StaticLightAlpha(light, 1.0f)
+
+extern GLDrawInfo gld_drawinfo;
+extern GLSector *sectorloops;
+extern GLVertex *gld_vertexes;
+extern GLTexcoord *gld_texcoords;
+
 extern int gld_max_texturesize;
 extern char *gl_tex_format_string;
 extern int gl_tex_format;
@@ -106,9 +230,28 @@ extern GLTexture *last_gltexture;
 extern int last_cm;
 
 //e6y
+#define DETAIL_DISTANCE 9
+extern float xCamera,yCamera;
+float distance2piece(float x0, float y0, float x1, float y1, float x2, float y2);
+
+//e6y: OpenGL version
+typedef enum {
+  OPENGL_VERSION_1_0,
+  OPENGL_VERSION_1_1,
+  OPENGL_VERSION_1_2,
+  OPENGL_VERSION_1_3,
+  OPENGL_VERSION_1_4,
+  OPENGL_VERSION_1_5,
+  OPENGL_VERSION_2_0,
+  OPENGL_VERSION_2_1,
+} glversion_t;
+extern int glversion;
+
+//e6y
 extern PFNGLACTIVETEXTUREARBPROC        GLEXT_glActiveTextureARB;
 extern PFNGLCLIENTACTIVETEXTUREARBPROC  GLEXT_glClientActiveTextureARB;
 extern PFNGLMULTITEXCOORD2FARBPROC      GLEXT_glMultiTexCoord2fARB;
+extern PFNGLMULTITEXCOORD2FVARBPROC     GLEXT_glMultiTexCoord2fvARB;
 
 //e6y: in some cases textures with a zero index (NO_TEXTURE) should be registered
 GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap, boolean force);
@@ -126,6 +269,13 @@ void gld_Precache(void);
 void gld_SplitLeftEdge(const GLWall *wall, boolean detail, float detail_w, float detail_h);
 void gld_SplitRightEdge(const GLWall *wall, boolean detail, float detail_w, float detail_h);
 void gld_RecalcVertexHeights(const vertex_t *v);
+
+//e6y
+void gld_InitGLVersion(void);
+void gld_InitExtensionsEx(void);
+void gld_PreprocessDetail(void);
+void gld_DrawDetail_NoARB(void);
+void gld_DrawWallWithDetail(GLWall *wall);
 
 PFNGLCOLORTABLEEXTPROC gld_ColorTableEXT;
 

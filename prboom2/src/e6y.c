@@ -97,8 +97,6 @@
 #define DEFAULT_SPECHIT_MAGIC (0x01C09C98)
 //#define DEFAULT_SPECHIT_MAGIC (0x84000000)
 
-int glversion;
-
 spriteclipmode_t gl_spriteclip;
 const char *gl_spriteclipmodes[] = {"constant","always", "smart"};
 int gl_sprite_offset;
@@ -151,7 +149,6 @@ int movement_maxviewpitch;
 int mouse_handler;
 int mouse_doubleclick_as_use;
 int render_fov;
-static int render_canusedetail;
 int render_usedetail;
 int render_detailedwalls;
 int render_detailedflats;
@@ -217,13 +214,6 @@ float skyYShift;
 
 float internal_render_fov = FOV90;
 
-#ifdef GL_DOOM
-unsigned int idDetail;
-boolean gl_arb_multitexture;
-PFNGLACTIVETEXTUREARBPROC        GLEXT_glActiveTextureARB       = NULL;
-PFNGLCLIENTACTIVETEXTUREARBPROC  GLEXT_glClientActiveTextureARB = NULL;
-PFNGLMULTITEXCOORD2FARBPROC      GLEXT_glMultiTexCoord2fARB     = NULL;
-#endif
 int maxViewPitch;
 int minViewPitch;
 
@@ -640,160 +630,6 @@ void MouseAccelChanging(void)
 void M_DemosBrowse(void)
 {
 }
-
-#ifdef GL_DOOM
-
-float xCamera,yCamera;
-TAnimItemParam *anim_flats = NULL;
-TAnimItemParam *anim_textures = NULL;
-
-void e6y_PreprocessLevel(void)
-{
-  if (gl_arb_multitexture)
-  {
-    extern void *gld_texcoords;
-
-    GLEXT_glClientActiveTextureARB(GL_TEXTURE0_ARB);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glTexCoordPointer(2,GL_FLOAT,0,gld_texcoords);
-    GLEXT_glClientActiveTextureARB(GL_TEXTURE1_ARB);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glTexCoordPointer(2,GL_FLOAT,0,gld_texcoords);
-    GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
-    glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 2);
-    GLEXT_glActiveTextureARB(GL_TEXTURE0_ARB);
-  }
-}
-
-void gld_InitGLVersion(void)
-{
-  int MajorVersion, MinorVersion;
-  glversion = OPENGL_VERSION_1_0;
-  if (sscanf(glGetString(GL_VERSION), "%d.%d", &MajorVersion, &MinorVersion) == 2)
-  {
-    if (MajorVersion > 1)
-    {
-      glversion = OPENGL_VERSION_2_0;
-      if (MinorVersion > 0) glversion = OPENGL_VERSION_2_1;
-    }
-    else
-    {
-      glversion = OPENGL_VERSION_1_0;
-      if (MinorVersion > 0) glversion = OPENGL_VERSION_1_1;
-      if (MinorVersion > 1) glversion = OPENGL_VERSION_1_2;
-      if (MinorVersion > 2) glversion = OPENGL_VERSION_1_3;
-      if (MinorVersion > 3) glversion = OPENGL_VERSION_1_4;
-      if (MinorVersion > 4) glversion = OPENGL_VERSION_1_5;
-    }
-  }
-
-}
-
-void gld_InitExtensionsEx(void)
-{
-#define isExtensionSupported(ext) strstr(extensions, ext)
-  static int imageformats[5] = {0, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_RGB, GL_RGBA};
-
-  extern int gl_tex_filter;
-  extern int gl_mipmap_filter;
-  extern int gl_texture_filter_anisotropic;
-  extern int gl_tex_format;
-
-  const GLubyte *extensions = glGetString(GL_EXTENSIONS);
-
-  gl_arb_multitexture = isExtensionSupported("GL_ARB_multitexture") != NULL;
-
-  if (gl_arb_multitexture)
-  {
-    GLEXT_glActiveTextureARB       = SDL_GL_GetProcAddress("glActiveTextureARB");
-    GLEXT_glClientActiveTextureARB = SDL_GL_GetProcAddress("glClientActiveTextureARB");
-    GLEXT_glMultiTexCoord2fARB     = SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
-
-    if (!GLEXT_glActiveTextureARB    || !GLEXT_glClientActiveTextureARB ||
-        !GLEXT_glMultiTexCoord2fARB)
-      gl_arb_multitexture = false;
-  }
-  //gl_arb_multitexture = false;
-
-  render_canusedetail = false;
-  //if (gl_arb_multitexture)
-  {
-    int gldetail_lumpnum = (W_CheckNumForName)("GLDETAIL", ns_prboom);
-    if (gldetail_lumpnum != -1)
-    {
-      const unsigned char *memDetail=W_CacheLumpNum(gldetail_lumpnum);
-      SDL_PixelFormat fmt;
-      SDL_Surface *surf = NULL;
-      
-      surf = SDL_LoadBMP_RW(SDL_RWFromMem((unsigned char *)memDetail, W_LumpLength(gldetail_lumpnum)), 1);
-      W_UnlockLumpName("PLAYPAL");
-      
-      fmt = *surf->format;
-      fmt.BitsPerPixel = 24;
-      fmt.BytesPerPixel = 3;
-      surf = SDL_ConvertSurface(surf, &fmt, surf->flags);
-      if (surf)
-      {
-        if (gl_arb_multitexture)
-          GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
-        glGenTextures(1, &idDetail);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glBindTexture(GL_TEXTURE_2D, idDetail);
-        
-        gluBuild2DMipmaps(GL_TEXTURE_2D, 
-          surf->format->BytesPerPixel, 
-          surf->w, surf->h, 
-          imageformats[surf->format->BytesPerPixel], 
-          GL_UNSIGNED_BYTE, surf->pixels);
-        
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);	
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        if (gl_texture_filter_anisotropic)
-          glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 2.0);
-        
-        if (gl_arb_multitexture)
-          GLEXT_glActiveTextureARB(GL_TEXTURE0_ARB);
-        
-        SDL_FreeSurface(surf);
-        render_canusedetail = true;
-      }
-    }
-  }
-  M_ChangeUseDetail();
-  if (gl_arb_multitexture)
-    lprintf(LO_INFO,"e6y: using GL_ARB_multitexture\n");
-}
-
-float distance2piece(float x0, float y0, float x1, float y1, float x2, float y2)
-{
-  float t, w;
-  
-  float x01 = x0-x1;
-  float x02 = x0-x2;
-  float x21 = x2-x1;
-  float y01 = y0-y1;
-  float y02 = y0-y2;
-  float y21 = y2-y1;
-
-  if((x01*x21+y01*y21)*(x02*x21+y02*y21)>0.0001f)
-  {
-    t = x01*x01 + y01*y01;
-    w = x02*x02 + y02*y02;
-    if (w < t) t = w;
-  }
-  else
-  {
-    float i1 = x01*y21-y01*x21;
-    float i2 = x21*x21+y21*y21;
-    t = (i1*i1)/i2;
-  }
-  return t;
-}
-
-#endif //GL_DOOM
 
 float viewPitch;
 boolean transparentpresent;

@@ -53,6 +53,7 @@
 #include "r_demo.h"
 #include "r_fps.h"
 #include "SDL.h"
+#include <math.h>
 #include "e6y.h"//e6y
 
 // Fineangles in the SCREENWIDTH wide window.
@@ -214,6 +215,27 @@ angle_t R_PointToAngle2(fixed_t viewx, fixed_t viewy, fixed_t x, fixed_t y)
         (x = -x) > (y = -y) ? ANG180+tantoangle[ SlopeDiv(y,x)] :  // octant 4
                               ANG270-1-tantoangle[SlopeDiv(x,y)] : // octant 5
     0;
+}
+
+// e6y
+// The precision of the code above is abysmal so use the CRT atan2 function instead!
+angle_t R_PointToAngleEx(fixed_t x, fixed_t y)
+{
+  static int old_y_viewy;
+  static int old_x_viewx;
+  static int old_result;
+
+  int y_viewy = y - viewy;
+  int x_viewx = x - viewx;
+
+  if (old_y_viewy != y_viewy || old_x_viewx != x_viewx)
+  {
+    old_y_viewy = y_viewy;
+    old_x_viewx = x_viewx;
+
+    old_result = (int)(atan2(y_viewy, x_viewx) * ANG180/M_PI);
+  }
+  return old_result;
 }
 
 //
