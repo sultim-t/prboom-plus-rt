@@ -111,6 +111,7 @@ int secretfound;
 int messagecenter_counter;
 int demo_skiptics;
 int democontinue = false;
+int demo_playerscount;
 int demo_tics_count;
 int demo_curr_tic;
 char demo_len_st[80];
@@ -1929,7 +1930,8 @@ void HU_DrawDemoProgress(void)
 {
   if (demoplayback && hudadd_demoprogressbar)
   {
-    int len = MIN(SCREENWIDTH, (int)((int_64_t)SCREENWIDTH * demo_curr_tic / demo_tics_count));
+    int len = MIN(SCREENWIDTH, 
+      (int)((int_64_t)SCREENWIDTH * demo_curr_tic / (demo_tics_count * demo_playerscount)));
     
     V_FillRect(0, 0, SCREENHEIGHT - 4, len - 0, 4, 4);
     if (len > 4)

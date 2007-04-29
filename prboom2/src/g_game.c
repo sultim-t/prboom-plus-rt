@@ -2343,6 +2343,15 @@ void G_ReadDemoTiccmd (ticcmd_t* cmd)
   if (*demo_p == DEMOMARKER)
     G_CheckDemoStatus();      // end of demo data stream
   else
+  
+  //e6y: check for overrun
+  if (demoplayback && gametic > demo_tics_count)
+  {
+    lprintf(LO_WARN, "The demo has no DEMOMARKER (0x80) at the end\n");
+    G_CheckDemoStatus();
+  }
+
+  else
     {
       cmd->forwardmove = ((signed char)*demo_p++);
       cmd->sidemove = ((signed char)*demo_p++);
@@ -3032,22 +3041,22 @@ void G_DoPlayDemo(void)
 
   //e6y
   {
-    int i, playerscount = 0;
+    int i;
+    int demolumplen = W_LumpLength(demolumpnum);
+    demo_playerscount = 0;
     for (i=0; i<MAXPLAYERS; i++)
     {
       if (playeringame[i])
-        playerscount++;
+        demo_playerscount++;
     }
-    demo_tics_count = (W_LumpLength(demolumpnum) - 
-      (demo_p - demobuffer + 1)) / (longtics ? 5 : 4);
-    if (demo_tics_count <= 0)
-      demo_tics_count = 4;
-    demo_curr_tic = 0;
-    if(playerscount>0)
+    if (demo_playerscount > 0 && demolumplen > 0)
     {
+      demo_tics_count = (demolumplen - (demo_p - demobuffer + 1)) / 
+        (longtics ? 5 : 4) / demo_playerscount;
+      demo_curr_tic = 0;
       sprintf(demo_len_st, "\x1b\x35/%d:%02d", 
-        demo_tics_count/playerscount/TICRATE/60, 
-        (demo_tics_count/playerscount%(60*TICRATE))/TICRATE);
+        demo_tics_count/TICRATE/60, 
+        (demo_tics_count%(60*TICRATE))/TICRATE);
     }
     else
     {

@@ -120,6 +120,7 @@ extern int demo_skiptics;
 extern int democontinue;
 extern int demo_tics_count;
 extern int demo_curr_tic;
+extern int demo_playerscount;
 extern char demo_len_st[80];
 
 extern int avi_shot_time;
