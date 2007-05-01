@@ -2345,7 +2345,7 @@ void G_ReadDemoTiccmd (ticcmd_t* cmd)
   else
   
   //e6y: check for overrun
-  if (demoplayback && gametic > demo_tics_count)
+  if (demoplayback && demo_curr_tic > demo_tics_count * demo_playerscount)
   {
     lprintf(LO_WARN, "The demo has no DEMOMARKER (0x80) at the end\n");
     G_CheckDemoStatus();
