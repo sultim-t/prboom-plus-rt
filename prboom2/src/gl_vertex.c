@@ -212,7 +212,7 @@ void gld_RecalcVertexHeights(const vertex_t *v)
 
         if (height < vi->heightlist[k])
         {
-          memmove(&vi->heightlist[k + 1], &vi->heightlist[k], sizeof(float) * (vi->numheights - k));
+          memmove(&vi->heightlist[k + 1], &vi->heightlist[k], sizeof(vi->heightlist[0]) * (vi->numheights - k));
           vi->heightlist[k] = height;
           vi->numheights++;
           break;
@@ -297,22 +297,23 @@ void gld_InitVertexData()
   for(i = 0; i < numvertexes; i++)
   {
     int cnt = vt_sectorlists_size[i];
+    vertexsplit_info_t *vi = &gl_vertexsplit[i];
 
-    gl_vertexsplit[i].validcount = -1;
-    gl_vertexsplit[i].numheights = 0;
+    vi->validcount = -1;
+    vi->numheights = 0;
     if (cnt > 1)
     {
-      gl_vertexsplit[i].numsectors = cnt;
-      gl_vertexsplit[i].sectors = malloc(sizeof(sector_t*) * cnt);
-      gl_vertexsplit[i].heightlist = malloc(sizeof(float) * cnt * 2);
+      vi->numsectors = cnt;
+      vi->sectors = malloc(sizeof(vi->sectors[0]) * cnt);
+      vi->heightlist = malloc(sizeof(vi->heightlist[0]) * cnt * 2);
       for(j = 0; j < cnt; j++)
       {
-        gl_vertexsplit[i].sectors[j] = &sectors[vt_sectorlists[i][j]];
+        vi->sectors[j] = &sectors[vt_sectorlists[i][j]];
       }
     }
     else
     {
-      gl_vertexsplit[i].numsectors=0;
+      vi->numsectors=0;
     }
   }
 
