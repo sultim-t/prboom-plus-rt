@@ -1534,10 +1534,12 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
     rejectlump = -1;
   }
   
+#ifdef GL_DOOM
   // e6y
   // vertexes data should be purged here,
   // because it depends from sectors
   gld_CleanVertexData();
+#endif
 
 #ifdef GL_DOOM
 // proff 11/99: clean the memory from textures etc.
