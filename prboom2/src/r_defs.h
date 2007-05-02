@@ -157,6 +157,10 @@ typedef struct
   //e6y
   int floor_validcount;
   int ceil_validcount;
+  fixed_t highestfloor_height;
+  fixed_t lowestceil_height;
+  short highestfloor_lightlevel;
+  short lowestceil_lightlevel;
 } sector_t;
 
 //
