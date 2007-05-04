@@ -265,6 +265,17 @@ static void R_DoAnInterpolation (int i, fixed_t smoothratio)
     pos = bakipos[i][1] = *adr2;
     *adr2 = oldipos[i][1] + FixedMul (pos - oldipos[i][1], smoothratio);
   }
+
+  if (gl_seamless)
+  {
+    switch (curipos[i].type)
+    {
+    case INTERP_SectorFloor:
+    case INTERP_SectorCeiling:
+      gld_UpdateSplitData(((sector_t*)curipos[i].address));
+      break;
+    }
+  }
 }
 
 void R_UpdateInterpolations()

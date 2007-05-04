@@ -78,16 +78,24 @@
 
 typedef struct vertexsplit_info_s
 {
-	int numheights;
-	int numsectors;
-	sector_t **sectors;
-	float *heightlist;
-	byte validcount;
+  boolean changed;
+  int numheights;
+  int numsectors;
+  sector_t **sectors;
+  float *heightlist;
+  byte validcount;
 } vertexsplit_info_t;
 
 int gl_seamless;
 
 static vertexsplit_info_t * gl_vertexsplit = NULL;
+
+typedef struct splitsbysector_s
+{
+  int numsplits;
+  vertexsplit_info_t **splits;
+} splitsbysector_t;
+static splitsbysector_t * gl_splitsbysector = NULL;
 
 //==========================================================================
 //
@@ -195,6 +203,13 @@ void gld_RecalcVertexHeights(const vertex_t *v)
   if (vi->validcount == rendermarker)
     return;
 
+  vi->validcount = rendermarker;
+
+  if (!vi->changed)
+    return;
+
+  vi->changed = false;
+
   vi->numheights = 0;
   for(i = 0; i < vi->numsectors; i++)
   {
@@ -222,10 +237,9 @@ void gld_RecalcVertexHeights(const vertex_t *v)
         vi->heightlist[vi->numheights++] = height;
     }
   }
+
   if (vi->numheights <= 2)
     vi->numheights = 0;  // is not in need of any special attention
-
-  vi->validcount = rendermarker;
 }
 
 //==========================================================================
@@ -246,6 +260,26 @@ static void AddToVertex(const sector_t *sec, int **list, unsigned int *size)
   (*list) = realloc((*list), sizeof(*list) * ((*size) + 1));
   (*list)[(*size)] = secno;
   (*size)++;
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+static void AddToSplitBySector(vertexsplit_info_t *vi, splitsbysector_t *splitsbysector)
+{
+  int i;
+  for(i = 0; i < splitsbysector->numsplits; i++)
+  {
+    if (splitsbysector->splits[i] == vi)
+      return;
+  }
+  splitsbysector->splits = realloc(
+    splitsbysector->splits, 
+    sizeof(splitsbysector->splits) * (splitsbysector->numsplits + 1));
+  splitsbysector->splits[splitsbysector->numsplits] = vi;
+  splitsbysector->numsplits++;
 }
 
 //==========================================================================
@@ -303,6 +337,7 @@ void gld_InitVertexData()
     vi->numheights = 0;
     if (cnt > 1)
     {
+      vi->changed = true;
       vi->numsectors = cnt;
       vi->sectors = malloc(sizeof(vi->sectors[0]) * cnt);
       vi->heightlist = malloc(sizeof(vi->heightlist[0]) * cnt * 2);
@@ -317,8 +352,43 @@ void gld_InitVertexData()
     }
   }
 
+  gl_splitsbysector = malloc(sizeof(gl_splitsbysector[0]) * numsectors);
+  memset(gl_splitsbysector, 0, sizeof(gl_splitsbysector[0]) * numsectors);
+
+  for(i = 0; i < numsectors; i++)
+  {
+    for(j = 0; j < numvertexes; j++)
+    {
+      vertexsplit_info_t *vi = &gl_vertexsplit[j];
+
+      for(k = 0; k < vi->numsectors; k++)
+      {
+        if (vi->sectors[k] == &sectors[i])
+          AddToSplitBySector(vi, &gl_splitsbysector[i]);
+      }
+    }
+  }
+
+  for(i = 0; i < numvertexes; i++)
+    gld_RecalcVertexHeights(&vertexes[i]);
+
   free(vt_sectorlists);
   free(vt_sectorlists_size);
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+void gld_UpdateSplitData(sector_t *sector)
+{
+  int i;
+  splitsbysector_t *splitsbysector = &gl_splitsbysector[sector->iSectorID];
+  for (i = 0; i < splitsbysector->numsplits; i++)
+  {
+    splitsbysector->splits[i]->changed = true;
+  }
 }
 
 //==========================================================================
@@ -341,5 +411,19 @@ void gld_CleanVertexData()
     }
     free(gl_vertexsplit);
     gl_vertexsplit = NULL;
+  }
+
+  if (gl_splitsbysector)
+  {
+    int i;
+    for(i = 0; i < numsectors; i++)
+    {
+      if (gl_splitsbysector[i].numsplits > 0)
+      {
+        free(gl_splitsbysector[i].splits);
+      }
+    }
+    free(gl_splitsbysector);
+    gl_splitsbysector = NULL;
   }
 }

@@ -52,6 +52,7 @@ extern boolean gl_arb_multitexture;
 extern int render_canusedetail;
 void gld_InitVertexData();
 void gld_CleanVertexData();
+void gld_UpdateSplitData(sector_t *sector);
 
 void gld_Init(int width, int height);
 void gld_InitCommandLine();
