@@ -449,17 +449,32 @@ void I_FinishUpdate (void)
 void I_ReadScreen (screeninfo_t *dest)
 {
   int h;
+  boolean locked = false;
+  byte *srcofs;
+  byte *dstofs;
+  int width, height;
+  if (SDL_MUSTLOCK(screen))
+  {
+    if (SDL_LockSurface(screen) < 0) {
+      lprintf(LO_INFO,"I_ReadScreen: %s\n", SDL_GetError());
+      return;
+    }
+    locked = true;
+  }
   // e6y: processing of screen_multiply
   // screen->pixels instead of screens[0].data should be used
-  byte *srcofs = screen->pixels;
-  byte *dstofs = dest->data;
-  int width, height;
+  srcofs = screen->pixels;
+  dstofs = dest->data;
   width = MIN(screen->w, dest->width);
   height = MIN(screen->h, dest->height);
   for (h=height; h>0; h--) {
     memcpy(dstofs, srcofs, width);
     srcofs += screen->pitch;
     dstofs += dest->pitch;
+  }
+  if (locked)
+  {
+    SDL_UnlockSurface(screen);
   }
 }
 
