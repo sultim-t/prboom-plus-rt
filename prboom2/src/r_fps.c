@@ -266,6 +266,7 @@ static void R_DoAnInterpolation (int i, fixed_t smoothratio)
     *adr2 = oldipos[i][1] + FixedMul (pos - oldipos[i][1], smoothratio);
   }
 
+#ifdef GL_DOOM
   if (gl_seamless)
   {
     switch (curipos[i].type)
@@ -276,6 +277,7 @@ static void R_DoAnInterpolation (int i, fixed_t smoothratio)
       break;
     }
   }
+#endif
 }
 
 void R_UpdateInterpolations()
