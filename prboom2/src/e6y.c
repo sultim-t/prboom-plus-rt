@@ -1593,6 +1593,7 @@ void I_AfterUpdateVideoMode(void)
 
 #ifdef GL_DOOM
   M_ChangeFOV();
+  M_ChangeGLRenderPrecise();
 #endif
 }
 

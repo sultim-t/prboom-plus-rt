@@ -5851,7 +5851,6 @@ void M_Init(void)
   M_ChangeMouseInvert();
   M_ChangeFOV();
   M_ChangeSpriteClip();
-  M_ChangeGLRenderPrecise();
 #endif
   M_ChangeScreenMultipleFactor();
   M_ChangeInterlacedScanning();
