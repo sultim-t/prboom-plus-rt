@@ -86,7 +86,7 @@ typedef struct vertexsplit_info_s
   byte validcount;
 } vertexsplit_info_t;
 
-int gl_seamless;
+int gl_seamless = false;
 
 static vertexsplit_info_t * gl_vertexsplit = NULL;
 

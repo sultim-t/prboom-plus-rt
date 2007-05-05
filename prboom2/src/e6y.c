@@ -493,6 +493,12 @@ void M_ChangeMaxViewPitch(void)
 
 void M_ChangeGLRenderPrecise(void)
 {
+  if (V_GetMode() != VID_MODEGL)
+  {
+    gl_seamless = false;
+    return;
+  }
+
   if (gl_render_precise)
   {
     gl_seamless = true;
