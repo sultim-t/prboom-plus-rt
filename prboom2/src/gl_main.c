@@ -1817,6 +1817,8 @@ static void gld_AddDrawItem(GLDrawItemType itemtype, int itemindex)
 
 static void gld_DrawWall(GLWall *wall)
 {
+  rendered_segs++;
+
   if ( (!gl_drawskys) && (wall->flag>=GLDWF_SKY) )
     wall->gltexture=NULL;
   gld_BindTexture(wall->gltexture);
@@ -2366,6 +2368,8 @@ static void gld_DrawFlat(GLFlat *flat)
   int loopnum; // current loop number
   GLLoopDef *currentloop; // the current loop
 
+  rendered_visplanes++;
+
   gld_BindFlat(flat->gltexture);
   gld_StaticLight(flat->light);
   glMatrixMode(GL_MODELVIEW);
@@ -2548,6 +2552,8 @@ void gld_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling)
 
 static void gld_DrawSprite(GLSprite *sprite)
 {
+  rendered_vissprites++;
+
   gld_BindPatch(sprite->gltexture,sprite->cm);
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
@@ -2766,7 +2772,6 @@ static void gld_ProcessWall(GLWall *wall, boolean *gl_alpha_blended, int from_in
         gld_RecalcVertexHeights(seg->v2);
       }
 
-      rendered_segs++;
       count++;
       gld_DrawWall(wall);
     }
@@ -2795,7 +2800,6 @@ void gld_DrawScene(player_t *player)
   {
     if (!gld_drawinfo.flats[i].ceiling)
     {
-      rendered_visplanes++;
       gld_DrawFlat(&gld_drawinfo.flats[i]);
     }
   }
@@ -2806,7 +2810,6 @@ void gld_DrawScene(player_t *player)
   {
     if (gld_drawinfo.flats[i].ceiling)
     {
-      rendered_visplanes++;
       gld_DrawFlat(&gld_drawinfo.flats[i]);
     }
   }
@@ -2840,7 +2843,6 @@ void gld_DrawScene(player_t *player)
     {
       if (gld_drawinfo.walls[i].flag==k)
       {
-        rendered_segs++;
         gld_DrawWall(&gld_drawinfo.walls[i]);
       }
     }
@@ -2889,7 +2891,6 @@ void gld_DrawScene(player_t *player)
         }
         if (k >= 0)
         {
-          rendered_vissprites++;
           gld_DrawSprite(&gld_drawinfo.tsprites[k]);
           gld_drawinfo.tsprites[k].scale=INT_MAX;
         }
