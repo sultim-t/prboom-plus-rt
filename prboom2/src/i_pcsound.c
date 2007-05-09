@@ -35,7 +35,7 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
-#include "PCSOUND\pcsound.h"
+#include "PCSOUND/pcsound.h"
 
 static boolean pcs_initialised = false;
 

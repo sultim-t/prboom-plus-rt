@@ -6,7 +6,7 @@
 #
 #
 
-SUBDIRS = SDL POSIX MAC
+SUBDIRS = SDL POSIX MAC PCSOUND
 
 gamesdir=$(prefix)/games
 EXTRA_PROGRAMS = prboom-plus
@@ -58,7 +58,8 @@ COMMON_SRC = \
 NET_CLIENT_SRC = d_client.c
 
 if BUILD_GL
-USE_GL_SRC = gl_intern.h  gl_main.c  gl_struct.h  gl_texture.c
+USE_GL_SRC = \
+  gl_detail.c  gl_intern.h  gl_main.c  gl_struct.h  gl_texture.c  gl_vertex.c
 else
 USE_GL_SRC =
 endif
@@ -72,4 +73,4 @@ endif
 MUS2MID_SRC = memio.c memio.h mus2mid.c mus2mid.h
 
 prboom_plus_SOURCES = $(COMMON_SRC) $(NET_CLIENT_SRC) $(USE_GL_SRC) $(WAD_SRC) $(MUS2MID_SRC)
-prboom_plus_LDADD = SDL/libsdldoom.a @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ @GL_LIBS@ @MATH_LIB@
+prboom_plus_LDADD = SDL/libsdldoom.a PCSOUND/libpcsound.a @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ @GL_LIBS@ @MATH_LIB@

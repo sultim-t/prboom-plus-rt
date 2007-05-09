@@ -322,6 +322,7 @@ prboom2/src/PCRELIB/perltest -text
 prboom2/src/PCRELIB/ucp.h -text
 prboom2/src/PCRELIB/ucpinternal.h -text
 prboom2/src/PCRELIB/ucptable.c -text
+prboom2/src/PCSOUND/Makefile.am eol=lf
 prboom2/src/POSIX/Makefile.am eol=lf
 prboom2/src/SDL/Makefile.am eol=lf
 prboom2/src/i_simd.c -text
