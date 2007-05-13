@@ -1942,7 +1942,7 @@ static void gld_DrawWall(GLWall *wall)
       glTexCoord2f(wall->ul,wall->vb); glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
 
       // split left edge of wall
-      if (gl_seamless && wall->glseg->fracleft == 0)
+      if (gl_seamless && !wall->glseg->fracleft)
         gld_SplitLeftEdge(wall, false, 0.0f, 0.0f);
 
       // upper left corner
@@ -1952,7 +1952,7 @@ static void gld_DrawWall(GLWall *wall)
       glTexCoord2f(wall->ur,wall->vt); glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
 
       // split right edge of wall
-      if (gl_seamless && wall->glseg->fracright == 1)
+      if (gl_seamless && !wall->glseg->fracright)
         gld_SplitRightEdge(wall, false, 0.0f, 0.0f);
 
       // lower right corner
@@ -2743,7 +2743,6 @@ static void gld_ProcessWall(GLWall *wall, boolean *gl_alpha_blended, int from_in
       {
         seg_t *seg = wall->seg;
         vertex_t *v1, *v2;
-        
         if (seg->sidedef == &sides[seg->linedef->sidenum[0]])
         {
           v1 = seg->linedef->v1;
@@ -2754,19 +2753,9 @@ static void gld_ProcessWall(GLWall *wall, boolean *gl_alpha_blended, int from_in
           v1 = seg->linedef->v2;
           v2 = seg->linedef->v1;
         }
-        wall->glseg->fracleft = 0;
-        wall->glseg->fracright = 1;
 
-        if (D_abs(v1->x - v2->x) > D_abs(v1->y - v2->y))
-        {
-          wall->glseg->fracleft  = (float)(seg->v1->x - v1->x) / (float)(v2->x - v1->x);
-          wall->glseg->fracright = (float)(seg->v2->x - v1->x) / (float)(v2->x - v1->x);
-        }
-        else
-        {
-          wall->glseg->fracleft  = (float)(seg->v1->y - v1->y) / (float)(v2->y - v1->y);
-          wall->glseg->fracright = (float)(seg->v2->y - v1->y) / (float)(v2->y - v1->y);
-        }
+        wall->glseg->fracleft  = (seg->v1->x != v1->x) || (seg->v1->y != v1->y);
+        wall->glseg->fracright = (seg->v2->x != v2->x) || (seg->v2->y != v2->y);
 
         gld_RecalcVertexHeights(seg->v1);
         gld_RecalcVertexHeights(seg->v2);

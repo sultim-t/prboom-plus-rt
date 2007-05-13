@@ -227,7 +227,7 @@ void gld_DrawWallWithDetail(GLWall *wall)
   glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
 
   // split left edge of wall
-  if (gl_seamless && wall->glseg->fracleft == 0)
+  if (gl_seamless && !wall->glseg->fracleft)
     gld_SplitLeftEdge(wall, true, w, h);
 
   // upper left corner
@@ -241,7 +241,7 @@ void gld_DrawWallWithDetail(GLWall *wall)
   glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
 
   // split right edge of wall
-  if (gl_seamless && wall->glseg->fracright == 1)
+  if (gl_seamless && !wall->glseg->fracright)
     gld_SplitRightEdge(wall, true, w, h);
 
   // lower right corner

@@ -74,7 +74,7 @@ typedef struct
 {
   float x1,x2;
   float z1,z2;
-  float fracleft, fracright; //e6y: fractional offset of the 2 vertices on the linedef
+  boolean fracleft, fracright; //e6y
 } GLSeg;
 
 typedef struct
