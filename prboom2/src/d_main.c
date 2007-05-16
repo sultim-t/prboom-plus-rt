@@ -295,23 +295,26 @@ void D_Display (void)
       // The border may need redrawing next time if the border surrounds the screen,
       // and there is a menu being displayed
       borderwillneedredraw = menuactive && isborder && viewactive && (viewwidth != SCREENWIDTH);
+      // e6y
+      // I should do it because I call R_RenderPlayerView in all cases,
+      // not only if viewactive is true
+      borderwillneedredraw |= ((automapmode & am_active) && !(automapmode & am_overlay));
     }
     if (redrawborderstuff || (V_GetMode() == VID_MODEGL))
       R_DrawViewBorder();
 
+    // e6y
+    // Boom's colormaps should be applied for everything in R_RenderPlayerView
+    use_boom_cm=true;
+
     // Now do the drawing
-//e6y    if (viewactive)
-      
-      // e6y
-      // Boom's colormaps should be applied for everything in R_RenderPlayerView
-      use_boom_cm=true;
+    //e6y if (viewactive)
+    R_RenderPlayerView (&players[displayplayer]);
 
-      R_RenderPlayerView (&players[displayplayer]);
-
-      // e6y
-      // but should NOT be applied for automap, statusbar and HUD
-      use_boom_cm=false;
-      frame_fixedcolormap = 0;
+    // e6y
+    // but should NOT be applied for automap, statusbar and HUD
+    use_boom_cm=false;
+    frame_fixedcolormap = 0;
 
     if (automapmode & am_active)
       AM_Drawer();
