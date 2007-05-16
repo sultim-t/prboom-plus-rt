@@ -2155,10 +2155,16 @@ void gld_AddWall(seg_t *seg)
       wall.ytop=255.0f;
       if (
           // e6y
-          // Fix for HOM in the starting area on Memento Mori map29 and on map30.
-          // old code: (backsector->ceilingheight==backsector->floorheight) &&
-          (backsector->ceilingheight==backsector->floorheight||(backsector->ceilingheight<=frontsector->floorheight)) &&
-          (backsector->ceilingpic==skyflatnum)
+          // There is no more HOM in the starting area on Memento Mori map29 and on map30.
+          // There is no more visual glitches with sky on Icarus map14 and Hell Revialed map20
+          // Old code:
+          // (backsector->ceilingheight==backsector->floorheight) &&
+          // (backsector->ceilingpic==skyflatnum)
+          (backsector->ceilingpic==skyflatnum)&&
+          ((backsector->ceilingheight<=backsector->floorheight)||
+           (backsector->ceilingheight<=frontsector->floorheight)) &&
+          ((backsector->floorheight<=frontsector->floorheight)||
+           (backsector->floorheight>=frontsector->ceilingheight))
          )
       {
         wall.ybottom=(float)backsector->floorheight/MAP_SCALE;
