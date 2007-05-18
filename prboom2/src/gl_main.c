@@ -609,7 +609,10 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   y2=y1+(int)((float)gltexture->realtexheight*scale)+1;
   light=gld_CalcLightLevel(lightlevel);
 
-  if (viewplayer->mo->flags & MF_SHADOW)
+  // e6y
+  // Fix of no warning (flashes between shadowed and solid)
+  // when invisibility is about to go
+  if (/*(viewplayer->mo->flags & MF_SHADOW) && */!vis->colormap)
   {
     glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
     glAlphaFunc(GL_GEQUAL,0.1f);
