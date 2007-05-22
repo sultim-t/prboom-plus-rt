@@ -1933,17 +1933,21 @@ void ProcessNewIWAD(const char *iwad)
   }
 }
 
-void HU_DrawDemoProgress(void)
+boolean HU_DrawDemoProgress(void)
 {
-  if (demoplayback && hudadd_demoprogressbar)
-  {
-    int len = MIN(SCREENWIDTH, 
-      (int)((int_64_t)SCREENWIDTH * demo_curr_tic / (demo_tics_count * demo_playerscount)));
+  int len;
+  
+  if (!demoplayback || !hudadd_demoprogressbar)
+    return false;
+  
+  len = MIN(SCREENWIDTH, 
+    (int)((int_64_t)SCREENWIDTH * demo_curr_tic / (demo_tics_count * demo_playerscount)));
     
-    V_FillRect(0, 0, SCREENHEIGHT - 4, len - 0, 4, 4);
-    if (len > 4)
-      V_FillRect(0, 2, SCREENHEIGHT - 3, len - 4, 2, 0);
-  }
+  V_FillRect(0, 0, SCREENHEIGHT - 4, len - 0, 4, 4);
+  if (len > 4)
+    V_FillRect(0, 2, SCREENHEIGHT - 3, len - 4, 2, 0);
+
+  return true;
 }
 
 #ifdef ALL_IN_ONE

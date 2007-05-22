@@ -471,7 +471,7 @@ void WadDataToWadFiles(waddata_t *waddata);
 void CheckAutoDemo(void);
 void ProcessNewIWAD(const char *iwad);
 
-void HU_DrawDemoProgress(void);
+boolean HU_DrawDemoProgress(void);
 
 #ifdef ALL_IN_ONE
 unsigned char* GetAllInOneLumpHandle(void);

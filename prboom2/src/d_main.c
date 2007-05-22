@@ -230,8 +230,8 @@ void D_Display (void)
     if (DemoProgressLastUpdate == 0 || tick - DemoProgressLastUpdate > 500)
     {
       DemoProgressLastUpdate = tick;
-      HU_DrawDemoProgress();
-      I_FinishUpdate();
+      if (HU_DrawDemoProgress())
+        I_FinishUpdate();
     }
     if (!gamekeydown[key_use])
       return;
