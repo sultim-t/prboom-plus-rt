@@ -164,6 +164,20 @@ size_t     num_deathmatchstarts;   // killough
 mapthing_t *deathmatch_p;
 mapthing_t playerstarts[MAXPLAYERS];
 
+static int previous_episode = -1;
+static int previous_map = -1;
+
+boolean SameLevel(int episode, int map)
+{
+  return ((map == previous_map) && (episode == previous_episode));
+}
+
+void AcceptLevel(int episode, int map)
+{
+  previous_episode = episode;
+  previous_map = map;
+}
+
 //
 // P_CheckForZDoomNodes
 //
@@ -1131,7 +1145,7 @@ static void P_CreateBlockMap(void)
   // Create the blockmap lump
 
   blockmaplump = Z_Malloc(sizeof(*blockmaplump) * (4+NBlocks+linetotal),
-                          PU_LEVEL, 0);
+                          PU_STATIC, 0);
   // blockmap header
 
   blockmaplump[0] = bmaporgx = xorg << FRACBITS;
@@ -1190,7 +1204,7 @@ static void P_LoadBlockMap (int lump)
       long i;
       // cph - const*, wad lump handling updated
       const short *wadblockmaplump = W_CacheLumpNum(lump);
-      blockmaplump = Z_Malloc(sizeof(*blockmaplump) * count, PU_LEVEL, 0);
+      blockmaplump = Z_Malloc(sizeof(*blockmaplump) * count, PU_STATIC, 0);
 
       // killough 3/1/98: Expand wad blockmap into larger internal one,
       // by treating all offsets except -1 as unsigned and zero-extending
@@ -1217,7 +1231,7 @@ static void P_LoadBlockMap (int lump)
     }
 
   // clear out mobj chains - CPhipps - use calloc
-  blocklinks = Z_Calloc (bmapwidth*bmapheight,sizeof(*blocklinks),PU_LEVEL,0);
+  blocklinks = Z_Calloc (bmapwidth*bmapheight,sizeof(*blocklinks),PU_STATIC,0);
   blockmap = blockmaplump+4;
 }
 
@@ -1544,13 +1558,9 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 #ifdef GL_DOOM
 // proff 11/99: clean the memory from textures etc.
   {
-    static int previous_episode = -1;
-    static int previous_map = -1;
-    if (episode != previous_episode || map != previous_map)
+    if (!SameLevel(episode, map))
     {
       gld_CleanMemory();
-      previous_episode = episode;
-      previous_map = map;
     }
   }
 #endif
@@ -1596,7 +1606,17 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   P_LoadLineDefs  (lumpnum+ML_LINEDEFS);
   P_LoadSideDefs2 (lumpnum+ML_SIDEDEFS);
   P_LoadLineDefs2 (lumpnum+ML_LINEDEFS);
-  P_LoadBlockMap  (lumpnum+ML_BLOCKMAP);
+
+  if (!SameLevel(episode, map))
+  {
+    Z_Free(blocklinks);
+    Z_Free(blockmaplump);
+    P_LoadBlockMap  (lumpnum+ML_BLOCKMAP);
+  }
+  else
+  {
+    memset(blocklinks, 0, bmapwidth*bmapheight*sizeof(*blocklinks));
+  }
 
   if (nodesVersion > 0)
   {
@@ -1683,6 +1703,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   //e6y
   P_ResetWalkcam(true, true);
   R_SmoothPlaying_Reset(NULL);
+  AcceptLevel(episode, map);
 }
 
 //
