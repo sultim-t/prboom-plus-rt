@@ -356,9 +356,10 @@ void D_Display (void)
     D_Wipe();
   }
 
-  //e6y: don't thrash cpu during pausing
-  if (paused) {
-    I_uSleep(1000);
+  // e6y
+  // Don't thrash cpu during pausing or if the window doesnt have focus
+  if ( (paused && !walkcamera.type) || (!window_focused) ) {
+    I_uSleep(5000);
   }
 
   I_EndDisplay();

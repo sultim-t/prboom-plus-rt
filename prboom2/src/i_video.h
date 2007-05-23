@@ -79,6 +79,8 @@ extern int use_doublebuffer;  /* proff 2001-7-4 - controls wether to use doubleb
 extern int use_fullscreen;  /* proff 21/05/2000 */
 extern int desired_fullscreen; //e6y
 
-void UpdateGrab(void); //e6y
+//e6y
+extern boolean window_focused;
+void UpdateGrab(void);
 
 #endif

@@ -470,7 +470,7 @@ void TryRunTics (void)
 #endif
     runtics = (server ? remotetic : maketic) - gametic;
     if (!runtics) {
-      if (!movement_smooth) {
+      if (!movement_smooth || !window_focused) {
 #ifdef HAVE_NET
         if (server)
           I_WaitForPacket(ms_to_next_tick);

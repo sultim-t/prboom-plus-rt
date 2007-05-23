@@ -75,7 +75,8 @@
 
 //e6y: new mouse code
 static SDL_Cursor* cursors[2] = {NULL, NULL};
-static boolean window_focused;
+
+boolean window_focused;
 
 static void ActivateMouse(void);
 static void DeactivateMouse(void);
