@@ -411,6 +411,76 @@ fixed_t P_FindNextHighestFloor(sector_t *sec, int currentheight)
   sector_t *other;
   int i;
 
+  // e6y
+  // Original P_FindNextHighestFloor() is restored for demo_compatibility
+  // Adapted for prboom's complevels
+  if (demo_compatibility && !prboom_comp[PC_FORCE_BOOM_FINDNEXTHIGHESTFLOOR].state)
+  {
+    int h;
+    int min;
+    static int MAX_ADJOINING_SECTORS = 0;
+    line_t* check;
+    fixed_t height = currentheight;
+    fixed_t *heightlist;
+
+    // 20 adjoining sectors max!
+    if (!MAX_ADJOINING_SECTORS)
+      MAX_ADJOINING_SECTORS = M_CheckParm("-doom95") ? 500 : 20;
+
+    heightlist = malloc(sec->linecount * sizeof(heightlist[0]));
+    
+    for (i=0, h=0 ;i < sec->linecount ; i++)
+    {
+      check = sec->lines[i];
+      other = getNextSector(check,sec);
+      
+      if (!other)
+        continue;
+      
+      if (other->floorheight > height)
+      {
+        if (compatibility_level < dosdoom_compatibility)
+        {
+          // Emulation of memory (stack) overflow.
+          if (h == MAX_ADJOINING_SECTORS + 1)
+            height = other->floorheight;
+          // Check for fatal overflow. Warning.
+          if (h == MAX_ADJOINING_SECTORS + 2)
+            lprintf(LO_WARN, "Sector with more than 20+2 adjoining sectors. Vanilla will crash here");
+
+        }
+        heightlist[h++] = other->floorheight;
+      }
+      
+      // Check for overflow. Warning.
+      if ( compatibility_level >= dosdoom_compatibility && h >= MAX_ADJOINING_SECTORS )
+      {
+        lprintf( LO_WARN, "Sector with more than 20 adjoining sectors\n" );
+        break;
+      }
+    }
+    
+    // Find lowest height in list
+    if (!h)
+    {
+      free(heightlist);
+      return (compatibility_level < doom_1666_compatibility ? 0 : currentheight);
+    }
+    
+    min = heightlist[0];
+    
+    // Range checking? 
+    for (i = 1;i < h;i++)
+    {
+      if (heightlist[i] < min)
+        min = heightlist[i];
+    }
+      
+    free(heightlist);
+    return min;
+  }
+
+
   for (i=0 ;i < sec->linecount ; i++)
     if ((other = getNextSector(sec->lines[i],sec)) &&
          other->floorheight > currentheight)
