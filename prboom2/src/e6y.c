@@ -616,6 +616,12 @@ void M_ChangeSpriteClip(void)
     gen_settings6[11].m_flags |= (S_SKIP|S_DISABLE);
   }
 }
+
+void M_ChangeAllowBoomColormaps(void)
+{
+  if (gl_boom_colormaps == -1)
+    gl_boom_colormaps = gl_boom_colormaps_default;
+}
 #endif
 
 void M_Mouse(int choice, int *sens);

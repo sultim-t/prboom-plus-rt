@@ -113,7 +113,7 @@ const lighttable_t **colormaps;
 
 // killough 3/20/98, 4/4/98: end dynamic colormaps
 
-//e6y: for Boom's color maps in OpenGL mode
+//e6y: for Boom colormaps in OpenGL mode
 boolean use_boom_cm;
 int boom_cm;         // current colormap
 int last_boom_cm=-1; // previous colormap
@@ -522,7 +522,7 @@ static void R_SetupFrame (player_t *player)
   else
     cm = 0;
 
-  //e6y: saving previous and current colormaps
+  //e6y: save previous and current colormap
   last_boom_cm = boom_cm;
   boom_cm = cm;
 

@@ -247,6 +247,7 @@ void M_ChangeUseDetail(void);
 void M_ChangeMultiSample(void);
 void M_ChangeGLRenderPrecise(void);
 void M_ChangeSpriteClip(void);
+void M_ChangeAllowBoomColormaps(void);
 #endif
 void M_ChangeSpeed(void);
 void M_ChangeScreenMultipleFactor(void);

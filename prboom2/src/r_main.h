@@ -93,7 +93,7 @@ extern const lighttable_t **colormaps;
 //e6y
 extern int scalelight_offset[LIGHTLEVELS][MAXLIGHTSCALE];
 
-//e6y: for Boom's color maps in OpenGL mode
+//e6y: for Boom colormaps in OpenGL mode
 extern boolean use_boom_cm;
 extern int boom_cm;         // current colormap
 extern int last_boom_cm;    // previous colormap

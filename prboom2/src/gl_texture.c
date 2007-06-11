@@ -78,6 +78,9 @@ int gl_tex_format=GL_RGB5_A1;
 //int gl_tex_format=GL_RGBA4;
 //int gl_tex_format=GL_RGBA2;
 
+int gl_boom_colormaps = -1;
+int gl_boom_colormaps_default;
+
 GLTexture *last_gltexture=NULL;
 int last_cm=-1;
 
@@ -122,74 +125,94 @@ int gld_GetTexDimension(int value)
   return i;
 }
 
-static GLTexture *gld_AddNewGLTexture(int texture_num)
+// e6y
+// Creates TIntDynArray
+void* NewIntDynArray(int dimCount, int *dims)
 {
-  //e6y
-  int i, j;
-  size_t size;
+  int i, dim;
+  int tableOffset;
+  int bufferSize = 0;
+  int tableSize = 1;
+  void* buffer;
 
-  if (texture_num<0)
-    return NULL;
-  if (texture_num>=numtextures)
-    return NULL;
-  if (!gld_GLTextures)
+  for(dim = 0; dim < dimCount - 1; dim++)
   {
-    gld_GLTextures=Z_Malloc(numtextures*sizeof(GLTexture *),PU_STATIC,0);
-    memset(gld_GLTextures,0,numtextures*sizeof(GLTexture *));
+    tableSize *= dims[dim];
+    bufferSize += sizeof(int*) * tableSize;
   }
-  if (!gld_GLTextures[texture_num])
-  {
-    gld_GLTextures[texture_num]=Z_Malloc(sizeof(GLTexture),PU_STATIC,0);
-    memset(gld_GLTextures[texture_num], 0, sizeof(GLTexture));
-    gld_GLTextures[texture_num]->textype=GLDT_UNREGISTERED;
 
-    //e6y
-    for (i=0; i<(CR_LIMIT+MAXPLAYERS); i++)
+  bufferSize += sizeof(int) * tableSize * dims[dimCount - 1];
+
+  buffer = malloc(bufferSize);
+  memset(buffer, 0, bufferSize);
+
+  if(!buffer)
+  {
+    return 0;
+  }
+
+  tableOffset = 0;
+  tableSize = 1;
+
+  for(dim = 0; dim < dimCount - 1; dim++)
+  {
+    tableSize *= dims[dim];
+    tableOffset += tableSize;
+
+    for(i = 0; i < tableSize; i++)
     {
-      for (j=0; j<NUMCOLORMAPS+1; j++)
+      if(dim < dimCount - 2)
       {
-        size = sizeof(gld_GLTextures[texture_num]->glTexID[0][0][0]);
-        gld_GLTextures[texture_num]->glTexID[i][j] = Z_Malloc(numcolormaps * size, PU_STATIC, 0);
-        memset(gld_GLTextures[texture_num]->glTexID[i][j], 0, numcolormaps * size);
+        *((int***)buffer + tableOffset - tableSize + i) =
+          (((int**)buffer + tableOffset + i*dims[dim + 1]));
+      }
+      else
+      {
+        *((int**)buffer + tableOffset - tableSize + i) =
+          ((int*)((int**)buffer + tableOffset) + i*dims[dim + 1]);
       }
     }
   }
-  return gld_GLTextures[texture_num];
+
+  return buffer;
+}
+
+// e6y
+// The common function for adding textures and patches
+// Used by gld_AddNewGLTexture and gld_AddNewGLPatchTexture
+static GLTexture *gld_AddNewGLTexItem(int num, int count, GLTexture ***items)
+{
+  if (num<0)
+    return NULL;
+  if (num>=count)
+    return NULL;
+  if (!(*items))
+  {
+    (*items)=Z_Calloc(count, sizeof(GLTexture *),PU_STATIC,0);
+  }
+  if (!(*items)[num])
+  {
+    (*items)[num]=Z_Calloc(1, sizeof(GLTexture),PU_STATIC,0);
+    (*items)[num]->textype=GLDT_UNREGISTERED;
+
+    if (gl_boom_colormaps)
+    {
+      GLTexture *texture = (*items)[num];
+      int dims[3] = {(CR_LIMIT+MAXPLAYERS), (NUMCOLORMAPS+1), numcolormaps};
+      texture->glTexExID = NewIntDynArray(3, dims);
+    }
+  }
+  return (*items)[num];
+}
+
+static GLTexture *gld_AddNewGLTexture(int texture_num)
+{
+  return gld_AddNewGLTexItem(texture_num, numtextures, &gld_GLTextures);
 }
 
 static GLTexture *gld_AddNewGLPatchTexture(int lump)
 {
-  //e6y
-  int i, j;
-  size_t size;
-  
-  if (lump<0)
-    return NULL;
-  if (lump>=numlumps)
-    return NULL;
-  if (!gld_GLPatchTextures)
-  {
-    gld_GLPatchTextures=Z_Malloc(numlumps*sizeof(GLTexture *),PU_STATIC,0);
-    memset(gld_GLPatchTextures,0,numlumps*sizeof(GLTexture *));
-  }
-  if (!gld_GLPatchTextures[lump])
-  {
-    gld_GLPatchTextures[lump]=Z_Malloc(sizeof(GLTexture),PU_STATIC,0);
-    memset(gld_GLPatchTextures[lump], 0, sizeof(GLTexture));
-    gld_GLPatchTextures[lump]->textype=GLDT_UNREGISTERED;
-
-    //e6y
-    for (i=0; i<(CR_LIMIT+MAXPLAYERS); i++)
-    {
-      for (j=0; j<NUMCOLORMAPS+1; j++)
-      {
-        size = sizeof(gld_GLPatchTextures[lump]->glTexID[0][0][0]);
-        gld_GLPatchTextures[lump]->glTexID[i][j] = Z_Malloc(numcolormaps * size, PU_STATIC, 0);
-        memset(gld_GLPatchTextures[lump]->glTexID[i][j], 0, numcolormaps * size);
-      }
-    }
-  }
-  return gld_GLPatchTextures[lump];
+  return gld_AddNewGLTexItem(lump, numlumps, &gld_GLPatchTextures);
 }
 
 void gld_SetTexturePalette(GLenum target)
@@ -292,7 +315,7 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
           }
 #endif
           //e6y: Boom's color maps
-          if (use_boom_cm && !(comp[comp_skymap] && (gltexture->flags&GLTEXTURE_SKY)))
+          if (gl_boom_colormaps && use_boom_cm && !(comp[comp_skymap] && (gltexture->flags&GLTEXTURE_SKY)))
           {
             const lighttable_t *colormap = (fixedcolormap ? fixedcolormap : fullcolormap);
             buffer[pos+0]=playpal[colormap[source[j]]*3+0];
@@ -402,13 +425,12 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const rp
           }
 #endif
           //e6y: Boom's color maps
-          if (use_boom_cm)
+          if (gl_boom_colormaps && use_boom_cm)
           {
             const lighttable_t *colormap = (fixedcolormap ? fixedcolormap : fullcolormap);
             buffer[pos+0]=playpal[colormap[outr[source[j]]]*3+0];
             buffer[pos+1]=playpal[colormap[outr[source[j]]]*3+1];
             buffer[pos+2]=playpal[colormap[outr[source[j]]]*3+2];
-
           }
           else
           {
@@ -464,7 +486,7 @@ static void gld_AddFlatToTexture(GLTexture *gltexture, unsigned char *buffer, co
         }
 #endif
         //e6y: Boom's color maps
-        if (use_boom_cm)
+        if (gl_boom_colormaps && use_boom_cm)
         {
           const lighttable_t *colormap = (fixedcolormap ? fixedcolormap : fullcolormap);
           buffer[pos+0]=playpal[colormap[flat[y*64+x]]*3+0];
@@ -566,7 +588,10 @@ void gld_BindTexture(GLTexture *gltexture)
   }
 
   //e6y
-  glTexID = &gltexture->glTexID[CR_DEFAULT][frame_fixedcolormap][boom_cm];
+  if (gl_boom_colormaps)
+    glTexID = &gltexture->glTexExID[CR_DEFAULT][frame_fixedcolormap][boom_cm];
+  else
+    glTexID = &gltexture->glTexID[CR_DEFAULT];
 
   if (*glTexID!=0)
   {
@@ -724,7 +749,10 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   }
 
   //e6y
-  glTexID = &gltexture->glTexID[cm][frame_fixedcolormap][boom_cm];
+  if (gl_boom_colormaps)
+    glTexID = &gltexture->glTexExID[cm][frame_fixedcolormap][boom_cm];
+  else
+    glTexID = &gltexture->glTexID[cm];
 
   if (*glTexID!=0)
   {
@@ -875,7 +903,10 @@ void gld_BindFlat(GLTexture *gltexture)
   }
 
   //e6y
-  glTexID = &gltexture->glTexID[CR_DEFAULT][frame_fixedcolormap][boom_cm];
+  if (gl_boom_colormaps)
+    glTexID = &gltexture->glTexExID[CR_DEFAULT][frame_fixedcolormap][boom_cm];
+  else
+    glTexID = &gltexture->glTexID[CR_DEFAULT];
 
   if (*glTexID!=0)
   {
@@ -959,54 +990,45 @@ void gld_BindFlat(GLTexture *gltexture)
   W_UnlockLumpNum(gltexture->index);
 }
 
-static void gld_CleanTextures(void)
+// e6y
+// The common function for cleaning textures and patches
+// gld_CleanTextures and gld_CleanPatchTextures are replaced with that
+static void gld_CleanTexItems(int count, GLTexture ***items)
 {
-  int i, j, cm, n;
+  int i, j;
 
-  if (!gld_GLTextures)
+  if (!(*items))
     return;
-  for (i=0; i<numtextures; i++)
+  for (i=0; i<count; i++)
   {
-    if (gld_GLTextures[i])
+    if ((*items)[i])
     {
-      for (j=0; j<(CR_LIMIT+MAXPLAYERS); j++)
-        for (n=0; n<NUMCOLORMAPS+1; n++)
+      if (gl_boom_colormaps)
+      {
+        int cm, n;
+        for (j=0; j<(CR_LIMIT+MAXPLAYERS); j++)
         {
-          for (cm=0; cm<numcolormaps; cm++)
-            glDeleteTextures(1,&(gld_GLTextures[i]->glTexID[j][n][cm]));
-          Z_Free(gld_GLTextures[i]->glTexID[j][n]);
-          gld_GLTextures[i]->glTexID[j][n] = NULL;
+          for (n=0; n<NUMCOLORMAPS+1; n++)
+          {
+            for (cm=0; cm<numcolormaps; cm++)
+            {
+              glDeleteTextures(1,&((*items)[i]->glTexExID[j][n][cm]));
+            }
+          }
         }
+        Z_Free((*items)[i]->glTexExID);
+        (*items)[i]->glTexExID = NULL;
+      }
+      else
+      {
+        for (j=0; j<(CR_LIMIT+MAXPLAYERS); j++)
+          glDeleteTextures(1,&((*items)[i]->glTexID[j]));
+      }
 
-      Z_Free(gld_GLTextures[i]);
+      Z_Free((*items)[i]);
     }
   }
-  memset(gld_GLTextures,0,numtextures*sizeof(GLTexture *));
-}
-
-static void gld_CleanPatchTextures(void)
-{
-  int i, j, cm, n;
-
-  if (!gld_GLPatchTextures)
-    return;
-  for (i=0; i<numlumps; i++)
-  {
-    if (gld_GLPatchTextures[i])
-    {
-      for (j=0; j<(CR_LIMIT+MAXPLAYERS); j++)
-        for (n=0; n<NUMCOLORMAPS+1; n++)
-        {
-          for (cm=0; cm<numcolormaps; cm++)
-            glDeleteTextures(1,&(gld_GLPatchTextures[i]->glTexID[j][n][cm]));
-          Z_Free(gld_GLPatchTextures[i]->glTexID[j][n]);
-          gld_GLPatchTextures[i]->glTexID[j][n] = NULL;
-        }
-
-      Z_Free(gld_GLPatchTextures[i]);
-    }
-  }
-  memset(gld_GLPatchTextures,0,numlumps*sizeof(GLTexture *));
+  memset((*items),0,count*sizeof(GLTexture *));
 }
 
 void gld_Precache(void)
@@ -1083,7 +1105,7 @@ void gld_Precache(void)
 
 void gld_CleanMemory(void)
 {
-  gld_CleanVertexData();//e6y
-  gld_CleanTextures();
-  gld_CleanPatchTextures();
+  gld_CleanVertexData();
+  gld_CleanTexItems(numtextures, &gld_GLTextures);
+  gld_CleanTexItems(numlumps, &gld_GLPatchTextures);
 }

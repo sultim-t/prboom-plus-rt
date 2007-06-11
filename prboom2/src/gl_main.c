@@ -551,8 +551,16 @@ void gld_DrawBackground(const char* name)
   float fU1,fU2,fV1,fV2;
   int width,height;
 
+  //e6y: Boom colormap should not be applied for background
+  int saved_boom_cm = boom_cm;
+  boom_cm = 0;
+
   gltexture=gld_RegisterFlat(R_FlatNumForName(name), false);
   gld_BindFlat(gltexture);
+
+  //e6y
+  boom_cm = saved_boom_cm;
+
   if (!gltexture)
     return;
   fU1=0;
@@ -1740,21 +1748,20 @@ void gld_EndDrawScene(void)
   // Effect of invulnerability uses a colormap instead of hard-coding now
   // See nuts.wad
   // http://www.doomworld.com/idgames/index.php?id=11402
-
-  /*if (player->fixedcolormap == 32) {
-		glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
-		glColor4f(1,1,1,1);
+  if (!gl_boom_colormaps && player->fixedcolormap == 32) {
+    glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
+    glColor4f(1,1,1,1);
     glBindTexture(GL_TEXTURE_2D, 0);
     last_gltexture = NULL;
     last_cm = -1;
     glBegin(GL_TRIANGLE_STRIP);
-  		glVertex2f( 0.0f, 0.0f);
-	  	glVertex2f( 0.0f, (float)SCREENHEIGHT);
-		  glVertex2f( (float)SCREENWIDTH, 0.0f);
-		  glVertex2f( (float)SCREENWIDTH, (float)SCREENHEIGHT);
+      glVertex2f( 0.0f, 0.0f);
+      glVertex2f( 0.0f, (float)SCREENHEIGHT);
+      glVertex2f( (float)SCREENWIDTH, 0.0f);
+      glVertex2f( (float)SCREENWIDTH, (float)SCREENHEIGHT);
     glEnd();
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  }*/
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  }
   if (extra_alpha>0.0f)
   {
     glDisable(GL_ALPHA_TEST);

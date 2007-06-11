@@ -304,7 +304,7 @@ void D_Display (void)
       R_DrawViewBorder();
 
     // e6y
-    // Boom's colormaps should be applied for everything in R_RenderPlayerView
+    // Boom colormaps should be applied for everything in R_RenderPlayerView
     use_boom_cm=true;
 
     // Now do the drawing
