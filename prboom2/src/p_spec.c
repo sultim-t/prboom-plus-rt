@@ -419,15 +419,23 @@ fixed_t P_FindNextHighestFloor(sector_t *sec, int currentheight)
     int h;
     int min;
     static int MAX_ADJOINING_SECTORS = 0;
+    static fixed_t *heightlist = NULL;
+    static int heightlist_size = 0;
     line_t* check;
     fixed_t height = currentheight;
-    fixed_t *heightlist;
 
     // 20 adjoining sectors max!
     if (!MAX_ADJOINING_SECTORS)
       MAX_ADJOINING_SECTORS = M_CheckParm("-doom95") ? 500 : 20;
 
-    heightlist = malloc(sec->linecount * sizeof(heightlist[0]));
+    if (sec->linecount > heightlist_size)
+    {
+      do
+      {
+        heightlist_size = heightlist_size ? heightlist_size * 2 : 128;
+      } while (sec->linecount > heightlist_size);
+      heightlist = realloc(heightlist, heightlist_size * sizeof(heightlist[0]));
+    }
     
     for (i=0, h=0 ;i < sec->linecount ; i++)
     {
@@ -463,7 +471,6 @@ fixed_t P_FindNextHighestFloor(sector_t *sec, int currentheight)
     // Find lowest height in list
     if (!h)
     {
-      free(heightlist);
       return (compatibility_level < doom_1666_compatibility ? 0 : currentheight);
     }
     
@@ -476,7 +483,6 @@ fixed_t P_FindNextHighestFloor(sector_t *sec, int currentheight)
         min = heightlist[i];
     }
       
-    free(heightlist);
     return min;
   }
 
