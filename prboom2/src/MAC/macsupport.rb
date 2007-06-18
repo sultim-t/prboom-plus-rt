@@ -2,7 +2,7 @@ require 'rake/loaders/makefile'
 
 @cc = 'cc'
 @linker = 'cc'
-@makedepend = '/usr/X11R6/bin/makedepend'
+@makedepend = 'makedepend'
 @frameworkPaths = %w(~/Library/Frameworks /Library/Frameworks /System/Library/Frameworks)
 
 @commonflags = ''
@@ -13,6 +13,7 @@ require 'rake/loaders/makefile'
 @includes = ''
 @defines = ''
 @ldflags = ''
+@frameworkFlags = ''
 @libs = ''
 @systemFrameworks = []
 @frameworks = []
@@ -28,11 +29,20 @@ rescue NameError
 	retry
 end
 
+begin
+	if BUILDDIR
+		@includes += " -I#{BUILDDIR} "
+	end
+rescue NameError
+	BUILDDIR = ''
+end
+
 ###########
 # Cleanup #
 ###########
 
 task(:clean) do |task|
+	rm_rf(BUILDDIR)
 	rm_rf(@cleanfiles)
 	rm_rf(BUNDLEDIR)
 end
@@ -87,7 +97,7 @@ end
 
 begin
 	if FRAMEWORK
-		directory(BUNDLEDIR = "#{NAME}.framework")
+		directory(BUNDLEDIR = "#{BUILDDIR}#{NAME}.framework")
 		directory(CONTENTSDIR = "#{BUNDLEDIR}/Contents")
 		directory(VERSIONSDIR = "#{CONTENTSDIR}/Versions")
 		directory(VERSIONDIR = "#{VERSIONSDIR}/#{FRAMEWORKVERSION}")
@@ -96,7 +106,7 @@ begin
 
 		@ldflags += " -dynamiclib -install_name @executable_path/../Frameworks/#{VERSIONDIR}/#{NAME}"
 	else
-		directory(BUNDLEDIR = "#{NAME}.app")
+		directory(BUNDLEDIR = "#{BUILDDIR}#{NAME}.app")
 		directory(CONTENTSDIR = "#{BUNDLEDIR}/Contents")
 		directory(RESOURCEDIR = "#{CONTENTSDIR}/Resources")
 		directory(BINDIR = "#{CONTENTSDIR}/MacOS")
@@ -134,7 +144,7 @@ def installFrameworks(task)
 			exit(1)
 		end
 
-		@libs += " -framework #{name} "
+		@frameworkFlags += " -framework #{name} "
 		@includes += " -I#{framework}/Headers "
 
 		if @frameworks.include?(name)
@@ -181,7 +191,7 @@ def buildBinary(task, path, file, sources)
 	objects = []
 	target = "#{path}/#{file}"
 	for source in sources
-		object = "#{File::dirname(source)}/#{File::basename(source, '.*')}.o"
+		object = "#{BUILDDIR}#{File::dirname(source)}/#{File::basename(source, '.*')}.o"
 		if ['.m'].include?(File::extname(source))
 			objcTask(object, source)
 		elsif ['.M', '.mm'].include?(File::extname(source))
@@ -194,17 +204,23 @@ def buildBinary(task, path, file, sources)
 		objects.push(object)
 		@cleanfiles.push(object)
 
-		depfile = "#{File::dirname(source)}/.#{File::basename(source, '.*')}.dep.mf"
-		file(depfile => source) do |task|
-			prefix = File::join(File::dirname(task.name), '')
-			sh("#{@makedepend} -p#{prefix} -f- -- #{@includes} #{@defines} -- #{task.prerequisites} > #{task.name} 2> /dev/null")
+		deps = [source]
+		if BUILDDIR != ''
+			dir = "#{BUILDDIR}#{File::dirname(source)}"
+			directory(dir)
+			deps.push(dir)
+		end
+		depfile = "#{BUILDDIR}#{File::dirname(source)}/.#{File::basename(source, '.*')}.dep.mf"
+		file(depfile => deps) do |task|
+			prefix = File::join(File::dirname(task.prerequisites[0]), '')
+			sh("#{@makedepend} -p#{BUILDDIR}#{prefix} -f- -- #{@includes} #{@defines} -- #{task.prerequisites[0]} > #{task.name} 2> /dev/null")
 		end
 		import depfile
 		@cleanfiles.push(depfile)
 	end
 
 	file(target => [path, *objects]) do |task|
-		sh("#{@linker} #{@ldflags} -o \"#{task.name}\" #{task.prerequisites[1..-1].join(' ')} #{@libs}")
+		sh("#{@linker} #{@frameworkFlags} #{@ldflags} #{@libs} -o \"#{task.name}\" #{task.prerequisites[1..-1].join(' ')}")
 	end
 
 	task(task => target)
