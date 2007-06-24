@@ -1944,7 +1944,7 @@ boolean HU_DrawDemoProgress(void)
 {
   int len;
   
-  if (!demoplayback || !hudadd_demoprogressbar)
+  if (gamestate == GS_DEMOSCREEN || !demoplayback || !hudadd_demoprogressbar)
     return false;
   
   len = MIN(SCREENWIDTH, 
