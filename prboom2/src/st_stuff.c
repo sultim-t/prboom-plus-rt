@@ -519,6 +519,13 @@ static void ST_updateFaceWidget(void)
               (plyr->health - st_oldhealth):
               (st_oldhealth - plyr->health)) > ST_MUCHPAIN)
             {
+              // e6y
+              // There are TWO bugs in the ouch face code.
+              // Not only was the condition reversed, but the priority system is
+              // broken in a way that makes the face not work with monster damage.
+              if(!comp[comp_ouchface])
+                priority = 8;
+
               st_facecount = ST_TURNCOUNT;
               st_faceindex = ST_calcPainOffset() + ST_OUCHOFFSET;
             }
