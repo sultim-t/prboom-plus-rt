@@ -1216,7 +1216,7 @@ menu_t MouseDef =
   &OptionsDef,
   MouseMenu,
   M_DrawMouse,
-  60,48,//e6y
+  60,37,//e6y
   0
 };
 
@@ -1234,7 +1234,7 @@ void M_DrawMouse(void)
   int mhmx,mvmx; /* jff 4/3/98 clamp drawn position    99max mead */
 
   // CPhipps - patch drawing updated
-  V_DrawNamePatch(60, 22, 0, "M_MSENS", CR_DEFAULT, VPT_STRETCH);//e6y
+  V_DrawNamePatch(60, 15, 0, "M_MSENS", CR_DEFAULT, VPT_STRETCH);//e6y
 
   //jff 4/3/98 clamp horizontal sensitivity display
   mhmx = mouseSensitivity_horiz>99? 99 : mouseSensitivity_horiz; /*mead*/
