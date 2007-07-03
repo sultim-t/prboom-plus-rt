@@ -1161,6 +1161,11 @@ static void CALLBACK ntessEnd( void )
 // choose the one with the smallest angle to the current. if there is no next line, I
 // start a new loop and take the first unused line in the sector. after all lines are
 // processed, the polygon is tesselated.
+//
+// e6y
+// The bug in algorithm of splitting of a sector into the closed contours was fixed.
+// There is no more HOM at the starting area on MAP16 @ Eternal.wad
+// I hope nothing was broken
 
 static void gld_PrecalculateSector(int num)
 {
@@ -1272,8 +1277,11 @@ static void gld_PrecalculateSector(int num)
       // calculate the angle of this line for use below
       lineangle = R_PointToAngle2(sectors[num].lines[currentline]->v1->x,sectors[num].lines[currentline]->v1->y,sectors[num].lines[currentline]->v2->x,sectors[num].lines[currentline]->v2->y);
       lineangle=(lineangle>>ANGLETOFINESHIFT)*360/8192;
-      if (lineangle>=180)
-        lineangle=lineangle-360;
+      
+      //e6y: direction of a line shouldn't be changed
+      //if (lineangle>=180)
+      //  lineangle=lineangle-360;
+
       if (levelinfo) fprintf(levelinfo, "\t\tAdded Line %4i to Loop, iLineID %5i, Angle: %4i, flipped false\n", currentline, sectors[num].lines[currentline]->iLineID, lineangle);
     }
     else // ... or on the back side
@@ -1283,8 +1291,11 @@ static void gld_PrecalculateSector(int num)
       // calculate the angle of this line for use below
       lineangle = R_PointToAngle2(sectors[num].lines[currentline]->v2->x,sectors[num].lines[currentline]->v2->y,sectors[num].lines[currentline]->v1->x,sectors[num].lines[currentline]->v1->y);
       lineangle=(lineangle>>ANGLETOFINESHIFT)*360/8192;
-      if (lineangle>=180)
-        lineangle=lineangle-360;
+
+      //e6y: direction of a line shouldn't be changed
+      //if (lineangle>=180)
+      //  lineangle=lineangle-360;
+
       if (levelinfo) fprintf(levelinfo, "\t\tAdded Line %4i to Loop, iLineID %5i, Angle: %4i, flipped true\n", currentline, sectors[num].lines[currentline]->iLineID, lineangle);
     }
     if (vertexnum>=maxvertexnum)
@@ -1325,8 +1336,11 @@ static void gld_PrecalculateSector(int num)
           else
             angle = R_PointToAngle2(sectors[num].lines[i]->v2->x,sectors[num].lines[i]->v2->y,sectors[num].lines[i]->v1->x,sectors[num].lines[i]->v1->y);
           angle=(angle>>ANGLETOFINESHIFT)*360/8192;
-          if (angle>=180)
-            angle=angle-360;
+
+          //e6y: direction of a line shouldn't be changed
+          //if (angle>=180)
+          //  angle=angle-360;
+
           // check if line is flipped ...
           if ((sectors[num].lines[i]->sidenum[0]!=NO_INDEX) ? (sides[sectors[num].lines[i]->sidenum[0]].sector==&sectors[num]) : false)
           {
@@ -1350,10 +1364,12 @@ static void gld_PrecalculateSector(int num)
           else
             // check if the angle between the current line and this best line candidate is smaller then
             // the angle of the last candidate
-            if (D_abs(lineangle-angle)<D_abs(bestangle))
+            // e6y: for finding an angle between AB and BC vectors we should subtract
+            // (BC - BA) == (BC - (180 - AB)) == (angle-(180-lineangle))
+            if (D_abs(angle-(180-lineangle))<D_abs(bestangle))
             {
               bestline=i;
-              bestangle=lineangle-angle;
+              bestangle=angle-(180-lineangle);
               bestlinecount++;
             }
         }
