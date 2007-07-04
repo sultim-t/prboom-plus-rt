@@ -74,6 +74,7 @@
 #include "info.h"
 #include "i_simd.h"
 #include "gl_struct.h"
+#include "g_game.h"
 #include "e6y.h"
 #include "./../ICONS/resource.h"
 
