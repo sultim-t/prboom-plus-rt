@@ -377,6 +377,8 @@ void e6y_InitCommandLine(void)
     if (!StrToInt(myargv[p+1], (long*)&spechit_magic))
       spechit_magic = DEFAULT_SPECHIT_MAGIC;
   }
+
+  shorttics = M_CheckParm("-shorttics");
 }
 
 void G_CheckDemoContinue(void)

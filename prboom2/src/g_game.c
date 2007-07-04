@@ -139,6 +139,14 @@ int             autorun = false;      // always running?          // phares
 int             totalleveltimes;      // CPhipps - total time for all completed levels
 int             longtics;
 
+// e6y
+// There is a new command-line switch "-shorttics".
+// This makes it possible to practice routes and tricks
+// (e.g. glides, where this makes a significant difference)
+// with the same mouse behaviour as when recording,
+// but without having to be recording every time.
+int shorttics;
+
 //
 // controls (have defaults)
 //
@@ -275,18 +283,33 @@ const byte* G_ReadDemoHeader(const byte* demo_p, size_t size, boolean failonerro
 //
 static inline signed char fudgef(signed char b)
 {
+/*e6y
   static int c;
   if (!b || !demo_compatibility || longtics) return b;
   if (++c & 0x1f) return b;
-//e6y  b |= 1; if (b>2) b-=2;
+  b |= 1; if (b>2) b-=2;*/
   return b;
 }
 
 static inline signed short fudgea(signed short b)
 {
+/*e6y
   if (!b || !demo_compatibility || !longtics) return b;
-//e6y   b |= 1; if (b>2) b-=2;
-  return b;
+  b |= 1; if (b>2) b-=2;*/
+  if (shorttics && !demorecording && !demoplayback)
+  {
+    // e6y
+    // There is a new command-line switch "-shorttics".
+    // This makes it possible to practice routes and tricks
+    // (e.g. glides, where this makes a significant difference)
+    // with the same mouse behaviour as when recording,
+    // but without having to be recording every time.
+    return (((b + 128) >> 8) << 8);
+  }
+  else
+  {
+    return b;
+  }
 }
 
 

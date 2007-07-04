@@ -178,4 +178,12 @@ extern char savedescription[SAVEDESCLEN];  // Description to save in savegame
 /* cph - compatibility level strings */
 extern const char * comp_lev_str[];
 
+// e6y
+// There is a new command-line switch "-shorttics".
+// This makes it possible to practice routes and tricks
+// (e.g. glides, where this makes a significant difference)
+// with the same mouse behaviour as when recording,
+// but without having to be recording every time.
+extern int shorttics;
+
 #endif
