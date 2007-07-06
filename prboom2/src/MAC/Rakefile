@@ -68,8 +68,10 @@ e6y.c
 f_finale.c
 f_wipe.c
 g_game.c
+gl_detail.c
 gl_main.c
 gl_texture.c
+gl_vertex.c
 hu_lib.c
 hu_stuff.c
 info.c

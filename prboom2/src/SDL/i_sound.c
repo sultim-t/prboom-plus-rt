@@ -312,8 +312,10 @@ int I_StartSound(int id, int channel, int vol, int sep, int pitch, int priority)
     return -1;
 #endif
 
+#ifdef HAVE_MIXER
   if (snd_pcspeaker)
     return I_PCS_StartSound(id, channel, vol, sep, pitch, priority);
+#endif
 
   lump = S_sfx[id].lumpnum;
 
@@ -354,11 +356,13 @@ void I_StopSound (int handle)
     I_Error("I_StopSound: handle out of range");
 #endif
 
+#ifdef HAVE_MIXER
   if (snd_pcspeaker)
   {
     I_PCS_StopSound(handle);
     return;
   }
+#endif
 
   SDL_LockAudio();
   stopchan(handle);
@@ -373,8 +377,10 @@ boolean I_SoundIsPlaying(int handle)
     I_Error("I_SoundIsPlaying: handle out of range");
 #endif
 
+#ifdef HAVE_MIXER
   if (snd_pcspeaker)
     return I_PCS_SoundIsPlaying(handle);
+#endif
 
   return channelinfo[handle].data != NULL;
 }
@@ -590,8 +596,10 @@ void I_InitSound(void)
   }
 
   // If we are using the PC speaker, we now need to initialise it.
+#ifdef HAVE_MIXER
   if (snd_pcspeaker)
     I_PCS_InitSound();
+#endif
 
   if (!nomusicparm)
     I_InitMusic();
