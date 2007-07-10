@@ -719,7 +719,7 @@ static void P_LoadLineDefs (int lump)
         }
 
       /* calculate sound origin of line to be its midpoint */
-      if (comp[comp_soul])
+      if (comp[comp_sound])
       {
         ld->soundorg.x = (ld->bbox[BOXLEFT] + ld->bbox[BOXRIGHT] ) / 2;
         ld->soundorg.y = (ld->bbox[BOXTOP]  + ld->bbox[BOXBOTTOM]) / 2;
@@ -1410,7 +1410,7 @@ static int P_GroupLines (void)
     int block;
 
     // set the degenmobj_t to the middle of the bounding box
-    if (comp[comp_soul])
+    if (comp[comp_sound])
     {
       sector->soundorg.x = (bbox[BOXRIGHT]+bbox[BOXLEFT])/2;
       sector->soundorg.y = (bbox[BOXTOP]+bbox[BOXBOTTOM])/2;
