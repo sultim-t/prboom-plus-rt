@@ -1056,8 +1056,13 @@ void P_SpawnPlayer (int n, const mapthing_t* mthing)
   mobj_t*   mobj;
   int       i;
 
-  if (PlayeringameOverrun(mthing)) return;//e6y
-
+  // e6y
+  // playeringame overflow detection
+  // it detects and emulates overflows on vex6d.wad\bug_wald(toke).lmp, etc.
+  // http://www.doom2.net/doom2/research/runningbody.zip
+  if (PlayeringameOverrun(mthing))
+    return;
+                                                                
   // not playing?
 
   if (!playeringame[n])
@@ -1066,7 +1071,7 @@ void P_SpawnPlayer (int n, const mapthing_t* mthing)
   p = &players[n];
 
   if (p->playerstate == PST_REBORN)
-    G_PlayerReborn (mthing->type-1);
+    G_PlayerReborn (n);
 
   /* cph 2001/08/14 - use the options field of memorised player starts to
    * indicate whether the start really exists in the level.
