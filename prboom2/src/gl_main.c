@@ -519,16 +519,16 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
   if (!gltexture)
     return;
   fV1=0.0f;
-  fV2=(float)gltexture->height/(float)gltexture->tex_height;
+  fV2=gltexture->scaleyfac;
   if (flags & VPT_FLIP)
   {
-    fU1=(float)gltexture->width/(float)gltexture->tex_width;
+    fU1=gltexture->scalexfac;
     fU2=0.0f;
   }
   else
   {
     fU1=0.0f;
-    fU2=(float)gltexture->width/(float)gltexture->tex_width;
+    fU2=gltexture->scalexfac;
   }
   xpos=SCALE_X(x-gltexture->leftoffset);
   ypos=SCALE_Y(y-gltexture->topoffset);
@@ -608,8 +608,8 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   gld_BindPatch(gltexture, CR_DEFAULT);
   fU1=0;
   fV1=0;
-  fU2=(float)gltexture->width/(float)gltexture->tex_width;
-  fV2=(float)gltexture->height/(float)gltexture->tex_height;
+  fU2=gltexture->scalexfac;
+  fV2=gltexture->scaleyfac;
   x1=viewwindowx+vis->x1;
   x2=viewwindowx+vis->x2;
   scale=((float)vis->scale/(float)FRACUNIT);
@@ -2005,7 +2005,7 @@ static void gld_DrawWall(GLWall *wall)
   (w).ur=OU((w),(seg))+((linelength)/(float)(w).gltexture->buffer_width);\
   (peg)?\
   (\
-    (w).vb=OV((w),(seg))+((float)(w).gltexture->height/(float)(w).gltexture->tex_height),\
+    (w).vb=OV((w),(seg))+((w).gltexture->scaleyfac),\
     (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->buffer_height))\
   ):(\
     (w).vt=OV((w),(seg))+(0.0f),\
@@ -2018,7 +2018,7 @@ static void gld_DrawWall(GLWall *wall)
   (w).ur=OU((w),(seg))+((linelength)/(float)(w).gltexture->buffer_width);\
   (peg)?\
   (\
-    (w).vb=OV((w),(seg))+((float)(w).gltexture->height/(float)(w).gltexture->tex_height),\
+    (w).vb=OV((w),(seg))+((w).gltexture->scaleyfac),\
     (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->buffer_height))\
   ):(\
     (w).vt=OV((w),(seg))+(0.0f),\
@@ -2031,7 +2031,7 @@ static void gld_DrawWall(GLWall *wall)
   (w).ur=OU((w),(seg))+((linelength)/(float)(w).gltexture->buffer_width);\
   (peg)?\
   (\
-    (w).vb=((float)(w).gltexture->height/(float)(w).gltexture->tex_height),\
+    (w).vb=((w).gltexture->scaleyfac),\
     (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->buffer_height))\
   ):(\
     (w).vt=(0.0f),\
@@ -2044,7 +2044,7 @@ static void gld_DrawWall(GLWall *wall)
   (w).ur=OU((w),(seg))+((linelength)/(float)(w).gltexture->realtexwidth);\
   (peg)?\
   (\
-    (w).vb=OV_PEG((w),(seg),(v_offset))+((float)(w).gltexture->height/(float)(w).gltexture->tex_height),\
+    (w).vb=OV_PEG((w),(seg),(v_offset))+((w).gltexture->scaleyfac),\
     (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->buffer_height))\
   ):(\
     (w).vt=OV((w),(seg))+(0.0f),\
@@ -2669,15 +2669,15 @@ void gld_AddSprite(vissprite_t *vspr)
   }
 
   sprite.vt=0.0f;
-  sprite.vb=(float)sprite.gltexture->height/(float)sprite.gltexture->tex_height;
+  sprite.vb=sprite.gltexture->scaleyfac;
   if (vspr->flip)
   {
     sprite.ul=0.0f;
-    sprite.ur=(float)sprite.gltexture->width/(float)sprite.gltexture->tex_width;
+    sprite.ur=sprite.gltexture->scalexfac;
   }
   else
   {
-    sprite.ul=(float)sprite.gltexture->width/(float)sprite.gltexture->tex_width;
+    sprite.ul=sprite.gltexture->scalexfac;
     sprite.ur=0.0f;
   }
   hoff=(float)sprite.gltexture->leftoffset/(float)(MAP_COEFF);

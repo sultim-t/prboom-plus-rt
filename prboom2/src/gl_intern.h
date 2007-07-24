@@ -72,6 +72,7 @@ typedef struct
   boolean mipmap;
   GLint wrap_mode;//e6y
   unsigned int flags;//e6y
+  float scalexfac, scaleyfac; //e6y: right/bottom UV coordinates for patch drawing
 } GLTexture;
 
 typedef struct

@@ -551,6 +551,11 @@ GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap, boolean force)
       gltexture->buffer_width=gltexture->realtexwidth;
       gltexture->buffer_height=gltexture->realtexheight;
     }
+    
+    //e6y: right/bottom UV coordinates for texture drawing
+    gltexture->scalexfac=(float)gltexture->width/(float)gltexture->tex_width;
+    gltexture->scaleyfac=(float)gltexture->height/(float)gltexture->tex_height;
+
     gltexture->buffer_size=gltexture->buffer_width*gltexture->buffer_height*4;
     if (gltexture->realtexwidth>gltexture->buffer_width)
       return gltexture;
@@ -715,6 +720,11 @@ GLTexture *gld_RegisterPatch(int lump, int cm)
     gltexture->buffer_width=MAX(gltexture->realtexwidth, gltexture->tex_width);
     gltexture->buffer_height=MAX(gltexture->realtexheight, gltexture->tex_height);
 #endif
+
+    //e6y: right/bottom UV coordinates for patch drawing
+    gltexture->scalexfac=(float)gltexture->width/(float)gltexture->tex_width;
+    gltexture->scaleyfac=(float)gltexture->height/(float)gltexture->tex_height;
+
     gltexture->buffer_size=gltexture->buffer_width*gltexture->buffer_height*4;
     R_UnlockPatchNum(lump);
     if (gltexture->realtexwidth>gltexture->buffer_width)
@@ -871,6 +881,11 @@ GLTexture *gld_RegisterFlat(int lump, boolean mipmap)
       gltexture->buffer_width=gltexture->realtexwidth;
       gltexture->buffer_height=gltexture->realtexheight;
     }
+
+    //e6y: right/bottom UV coordinates for flat drawing
+    gltexture->scalexfac=(float)gltexture->width/(float)gltexture->tex_width;
+    gltexture->scaleyfac=(float)gltexture->height/(float)gltexture->tex_height;
+
     gltexture->buffer_size=gltexture->buffer_width*gltexture->buffer_height*4;
     if (gltexture->realtexwidth>gltexture->buffer_width)
       return gltexture;
