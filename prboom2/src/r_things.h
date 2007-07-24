@@ -54,6 +54,7 @@ extern fixed_t sprtopscreen;
 extern fixed_t pspritescale;
 extern fixed_t pspriteiscale;
 /* proff 11/06/98: Added for high-res */
+extern fixed_t pspritexscale;
 extern fixed_t pspriteyscale;
 
 void R_DrawMaskedColumn(const rpatch_t *patch,

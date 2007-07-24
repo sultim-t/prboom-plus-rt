@@ -65,6 +65,7 @@ typedef struct {
 fixed_t pspritescale;
 fixed_t pspriteiscale;
 // proff 11/06/98: Added for high-res
+fixed_t pspritexscale;
 fixed_t pspriteyscale;
 
 // constant arrays

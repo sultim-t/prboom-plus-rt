@@ -611,7 +611,9 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   fU2=gltexture->scalexfac;
   fV2=gltexture->scaleyfac;
   x1=viewwindowx+vis->x1;
-  x2=viewwindowx+vis->x2;
+  //x2=viewwindowx+vis->x2;
+  //e6y: shotgun from DSV3_War looks correctly now. Especially during movement.
+  x2=x1+(int)((float)gltexture->realtexwidth*(float)pspritexscale/(float)FRACUNIT);
   scale=((float)vis->scale/(float)FRACUNIT);
   y1=viewwindowy+centery-(int)(((float)vis->texturemid/(float)FRACUNIT)*scale);
   y2=y1+(int)((float)gltexture->realtexheight*scale)+1;

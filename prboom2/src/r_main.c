@@ -404,6 +404,7 @@ void R_ExecuteSetViewSize (void)
   pspritescale = FRACUNIT*viewwidth/320;
   pspriteiscale = FRACUNIT*320/viewwidth;
 // proff 11/06/98: Added for high-res
+  pspritexscale = (((SCREENWIDTH*viewheight)/SCREENHEIGHT) << FRACBITS) / 320;
   pspriteyscale = (((SCREENHEIGHT*viewwidth)/SCREENWIDTH) << FRACBITS) / 200;
 
   // thing clipping
