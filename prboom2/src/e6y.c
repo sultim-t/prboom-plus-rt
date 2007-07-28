@@ -1602,8 +1602,10 @@ void I_AfterUpdateVideoMode(void)
 #endif
 
 #ifdef GL_DOOM
-  M_ChangeFOV();
-  M_ChangeGLRenderPrecise();
+  if (V_GetMode() == VID_MODEGL) {
+    M_ChangeFOV();
+    M_ChangeGLRenderPrecise();
+  }
 #endif
 }
 
