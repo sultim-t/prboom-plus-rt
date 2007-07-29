@@ -1227,6 +1227,25 @@ static void gld_PrecalculateSector(int num)
           if (levelinfo) fprintf(levelinfo, "line %4i (iLineID %4i) has both sides in same sector (removed)\n", i, sectors[num].lines[i]->iLineID);
         }
   }
+  // e6y
+  // Remove any line which has a clone with the same vertexes and orientation
+  // (i.e. MM.WAD Map22 lines 1298 and 2397)
+  // There is no more HOM on Memento Mori MAP22 sector 299
+  for (i = 0; i < sectors[num].linecount - 1; i++)
+  {
+    int j;
+    for (j = i + 1; j < sectors[num].linecount; j++)
+    {
+      if (sectors[num].lines[i]->v1 == sectors[num].lines[j]->v1 &&
+          sectors[num].lines[i]->v2 == sectors[num].lines[j]->v2 &&
+          sectors[num].lines[i]->frontsector == sectors[num].lines[j]->frontsector &&
+          sectors[num].lines[i]->backsector == sectors[num].lines[j]->backsector &&
+          lineadded[i] == false && lineadded[j] == false)
+      {
+        lineadded[i] = true;
+      }
+    }
+  }
 
   // initialize variables
   linecount=sectors[num].linecount;
