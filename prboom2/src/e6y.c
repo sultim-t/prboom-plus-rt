@@ -521,11 +521,11 @@ void M_ChangeScreenMultipleFactor(void)
   extern setup_menu_t gen_settings6[];
   if(render_screen_multiply != 1)
   {
-    gen_settings6[3].m_flags &= ~(S_SKIP|S_DISABLE);
+    gen_settings6[2].m_flags &= ~(S_SKIP|S_DISABLE);
   }
   else
   {
-    gen_settings6[3].m_flags |= (S_SKIP|S_DISABLE);
+    gen_settings6[2].m_flags |= (S_SKIP|S_DISABLE);
   }
 }
 
@@ -612,11 +612,11 @@ void M_ChangeSpriteClip(void)
 
   if(gl_spriteclip == spriteclip_const)
   {
-    gen_settings6[11].m_flags &= ~(S_SKIP|S_DISABLE);
+    gen_settings6[10].m_flags &= ~(S_SKIP|S_DISABLE);
   }
   else
   {
-    gen_settings6[11].m_flags |= (S_SKIP|S_DISABLE);
+    gen_settings6[10].m_flags |= (S_SKIP|S_DISABLE);
   }
 }
 
