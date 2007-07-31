@@ -72,7 +72,7 @@ static int wipe_initMelt(int ticks)
     // copy start screen to main screen
     for(i=0;i<SCREENHEIGHT;i++)
       memcpy(wipe_scr.data+i*wipe_scr.pitch,
-             wipe_scr_start.data+i*wipe_scr.pitch,
+             wipe_scr_start.data+i*wipe_scr_start.pitch,
              SCREENWIDTH);
   }
 
@@ -191,6 +191,11 @@ int wipe_StartScreen(void)
   wipe_scr_start.width = SCREENWIDTH;
   wipe_scr_start.height = SCREENHEIGHT;
   wipe_scr_start.pitch = screens[0].pitch;
+  
+  //e6y: fixed slowdown at 1024x768 on some systems
+  if (!(wipe_scr_start.pitch % 1024))
+    wipe_scr_start.pitch += 32;
+
   wipe_scr_start.not_on_heap = false;
   V_AllocScreen(&wipe_scr_start);
   screens[SRC_SCR] = wipe_scr_start;
@@ -214,6 +219,11 @@ int wipe_EndScreen(void)
   wipe_scr_end.width = SCREENWIDTH;
   wipe_scr_end.height = SCREENHEIGHT;
   wipe_scr_end.pitch = screens[0].pitch;
+
+  //e6y: fixed slowdown at 1024x768 on some systems
+  if (!(wipe_scr_end.pitch % 1024))
+    wipe_scr_end.pitch += 32;
+
   wipe_scr_end.not_on_heap = false;
   V_AllocScreen(&wipe_scr_end);
   screens[DEST_SCR] = wipe_scr_end;
