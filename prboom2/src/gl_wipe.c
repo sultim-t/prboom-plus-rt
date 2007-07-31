@@ -55,30 +55,25 @@ static GLuint CaptureScreenAsTexID(void)
   total_w = gld_GetTexDimension(SCREENWIDTH);
   total_h = gld_GetTexDimension(SCREENHEIGHT);
   
-  pixels = Z_Malloc(total_w * total_h * 4, PU_STATIC, 0);
+  pixels = malloc(total_w * total_h * 4);
   
-  line_buf = Z_Malloc(SCREENWIDTH * 4, PU_STATIC, 0);
+  line_buf = malloc(SCREENWIDTH * 4);
   
   // read pixels from screen
   
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   
-  for (y=0; y < total_h; y++)
+  for (y=0; y < SCREENHEIGHT; y++)
   {
-    int px;
-    int py = y;
+    glReadPixels(0, y, SCREENWIDTH, 1, GL_RGB, GL_UNSIGNED_BYTE, line_buf);
     
-    glReadPixels(0, py, SCREENWIDTH, 1, GL_RGB, GL_UNSIGNED_BYTE, line_buf);
-    
-    for (x=0; x < total_w; x++)
+    for (x=0; x < SCREENWIDTH; x++)
     {
       byte *dest_p = pixels + ((y * total_w + x) * 3);
       
-      px = x;
-      
-      dest_p[0] = line_buf[px*3 + 0];
-      dest_p[1] = line_buf[px*3 + 1];
-      dest_p[2] = line_buf[px*3 + 2];
+      dest_p[0] = line_buf[x*3 + 0];
+      dest_p[1] = line_buf[x*3 + 1];
+      dest_p[2] = line_buf[x*3 + 2];
     }
   }
   
@@ -98,8 +93,8 @@ static GLuint CaptureScreenAsTexID(void)
   
   //glDisable(GL_TEXTURE_2D);
   
-  Z_Free(line_buf);
-  Z_Free(pixels);
+  free(line_buf);
+  free(pixels);
 
   return id;
 }
