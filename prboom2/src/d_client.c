@@ -494,9 +494,7 @@ void TryRunTics (void)
       if (gametic > 0)
       {
         WasRenderedInTryRunTics = true;
-        if (V_GetMode() == VID_MODEGL ? 
-            movement_smooth : 
-            movement_smooth && gamestate==wipegamestate)
+        if (movement_smooth && gamestate==wipegamestate)
         {
           isExtraDDisplay = true;
           D_Display();

@@ -81,4 +81,10 @@ void gld_DrawScene(player_t *player);
 void gld_EndDrawScene(void);
 void gld_Finish();
 
+// wipe
+int gld_wipe_doMelt(int ticks, int *y_lookup);
+int gld_wipe_exitMelt(int ticks);
+int gld_wipe_StartScreen(void);
+int gld_wipe_EndScreen(void);
+
 #endif // _GL_STRUCT_H
