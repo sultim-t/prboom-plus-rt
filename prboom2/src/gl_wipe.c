@@ -40,61 +40,26 @@
 
 static GLuint wipe_scr_start_tex = 0;
 static GLuint wipe_scr_end_tex = 0;
-static int cur_wipe_progress;
 
 static GLuint CaptureScreenAsTexID(void)
 {
-  int total_w, total_h;
-  int x, y, id;
-  
-  byte *pixels;
-  byte *line_buf;
-  
-  cur_wipe_progress =  0;
-  
-  total_w = gld_GetTexDimension(SCREENWIDTH);
-  total_h = gld_GetTexDimension(SCREENHEIGHT);
-  
-  pixels = malloc(total_w * total_h * 4);
-  
-  line_buf = malloc(SCREENWIDTH * 4);
-  
-  // read pixels from screen
-  
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  
-  for (y=0; y < SCREENHEIGHT; y++)
-  {
-    glReadPixels(0, y, SCREENWIDTH, 1, GL_RGB, GL_UNSIGNED_BYTE, line_buf);
-    
-    for (x=0; x < SCREENWIDTH; x++)
-    {
-      byte *dest_p = pixels + ((y * total_w + x) * 3);
-      
-      dest_p[0] = line_buf[x*3 + 0];
-      dest_p[1] = line_buf[x*3 + 1];
-      dest_p[2] = line_buf[x*3 + 2];
-    }
-  }
-  
+  GLuint id;
+
   glEnable(GL_TEXTURE_2D);
-  
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  
+ 
   glGenTextures(1, &id);
   glBindTexture(GL_TEXTURE_2D, id);
   
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glversion >= OPENGL_VERSION_1_2 ? GL_CLAMP_TO_EDGE : GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glversion >= OPENGL_VERSION_1_2 ? GL_CLAMP_TO_EDGE : GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  
-  glTexImage2D(GL_TEXTURE_2D, 0, 3, total_w, total_h, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
-  
-  //glDisable(GL_TEXTURE_2D);
-  
-  free(line_buf);
-  free(pixels);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, 3, 
+    gld_GetTexDimension(SCREENWIDTH), gld_GetTexDimension(SCREENHEIGHT), 
+    0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+  glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, SCREENWIDTH, SCREENHEIGHT);
 
   return id;
 }
@@ -103,15 +68,15 @@ int gld_wipe_doMelt(int ticks, int *y_lookup)
 {
   int i;
   int total_w, total_h;
-  float fU1,fU2,fV1,fV2;
+  float fU1, fU2, fV1, fV2;
 
   total_w = gld_GetTexDimension(SCREENWIDTH);
   total_h = gld_GetTexDimension(SCREENHEIGHT);
 
-  fU1=0.0f;
-  fV1=(float)SCREENHEIGHT / (float)total_h;
-  fU2=(float)SCREENWIDTH / (float)total_w;
-  fV2=0.0f;
+  fU1 = 0.0f;
+  fV1 = (float)SCREENHEIGHT / (float)total_h;
+  fU2 = (float)SCREENWIDTH / (float)total_w;
+  fV2 = 0.0f;
   
   glEnable(GL_TEXTURE_2D);
   
