@@ -1899,7 +1899,7 @@ static void gld_DrawWall(GLWall *wall)
           glScalef(-k/(float)wall->gltexture->buffer_width*fovscale,200.0f/320.0f*fovscale,1.0f);
         else
           glScalef(+k/(float)wall->gltexture->buffer_width*fovscale,200.0f/320.0f*fovscale,1.0f);
-        glTranslatef(wall->skyyaw,skyYShift,0.0f);
+        glTranslatef(wall->skyyaw,wall->skyymid+skyYShift,0.0f);
       }
 
       if (!SkyDrawed)
