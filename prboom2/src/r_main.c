@@ -641,8 +641,7 @@ void R_RenderPlayerView (player_t* player)
   if ((V_GetMode() == VID_MODEGL) && 
      ((render_fov > FOV90) || (GetMouseLook() && viewpitch) || (was_aspected)))
   {
-    unsigned int oldviewangle;
-    oldviewangle = viewangle;
+    real_viewangle = viewangle;
     if (render_fov > FOV90 || transparentpresent || was_aspected)//FIXME!!!
     {
       R_RenderBSPNode (numnodes-1);
@@ -676,7 +675,7 @@ void R_RenderPlayerView (player_t* player)
         R_RenderBSPNode(numnodes - 1);
       }
     }
-    viewangle = oldviewangle;
+    viewangle = real_viewangle;
   } 
   else
   {

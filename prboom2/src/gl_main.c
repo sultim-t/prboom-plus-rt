@@ -1719,13 +1719,13 @@ void gld_StartDrawScene(void)
 
 //e6y
 //  viewMaxY = viewz;
-  if(!GetMouseLook() && render_fov == FOV90)
+  mlook_or_fov = GetMouseLook() || (render_fov != FOV90);
+  if(!mlook_or_fov)
     pitch=0.0f;
   else
   {
     pitch=(float)(float)(viewpitch>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
     viewPitch = (pitch>180 ? pitch-360 : pitch);
-    skyXShift = -2.0f*((yaw+90.0f)/90.0f/fovscale);
     skyYShift = viewPitch<skyUpAngle ? skyUpShift : (float)sin(viewPitch*__glPi/180.0f)-0.2f;
   }
   paperitems_pitch=(float)(viewpitch>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
@@ -1884,35 +1884,24 @@ static void gld_DrawWall(GLWall *wall)
       glMatrixMode(GL_TEXTURE);
       glPushMatrix();
       
-      if (!GetMouseLook() && render_fov == FOV90) {//e6y
-
-      if ((wall->flag&GLDWF_SKYFLIP)==GLDWF_SKYFLIP)
-        glScalef(-128.0f/(float)wall->gltexture->buffer_width,200.0f/320.0f*2.0f,1.0f);
-      else
-        glScalef(128.0f/(float)wall->gltexture->buffer_width,200.0f/320.0f*2.0f,1.0f);
-      glTranslatef(wall->skyyaw,wall->skyymid,0.0f);
-
-      //e6y
+      if (!mlook_or_fov)
+      {
+        if ((wall->flag&GLDWF_SKYFLIP)==GLDWF_SKYFLIP)
+          glScalef(-128.0f/(float)wall->gltexture->buffer_width,200.0f/320.0f*2.0f,1.0f);
+        else
+          glScalef(128.0f/(float)wall->gltexture->buffer_width,200.0f/320.0f*2.0f,1.0f);
+        glTranslatef(wall->skyyaw,wall->skyymid,0.0f);
       }
       else 
       {
-        if (wall->gltexture->buffer_width == 256)
-        {
-          if ((wall->flag&GLDWF_SKYFLIP)==GLDWF_SKYFLIP)
-            glScalef(-64.0f/(float)wall->gltexture->buffer_width*fovscale,200.0f/320.0f*fovscale,1.0f);
-          else
-            glScalef(+64.0f/(float)wall->gltexture->buffer_width*fovscale,200.0f/320.0f*fovscale,1.0f);
-          glTranslatef(skyXShift,skyYShift,0.0f);
-        }
-        else //1024
-        {
-          if ((wall->flag&GLDWF_SKYFLIP)==GLDWF_SKYFLIP)
-            glScalef(-128.0f/(float)wall->gltexture->buffer_width*fovscale,200.0f/320.0f*fovscale,1.0f);
-          else
-            glScalef(+128.0f/(float)wall->gltexture->buffer_width*fovscale,200.0f/320.0f*fovscale,1.0f);
-          glTranslatef(skyXShift,skyYShift,0.0f);
-        }
+        float k = (wall->gltexture->buffer_width == 256 ? 64.0f : 128.0f);
+        if ((wall->flag&GLDWF_SKYFLIP)==GLDWF_SKYFLIP)
+          glScalef(-k/(float)wall->gltexture->buffer_width*fovscale,200.0f/320.0f*fovscale,1.0f);
+        else
+          glScalef(+k/(float)wall->gltexture->buffer_width*fovscale,200.0f/320.0f*fovscale,1.0f);
+        glTranslatef(wall->skyyaw,skyYShift,0.0f);
       }
+
       if (!SkyDrawed)
       {             
         float maxcoord = 255.0f;
@@ -2083,7 +2072,11 @@ static void gld_DrawWall(GLWall *wall)
     const line_t *l = &lines[sky1 & ~PL_SKYFLAT];\
     const side_t *s = *l->sidenum + sides;\
     wall.gltexture=gld_RegisterTexture(texturetranslation[s->toptexture], false, texturetranslation[s->toptexture]==skytexture);\
-    wall.skyyaw=-2.0f*((-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)/90.0f);\
+    if (!mlook_or_fov) {\
+      wall.skyyaw=-2.0f*((-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)/90.0f);\
+    } else {\
+      wall.skyyaw=-2.0f*(((270.0f-(float)((real_viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)+90.0f)/90.0f/fovscale);\
+    }\
     wall.skyymid = 200.0f/319.5f*(((float)s->rowoffset/(float)FRACUNIT - 28.0f)/100.0f);\
     wall.flag = l->special==272 ? GLDWF_SKY : GLDWF_SKYFLIP;\
     wall.gltexture->flags |= GLTEXTURE_SKY;\
@@ -2094,7 +2087,11 @@ static void gld_DrawWall(GLWall *wall)
     const line_t *l = &lines[sky2 & ~PL_SKYFLAT];\
     const side_t *s = *l->sidenum + sides;\
     wall.gltexture=gld_RegisterTexture(texturetranslation[s->toptexture], false, texturetranslation[s->toptexture]==skytexture);\
-    wall.skyyaw=-2.0f*((-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)/90.0f);\
+    if (!mlook_or_fov) {\
+      wall.skyyaw=-2.0f*((-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)/90.0f);\
+    } else {\
+      wall.skyyaw=-2.0f*(((270.0f-(float)((real_viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)+90.0f)/90.0f/fovscale);\
+    }\
     wall.skyymid = 200.0f/319.5f*(((float)s->rowoffset/(float)FRACUNIT - 28.0f)/100.0f);\
     wall.flag = l->special==272 ? GLDWF_SKY : GLDWF_SKYFLIP;\
     wall.gltexture->flags |= GLTEXTURE_SKY;\
@@ -2102,7 +2099,11 @@ static void gld_DrawWall(GLWall *wall)
   else\
   {\
     wall.gltexture=gld_RegisterTexture(skytexture, false, true);\
-    wall.skyyaw=-2.0f*((yaw+90.0f)/90.0f);\
+    if (!mlook_or_fov) {\
+      wall.skyyaw=-2.0f*((yaw+90.0f)/90.0f);\
+    } else {\
+      wall.skyyaw=-2.0f*(((270.0f-(float)((real_viewangle)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)+90.0f)/90.0f/fovscale);\
+    }\
     wall.skyymid = 200.0f/319.5f*((100.0f)/100.0f);\
     wall.flag = GLDWF_SKY;\
     wall.gltexture->flags |= GLTEXTURE_SKY;\
