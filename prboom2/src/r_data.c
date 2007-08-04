@@ -625,7 +625,6 @@ int PUREFUNC R_TextureNumForName(const char *name)  // const added -- killough
 {
   int i = R_CheckTextureNumForName(name);
   if (i == -1)
-    if ((i = R_CheckTextureNumForName("-")) == -1)//e6y
     I_Error("R_TextureNumForName: %.8s not found", name);
   return i;
 }
