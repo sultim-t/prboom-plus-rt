@@ -213,6 +213,7 @@ extern float maxNoPitch[];
 extern float tan_pitch;
 extern float skyUpAngle;
 extern float skyUpShift;
+extern float skyXShift;
 extern float skyYShift;
 extern boolean mlook_or_fov;
 extern int real_viewangle;

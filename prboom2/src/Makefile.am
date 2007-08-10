@@ -52,13 +52,13 @@ COMMON_SRC = \
  r_patch.c      r_patch.h          r_fps.c          r_fps.h \
  e6y.c          e6y.h              i_simd.c         i_simd.h \
  r_filter.c     r_filter.h         r_drawcolumn.inl r_drawflush.inl \
- r_drawspan.inl i_pcsound.c        i_pcsound.h      gl_wipe.c
+ r_drawspan.inl i_pcsound.c        i_pcsound.h
 
 NET_CLIENT_SRC = d_client.c
 
 if BUILD_GL
 USE_GL_SRC = \
-  gl_detail.c  gl_intern.h  gl_main.c  gl_struct.h  gl_texture.c  gl_vertex.c
+  gl_detail.c  gl_intern.h  gl_main.c  gl_struct.h  gl_texture.c  gl_vertex.c  gl_wipe.c
 else
 USE_GL_SRC =
 endif

@@ -1726,6 +1726,7 @@ void gld_StartDrawScene(void)
   {
     pitch=(float)(float)(viewpitch>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
     viewPitch = (pitch>180 ? pitch-360 : pitch);
+    skyXShift = -2.0f*((yaw+90.0f)/90.0f/fovscale);
     skyYShift = viewPitch<skyUpAngle ? skyUpShift : (float)sin(viewPitch*__glPi/180.0f)-0.2f;
   }
   paperitems_pitch=(float)(viewpitch>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
@@ -1899,7 +1900,7 @@ static void gld_DrawWall(GLWall *wall)
           glScalef(-k/(float)wall->gltexture->buffer_width*fovscale,200.0f/320.0f*fovscale,1.0f);
         else
           glScalef(+k/(float)wall->gltexture->buffer_width*fovscale,200.0f/320.0f*fovscale,1.0f);
-        glTranslatef(wall->skyyaw,wall->skyymid+skyYShift,0.0f);
+        glTranslatef(skyXShift/*wall->skyyaw*/,/*wall->skyymid+*/skyYShift,0.0f);
       }
 
       if (!SkyDrawed)

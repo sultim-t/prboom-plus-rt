@@ -211,6 +211,7 @@ float fovscale;
 float tan_pitch;
 float skyUpAngle;
 float skyUpShift;
+float skyXShift;
 float skyYShift;
 boolean mlook_or_fov;
 int real_viewangle;
