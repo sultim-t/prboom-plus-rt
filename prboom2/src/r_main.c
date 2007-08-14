@@ -631,6 +631,8 @@ void R_RenderPlayerView (player_t* player)
   NetUpdate ();
 #endif
 
+  real_viewangle = viewangle;
+
   // The head node is the last node output.
 #ifndef GL_DOOM //e6y
   R_RenderBSPNode (numnodes-1);
@@ -641,7 +643,6 @@ void R_RenderPlayerView (player_t* player)
   if ((V_GetMode() == VID_MODEGL) && 
      ((render_fov > FOV90) || (GetMouseLook() && viewpitch) || (was_aspected)))
   {
-    real_viewangle = viewangle;
     if (render_fov > FOV90 || transparentpresent || was_aspected)//FIXME!!!
     {
       R_RenderBSPNode (numnodes-1);
@@ -675,13 +676,14 @@ void R_RenderPlayerView (player_t* player)
         R_RenderBSPNode(numnodes - 1);
       }
     }
-    viewangle = real_viewangle;
   } 
   else
   {
     R_RenderBSPNode (numnodes-1);
   } 
 #endif
+
+  viewangle = real_viewangle;
 
   // Check for new console commands.
 #ifdef HAVE_NET
