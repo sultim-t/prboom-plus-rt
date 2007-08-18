@@ -87,6 +87,11 @@ int last_cm=-1;
 int transparent_pal_index;
 unsigned char gld_palmap[256];
 
+void gld_ResetLastTexture(void)
+{
+  last_gltexture = NULL;
+}
+
 void gld_InitPalettedTextures(void)
 {
   const unsigned char *playpal;

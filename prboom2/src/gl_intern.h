@@ -281,6 +281,7 @@ void gld_InitExtensionsEx(void);
 void gld_PreprocessDetail(void);
 void gld_DrawDetail_NoARB(void);
 void gld_DrawWallWithDetail(GLWall *wall);
+void gld_ResetLastTexture(void);
 
 PFNGLCOLORTABLEEXTPROC gld_ColorTableEXT;
 

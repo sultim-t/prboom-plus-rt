@@ -127,6 +127,8 @@ int gld_wipe_exitMelt(int ticks)
     wipe_scr_end_tex = 0;
   }
 
+  gld_ResetLastTexture();
+
   return 0;
 }
 
