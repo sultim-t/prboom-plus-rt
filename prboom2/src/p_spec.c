@@ -2679,7 +2679,9 @@ void P_SpawnSpecials (void)
 
   P_SpawnScrollers(); // killough 3/7/98: Add generalized scrollers
 
-  if (demo_compatibility) return;//e6y
+  // e6y
+  if (demo_compatibility)
+    return;
 
   P_SpawnFriction();  // phares 3/12/98: New friction model using linedefs
 
@@ -2725,8 +2727,12 @@ void P_SpawnSpecials (void)
 
       case 271:   // Regular sky
       case 272:   // Same, only flipped
-        for (s = -1; (s = P_FindSectorFromLineTag(lines+i,s)) >= 0;)
-          sectors[s].sky = i | PL_SKYFLAT;
+        // e6y: sky property-transfer linedef types should be applied only for MBF and above
+        if (compatibility_level >= mbf_compatibility)
+        {
+          for (s = -1; (s = P_FindSectorFromLineTag(lines+i,s)) >= 0;)
+            sectors[s].sky = i | PL_SKYFLAT;
+        }
         break;
    }
 }
