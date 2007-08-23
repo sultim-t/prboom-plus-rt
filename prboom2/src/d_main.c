@@ -345,7 +345,6 @@ void D_Display (void)
 #endif
 
   HU_DrawDemoProgress(); //e6y
-  UpdateGrab();
 
   // normal update
   if (!wipe)
