@@ -42,6 +42,9 @@
 #include "lprintf.h"//e6y
 #include "e6y.h"//e6y
 
+//e6y
+#define STAIRS_UNINITIALIZED_CRUSH_FIELD_VALUE 10
+
 ///////////////////////////////////////////////////////////////////////
 //
 // Plane (floor or ceiling), Floor motion and Elevator action routines
@@ -146,6 +149,14 @@ result_e T_MovePlane
             {
         /* jff 1/25/98 fix floor crusher */
               if (comp[comp_floors]) {
+                
+                //e6y: warning about potential desynch
+                if (crush == STAIRS_UNINITIALIZED_CRUSH_FIELD_VALUE)
+                {
+                  lprintf(LO_WARN, "T_MovePlane: Stairs which can potentially crush may lead to desynch in compatibility mode.\n");
+                  lprintf(LO_WARN, " gametic: %d, sector: %d, complevel: %d\n", gametic, sector->iSectorID, compatibility_level);
+                }
+
                 if (crush == true)
                   return crushed;
               }
@@ -794,8 +805,7 @@ manual_stair://e6y
         else
         {
           if (!prboom_comp[PC_UNINITIALIZE_CRUSH_FIELD_FOR_STAIRS].state)
-            floor->crush = 10;
-          lprintf(LO_WARN, "Warning: stairs may lead to desync with -complevel %d\n", compatibility_level);
+            floor->crush = STAIRS_UNINITIALIZED_CRUSH_FIELD_VALUE;
         }
 
         break;
@@ -810,8 +820,7 @@ manual_stair://e6y
         else
         {
           if (!prboom_comp[PC_UNINITIALIZE_CRUSH_FIELD_FOR_STAIRS].state)
-            floor->crush = 10;
-          lprintf(LO_WARN, "Warning: stairs may lead to desync with -complevel %d\n", compatibility_level);
+            floor->crush = STAIRS_UNINITIALIZED_CRUSH_FIELD_VALUE;
         }
 
         break;
@@ -891,8 +900,7 @@ manual_stair://e6y
         else
         {
           if (!prboom_comp[PC_UNINITIALIZE_CRUSH_FIELD_FOR_STAIRS].state)
-            floor->crush = 10;
-          lprintf(LO_WARN, "Warning: stairs may lead to desync with -complevel %d\n", compatibility_level);
+            floor->crush = STAIRS_UNINITIALIZED_CRUSH_FIELD_VALUE;
         }
 
         ok = 1;
