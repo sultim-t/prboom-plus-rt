@@ -282,6 +282,7 @@ prboom_comp_t prboom_comp[PC_MAX] = {
   {0x00000000, 0x02040601, 0, "-force_correct_code_for_3_keys_doors_in_mbf"},
   {0x00000000, 0x02040601, 0, "-uninitialize_crush_field_for_stairs"},
   {0x00000000, 0x02040802, 0, "-force_boom_findnexthighestfloor"},
+  {0x00000000, 0x02040802, 0, "-allow_sky_transfer_in_boom"},
 };
 
 char democontinuename[PATH_MAX];

@@ -2728,7 +2728,8 @@ void P_SpawnSpecials (void)
       case 271:   // Regular sky
       case 272:   // Same, only flipped
         // e6y: sky property-transfer linedef types should be applied only for MBF and above
-        if (compatibility_level >= mbf_compatibility)
+        if (compatibility_level >= mbf_compatibility ||
+          prboom_comp[PC_ALLOW_SKY_TRANSFER_IN_BOOM].state)
         {
           for (s = -1; (s = P_FindSectorFromLineTag(lines+i,s)) >= 0;)
             sectors[s].sky = i | PL_SKYFLAT;
