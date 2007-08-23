@@ -919,6 +919,14 @@ static void UpdateFocus(void)
   // (not minimised)
   window_focused = (state & SDL_APPINPUTFOCUS) && (state & SDL_APPACTIVE);
 
+  // e6y
+  // Reuse of a current palette to avoid black screen at software fullscreen modes
+  // after switching to OS and back
+  if (desired_fullscreen && window_focused)
+  {
+    V_SetPalette(st_palette);
+  }
+
   // Should the screen be grabbed?
   //    screenvisible = (state & SDL_APPACTIVE) != 0;
 }
