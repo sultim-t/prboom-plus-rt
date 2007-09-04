@@ -791,6 +791,12 @@ default_t defaults[] =
    gl_render_precise_speed, gl_render_precise_quality, def_int,ss_none},
   {"gl_boom_colormaps", {&gl_boom_colormaps_default},  {1},0,1,
    def_bool,ss_stat},
+  {"gl_texture_usehires", {&gl_texture_usehires_default},  {0},0,1,
+   def_bool,ss_stat},
+  {"gl_hires_override_pwads", {&gl_hires_override_pwads},  {0},0,1,
+   def_bool,ss_stat},
+  {"gl_texture_hires_dir", {NULL,&gl_texture_hires_dir}, {0,""},UL,UL,
+   def_str,ss_none},
 #endif
   {"Prboom-plus emulation settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"overrun_spechit_warn", {&overrun_spechit_warn},  {0},0,1,

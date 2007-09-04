@@ -39,6 +39,7 @@
 #include "gl_intern.h"
 #include "w_wad.h"
 #include "lprintf.h"
+#include "p_spec.h"
 #include "e6y.h"
 
 int glversion;
@@ -203,16 +204,18 @@ void gld_InitGLVersion(void)
 void gld_DrawWallWithDetail(GLWall *wall)
 {
   float w, h, s;
+  TAnimItemParam *animitem = &anim_textures[wall->gltexture->index];
+
   GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
   glEnable(GL_TEXTURE_2D);
-  if (anim_textures[wall->gltexture->index].count==0)
+
+  if (!animitem->anim)
   {
     s = 0.0f;
   }
   else
   {
-    s = 1.0f/anim_textures[wall->gltexture->index].count*
-      (anim_textures[wall->gltexture->index].index);
+    s = 1.0f / animitem->anim->numpics * animitem->index;
     if (s < 0.001) s = 0.0f;
   }
   w = s + wall->gltexture->realtexwidth / 18.0f;

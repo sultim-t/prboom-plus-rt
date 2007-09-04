@@ -73,6 +73,7 @@ gl_main.c
 gl_texture.c
 gl_vertex.c
 gl_wipe.c
+gl_hires.c
 hu_lib.c
 hu_stuff.c
 info.c

@@ -66,6 +66,29 @@ static char *NSStringToCString(NSString *str)
   return cStr;
 }
 
+static char *NSStringToCStringStatic(NSString *str)
+{
+  static char *cStr = 0;
+  static size_t cStrLen = 0;
+
+  int len = [str lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1;
+
+  if(!cStr)
+  {
+    cStr = malloc(len);
+    cStrLen = len;
+  }
+  else if(cStrLen < len)
+  {
+    free(cStr);
+    cStr = malloc(len);
+    cStrLen = len;
+  }
+
+  strcpy(cStr, [str UTF8String]);
+  return cStr;
+}
+
 static char *macExeDir = 0;
 const char *I_DoomExeDir(void)
 {
@@ -79,7 +102,7 @@ const char *I_DoomExeDir(void)
   return macExeDir;
 }
 
-char *I_FindFile(const char *wf_name, const char *ext)
+char *I_FindFileInternal(const char *wf_name, const char *ext, bool isStatic)
 {
   NSArray *paths = [NSArray arrayWithObject:libraryDir()];
   paths = [paths arrayByAddingObject: [[NSBundle mainBundle] resourcePath]];
@@ -92,9 +115,26 @@ char *I_FindFile(const char *wf_name, const char *ext)
     NSString *path = [NSString stringWithFormat:@"%@/%@",
                       [paths objectAtIndex:i],
                       [NSString stringWithUTF8String:wf_name]];
+
+
     if([[NSFileManager defaultManager] isReadableFileAtPath:path])
-      retval = NSStringToCString(path);
+    {
+      if(isStatic)
+        retval = NSStringToCStringStatic(path);
+      else
+        retval = NSStringToCString(path);
+    }
   }
 
   return retval;
+}
+
+char *I_FindFile(const char *wf_name, const char *ext)
+{
+  return I_FindFileInternal(wf_name, ext, false);
+}
+
+const char *I_FindFile2(const char *wf_name, const char *ext)
+{
+  return I_FindFileInternal(wf_name, ext, true);
 }

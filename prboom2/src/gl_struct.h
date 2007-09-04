@@ -35,15 +35,6 @@
 #define _GL_STRUCT_H
 
 extern int nodesVersion;
-
-//e6y
-typedef struct tagTAnimItemParam
-{
-  int count;
-  int index;
-} TAnimItemParam;
-extern TAnimItemParam *anim_flats;
-extern TAnimItemParam *anim_textures;
 typedef enum { gl_render_precise_speed, gl_render_precise_quality } gl_render_precise_t;
 extern gl_render_precise_t gl_render_precise;
 extern const char *gl_render_precises[];
@@ -86,5 +77,11 @@ int gld_wipe_doMelt(int ticks, int *y_lookup);
 int gld_wipe_exitMelt(int ticks);
 int gld_wipe_StartScreen(void);
 int gld_wipe_EndScreen(void);
+
+// hires
+extern int gl_texture_usehires;
+extern int gl_texture_usehires_default;
+extern int gl_hires_override_pwads;
+extern char *gl_texture_hires_dir;
 
 #endif // _GL_STRUCT_H

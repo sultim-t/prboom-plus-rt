@@ -193,6 +193,29 @@
 #define LockedKindShift            5
 #define LockedSpeedShift           3
 
+//
+// Animating textures and planes
+// There is another anim_t used in wi_stuff, unrelated.
+//
+typedef struct
+{
+    boolean     istexture;
+    int         picnum;
+    int         basepic;
+    int         numpics;
+    int         speed;
+
+} anim_t;
+
+//e6y
+typedef struct
+{
+  int index;
+  anim_t *anim;
+} TAnimItemParam;
+extern TAnimItemParam *anim_flats;
+extern TAnimItemParam *anim_textures;
+
 // define names for the TriggerType field of the general linedefs
 
 typedef enum

@@ -61,20 +61,6 @@
 #include "e6y.h"//e6y
 
 //
-// Animating textures and planes
-// There is another anim_t used in wi_stuff, unrelated.
-//
-typedef struct
-{
-    boolean     istexture;
-    int         picnum;
-    int         basepic;
-    int         numpics;
-    int         speed;
-
-} anim_t;
-
-//
 //      source animation definition
 //
 //
@@ -119,40 +105,25 @@ static void P_SpawnPushers(void);     // phares 3/20/98
 void MarkAnimatedTextures(void)
 {
 #ifdef GL_DOOM
-  extern texture_t **textures;
-  extern int numtextures;
-  extern int numflats;
-
-  int i;
   anim_t* anim;
 
-  anim_textures = (TAnimItemParam*)malloc(numtextures * sizeof(TAnimItemParam));
-  anim_flats = (TAnimItemParam*)malloc(numflats * sizeof(TAnimItemParam));
-
-  for (i = 0; i < numtextures ; i++)
-  {
-    anim_textures[i].count = 0;
-    anim_textures[i].index = 0;
-  }
-  for (i = 0; i < numflats ; i++)
-  {
-    anim_flats[i].count = 0;
-    anim_flats[i].index = 0;
-  }
+  anim_textures = calloc(numtextures, sizeof(TAnimItemParam));
+  anim_flats = calloc(numflats, sizeof(TAnimItemParam));
 
   for (anim = anims ; anim < lastanim ; anim++)
   {
+    int i;
     for (i = 0; i < anim->numpics ; i++)
     {
       if (anim->istexture)
       {
+        anim_textures[anim->basepic + i].anim = anim;
         anim_textures[anim->basepic + i].index = i + 1;
-        anim_textures[anim->basepic + i].count = anim->numpics;
       }
       else
       {
+        anim_flats[anim->basepic + i].anim = anim;
         anim_flats[anim->basepic + i].index = i + 1;
-        anim_flats[anim->basepic + i].count = anim->numpics;
       }
     }
   }

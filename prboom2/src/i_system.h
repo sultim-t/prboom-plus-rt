@@ -71,6 +71,7 @@ const char *I_DoomExeDir(void); // killough 2/16/98: path to executable's dir
 
 boolean HasTrailingSlash(const char* dn);
 char* I_FindFile(const char* wfname, const char* ext);
+const char* I_FindFile2(const char* wfname, const char* ext);
 
 /* cph 2001/11/18 - wrapper for read(2) which deals with partial reads */
 void I_Read(int fd, void* buf, size_t sz);

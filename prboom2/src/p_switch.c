@@ -202,6 +202,35 @@ void P_ChangeSwitchTexture
     P_StartButton(line, position, switchlist[i], BUTTONTIME);
 }
 
+//
+// GetPairForSwitchTexture
+//
+int GetPairForSwitchTexture(side_t *side)
+{
+  int i;
+  short *texture, *ttop, *tmid, *tbot;
+
+  ttop = &side->toptexture;
+  tmid = &side->midtexture;
+  tbot = &side->bottomtexture;
+
+  /* search for a texture to change */
+  texture = NULL;
+  for (i = 0;i < numswitches*2;i++) {
+    if (switchlist[i] == *ttop) {
+      texture = ttop; break;
+    } else if (switchlist[i] == *tmid) {
+      texture = tmid; break;
+    } else if (switchlist[i] == *tbot) {
+      texture = tbot; break;
+    }
+  }
+
+  if (texture == NULL)
+    return -1;
+  
+  return switchlist[i^1];
+}
 
 //
 // P_UseSpecialLine

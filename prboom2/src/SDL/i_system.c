@@ -339,7 +339,8 @@ boolean HasTrailingSlash(const char* dn)
  */
 
 #ifndef MACOSX /* OSX defines its search paths elsewhere. */
-char* I_FindFile(const char* wfname, const char* ext)
+
+char* I_FindFileInternal(const char* wfname, const char* ext, boolean isStatic)
 {
   // lookup table of directories to search
   static const struct {
@@ -363,6 +364,10 @@ char* I_FindFile(const char* wfname, const char* ext)
   int   i;
   size_t  pl;
 
+  char static_p[PATH_MAX];
+  char * dinamic_p = NULL;
+  char *p = (isStatic ? static_p : dinamic_p);
+
   if (!wfname)
     return NULL;
 
@@ -370,7 +375,6 @@ char* I_FindFile(const char* wfname, const char* ext)
   pl = strlen(wfname) + (ext ? strlen(ext) : 0) + 4;
 
   for (i = 0; i < sizeof(search)/sizeof(*search); i++) {
-    char  * p;
     const char  * d = NULL;
     const char  * s = NULL;
     /* Each entry in the switch sets d to the directory to look in,
@@ -385,7 +389,8 @@ char* I_FindFile(const char* wfname, const char* ext)
       d = search[i].dir;
     s = search[i].sub;
 
-    p = malloc((d ? strlen(d) : 0) + (s ? strlen(s) : 0) + pl);
+    if (!isStatic)
+      p = malloc((d ? strlen(d) : 0) + (s ? strlen(s) : 0) + pl);
     sprintf(p, "%s%s%s%s%s", d ? d : "", (d && !HasTrailingSlash(d)) ? "/" : "",
                              s ? s : "", (s && !HasTrailingSlash(s)) ? "/" : "",
                              wfname);
@@ -393,13 +398,26 @@ char* I_FindFile(const char* wfname, const char* ext)
     if (ext && access(p,F_OK))
       strcat(p, ext);
     if (!access(p,F_OK)) {
-      lprintf(LO_INFO, " found %s\n", p);
+      if (!isStatic)
+        lprintf(LO_INFO, " found %s\n", p);
       return p;
     }
-    free(p);
+    if (!isStatic)
+      free(p);
   }
   return NULL;
 }
+
+char* I_FindFile(const char* wfname, const char* ext)
+{
+  return I_FindFileInternal(wfname, ext, false);
+}
+
+const char* I_FindFile2(const char* wfname, const char* ext)
+{
+  return (const char*) I_FindFileInternal(wfname, ext, true);
+}
+
 #endif
 
 #endif // PRBOOM_SERVER

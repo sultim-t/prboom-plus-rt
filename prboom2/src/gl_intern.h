@@ -285,4 +285,6 @@ void gld_ResetLastTexture(void);
 
 PFNGLCOLORTABLEEXTPROC gld_ColorTableEXT;
 
+int gld_LoadHiresTex(GLTexture *gltexture, int *glTexID);
+
 #endif // _GL_INTERN_H

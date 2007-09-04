@@ -63,6 +63,7 @@
 #include "lprintf.h"
 #include "gl_intern.h"
 #include "gl_struct.h"
+#include "p_spec.h"//e6y
 #include "e6y.h"//e6y
 
 //e6y
@@ -2443,19 +2444,22 @@ static void gld_DrawFlat(GLFlat *flat)
   if (gl_arb_multitexture && render_detailedflats)
   {
     float s;
+    TAnimItemParam *animitem = &anim_flats[flat->gltexture->index - firstflat];
+
     GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
     glEnable(GL_TEXTURE_2D);
     gld_StaticLight(flat->light);
-    if (anim_flats[flat->gltexture->index - firstflat].count==0)
+    
+    if (!animitem->anim)
     {
       s = 0.0f;
     }
     else
     {
-      s = 1.0f/anim_flats[flat->gltexture->index - firstflat].count*
-        (anim_flats[flat->gltexture->index - firstflat].index);
+      s = 1.0f / animitem->anim->numpics * animitem->index;
       if (s < 0.001) s = 0.0f;
     }
+
     glPushMatrix();
     glTranslatef(s + flat->uoffs/16.0f,flat->voffs/16.0f,0.0f);
     glScalef(4.0f, 4.0f, 1.0f);
@@ -2956,8 +2960,7 @@ void gld_DrawScene(player_t *player)
 
 void gld_PreprocessLevel(void)
 {
-  if (precache)
-    gld_Precache();
+  gld_Precache();
   gld_PreprocessSectors();
   gld_PreprocessSegs();
   memset(&gld_drawinfo,0,sizeof(GLDrawInfo));

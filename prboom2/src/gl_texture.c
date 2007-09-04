@@ -62,6 +62,7 @@
 #include "lprintf.h"
 #include "gl_intern.h"
 #include "gl_struct.h"
+#include "p_spec.h"
 #include "e6y.h"
 
 /* TEXTURES */
@@ -613,7 +614,12 @@ void gld_BindTexture(GLTexture *gltexture)
 #endif
     if (i==GL_TRUE)
       return;
+    return; //e6y
   }
+
+  if (gld_LoadHiresTex(gltexture, glTexID))
+    return;
+
   buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
   if (!(gltexture->mipmap & use_mipmapping) & gl_paletted_texture)
     memset(buffer,transparent_pal_index,gltexture->buffer_size);
@@ -779,6 +785,7 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
 #endif
     if (i==GL_TRUE)
       return;
+    return; //e6y
   }
   patch=R_CachePatchNum(gltexture->index);
   buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
@@ -938,7 +945,12 @@ void gld_BindFlat(GLTexture *gltexture)
 #endif
     if (i==GL_TRUE)
       return;
+    return; //e6y
   }
+
+  if (gld_LoadHiresTex(gltexture, glTexID))
+    return;
+
   flat=W_CacheLumpNum(gltexture->index);
   buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
   if (!(gltexture->mipmap & use_mipmapping) & gl_paletted_texture)
@@ -1056,8 +1068,14 @@ void gld_Precache(void)
   register int i;
   register byte *hitlist;
 
-  if (demoplayback)
-    return;
+  if (!gl_texture_usehires)
+  {
+    if (!precache)
+      return;
+
+    if (demoplayback)
+      return;
+  }
 
   {
     size_t size = numflats > numsprites  ? numflats : numsprites;
@@ -1069,7 +1087,29 @@ void gld_Precache(void)
   memset(hitlist, 0, numflats);
 
   for (i = numsectors; --i >= 0; )
-    hitlist[sectors[i].floorpic] = hitlist[sectors[i].ceilingpic] = 1;
+  {
+    int j,k;
+    
+    int floorpic = sectors[i].floorpic;
+    int ceilingpic = sectors[i].ceilingpic;
+    
+    anim_t *flatanims[2] = {
+      anim_flats[floorpic].anim,
+      anim_flats[ceilingpic].anim
+    };
+
+    hitlist[floorpic] = hitlist[ceilingpic] = 1;
+    
+    //e6y: animated flats
+    for (k = 0; k < 2; k++)
+    {
+      if (flatanims[k] && !flatanims[k]->istexture)
+      {
+        for (j = flatanims[k]->basepic; j < flatanims[k]->basepic + flatanims[k]->numpics; j++)
+          hitlist[j] = 1;
+      }
+    }
+  }
 
   for (i = numflats; --i >= 0; )
     if (hitlist[i])
@@ -1080,9 +1120,41 @@ void gld_Precache(void)
   memset(hitlist, 0, numtextures);
 
   for (i = numsides; --i >= 0;)
-    hitlist[sides[i].bottomtexture] =
-      hitlist[sides[i].toptexture] =
-      hitlist[sides[i].midtexture] = 1;
+  {
+    int j, k;
+    
+    int bottomtexture = sides[i].bottomtexture;
+    int toptexture = sides[i].toptexture;
+    int midtexture = sides[i].midtexture;
+    
+    anim_t *textureanims[3] = {
+      anim_textures[bottomtexture].anim,
+      anim_textures[toptexture].anim,
+      anim_textures[midtexture].anim
+    };
+
+    hitlist[bottomtexture] =
+      hitlist[toptexture] =
+      hitlist[midtexture] = 1;
+
+    //e6y: animated textures
+    for (k = 0; k < 3; k++)
+    {
+      if (textureanims[k] && textureanims[k]->istexture)
+      {
+        for (j = textureanims[k]->basepic; j < textureanims[k]->basepic + textureanims[k]->numpics; j++)
+          hitlist[j] = 1;
+      }
+    }
+
+    //e6y: swithes
+    {
+      int GetPairForSwitchTexture(side_t *side);
+      int pair = GetPairForSwitchTexture(&sides[i]);
+      if (pair != -1)
+        hitlist[pair] = 1;
+    }
+  }
 
   // Sky texture is always present.
   // Note that F_SKY1 is the name used to
@@ -1091,7 +1163,8 @@ void gld_Precache(void)
   //  a wall texture, with an episode dependend
   //  name.
 
-  hitlist[skytexture] = 0;
+  if (hitlist)
+    hitlist[skytexture] = gl_texture_usehires ? 1 : 0;
 
   for (i = numtextures; --i >= 0; )
     if (hitlist[i])
@@ -1100,6 +1173,7 @@ void gld_Precache(void)
   // Precache sprites.
   memset(hitlist, 0, numsprites);
 
+  if (hitlist)
   {
     thinker_t *th;
     for (th = thinkercap.next ; th != &thinkercap ; th=th->next)
