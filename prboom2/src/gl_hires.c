@@ -90,51 +90,67 @@ static int gld_HiresGetTextureName(GLTexture *gltexture, char *hirespath)
   static const char * doom1texpath[]= {
     "%stextures/doom/doom1/%s.%s", "%stextures/doom/doom1/%s-ck.%s",
     "%stextures/doom1/%s.%s",
-    "%stextures/doom/%s.%s", "%stextures/doom/%s-ck.%s", "%stextures/%s.%s", "%stextures/%s-ck.%s", NULL
+    "%stextures/doom/%s.%s", "%stextures/doom/%s-ck.%s",
+    "%stextures/%s.%s", "%stextures/%s-ck.%s",
+    NULL
   };
 
   static const char * doom2texpath[]= {
     "%stextures/doom/doom2/%s.%s", "%stextures/doom/doom2/%s-ck.%s",
-    "%stextures/doom/%s.%s", "%stextures/doom/%s-ck.%s", "%stextures/%s.%s", "%stextures/%s-ck.%s", NULL
+    "%stextures/doom/%s.%s", "%stextures/doom/%s-ck.%s",
+    "%stextures/%s.%s", "%stextures/%s-ck.%s",
+    NULL
   };
 
   static const char * pluttexpath[]= {
     "%stextures/doom/plut/%s.%s", "%stextures/doom/plut/%s-ck.%s",
     "%stextures/doom2-plut/%s.%s",
     "%stextures/doom/doom2-plut/%s.%s", "%stextures/doom/doom2-plut/%s-ck.%s",
-    "%stextures/doom/%s.%s", "%stextures/doom/%s-ck.%s", "%stextures/%s.%s", "%stextures/%s-ck.%s", NULL
+    "%stextures/doom/%s.%s", "%stextures/doom/%s-ck.%s",
+    "%stextures/%s.%s", "%stextures/%s-ck.%s",
+    NULL
   };
 
   static const char * tnttexpath[]= {
     "%stextures/doom/tnt/%s.%s", "%stextures/doom/tnt/%s-ck.%s",
     "%stextures/doom2-tnt/%s.%s",
     "%stextures/doom/doom2-tnt/%s.%s", "%stextures/doom/doom2-tnt/%s-ck.%s",
-    "%stextures/doom/%s.%s", "%stextures/doom/%s-ck.%s", "%stextures/%s.%s", "%stextures/%s-ck.%s", NULL
+    "%stextures/doom/%s.%s", "%stextures/doom/%s-ck.%s",
+    "%stextures/%s.%s", "%stextures/%s-ck.%s",
+    NULL
   };
 
   static const char * doom1flatpath[]= {
     "%sflats/doom/doom1/%s.%s", "%stextures/doom/doom1/flat-%s.%s",
     "%stextures/doom1/flat-%s.%s",
-    "%sflats/doom/%s.%s", "%stextures/doom/flat-%s.%s", "%sflats/%s.%s", "%stextures/flat-%s.%s", NULL
+    "%sflats/doom/%s.%s", "%stextures/doom/flat-%s.%s",
+    "%sflats/%s.%s", "%stextures/flat-%s.%s",
+    NULL
   };
 
   static const char * doom2flatpath[]= {
     "%sflats/doom/doom2/%s.%s", "%stextures/doom/doom2/flat-%s.%s",
-    "%sflats/doom/%s.%s", "%stextures/doom/flat-%s.%s", "%sflats/%s.%s", "%stextures/flat-%s.%s", NULL
+    "%sflats/doom/%s.%s", "%stextures/doom/flat-%s.%s",
+    "%sflats/%s.%s", "%stextures/flat-%s.%s",
+    NULL
   };
 
   static const char * plutflatpath[]= {
     "%sflats/doom/plut/%s.%s", "%stextures/doom/plut/flat-%s.%s",
     "%sflats/doom/doom2-plut/%s.%s", "%stextures/doom/doom2-plut/flat-%s.%s",
     "%stextures/doom2-plut/flat-%s.%s",
-    "%sflats/doom/%s.%s", "%stextures/doom/flat-%s.%s", "%sflats/%s.%s", "%stextures/flat-%s.%s", NULL
+    "%sflats/doom/%s.%s", "%stextures/doom/flat-%s.%s",
+    "%sflats/%s.%s", "%stextures/flat-%s.%s",
+    NULL
   };
 
   static const char * tntflatpath[]= {
     "%sflats/doom/tnt/%s.%s", "%stextures/doom/tnt/flat-%s.%s",
     "%sflats/doom/doom2-tnt/%s.%s", "%stextures/doom/doom2-tnt/flat-%s.%s",
     "%stextures/doom2-tnt/flat-%s.%s",
-    "%sflats/doom/%s.%s", "%stextures/doom/flat-%s.%s", "%sflats/%s.%s", "%stextures/flat-%s.%s", NULL
+    "%sflats/doom/%s.%s", "%stextures/doom/flat-%s.%s",
+    "%sflats/%s.%s", "%stextures/flat-%s.%s",
+    NULL
   };
 
   static StaticHiResDirState_t use_static_hiresdir = STATIC_HIRES_DIR_UNDEFINED;
@@ -224,7 +240,7 @@ static int gld_HiresGetTextureName(GLTexture *gltexture, char *hirespath)
   while (*checklist)
   {
     char checkName[PATH_MAX];
-    static const char * extensions[] = { "PNG", "JPG", "TGA", "PCX", NULL };
+    static const char * extensions[] = { "PNG", "JPG", "TGA", "PCX", "GIF", "BMP", NULL };
     const char ** extp;
 
     for (extp = extensions; *extp; extp++)
