@@ -69,6 +69,7 @@
 static GLTexture **gld_GLTextures=NULL;
 /* PATCHES FLATS SPRITES */
 static GLTexture **gld_GLPatchTextures=NULL;
+static GLTexture **gld_GLStaticPatchTextures=NULL;
 
 boolean use_mipmapping=false;
 
@@ -84,6 +85,8 @@ int gl_boom_colormaps_default;
 
 GLTexture *last_gltexture=NULL;
 int last_cm=-1;
+
+int test_voodoo;
 
 int transparent_pal_index;
 unsigned char gld_palmap[256];
@@ -218,7 +221,10 @@ static GLTexture *gld_AddNewGLTexture(int texture_num)
 
 static GLTexture *gld_AddNewGLPatchTexture(int lump)
 {
-  return gld_AddNewGLTexItem(lump, numlumps, &gld_GLPatchTextures);
+  if (staticlumps[lump])
+    return gld_AddNewGLTexItem(lump, numlumps, &gld_GLStaticPatchTextures);
+  else
+    return gld_AddNewGLTexItem(lump, numlumps, &gld_GLPatchTextures);
 }
 
 void gld_SetTexturePalette(GLenum target)
@@ -607,6 +613,11 @@ void gld_BindTexture(GLTexture *gltexture)
   if (*glTexID!=0)
   {
     glBindTexture(GL_TEXTURE_2D, *glTexID);
+
+     // e6y: old unnecessary code under check now
+    if (!test_voodoo)
+      return;
+
     glGetTexParameteriv(GL_TEXTURE_2D,GL_TEXTURE_RESIDENT,&i);
 #ifdef _DEBUG
     if (i!=GL_TRUE)
@@ -614,7 +625,6 @@ void gld_BindTexture(GLTexture *gltexture)
 #endif
     if (i==GL_TRUE)
       return;
-    return; //e6y
   }
 
   if (gld_LoadHiresTex(gltexture, glTexID))
@@ -778,6 +788,11 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   if (*glTexID!=0)
   {
     glBindTexture(GL_TEXTURE_2D, *glTexID);
+
+    // e6y: old unnecessary code under check now
+    if (!test_voodoo)
+      return;
+
     glGetTexParameteriv(GL_TEXTURE_2D,GL_TEXTURE_RESIDENT,&i);
 #ifdef _DEBUG
     if (i!=GL_TRUE)
@@ -785,8 +800,11 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
 #endif
     if (i==GL_TRUE)
       return;
-    return; //e6y
   }
+
+  if (gld_LoadHiresTex(gltexture, glTexID))
+    return;
+
   patch=R_CachePatchNum(gltexture->index);
   buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
   if (gl_paletted_texture)
@@ -938,6 +956,11 @@ void gld_BindFlat(GLTexture *gltexture)
   if (*glTexID!=0)
   {
     glBindTexture(GL_TEXTURE_2D, *glTexID);
+    
+    // e6y: old unnecessary code under check now
+    if (!test_voodoo)
+      return;
+
     glGetTexParameteriv(GL_TEXTURE_2D,GL_TEXTURE_RESIDENT,&i);
 #ifdef _DEBUG
     if (i!=GL_TRUE)
@@ -945,7 +968,6 @@ void gld_BindFlat(GLTexture *gltexture)
 #endif
     if (i==GL_TRUE)
       return;
-    return; //e6y
   }
 
   if (gld_LoadHiresTex(gltexture, glTexID))

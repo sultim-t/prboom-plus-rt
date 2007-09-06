@@ -3216,7 +3216,8 @@ setup_menu_t gen_settings6[] = { // General Settings screen4
   {"Rendering quality"         ,S_CHOICE, m_null,G_X,G_Y+13*8, {"gl_render_precise"}, 0, 0, M_ChangeGLRenderPrecise, gl_render_precises},
   {"Allow Colormaps"           ,S_YESNO|S_PRGWARN,m_null,G_X,G_Y+ 14*8, {"gl_boom_colormaps"}, 0, 0, M_ChangeAllowBoomColormaps},
   {"Allow Hi-Res Textures"     ,S_YESNO|S_PRGWARN,m_null,G_X,G_Y+ 15*8, {"gl_texture_usehires"}, 0, 0, M_ChangeTextureUseHires},
-  {"Override PWAD's textures with Hi-Res" ,S_YESNO|S_PRGWARN,m_null,G_X,G_Y+ 16*8, {"gl_hires_override_pwads"}},
+  {"Allow Hi-Res Patches"      ,S_YESNO|S_PRGWARN,m_null,G_X,G_Y+ 16*8, {"gl_patch_usehires"}, 0, 0, M_ChangeTextureUseHires},
+  {"Override PWAD's graphics with Hi-Res" ,S_YESNO|S_PRGWARN,m_null,G_X,G_Y+ 17*8, {"gl_hires_override_pwads"}},
 #endif
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {gen_settings5}},
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings7}},

@@ -45,6 +45,9 @@ void gld_InitVertexData();
 void gld_CleanVertexData();
 void gld_UpdateSplitData(sector_t *sector);
 
+//hack
+extern int test_voodoo;
+
 extern int gl_boom_colormaps;
 extern int gl_boom_colormaps_default;
 
@@ -81,7 +84,10 @@ int gld_wipe_EndScreen(void);
 // hires
 extern int gl_texture_usehires;
 extern int gl_texture_usehires_default;
+extern int gl_patch_usehires;
+extern int gl_patch_usehires_default;
 extern int gl_hires_override_pwads;
 extern char *gl_texture_hires_dir;
+int gld_PrecachePatches(void);
 
 #endif // _GL_STRUCT_H

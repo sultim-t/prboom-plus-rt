@@ -382,6 +382,14 @@ static const char *auto_shot_fname;
 
 static void D_DoomLoop(void)
 {
+#ifdef GL_DOOM
+  // Precache patches.
+  if (V_GetMode() == VID_MODEGL)
+  {
+    gld_PrecachePatches();
+  }
+#endif
+
   for (;;)
     {
       WasRenderedInTryRunTics = false;

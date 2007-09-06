@@ -66,6 +66,8 @@
 lumpinfo_t *lumpinfo;
 int        numlumps;         // killough
 
+int *staticlumps = NULL; //e6y
+
 void ExtractFileBase (const char *path, char *dest)
 {
   const char *src = path + strlen(path) - 1;
@@ -216,6 +218,10 @@ static void W_AddFile(wadfile_info_t *wadfile)
       I_Read(wadfile->handle, fileinfo, length);
       numlumps += header.numlumps;
     }
+
+    //e6y
+    staticlumps = realloc(staticlumps, numlumps * sizeof(*staticlumps));
+    memset(staticlumps, 0, numlumps * sizeof(*staticlumps));
 
     // Fill in lumpinfo
     lumpinfo = realloc(lumpinfo, numlumps*sizeof(lumpinfo_t));

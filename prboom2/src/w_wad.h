@@ -124,6 +124,8 @@ typedef struct
 extern lumpinfo_t *lumpinfo;
 extern int        numlumps;
 
+extern int *staticlumps; //e6y
+
 // killough 4/17/98: if W_CheckNumForName() called with only
 // one argument, pass ns_global as the default namespace
 
