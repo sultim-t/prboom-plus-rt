@@ -46,6 +46,10 @@
 #include "i_system.h"
 #include "w_wad.h"
 #include "lprintf.h"
+#include "i_video.h"
+#include "hu_lib.h"
+#include "hu_stuff.h"
+#include "e6y.h"
 
 int gl_texture_usehires = -1;
 int gl_texture_usehires_default;
@@ -218,7 +222,7 @@ static int gld_HiresGetTextureName(GLTexture *gltexture, char *hirespath)
     i++;
   }
   if (!checklist)
-    return 0;
+    return false;
 
   switch (useType)
   {
@@ -292,10 +296,10 @@ static int gld_HiresGetTextureName(GLTexture *gltexture, char *hirespath)
     checklist++;
   }
 
-  return 0;
+  return false;
 }
 
-static int gld_LoadHiresItem(GLTexture *gltexture, const char *texture_path, int *glTexID)
+static int gld_LoadHiresItem(GLTexture *gltexture, const char *texture_path, int *glTexID, int cm)
 {
   int result = false;
 
@@ -317,14 +321,16 @@ static int gld_LoadHiresItem(GLTexture *gltexture, const char *texture_path, int
   surf = SDL_ConvertSurface(surf_tmp, &RGBAFormat, surf_tmp->flags);
   SDL_FreeSurface(surf_tmp);
 
-  if (gltexture->textype == GLDT_PATCH)
-  {
-    gltexture->scalexfac = 1.0f;
-    gltexture->scaleyfac = 1.0f;
-  }
-
   if (surf)
   {
+    gltexture->flags |= GLTEXTURE_HIRES;
+
+    if (gltexture->textype == GLDT_PATCH)
+    {
+      gltexture->scalexfac = 1.0f;
+      gltexture->scaleyfac = 1.0f;
+    }
+
     if (*glTexID == 0)
       glGenTextures(1,glTexID);
     glBindTexture(GL_TEXTURE_2D, *glTexID);
@@ -428,25 +434,149 @@ l_exit:
   return result;
 }
 
-int gld_LoadHiresTex(GLTexture *gltexture, int *glTexID)
+int gld_LoadHiresTex(GLTexture *gltexture, int *glTexID, int cm)
 {
   char hirespath[PATH_MAX];
 
   if (!gl_texture_usehires && !gl_patch_usehires)
-    return 0;
+    return false;
 
   if (gld_HiresGetTextureName(gltexture, hirespath))
   {
-    return gld_LoadHiresItem(gltexture, hirespath, glTexID);
+    return gld_LoadHiresItem(gltexture, hirespath, glTexID, cm);
   }
 
+  return false;
+}
+
+static GLuint progress_texid = 0;
+
+int gld_ProgressStart(void)
+{
+  if (!progress_texid)
+  {
+    progress_texid = CaptureScreenAsTexID();
+    return true;
+  }
+
+  return false;
+}
+
+int gld_ProgressRestoreScreen(void)
+{
+  int total_w, total_h;
+  float fU1, fU2, fV1, fV2;
+
+  if (progress_texid)
+  {
+    total_w = gld_GetTexDimension(SCREENWIDTH);
+    total_h = gld_GetTexDimension(SCREENHEIGHT);
+    
+    fU1 = 0.0f;
+    fV1 = (float)SCREENHEIGHT / (float)total_h;
+    fU2 = (float)SCREENWIDTH / (float)total_w;
+    fV2 = 0.0f;
+    
+    glEnable(GL_TEXTURE_2D);
+    
+    glBindTexture(GL_TEXTURE_2D, progress_texid);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    
+    glBegin(GL_TRIANGLE_STRIP);
+    {
+      glTexCoord2f(fU1, fV1); glVertex2f(0.0f, 0.0f);
+      glTexCoord2f(fU1, fV2); glVertex2f(0.0f, (float)SCREENHEIGHT);
+      glTexCoord2f(fU2, fV1); glVertex2f((float)SCREENWIDTH, 0.0f);
+      glTexCoord2f(fU2, fV2); glVertex2f((float)SCREENWIDTH, (float)SCREENHEIGHT);
+    }
+    glEnd();
+
+    return true;
+  }
+
+  return false;
+}
+
+int gld_ProgressEnd(void)
+{
+  if (progress_texid != 0)
+  {
+    gld_ProgressRestoreScreen();
+    glDeleteTextures(1, &progress_texid);
+    progress_texid = 0;
+    return true;
+  }
+
+  return false;
+}
+
+void gld_ProgressUpdate(char * text, int progress, int total)
+{
+  int len;
+  static char last_text[32] = {0};
+
+  if (!gl_patch_usehires)
+    return;
+
+  if ((text) && (strlen(text) > 0) && strcmp((last_text ? last_text : ""), text))
+  {
+    char *s;
+    strcpy(last_text, text);
+
+    if (!w_precache.f)
+      HU_Start();
+
+    HUlib_clearTextLine(&w_precache);
+    s = text;
+    while (*s)
+      HUlib_addCharToTextLine(&w_precache, *(s++));
+    HUlib_setTextXCenter(&w_precache);
+
+    //V_FillRect(0, 0, SCREENHEIGHT - 4, SCREENWIDTH, 4, 0);
+    gld_ProgressRestoreScreen();
+  }
+
+  HUlib_drawTextLine(&w_precache, false);
+  
+  len = MIN(SCREENWIDTH, (int)((int_64_t)SCREENWIDTH * progress / total));
+    
+  V_FillRect(0, 0, SCREENHEIGHT - 4, len - 0, 4, 4);
+  if (len > 4)
+  {
+    V_FillRect(0, 2, SCREENHEIGHT - 3, len - 4, 2, 0);
+  }
+
+  I_FinishUpdate();
+}
+
+static int gld_PrecachePatch(const char *name, int cm)
+{
+  int lump = W_CheckNumForName(name);
+  if (lump > 0)
+  {
+    GLTexture *gltexture;
+    
+    lumpinfo[lump].flags |= LUMP_STATIC;
+    gltexture = gld_RegisterPatch(lump, cm);
+    gld_BindPatch(gltexture, cm);
+    return 1;
+  }
   return 0;
+}
+
+static void gld_Mark_CM2RGB_Lump(const char *name)
+{
+  int lump = W_CheckNumForName(name);
+  if (lump > 0)
+  {
+    lumpinfo[lump].flags |= LUMP_CM2RGB;
+  }
 }
 
 int gld_PrecachePatches(void)
 {
   static const char * staticpatches[] = {
-    "INTERPIC", "TITLEPIC",
+    "INTERPIC",// "TITLEPIC",
 
     //doom's M_*
     "M_DETAIL", "M_DISOPT", "M_DISP",   "M_DOOM",
@@ -464,7 +594,7 @@ int gld_PrecachePatches(void)
     "M_EPI4",
 
     //prboom's M_*
-    /*"M_ABOUT",  "M_ACCEL",  "M_AUTO",   "M_BUTT1",
+    "M_ABOUT",  "M_ACCEL",  "M_AUTO",   "M_BUTT1",
     "M_BUTT2",  "M_CHAT",   "M_COLORS", "M_COMPAT",
     "M_COMPAT", "M_DEMOS",  "M_ENEM",   "M_FEAT",
     "M_GENERL", "M_HORSEN", "M_HUD",    "M_KEYBND",
@@ -472,28 +602,43 @@ int gld_PrecachePatches(void)
     "M_MULTI",  "M_PALNO",  "M_PALSEL", "M_SETUP",
     "M_SLIDEL", "M_SLIDEM", "M_SLIDEO", "M_SLIDER",
     "M_SOUND",  "M_STAT",   "M_STAT",   "M_VBOX",
-    "M_VERSEN", "M_VIDEO",  "M_WAD",    "M_WEAP",*/
+    "M_VERSEN", "M_VIDEO",  "M_WAD",    "M_WEAP",
 
     NULL
   };
 
   const char ** patch_p;
+  char namebuf[16];
+  int i, count, total;
 
   if (!gl_patch_usehires)
     return 0;
 
+  gld_ProgressStart();
+
+  count = 0; total = 0;
+  for (patch_p = staticpatches; *patch_p; patch_p++)
+    total++;
+
   for (patch_p = staticpatches; *patch_p; patch_p++)
   {
-    int lump = W_CheckNumForName(*patch_p);
-    if (lump > 0)
-    {
-      GLTexture *gltexture;
-
-      staticlumps[lump] = true;
-      gltexture = gld_RegisterPatch(lump, CR_DEFAULT);
-      gld_BindPatch(gltexture, CR_DEFAULT);
-    }
+    gld_PrecachePatch(*patch_p, CR_DEFAULT);
+    gld_ProgressUpdate("Loading Patches...", ++count, total);
   }
+
+  for (i = 33; i < 96; i++)
+  {
+    sprintf(namebuf, "STCFN%.3d", i);
+    gld_Mark_CM2RGB_Lump(namebuf);
+  }
+  for (i = 0; i < 10; i++)
+  {
+    sprintf(namebuf, "STTNUM%d", i);
+    gld_Mark_CM2RGB_Lump(namebuf);
+  }
+  gld_Mark_CM2RGB_Lump("STTPRCNT");
+
+  gld_ProgressEnd();
 
   return 0;
 }

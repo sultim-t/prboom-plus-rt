@@ -765,3 +765,22 @@ void HUlib_eraseIText(hu_itext_t* it)
   HUlib_eraseTextLine(&it->l);
   it->laston = *it->on;
 }
+
+//
+// HUlib_setTextXCenter()
+//
+// Centering a hu_textline_t
+//
+// Passed the hu_textline_t
+// Returns nothing
+//
+void HUlib_setTextXCenter(hu_textline_t* t)
+{
+  char *s = t->l;
+  t->x = 320;
+  while (*s)
+  {
+    t->x -= t->f[toupper(*(s++))-HU_FONTSTART].width;
+  }
+  t->x >>= 1;
+}

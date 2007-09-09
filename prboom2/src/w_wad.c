@@ -66,8 +66,6 @@
 lumpinfo_t *lumpinfo;
 int        numlumps;         // killough
 
-int *staticlumps = NULL; //e6y
-
 void ExtractFileBase (const char *path, char *dest)
 {
   const char *src = path + strlen(path) - 1;
@@ -219,10 +217,6 @@ static void W_AddFile(wadfile_info_t *wadfile)
       numlumps += header.numlumps;
     }
 
-    //e6y
-    staticlumps = realloc(staticlumps, numlumps * sizeof(*staticlumps));
-    memset(staticlumps, 0, numlumps * sizeof(*staticlumps));
-
     // Fill in lumpinfo
     lumpinfo = realloc(lumpinfo, numlumps*sizeof(lumpinfo_t));
 
@@ -230,6 +224,7 @@ static void W_AddFile(wadfile_info_t *wadfile)
 
     for (i=startlump ; (int)i<numlumps ; i++,lump_p++, fileinfo++)
       {
+        lump_p->flags = 0; //e6y
         lump_p->wadfile = wadfile;                    //  killough 4/25/98
         lump_p->position = LONG(fileinfo->filepos);
         lump_p->size = LONG(fileinfo->size);

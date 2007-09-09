@@ -199,6 +199,7 @@ camera_t walkcamera;
 
 hu_textline_t  w_hudadd;
 hu_textline_t  w_centermsg;
+hu_textline_t  w_precache;
 char hud_add[80];
 char hud_centermsg[80];
 

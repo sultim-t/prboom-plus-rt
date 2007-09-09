@@ -52,6 +52,7 @@ typedef enum
 {
   GLTEXTURE_HASHOLES  = 0x00000004,
   GLTEXTURE_SKY       = 0x00000008,
+  GLTEXTURE_HIRES     = 0x00000010,
 } GLTexture_flag_t;
 
 typedef struct
@@ -285,6 +286,11 @@ void gld_ResetLastTexture(void);
 
 PFNGLCOLORTABLEEXTPROC gld_ColorTableEXT;
 
-int gld_LoadHiresTex(GLTexture *gltexture, int *glTexID);
+//hires
+int gld_LoadHiresTex(GLTexture *gltexture, int *glTexID, int cm);
+GLuint CaptureScreenAsTexID(void);
+void gld_ProgressUpdate(char * text, int progress, int total);
+int gld_ProgressStart(void);
+int gld_ProgressEnd(void);
 
 #endif // _GL_INTERN_H

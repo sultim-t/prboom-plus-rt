@@ -221,7 +221,7 @@ static GLTexture *gld_AddNewGLTexture(int texture_num)
 
 static GLTexture *gld_AddNewGLPatchTexture(int lump)
 {
-  if (staticlumps[lump])
+  if (lumpinfo[lump].flags & LUMP_STATIC)
     return gld_AddNewGLTexItem(lump, numlumps, &gld_GLStaticPatchTextures);
   else
     return gld_AddNewGLTexItem(lump, numlumps, &gld_GLPatchTextures);
@@ -627,7 +627,7 @@ void gld_BindTexture(GLTexture *gltexture)
       return;
   }
 
-  if (gld_LoadHiresTex(gltexture, glTexID))
+  if (gld_LoadHiresTex(gltexture, glTexID, CR_DEFAULT))
     return;
 
   buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
@@ -764,6 +764,8 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   unsigned char *buffer;
   int *glTexID;
 
+  cm = ((gltexture->flags & GLTEXTURE_HIRES) ? CR_DEFAULT : cm);
+
   if ((gltexture==last_gltexture) && (cm==last_cm) && (boom_cm==last_boom_cm) && (frame_fixedcolormap==last_fixedcolormap))
     return;
   last_gltexture=gltexture;
@@ -802,7 +804,7 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
       return;
   }
 
-  if (gld_LoadHiresTex(gltexture, glTexID))
+  if (gld_LoadHiresTex(gltexture, glTexID, cm))
     return;
 
   patch=R_CachePatchNum(gltexture->index);
@@ -970,7 +972,7 @@ void gld_BindFlat(GLTexture *gltexture)
       return;
   }
 
-  if (gld_LoadHiresTex(gltexture, glTexID))
+  if (gld_LoadHiresTex(gltexture, glTexID, CR_DEFAULT))
     return;
 
   flat=W_CacheLumpNum(gltexture->index);
@@ -1090,13 +1092,20 @@ void gld_Precache(void)
   register int i;
   register byte *hitlist;
 
-  if (!gl_texture_usehires)
+  int usehires = gl_texture_usehires || gl_patch_usehires;
+
+  if (!usehires)
   {
     if (!precache)
       return;
 
     if (demoplayback)
       return;
+  }
+
+  if (usehires)
+  {
+    gld_ProgressStart();
   }
 
   {
@@ -1135,7 +1144,10 @@ void gld_Precache(void)
 
   for (i = numflats; --i >= 0; )
     if (hitlist[i])
+    {
       gld_BindFlat(gld_RegisterFlat(i,true));
+      gld_ProgressUpdate("Loading Flats...", numflats - i, numflats);
+    }
 
   // Precache textures.
 
@@ -1190,7 +1202,10 @@ void gld_Precache(void)
 
   for (i = numtextures; --i >= 0; )
     if (hitlist[i])
+    {
       gld_BindTexture(gld_RegisterTexture(i,true,false));
+      gld_ProgressUpdate("Loading Textures...", numtextures - i, numtextures);
+    }
 
   // Precache sprites.
   memset(hitlist, 0, numsprites);
@@ -1217,6 +1232,11 @@ void gld_Precache(void)
           }
       }
   Z_Free(hitlist);
+
+  if (usehires)
+  {
+    gld_ProgressEnd();
+  }
 }
 
 void gld_CleanMemory(void)

@@ -509,6 +509,23 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
   float width,height;
   float xpos, ypos;
 
+  //e6y
+  boolean bFakeColormap;
+  static float cm2RGB[CR_LIMIT + 1][4] = {
+    {0.50f ,0.00f, 0.00f, 1.00f}, //CR_BRICK
+    {1.00f ,1.00f, 1.00f, 1.00f}, //CR_TAN
+    {1.00f ,1.00f, 1.00f, 1.00f}, //CR_GRAY
+    {0.00f ,1.00f, 0.00f, 1.00f}, //CR_GREEN
+    {0.50f ,0.20f, 1.00f, 1.00f}, //CR_BROWN
+    {1.00f ,1.00f, 0.00f, 1.00f}, //CR_GOLD
+    {1.00f ,0.00f, 0.00f, 1.00f}, //CR_RED
+    {0.80f ,0.80f, 1.00f, 1.00f}, //CR_BLUE
+    {1.00f ,0.50f, 0.25f, 1.00f}, //CR_ORANGE
+    {1.00f ,1.00f, 0.00f, 1.00f}, //CR_YELLOW
+    {0.50f ,0.50f, 1.00f, 1.00f}, //CR_BLUE2
+    {1.00f ,1.00f, 1.00f, 1.00f}, //CR_LIMIT
+  };
+
   if (flags & VPT_TRANS)
   {
     gltexture=gld_RegisterPatch(lump,cm);
@@ -537,12 +554,26 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
   ypos=SCALE_Y(y-gltexture->topoffset);
   width=SCALE_X(gltexture->realtexwidth);
   height=SCALE_Y(gltexture->realtexheight);
+
+  bFakeColormap = (gl_patch_usehires) && 
+    (gltexture->flags & GLTEXTURE_HIRES) && 
+    (lumpinfo[lump].flags & LUMP_CM2RGB);
+  if (bFakeColormap)
+  {
+    glColor3f(cm2RGB[cm][0], cm2RGB[cm][1], cm2RGB[cm][2]);//, cm2RGB[cm][3]);
+  }
+
   glBegin(GL_TRIANGLE_STRIP);
     glTexCoord2f(fU1, fV1); glVertex2f((xpos),(ypos));
     glTexCoord2f(fU1, fV2); glVertex2f((xpos),(ypos+height));
     glTexCoord2f(fU2, fV1); glVertex2f((xpos+width),(ypos));
     glTexCoord2f(fU2, fV2); glVertex2f((xpos+width),(ypos+height));
   glEnd();
+  
+  if (bFakeColormap)
+  {
+    glColor3f(1.0f,1.0f,1.0f);
+  }
 }
 
 #undef SCALE_X

@@ -642,6 +642,15 @@ void HU_Start(void)
     HU_FONTSTART,
     CR_GRAY
   );
+  HUlib_initTextLine
+  (
+    &w_precache,
+    16,
+    186,
+    hu_font,
+    HU_FONTSTART,
+    CR_RED
+  );
   strcpy(hud_add,"");
   s = hud_add;
   while (*s)
@@ -1574,15 +1583,14 @@ void HU_Ticker(void)
     messagecenter_counter--;
   if (showMessages && plr->centermessage)
   {
+    const char *s = plr->centermessage; 
     HUlib_clearTextLine(&w_centermsg);
-    w_centermsg.x = 300;
-    while (*(plr->centermessage))
+    while (*s)
     {
-      w_centermsg.x -= hu_font[toupper(*(plr->centermessage))-HU_FONTSTART].width;
-      HUlib_addCharToTextLine(&w_centermsg, *(plr->centermessage++));
+      HUlib_addCharToTextLine(&w_centermsg, *(s++));
     }
-    w_centermsg.x >>= 1;
-    plr->centermessage = 0;
+    HUlib_setTextXCenter(&w_centermsg);
+    plr->centermessage = NULL;
     messagecenter_counter = HU_MSGCENTERTIMEOUT;
   }
 

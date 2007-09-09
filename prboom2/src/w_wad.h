@@ -119,12 +119,15 @@ typedef struct
   wadfile_info_t *wadfile;
   int position;
   wad_source_t source;
+  int flags; //e6y
 } lumpinfo_t;
+
+// e6y: lump flags
+#define LUMP_STATIC 0x00000001 /* assigned gltexture should be static */
+#define LUMP_CM2RGB 0x00000002 /* for fake colormap for hires patches */
 
 extern lumpinfo_t *lumpinfo;
 extern int        numlumps;
-
-extern int *staticlumps; //e6y
 
 // killough 4/17/98: if W_CheckNumForName() called with only
 // one argument, pass ns_global as the default namespace

@@ -41,7 +41,7 @@
 static GLuint wipe_scr_start_tex = 0;
 static GLuint wipe_scr_end_tex = 0;
 
-static GLuint CaptureScreenAsTexID(void)
+GLuint CaptureScreenAsTexID(void)
 {
   GLuint id;
 

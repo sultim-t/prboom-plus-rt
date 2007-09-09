@@ -222,6 +222,7 @@ extern float internal_render_fov;
 
 extern hu_textline_t  w_hudadd;
 extern hu_textline_t  w_centermsg;
+extern hu_textline_t  w_precache;
 extern char hud_add[80];
 extern char hud_centermsg[80];
 
