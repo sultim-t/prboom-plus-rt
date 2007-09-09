@@ -531,11 +531,9 @@ void gld_ProgressUpdate(char * text, int progress, int total)
     while (*s)
       HUlib_addCharToTextLine(&w_precache, *(s++));
     HUlib_setTextXCenter(&w_precache);
-
-    //V_FillRect(0, 0, SCREENHEIGHT - 4, SCREENWIDTH, 4, 0);
-    gld_ProgressRestoreScreen();
   }
 
+  gld_ProgressRestoreScreen();
   HUlib_drawTextLine(&w_precache, false);
   
   len = MIN(SCREENWIDTH, (int)((int_64_t)SCREENWIDTH * progress / total));
