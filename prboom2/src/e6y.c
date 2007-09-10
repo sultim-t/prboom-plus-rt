@@ -74,6 +74,9 @@
 #include "info.h"
 #include "i_simd.h"
 #include "gl_struct.h"
+#ifdef GL_DOOM
+#include "gl_intern.h"
+#endif
 #include "g_game.h"
 #include "e6y.h"
 #include "./../ICONS/resource.h"
@@ -447,6 +450,15 @@ void G_SkipDemoStop(void)
   }
   S_Init(snd_SfxVolume, snd_MusicVolume);
   S_Start();
+
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL) {
+    if (gl_texture_usehires)
+    {
+      gld_Precache();
+    }
+  }
+#endif
 }
 
 void M_ChangeSpeed(void)

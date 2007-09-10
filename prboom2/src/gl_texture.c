@@ -1094,6 +1094,9 @@ void gld_Precache(void)
 
   int usehires = gl_texture_usehires || gl_patch_usehires;
 
+  if (doSkip)
+    return;
+
   if (!usehires)
   {
     if (!precache)

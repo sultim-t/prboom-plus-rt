@@ -502,6 +502,8 @@ int gld_ProgressEnd(void)
   if (progress_texid != 0)
   {
     gld_ProgressRestoreScreen();
+    I_FinishUpdate();
+    gld_ProgressRestoreScreen();
     glDeleteTextures(1, &progress_texid);
     progress_texid = 0;
     return true;
@@ -540,7 +542,6 @@ void gld_ProgressUpdate(char * text, int progress, int total)
   HUlib_drawTextLine(&w_precache, false);
   
   len = MIN(SCREENWIDTH, (int)((int_64_t)SCREENWIDTH * progress / total));
-    
   V_FillRect(0, 0, SCREENHEIGHT - 4, len - 0, 4, 4);
   if (len > 4)
   {
