@@ -1103,7 +1103,7 @@ void gld_Precache(void)
       return;
   }
 
-  if (usehires)
+  if (gl_texture_usehires)
   {
     gld_ProgressStart();
   }
@@ -1233,7 +1233,7 @@ void gld_Precache(void)
       }
   Z_Free(hitlist);
 
-  if (usehires)
+  if (gl_texture_usehires)
   {
     gld_ProgressEnd();
   }

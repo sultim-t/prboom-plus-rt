@@ -560,6 +560,10 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
     (lumpinfo[lump].flags & LUMP_CM2RGB);
   if (bFakeColormap)
   {
+    if (!(flags & VPT_TRANS) && (cm != CR_GRAY))
+    {
+      cm = CR_RED;
+    }
     glColor3f(cm2RGB[cm][0], cm2RGB[cm][1], cm2RGB[cm][2]);//, cm2RGB[cm][3]);
   }
 

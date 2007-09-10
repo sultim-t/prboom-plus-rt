@@ -515,7 +515,10 @@ void gld_ProgressUpdate(char * text, int progress, int total)
   int len;
   static char last_text[32] = {0};
 
-  if (!gl_patch_usehires)
+  if (!gl_texture_usehires && !gl_patch_usehires)
+    return;
+
+  if (!progress_texid)
     return;
 
   if ((text) && (strlen(text) > 0) && strcmp((last_text ? last_text : ""), text))
@@ -541,7 +544,7 @@ void gld_ProgressUpdate(char * text, int progress, int total)
   V_FillRect(0, 0, SCREENHEIGHT - 4, len - 0, 4, 4);
   if (len > 4)
   {
-    V_FillRect(0, 2, SCREENHEIGHT - 3, len - 4, 2, 0);
+    V_FillRect(0, 2, SCREENHEIGHT - 3, len - 4, 2, 31);
   }
 
   I_FinishUpdate();
