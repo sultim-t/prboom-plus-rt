@@ -37,6 +37,7 @@
 #else
 #include <unistd.h>
 #endif
+#include <sys/stat.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <SDL_image.h>
@@ -305,35 +306,108 @@ static int gld_LoadHiresItem(GLTexture *gltexture, const char *texture_path, int
 
   SDL_Surface *surf = NULL;
   SDL_Surface *surf_tmp = NULL;
+  int tex_width, tex_height, tex_buffer_size;
+  unsigned char *tex_buffer = NULL;
+  
+  char cache_filename[PATH_MAX];
+  FILE *cachefp = NULL;
+  int cache_write = false;
+  int cache_read = false;
+  int cache_read_ok = false;
 
-  gld_InitHiresTex();
+  struct stat tex_stat;
 
-  surf_tmp = IMG_Load(texture_path);
+  memset(&tex_stat, 0, sizeof(tex_stat));
+  stat(texture_path, &tex_stat);
 
-  if (!surf_tmp)
+  gltexture->flags |= GLTEXTURE_HIRES;
+
+  if (gltexture->textype == GLDT_PATCH)
   {
-    lprintf(LO_ERROR, "gld_LoadHiresItem: ");
-    lprintf(LO_ERROR, SDL_GetError());
-    lprintf(LO_ERROR, "\n");
-    return false;
+    gltexture->scalexfac = 1.0f;
+    gltexture->scaleyfac = 1.0f;
   }
 
-  surf = SDL_ConvertSurface(surf_tmp, &RGBAFormat, surf_tmp->flags);
-  SDL_FreeSurface(surf_tmp);
+  if (*glTexID == 0)
+    glGenTextures(1,glTexID);
+  glBindTexture(GL_TEXTURE_2D, *glTexID);
 
-  if (surf)
+  strcpy(cache_filename, texture_path);
+  strcat(cache_filename, ".cache");
+
+  if (!access(cache_filename, F_OK))
   {
-    gltexture->flags |= GLTEXTURE_HIRES;
+    cache_read = !access(cache_filename, R_OK);
+  }
+  else
+  {
+    cache_write = true;
+  }
 
-    if (gltexture->textype == GLDT_PATCH)
+  if (cache_read)
+  {
+    struct stat cache_stat;
+
+    cache_read_ok = false;
+
+    tex_width = 0;
+    tex_height = 0;
+
+    cachefp = fopen(cache_filename, "rb");
+
+    if (cachefp)
     {
-      gltexture->scalexfac = 1.0f;
-      gltexture->scaleyfac = 1.0f;
+      if (fread(&tex_width, sizeof(tex_width), 1, cachefp) == 1 &&
+          fread(&tex_height, sizeof(tex_height), 1, cachefp) == 1 &&
+          fread(&cache_stat.st_mtime, sizeof(cache_stat.st_mtime), 1, cachefp) == 1)
+      {
+        if (cache_stat.st_mtime == tex_stat.st_mtime)
+        {
+          tex_buffer_size = tex_width * tex_height * 4;
+
+          tex_buffer = Z_Malloc(tex_buffer_size, PU_STATIC, 0);
+          if (tex_buffer)
+          {
+            if (fread(tex_buffer, tex_buffer_size, 1, cachefp) == 1)
+            {
+          
+              glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
+                tex_width, tex_height,
+                0, GL_RGBA, GL_UNSIGNED_BYTE, tex_buffer);
+
+              cache_read_ok = true;
+            }
+            Z_Free(tex_buffer);
+          }
+        }
+      }
+      fclose(cachefp);
+    }
+  }
+  
+  if (!cache_read_ok)
+  {
+    gld_InitHiresTex();
+
+    surf_tmp = IMG_Load(texture_path);
+
+    if (!surf_tmp)
+    {
+      lprintf(LO_ERROR, "gld_LoadHiresItem: ");
+      lprintf(LO_ERROR, SDL_GetError());
+      lprintf(LO_ERROR, "\n");
+      return false;
     }
 
-    if (*glTexID == 0)
-      glGenTextures(1,glTexID);
-    glBindTexture(GL_TEXTURE_2D, *glTexID);
+    surf = SDL_ConvertSurface(surf_tmp, &RGBAFormat, surf_tmp->flags);
+    SDL_FreeSurface(surf_tmp);
+
+    if (!surf)
+      return false;
+    
+    tex_width  = gld_GetTexDimension(surf->w);
+    tex_height = gld_GetTexDimension(surf->h);
+    tex_buffer_size = tex_width * tex_height * 4;
 
 #ifdef USE_GLU_MIPMAP
     if (gltexture->mipmap & use_mipmapping)
@@ -356,78 +430,92 @@ static int gld_LoadHiresItem(GLTexture *gltexture, const char *texture_path, int
     else
 #endif // USE_GLU_MIPMAP
     {
-      int tex_width  = gld_GetTexDimension(surf->w);
-      int tex_height = gld_GetTexDimension(surf->h);
 #ifdef USE_GLU_IMAGESCALE
       if ((surf->w != tex_width) || (surf->h != tex_height))
       {
-        unsigned char *scaledbuffer;
-        scaledbuffer = Z_Malloc(tex_width * tex_height * 4, PU_STATIC, 0);
-
-        if (scaledbuffer)
+        tex_buffer = Z_Malloc(tex_buffer_size, PU_STATIC, 0);
+        if (!tex_buffer)
         {
-          gluScaleImage(GL_RGBA,
-            surf->w, surf->h,
-            GL_UNSIGNED_BYTE, surf->pixels,
-            tex_width, tex_height,
-            GL_UNSIGNED_BYTE, scaledbuffer);
-          glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
-            tex_width, tex_height,
-            0, GL_RGBA, GL_UNSIGNED_BYTE, scaledbuffer);
-          Z_Free(scaledbuffer);
+          result = false;
+          goto l_exit;
         }
+
+        gluScaleImage(GL_RGBA,
+          surf->w, surf->h,
+          GL_UNSIGNED_BYTE, surf->pixels,
+          tex_width, tex_height,
+          GL_UNSIGNED_BYTE, tex_buffer);
+    
+        if (cache_write || !cache_read_ok)
+        {
+          cachefp = fopen(cache_filename, "wb");
+          if (cachefp)
+          {
+            fwrite(&tex_width, sizeof(tex_width), 1, cachefp);
+            fwrite(&tex_height, sizeof(tex_height), 1, cachefp);
+            fwrite(&tex_stat.st_mtime, sizeof(tex_stat.st_mtime), 1, cachefp);
+            fwrite(tex_buffer, tex_buffer_size, 1, cachefp);
+            fclose(cachefp);
+          }
+        }
+    
+        glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
+          tex_width, tex_height,
+          0, GL_RGBA, GL_UNSIGNED_BYTE, tex_buffer);
+    
+        Z_Free(tex_buffer);
       }
       else
 #endif // USE_GLU_IMAGESCALE
       {
-        unsigned char *scaledbuffer = NULL;
-
         if ((surf->w != tex_width) || (surf->h != tex_height))
         {
           if (surf->w == tex_width)
           {
-            scaledbuffer = (unsigned char*)Z_Malloc(tex_width * tex_height * 4, PU_STATIC, 0);
-            memcpy(scaledbuffer, surf->pixels, surf->w * surf->h * 4);
+            tex_buffer = (unsigned char*)Z_Malloc(tex_buffer_size, PU_STATIC, 0);
+            memcpy(tex_buffer, surf->pixels, surf->w * surf->h * 4);
           }
           else
           {
             int y;
-            scaledbuffer = Z_Calloc(1, tex_width * tex_height * 4, PU_STATIC, 0);
+            tex_buffer = Z_Calloc(1, tex_buffer_size, PU_STATIC, 0);
             for (y = 0; y < surf->h; y++)          
             {
-              memcpy(scaledbuffer + y * tex_width * 4,
+              memcpy(tex_buffer + y * tex_width * 4,
                 ((unsigned char*)surf->pixels) + y * surf->w * 4, surf->w * 4);
             }
           }
         }
         else
         {
-          scaledbuffer = surf->pixels;
+          tex_buffer = surf->pixels;
         }
-
+    
         if (gl_paletted_texture) {
           gld_SetTexturePalette(GL_TEXTURE_2D);
           glTexImage2D( GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT,
             tex_width, tex_height,
-            0, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, scaledbuffer);
+            0, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, tex_buffer);
         } else {
           glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
             tex_width, tex_height,
-            0, GL_RGBA, GL_UNSIGNED_BYTE, scaledbuffer);
+            0, GL_RGBA, GL_UNSIGNED_BYTE, tex_buffer);
         }
-
+    
         if ((surf->w != tex_width) || (surf->h != tex_height))
-          Z_Free(scaledbuffer);
+          Z_Free(tex_buffer);
       }
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
-
-      result = true;
-      goto l_exit;
     }
   }
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
+
+  result = true;
+  goto l_exit;
 
 l_exit:
   if (surf)
