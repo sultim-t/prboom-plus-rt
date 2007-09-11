@@ -71,6 +71,8 @@ static boolean SkyDrawed;
 gl_render_precise_t gl_render_precise;
 const char *gl_render_precises[] = {"Speed","Quality"};
 
+int imageformats[5] = {0, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_RGB, GL_RGBA};
+
 extern int tran_filter_pct;
 
 #define USE_VERTEX_ARRAYS

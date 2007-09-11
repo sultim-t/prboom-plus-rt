@@ -338,9 +338,11 @@ static int gld_LoadHiresItem(GLTexture *gltexture, const char *texture_path, int
 #ifdef USE_GLU_MIPMAP
     if (gltexture->mipmap & use_mipmapping)
     {
-      gluBuild2DMipmaps(GL_TEXTURE_2D, gl_tex_format,
+      gluBuild2DMipmaps(GL_TEXTURE_2D,
+        surf->format->BytesPerPixel,
         surf->w, surf->h,
-        GL_RGBA, GL_UNSIGNED_BYTE, surf->pixels);
+        imageformats[surf->format->BytesPerPixel],
+        GL_UNSIGNED_BYTE, surf->pixels);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);

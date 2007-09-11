@@ -293,4 +293,6 @@ void gld_ProgressUpdate(char * text, int progress, int total);
 int gld_ProgressStart(void);
 int gld_ProgressEnd(void);
 
+extern int imageformats[];
+
 #endif // _GL_INTERN_H

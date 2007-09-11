@@ -86,8 +86,6 @@ float distance2piece(float x0, float y0, float x1, float y1, float x2, float y2)
 void gld_InitExtensionsEx(void)
 {
 #define isExtensionSupported(ext) strstr(extensions, ext)
-  static int imageformats[5] = {0, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_RGB, GL_RGBA};
-
   extern int gl_tex_filter;
   extern int gl_mipmap_filter;
   extern int gl_texture_filter_anisotropic;
