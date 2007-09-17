@@ -90,4 +90,10 @@ extern int gl_hires_override_pwads;
 extern char *gl_texture_hires_dir;
 int gld_PrecachePatches(void);
 
+//clipper
+boolean gld_clipper_SafeCheckRange(angle_t startAngle, angle_t endAngle);
+void gld_clipper_SafeAddClipRange(angle_t startangle, angle_t endangle);
+void gld_clipper_Clear(void);
+angle_t gld_FrustumAngle(void);
+
 #endif // _GL_STRUCT_H

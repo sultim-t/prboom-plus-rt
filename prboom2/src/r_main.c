@@ -631,59 +631,19 @@ void R_RenderPlayerView (player_t* player)
   NetUpdate ();
 #endif
 
-  real_viewangle = viewangle;
-
-  // The head node is the last node output.
-#ifndef GL_DOOM //e6y
-  R_RenderBSPNode (numnodes-1);
-  R_ResetColumnBuffer();
-
-  //e6y
-#else
-  if ((V_GetMode() == VID_MODEGL) && 
-     ((render_fov > FOV90) || (GetMouseLook() && viewpitch) || (was_aspected)))
-  {
-    if (render_fov > FOV90 || transparentpresent || was_aspected)//FIXME!!!
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL) {
     {
-      R_RenderBSPNode (numnodes-1);
-      viewangle += ANG90;
-      R_ClearClipSegs();
-      R_RenderBSPNode(numnodes - 1);
-      viewangle += ANG90;
-      if (((int) viewpitch > ANG45 || (int) viewpitch < -ANG45))
-      {
-        R_ClearClipSegs();
-        R_RenderBSPNode(numnodes - 1);
-      }
-      viewangle += ANG90;
-      R_ClearClipSegs();
-      R_RenderBSPNode(numnodes - 1);
+      angle_t a1 = gld_FrustumAngle();
+      gld_clipper_Clear();
+      gld_clipper_SafeAddClipRange(viewangle + a1, viewangle - a1);
     }
-    else
-    {
-      viewangle -= ANG45;
-      R_RenderBSPNode(numnodes - 1);
-      viewangle += ANG90;
-      R_ClearClipSegs();
-      R_RenderBSPNode(numnodes - 1);
-      if (((int) viewpitch > ANG45 || (int) viewpitch < -ANG45))
-      {
-        viewangle += ANG90;
-        R_ClearClipSegs();
-        R_RenderBSPNode(numnodes - 1);
-        viewangle += ANG90;
-        R_ClearClipSegs();
-        R_RenderBSPNode(numnodes - 1);
-      }
-    }
-  } 
-  else
-  {
-    R_RenderBSPNode (numnodes-1);
-  } 
+  }
 #endif
 
-  viewangle = real_viewangle;
+  // The head node is the last node output.
+  R_RenderBSPNode (numnodes-1);
+  R_ResetColumnBuffer();
 
   // Check for new console commands.
 #ifdef HAVE_NET

@@ -2115,7 +2115,7 @@ static void gld_DrawWall(GLWall *wall)
       wall.skyyaw=-2.0f*((-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)/90.0f);\
       wall.skyymid = 200.0f/319.5f*(((float)s->rowoffset/(float)FRACUNIT - 28.0f)/100.0f);\
     } else {\
-      wall.skyyaw=-2.0f*(((270.0f-(float)((real_viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)+90.0f)/90.0f/fovscale);\
+      wall.skyyaw=-2.0f*(((270.0f-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)+90.0f)/90.0f/fovscale);\
       wall.skyymid = skyYShift+(((float)s->rowoffset/(float)FRACUNIT)/100.0f);\
     }\
     wall.flag = l->special==272 ? GLDWF_SKY : GLDWF_SKYFLIP;\
@@ -2131,7 +2131,7 @@ static void gld_DrawWall(GLWall *wall)
       wall.skyyaw=-2.0f*((-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)/90.0f);\
       wall.skyymid = 200.0f/319.5f*(((float)s->rowoffset/(float)FRACUNIT - 28.0f)/100.0f);\
     } else {\
-      wall.skyyaw=-2.0f*(((270.0f-(float)((real_viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)+90.0f)/90.0f/fovscale);\
+      wall.skyyaw=-2.0f*(((270.0f-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)+90.0f)/90.0f/fovscale);\
       wall.skyymid = skyYShift+(((float)s->rowoffset/(float)FRACUNIT)/100.0f);\
     }\
     wall.flag = l->special==272 ? GLDWF_SKY : GLDWF_SKYFLIP;\
@@ -2144,7 +2144,7 @@ static void gld_DrawWall(GLWall *wall)
       wall.skyyaw=-2.0f*((yaw+90.0f)/90.0f);\
       wall.skyymid = 200.0f/319.5f*((100.0f)/100.0f);\
     } else {\
-      wall.skyyaw=-2.0f*(((270.0f-(float)((real_viewangle)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)+90.0f)/90.0f/fovscale);\
+      wall.skyyaw=-2.0f*(((270.0f-(float)((viewangle)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)+90.0f)/90.0f/fovscale);\
       wall.skyymid = skyYShift;\
     }\
     wall.flag = GLDWF_SKY;\

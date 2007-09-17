@@ -218,7 +218,6 @@ float skyUpShift;
 float skyXShift;
 float skyYShift;
 boolean mlook_or_fov;
-int real_viewangle;
 
 float internal_render_fov = FOV90;
 

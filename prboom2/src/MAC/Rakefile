@@ -74,6 +74,7 @@ gl_texture.c
 gl_vertex.c
 gl_wipe.c
 gl_hires.c
+gl_clipper.c
 hu_lib.c
 hu_stuff.c
 info.c
