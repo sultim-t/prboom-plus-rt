@@ -1603,6 +1603,9 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   /* cph - reset all multiplayer starts */
   memset(playerstarts,0,sizeof(playerstarts));
   deathmatch_p = deathmatchstarts;
+  for (i = 0; i < MAXPLAYERS; i++)
+    players[i].mo = NULL;
+
   P_MapStart();
 
   P_LoadThings(lumpnum+ML_THINGS);
@@ -1613,7 +1616,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
     for (i=0; i<MAXPLAYERS; i++)
       if (playeringame[i])
         {
-          players[i].mo = NULL;
+          players[i].mo = NULL; // not needed? - done before P_LoadThings
           G_DeathMatchSpawnPlayer(i);
         }
   }
