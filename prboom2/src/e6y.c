@@ -649,6 +649,12 @@ void M_ChangeAllowBoomColormaps(void)
 
 void M_ChangeTextureUseHires(void)
 {
+#ifndef HAVE_LIBSDL_IMAGE
+  gl_texture_usehires_default = false;
+  gl_patch_usehires_default = false;
+  gl_texture_usehires = false;
+  gl_patch_usehires = false;
+#else
   extern setup_menu_t gen_settings6[];
 
   if (gl_texture_usehires == -1)
@@ -659,6 +665,7 @@ void M_ChangeTextureUseHires(void)
 
   if (gl_texture_usehires_default || gl_patch_usehires_default)
     gl_boom_colormaps_default = false;
+#endif
 }
 #endif
 

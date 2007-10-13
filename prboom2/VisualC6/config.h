@@ -150,6 +150,9 @@
 /* Version number of package */
 #define VERSION "2.4.8.2"
 
+/* Define if you have the SDL image library -lSDL_image */
+#define HAVE_LIBSDL_IMAGE
+
 #ifdef _WIN32
 
 /* Define if you want to have PrBoom-Plus.wad in the exe  */

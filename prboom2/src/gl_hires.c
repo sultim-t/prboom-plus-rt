@@ -31,6 +31,10 @@
  *---------------------------------------------------------------------
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #ifdef _MSC_VER
 #include <io.h>
 #include <direct.h>
@@ -40,7 +44,9 @@
 #include <sys/stat.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
+#ifdef HAVE_LIBSDL_IMAGE
 #include <SDL_image.h>
+#endif
 #include "doomstat.h"
 #include "v_video.h"
 #include "gl_intern.h"
@@ -58,6 +64,8 @@ int gl_patch_usehires = -1;
 int gl_patch_usehires_default;
 int gl_hires_override_pwads;
 char *gl_texture_hires_dir = NULL;
+
+#ifdef HAVE_LIBSDL_IMAGE
 
 static SDL_PixelFormat RGBAFormat;
 
@@ -524,8 +532,13 @@ l_exit:
   return result;
 }
 
+#endif //HAVE_LIBSDL_IMAGE
+
 int gld_LoadHiresTex(GLTexture *gltexture, int *glTexID, int cm)
 {
+#ifndef HAVE_LIBSDL_IMAGE
+  return false;
+#else
   char hirespath[PATH_MAX];
 
   if (!gl_texture_usehires && !gl_patch_usehires)
@@ -537,6 +550,7 @@ int gld_LoadHiresTex(GLTexture *gltexture, int *glTexID, int cm)
   }
 
   return false;
+#endif
 }
 
 static GLuint progress_texid = 0;
@@ -641,6 +655,8 @@ void gld_ProgressUpdate(char * text, int progress, int total)
   I_FinishUpdate();
 }
 
+#ifdef HAVE_LIBSDL_IMAGE
+
 static int gld_PrecachePatch(const char *name, int cm)
 {
   int lump = W_CheckNumForName(name);
@@ -665,8 +681,13 @@ static void gld_Mark_CM2RGB_Lump(const char *name)
   }
 }
 
+#endif //HAVE_LIBSDL_IMAGE
+
 int gld_PrecachePatches(void)
 {
+#ifndef HAVE_LIBSDL_IMAGE
+  return 0;
+#else
   static const char * staticpatches[] = {
     "INTERPIC",// "TITLEPIC",
 
@@ -733,4 +754,5 @@ int gld_PrecachePatches(void)
   gld_ProgressEnd();
 
   return 0;
+#endif
 }
