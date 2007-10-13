@@ -202,7 +202,7 @@ static int gld_HiresGetTextureName(GLTexture *gltexture, char *hirespath)
   int i;
 
   const char ** checklist = NULL;
-  BYTE useType = gltexture->textype;
+  GLTexType useType = gltexture->textype;
 
   boolean supported =
     (gl_texture_usehires && ((useType == GLDT_TEXTURE) || (useType == GLDT_FLAT))) ||
