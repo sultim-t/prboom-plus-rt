@@ -342,7 +342,7 @@ default_t defaults[] =
    def_int,ss_none},
   {"usegamma",{&usegamma},{3},0,4, //jff 3/6/98 fix erroneous upper limit in range
    def_int,ss_none}, // gamma correction level // killough 1/18/98
-  {"uncapped_framerate", {&movement_smooth},  {0},0,1,
+  {"uncapped_framerate", {&movement_smooth},  {1},0,1,
    def_bool,ss_stat},
   {"filter_wall",{(int*)&drawvars.filterwall},{RDRAW_FILTER_POINT},
    RDRAW_FILTER_POINT, RDRAW_FILTER_ROUNDED, def_int,ss_none},
@@ -369,7 +369,7 @@ default_t defaults[] =
    def_int,ss_none},
   {"gl_depthbuffer_bits",{&gl_depthbuffer_bits},{16},16,32,
    def_int,ss_none},
-  {"gl_tex_filter_string", {NULL,&gl_tex_filter_string}, {0,"GL_LINEAR"},UL,UL,
+  {"gl_tex_filter_string", {NULL,&gl_tex_filter_string}, {0,"GL_LINEAR_MIPMAP_LINEAR"},UL,UL,
    def_str,ss_none},
   {"gl_tex_format_string", {NULL,&gl_tex_format_string}, {0,"GL_RGB5_A1"},UL,UL,
    def_str,ss_none},
@@ -789,7 +789,7 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"test_voodoo", {&test_voodoo},  {0},0,1,
    def_bool,ss_stat},
-  {"gl_render_precise",{(int*)&gl_render_precise},{gl_render_precise_speed}, 
+  {"gl_render_precise",{(int*)&gl_render_precise},{gl_render_precise_quality},
    gl_render_precise_speed, gl_render_precise_quality, def_int,ss_none},
   {"gl_boom_colormaps", {&gl_boom_colormaps_default},  {1},0,1,
    def_bool,ss_stat},
