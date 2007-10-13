@@ -201,6 +201,7 @@ AC_ARG_WITH(pcre,
 )
 
 dnl - Other libs
+AC_CHECK_LIB(SDL_image,IMG_Load)
 AC_CHECK_LIB(png,png_create_info_struct)
 AC_EGREP_HEADER(sockaddr_in6,netinet/in.h,AC_DEFINE(HAVE_IPv6,1,[Define if you have struct sockaddr_in6]))
 
