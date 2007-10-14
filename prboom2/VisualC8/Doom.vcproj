@@ -6344,6 +6344,10 @@
 			Name="OpenGL Source Files"
 			>
 			<File
+				RelativePath="..\src\gl_clipper.c"
+				>
+			</File>
+			<File
 				RelativePath="..\src\gl_detail.c"
 				>
 				<FileConfiguration
