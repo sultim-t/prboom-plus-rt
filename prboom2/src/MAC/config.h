@@ -48,6 +48,9 @@
 #define HAVE_NET 1
 #define USE_SDL_NET 1
 
+/* Define if you have the SDL image library -lSDL_image */
+#define HAVE_LIBSDL_IMAGE
+
 /**/
 #define HIGHRES 1
 #define GL_DOOM 1
