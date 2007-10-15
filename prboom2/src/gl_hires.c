@@ -279,13 +279,15 @@ static int gld_HiresGetTextureName(GLTexture *gltexture, char *hirespath)
       strncpy(hiresdir, I_DoomExeDir(), PATH_MAX - 1);
     }
     if (!HasTrailingSlash(hiresdir))
-      strcat(hiresdir, "\\");
+      strcat(hiresdir, "/");
   }
 
   while (*checklist)
   {
     char checkName[PATH_MAX + 1];
-    static const char * extensions[] = { "PNG", "JPG", "TGA", "PCX", "GIF", "BMP", NULL };
+    static const char * extensions[] = { "PNG", "JPG", "TGA", "PCX", "GIF", "BMP", "JPEG",
+                                         "png", "jpg", "tga", "pcx", "gif", "bmp", "jpeg",
+                                         NULL };
     const char ** extp;
 
     for (extp = extensions; *extp; extp++)
