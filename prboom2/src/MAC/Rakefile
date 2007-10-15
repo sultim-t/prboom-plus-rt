@@ -10,7 +10,7 @@ require 'MAC/macsupport'
 DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom-Plus')
 @deutex = 'deutex'
 @systemFrameworks += %w(Cocoa Carbon QuickTime OpenGL)
-@frameworks += %w(SDL SDL_net)
+@frameworks += %w(SDL SDL_net SDL_image)
 @includes += ' -I. -IMAC'
 @defines += ' -DHAVE_CONFIG_H'
 @objcflags += ' -fobjc-exceptions'
