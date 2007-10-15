@@ -266,6 +266,7 @@ static int gld_HiresGetTextureName(GLTexture *gltexture, char *hirespath)
 
   strncpy(texname, texname_p, 8);
   texname[8] = 0;
+  strlwr(texname);
 
   if (!hiresdir)
   {
@@ -285,8 +286,7 @@ static int gld_HiresGetTextureName(GLTexture *gltexture, char *hirespath)
   while (*checklist)
   {
     char checkName[PATH_MAX + 1];
-    static const char * extensions[] = { "PNG", "JPG", "TGA", "PCX", "GIF", "BMP", "JPEG",
-                                         "png", "jpg", "tga", "pcx", "gif", "bmp", "jpeg",
+    static const char * extensions[] = { "png", "jpg", "tga", "pcx", "gif", "bmp", "jpeg",
                                          NULL };
     const char ** extp;
 
