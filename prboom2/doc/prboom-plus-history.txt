@@ -1,8 +1,212 @@
 Change Log
 
+2.4.8.2 @ 2007.10.16
+[!] Updated to the latest prboom 2.4.8. (SVN build, revision 2423)
+[+] New mouse code without SDL lags. Win32 mouse handling was removed.
+[+] Boom colormaps are supported in OpenGL mode.
+[+] New mus -> mid conversion code thanks to Ben Ryves <benryves@benryves.com> This removes bugs and plays back a lot of music closer to Vanilla Doom - eg. tnt.wad MAP02.
+[+] Smooth movement: interpolation of weapon bobbing.
+[+] New command-line switch "-emulate prboom_ver" for emulation of old buggy behaviour of previous prboom versions during playback of doom\doom2\boom\mbf\lxdoom demos in cases where a prboom bug affects the demo compatibility and leads to desyncs in the original EXEs. Now you can specify only "-emulate 2.2.6" instead of set of -force_remove_slime_trails, -force_boom_brainawake, etc. For example, boom-incompatible demo by Anima Zero cc2lmps.zip\c215-uv.lmp recorded with prboom 2.2.4 in boom compatibility mode can be correctly viewed in newer versions with -emulate 2.2.4 or with -force_prboom_friction.
+[+] PC Speaker emulation from chocolate-doom.
+[+] New command-line switch "-force_lxdoom_demo_compatibility" for emulation of all bugs in demo compatibility mode in lxdoom. There are no more desynchs on "Doom-incompatible" demos from DHT6 exams.
+[+] Ability to force -nomonsters and -respawn for playback of 1.2 demos. Demos recorded with Doom.exe 1.2 did not contain any information about whether these parameters had been used. In order to play them back, you should add them to the command-line for playback. There is no more desynch on mesh.lmp @ mesh.wad (prboom -iwad doom.wad -file mesh.wad -playdemo mesh.lmp -nomonsters)
+[+] There is a new command-line switch "-shorttics". This makes it possible to practice routes and tricks (e.g. glides, where this makes a significant difference) with the same mouse behaviour as when recording, but without having to be recording every time.
+[+] Wipe screen effect in OpenGL.
+[+] Support for Hi-Res textures and patches in OpenGL.
+[+] Import the clipper code from gzdoom. Thanks to GrafZahl. PrBoom uses a clipper with screen pixel precision. It isn't precise enough for GL. For GL we need a clipper with angular precision to avoid some kind of glitches.
+[*] Events queue will not be cleared at the start. (like vanilla does)
+[*] "No Quit Sound" is renamed to "Fast Exit". EndDoom screen will be skipped if this option is turned on.
+[*] Effect of invulnerability uses a colormap in OpenGL mode instead of hard-coding. See nuts.wad as example.
+[*] "Sky is unaffected by invulnerability" compatibility setting (comp_skymap) works in OpenGL mode now.
+[*] "Paper Items" setting is not applied to hanging things.
+[*] The player's weapon is displayed much darker than in 'vanilla' and other ports. In this version the mistake is corrected only for software rendering.
+[*] Improved support for Doom v1.2: Projectiles, such as monster and player plasma and rockets, were able to activate down-wait-up type lifts in versions of Doom up to v1.2.
+[*] Monsters on automap are drawn on top of other things to avoid situations when red triangles (live and countable monsters) are hidden by the green triangles for non-countable things.
+[*] Show a warning if savegame is from the previous version of prboom-plus.
+[*] "-recordfromto" works for all levels of compatibility.
+[*] Improved precision. There are no more HOM's on maps with big open areas: nuts.wad at some positions, thespir2.wad at the start, "Generator of Evil.wad" in last room, MAP05 @ epic.wad everywhere, etc.
+[*] Huge speedup in OpenGL on levels with sectors which have many lines. I've got 87 fps (timedemo) on MAP05 @ epic.wad in this version instead of 64 in 2.4.8.1.
+[*] Compatibility with common mapping errors "linedefs w/o tags apply locally" works with Walk and Gunfire triggers (not only with switches) as in ZDoom.
+[-] Non traditional menu was removed to avoid problems with, e.g., Alien Vendetta.
+[-] Launcher: wrong strings in history combobox.
+[-] Fixed Boom incompatibilities. There are no more desyncs on Donce's demos on horror.wad.
+[-] Fixed Boom incompatibilities. Original friction and bobbing code was restored. There are no more desyncs on cybart.lmp @ Artica.wad and dismlmp.lmp @ dismem.wad. "-force_prboom_friction" for emulation of old buggy behaviour.
+[-] %DOOMWADDIR% had no effect for PWADs and DEHs.
+[-] A strip of rendered graphics could sometimes be seen under the status bar, along the bottom during intermission screens and in the rollcall screen.
+[-] With OpenGL rendering, many of the translucent windows in MAP29 @ cchest2.wad are visible from one side only.
+[-] Boom bug: Fixed incompatibility with original EXE's (complevels 0..6) on levels with "Monster Spawner". "-force_boom_brainawake" for emulation of old buggy behaviour. There is no more desynch on 300340HR.lmp @ RlmChaos.wad.
+[-] When radsuit ends, palette changes w/o warning.
+[-] When playing back with -recordfromto, and before resuming recording, pausing causes playback to desync.
+[-] OpenGL: Fix an issue with lines (boxes) which appear around the elements that change on the intermission screens in Doom1.
+[-] When a file with the .BEX extension is used in an autoloading pattern, the program fails to load it.
+[-] Boom bug: Correction for DEHs which swap the values of two strings. For example: Text 6 6 - RUNNINSTALKS; Text 6 6 - STALKSRUNNIN. There are no more bugs on MAP05 @ Allhell.wad.
+[-] Kills percentage, if extremely high, was reported wrongly and could in theory lead to desyncs.
+[-] PrBoom bug: Par times were not displayed. The program was viewing prboom(-plus).wad as a pwad, and therefore the piece of code that suppressed par times was always being triggered.
+[-] Sometimes the pistol sounds that play while the tallies are being totaled on the end screen will play for too long after the completion time has finished tallying.
+[-] There is no more crash on e1cmnet3.lmp between e1m2 and e1m3.
+[-] Smart totals: Monsters spawned by an Monster Spawner should not be countable for total killed.
+[-] Avoid crashes at end of demos if DEMOMARKER (0x80) does not exist at the end.
+[-] ScreenShot feature did not work with "-videodriver directx" on fullscreen software.
+[-] There are no more visual glitches with sky on MAP14 @ Icarus and MAP20 @ Hell Revealed. GZDoom still has this bug.
+[-] Fix of no warning (flashes between shadowed and solid) in OpenGL when invisibility is about to go.
+[-] Fixed wrong finding of next highest floor (linedef action 18, 20, 131) for demo compatibility. There are no more desynchs on napalm.wad.
+[-] The priority system is broken in the ouch face code in a way that makes the face not work with monster damage.
+[-] Move mouse sensitivity menu upwards a little to avoid overlap with status bar with accompanying visual glitches on software renderer.
+[-] The bug in the algorithm for splitting of a sector into closed contours was fixed. There is no more HOM at the starting area on MAP16 @ Eternal.wad in OpenGL. I hope nothing was broken.
+[-] Correction of an overflow in calculation of a sound origin on large levels. New code is applied only for non-compatible modes and with comp_sound equal to zero. There is no more bug with an absent sound after pressing the distant western switch on Hell Spirit (not released) by Alexander "Eternal" S.
+[-] Premature program exit during MAP26 in 4-player coop demo 29uv4p_*.lmp @ doom2.wad. This bug was introduced in r1458 by cph for 2.4.3 release.
+[-] Wrong calculation of weapon width in OpenGL in some cases, especially during movement. Shotgun in DSV3_War looks correct now.
+[-] OpenGL: Blink during demoskip on fullscreen.
+[-] OpenGL: Bug with duplicated lines, e.g. MM.WAD Map22 lines 1298 and 2397. There is no more HOM on Memento Mori MAP22 sector 299.
+[-] Fixed slowdown during screen melt at 1024x768 on some systems.
+[-] Transferred sky texture on scrolled wall were not scrolled with mouselook or changed FOV.
+[-] Sky property-transfer linedef types (271, 272) should not be applied for BOOM complevels.
+
+Links for the demos, wads and topics referred to above:
+http://www.doomworld.com/idgames/index.php?id=13635 (HORROR.WAD)
+http://competn.doom2.net/pub/sda/0-a/art_950.zip
+http://www.doomworld.com/idgames/index.php?id=9832 (Artica)
+http://competn.doom2.net/pub/sda/d-h/dis_0942.zip
+http://www.doomworld.com/idgames/index.php?id=9787 (Dismemberment)
+http://www.doomworld.com/idgames/index.php?id=11402 (NUTS)
+http://competn.doom2.net/pub/sda/b-c/cc2lmps.zip
+http://www.doomworld.com/idgames/index.php?id=6480 (allhell.zip)
+http://competn.doom2.net/pub/compet-n/doom/coop/movies/e1cmnet3.zip
+http://www.doomworld.com/idgames/index.php?id=13976 (MESH.WAD)
+http://www.doomworld.com/idgames/index.php?id=15025 (Napalm)
+http://www.idoom.cz/dema/lan/doom-open-2003/Exhibice.zip
+http://www.doomworld.com/idgames/index.php?id=11009 (DSV3-War)
+http://www.doomworld.com/idgames/index.php?id=14476 (The Spire 2)
+http://www.doomworld.com/idgames/index.php?id=14975 (Generator of Evil)
+http://www.doomworld.com/idgames/index.php?id=15125 (EPIC)
+http://www.doomworld.com/idgames/index.php?id=11790 (Alien Vendetta)
+http://www.doomworld.com/idgames/index.php?id=13024 (Community Chest 2)
+http://www.doomworld.com/idgames/index.php?id=10513 (Realm of Chaos)
+http://www.doomworld.com/idgames/index.php?id=5191 (ICARUS: ALIEN VANGUARD)
+http://www.doomworld.com/idgames/index.php?id=7947 (Hell Revealed)
+
+2.4.8.1 @ 2006.12.26
+[!] Updated to the latest prboom 2.4.8 (SVN).
+[+] Compatibility with common mapping errors: "Walk underneath solid hanging bodies". Thanks to RjY.
+[+] Launcher: Autoselecting of wads according to the lmp file-name (using regular expressions)
+[+] Two new compatibility options are added:
+    comp_ouchface - "Use Doom's buggy 'Ouch' face code"
+    comp_oofsound - "Dead players make 'oof' sound when landing"
+[+] New "-auto" command-line switch for autoloading of wads according to the lmp file-name.
+[+] There are three modes of sprite clipping in opengl:
+    Constant  - gl_sprite_offset used;
+    Always    - if the sprite is below the floor, and it's not a hanger/floater/missile;
+    Smart     - if the sprite is below the floor, and it's not a hanger/floater/missile, and it's not a fully dead corpse;
+[+] Demo progress bar works during skipping.
+[+] Improved handling of unrecognized demo formats. Legacy and Boom v2.00 demos do not crash PrBoom-Plus now.
+[+] "Use" key ("space" by default) during skipping will show the current frame.
+[+] New "all-in-one" version that includes the resource wad and SDL files inside the exe.
+[*] Compatibility with common mapping errors "Pad a too short reject with zeros" was removed. Added new command line switch "-reject_pad_with_ff". PrBoom 2.2.5 and 2.2.6 padded a short REJECT with 0xff (ones) instead of zeros. This command-line switch may be needed for demos recorded with these versions of PrBoom on maps with a too short REJECT. For example: lwfirst.wad\equ7-108.lmp.
+[*] Improvements in text labels:
+    "Pain elemental limited to 20 lost souls"    -> "Pain elementals limited to 21 lost souls"
+    "All boss types can trigger tag 666 at ExM8" -> "Emulate pre-Ultimate BossDeath behaviour"
+    "Ultimate Doom v1.9" -> "Ultimate Doom/Doom95"
+    "Final Doom/Doom95"  -> "Final Doom"
+[*] Removing startup delay during recording. You can record demos from the first tic now.
+[*] Correction in "smart items clipping": a not fully dead corpse should be moved up, exploding barrels for example; a missile should not be moved.
+[*] Improved support for Doom v1.2:
+    Max Health Bonus = 199;
+    Max Armor = unlimited;
+    Max Soulsphere = 199;
+    Megasphere Health = 199 (there was no megasphere back then, but this seems consistent);
+    Lost souls "Affect Kill %";
+    Monsters could commit suicide if they damaged themselves by exploding a barrel;
+[*] "Total Level Times" are saved with any level of compatibility.
+[-] Launcher: WADs not containing levels were not displayed in the files list.
+[-] GLBoom bug: Things disappeared behind translucent things sometimes. gl_sortsprites has no effect now.
+[-] GLBoom bug: Wrong (with holes) drawing of the background for the loadgame and savegame entries.
+[-] GLBoom bug: Wrong alignment of texture with 'lower unpegged' flag on two-sided walls in upper part. Linedef 527 on STRAIN.WAD\MAP09 for example.
+[-] Eliminating the six-tic jump when changing speed.
+[-] Boom bug: Generalized effects could work instead of failing in a 'vanilla' compatibility mode. "-force_truncated_sector_specials" for emulation of old buggy behaviour. There are no more desyncs on vv2.wad\map06, etc.
+[-] Boom bug: Fix of hanging decoration disappearing in Batman Doom MAP02. The killough's math should be rechecked there.
+[-] PrBoom bug: Pausing during intermission in playback could cause desynchs.
+[-] PrBoom bug: Bug in handling of common strings in deh files introduced by cph in PrBoom 2.4.2.
+[-] PrBoom bug: comp_doorstuck should be forced (but was not) for boom201 compatibility. There is no more desync on DEMONIPA.WAD\demp-208.lmp
+[-] PrBoom bug: The behaviour with comp_666 was that the death of all barons on E2M8 or E3M8 ends the level, heh. This is incorrect; it should have no effect. The bug was introduced in 2.4.x by cph. After some tests and disassembling I conclude that the implementation of A_BossDeath() in all compatible ports (PrBoom, Eternity, Chocolate-Doom) is totally wrong for doom2 compatibility. This version should fix the buggy behaviour. There is no more desync (premature exit) on doom.wad\episode3.lmp
+[-] Predefined translucency setting (comp_translucency) could override deh settings.
+[-] Sometimes the figures for kills, items, etc., stopped getting updated.
+[-] PrBoom bug: Fixed Boom v2.01 incompatibilities. There are no more desyncs on demonipa.wad\demp-800.lmp, tomb.wad\tomb.lmp, venom.wad\ven-1116.lmp.
+[-] PrBoom bug: Fixed an MBF incompatibility. There is no more desync on vrack2.wad\v2-2822.lmp. "-force_no_dropoff" command-line option is for mbf_compatibility demos recorded with prboom 2.2.2 - 2.4.7 in case of desyncs.
+[-] PrBoom bug: Weird texture problem. (spacelab.wad - GL only)
+
+Links for the demos, wads and topics referred to above:
+http://www.doomworld.com/idgames/index.php?id=14219
+http://competn.doom2.net/pub/sda/d-h/equxlmps.zip
+http://www.doomworld.com/idgames/index.php?id=8467
+http://www.doomworld.com/idgames/index.php?id=14582
+http://www.doomworld.com/sda/dwdemo/vv206324.zip
+http://www.doomworld.com/idgames/index.php?id=12391
+http://www.doomworld.com/idgames/index.php?id=3336
+http://competn.doom2.net/pub/sda/d-h/demp-208.zip
+http://www.doomworld.com/idgames/index.php?id=6909
+http://competn.doom2.net/pub/sda/d-h/demp-800.zip
+http://www.doomworld.com/idgames/index.php?id=3336
+http://competn.doom2.net/pub/sda/t-z/tomb_850.zip
+http://www.doomworld.com/idgames/index.php?id=8148
+http://competn.doom2.net/pub/sda/t-z/ven_1116.zip
+http://www.doomworld.com/idgames/index.php?id=9215
+http://competn.doom2.net/pub/sda/t-z/v2-2822.zip
+http://www.doomworld.com/idgames/index.php?id=11138
+http://www.doomworld.com/idgames/index.php?id=6826
+
+2.4.6.1 @ 2006.09.16
+[!] Updated to the latest prboom 2.4.6.
+[+] Mac specific: OpenGL version is available for Mac too.
+[+] Holding down SHIFT during startup for bringing the launcher up even if you have disabled it in settings.
+[+] Option to disable "doubleclick as use" behaviour.
+[+] Option "Max View Pitch" for restriction of the maximal looking up/down angle. (0-90)
+[+] "-spechit XXX" command line switch.
+[+] Compatibility with common mapping errors: "Pad a too short reject with zeros".
+[+] Autodetect of unconverted tas demos.
+[+] Options for showing progress bar during demo playback and demotime/totaldemotime style as alternative.
+[+] New Screen Multiple system (like in chocolade-doom) and Interlaced Scanning for this. (emulators and TV style)
+[+] New "-videodriver name" command line switch (sdl_videodriver variable in config) for setting up the videodriver name that SDL will use. The "windib" video driver is the default now, to prevent problems with certain laptops, 64-bit Windows, and Windows Vista. The "directx" video driver is forced by PrBoom-Plus only for soft rendering on Win9x systems to prevent some problems on out-of-date systems. Also, you can use the "default" value to force SDL behavior by default.
+[+] Possibility to enable/disable the Launcher from its window.
+[+] Launcher: iwads are now shown in the files list so that they can be used as pwads
+[*] Default key to take over the controls with resume recording feature was changed to 'q'. Default key for switching between chasecam/walkcam/normal views was changed to 'KeyPad0'.
+[*] "-playdemo demo -warp X -skipsec Y" will skip Y seconds on X level.
+[*] Reconfigurations in settings. Most of the PrBoom-Plus settings are moved to General.
+[*] Config entry for "uncapped framerate" was renamed from "movement_smooth" to "uncapped_framerate" as in upcoming PrBoom.
+[*] Uncapped framerate: speed update up for HUD on slow systems.
+[*] Forcing "directx" video driver for software rendering in Win9x.
+[*] Alt mouse handling: Do not grab mouse if the application has no keyboard focus.
+[*] Alt mouse handling: Disabled for win9x.
+[-] Mac specific: Mouse did not work with switched on "alt mouse handling". Disable this feature for non-windows platforms.
+[-] Fix a crash after pressing the walkcam key at the intermission screen, the game final animation, or a demo.
+[-] IDRATE cheat shows correct FPS with uncapped framerate.
+[-] Fix for incorrect chasecam/walkcam sight after loading of the next level.
+[-] Fixed crash with newest sdl_mixer.dll after skipping level during playdemo.
+[-] GLBoom: Correction of displaying (HOM) of the textures with holes (MIDBARSX, MIDGRATES, etc) on the one-side walls at OpenGL. fenris.wad as example.
+[-] PrBoom bug: Fixed crash with zero-size BLOCKMAP lumps.
+[-] PrBoom bug: Fix compatibility issue with building stairs. There is no more desync on icarus.wad\ic29uv.lmp
+[-] PrBoom bug: Fix compatibility issue was introduced by killough long time ago. There is no more synch :) on dv.wad\dv04-423.lmp. Added switch to force old behavior with demo_compatibility: -force_remove_slime_trails. It is relevant for viewing doom-compatible demos recorded with old versions of prboom (<2.4.6) or prboom-plus (< 2.4.6.1) in cases of desyncs.
+[-] PrBoom bug: Fix another compatibility issue. It corrects half of problem of desynch on Wotdoom3\w303-115.lmp.
+[-] Boom dehacked support: Correction of wrong processing of "Respawn frame" entry. Highly relevant to wads such as Wotdoom3 and any others that change this setting. There is no more desync on Wotdoom3\w303-115.lmp.
+[-] PrBoom bug: Fix compatibility issue with buggy MBF behavior (3-key door works with only 2 keys). There is no more desync on 10sector.wad\ts27-137.lmp.
+[-] PrBoom bug: Wrong scaling of status bar at some resolutions. Strongly noticeably on ARMS section at 320x240.
+[-] Alt mouse handling: Ungrabbing of mouse was not being done before a quit in some cases.
+[-] PrBoom bug: Fixed some tasdoom incompatibility. There is no more desync on ddt-tas.zip\e4tux231.lmp. Nowhere no hide.
+[-] PrBoom bug: Conflicting command-line parameters could cause the engine to be confused in some cases. Added checks to prevent this. Example: glboom-plus.exe -record mydemo -playdemo demoname
+[-] Launcher: Fake iwads could be in the game list. Added a check for "IWAD" signature to prevent this.
+
+Links for the demos, wads and topics referred to above:
+http://www.doomworld.com/tas/ts27-137.zip
+http://prboom.sourceforge.net/mbf-bugs.html
+http://www.doomworld.com/sda/dwdemo/dv04-423.zip
+http://competn.doom2.net/pub/sda/i-o/icuvlmps.zip
+http://www.doomworld.com/idgames/index.php?id=5191
+http://www.doomworld.com/sda/dwdemo/w303-115.zip
+http://www.doomworld.com/idgames/index.php?id=13815
+http://www.doomworld.com/vb/showthread.php?s=&postid=627257#post627257
+
 2.4.3.1 @ 2006.07.25
-[!] Updated to the latest prboom 2.4.3. Thanks to Florian Schulze (proff_fs).
-[!] PRBoom-Plus is now available on UNIX, Linux, and other POSIX systems and also on Mac. Thanks to Florian Schulze (proff_fs) and Colin Phipps (cph).
+[!] Updated to the latest prboom 2.4.3.
+[!] PRBoom-Plus is now available on UNIX, Linux, and other POSIX systems and also on Mac.
 [+] Several predefined cfgs and batch launcher for them are included.
 [+] Simple aspect ratio adjustment made posible in OpenGL. It may be useful for people with unusually shaped monitors. Some usage examples:
     glboom-plus.exe -aspect 320x240 

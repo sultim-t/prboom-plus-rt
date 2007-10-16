@@ -1,0 +1,314 @@
+There are some additional compatibility settings available on:
+Main Menu\Options\Setup\Doom Compatibility (on last page)
+
+ All boss types can trigger Tag 666 at ExM8 ; Emulates the BossDeath behaviour of pre-Ultimate 
+                                              versions
+ Lost Souls don't bounce off flat surfaces  ; Emulates the lost soul behaviour of pre-Ultimate 
+                                              versions (this includes Doom2.exe)
+ 2S Middle textures do not animate          ; Emulates the behaviour of Doom.exe version 1.2 with 
+                                              respect to this.
+ Retain quirks in Doom's sound code         ; This is for the comp_sound option, which was previously 
+                                              missing from this menu; note that comp_oofsound has been 
+                                              merged with comp_sound
+                                              sound when landing from a significant height.
+ Use Doom's buggy 'Ouch' face code          ; Restores the "vanilla" Doom for the displaying of the 
+                                              "ouch" face - it is displayed when the player takes 
+                                              damage but overall gains >20% health.
+ Max Health in DEH applies only to potions  ; Corrects Boom's handling of the DeHackEd Misc option 
+                                              "Max Health ="; it should apply only to health potions
+ No predefined translucency for some things ; Disables the Boom feature of making 17 of the Things 
+                                              translucent by default
+
+Several additional key-bindings and settings are available on:
+Main Menu\Options\Setup\Key Bindings (on last page)
+
+ SPEED
+  Speed Up                <PAD+> ; Increase speed of the game
+  Speed Down              <PAD-> ; Decrease speed of the game
+  Reset to Default        <PAD*> ; Sets speed of the game to the default
+  Step of Change (0-auto)      0 ; The step of gamespeed change and smart mode if it is equal to zero
+ DEMOS                           ; Keys for additional functions during demo playback
+  Next Level              <PgDn> ; Fast forward to the next level (disabled for internal demos)
+  End Level               <End>  ; Fast forward to the next stats screen (disabled for internal demos)
+                                 ; Pressing Use ("Space" by default) during skipping shows the current frame.
+  Camera Mode             <PAD0> ; Walkcam/Chasecam
+  Join                    <q>    ; Take over the controls with resume recording feature (*1)
+
+Additional HUD settings are available here:
+Main Menu\Options\Setup\Status Bar / HUD (on last page)
+
+ ADVANCED HUD SETTINGS  ; HUD settings
+  Secret Areas          ; Display on-screen message and play sound when a secret is registered
+  Smart Totals          ; Advanced information about kills, items and secrets
+  Show GameSpeed        ; Show speed of the game (100 by default)
+  Show LevelTime        ; Total time and level time
+  Show DemoTime         ; Displays the total time of the demo from first tic to last tic, 
+                          including stats screens and intermissions
+  Show Progress Bar During Demo Playback ; Displays a progress bar at the bottom of the HUD
+
+Additional PrBoom-Plus settings are available here:
+Main Menu\Options\General
+
+ SOUND & MUSIC
+  PC Speaker Emulation  ; Emulates the PC Speaker sound effects from vanilla Doom
+
+ VIDEO
+  Uncapped Framerate    ; Removes 35 FPS restriction without loss of compatibility
+
+ DEMOS                        ; Demos settings: file handling and viewing
+  Overwrite Existing          ; When recording, overwrite an existing demo that has the same file-name
+  Smooth Demo Playback        ; Make turns look smoother during demo playback
+  Smooth Demo Playback Factor ; (1-min..16-max), default value is 6
+
+ MOVEMENTS              ; Movement settings
+  Permanent Strafe50    ; Turns on permanent strafe 50 (equivalent to using a strafe50 mousedriver)
+  Strafe50 on Turns     ; Allow strafe50 while turning (impossible with original engine)
+
+ MISC
+  Fast Exit             ; The program exits as soon as the user has asked it to do so, rather than 
+                          waiting until the quit sound ends or showing the Endoom/Endboom screen.
+  Use In-Game Launcher  ; A launcher will be activated whenever Prboom-plus is started up 
+                          Without a wad specified in the command line.
+
+ MOUSE                  ; Mouse settings
+  Dbl-Click as Use      ; Option to disable "doubleclick as use" behaviour.
+
+ MOUSE / OPENGL         ; Mouse settings available only with OpenGL rendering
+  Always Mouselook      ; Mouselook toggle
+  Invert Mouse          ; Invert mouse for mouselook
+  Max View Pitch        ; Option for restriction of the maximal looking up/down angle. (0-90)
+
+ COMMON RENDER             ; Settings that apply with either renderer
+  Change Palette on Pain   ; Red eyes on pain
+  Change Palette on Bonus  ; Blinking on item pick-up
+  Change Palette on Powers ; Various visual effects on taking power-ups
+  Wipe Screen Effect       ; Option to turn off (or on) the "wipe" screen effect
+
+ OPENGL RENDER           ; Settings that apply only with the OpenGL renderer
+  Multisampling (0-none) ; Anti-aliasing setting
+  Detailed Walls         ; Use detail texture for walls
+  Detailed Flats         ; Use detail texture for floors and ceilings
+
+  Field of View          ; Adjusts the field of view; default value is 90
+  Paper Items            ; Option to turn off "Paper Sprites". It works only with mouselook, and 
+                           is only for non-solid sprites.
+  Adjust Sprite Clipping ; Options for correcting errors in OpenGL rendering in the positioning of 
+                           items relative to floors and ceilings:
+                           Constant  - gl_sprite_offset used;
+                           Always - if the sprite is below the floor, and it's not a hanger/floater/missile;
+                           Smart - if the sprite is below the floor, and it's not a hanger/floater/missile, 
+                                   and it's not a fully dead corpse;
+  Item out of Floor Offset ; Value for 'Constant' option in "Adjust Sprite Clipping".
+  Render Quality         ; Offers a choice between Speed or Quality - the latter reduces the chance of 
+                           rendering imprecisions, particularly on some ATI cards
+  Allow Colormaps        ; Option to use a colormap (in iwad or pwad) for invulnerability effect, and to 
+                           use Boom's colormap feature - this comes at some cost in performance; if not 
+                           selected, Boom colormaps are not applied at all, and the invulnerability effect 
+                           is defined by hard-coding (NB: no monochrome effect), rather than by the wad
+  Allow Hi-Res Textures  ; Use hi-resolution textures and flats, if present
+  Allow Hi-Res Patches   ; Use hi-resolution patches (e.g. menu items, title screen), if present
+  Override Pwad's Graphics with Hi-Res ; If there is a hi-res texture (etc.) with the same name as a texture in 
+                           a pwad that has been loaded, use the hi-res one. Note that this can lead to very odd 
+                           results. This option is useful if loading plutonia.wad or tnt.wad *as a pwad*.
+
+ SOFT RENDER                      ; Settings that apply only with the software renderer
+  Screen Multiple Factor (1-none) ; Screen Multiple system for doubling up the screen 
+                                    (size of pixel) by 2x, 3x or 4x.
+  Interlaced Scanning             ; Interlaced Scanning mode for Screen Multiple system.
+
+ EMULATION                      ; Emulation of Doom2.exe's behaviour in case of memory overflows
+                                  Note that by default the warnings are turned off, and the 
+                                  emulation turned on.
+  Warn on Spechits Overflow     ; Provide an on-screen message if an overflow has occurred due to 
+                                  more than 8 special lines being simultaneously crossed by a 
+                                  player or a monster. The warning message includes a listing of 
+                                  the lines responsible.
+  Try to emulate it             ; Attempt to emulate Doom2.exe's behaviour in the case of a 
+                                  Spechits Overflow. When using -complevel 5 or 6, Prboom-plus 
+                                  instead attempts to emulate Dosdoom 0.47's behaviour.
+  Warn on REJECT Overflow       ; Provide an on-screen message if a map's REJECT is too short. 
+                                  The warning message includes an indication of the size of the 
+                                  overflow and an indication of whether it can be reliably 
+                                  emulated.
+  Try to emulate it             ; Attempt to emulate Doom2.exe's behaviour in the case of a 
+                                  REJECT Overflow.
+  Warn on Intercepts Overflow   ; Provide an on-screen message if an overflow has occurred due to 
+                                  MAXINTERCEPTS being exceeded, as in odd demos such as 
+                                  blackbug.lmp, manorbug.lmp, hr27odd.lmp, av08-odd.lmp, etc.
+  Try to emulate it             ; Attempt to emulate Doom2.exe's behaviour in the case of an 
+                                  Intercepts Overflow. Note that this will tend to lead to 
+                                  noclipping or allghosts behaviour.
+  Warn on playeringame Overflow ; Provide an on-screen message if an overflow occurs due to a rare 
+                                  multiplayer issue seen in demos such as vex6d.wad\bug_wald.lmp, 
+                                  vex6d.wad\bug_toke.lmp, etc.
+  Try to emulate it             ; Attempt to emulate Doom2.exe's behaviour in the case of a 
+                                  playeringame Overflow. Note that this will result in the 
+                                  creation of a zombie player.
+ 
+ COMPATIBILITY WITH COMMON MAPPING ERRORS ; Options to make maps playable despite serious flaws
+  Linedefs w/o tags apply locally   ; If a linedef type that normally requires a tag (e.g. a 
+                                      remote door) has no tag, then if possible apply the 
+                                      linedef's action to the local sector. (Not available 
+                                      for recording, playback or with demo_compatibility.)
+  Use passes thru all special lines ; Boom's passthru flag is applied to all special lines. 
+                                      This makes it possible, for instance, to press switches 
+                                      that have been placed behind special lines such as 
+                                      scrolling textures. (Not available for recording, 
+                                      playback or with demo_compatibility.)
+  Walk under solid hanging bodies   ; Allows the player to pass under hanging objects in tall 
+                                      sectors that would otherwise block movement. (Not available 
+                                      for recording, playback or with demo_compatibility.)
+
+Additional mouse options in:
+Main Menu\Options\Mouse sensitivity
+
+ MOUSE LOOK            ; Slider to set the sensitivity for mouselook (only applied with OpenGL rendering)
+ ACCELERATION          ; Slider to set the level of mouse acceleration
+
+Additional command-line parameters:
+"-solo-net" - for play, recording or playback using "single-player coop" mode. Equivalent to using prboom_server with -N 1
+"-window" - for temporarily using windowed mode without saving this in the cfg.
+"-nowindow" - for temporarily using fullscreen mode without saving this in the cfg.
+"-geom NxM" - for temporarily using a particular resolution without saving this in the cfg; e.g. -geom 1280x1024.
+"-aspect NxM" - for using a different aspect ratio; e.g. -aspect 5x4, -aspect 8x5 or -aspect 2x1.
+"-videodriver name" - for setting up the videodriver name that SDL will use. "windib" and "directx" are available for Windows. See SDL documentation for other platforms. "-videodriver default" can be used to force SDL behaviour by default.
+"-shorttics" - forces the same mouse behaviour as when recording (i.e. the converse of "-longtics")
+
+Command-line parameters for playback of demos recorded with old versions that desynch due to recording bugs:
+"-emulate [prboom_ver]" - for viewing old desynching Prboom demos with all recording bugs from a particular version emulated. For example, "-emulate 2.2.6" would be used to play back a desynching demo recorded with prboom 2.2.6. This would be instead of using the various command-line options for each recording bug (see below) from that version.
+"-force_monster_avoid_hazards" - for viewing old desynching doom-compatible Prboom demos recorded with "monster_avoid_hazards 1" in config.
+"-force_remove_slime_trails" - for viewing old desynching doom-compatible demos recorded with old versions of prboom (<2.4.6) or prboom-plus (< 2.4.6.1) that are affected by the "remove slime trails" incompatibility.
+"-reject_pad_with_ff" - for viewing old desynching doom-compatible demos recorded with old versions of prboom (including 2.2.5 and 2.2.6) that padded a short REJECT with ones instead of zeroes. incompatibility.
+"-force_truncated_sector_specials" - for emulation of old buggy behaviour whereby Boom's generalized effects could work instead of failing in a compatibility mode in the case of a bad action number.
+"-force_no_dropoff" - for emulation of MBF_compatibility behaviour in prboom 2.2.2 - 2.4.7, whereby things did not drop off ledges when they would have done in MBF.
+"-force_prboom_friction" - for emulation of old buggy behaviour whereby Boom's friction and bobbing code were not faithfully replicated.
+"-force_force_boom_brainawake" - for emulation of Boom's behaviour with respect to the Monster Spawner, which differed slightly from that of "vanilla" Doom.
+"-force_lxdoom_demo_compatibility" - for emulation of all bugs in demo compatibility mode in lxdoom.
+
+Additional and enhanced command-line parameters for demo playback:
+"-warp x" - warps directly to the start of map x of a recording without rendering any of the play up to that point. Pressing Use (<Space> by default) during skipping shows the current frame.
+"-avidemo fileprefix" - grabbing of the screenshots to frmXXXX.tga
+"-skipsec x" - skip X secs during viewing of the demo
+"-warp x -skipsec y" will skip y seconds on level x.
+"-recordfromto n.lmp m" - play back the demo n.lmp, allowing the user to take over the controls at a point of his choosing, and save the resulting demo as m.lmp
+"-levelstat" - outputs a text-file called levelstat.txt containing level-by-level information on times, kills, items and secrets
+"-spechit XXX" - provides a spechits magic number, overriding the program's default value
+"-nomonsters" - for playback of -nomonsters demos recorded with Doom.exe 1.2
+"-respawn" - for playback of -respawn demos recorded with Doom.exe 1.2
+"-auto" - enables the autoloading of wads according to the lmp file-name. See below for information.
+
+Additional command-line parameters for cheating/TAS functions:
+"-trace_thingshealth ThingID [ThingID] [ThingID]" - displays the current health of the specified Things (in the HUD)
+"-trace_thingspickup ThingID [ThingID] [ThingID]" - shows if the specified Things have been picked up (in the HUD)
+"-trace_linescross   LineID  [LineID]  [LineID]" - shows if the specified Lines have been crossed (in the HUD)
+
+Examples:
+  glboom-plus -iwad doom2.wad -solo-net -playdemo 30fanet1
+
+  glboom-plus -iwad doom.wad -playdemo e1uv-405.lmp -warp 1 6
+  glboom-plus -playdemo 30uv1441.lmp -warp 29
+
+  glboom-plus -playdemo 30uv1441.lmp -skipsec 192
+  glboom-plus -iwad doom.wad -playdemo e1uv-405.lmp -skipsec 12.5
+
+  glboom-plus -timedemo e4uv-232.lmp -framescapture 1 frm
+
+(*1) See "record.bat" to understand how "record append" feature (-recordfromto) works
+
+
+COMPATIBILITY LEVELS
+
+Demo recorders should read this carefully. These complevels all work both for recording and playback.
+If you use a complevel for playback, it will override the autodetection of the demo type. This is useful to handle cases in which autodetection does not correctly identify the demo-type. Autodetection will still work for the vast majority of demos.
+
+Number	Name				 Description
+
+0	doom_12_compatibility		 Partial (improved) emulation of Doom.exe v1.2
+1	doom_1666_compatibility		 Partial emulation of Doom.exe/Doom2.exe v1.666
+2	doom2_19_compatibility		 Emulates the original Doom.exe v1.9 & Doom2's doom2.exe v1.9
+3	ultdoom_compatibility		 Emulates Ultimate Doom v1.9 and Doom95
+4	finaldoom_compatibility		 Emulates Final Doom's doom2.exe
+5	dosdoom_compatibility		 Emulates Dosdoom .47
+6	tasdoom_compatibility		 Emulates Tasdoom.exe
+7	boom_compatibility_compatibility Emulates Boom's compatibility mode
+8	boom_201_compatibility		 Emulates Boom v2.01
+9	boom_202_compatibility		 Emulates Boom v2.02
+10	lxdoom_1_compatibility		 Emulates LxDoom v1.4.x
+11	mbf_compatibility		 Emulates MBF
+12	prboom_1_compatibility		 Emulates PrBoom v2.03beta
+13	prboom_2_compatibility		 Emulates PrBoom v2.1.0
+14	prboom_3_compatibility		 Emulates PrBoom v2.1.1-2.2.6
+15	prboom_4_compatibility		 Emulates PrBoom v2.3.x
+16	prboom_5_compatibility		 Emulates PrBoom v2.4.0
+17	prboom_6_compatibility		 Latest PrBoom-plus
+-1	default_compatibility_level	 Current Prboom-plus
+
+Here's a quick summary of the most important ones for recording:
+
+-complevel 2 - "vanilla" Doom2.exe
+-complevel 3 - "vanilla" Ultimate Doom.exe
+-complevel 9 - Boom
+-complevel -1 - current Prboom+
+
+Thus if you mostly want to record vanilla demos (and Boom when necessary), you can put 2 as your default compatibility for Doom2, 3 as the default compatibility for Ultimate Doom, and place -complevel 9 in the command line when recording on a Boom map.
+
+Example command lines:
+
+glboom-plus -complevel 2 -iwad doom.wad -file uac_dead.wad -playdemo uac_dead
+This plays back a Doom 1.9 demo. It is necessary to force this complevel, as otherwise it would be autodetected as an Ultimate Doom demo (complevel 3), but this pwad doesn't function correctly with Ultimate Doom, and the demo would desync.
+
+glboom-plus -complevel 2 -iwad doom2.wad -file ksutra.wad -warp 15 -skill 5 -record kn15-xxx
+This records a vanilla Doom2.exe demo
+
+glboom-plus -complevel 3 -iwad doom.wad -warp 1 9 -skill 5 -record n1m9-xxx
+This records a vanilla Ultimate Doom.exe demo
+
+glboom-plus -solo-net -complevel 4 -iwad plutonia.wad -warp 32 -skill 5 -record pn32net1
+This records a single-player vanilla Final Doom demo using extra coop monsters & items, and with coop rules
+
+glboom-plus -complevel 5 -iwad doom2.wad -file icarus.wad -playdemo ic25uv
+This plays back a Dosdoom .47 demo. It is necessary to force this complevel, as otherwise it would be autodetected as a Doom2.exe demo (complevel 2), which in this case would lead to a desync.
+
+glboom-plus -iwad doom2.wad -file nulspace.wad -playdemo nulnx415
+This plays back an unconverted Tasdoom.exe demo. There is no need to force complevel 6, as Tasdoom demos are autodetected.
+
+glboom-plus m223-005.lmp -auto
+This plays back a demo and automatically loads the pwads that are required. Assuming the pattern-matching is correct and the wads are present, in this case it would load doom2.wad as the iwad, and mm2.wad and mm2mus.wad as pwads.
+
+
+AUTOLOADING OF WADS ACCORDING TO THE LMP FILE-NAME
+
+The overall purpose of this feature is to enable demos to be watched by simply clicking on the lmp file - the program will load the necessary wads based on the lmp's file-name. 
+It does this by looking in a list of patterns in the cfg file. These patterns use Regular Expressions (RegExp).
+While this cannot cater for all demos, a suitable list of patterns will enable a very large number of demos to be played back without the user needing to specify which wads are required.
+Obviously, you need to have the wads unzipped and on your hard-disk in a place where the program will find them: the same directory as the exe, or in the %DOOMWADDIR%.
+
+If the launcher is enabled, and you have chosen to "Associate the current EXE with DOOM demos" (one of the options in "Commands:" at the bottom of the launcher window), 
+then clicking on the lmp file will bring up the launcher, with it displaying the files it believes are needed.
+
+Alternatively you can use the -auto command-line option. If you make...
+glboom-plus "%1" -auto
+...the default action for the lmp file-type, then clicking on a lmp will automatically play it back with the files loading according to the pattern matching.
+
+You may edit the list of patterns. The syntax is as in the following example:
+demo_pattern24            "Memento Mori/((mm\d\d.\d\d\d)|(\d\dmm.\d\d\d)|(\d\d\d.mm\d\d)|(mm\d\d-uv)|(mm_...)|(mm[0-3]\d\D\D\D\D))\.lmp/doom2.wad|mm.wad|mmmus.wad"
+
+First comes a label identifying the pattern. Note that the numbering is (re)done automatically each time the program writes the cfg file - if you insert a new pattern, you do not need to edit all the later numbers by hand. The number is shown in the console to identify the pattern that has been matched.
+Then comes a text description of the pattern. This will be displayed if the launcher is used to show which pattern has been matched.
+Next comes the list of patterns (using Regular Expressions) to be matched.
+Finally there is the list of files to be loaded. First is the iwad, and then the list of any additional pwads or deh files.
+
+Note that the program looks through the list of patterns sequentially. If a lmp's name matches pattern2 and also pattern20, then the wads for pattern2 will be the ones loaded. If the pattern is not matched at all, or any files are not found, a message is displayed.
+
+If you do significant editing of the patterns, be sure to back up your work. If you make a serious error in the patterns, you can find that the program has effectively deleted many of them when it next writes the cfg file.
+
+The cfg files in this package contain an up-to-date and very large set of patterns, which will suffice to play back almost all of the demos you will find online. These patterns will be updated over the course of time - see the Doomworld Demos Forum to get the very latest, or download the latest test version of prboom-plus, which will always include a recent set. For more information, see the documentation included in lmpwatch.zip in this package.
+
+
+HI-RES TEXTURES, FLATS AND PATCHES
+
+If you wish to use hi-res textures and flats and/or patches, then you need to download a collection of them from somewhere. You need to extract the textures, flats and patches into suitably named subfolders of the folder where you have placed glboom-plus.exe, as follows:
+/textures
+/flats
+/patches
+Hopefully the package in which you have obtained the files will include the appropriate directory structure, so all you need to do is unzip it into the correct location with "Use folder names" (or an equivalent option) enabled.
