@@ -207,14 +207,6 @@ task(:image => :bundle) do |t|
 	sh("hdiutil create -fs HFS+ -volname #{imageName} -ov -type SPARSE -attach #{imageName}")
 	cp_r([BUNDLEDIR, '../AUTHORS', '../COPYING', '../NEWS', '../README', '../doc'], imagePath)
 
-	text = nil
-	open('http://prboom-plus.sourceforge.net/history.txt') do |file|
-		text = file.read
-	end
-	open("#{imagePath}/history.txt", 'w') do |file|
-		file.write(text)
-	end
-
 	cp('MAC/Image-DS_Store', "#{imagePath}/.DS_Store")
 	sh("diskutil unmount #{imagePath}")
 
