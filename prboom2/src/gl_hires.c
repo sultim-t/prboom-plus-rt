@@ -58,6 +58,10 @@
 #include "hu_stuff.h"
 #include "e6y.h"
 
+#ifndef HAVE_STRLWR
+char* strlwr(char* str);
+#endif
+
 int gl_texture_usehires = -1;
 int gl_texture_usehires_default;
 int gl_patch_usehires = -1;

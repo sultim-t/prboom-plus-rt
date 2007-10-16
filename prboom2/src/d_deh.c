@@ -57,8 +57,7 @@
 
 #ifndef HAVE_STRLWR
 #include <ctype.h>
-
-static char* strlwr(char* str)
+char* strlwr(char* str)
 {
   char* p;
   for (p=str; *p; p++) *p = tolower(*p);
