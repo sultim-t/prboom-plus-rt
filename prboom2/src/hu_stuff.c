@@ -548,7 +548,8 @@ void HU_Start(void)
   );
 
   // initialize the automap's level title widget
-  if (gamestate == GS_LEVEL) /* cph - stop SEGV here when not in level */
+  // e6y: stop SEGV here when gamemap is not initialized
+  if (gamestate == GS_LEVEL && gamemap > 0) /* cph - stop SEGV here when not in level */
   switch (gamemode)
   {
     case shareware:
