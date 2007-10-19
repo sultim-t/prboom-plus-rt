@@ -3756,6 +3756,8 @@ static setup_menu_t **setup_screens[] =
 
 static void M_ResetDefaults(void)
 {
+  int i; //e6y
+
   default_t *dp;
   int warn = 0;
 
@@ -3766,7 +3768,14 @@ static void M_ResetDefaults(void)
   // current setup screen is the same as in the defaults table.
   // i.e. only reset variables really in the current setup screen.
 
-  for (dp = defaults; dp->name; dp++)
+  // e6y
+  // Fixed crash while trying to read data past array end
+  // All previous versions of prboom worked only by a lucky accident
+  // old code: for (dp = defaults; dp->name; dp++)
+  for (i = 0; i < numdefaults ; i++)
+  {
+    dp = &defaults[i];
+
     if (dp->setupscreen == setup_screen)
       {
   setup_menu_t **l, *p;
@@ -3800,6 +3809,7 @@ static void M_ResetDefaults(void)
         }
       end:;
       }
+  }
 
   if (warn)
     warn_about_changes(warn);
