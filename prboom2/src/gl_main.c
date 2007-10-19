@@ -2956,35 +2956,47 @@ void gld_DrawScene(player_t *player)
     gld_DrawSprite(&gld_drawinfo.sprites[i]);
   }
 
-  // transparent walls
-  for (i = gld_drawinfo.num_twalls - 1; i >= 0; i--)
+  // transparent stuff
+  if (gld_drawinfo.num_twalls > 0 || gld_drawinfo.num_tsprites > 0)
   {
-    gld_ProcessWall(&gld_drawinfo.twalls[i], &gl_alpha_blended, GLDWF_TOP, GLDWF_SKYFLIP);
-  }
+    // if translucency percentage is less than 50,
+    // then all translucent textures and sprites disappear completely
+    // without this line
+    glAlphaFunc(GL_GREATER, 0.0f);
 
-  EnableAlphaBlend(&gl_alpha_blended);
-
-  // transparent sprites
-  for (i = gld_drawinfo.num_tsprites - 1; i >= 0; i--)
-  {
-    // sorting is necessary only for transparent sprites.
-    // from back to front
-    do
+    // transparent walls
+    for (i = gld_drawinfo.num_twalls - 1; i >= 0; i--)
     {
-      max_scale = INT_MAX;
-      k = -1;
-      for (j = gld_drawinfo.num_tsprites - 1; j >= 0; j--)
-        if (gld_drawinfo.tsprites[j].scale < max_scale)
-        {
-          max_scale = gld_drawinfo.tsprites[j].scale;
-          k = j;
-        }
-        if (k >= 0)
-        {
-          gld_DrawSprite(&gld_drawinfo.tsprites[k]);
-          gld_drawinfo.tsprites[k].scale=INT_MAX;
-        }
-    } while (max_scale!=INT_MAX);
+      gld_ProcessWall(&gld_drawinfo.twalls[i], &gl_alpha_blended, GLDWF_TOP, GLDWF_SKYFLIP);
+    }
+
+    EnableAlphaBlend(&gl_alpha_blended);
+
+    // transparent sprites
+    for (i = gld_drawinfo.num_tsprites - 1; i >= 0; i--)
+    {
+      // sorting is necessary only for transparent sprites.
+      // from back to front
+      do
+      {
+        max_scale = INT_MAX;
+        k = -1;
+        for (j = gld_drawinfo.num_tsprites - 1; j >= 0; j--)
+          if (gld_drawinfo.tsprites[j].scale < max_scale)
+          {
+            max_scale = gld_drawinfo.tsprites[j].scale;
+            k = j;
+          }
+          if (k >= 0)
+          {
+            gld_DrawSprite(&gld_drawinfo.tsprites[k]);
+            gld_drawinfo.tsprites[k].scale=INT_MAX;
+          }
+      } while (max_scale!=INT_MAX);
+    }
+
+    // restoration of an original condition
+    glAlphaFunc(GL_GEQUAL, 0.5f);
   }
 
   // e6y: detail
