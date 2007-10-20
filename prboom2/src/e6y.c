@@ -1075,7 +1075,7 @@ void M_ChangeCompTranslucency(void)
       {
         // Disabling transparency in OpenGL for original sprites
         // which are not changed by dehacked, because it's buggy for now.
-        // Global sorting of sprites and walls is needed
+        // Global sorting of transparent sprites and walls is needed
         mobjinfo[predefined_translucency[i]].flags &= ~MF_TRANSLUCENT;
       }
       else
