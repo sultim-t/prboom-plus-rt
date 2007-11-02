@@ -41,6 +41,7 @@ prboom2/src/PCRELIB/VisualC6/pcre.plg
 prboom2/src/PCRELIB/VisualC6/pcrelib.ncb
 prboom2/src/PCRELIB/VisualC6/pcrelib.opt
 prboom2/src/PCRELIB/VisualC6/pcreposix.plg
+prboom2/src/PCRELIB/VisualC8/*.user
 prboom2/src/PCRELIB/VisualC8/DebugDFTables
 prboom2/src/PCRELIB/VisualC8/DebugPCRE
 prboom2/src/PCRELIB/VisualC8/DebugPCREPOSIX
