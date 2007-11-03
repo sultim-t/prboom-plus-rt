@@ -1011,21 +1011,6 @@ void gld_ProgressUpdate(char * text, int progress, int total)
   I_FinishUpdate();
 }
 
-static int gld_PrecachePatch(const char *name, int cm)
-{
-  int lump = W_CheckNumForName(name);
-  if (lump > 0)
-  {
-    GLTexture *gltexture;
-    
-    lumpinfo[lump].flags |= LUMP_STATIC;
-    gltexture = gld_RegisterPatch(lump, cm);
-    gld_BindPatch(gltexture, cm);
-    return 1;
-  }
-  return 0;
-}
-
 static void gld_Mark_CM2RGB_Lump(const char *name)
 {
   int lump = W_CheckNumForName(name);
@@ -1084,8 +1069,17 @@ int gld_PrecachePatches(void)
 
   for (patch_p = staticpatches; *patch_p; patch_p++)
   {
-    gld_PrecachePatch(*patch_p, CR_DEFAULT);
-    gld_ProgressUpdate("Loading Patches...", ++count, total);
+    int lump = W_CheckNumForName(*patch_p);
+    if (lump > 0)
+    {
+      GLTexture *gltexture;
+      
+      lumpinfo[lump].flags |= LUMP_STATIC;
+      gltexture = gld_RegisterPatch(lump, CR_DEFAULT);
+      gld_BindPatch(gltexture, CR_DEFAULT);
+      if (gltexture && (gltexture->flags & GLTEXTURE_HIRES))
+        gld_ProgressUpdate("Loading Patches...", ++count, total);
+    }
   }
 
   for (i = 33; i < 96; i++)

@@ -1148,8 +1148,10 @@ void gld_Precache(void)
   for (i = numflats; --i >= 0; )
     if (hitlist[i])
     {
-      gld_BindFlat(gld_RegisterFlat(i,true));
-      gld_ProgressUpdate("Loading Flats...", numflats - i, numflats);
+      GLTexture *gltexture = gld_RegisterFlat(i,true);
+      gld_BindFlat(gltexture);
+      if (gltexture && (gltexture->flags & GLTEXTURE_HIRES))
+        gld_ProgressUpdate("Loading Flats...", numflats - i, numflats);
     }
 
   // Precache textures.
@@ -1206,8 +1208,10 @@ void gld_Precache(void)
   for (i = numtextures; --i >= 0; )
     if (hitlist[i])
     {
-      gld_BindTexture(gld_RegisterTexture(i,true,false));
-      gld_ProgressUpdate("Loading Textures...", numtextures - i, numtextures);
+      GLTexture *gltexture = gld_RegisterTexture(i,true,false);
+      gld_BindTexture(gltexture);
+      if (gltexture && (gltexture->flags & GLTEXTURE_HIRES))
+        gld_ProgressUpdate("Loading Textures...", numtextures - i, numtextures);
     }
 
   // Precache sprites.
