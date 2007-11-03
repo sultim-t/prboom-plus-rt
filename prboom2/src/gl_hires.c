@@ -627,11 +627,20 @@ void gld_ProgressUpdate(char * text, int progress, int total)
   int len;
   static char last_text[32] = {0};
 
+  static unsigned int lastupdate = -1;
+  unsigned int tic;
+
   if (!gl_texture_usehires && !gl_patch_usehires)
     return;
 
   if (!progress_texid)
     return;
+
+  // do not do it often
+  tic = SDL_GetTicks();
+  if (tic - lastupdate < 35)
+    return;
+  lastupdate = tic;
 
   if ((text) && (strlen(text) > 0) && strcmp((last_text ? last_text : ""), text))
   {
