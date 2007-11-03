@@ -98,6 +98,7 @@ int gl_mipmap_filter;
 int gl_drawskys=true;
 int gl_sortsprites=true;
 int gl_texture_filter_anisotropic = 0;
+int gl_use_texture_filter_anisotropic = 0;
 int gl_use_paletted_texture = 0;
 int gl_use_shared_texture_palette = 0;
 int gl_paletted_texture = 0;
@@ -316,7 +317,7 @@ static void gld_InitExtensions(const char *_extensions)
       p++;
 
     if (strcasecmp(extension, "GL_EXT_texture_filter_anisotropic") == 0)
-      gl_texture_filter_anisotropic = true;
+      gl_use_texture_filter_anisotropic = true;
     else if (strcasecmp(extension, "GL_EXT_paletted_texture") == 0) {
       if (gl_use_paletted_texture) {
         gl_paletted_texture = true;
@@ -349,7 +350,6 @@ void gld_InitExtensionsEx(void)
 
   extern int gl_tex_filter;
   extern int gl_mipmap_filter;
-  extern int gl_texture_filter_anisotropic;
   extern int gl_tex_format;
 
   const GLubyte *extensions = glGetString(GL_EXTENSIONS);

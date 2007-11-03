@@ -151,6 +151,15 @@ extern int mousebfire;
 extern int mousebstrafe;
 extern int mousebforward;
 
+// The available anisotropic
+typedef enum {
+  gl_anisotropic_off = 0,
+  gl_anisotropic_2x  = 1,
+  gl_anisotropic_4x  = 2,
+  gl_anisotropic_8x  = 3,
+  gl_anisotropic_16x = 4,
+} gl_anisotropic_mode_t;
+
 extern int viewwidth;
 extern int viewheight;
 #ifdef GL_DOOM
@@ -158,6 +167,7 @@ extern int gl_nearclip;
 extern int gl_colorbuffer_bits;
 extern int gl_depthbuffer_bits;
 extern char *gl_tex_filter_string;
+extern int gl_texture_filter_anisotropic;
 extern char *gl_tex_format_string;
 extern int gl_drawskys;
 extern int gl_sortsprites;
@@ -371,6 +381,8 @@ default_t defaults[] =
    def_int,ss_none},
   {"gl_tex_filter_string", {NULL,&gl_tex_filter_string}, {0,"GL_LINEAR_MIPMAP_LINEAR"},UL,UL,
    def_str,ss_none},
+  {"gl_texture_filter_anisotropic",{(int*)&gl_texture_filter_anisotropic},
+   {gl_anisotropic_2x}, gl_anisotropic_off, gl_anisotropic_16x, def_int,ss_none},
   {"gl_tex_format_string", {NULL,&gl_tex_format_string}, {0,"GL_RGB5_A1"},UL,UL,
    def_str,ss_none},
   {"gl_drawskys",{&gl_drawskys},{1},0,1,

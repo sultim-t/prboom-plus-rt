@@ -227,6 +227,7 @@ extern int gl_tex_format;
 extern int gl_tex_filter;
 extern int gl_mipmap_filter;
 extern int gl_texture_filter_anisotropic;
+extern int gl_use_texture_filter_anisotropic;
 extern int gl_paletted_texture;
 extern int gl_shared_texture_palette;
 extern boolean use_mipmapping;

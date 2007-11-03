@@ -653,8 +653,8 @@ void gld_BindTexture(GLTexture *gltexture)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_mipmap_filter);
-    if (gl_texture_filter_anisotropic)
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 2.0);
+    if (gl_use_texture_filter_anisotropic)
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)gl_texture_filter_anisotropic);
   }
   else
 #endif /* USE_GLU_MIPMAP */
@@ -995,8 +995,8 @@ void gld_BindFlat(GLTexture *gltexture)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_mipmap_filter);
-    if (gl_texture_filter_anisotropic)
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 2.0);
+    if (gl_use_texture_filter_anisotropic)
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)gl_texture_filter_anisotropic);
   }
   else
 #endif /* USE_GLU_MIPMAP */

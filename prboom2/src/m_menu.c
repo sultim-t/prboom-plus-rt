@@ -288,6 +288,7 @@ void M_DrawMessages(void);
 void M_DrawChatStrings(void);
 void M_Compat(int);       // killough 10/98
 void M_ChangeDemoSmoothTurns(void);
+void M_ChangeAnisotropic(void);
 void M_General(int);      // killough 10/98
 void M_DrawCompat(void);  // killough 10/98
 void M_DrawGeneral(void); // killough 10/98
@@ -2940,6 +2941,7 @@ enum {
 
 enum {
   general_gl_texfilter,
+  general_gl_texfilter_anisotropic,
   general_gl_texformat,
   general_flooroffset,
 };
@@ -2955,8 +2957,8 @@ enum {
 
 #define G_X 250
 #define G_YA  44
-#define G_YA2 (G_YA+8*8)
-#define G_YA3 (G_YA2+5*8)
+#define G_YA2 (G_YA+7*8)
+#define G_YA3 (G_YA2+6*8)
 #define GF_X 76
 
 static const char *videomodes[] = {"8bit",/*"16bit","32bit",*/"OpenGL"};
@@ -2964,6 +2966,10 @@ static const char *videomodes[] = {"8bit",/*"16bit","32bit",*/"OpenGL"};
 static const char *gltexfilters[] = {"GL_NEAREST","GL_LINEAR",
                                      "GL_LINEAR_MIPMAP_LINEAR",
                                      NULL};
+
+//e6y
+static const char *gltexfilters_anisotropics[] = 
+  {"Off", "2x", "4x", "8x", "16x", NULL};
 
 static const char *gltexformats[] = {"GL_RGBA","GL_RGB5_A1",
                                      "GL_RGBA4", NULL};
@@ -2992,6 +2998,9 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
 
   {"Texture filter", S_CHOICE|S_PRGWARN, m_null, G_X,
    G_YA2 + general_gl_texfilter*8, {"gl_tex_filter_string"}, 0, 0, NULL, gltexfilters},
+
+  {"Anisotropic filter", S_CHOICE|S_PRGWARN, m_null, G_X,
+   G_YA2 + general_gl_texfilter_anisotropic*8, {"gl_texture_filter_anisotropic"}, 0, 0, M_ChangeAnisotropic, gltexfilters_anisotropics},
 
   {"Texture format", S_CHOICE|S_PRGWARN, m_null, G_X,
    G_YA2 + general_gl_texformat*8, {"gl_tex_format_string"}, 0, 0, NULL, gltexformats},
@@ -3270,6 +3279,11 @@ void M_ChangeDemoSmoothTurns(void)
     gen_settings4[3].m_flags |= (S_SKIP|S_DISABLE);
 
   R_SmoothPlaying_Reset(NULL);
+}
+
+void M_ChangeAnisotropic(void)
+{
+
 }
 
 // Setting up for the General screen. Turn on flags, set pointers,
