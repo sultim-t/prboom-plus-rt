@@ -36,6 +36,7 @@
 #endif
 
 #ifdef _MSC_VER
+//#include <ddraw.h> /* needed for DirectX's DDSURFACEDESC2 structure definition */
 #include <io.h>
 #include <direct.h>
 #else
@@ -69,6 +70,223 @@ int gl_patch_usehires_default;
 int gl_hires_override_pwads;
 char *gl_texture_hires_dir = NULL;
 
+
+#define DDRAW_H_MAKEFOURCC(ch0, ch1, ch2, ch3) \
+  ((unsigned long)(unsigned char)(ch0) | ((unsigned long)(unsigned char)(ch1) << 8) | \
+  ((unsigned long)(unsigned char)(ch2) << 16) | ((unsigned long)(unsigned char)(ch3) << 24 ))
+
+/*
+ * FOURCC codes for DX compressed-texture pixel formats
+ */
+#define DDRAW_H_FOURCC_DXT1 (DDRAW_H_MAKEFOURCC('D','X','T','1'))
+#define DDRAW_H_FOURCC_DXT2 (DDRAW_H_MAKEFOURCC('D','X','T','2'))
+#define DDRAW_H_FOURCC_DXT3 (DDRAW_H_MAKEFOURCC('D','X','T','3'))
+#define DDRAW_H_FOURCC_DXT4 (DDRAW_H_MAKEFOURCC('D','X','T','4'))
+#define DDRAW_H_FOURCC_DXT5 (DDRAW_H_MAKEFOURCC('D','X','T','5'))
+
+/*
+ * DDSCAPS2
+ */
+typedef struct _DDRAW_H_DDSCAPS2
+{
+  unsigned long dwCaps;     // capabilities of surface wanted
+  unsigned long dwCaps2;
+  unsigned long dwCaps3;
+  union
+  {
+    unsigned long dwCaps4;
+    unsigned long dwVolumeDepth;
+  } u1;
+} DDRAW_H_DDSCAPS2;
+
+/*
+ * DDPIXELFORMAT
+ */
+typedef struct _DDRAW_H_DDPIXELFORMAT
+{
+  unsigned long dwSize;         // size of structure
+  unsigned long dwFlags;        // pixel format flags
+  unsigned long dwFourCC;       // (FOURCC code)
+  union
+  {
+    unsigned long dwRGBBitCount;           // how many bits per pixel
+    unsigned long dwYUVBitCount;           // how many bits per pixel
+    unsigned long dwZBufferBitDepth;       // how many total bits/pixel in z buffer (including any stencil bits)
+    unsigned long dwAlphaBitDepth;         // how many bits for alpha channels
+    unsigned long dwLuminanceBitCount;     // how many bits per pixel
+    unsigned long dwBumpBitCount;          // how many bits per "buxel", total
+    unsigned long dwPrivateFormatBitCount; // Bits per pixel of private driver formats. Only valid in texture
+                                           // format list and if DDPF_D3DFORMAT is set
+  } u1;
+  union
+  {
+    unsigned long dwRBitMask;         // mask for red bit
+    unsigned long dwYBitMask;         // mask for Y bits
+    unsigned long dwStencilBitDepth;  // how many stencil bits (note: dwZBufferBitDepth-dwStencilBitDepth is total Z-only bits)
+    unsigned long dwLuminanceBitMask; // mask for luminance bits
+    unsigned long dwBumpDuBitMask;    // mask for bump map U delta bits
+    unsigned long dwOperations;       // DDPF_D3DFORMAT Operations
+  } u2;
+  union
+  {
+    unsigned long dwGBitMask;      // mask for green bits
+    unsigned long dwUBitMask;      // mask for U bits
+    unsigned long dwZBitMask;      // mask for Z bits
+    unsigned long dwBumpDvBitMask; // mask for bump map V delta bits
+    struct
+    {
+      unsigned short wFlipMSTypes; // Multisample methods supported via flip for this D3DFORMAT
+      unsigned short wBltMSTypes;  // Multisample methods supported via blt for this D3DFORMAT
+    } MultiSampleCaps;
+
+  } u3;
+  union
+  {
+    unsigned long dwBBitMask;             // mask for blue bits
+    unsigned long dwVBitMask;             // mask for V bits
+    unsigned long dwStencilBitMask;       // mask for stencil bits
+    unsigned long dwBumpLuminanceBitMask; // mask for luminance in bump map
+  } u4;
+  union
+  {
+    unsigned long dwRGBAlphaBitMask;       // mask for alpha channel
+    unsigned long dwYUVAlphaBitMask;       // mask for alpha channel
+    unsigned long dwLuminanceAlphaBitMask; // mask for alpha channel
+    unsigned long dwRGBZBitMask;           // mask for Z channel
+    unsigned long dwYUVZBitMask;           // mask for Z channel
+  } u5;
+} DDRAW_H_DDPIXELFORMAT;
+
+/*
+ * DDCOLORKEY
+ */
+typedef struct _DDRAW_H_DDCOLORKEY
+{
+  unsigned long dwColorSpaceLowValue;  // low boundary of color space that is to
+                                       // be treated as Color Key, inclusive
+  unsigned long dwColorSpaceHighValue; // high boundary of color space that is
+} DDRAW_H_DDCOLORKEY;
+
+/*
+ * DDSURFACEDESC2
+ */
+typedef struct _DDRAW_H_DDSURFACEDESC2
+{
+  unsigned long dwSize;   // size of the DDSURFACEDESC structure
+  unsigned long dwFlags;  // determines what fields are valid
+  unsigned long dwHeight; // height of surface to be created
+  unsigned long dwWidth;  // width of input surface
+  union
+  {
+    long          lPitch;       // distance to start of next line (return value only)
+    unsigned long dwLinearSize; // Formless late-allocated optimized surface size
+  } u1;
+  union
+  {
+    unsigned long dwBackBufferCount; // number of back buffers requested
+    unsigned long dwDepth;           // the depth if this is a volume texture 
+  } u5;
+  union
+  {
+    unsigned long dwMipMapCount; // number of mip-map levels requestde
+                                 // dwZBufferBitDepth removed, use ddpfPixelFormat one instead
+    unsigned long dwRefreshRate; // refresh rate (used when display mode is described)
+    unsigned long dwSrcVBHandle; // The source used in VB::Optimize
+  } u2;
+  unsigned long dwAlphaBitDepth; // depth of alpha buffer requested
+  unsigned long dwReserved;      // reserved
+  void *lpSurface;               // pointer to the associated surface memory
+  union
+  {
+    DDRAW_H_DDCOLORKEY ddckCKDestOverlay; // color key for destination overlay use
+    unsigned long      dwEmptyFaceColor;  // Physical color for empty cubemap faces
+  } u3;
+  DDRAW_H_DDCOLORKEY ddckCKDestBlt;    // color key for destination blt use
+  DDRAW_H_DDCOLORKEY ddckCKSrcOverlay; // color key for source overlay use
+  DDRAW_H_DDCOLORKEY ddckCKSrcBlt;     // color key for source blt use
+  union
+  {
+    DDRAW_H_DDPIXELFORMAT ddpfPixelFormat; // pixel format description of the surface
+    unsigned long  dwFVF;                  // vertex format description of vertex buffers
+  } u4;
+  DDRAW_H_DDSCAPS2 ddsCaps;        // direct draw surface capabilities
+  unsigned long    dwTextureStage; // stage in multitexture cascade
+} DDRAW_H_DDSURFACEDESC2;
+
+typedef struct
+{
+  GLsizei  width;
+  GLsizei  height;
+  GLint    components;
+  GLenum   format;
+
+  GLsizei  cmapEntries;
+  GLenum   cmapFormat;
+  GLubyte *cmap;
+
+  GLubyte *pixels;
+} GLGenericImage;
+
+GLGenericImage * ReadDDSFile(const char *filename, int * bufsize, int * numMipmaps) 
+{
+  GLGenericImage * genericImage;
+  DDRAW_H_DDSURFACEDESC2 ddsd;
+  char filecode[4];
+  FILE *fp;
+  int factor;
+
+  /* try to open the file */
+  fp = fopen(filename, "rb");
+  if (fp == NULL)
+    return NULL;
+  
+  /* verify the type of file */
+  fread(filecode, 1, 4, fp);
+  if (strncmp(filecode, "DDS ", 4) != 0) {
+    fclose(fp);
+    return NULL;
+  }
+   
+  /* get the surface desc */
+  fread(&ddsd, sizeof(ddsd), 1, fp);
+
+  genericImage = (GLGenericImage*)malloc(sizeof(GLGenericImage));
+  memset(genericImage, 0, sizeof(GLGenericImage));
+
+  switch(ddsd.u4.ddpfPixelFormat.dwFourCC)
+  {
+    case DDRAW_H_FOURCC_DXT1:
+      genericImage->format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+      factor = 2;
+      break;
+    case DDRAW_H_FOURCC_DXT3:
+      genericImage->format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+      factor = 4;
+      break;
+    case DDRAW_H_FOURCC_DXT5:
+      genericImage->format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+      factor = 4;
+      break;
+    default:
+      return NULL;
+  }
+
+  /* how big is it going to be including all mipmaps? */
+  *bufsize = ddsd.u2.dwMipMapCount > 1 ? ddsd.u1.dwLinearSize * factor : ddsd.u1.dwLinearSize;
+  genericImage->pixels = (unsigned char*)malloc(*bufsize * sizeof(unsigned char));
+  fread(genericImage->pixels, 1, *bufsize, fp);
+  /* close the file pointer */
+  fclose(fp);
+  
+  genericImage->width       = ddsd.dwWidth;
+  genericImage->height      = ddsd.dwHeight;
+  genericImage->components  = (ddsd.u4.ddpfPixelFormat.dwFourCC == DDRAW_H_FOURCC_DXT1) ? 3 : 4;
+  *numMipmaps               = ddsd.u2.dwMipMapCount;
+
+  /* return data */
+  return genericImage;
+}
+
 #ifdef HAVE_LIBSDL_IMAGE
 
 static SDL_PixelFormat RGBAFormat;
@@ -101,13 +319,15 @@ static void gld_InitHiresTex(void)
   }
 }
 
+#endif // HAVE_LIBSDL_IMAGE
+
 typedef struct {
   GameMission_t gamemission;
   GLTexType textype;
   const char * texpath[16];
 } hires_path_t;
 
-static int gld_HiresGetTextureName(GLTexture *gltexture, char *hirespath)
+static int gld_HiresGetTextureName(GLTexture *gltexture, char *img_path, char *dds_path)
 {
   static const hires_path_t hires_paths[] = {
     {doom, GLDT_TEXTURE, {
@@ -220,8 +440,16 @@ static int gld_HiresGetTextureName(GLTexture *gltexture, char *hirespath)
     (gl_texture_usehires && ((useType == GLDT_TEXTURE) || (useType == GLDT_FLAT))) ||
     (gl_patch_usehires && (useType == GLDT_PATCH));
 
+  img_path[0] = '\0';
+  dds_path[0] = '\0';
+
+#ifndef HAVE_LIBSDL_IMAGE
+  if (!GLEXT_glCompressedTexImage2DARB)
+    return false;
+#endif // !HAVE_LIBSDL_IMAGE
+
   if (!supported)
-    return 0;
+    return false;
 
   i = 0;
   while (hires_paths[i].gamemission != none)
@@ -290,50 +518,65 @@ static int gld_HiresGetTextureName(GLTexture *gltexture, char *hirespath)
   while (*checklist)
   {
     char checkName[PATH_MAX + 1];
-    static const char * extensions[] = { "png", "jpg", "tga", "pcx", "gif", "bmp", "jpeg",
-                                         NULL };
-    const char ** extp;
 
-    for (extp = extensions; *extp; extp++)
-    {
 #ifdef HAVE_SNPRINTF
-      snprintf(checkName, sizeof(checkName), *checklist, hiresdir, texname, *extp);
+    snprintf(checkName, sizeof(checkName), *checklist, hiresdir, "", "");
 #else
-      sprintf(checkName, *checklist, hiresdir, texname, *extp);
+    sprintf(checkName, *checklist, hiresdir, "", "");
 #endif
 
-      if (!access(checkName, F_OK))
+    if (!access(checkName, F_OK)) //dir exists
+    {
+      if (GLEXT_glCompressedTexImage2DARB && dds_path[0] == '\0')
       {
-        strcpy(hirespath, checkName);
-        return true;
+  #ifdef HAVE_SNPRINTF
+        snprintf(checkName, sizeof(checkName), *checklist, hiresdir, texname, "dds");
+  #else
+        sprintf(checkName, *checklist, hiresdir, texname, "dds");
+  #endif
+        if (!access(checkName, F_OK))
+        {
+          strcpy(dds_path, checkName);
+#ifndef HAVE_LIBSDL_IMAGE
+          return true;
+#endif // !HAVE_LIBSDL_IMAGE
+        }
       }
+
+#ifdef HAVE_LIBSDL_IMAGE
+      {
+        static const char * extensions[] =
+        {"png", "jpg", "tga", "pcx", "gif", "bmp", NULL};
+        const char ** extp;
+
+        for (extp = extensions; *extp; extp++)
+        {
+#ifdef HAVE_SNPRINTF
+          snprintf(checkName, sizeof(checkName), *checklist, hiresdir, texname, *extp);
+#else
+          sprintf(checkName, *checklist, hiresdir, texname, *extp);
+#endif
+
+          if (!access(checkName, F_OK))
+          {
+            strcpy(img_path, checkName);
+            return true;
+          }
+        }
+      }
+#endif // HAVE_LIBSDL_IMAGE
     }
     checklist++;
   }
 
+  if (dds_path[0])
+    return true;
+
   return false;
 }
 
-static int gld_LoadHiresItem(GLTexture *gltexture, const char *texture_path, int *glTexID, int cm)
+static void gld_BindHiresItem(GLTexture *gltexture, int *glTexID)
 {
-  int result = false;
-
-  SDL_Surface *surf = NULL;
-  SDL_Surface *surf_tmp = NULL;
-  int tex_width, tex_height, tex_buffer_size;
-  unsigned char *tex_buffer = NULL;
-  
-  char cache_filename[PATH_MAX];
-  FILE *cachefp = NULL;
-  int cache_write = false;
-  int cache_read = false;
-  int cache_read_ok = false;
-
-  struct stat tex_stat;
-
-  memset(&tex_stat, 0, sizeof(tex_stat));
-  stat(texture_path, &tex_stat);
-
   gltexture->flags |= GLTEXTURE_HIRES;
 
   if (gltexture->textype == GLDT_PATCH)
@@ -343,10 +586,104 @@ static int gld_LoadHiresItem(GLTexture *gltexture, const char *texture_path, int
   }
 
   if (*glTexID == 0)
-    glGenTextures(1,glTexID);
-  glBindTexture(GL_TEXTURE_2D, *glTexID);
+    glGenTextures(1, glTexID);
 
-  strcpy(cache_filename, texture_path);
+  glBindTexture(GL_TEXTURE_2D, *glTexID);
+}
+
+static int gld_LoadHiresItem(GLTexture *gltexture,
+                             const char *img_path, const char *dds_path,
+                             int *glTexID, int cm)
+{
+  int result = false;
+
+  SDL_Surface *surf = NULL;
+  SDL_Surface *surf_tmp = NULL;
+  int tex_width, tex_height, tex_buffer_size;
+  unsigned char *tex_buffer = NULL;
+
+  boolean img_present = strlen(img_path) > 4;
+  boolean dds_present = strlen(dds_path) > 4;
+  
+  char cache_filename[PATH_MAX];
+  FILE *cachefp = NULL;
+  int cache_write = false;
+  int cache_read = false;
+  int cache_read_ok = false;
+
+  struct stat tex_stat;
+
+  if (!img_present && !dds_present)
+  {
+    return false;
+  }
+
+  if (GLEXT_glCompressedTexImage2DARB && dds_present)
+  {
+    int ddsbufsize, numMipmaps;
+    GLGenericImage * ddsimage = ReadDDSFile(dds_path, &ddsbufsize, &numMipmaps);
+
+    if (ddsimage)
+    {
+      tex_width  = gld_GetTexDimension(ddsimage->width);
+      tex_height = gld_GetTexDimension(ddsimage->height);
+
+      if (tex_width == ddsimage->width && tex_height == ddsimage->height)
+      {
+        int i, offset, size, blockSize;
+
+        gld_BindHiresItem(gltexture, glTexID);
+
+        offset = 0;
+        blockSize = (ddsimage->format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
+
+        /* load the mipmaps */
+        for (i = 0; i < (numMipmaps ? numMipmaps : 1) && (ddsimage->width || ddsimage->height); i++)
+        {
+          if (ddsimage->width == 0)
+            ddsimage->width = 1;
+          if (ddsimage->height == 0)
+            ddsimage->height = 1;
+      
+          size = ((ddsimage->width + 3) / 4) * ((ddsimage->height + 3) / 4) * blockSize;
+      
+          GLEXT_glCompressedTexImage2DARB(GL_TEXTURE_2D, i, ddsimage->format,
+            ddsimage->width, ddsimage->height, 
+            0, size, ddsimage->pixels + offset);
+      
+    //      GLErrorReport();
+          offset += size;
+          ddsimage->width >>= 1;
+          ddsimage->height >>= 1;
+        }
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+          (numMipmaps ? gl_mipmap_filter : gl_tex_filter));
+        if (gl_texture_filter_anisotropic && numMipmaps)
+          glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 2.0);
+        
+        free(ddsimage->pixels);
+        free(ddsimage);
+
+        result = true;
+        goto l_exit;
+      }
+    }
+  }
+
+  if (!img_present)
+  {
+    result = false;
+    goto l_exit;
+  }
+
+  memset(&tex_stat, 0, sizeof(tex_stat));
+  stat(img_path, &tex_stat);
+  
+  strcpy(cache_filename, img_path);
   strcat(cache_filename, ".cache");
 
   if (!access(cache_filename, F_OK))
@@ -372,8 +709,8 @@ static int gld_LoadHiresItem(GLTexture *gltexture, const char *texture_path, int
     if (cachefp)
     {
       if (fread(&tex_width, sizeof(tex_width), 1, cachefp) == 1 &&
-          fread(&tex_height, sizeof(tex_height), 1, cachefp) == 1 &&
-          fread(&cache_stat.st_mtime, sizeof(cache_stat.st_mtime), 1, cachefp) == 1)
+        fread(&tex_height, sizeof(tex_height), 1, cachefp) == 1 &&
+        fread(&cache_stat.st_mtime, sizeof(cache_stat.st_mtime), 1, cachefp) == 1)
       {
         if (cache_stat.st_mtime == tex_stat.st_mtime)
         {
@@ -384,7 +721,8 @@ static int gld_LoadHiresItem(GLTexture *gltexture, const char *texture_path, int
           {
             if (fread(tex_buffer, tex_buffer_size, 1, cachefp) == 1)
             {
-          
+              gld_BindHiresItem(gltexture, glTexID);
+
               glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
                 tex_width, tex_height,
                 0, GL_RGBA, GL_UNSIGNED_BYTE, tex_buffer);
@@ -398,12 +736,13 @@ static int gld_LoadHiresItem(GLTexture *gltexture, const char *texture_path, int
       fclose(cachefp);
     }
   }
-  
+
+#ifdef HAVE_LIBSDL_IMAGE
   if (!cache_read_ok)
   {
     gld_InitHiresTex();
 
-    surf_tmp = IMG_Load(texture_path);
+    surf_tmp = IMG_Load(img_path);
 
     if (!surf_tmp)
     {
@@ -418,7 +757,9 @@ static int gld_LoadHiresItem(GLTexture *gltexture, const char *texture_path, int
 
     if (!surf)
       return false;
-    
+
+    gld_BindHiresItem(gltexture, glTexID);
+
     tex_width  = gld_GetTexDimension(surf->w);
     tex_height = gld_GetTexDimension(surf->h);
     tex_buffer_size = tex_width * tex_height * 4;
@@ -426,11 +767,11 @@ static int gld_LoadHiresItem(GLTexture *gltexture, const char *texture_path, int
 #ifdef USE_GLU_MIPMAP
     if (gltexture->mipmap & use_mipmapping)
     {
-      gluBuild2DMipmaps(GL_TEXTURE_2D,
-        surf->format->BytesPerPixel,
+      gluBuild2DMipmaps(GL_TEXTURE_2D, gl_tex_format,
         surf->w, surf->h,
         imageformats[surf->format->BytesPerPixel],
         GL_UNSIGNED_BYTE, surf->pixels);
+
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
@@ -459,7 +800,7 @@ static int gld_LoadHiresItem(GLTexture *gltexture, const char *texture_path, int
           GL_UNSIGNED_BYTE, surf->pixels,
           tex_width, tex_height,
           GL_UNSIGNED_BYTE, tex_buffer);
-    
+
         if (cache_write || !cache_read_ok)
         {
           cachefp = fopen(cache_filename, "wb");
@@ -472,11 +813,11 @@ static int gld_LoadHiresItem(GLTexture *gltexture, const char *texture_path, int
             fclose(cachefp);
           }
         }
-    
+
         glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
           tex_width, tex_height,
           0, GL_RGBA, GL_UNSIGNED_BYTE, tex_buffer);
-    
+        
         Z_Free(tex_buffer);
       }
       else
@@ -504,7 +845,7 @@ static int gld_LoadHiresItem(GLTexture *gltexture, const char *texture_path, int
         {
           tex_buffer = surf->pixels;
         }
-    
+        
         if (gl_paletted_texture) {
           gld_SetTexturePalette(GL_TEXTURE_2D);
           glTexImage2D( GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT,
@@ -515,12 +856,13 @@ static int gld_LoadHiresItem(GLTexture *gltexture, const char *texture_path, int
             tex_width, tex_height,
             0, GL_RGBA, GL_UNSIGNED_BYTE, tex_buffer);
         }
-    
+
         if ((surf->w != tex_width) || (surf->h != tex_height))
           Z_Free(tex_buffer);
       }
     }
   }
+#endif // HAVE_LIBSDL_IMAGE
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -538,25 +880,20 @@ l_exit:
   return result;
 }
 
-#endif //HAVE_LIBSDL_IMAGE
-
 int gld_LoadHiresTex(GLTexture *gltexture, int *glTexID, int cm)
 {
-#ifndef HAVE_LIBSDL_IMAGE
-  return false;
-#else
-  char hirespath[PATH_MAX];
+  char img_path[PATH_MAX];
+  char dds_path[PATH_MAX];
 
   if (!gl_texture_usehires && !gl_patch_usehires)
     return false;
 
-  if (gld_HiresGetTextureName(gltexture, hirespath))
+  if (gld_HiresGetTextureName(gltexture, img_path, dds_path))
   {
-    return gld_LoadHiresItem(gltexture, hirespath, glTexID, cm);
+    return gld_LoadHiresItem(gltexture, img_path, dds_path, glTexID, cm);
   }
 
   return false;
-#endif
 }
 
 static GLuint progress_texid = 0;
@@ -626,9 +963,13 @@ void gld_ProgressUpdate(char * text, int progress, int total)
 {
   int len;
   static char last_text[32] = {0};
-
   static unsigned int lastupdate = -1;
   unsigned int tic;
+
+#ifndef HAVE_LIBSDL_IMAGE
+  if (!GLEXT_glCompressedTexImage2DARB)
+    return;
+#endif // HAVE_LIBSDL_IMAGE
 
   if (!gl_texture_usehires && !gl_patch_usehires)
     return;
@@ -670,8 +1011,6 @@ void gld_ProgressUpdate(char * text, int progress, int total)
   I_FinishUpdate();
 }
 
-#ifdef HAVE_LIBSDL_IMAGE
-
 static int gld_PrecachePatch(const char *name, int cm)
 {
   int lump = W_CheckNumForName(name);
@@ -696,13 +1035,8 @@ static void gld_Mark_CM2RGB_Lump(const char *name)
   }
 }
 
-#endif //HAVE_LIBSDL_IMAGE
-
 int gld_PrecachePatches(void)
 {
-#ifndef HAVE_LIBSDL_IMAGE
-  return 0;
-#else
   static const char * staticpatches[] = {
     "INTERPIC",// "TITLEPIC",
 
@@ -769,5 +1103,4 @@ int gld_PrecachePatches(void)
   gld_ProgressEnd();
 
   return 0;
-#endif
 }

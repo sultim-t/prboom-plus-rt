@@ -239,6 +239,7 @@ extern int last_cm;
 #define DETAIL_DISTANCE 9
 extern float xCamera,yCamera;
 float distance2piece(float x0, float y0, float x1, float y1, float x2, float y2);
+void gld_InitDetail(void);
 
 //e6y: OpenGL version
 typedef enum {
@@ -258,6 +259,7 @@ extern PFNGLACTIVETEXTUREARBPROC        GLEXT_glActiveTextureARB;
 extern PFNGLCLIENTACTIVETEXTUREARBPROC  GLEXT_glClientActiveTextureARB;
 extern PFNGLMULTITEXCOORD2FARBPROC      GLEXT_glMultiTexCoord2fARB;
 extern PFNGLMULTITEXCOORD2FVARBPROC     GLEXT_glMultiTexCoord2fvARB;
+extern PFNGLCOMPRESSEDTEXIMAGE2DARBPROC GLEXT_glCompressedTexImage2DARB;
 
 //e6y: in some cases textures with a zero index (NO_TEXTURE) should be registered
 GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap, boolean force);

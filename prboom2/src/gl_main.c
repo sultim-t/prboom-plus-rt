@@ -71,6 +71,18 @@ static boolean SkyDrawed;
 gl_render_precise_t gl_render_precise;
 const char *gl_render_precises[] = {"Speed","Quality"};
 
+boolean gl_arb_multitexture = false;
+boolean gl_arb_texture_compression = false;
+
+/* ARB_multitexture command function pointers */
+PFNGLACTIVETEXTUREARBPROC        GLEXT_glActiveTextureARB        = NULL;
+PFNGLCLIENTACTIVETEXTUREARBPROC  GLEXT_glClientActiveTextureARB  = NULL;
+PFNGLMULTITEXCOORD2FARBPROC      GLEXT_glMultiTexCoord2fARB      = NULL;
+PFNGLMULTITEXCOORD2FVARBPROC     GLEXT_glMultiTexCoord2fvARB     = NULL;
+
+/* ARB_texture_compression */
+PFNGLCOMPRESSEDTEXIMAGE2DARBPROC GLEXT_glCompressedTexImage2DARB = NULL;
+
 int imageformats[5] = {0, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_RGB, GL_RGBA};
 
 extern int tran_filter_pct;
@@ -329,6 +341,50 @@ static void gld_InitExtensions(const char *_extensions)
   } while (*extension != '\0');
 
   free(extensions);
+}
+
+void gld_InitExtensionsEx(void)
+{
+#define isExtensionSupported(ext) strstr(extensions, ext)
+
+  extern int gl_tex_filter;
+  extern int gl_mipmap_filter;
+  extern int gl_texture_filter_anisotropic;
+  extern int gl_tex_format;
+
+  const GLubyte *extensions = glGetString(GL_EXTENSIONS);
+
+  gl_arb_multitexture = isExtensionSupported("GL_ARB_multitexture") != NULL;
+
+  if (gl_arb_multitexture)
+  {
+    GLEXT_glActiveTextureARB        = SDL_GL_GetProcAddress("glActiveTextureARB");
+    GLEXT_glClientActiveTextureARB  = SDL_GL_GetProcAddress("glClientActiveTextureARB");
+    GLEXT_glMultiTexCoord2fARB      = SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
+    GLEXT_glMultiTexCoord2fvARB     = SDL_GL_GetProcAddress("glMultiTexCoord2fvARB");
+
+    if (!GLEXT_glActiveTextureARB   || !GLEXT_glClientActiveTextureARB ||
+        !GLEXT_glMultiTexCoord2fARB || !GLEXT_glMultiTexCoord2fvARB)
+      gl_arb_multitexture = false;
+  }
+
+  if (gl_arb_multitexture)
+    lprintf(LO_INFO,"using GL_ARB_multitexture\n");
+
+  gld_InitDetail();
+
+  gl_arb_texture_compression = isExtensionSupported("GL_ARB_texture_compression") != NULL;
+
+  if (gl_arb_texture_compression)
+  {
+    GLEXT_glCompressedTexImage2DARB = SDL_GL_GetProcAddress("glCompressedTexImage2DARB");
+
+    if (!GLEXT_glCompressedTexImage2DARB)
+      gl_arb_texture_compression = false;
+  }
+
+  if (gl_arb_texture_compression)
+    lprintf(LO_INFO,"using GL_ARB_texture_compression\n");
 }
 
 void gld_Init(int width, int height)

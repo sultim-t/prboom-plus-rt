@@ -40,6 +40,7 @@ extern gl_render_precise_t gl_render_precise;
 extern const char *gl_render_precises[];
 extern int gl_seamless;
 extern boolean gl_arb_multitexture;
+extern boolean gl_arb_texture_compression;
 extern int render_canusedetail;
 void gld_InitVertexData();
 void gld_CleanVertexData();

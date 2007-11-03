@@ -45,13 +45,7 @@
 int glversion;
 
 unsigned int idDetail;
-boolean gl_arb_multitexture;
 int render_canusedetail;
-
-PFNGLACTIVETEXTUREARBPROC        GLEXT_glActiveTextureARB       = NULL;
-PFNGLCLIENTACTIVETEXTUREARBPROC  GLEXT_glClientActiveTextureARB = NULL;
-PFNGLMULTITEXCOORD2FARBPROC      GLEXT_glMultiTexCoord2fARB     = NULL;
-PFNGLMULTITEXCOORD2FVARBPROC     GLEXT_glMultiTexCoord2fvARB    = NULL;
 
 float xCamera,yCamera;
 TAnimItemParam *anim_flats = NULL;
@@ -83,80 +77,55 @@ float distance2piece(float x0, float y0, float x1, float y1, float x2, float y2)
   return t;
 }
 
-void gld_InitExtensionsEx(void)
+void gld_InitDetail(void)
 {
-#define isExtensionSupported(ext) strstr(extensions, ext)
-  extern int gl_tex_filter;
-  extern int gl_mipmap_filter;
-  extern int gl_texture_filter_anisotropic;
-  extern int gl_tex_format;
-
-  const GLubyte *extensions = glGetString(GL_EXTENSIONS);
-
-  gl_arb_multitexture = isExtensionSupported("GL_ARB_multitexture") != NULL;
-
-  if (gl_arb_multitexture)
-  {
-    GLEXT_glActiveTextureARB       = SDL_GL_GetProcAddress("glActiveTextureARB");
-    GLEXT_glClientActiveTextureARB = SDL_GL_GetProcAddress("glClientActiveTextureARB");
-    GLEXT_glMultiTexCoord2fARB     = SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
-    GLEXT_glMultiTexCoord2fvARB    = SDL_GL_GetProcAddress("glMultiTexCoord2fvARB");
-
-    if (!GLEXT_glActiveTextureARB   || !GLEXT_glClientActiveTextureARB ||
-        !GLEXT_glMultiTexCoord2fARB || !GLEXT_glMultiTexCoord2fvARB)
-      gl_arb_multitexture = false;
-  }
-  //gl_arb_multitexture = false;
-
+  int gldetail_lumpnum;
   render_canusedetail = false;
-  //if (gl_arb_multitexture)
+
+  gldetail_lumpnum = (W_CheckNumForName)("GLDETAIL", ns_prboom);
+
+  if (gldetail_lumpnum != -1)
   {
-    int gldetail_lumpnum = (W_CheckNumForName)("GLDETAIL", ns_prboom);
-    if (gldetail_lumpnum != -1)
+    const unsigned char *memDetail=W_CacheLumpNum(gldetail_lumpnum);
+    SDL_PixelFormat fmt;
+    SDL_Surface *surf = NULL;
+    
+    surf = SDL_LoadBMP_RW(SDL_RWFromMem((unsigned char *)memDetail, W_LumpLength(gldetail_lumpnum)), 1);
+    W_UnlockLumpName("PLAYPAL");
+    
+    fmt = *surf->format;
+    fmt.BitsPerPixel = 24;
+    fmt.BytesPerPixel = 3;
+    surf = SDL_ConvertSurface(surf, &fmt, surf->flags);
+    if (surf)
     {
-      const unsigned char *memDetail=W_CacheLumpNum(gldetail_lumpnum);
-      SDL_PixelFormat fmt;
-      SDL_Surface *surf = NULL;
+      if (gl_arb_multitexture)
+        GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
+      glGenTextures(1, &idDetail);
+      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+      glBindTexture(GL_TEXTURE_2D, idDetail);
       
-      surf = SDL_LoadBMP_RW(SDL_RWFromMem((unsigned char *)memDetail, W_LumpLength(gldetail_lumpnum)), 1);
-      W_UnlockLumpName("PLAYPAL");
+      gluBuild2DMipmaps(GL_TEXTURE_2D, gl_tex_format,
+        surf->w, surf->h, 
+        imageformats[surf->format->BytesPerPixel], 
+        GL_UNSIGNED_BYTE, surf->pixels);
       
-      fmt = *surf->format;
-      fmt.BitsPerPixel = 24;
-      fmt.BytesPerPixel = 3;
-      surf = SDL_ConvertSurface(surf, &fmt, surf->flags);
-      if (surf)
-      {
-        if (gl_arb_multitexture)
-          GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
-        glGenTextures(1, &idDetail);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glBindTexture(GL_TEXTURE_2D, idDetail);
-        
-        gluBuild2DMipmaps(GL_TEXTURE_2D, 
-          surf->format->BytesPerPixel, 
-          surf->w, surf->h, 
-          imageformats[surf->format->BytesPerPixel], 
-          GL_UNSIGNED_BYTE, surf->pixels);
-        
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);	
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        if (gl_texture_filter_anisotropic)
-          glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 2.0);
-        
-        if (gl_arb_multitexture)
-          GLEXT_glActiveTextureARB(GL_TEXTURE0_ARB);
-        
-        SDL_FreeSurface(surf);
-        render_canusedetail = true;
-      }
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);	
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+      if (gl_texture_filter_anisotropic)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 2.0);
+      
+      if (gl_arb_multitexture)
+        GLEXT_glActiveTextureARB(GL_TEXTURE0_ARB);
+      
+      SDL_FreeSurface(surf);
+      render_canusedetail = true;
     }
   }
+
   M_ChangeUseDetail();
-  if (gl_arb_multitexture)
-    lprintf(LO_INFO,"e6y: using GL_ARB_multitexture\n");
 }
 
 void gld_PreprocessDetail(void)

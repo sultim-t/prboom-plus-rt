@@ -646,9 +646,9 @@ void gld_BindTexture(GLTexture *gltexture)
 #ifdef USE_GLU_MIPMAP
   if (gltexture->mipmap & use_mipmapping)
   {
-    gluBuild2DMipmaps(GL_TEXTURE_2D, 4,
+    gluBuild2DMipmaps(GL_TEXTURE_2D, gl_tex_format,
                       gltexture->buffer_width, gltexture->buffer_height,
-                      imageformats[4], GL_UNSIGNED_BYTE, buffer);
+                      GL_RGBA, GL_UNSIGNED_BYTE, buffer);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
@@ -988,9 +988,9 @@ void gld_BindFlat(GLTexture *gltexture)
 #ifdef USE_GLU_MIPMAP
   if (gltexture->mipmap & use_mipmapping)
   {
-    gluBuild2DMipmaps(GL_TEXTURE_2D, 4,
+    gluBuild2DMipmaps(GL_TEXTURE_2D, gl_tex_format,
                       gltexture->buffer_width, gltexture->buffer_height,
-                      imageformats[4], GL_UNSIGNED_BYTE, buffer);
+                      GL_RGBA, GL_UNSIGNED_BYTE, buffer);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
