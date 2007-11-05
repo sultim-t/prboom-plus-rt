@@ -205,7 +205,7 @@
 			</dict>
 		</dict>
 		<string>{{415, 638}, {410, 342}}</string>
-		<string>PrBoom Launcher</string>
+		<string>PrBoom Plus Launcher</string>
 		<string>NSWindow</string>
 		<dict>
 			<key>$class</key>
@@ -4115,7 +4115,7 @@
 				<integer>363</integer>
 			</dict>
 		</dict>
-		<string>Quit PrBoom</string>
+		<string>Quit PrBoom Plus</string>
 		<string>q</string>
 		<dict>
 			<key>$class</key>
@@ -4182,7 +4182,7 @@
 				<integer>231</integer>
 			</dict>
 		</dict>
-		<string>About PrBoom</string>
+		<string>About PrBoom Plus</string>
 		<dict>
 			<key>$class</key>
 			<dict>
@@ -4311,7 +4311,7 @@
 				<integer>240</integer>
 			</dict>
 		</dict>
-		<string>Hide PrBoom</string>
+		<string>Hide PrBoom Plus</string>
 		<string>hide:</string>
 		<dict>
 			<key>$class</key>
