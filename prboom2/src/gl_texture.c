@@ -1092,6 +1092,8 @@ void gld_Precache(void)
   register int i;
   register byte *hitlist;
 
+  unsigned int tics = SDL_GetTicks();
+
   int usehires = gl_texture_usehires || gl_patch_usehires;
 
   if (doSkip)
@@ -1243,6 +1245,18 @@ void gld_Precache(void)
   if (gl_texture_usehires)
   {
     gld_ProgressEnd();
+  }
+
+  // e6y: some statistics.  make sense for hires
+  {
+    char map[8];
+
+    if (gamemode == commercial)
+      sprintf(map, "MAP%02i", gamemap);
+    else
+      sprintf(map, "E%iM%i", gameepisode, gamemap);
+    
+    lprintf(LO_INFO, "gld_Precache: %s done in %d ms\n", map, SDL_GetTicks() - tics);
   }
 }
 
