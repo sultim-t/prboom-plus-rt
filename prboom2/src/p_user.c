@@ -206,7 +206,7 @@ void P_MovePlayer (player_t* player)
     R_SmoothPlaying_Add(cmd->angleturn << 16);
   if (GetMouseLook() && player == &players[displayplayer])
   {
-    if(!(automapmode & am_active))
+    if(!(automapmode & am_active) || (automapmode & am_overlay))
       mo->pitch += (mlooky << 16);
     CheckPitch((signed int *) &mo->pitch);
   }
