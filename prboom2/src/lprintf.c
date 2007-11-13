@@ -388,7 +388,7 @@ int SNPRINTF(char *s, size_t n, const char *format, ...)
   int result;
   va_list argptr;
   va_start(argptr, format);
-#ifdef HAVE_SNPRINTF
+#ifdef HAVE_VSNPRINTF
   result = vsnprintf(s, n, format, argptr);
 #else
   result = vsprintf(s, format, argptr);
