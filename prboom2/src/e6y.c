@@ -959,11 +959,7 @@ void e6y_WriteStats(void)
   max.stat[TT_TOTALTIME] = max.stat[TT_TOTALTIME]/TICRATE/60;
   
   for(i=0; i<TT_MAX; i++) {
-#ifdef HAVE_SNPRINTF
-    snprintf (str, 200, "%d", max.stat[i]);
-#else
-    sprintf (str, "%d", max.stat[i]);
-#endif
+    SNPRINTF(str, 200, "%d", max.stat[i]);
     max.stat[i] = strlen(str);
   }
 

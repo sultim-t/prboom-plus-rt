@@ -560,11 +560,7 @@ static int gld_HiresGetTextureName(GLTexture *gltexture, char *img_path, char *d
     
     if (checklist->exists == -1)
     {
-#ifdef HAVE_SNPRINTF
-      snprintf(checkName, sizeof(checkName), checklist->path, hiresdir, "", "");
-#else
-      sprintf(checkName, checklist->path, hiresdir, "", "");
-#endif
+      SNPRINTF(checkName, sizeof(checkName), checklist->path, hiresdir, "", "");
       if (!access(checkName, F_OK))
         checklist->exists = 1;
       else
@@ -575,11 +571,7 @@ static int gld_HiresGetTextureName(GLTexture *gltexture, char *img_path, char *d
     {
       if (GLEXT_glCompressedTexImage2DARB && dds_path[0] == '\0')
       {
-#ifdef HAVE_SNPRINTF
-        snprintf(checkName, sizeof(checkName), checklist->path, hiresdir, texname, "dds");
-#else
-        sprintf(checkName, checklist->path, hiresdir, texname, "dds");
-#endif
+        SNPRINTF(checkName, sizeof(checkName), checklist->path, hiresdir, texname, "dds");
         if (!access(checkName, F_OK))
         {
           strcpy(dds_path, checkName);
@@ -597,11 +589,7 @@ static int gld_HiresGetTextureName(GLTexture *gltexture, char *img_path, char *d
         
         for (extp = extensions; *extp; extp++)
         {
-#ifdef HAVE_SNPRINTF
-          snprintf(checkName, sizeof(checkName), checklist->path, hiresdir, texname, *extp);
-#else
-          sprintf(checkName, checklist->path, hiresdir, texname, *extp);
-#endif
+          SNPRINTF(checkName, sizeof(checkName), checklist->path, hiresdir, texname, *extp);
           
           if (!access(checkName, F_OK))
           {
