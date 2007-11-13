@@ -321,105 +321,141 @@ static void gld_InitHiresTex(void)
 
 #endif // HAVE_LIBSDL_IMAGE
 
-typedef struct {
-  GameMission_t gamemission;
-  GLTexType textype;
-  const char * texpath[16];
-} hires_path_t;
-
 static int gld_HiresGetTextureName(GLTexture *gltexture, char *img_path, char *dds_path)
 {
-  static const hires_path_t hires_paths[] = {
+  typedef struct hires_path_item_s
+  {
+    const char *path;
+    int exists;
+  } hires_path_item_t;
+
+  typedef struct hires_path_s
+  {
+    const GameMission_t gamemission;
+    const GLTexType textype;
+    hires_path_item_t item[16];
+  } hires_path_t;
+
+  
+  static hires_path_t hires_paths[] = {
     {doom, GLDT_TEXTURE, {
-      "%stextures/doom/doom1/%s.%s", "%stextures/doom/doom1/%s-ck.%s",
-      "%stextures/doom1/%s.%s",
-      "%stextures/doom/%s.%s", "%stextures/doom/%s-ck.%s",
-      "%stextures/%s.%s", "%stextures/%s-ck.%s",
-      NULL
+      {"%stextures/doom/doom1/%s.%s", -1},
+      {"%stextures/doom/doom1/%s-ck.%s", -1},
+      {"%stextures/doom1/%s.%s", -1},
+      {"%stextures/doom/%s.%s", -1},
+      {"%stextures/doom/%s-ck.%s", -1},
+      {"%stextures/%s.%s", -1},
+      {"%stextures/%s-ck.%s", -1},
+      {NULL, 0}
     }},
     {doom, GLDT_FLAT, {
-      "%sflats/doom/doom1/%s.%s", "%stextures/doom/doom1/flat-%s.%s",
-      "%stextures/doom1/flat-%s.%s",
-      "%sflats/doom/%s.%s", "%stextures/doom/flat-%s.%s",
-      "%sflats/%s.%s", "%stextures/flat-%s.%s",
-      NULL
+      {"%sflats/doom/doom1/%s.%s", -1},
+      {"%stextures/doom/doom1/flat-%s.%s", -1},
+      {"%stextures/doom1/flat-%s.%s", -1},
+      {"%sflats/doom/%s.%s", -1},
+      {"%stextures/doom/flat-%s.%s", -1},
+      {"%sflats/%s.%s", -1},
+      {"%stextures/flat-%s.%s", -1},
+      {NULL}
     }},
     {doom, GLDT_PATCH, {
-      "%spatches/doom/doom1/%s.%s",
-      "%spatches/doom1-ultimate/%s.%s",
-      "%spatches/doom/%s.%s",
-      "%spatches/%s.%s",
-      NULL
+      {"%spatches/doom/doom1/%s.%s", -1},
+      {"%spatches/doom1-ultimate/%s.%s", -1},
+      {"%spatches/doom/%s.%s", -1},
+      {"%spatches/%s.%s", -1},
+      {NULL}
     }},
 
     {doom2, GLDT_TEXTURE, {
-      "%stextures/doom/doom2/%s.%s", "%stextures/doom/doom2/%s-ck.%s",
-      "%stextures/doom/%s.%s", "%stextures/doom/%s-ck.%s",
-      "%stextures/%s.%s", "%stextures/%s-ck.%s",
-      NULL
+      {"%stextures/doom/doom2/%s.%s", -1},
+      {"%stextures/doom/doom2/%s-ck.%s", -1},
+      {"%stextures/doom/%s.%s", -1},
+      {"%stextures/doom/%s-ck.%s", -1},
+      {"%stextures/%s.%s", -1},
+      {"%stextures/%s-ck.%s", -1},
+      {NULL}
     }},
     {doom2, GLDT_FLAT, {
-      "%sflats/doom/doom2/%s.%s", "%stextures/doom/doom2/flat-%s.%s",
-      "%sflats/doom/%s.%s", "%stextures/doom/flat-%s.%s",
-      "%sflats/%s.%s", "%stextures/flat-%s.%s",
-      NULL
+      {"%sflats/doom/doom2/%s.%s", -1},
+      {"%stextures/doom/doom2/flat-%s.%s", -1},
+      {"%sflats/doom/%s.%s", -1},
+      {"%stextures/doom/flat-%s.%s", -1},
+      {"%sflats/%s.%s", -1},
+      {"%stextures/flat-%s.%s", -1},
+      {NULL}
     }},
     {doom2, GLDT_PATCH, {
-      "%spatches/doom/doom2/%s.%s",
-      "%spatches/doom2/%s.%s",
-      "%spatches/doom/%s.%s",
-      "%spatches/%s.%s",
-      NULL
+      {"%spatches/doom/doom2/%s.%s", -1},
+      {"%spatches/doom2/%s.%s", -1},
+      {"%spatches/doom/%s.%s", -1},
+      {"%spatches/%s.%s", -1},
+      {NULL}
     }},
 
     {pack_tnt, GLDT_TEXTURE, {
-      "%stextures/doom/tnt/%s.%s", "%stextures/doom/tnt/%s-ck.%s",
-      "%stextures/doom2-tnt/%s.%s",
-      "%stextures/doom/doom2-tnt/%s.%s", "%stextures/doom/doom2-tnt/%s-ck.%s",
-      "%stextures/doom/%s.%s", "%stextures/doom/%s-ck.%s",
-      "%stextures/%s.%s", "%stextures/%s-ck.%s",
-      NULL
+      {"%stextures/doom/tnt/%s.%s", -1},
+      {"%stextures/doom/tnt/%s-ck.%s", -1},
+      {"%stextures/doom2-tnt/%s.%s", -1},
+      {"%stextures/doom/doom2-tnt/%s.%s", -1},
+      {"%stextures/doom/doom2-tnt/%s-ck.%s", -1},
+      {"%stextures/doom/%s.%s", -1},
+      {"%stextures/doom/%s-ck.%s", -1},
+      {"%stextures/%s.%s", -1},
+      {"%stextures/%s-ck.%s", -1},
+      {NULL}
     }},
     {pack_tnt, GLDT_FLAT, {
-      "%sflats/doom/tnt/%s.%s", "%stextures/doom/tnt/flat-%s.%s",
-      "%sflats/doom/doom2-tnt/%s.%s", "%stextures/doom/doom2-tnt/flat-%s.%s",
-      "%stextures/doom2-tnt/flat-%s.%s",
-      "%sflats/doom/%s.%s", "%stextures/doom/flat-%s.%s",
-      "%sflats/%s.%s", "%stextures/flat-%s.%s",
-      NULL
+      {"%sflats/doom/tnt/%s.%s", -1},
+      {"%stextures/doom/tnt/flat-%s.%s", -1},
+      {"%sflats/doom/doom2-tnt/%s.%s", -1},
+      {"%stextures/doom/doom2-tnt/flat-%s.%s", -1},
+      {"%stextures/doom2-tnt/flat-%s.%s", -1},
+      {"%sflats/doom/%s.%s", -1},
+      {"%stextures/doom/flat-%s.%s", -1},
+      {"%sflats/%s.%s", -1},
+      {"%stextures/flat-%s.%s", -1},
+      {NULL}
     }},
     {pack_tnt, GLDT_PATCH, {
-      "%spatches/doom/tnt/%s.%s",
-      "%spatches/doom2-tnt/%s.%s",
-      "%spatches/tnt/%s.%s",
-      "%spatches/doom/%s.%s",
-      "%spatches/%s.%s",
-      NULL
+      {"%spatches/doom/tnt/%s.%s", -1},
+      {"%spatches/doom2-tnt/%s.%s", -1},
+      {"%spatches/tnt/%s.%s", -1},
+      {"%spatches/doom/%s.%s", -1},
+      {"%spatches/%s.%s", -1},
+      {NULL}
     }},
 
     {pack_plut, GLDT_TEXTURE, {
-      "%stextures/doom/plut/%s.%s", "%stextures/doom/plut/%s-ck.%s",
-      "%stextures/doom2-plut/%s.%s",
-      "%stextures/doom/doom2-plut/%s.%s", "%stextures/doom/doom2-plut/%s-ck.%s",
-      "%stextures/doom/%s.%s", "%stextures/doom/%s-ck.%s",
-      "%stextures/%s.%s", "%stextures/%s-ck.%s",
-      NULL
+      {"%stextures/doom/plut/%s.%s", -1},
+      {"%stextures/doom/plut/%s-ck.%s", -1},
+      {"%stextures/doom2-plut/%s.%s", -1},
+      {"%stextures/doom/doom2-plut/%s.%s", -1},
+      {"%stextures/doom/doom2-plut/%s-ck.%s", -1},
+      {"%stextures/doom/%s.%s", -1},
+      {"%stextures/doom/%s-ck.%s", -1},
+      {"%stextures/%s.%s", -1},
+      {"%stextures/%s-ck.%s", -1},
+      {NULL}
     }},
     {pack_plut, GLDT_FLAT, {
-      "%sflats/doom/plut/%s.%s", "%stextures/doom/plut/flat-%s.%s",
-      "%sflats/doom/doom2-plut/%s.%s", "%stextures/doom/doom2-plut/flat-%s.%s",
-      "%stextures/doom2-plut/flat-%s.%s",
-      "%sflats/doom/%s.%s", "%stextures/doom/flat-%s.%s",
-      "%sflats/%s.%s", "%stextures/flat-%s.%s",
+      {"%sflats/doom/plut/%s.%s", -1},
+      {"%stextures/doom/plut/flat-%s.%s", -1},
+      {"%sflats/doom/doom2-plut/%s.%s", -1},
+      {"%stextures/doom/doom2-plut/flat-%s.%s", -1},
+      {"%stextures/doom2-plut/flat-%s.%s", -1},
+      {"%sflats/doom/%s.%s", -1},
+      {"%stextures/doom/flat-%s.%s", -1},
+      {"%sflats/%s.%s", -1},
+      {"%stextures/flat-%s.%s", -1},
       NULL
     }},
     {pack_plut, GLDT_PATCH, {
-      "%spatches/doom/plut/%s.%s",
-      "%spatches/doom2-plut/%s.%s",
-      "%spatches/plutonia/%s.%s",
-      "%spatches/doom/%s.%s",
-      "%spatches/%s.%s",
-      NULL
+      {"%spatches/doom/plut/%s.%s", -1},
+      {"%spatches/doom2-plut/%s.%s", -1},
+      {"%spatches/plutonia/%s.%s", -1},
+      {"%spatches/doom/%s.%s", -1},
+      {"%spatches/%s.%s", -1},
+      {NULL}
     }},
 
     {none, GLDT_UNREGISTERED, {
@@ -433,7 +469,7 @@ static int gld_HiresGetTextureName(GLTexture *gltexture, char *img_path, char *d
   char *texname_p;
   int i;
 
-  const char ** checklist = NULL;
+  hires_path_item_t *checklist = NULL;
   GLTexType useType = gltexture->textype;
 
   boolean supported =
@@ -457,7 +493,7 @@ static int gld_HiresGetTextureName(GLTexture *gltexture, char *img_path, char *d
     if (gamemission == hires_paths[i].gamemission && 
       gltexture->textype == hires_paths[i].textype)
     {
-      checklist = (const char **) &hires_paths[i].texpath;
+      checklist = &hires_paths[i].item[0];
       break;
     }
     i++;
@@ -515,25 +551,35 @@ static int gld_HiresGetTextureName(GLTexture *gltexture, char *img_path, char *d
       strcat(hiresdir, "/");
   }
 
-  while (*checklist)
+  do
   {
     char checkName[PATH_MAX + 1];
-
+    
+    if (checklist->exists == 0)
+      continue;
+    
+    if (checklist->exists == -1)
+    {
 #ifdef HAVE_SNPRINTF
-    snprintf(checkName, sizeof(checkName), *checklist, hiresdir, "", "");
+      snprintf(checkName, sizeof(checkName), checklist->path, hiresdir, "", "");
 #else
-    sprintf(checkName, *checklist, hiresdir, "", "");
+      sprintf(checkName, checklist->path, hiresdir, "", "");
 #endif
-
-    if (!access(checkName, F_OK)) //dir exists
+      if (!access(checkName, F_OK))
+        checklist->exists = 1;
+      else
+        checklist->exists = 0;
+    }
+    
+    if (checklist->exists == 1) //dir exists
     {
       if (GLEXT_glCompressedTexImage2DARB && dds_path[0] == '\0')
       {
-  #ifdef HAVE_SNPRINTF
-        snprintf(checkName, sizeof(checkName), *checklist, hiresdir, texname, "dds");
-  #else
-        sprintf(checkName, *checklist, hiresdir, texname, "dds");
-  #endif
+#ifdef HAVE_SNPRINTF
+        snprintf(checkName, sizeof(checkName), checklist->path, hiresdir, texname, "dds");
+#else
+        sprintf(checkName, checklist->path, hiresdir, texname, "dds");
+#endif
         if (!access(checkName, F_OK))
         {
           strcpy(dds_path, checkName);
@@ -542,21 +588,21 @@ static int gld_HiresGetTextureName(GLTexture *gltexture, char *img_path, char *d
 #endif // !HAVE_LIBSDL_IMAGE
         }
       }
-
+      
 #ifdef HAVE_LIBSDL_IMAGE
       {
         static const char * extensions[] =
         {"png", "jpg", "tga", "pcx", "gif", "bmp", NULL};
         const char ** extp;
-
+        
         for (extp = extensions; *extp; extp++)
         {
 #ifdef HAVE_SNPRINTF
-          snprintf(checkName, sizeof(checkName), *checklist, hiresdir, texname, *extp);
+          snprintf(checkName, sizeof(checkName), checklist->path, hiresdir, texname, *extp);
 #else
-          sprintf(checkName, *checklist, hiresdir, texname, *extp);
+          sprintf(checkName, checklist->path, hiresdir, texname, *extp);
 #endif
-
+          
           if (!access(checkName, F_OK))
           {
             strcpy(img_path, checkName);
@@ -566,8 +612,7 @@ static int gld_HiresGetTextureName(GLTexture *gltexture, char *img_path, char *d
       }
 #endif // HAVE_LIBSDL_IMAGE
     }
-    checklist++;
-  }
+  } while ((++checklist)->path);
 
   if (dds_path[0])
     return true;
