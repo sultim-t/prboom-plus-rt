@@ -381,3 +381,18 @@ void I_Error(const char *error, ...)
 #endif
   I_SafeExit(-1);
 }
+
+// e6y
+int SNPRINTF(char *s, size_t n, const char *format, ...)
+{
+  int result;
+  va_list argptr;
+  va_start(argptr, format);
+#ifdef HAVE_SNPRINTF
+  result = vsnprintf(s, n, format, argptr);
+#else
+  result = vsprintf(s, format, argptr);
+#endif
+  va_end(argptr);
+  return result;
+}
