@@ -393,7 +393,7 @@ static boolean L_GetFileType(const char *filename, fileitem_t *item)
   {
     if (!strcasecmp(filename, launcher.cache[i].name))
     {
-      strcpy(item->name, launcher.cache[launcher.cachesize].name);
+      strcpy(item->name, launcher.cache[i].name);
       item->source = launcher.cache[i].source;
       item->doom1 = launcher.cache[i].doom1;
       item->doom2 = launcher.cache[i].doom2;
