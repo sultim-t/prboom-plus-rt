@@ -175,6 +175,12 @@ extern int gl_use_paletted_texture;
 extern int gl_use_shared_texture_palette;
 extern int gl_sprite_offset;
 extern int gl_seamless;
+//e6y: motion bloor
+extern int gl_motionblur;
+extern char *gl_motionblur_minspeed;
+extern char *gl_motionblur_att_a;
+extern char *gl_motionblur_att_b;
+extern char *gl_motionblur_att_c;
 #endif
 
 extern int realtic_clock_rate;         // killough 4/13/98: adjustable timer
@@ -812,6 +818,16 @@ default_t defaults[] =
   {"gl_hires_override_pwads", {&gl_hires_override_pwads},  {0},0,1,
    def_bool,ss_stat},
   {"gl_texture_hires_dir", {NULL,&gl_texture_hires_dir}, {0,""},UL,UL,
+   def_str,ss_none},
+  {"gl_motionblur", {&gl_motionblur},  {0},0,1,
+   def_bool,ss_stat},
+  {"gl_motionblur_minspeed", {NULL,&gl_motionblur_minspeed}, {0,"64.1"},UL,UL,
+   def_str,ss_none},
+  {"gl_motionblur_att_a", {NULL,&gl_motionblur_att_a}, {0,"55.0"},UL,UL,
+   def_str,ss_none},
+  {"gl_motionblur_att_b", {NULL,&gl_motionblur_att_b}, {0,"1.8"},UL,UL,
+   def_str,ss_none},
+  {"gl_motionblur_att_c", {NULL,&gl_motionblur_att_c}, {0,"0.9"},UL,UL,
    def_str,ss_none},
 #endif
   {"Prboom-plus emulation settings",{NULL},{0},UL,UL,def_none,ss_none},

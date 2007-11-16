@@ -145,29 +145,6 @@ void gld_PreprocessDetail(void)
   }
 }
 
-void gld_InitGLVersion(void)
-{
-  int MajorVersion, MinorVersion;
-  glversion = OPENGL_VERSION_1_0;
-  if (sscanf(glGetString(GL_VERSION), "%d.%d", &MajorVersion, &MinorVersion) == 2)
-  {
-    if (MajorVersion > 1)
-    {
-      glversion = OPENGL_VERSION_2_0;
-      if (MinorVersion > 0) glversion = OPENGL_VERSION_2_1;
-    }
-    else
-    {
-      glversion = OPENGL_VERSION_1_0;
-      if (MinorVersion > 0) glversion = OPENGL_VERSION_1_1;
-      if (MinorVersion > 1) glversion = OPENGL_VERSION_1_2;
-      if (MinorVersion > 2) glversion = OPENGL_VERSION_1_3;
-      if (MinorVersion > 3) glversion = OPENGL_VERSION_1_4;
-      if (MinorVersion > 4) glversion = OPENGL_VERSION_1_5;
-    }
-  }
-}
-
 void gld_DrawWallWithDetail(GLWall *wall)
 {
   float w, h, s;

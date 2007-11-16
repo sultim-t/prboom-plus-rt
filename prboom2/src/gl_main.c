@@ -10,6 +10,8 @@
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *  Copyright 2005, 2006 by
  *  Florian Schulze, Colin Phipps, Neil Stevens, Andrey Budko
+ *  Copyright 2007 by
+ *  Roman Marchenko (Vortex)
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -66,6 +68,30 @@
 #include "p_spec.h"//e6y
 #include "e6y.h"//e6y
 
+// Vortex: Frame buffer object related
+#ifdef USE_FBO_TECHNIQUE
+GLint glSceneImageFBOTexID = 0;
+GLuint glDepthBufferFBOTexID = 0;
+GLuint glSceneImageTextureFBOTexID = 0;
+int gld_CreateScreenSizeFBO(void);
+void gld_FreeScreenSizeFBO(void);
+#endif
+
+#define INVUL_CM         0x00000001
+#define INVUL_INV        0x00000002
+#define INVUL_BW         0x00000004
+static unsigned int invul_method;
+static float bw_r = 0.3f;
+static float bw_g = 0.59f;
+static float bw_b = 0.11f;
+
+//e6y: motion bloor
+int gl_motionblur;
+char *gl_motionblur_minspeed;
+char *gl_motionblur_att_a;
+char *gl_motionblur_att_b;
+char *gl_motionblur_att_c;
+
 //e6y
 static boolean SkyDrawed;
 gl_render_precise_t gl_render_precise;
@@ -73,12 +99,30 @@ const char *gl_render_precises[] = {"Speed","Quality"};
 
 boolean gl_arb_multitexture = false;
 boolean gl_arb_texture_compression = false;
+boolean gl_ext_framebuffer_object = false;
+boolean gl_ext_blend_color = false;
 
 /* ARB_multitexture command function pointers */
 PFNGLACTIVETEXTUREARBPROC        GLEXT_glActiveTextureARB        = NULL;
 PFNGLCLIENTACTIVETEXTUREARBPROC  GLEXT_glClientActiveTextureARB  = NULL;
 PFNGLMULTITEXCOORD2FARBPROC      GLEXT_glMultiTexCoord2fARB      = NULL;
 PFNGLMULTITEXCOORD2FVARBPROC     GLEXT_glMultiTexCoord2fvARB     = NULL;
+
+/* EXT_framebuffer_object */
+#ifdef USE_FBO_TECHNIQUE
+PFNGLBINDFRAMEBUFFEREXTPROC         GLEXT_glBindFramebufferEXT         = NULL;
+PFNGLGENFRAMEBUFFERSEXTPROC         GLEXT_glGenFramebuffersEXT         = NULL;
+PFNGLGENRENDERBUFFERSEXTPROC        GLEXT_glGenRenderbuffersEXT        = NULL;
+PFNGLBINDRENDERBUFFEREXTPROC        GLEXT_glBindRenderbufferEXT        = NULL;
+PFNGLRENDERBUFFERSTORAGEEXTPROC     GLEXT_glRenderbufferStorageEXT     = NULL;
+PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC GLEXT_glFramebufferRenderbufferEXT = NULL;
+PFNGLFRAMEBUFFERTEXTURE2DEXTPROC    GLEXT_glFramebufferTexture2DEXT    = NULL;
+PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC  GLEXT_glCheckFramebufferStatusEXT  = NULL;
+PFNGLDELETEFRAMEBUFFERSEXTPROC      GLEXT_glDeleteFramebuffersEXT      = NULL;
+PFNGLDELETERENDERBUFFERSEXTPROC     GLEXT_glDeleteRenderbuffersEXT     = NULL;
+#endif
+
+PFNGLBLENDCOLOREXTPROC              GLEXT_glBlendColorEXT = NULL;
 
 /* ARB_texture_compression */
 PFNGLCOMPRESSEDTEXIMAGE2DARBPROC GLEXT_glCompressedTexImage2DARB = NULL;
@@ -285,10 +329,22 @@ void gld_StaticLightAlpha(float light, float alpha)
   player_t *player;
   player = &players[displayplayer];
 
-  if (player->fixedcolormap)
-    glColor4f(1.0f, 1.0f, 1.0f, alpha);
+#ifndef USE_FBO_TECHNIQUE
+  if (invul_method & INVUL_BW)
+  {
+    if (player->fixedcolormap)
+      glColor4f(bw_r, bw_g, bw_b, alpha);
+    else
+      glColor4f(light, light, light, alpha);
+  }
   else
-    glColor4f(light, light, light, alpha);
+#endif
+  {
+    if (player->fixedcolormap)
+      glColor4f(1.0f, 1.0f, 1.0f, alpha);
+    else
+      glColor4f(light, light, light, alpha);
+  }
 }
 
 static void gld_InitExtensions(const char *_extensions)
@@ -385,6 +441,71 @@ void gld_InitExtensionsEx(void)
 
   if (gl_arb_texture_compression)
     lprintf(LO_INFO,"using GL_ARB_texture_compression\n");
+
+#ifdef USE_FBO_TECHNIQUE
+  gl_ext_framebuffer_object = isExtensionSupported("GL_EXT_framebuffer_object") != NULL;
+
+  if (gl_ext_framebuffer_object)
+  {
+    GLEXT_glGenFramebuffersEXT         = SDL_GL_GetProcAddress("glGenFramebuffersEXT");
+    GLEXT_glBindFramebufferEXT         = SDL_GL_GetProcAddress("glBindFramebufferEXT");
+    GLEXT_glGenRenderbuffersEXT        = SDL_GL_GetProcAddress("glGenRenderbuffersEXT");
+    GLEXT_glBindRenderbufferEXT        = SDL_GL_GetProcAddress("glBindRenderbufferEXT");
+    GLEXT_glRenderbufferStorageEXT     = SDL_GL_GetProcAddress("glRenderbufferStorageEXT");
+    GLEXT_glFramebufferRenderbufferEXT = SDL_GL_GetProcAddress("glFramebufferRenderbufferEXT");
+    GLEXT_glFramebufferTexture2DEXT    = SDL_GL_GetProcAddress("glFramebufferTexture2DEXT");
+    GLEXT_glCheckFramebufferStatusEXT  = SDL_GL_GetProcAddress("glCheckFramebufferStatusEXT");
+    GLEXT_glDeleteFramebuffersEXT      = SDL_GL_GetProcAddress("glDeleteFramebuffersEXT");
+    GLEXT_glDeleteRenderbuffersEXT     = SDL_GL_GetProcAddress("glDeleteRenderbuffersEXT");
+
+    if (!GLEXT_glGenFramebuffersEXT || !GLEXT_glBindFramebufferEXT ||
+        !GLEXT_glGenRenderbuffersEXT || !GLEXT_glBindRenderbufferEXT ||
+        !GLEXT_glRenderbufferStorageEXT || !GLEXT_glFramebufferRenderbufferEXT ||
+        !GLEXT_glFramebufferTexture2DEXT || !GLEXT_glCheckFramebufferStatusEXT ||
+        !GLEXT_glDeleteFramebuffersEXT || !GLEXT_glDeleteRenderbuffersEXT)
+      gl_ext_framebuffer_object = false;
+  }
+
+  if (gl_ext_framebuffer_object)
+    lprintf(LO_INFO,"using GL_EXT_framebuffer_object\n");
+#endif
+
+  gl_ext_blend_color = isExtensionSupported("GL_EXT_blend_color") != NULL;
+
+  if (gl_ext_blend_color)
+  {
+    GLEXT_glBlendColorEXT = SDL_GL_GetProcAddress("glBlendColorEXT");
+
+    if (!GLEXT_glBlendColorEXT)
+      gl_ext_blend_color = false;
+  }
+
+  if (gl_ext_blend_color)
+    lprintf(LO_INFO,"using GL_EXT_blend_color\n");
+}
+
+//e6y
+void gld_InitGLVersion(void)
+{
+  int MajorVersion, MinorVersion;
+  glversion = OPENGL_VERSION_1_0;
+  if (sscanf(glGetString(GL_VERSION), "%d.%d", &MajorVersion, &MinorVersion) == 2)
+  {
+    if (MajorVersion > 1)
+    {
+      glversion = OPENGL_VERSION_2_0;
+      if (MinorVersion > 0) glversion = OPENGL_VERSION_2_1;
+    }
+    else
+    {
+      glversion = OPENGL_VERSION_1_0;
+      if (MinorVersion > 0) glversion = OPENGL_VERSION_1_1;
+      if (MinorVersion > 1) glversion = OPENGL_VERSION_1_2;
+      if (MinorVersion > 2) glversion = OPENGL_VERSION_1_3;
+      if (MinorVersion > 3) glversion = OPENGL_VERSION_1_4;
+      if (MinorVersion > 4) glversion = OPENGL_VERSION_1_5;
+    }
+  }
 }
 
 void gld_Init(int width, int height)
@@ -551,6 +672,15 @@ void gld_Init(int width, int height)
   gld_Finish();
   glClear(GL_COLOR_BUFFER_BIT);
   glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
+
+  // Vortex: Create FBO object and associated render targets
+#ifdef USE_FBO_TECHNIQUE
+  if (!gld_CreateScreenSizeFBO())
+  {
+    lprintf(LO_ERROR, "gld_CreateScreenSizeFBO: Cannot create framebuffer object\n");
+    gl_ext_framebuffer_object = false;
+  }
+#endif
 }
 
 void gld_InitCommandLine(void)
@@ -1826,7 +1956,45 @@ void gld_StartDrawScene(void)
   paperitems_pitch=(float)(viewpitch>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
   if (paperitems_pitch>87.0f && paperitems_pitch<=90.0f)
     paperitems_pitch = 87.0f;
+  
+  invul_method = 0;
+  if (players[displayplayer].fixedcolormap == 32)
+  {
+    if (gl_boom_colormaps)
+    {
+      invul_method = INVUL_CM;
+    }
+    else
+    {
+      if (glversion >= OPENGL_VERSION_1_3)
+      {
+        invul_method = INVUL_BW;
+      }
+      else
+      {
+        invul_method = INVUL_INV;
+      }
+    }
+  }
 
+  // Vortex: Set FBO object
+#ifdef USE_FBO_TECHNIQUE
+  if (gl_ext_framebuffer_object)
+  {
+    GLEXT_glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, glSceneImageFBOTexID);
+    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+  }
+#else
+  if (invul_method & INVUL_BW)
+  {
+    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_COMBINE);
+    glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB,GL_DOT3_RGB);
+    glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB,GL_PRIMARY_COLOR);
+    glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB,GL_SRC_COLOR);
+    glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB,GL_TEXTURE);
+    glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB,GL_SRC_COLOR);
+  }
+#endif
 
 #ifdef _DEBUG
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1877,25 +2045,126 @@ void gld_EndDrawScene(void)
   { // don't draw on side views
     R_DrawPlayerSprites();
   }
-  
+
+// Vortex: Restore original RT
+#ifdef USE_FBO_TECHNIQUE
+  if (gl_ext_framebuffer_object)
+  {
+    GLEXT_glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  }
+#endif
+
   // e6y
   // Effect of invulnerability uses a colormap instead of hard-coding now
   // See nuts.wad
   // http://www.doomworld.com/idgames/index.php?id=11402
-  if (!gl_boom_colormaps && player->fixedcolormap == 32) {
-    glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
-    glColor4f(1,1,1,1);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    last_gltexture = NULL;
-    last_cm = -1;
+#ifdef USE_FBO_TECHNIQUE
+  // Vortex: Black and white effect
+  if (gl_ext_framebuffer_object)
+  {
+    glBindTexture(GL_TEXTURE_2D, glSceneImageTextureFBOTexID);
+
+    // Setup blender
+    if (invul_method & INVUL_BW)
+    {
+      glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_COMBINE);
+      glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB,GL_DOT3_RGB);
+      glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB,GL_PRIMARY_COLOR);
+      //glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB,GL_SRC_COLOR); //default value
+      glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB,GL_TEXTURE);
+      //glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB,GL_SRC_COLOR); //default value
+
+      glColor3f(bw_r, bw_g, bw_b);
+      //glColor3f(0.2f, 0.2f, 0.6f);
+    }
+    else
+    {
+      glColor3f(1.0f, 1.0f, 1.0f);
+    }
+
+    //e6y: motion bloor effect for strafe50
+    if (gl_motionblur && gl_ext_blend_color)
+    {
+      static boolean gl_motionblur_init = false;
+      static int gl_motionblur_minspeed_pow2 = 0x32 * 0x32 + 0x28 * 0x28;
+      static float gl_motionblur_a = 55.0f;
+      static float gl_motionblur_b = 1.8f;
+      static float gl_motionblur_c = 0.9f;
+
+      ticcmd_t *cmd = &players[displayplayer].cmd;
+      int camera_speed = cmd->forwardmove * cmd->forwardmove + cmd->sidemove * cmd->sidemove;
+
+      if (!gl_motionblur_init)
+      {
+        float f;
+        sscanf(gl_motionblur_minspeed, "%f", &f);
+        sscanf(gl_motionblur_att_a, "%f", &gl_motionblur_a);
+        sscanf(gl_motionblur_att_b, "%f", &gl_motionblur_b);
+        sscanf(gl_motionblur_att_c, "%f", &gl_motionblur_c);
+
+        gl_motionblur_minspeed_pow2 = (int)(f * f);
+
+        gl_motionblur_init = true;
+      }
+
+      if (camera_speed > gl_motionblur_minspeed_pow2)
+      {
+        extern int renderer_fps;
+        static float prev_alpha = 0;
+        static float motionblur_alpha = 1.0f;
+
+        if (realframe)
+        {
+          motionblur_alpha = (float)((atan(-renderer_fps/gl_motionblur_a))/gl_motionblur_b)+gl_motionblur_c;
+        }
+
+        glBlendFunc(GL_CONSTANT_ALPHA_EXT, GL_ONE_MINUS_CONSTANT_ALPHA_EXT);
+        GLEXT_glBlendColorEXT(1.0f, 1.0f, 1.0f, motionblur_alpha);
+      }
+    }
+  
     glBegin(GL_TRIANGLE_STRIP);
-      glVertex2f( 0.0f, 0.0f);
-      glVertex2f( 0.0f, (float)SCREENHEIGHT);
-      glVertex2f( (float)SCREENWIDTH, 0.0f);
-      glVertex2f( (float)SCREENWIDTH, (float)SCREENHEIGHT);
+    {
+      glTexCoord2f(0.0f, 1.0f); glVertex2f(0.0f, 0.0f);
+      glTexCoord2f(0.0f, 0.0f); glVertex2f(0.0f, (float)SCREENHEIGHT);
+      glTexCoord2f(1.0f, 1.0f); glVertex2f((float)SCREENWIDTH, 0.0f);
+      glTexCoord2f(1.0f, 0.0f); glVertex2f((float)SCREENWIDTH, (float)SCREENHEIGHT);
+    }
     glEnd();
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    
+    if (gl_motionblur && gl_ext_blend_color)
+    {
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+
+    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
   }
+  else
+#else
+  {
+    if (invul_method & INVUL_INV)
+    {
+      glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
+      glColor4f(1,1,1,1);
+      glBindTexture(GL_TEXTURE_2D, 0);
+      last_gltexture = NULL;
+      last_cm = -1;
+      glBegin(GL_TRIANGLE_STRIP);
+        glVertex2f( 0.0f, 0.0f);
+        glVertex2f( 0.0f, (float)SCREENHEIGHT);
+        glVertex2f( (float)SCREENWIDTH, 0.0f);
+        glVertex2f( (float)SCREENWIDTH, (float)SCREENHEIGHT);
+      glEnd();
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+    if (invul_method & INVUL_BW)
+    {
+      glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+    }
+  }
+#endif
+
   if (extra_alpha>0.0f)
   {
     glDisable(GL_ALPHA_TEST);
@@ -2975,10 +3244,15 @@ void gld_DrawScene(player_t *player)
   {
     if (comp[comp_skymap] && gl_shared_texture_palette)
       glDisable(GL_SHARED_TEXTURE_PALETTE_EXT);
+    
+    if (comp[comp_skymap] && (invul_method & INVUL_BW))
+      glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+    
     glEnable(GL_TEXTURE_GEN_S);
     glEnable(GL_TEXTURE_GEN_T);
     glEnable(GL_TEXTURE_GEN_Q);
-    glColor4fv(gl_whitecolor);
+    if (comp[comp_skymap] || !(invul_method & INVUL_BW))
+      glColor4fv(gl_whitecolor);
   }
 
   // skies
@@ -3002,6 +3276,10 @@ void gld_DrawScene(player_t *player)
     glDisable(GL_TEXTURE_GEN_Q);
     glDisable(GL_TEXTURE_GEN_T);
     glDisable(GL_TEXTURE_GEN_S);
+
+    if (comp[comp_skymap] && (invul_method & INVUL_BW))
+      glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB,GL_COMBINE);
+
     if (comp[comp_skymap] && gl_shared_texture_palette)
       glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
   }
@@ -3076,3 +3354,44 @@ void gld_PreprocessLevel(void)
   gld_PreprocessDetail();
   gld_InitVertexData();
 }
+
+// Vortex: some FBO stuff
+#ifdef USE_FBO_TECHNIQUE
+int gld_CreateScreenSizeFBO(void)
+{
+  int status;
+
+  GLEXT_glGenFramebuffersEXT(1, &glSceneImageFBOTexID);
+  GLEXT_glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, glSceneImageFBOTexID);
+
+  GLEXT_glGenRenderbuffersEXT(1, &glDepthBufferFBOTexID);
+  GLEXT_glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, glDepthBufferFBOTexID);
+
+  GLEXT_glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, SCREENWIDTH, SCREENHEIGHT);
+  GLEXT_glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, glDepthBufferFBOTexID);
+  
+  glGenTextures(1, &glSceneImageTextureFBOTexID);
+  glBindTexture(GL_TEXTURE_2D, glSceneImageTextureFBOTexID);
+  glTexImage2D(GL_TEXTURE_2D, 0, gl_tex_format, SCREENWIDTH, SCREENHEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  
+  GLEXT_glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, glSceneImageTextureFBOTexID, 0);
+  status = GLEXT_glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+
+  GLEXT_glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+  atexit(gld_FreeScreenSizeFBO);
+
+  return status == GL_FRAMEBUFFER_COMPLETE_EXT;
+}
+
+void gld_FreeScreenSizeFBO(void)
+{
+  GLEXT_glDeleteFramebuffersEXT(1, &glSceneImageFBOTexID);
+  GLEXT_glDeleteRenderbuffersEXT(1, &glDepthBufferFBOTexID);
+  glDeleteTextures(1, &glSceneImageTextureFBOTexID);
+}
+#endif

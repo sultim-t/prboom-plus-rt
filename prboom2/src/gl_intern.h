@@ -296,6 +296,12 @@ void gld_ProgressUpdate(char * text, int progress, int total);
 int gld_ProgressStart(void);
 int gld_ProgressEnd(void);
 
+//motion bloor
+extern int gl_motionblur;
+extern char *gl_motionblur_minspeed;
+extern char *gl_motionblur_linear_k;
+extern char *gl_motionblur_linear_b;
+
 extern int imageformats[];
 
 #endif // _GL_INTERN_H

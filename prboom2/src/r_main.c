@@ -555,6 +555,7 @@ int autodetect_hom = 0;       // killough 2/7/98: HOM autodetection flag
 //
 int rendered_visplanes, rendered_segs, rendered_vissprites;
 boolean rendering_stats;
+int renderer_fps = 0;
 
 static void R_ShowStats(void)
 {
@@ -565,11 +566,14 @@ static void R_ShowStats(void)
   FPS_FrameCount++;
   if(tick >= FPS_SavedTick + 1000)
   {
-    doom_printf((V_GetMode() == VID_MODEGL)
-                ?"Frame rate %d fps\nWalls %d, Flats %d, Sprites %d"
-                :"Frame rate %d fps\nSegs %d, Visplanes %d, Sprites %d",
-    1000 * FPS_FrameCount / (tick - FPS_SavedTick), rendered_segs,
-    rendered_visplanes, rendered_vissprites);
+    renderer_fps = 1000 * FPS_FrameCount / (tick - FPS_SavedTick);
+    if (rendering_stats)
+    {
+      doom_printf((V_GetMode() == VID_MODEGL)
+                  ?"Frame rate %d fps\nWalls %d, Flats %d, Sprites %d"
+                  :"Frame rate %d fps\nSegs %d, Visplanes %d, Sprites %d",
+      renderer_fps, rendered_segs, rendered_visplanes, rendered_vissprites);
+    }
     FPS_SavedTick = tick;
     FPS_FrameCount = 0;
   }
@@ -677,7 +681,8 @@ void R_RenderPlayerView (player_t* player)
 #endif
   }
 
-  if (rendering_stats) R_ShowStats();
+  //e6y if (rendering_stats) 
+  R_ShowStats();
 
   R_RestoreInterpolations();
 }

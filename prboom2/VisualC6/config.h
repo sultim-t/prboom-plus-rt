@@ -153,6 +153,9 @@
 /* Define if you have the SDL image library -lSDL_image */
 #define HAVE_LIBSDL_IMAGE
 
+/* Define if you want to use FBO for some tricks in OpenGL */
+#define USE_FBO_TECHNIQUE 1
+
 #ifdef _WIN32
 
 /* Define if you want to have PrBoom-Plus.wad in the exe  */
