@@ -329,21 +329,29 @@ void gld_StaticLightAlpha(float light, float alpha)
   player_t *player;
   player = &players[displayplayer];
 
-#ifndef USE_FBO_TECHNIQUE
-  if (invul_method & INVUL_BW)
+  if (!player->fixedcolormap)
   {
-    if (player->fixedcolormap)
-      glColor4f(bw_r, bw_g, bw_b, alpha);
-    else
-      glColor4f(light, light, light, alpha);
+    glColor4f(light, light, light, alpha);
   }
   else
-#endif
   {
-    if (player->fixedcolormap)
+    if (!(invul_method & INVUL_BW))
+    {
       glColor4f(1.0f, 1.0f, 1.0f, alpha);
+    }
     else
-      glColor4f(light, light, light, alpha);
+    {
+#ifdef USE_FBO_TECHNIQUE
+      if (gl_ext_framebuffer_object)
+      {
+        glColor4f(1.0f, 1.0f, 1.0f, alpha);
+      }
+      else
+#endif
+      {
+        glColor4f(bw_r, bw_g, bw_b, alpha);
+      }
+    }
   }
 }
 
@@ -1984,7 +1992,8 @@ void gld_StartDrawScene(void)
     GLEXT_glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, glSceneImageFBOTexID);
     glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
   }
-#else
+  else
+#endif
   if (invul_method & INVUL_BW)
   {
     glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_COMBINE);
@@ -1994,7 +2003,6 @@ void gld_StartDrawScene(void)
     glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB,GL_TEXTURE);
     glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB,GL_SRC_COLOR);
   }
-#endif
 
 #ifdef _DEBUG
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -2046,22 +2054,19 @@ void gld_EndDrawScene(void)
     R_DrawPlayerSprites();
   }
 
-// Vortex: Restore original RT
-#ifdef USE_FBO_TECHNIQUE
-  if (gl_ext_framebuffer_object)
-  {
-    GLEXT_glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-  }
-#endif
-
   // e6y
   // Effect of invulnerability uses a colormap instead of hard-coding now
   // See nuts.wad
   // http://www.doomworld.com/idgames/index.php?id=11402
+
 #ifdef USE_FBO_TECHNIQUE
+
   // Vortex: Black and white effect
   if (gl_ext_framebuffer_object)
   {
+    // Vortex: Restore original RT
+    GLEXT_glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
     glBindTexture(GL_TEXTURE_2D, glSceneImageTextureFBOTexID);
 
     // Setup blender
@@ -2141,7 +2146,7 @@ void gld_EndDrawScene(void)
     glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
   }
   else
-#else
+#endif
   {
     if (invul_method & INVUL_INV)
     {
@@ -2163,7 +2168,6 @@ void gld_EndDrawScene(void)
       glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
     }
   }
-#endif
 
   if (extra_alpha>0.0f)
   {
@@ -3361,6 +3365,9 @@ int gld_CreateScreenSizeFBO(void)
 {
   int status;
 
+  if (!gl_ext_framebuffer_object)
+    return false;
+
   GLEXT_glGenFramebuffersEXT(1, &glSceneImageFBOTexID);
   GLEXT_glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, glSceneImageFBOTexID);
 
@@ -3390,6 +3397,9 @@ int gld_CreateScreenSizeFBO(void)
 
 void gld_FreeScreenSizeFBO(void)
 {
+  if (!gl_ext_framebuffer_object)
+    return;
+
   GLEXT_glDeleteFramebuffersEXT(1, &glSceneImageFBOTexID);
   GLEXT_glDeleteRenderbuffersEXT(1, &glDepthBufferFBOTexID);
   glDeleteTextures(1, &glSceneImageTextureFBOTexID);
