@@ -73,7 +73,7 @@
 GLint glSceneImageFBOTexID = 0;
 GLuint glDepthBufferFBOTexID = 0;
 GLuint glSceneImageTextureFBOTexID = 0;
-int gld_CreateScreenSizeFBO(void);
+unsigned int gld_CreateScreenSizeFBO(void);
 void gld_FreeScreenSizeFBO(void);
 #endif
 
@@ -687,10 +687,13 @@ void gld_Init(int width, int height)
 
   // Vortex: Create FBO object and associated render targets
 #ifdef USE_FBO_TECHNIQUE
-  if (!gld_CreateScreenSizeFBO())
   {
-    lprintf(LO_ERROR, "gld_CreateScreenSizeFBO: Cannot create framebuffer object\n");
-    gl_ext_framebuffer_object = false;
+    unsigned int status = gld_CreateScreenSizeFBO();
+    if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
+    {
+      lprintf(LO_ERROR, "gld_CreateScreenSizeFBO: Cannot create framebuffer object (error code: %d)\n", status);
+      gl_ext_framebuffer_object = false;
+    }
   }
 #endif
 }
@@ -3367,7 +3370,7 @@ void gld_PreprocessLevel(void)
 
 // Vortex: some FBO stuff
 #ifdef USE_FBO_TECHNIQUE
-int gld_CreateScreenSizeFBO(void)
+unsigned int gld_CreateScreenSizeFBO(void)
 {
   int status;
 
@@ -3398,7 +3401,7 @@ int gld_CreateScreenSizeFBO(void)
 
   atexit(gld_FreeScreenSizeFBO);
 
-  return status == GL_FRAMEBUFFER_COMPLETE_EXT;
+  return status;
 }
 
 void gld_FreeScreenSizeFBO(void)
