@@ -93,6 +93,7 @@ char *gl_motionblur_att_b;
 char *gl_motionblur_att_c;
 
 //e6y
+int gl_invul_bw_method;
 static boolean SkyDrawed;
 gl_render_precise_t gl_render_precise;
 const char *gl_render_precises[] = {"Speed","Quality"};
@@ -344,7 +345,10 @@ void gld_StaticLightAlpha(float light, float alpha)
 #ifdef USE_FBO_TECHNIQUE
       if (gl_ext_framebuffer_object)
       {
-        glColor4f(1.0f, 1.0f, 1.0f, alpha);
+        if (gl_invul_bw_method == 0)
+          glColor4f(0.5f, 0.5f, 0.5f, alpha);
+        else
+          glColor4f(1.0f, 1.0f, 1.0f, alpha);
       }
       else
 #endif
@@ -2079,8 +2083,10 @@ void gld_EndDrawScene(void)
       glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB,GL_TEXTURE);
       //glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB,GL_SRC_COLOR); //default value
 
-      glColor3f(bw_r, bw_g, bw_b);
-      //glColor3f(0.2f, 0.2f, 0.6f);
+      if (gl_invul_bw_method == 0)
+        glColor3f(0.3f, 0.3f, 0.4f);
+      else
+        glColor3f(bw_r, bw_g, bw_b);
     }
     else
     {
