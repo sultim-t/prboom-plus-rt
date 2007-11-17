@@ -687,6 +687,7 @@ void gld_Init(int width, int height)
 
   // Vortex: Create FBO object and associated render targets
 #ifdef USE_FBO_TECHNIQUE
+  if (gl_ext_framebuffer_object)
   {
     unsigned int status = gld_CreateScreenSizeFBO();
     if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
