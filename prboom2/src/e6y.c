@@ -229,6 +229,27 @@ static boolean saved_nodrawers;
 static boolean saved_nosfxparm;
 static boolean saved_nomusicparm;
 
+int process_affinity_mask;
+
+// Ability to use only the allowed CPUs
+// For example it is necessary for buggy SDL_mixer (<=1.2.8 at least)
+void I_SetAffinityMask(void)
+{
+#ifdef _WIN32
+  if (process_affinity_mask)
+  {
+    if (SetProcessAffinityMask(GetCurrentProcess(), process_affinity_mask))
+    {
+      lprintf(LO_INFO, "I_SetAffinityMask: affinity mask is %d\n", process_affinity_mask);
+    }
+    else
+    {
+      lprintf(LO_ERROR, "I_SetAffinityMask: failed to SetProcessAffinityMask (%s)\n", GetLastError());
+    }
+  }
+#endif
+}
+
 //--------------------------------------------------
 #ifdef _WIN32
 static HWND WIN32_GetHWND(void);

@@ -209,6 +209,13 @@ int map_point_coordinates;
 
 default_t defaults[] =
 {
+  //e6y
+#ifdef _WIN32
+  {"System settings",{NULL},{0},UL,UL,def_none,ss_none},
+  {"Set this to 1 if you experience problems running the game on a multi-processor machine",{NULL},{0},UL,UL,def_none,ss_none},
+  {"process_affinity_mask", {&process_affinity_mask}, {0},-1,UL, def_int,ss_stat},
+#endif
+  
   {"Misc settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"default_compatibility_level",{(int*)&default_compatibility_level},
    {-1},-1,MAX_COMPATIBILITY_LEVEL-1,
@@ -229,7 +236,7 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"demo_smoothturnsfactor", {&demo_smoothturnsfactor},  {6},1,SMOOTH_PLAYING_MAXFACTOR,
    def_int,ss_stat},
-
+   
   {"Files",{NULL},{0},UL,UL,def_none,ss_none},
   /* cph - MBF-like wad/deh/bex autoload code */
   {"wadfile_1",{NULL,&wad_files[0]},{0,""},UL,UL,def_str,ss_none},

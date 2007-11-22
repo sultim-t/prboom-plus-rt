@@ -411,6 +411,10 @@ int main(int argc, char **argv)
     atexit(Done_ConsoleWin);
   }
 #endif
+
+  //e6y: ability to use only the allowed CPUs
+  I_SetAffinityMask();
+
   /* Version info */
   lprintf(LO_INFO,"\n");
   PrintVer();

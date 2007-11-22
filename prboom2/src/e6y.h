@@ -225,6 +225,10 @@ extern hu_textline_t  w_precache;
 extern char hud_add[80];
 extern char hud_centermsg[80];
 
+extern int process_affinity_mask;
+
+void I_SetAffinityMask(void);
+
 void e6y_assert(const char *format, ...);
 
 void ParamsMatchingCheck();
