@@ -240,11 +240,11 @@ void I_SetAffinityMask(void)
   {
     if (SetProcessAffinityMask(GetCurrentProcess(), process_affinity_mask))
     {
-      lprintf(LO_INFO, "I_SetAffinityMask: affinity mask is %d\n", process_affinity_mask);
+      lprintf(LO_INFO, "I_SetAffinityMask: manual affinity mask is %d\n", process_affinity_mask);
     }
     else
     {
-      lprintf(LO_ERROR, "I_SetAffinityMask: failed to SetProcessAffinityMask (%s)\n", GetLastError());
+      lprintf(LO_ERROR, "I_SetAffinityMask: failed to set process affinity mask (errorcode: %d)\n", GetLastError());
     }
   }
 #endif
