@@ -177,6 +177,9 @@ extern int gl_sprite_offset;
 extern int gl_seamless;
 extern int gl_invul_bw_method;
 
+//e6y: all OpenGL extentions will be disabled with TRUE
+extern int gl_compatibility;
+
 //e6y: motion bloor
 extern int gl_motionblur;
 extern char *gl_motionblur_minspeed;
@@ -796,6 +799,8 @@ default_t defaults[] =
 
 #ifdef GL_DOOM
   {"Prboom-plus OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
+  {"gl_compatibility", {&gl_compatibility},  {0},0,1,
+   def_bool,ss_stat},
   {"render_detailedwalls", {&render_detailedwalls},  {0},0,1,
    def_bool,ss_stat},
   {"render_detailedflats", {&render_detailedflats},  {0},0,1,

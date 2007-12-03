@@ -68,6 +68,9 @@
 #include "p_spec.h"//e6y
 #include "e6y.h"//e6y
 
+//e6y: all OpenGL extentions will be disabled with TRUE
+int gl_compatibility = 0;
+
 // Vortex: Frame buffer object related
 #ifdef USE_FBO_TECHNIQUE
 GLint glSceneImageFBOTexID = 0;
@@ -494,6 +497,20 @@ void gld_InitExtensionsEx(void)
 
   if (gl_ext_blend_color)
     lprintf(LO_INFO,"using GL_EXT_blend_color\n");
+
+  if (glversion < OPENGL_VERSION_1_3)
+  {
+    gl_ext_framebuffer_object = false;
+    gl_ext_blend_color = false;
+  }
+
+  if (gl_compatibility)
+  {
+    gl_arb_multitexture = false;
+    gl_arb_texture_compression = false;
+    gl_ext_framebuffer_object = false;
+    gl_ext_blend_color = false;
+  }
 }
 
 //e6y
@@ -2062,6 +2079,22 @@ void gld_EndDrawScene(void)
     R_DrawPlayerSprites();
   }
 
+  if (extra_alpha>0.0f)
+  {
+    glDisable(GL_ALPHA_TEST);
+    glColor4f(extra_red, extra_green, extra_blue, extra_alpha);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    last_gltexture = NULL;
+    last_cm = -1;
+    glBegin(GL_TRIANGLE_STRIP);
+      glVertex2f( 0.0f, 0.0f);
+      glVertex2f( 0.0f, (float)SCREENHEIGHT);
+      glVertex2f( (float)SCREENWIDTH, 0.0f);
+      glVertex2f( (float)SCREENWIDTH, (float)SCREENHEIGHT);
+    glEnd();
+    glEnable(GL_ALPHA_TEST);
+  }
+
   // e6y
   // Effect of invulnerability uses a colormap instead of hard-coding now
   // See nuts.wad
@@ -2177,22 +2210,6 @@ void gld_EndDrawScene(void)
     {
       glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
     }
-  }
-
-  if (extra_alpha>0.0f)
-  {
-    glDisable(GL_ALPHA_TEST);
-    glColor4f(extra_red, extra_green, extra_blue, extra_alpha);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    last_gltexture = NULL;
-    last_cm = -1;
-    glBegin(GL_TRIANGLE_STRIP);
-      glVertex2f( 0.0f, 0.0f);
-      glVertex2f( 0.0f, (float)SCREENHEIGHT);
-      glVertex2f( (float)SCREENWIDTH, 0.0f);
-      glVertex2f( (float)SCREENWIDTH, (float)SCREENHEIGHT);
-    glEnd();
-    glEnable(GL_ALPHA_TEST);
   }
 
   glColor3f(1.0f,1.0f,1.0f);
