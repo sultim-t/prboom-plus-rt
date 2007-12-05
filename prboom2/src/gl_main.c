@@ -84,9 +84,9 @@ void gld_FreeScreenSizeFBO(void);
 #define INVUL_INV        0x00000002
 #define INVUL_BW         0x00000004
 static unsigned int invul_method;
-static float bw_r = 0.3f;
-static float bw_g = 0.59f;
-static float bw_b = 0.11f;
+static float bw_red = 0.3f;
+static float bw_green = 0.59f;
+static float bw_blue = 0.11f;
 
 //e6y: motion bloor
 int gl_motionblur;
@@ -356,7 +356,7 @@ void gld_StaticLightAlpha(float light, float alpha)
       else
 #endif
       {
-        glColor4f(bw_r, bw_g, bw_b, alpha);
+        glColor4f(bw_red, bw_green, bw_blue, alpha);
       }
     }
   }
@@ -510,6 +510,7 @@ void gld_InitExtensionsEx(void)
     gl_arb_texture_compression = false;
     gl_ext_framebuffer_object = false;
     gl_ext_blend_color = false;
+    glversion = OPENGL_VERSION_1_1;
   }
 }
 
@@ -2063,6 +2064,43 @@ void gld_StartDrawScene(void)
   gld_drawinfo.num_drawitems=0;
 }
 
+//e6y
+static void gld_ProcessExtraAlpha(void)
+{
+  if (extra_alpha>0.0f)
+  {
+    glDisable(GL_ALPHA_TEST);
+    glColor4f(extra_red, extra_green, extra_blue, extra_alpha);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    last_gltexture = NULL;
+    last_cm = -1;
+    glBegin(GL_TRIANGLE_STRIP);
+      glVertex2f( 0.0f, 0.0f);
+      glVertex2f( 0.0f, (float)SCREENHEIGHT);
+      glVertex2f( (float)SCREENWIDTH, 0.0f);
+      glVertex2f( (float)SCREENWIDTH, (float)SCREENHEIGHT);
+    glEnd();
+    glEnable(GL_ALPHA_TEST);
+  }
+}
+
+//e6y
+static void gld_InvertScene(void)
+{
+  glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
+  glColor4f(1,1,1,1);
+  glBindTexture(GL_TEXTURE_2D, 0);
+  last_gltexture = NULL;
+  last_cm = -1;
+  glBegin(GL_TRIANGLE_STRIP);
+    glVertex2f( 0.0f, 0.0f);
+    glVertex2f( 0.0f, (float)SCREENHEIGHT);
+    glVertex2f( (float)SCREENWIDTH, 0.0f);
+    glVertex2f( (float)SCREENWIDTH, (float)SCREENHEIGHT);
+  glEnd();
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
 void gld_EndDrawScene(void)
 {
   player_t *player = &players[displayplayer];
@@ -2079,32 +2117,21 @@ void gld_EndDrawScene(void)
     R_DrawPlayerSprites();
   }
 
-  if (extra_alpha>0.0f)
-  {
-    glDisable(GL_ALPHA_TEST);
-    glColor4f(extra_red, extra_green, extra_blue, extra_alpha);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    last_gltexture = NULL;
-    last_cm = -1;
-    glBegin(GL_TRIANGLE_STRIP);
-      glVertex2f( 0.0f, 0.0f);
-      glVertex2f( 0.0f, (float)SCREENHEIGHT);
-      glVertex2f( (float)SCREENWIDTH, 0.0f);
-      glVertex2f( (float)SCREENWIDTH, (float)SCREENHEIGHT);
-    glEnd();
-    glEnable(GL_ALPHA_TEST);
-  }
-
   // e6y
   // Effect of invulnerability uses a colormap instead of hard-coding now
   // See nuts.wad
   // http://www.doomworld.com/idgames/index.php?id=11402
 
 #ifdef USE_FBO_TECHNIQUE
-
   // Vortex: Black and white effect
   if (gl_ext_framebuffer_object)
   {
+    // below if scene is in texture
+    if (!invul_method)
+    {
+      gld_ProcessExtraAlpha();
+    }
+
     // Vortex: Restore original RT
     GLEXT_glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
@@ -2116,14 +2143,14 @@ void gld_EndDrawScene(void)
       glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_COMBINE);
       glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB,GL_DOT3_RGB);
       glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB,GL_PRIMARY_COLOR);
-      //glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB,GL_SRC_COLOR); //default value
+      glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB,GL_SRC_COLOR);
       glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB,GL_TEXTURE);
-      //glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB,GL_SRC_COLOR); //default value
+      glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB,GL_SRC_COLOR);
 
       if (gl_invul_bw_method == 0)
         glColor3f(0.3f, 0.3f, 0.4f);
       else
-        glColor3f(bw_r, bw_g, bw_b);
+        glColor3f(bw_red, bw_green, bw_blue);
     }
     else
     {
@@ -2193,23 +2220,17 @@ void gld_EndDrawScene(void)
   {
     if (invul_method & INVUL_INV)
     {
-      glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
-      glColor4f(1,1,1,1);
-      glBindTexture(GL_TEXTURE_2D, 0);
-      last_gltexture = NULL;
-      last_cm = -1;
-      glBegin(GL_TRIANGLE_STRIP);
-        glVertex2f( 0.0f, 0.0f);
-        glVertex2f( 0.0f, (float)SCREENHEIGHT);
-        glVertex2f( (float)SCREENWIDTH, 0.0f);
-        glVertex2f( (float)SCREENWIDTH, (float)SCREENHEIGHT);
-      glEnd();
-      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      gld_InvertScene();
     }
     if (invul_method & INVUL_BW)
     {
       glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
     }
+  }
+
+  if (!(gl_ext_framebuffer_object && !invul_method))
+  {
+    gld_ProcessExtraAlpha();
   }
 
   glColor3f(1.0f,1.0f,1.0f);
