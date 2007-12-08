@@ -1945,6 +1945,85 @@ static void infinitePerspective(GLdouble fovy, GLdouble aspect, GLdouble znear)
 	glMultMatrixd(m);
 }
 
+// e6y
+// It is an alternative way of drawing the sky (gl_drawskys == 2)
+// This method make sense only for old hardware which have no support for GL_TEXTURE_GEN_*
+// Voodoo as example
+void gld_DrawSkyBox(void)
+{
+  int i;
+  GLWall *wall = NULL;
+
+  for (i = gld_drawinfo.num_walls - 1; i >= 0; i--)
+  {  
+    if (gld_drawinfo.walls[i].flag >= GLDWF_SKY)
+    {
+      wall = &gld_drawinfo.walls[i];
+      break;
+    }
+  }
+
+  if (wall)
+  {
+    float fU1,fU2,fV1,fV2;
+    float k1, k2;
+    boolean mlook = GetMouseLook();
+
+    glMatrixMode(GL_TEXTURE);
+    glPushMatrix();
+
+    gld_BindTexture(wall->gltexture);
+
+    if (!mlook_or_fov)
+    {
+      k1 = wall->gltexture->buffer_width / 128.0f;
+      k2 = 256.0f / wall->gltexture->buffer_width;
+
+      fV1 = 0.0f;
+      fV2 = 320.0f/200.0f;
+    }
+    else 
+    {
+      if (wall->gltexture->buffer_width <= 512)
+      {
+        k1 = wall->gltexture->buffer_width / 64.0f;
+        k2 = 128.0f / wall->gltexture->buffer_width;
+      }
+      else
+      {
+        k1 = wall->gltexture->buffer_width / 128.0f;
+        k2 = 256.0f / wall->gltexture->buffer_width;
+      }
+
+      skyYShift = viewPitch<skyUpAngle ? 0.0f : (float)(0.0f-0.6f)/(skyUpAngle-0.0f)*(viewPitch)+0.6f;
+
+      fV1 = skyYShift*fovscale;
+      fV2 = fV1 + 320.0f/200.0f/2.0f;
+    }
+
+    if ((wall->flag&GLDWF_SKYFLIP) == GLDWF_SKYFLIP)
+    {
+      fU1 = 0.5f - wall->skyyaw/(k1/fovscale);
+      fU2 = fU1 + (k2/fovscale);
+    }
+    else
+    {
+      fU2 = 0.5f + wall->skyyaw/(k1/fovscale);
+      fU1 = fU2 + (k2/fovscale);
+    }
+
+    glBegin(GL_TRIANGLE_STRIP);
+      glTexCoord2f(fU1, fV1); glVertex2f(0.0f, 0.0f);
+      glTexCoord2f(fU1, fV2); glVertex2f(0.0f, (float)SCREENHEIGHT);
+      glTexCoord2f(fU2, fV1); glVertex2f((float)SCREENWIDTH, 0.0f);
+      glTexCoord2f(fU2, fV2); glVertex2f((float)SCREENWIDTH, (float)SCREENHEIGHT);
+    glEnd();
+
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+  }
+}
+
 void gld_StartDrawScene(void)
 {
   float trY ;
@@ -2035,6 +2114,9 @@ void gld_StartDrawScene(void)
 #else
   glClear(GL_DEPTH_BUFFER_BIT);
 #endif
+
+  if (gl_drawskys == 2)
+    gld_DrawSkyBox();
 
   glEnable(GL_DEPTH_TEST);
 
@@ -2330,35 +2412,6 @@ static void gld_DrawWall(GLWall *wall)
           glVertex3f(+maxcoord,+maxcoord,+maxcoord);
           glVertex3f(-maxcoord,+maxcoord,-maxcoord);
           glVertex3f(+maxcoord,+maxcoord,-maxcoord);
-          glEnd();
-        }
-
-        if(test_skybox)
-        {
-          if (mlook)
-          {
-            glBegin(GL_TRIANGLE_STRIP);
-            glVertex3f(-maxcoord,-maxcoord,+maxcoord);
-            glVertex3f(+maxcoord,-maxcoord,+maxcoord);
-            glVertex3f(-maxcoord,-maxcoord,-maxcoord);
-            glVertex3f(+maxcoord,-maxcoord,-maxcoord);
-            glEnd();
-          }
-          
-          glBegin(GL_TRIANGLE_STRIP);
-          glVertex3f(+maxcoord,+maxcoord,+maxcoord);
-          glVertex3f(+maxcoord,-maxcoord,+maxcoord);
-          glVertex3f(+maxcoord,+maxcoord,-maxcoord);
-          glVertex3f(+maxcoord,-maxcoord,-maxcoord);
-
-          glVertex3f(-maxcoord,+maxcoord,-maxcoord);
-          glVertex3f(-maxcoord,-maxcoord,-maxcoord);
-          
-          glVertex3f(-maxcoord,+maxcoord,+maxcoord);
-          glVertex3f(-maxcoord,-maxcoord,+maxcoord);
-
-          glVertex3f(+maxcoord,+maxcoord,+maxcoord);
-          glVertex3f(+maxcoord,-maxcoord,+maxcoord);
           glEnd();
         }
       }
@@ -3292,6 +3345,8 @@ void gld_DrawScene(player_t *player)
   
   EnableAlphaBlend(&gl_alpha_blended);
 
+ if (gl_drawskys != 2) // skybox is already applied if gl_drawskys == 2
+ {
   if ( (gl_drawskys) )
   {
     if (comp[comp_skymap] && gl_shared_texture_palette)
@@ -3335,6 +3390,7 @@ void gld_DrawScene(player_t *player)
     if (comp[comp_skymap] && gl_shared_texture_palette)
       glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
   }
+ }
 
   // opaque sprites
   for (i = gld_drawinfo.num_sprites - 1; i >= 0; i--)
