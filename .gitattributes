@@ -15,6 +15,10 @@ prboom2/VisualC8/Doom.sln eol=crlf
 prboom2/VisualC8/Doom.vcproj eol=crlf
 prboom2/VisualC8/Makefile.am -text
 prboom2/VisualC8/prboom_server.vcproj eol=crlf
+prboom2/VisualC9/Doom.sln -text
+prboom2/VisualC9/Doom.vcproj -text
+prboom2/VisualC9/Makefile.am -text
+prboom2/VisualC9/prboom_server.vcproj -text
 prboom2/autotools/ac_c_compile_flags.m4 eol=lf
 prboom2/autotools/ac_cpu_optimisations.m4 eol=lf
 prboom2/data/Makefile.am eol=lf
@@ -264,6 +268,10 @@ prboom2/src/PCRELIB/VisualC8/dftables.vcproj -text
 prboom2/src/PCRELIB/VisualC8/pcre.vcproj -text
 prboom2/src/PCRELIB/VisualC8/pcrelib.sln -text
 prboom2/src/PCRELIB/VisualC8/pcreposix.vcproj -text
+prboom2/src/PCRELIB/VisualC9/dftables.vcproj -text
+prboom2/src/PCRELIB/VisualC9/pcre.vcproj -text
+prboom2/src/PCRELIB/VisualC9/pcrelib.sln -text
+prboom2/src/PCRELIB/VisualC9/pcreposix.vcproj -text
 prboom2/src/PCRELIB/config.guess -text
 prboom2/src/PCRELIB/config.h -text
 prboom2/src/PCRELIB/config.h.in -text
