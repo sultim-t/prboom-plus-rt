@@ -2628,7 +2628,10 @@ void gld_AddWall(seg_t *seg)
     return;
   wall.glseg=&gl_segs[seg->iSegID];
 
-  rellight = seg->linedef->dx==0? +8 : seg->linedef->dy==0 ? -8 : 0;
+  // e6y: fake contrast stuff
+  // Original doom added/removed one light level ((1<<LIGHTSEGSHIFT) == 16) 
+  // for walls exactly vertical/horizontal on the map
+  rellight = seg->linedef->dx==0? +(1<<LIGHTSEGSHIFT) : seg->linedef->dy==0 ? -(1<<LIGHTSEGSHIFT) : 0;
   wall.light=gld_CalcLightLevel(frontsector->lightlevel+rellight+(extralight<<5));
   wall.alpha=1.0f;
   wall.gltexture=NULL;
