@@ -270,7 +270,7 @@ default_t defaults[] =
    def_bool, ss_enem, &monkeys},
   {"monster_friction",{&default_monster_friction}, {1}, 0, 1,
    def_bool, ss_enem, &monster_friction},
-  {"help_friends",{&default_help_friends}, {1}, 0, 1,
+  {"help_friends",{&default_help_friends}, {0}, 0, 1,
    def_bool, ss_enem, &help_friends},
   {"allow_pushers",{&default_allow_pushers},{1},0,1,
    def_bool,ss_weap, &allow_pushers},
