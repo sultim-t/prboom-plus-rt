@@ -11,7 +11,7 @@
  *  Copyright 2005, 2006 by
  *  Florian Schulze, Colin Phipps, Neil Stevens, Andrey Budko
  *  Copyright 2007 by
- *  Roman Marchenko (Vortex)
+ *  Andrey Budko, Roman Marchenko
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -78,6 +78,7 @@ GLuint glDepthBufferFBOTexID = 0;
 GLuint glSceneImageTextureFBOTexID = 0;
 unsigned int gld_CreateScreenSizeFBO(void);
 void gld_FreeScreenSizeFBO(void);
+void gld_InitMotionBlur(void);
 #endif
 
 #define INVUL_CM         0x00000001
@@ -88,12 +89,20 @@ static float bw_red = 0.3f;
 static float bw_green = 0.59f;
 static float bw_blue = 0.11f;
 
+//e6y
+int SceneInTexture = false;
+
 //e6y: motion bloor
 int gl_motionblur;
 char *gl_motionblur_minspeed;
 char *gl_motionblur_att_a;
 char *gl_motionblur_att_b;
 char *gl_motionblur_att_c;
+int MotionBlurOn;
+int gl_motionblur_minspeed_pow2 = 0x32 * 0x32 + 0x28 * 0x28;
+float gl_motionblur_a = 55.0f;
+float gl_motionblur_b = 1.8f;
+float gl_motionblur_c = 0.9f;
 
 //e6y
 int gl_invul_bw_method;
@@ -346,7 +355,7 @@ void gld_StaticLightAlpha(float light, float alpha)
     else
     {
 #ifdef USE_FBO_TECHNIQUE
-      if (gl_ext_framebuffer_object)
+      if (SceneInTexture)
       {
         if (gl_invul_bw_method == 0)
           glColor4f(0.5f, 0.5f, 0.5f, alpha);
@@ -708,7 +717,13 @@ void gld_Init(int width, int height)
   if (gl_ext_framebuffer_object)
   {
     unsigned int status = gld_CreateScreenSizeFBO();
-    if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
+
+    if (status == GL_FRAMEBUFFER_COMPLETE_EXT)
+    {
+      // motion blur setup
+      gld_InitMotionBlur();
+    }
+    else
     {
       lprintf(LO_ERROR, "gld_CreateScreenSizeFBO: Cannot create framebuffer object (error code: %d)\n", status);
       gl_ext_framebuffer_object = false;
@@ -2090,9 +2105,19 @@ void gld_StartDrawScene(void)
     }
   }
 
-  // Vortex: Set FBO object
 #ifdef USE_FBO_TECHNIQUE
-  if (gl_ext_framebuffer_object)
+  if (gl_motionblur && gl_ext_blend_color)
+  {
+    ticcmd_t *cmd = &players[displayplayer].cmd;
+    int camera_speed = cmd->forwardmove * cmd->forwardmove + cmd->sidemove * cmd->sidemove;
+    MotionBlurOn = camera_speed > gl_motionblur_minspeed_pow2;
+  }
+
+  SceneInTexture = (gl_ext_framebuffer_object) &&
+    ((invul_method & INVUL_BW) || (MotionBlurOn));
+
+  // Vortex: Set FBO object
+  if (SceneInTexture)
   {
     GLEXT_glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, glSceneImageFBOTexID);
     glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
@@ -2206,7 +2231,7 @@ void gld_EndDrawScene(void)
 
 #ifdef USE_FBO_TECHNIQUE
   // Vortex: Black and white effect
-  if (gl_ext_framebuffer_object)
+  if (SceneInTexture)
   {
     // below if scene is in texture
     if (!invul_method)
@@ -2240,44 +2265,19 @@ void gld_EndDrawScene(void)
     }
 
     //e6y: motion bloor effect for strafe50
-    if (gl_motionblur && gl_ext_blend_color)
+    if (MotionBlurOn)
     {
-      static boolean gl_motionblur_init = false;
-      static int gl_motionblur_minspeed_pow2 = 0x32 * 0x32 + 0x28 * 0x28;
-      static float gl_motionblur_a = 55.0f;
-      static float gl_motionblur_b = 1.8f;
-      static float gl_motionblur_c = 0.9f;
+      extern int renderer_fps;
+      static float prev_alpha = 0;
+      static float motionblur_alpha = 1.0f;
 
-      ticcmd_t *cmd = &players[displayplayer].cmd;
-      int camera_speed = cmd->forwardmove * cmd->forwardmove + cmd->sidemove * cmd->sidemove;
-
-      if (!gl_motionblur_init)
+      if (realframe)
       {
-        float f;
-        sscanf(gl_motionblur_minspeed, "%f", &f);
-        sscanf(gl_motionblur_att_a, "%f", &gl_motionblur_a);
-        sscanf(gl_motionblur_att_b, "%f", &gl_motionblur_b);
-        sscanf(gl_motionblur_att_c, "%f", &gl_motionblur_c);
-
-        gl_motionblur_minspeed_pow2 = (int)(f * f);
-
-        gl_motionblur_init = true;
+        motionblur_alpha = (float)((atan(-renderer_fps/gl_motionblur_a))/gl_motionblur_b)+gl_motionblur_c;
       }
 
-      if (camera_speed > gl_motionblur_minspeed_pow2)
-      {
-        extern int renderer_fps;
-        static float prev_alpha = 0;
-        static float motionblur_alpha = 1.0f;
-
-        if (realframe)
-        {
-          motionblur_alpha = (float)((atan(-renderer_fps/gl_motionblur_a))/gl_motionblur_b)+gl_motionblur_c;
-        }
-
-        glBlendFunc(GL_CONSTANT_ALPHA_EXT, GL_ONE_MINUS_CONSTANT_ALPHA_EXT);
-        GLEXT_glBlendColorEXT(1.0f, 1.0f, 1.0f, motionblur_alpha);
-      }
+      glBlendFunc(GL_CONSTANT_ALPHA_EXT, GL_ONE_MINUS_CONSTANT_ALPHA_EXT);
+      GLEXT_glBlendColorEXT(1.0f, 1.0f, 1.0f, motionblur_alpha);
     }
   
     glBegin(GL_TRIANGLE_STRIP);
@@ -2290,7 +2290,7 @@ void gld_EndDrawScene(void)
     glEnd();
 
     
-    if (gl_motionblur && gl_ext_blend_color)
+    if (MotionBlurOn)
     {
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
@@ -2308,11 +2308,11 @@ void gld_EndDrawScene(void)
     {
       glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
     }
-  }
 
-  if (!(gl_ext_framebuffer_object && !invul_method))
-  {
-    gld_ProcessExtraAlpha();
+    if (!invul_method)
+    {
+      gld_ProcessExtraAlpha();
+    }
   }
 
   glColor3f(1.0f,1.0f,1.0f);
@@ -3510,5 +3510,20 @@ void gld_FreeScreenSizeFBO(void)
   GLEXT_glDeleteFramebuffersEXT(1, &glSceneImageFBOTexID);
   GLEXT_glDeleteRenderbuffersEXT(1, &glDepthBufferFBOTexID);
   glDeleteTextures(1, &glSceneImageTextureFBOTexID);
+}
+
+void gld_InitMotionBlur(void)
+{
+  if (gl_motionblur && gl_ext_blend_color)
+  {
+    float f;
+
+    sscanf(gl_motionblur_minspeed, "%f", &f);
+    sscanf(gl_motionblur_att_a, "%f", &gl_motionblur_a);
+    sscanf(gl_motionblur_att_b, "%f", &gl_motionblur_b);
+    sscanf(gl_motionblur_att_c, "%f", &gl_motionblur_c);
+
+    gl_motionblur_minspeed_pow2 = (int)(f * f);
+  }
 }
 #endif
