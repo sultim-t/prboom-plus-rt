@@ -287,6 +287,61 @@ sector_t *R_FakeFlat(sector_t *sec, sector_t *tempsec,
 }
 
 //
+// e6y: Check whether the player can look beyond this line
+//
+
+static boolean CheckClip(seg_t * seg, sector_t * frontsector, sector_t * backsector)
+{
+  // check for closed sectors!
+  if (backsector->ceilingheight <= frontsector->floorheight) 
+  {
+    if (seg->sidedef->toptexture == NO_TEXTURE)
+      return false;
+
+    if (backsector->ceilingpic == skyflatnum && frontsector->ceilingpic == skyflatnum)
+      return false;
+
+    return true;
+  }
+
+  if (frontsector->ceilingheight <= backsector->floorheight) 
+  {
+    if (seg->sidedef->bottomtexture == NO_TEXTURE)
+      return false;
+
+    // properly render skies (consider door "open" if both floors are sky):
+    if (backsector->ceilingpic == skyflatnum && frontsector->ceilingpic == skyflatnum)
+      return false;
+
+    return true;
+  }
+
+  if (backsector->ceilingheight <= backsector->floorheight)
+  {
+    // preserve a kind of transparent door/lift special effect:
+    if (backsector->ceilingheight < frontsector->ceilingheight) 
+    {
+      if (seg->sidedef->toptexture == NO_TEXTURE)
+        return false;
+    }
+    if (backsector->floorheight > frontsector->floorheight)
+    {
+      if (seg->sidedef->bottomtexture == NO_TEXTURE)
+        return false;
+    }
+    if (backsector->ceilingpic == skyflatnum && frontsector->ceilingpic == skyflatnum)
+      return false;
+
+    if (backsector->floorpic == skyflatnum && frontsector->floorpic == skyflatnum)
+      return false;
+
+    return true;
+  }
+
+  return false;
+}
+
+//
 // R_AddLine
 // Clips the given segment
 // and adds any visible pieces to the line list.
@@ -323,20 +378,13 @@ static void R_AddLine (seg_t *line)
     {
       gld_clipper_SafeAddClipRange(angle2, angle1);
     }
-    
-    /*if (!gl_render_segs)
+    else
     {
-      // rendering per linedef as opposed per seg is significantly more efficient
-      // so mark the linedef as rendered here and render it completely.
-      if (line->linedef->validcount!=validcount)
+      if (CheckClip(line, line->frontsector, line->backsector))
       {
-        line->linedef->validcount=validcount;
+        gld_clipper_SafeAddClipRange(angle2, angle1);
       }
-      else
-      {
-        return;
-      }
-    }*/
+    }
     
     if (ds_p == drawsegs+maxdrawsegs)   // killough 1/98 -- fix 2s line HOM
     {
