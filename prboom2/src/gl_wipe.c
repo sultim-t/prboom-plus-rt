@@ -103,7 +103,7 @@ int gld_wipe_doMelt(int ticks, int *y_lookup)
     
     float tx = (float) i / total_w;
     float sx = (float) i;
-    float sy = (float) yoffs * SCREENHEIGHT / 200.0f;
+    float sy = (float) yoffs;
     
     glTexCoord2f(tx, fV1); glVertex2f(sx, sy);
     glTexCoord2f(tx, fV2); glVertex2f(sx, sy + (float)SCREENHEIGHT);
