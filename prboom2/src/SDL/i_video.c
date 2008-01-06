@@ -853,6 +853,9 @@ static void I_ReadMouse(void)
   if (!usemouse)
     return;
 
+  if (!MouseShouldBeGrabbed())
+    return;
+
   SDL_GetRelativeMouseState(&x, &y);
 
   if (x != 0 || y != 0) 
@@ -865,10 +868,7 @@ static void I_ReadMouse(void)
     D_PostEvent(&ev);
   }
 
-  if (MouseShouldBeGrabbed())
-  {
-    CenterMouse();
-  }
+  CenterMouse();
 }
 
 static boolean MouseShouldBeGrabbed()
