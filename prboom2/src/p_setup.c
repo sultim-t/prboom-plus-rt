@@ -458,10 +458,14 @@ static void P_LoadSegs (int lump)
       // http://www.doomworld.com/idgames/index.php?id=12647
       if (v1 >= numvertexes || v2 >= numvertexes)
       {
-        lprintf(LO_WARN, 
-          "P_LoadSegs: compatibility loss - seg %d references a non-existent vertex (%d, %d)\n",
-          i, v1, v2);
-        lprintf(LO_WARN, "");
+        char str[200] = 
+          "P_LoadSegs: compatibility loss - seg %d references a non-existent vertex %d\n";
+        
+        if (v1 >= numvertexes)
+          lprintf(LO_WARN, str, i, v1);
+        if (v2 >= numvertexes)
+          lprintf(LO_WARN, str, i, v2);
+
         if (li->sidedef == &sides[li->linedef->sidenum[0]])
         {
           li->v1 = lines[ml->linedef].v1;
