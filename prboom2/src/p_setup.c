@@ -400,17 +400,41 @@ static void P_LoadSegs (int lump)
 
       v1 = (unsigned short)SHORT(ml->v1);
       v2 = (unsigned short)SHORT(ml->v2);
-      li->v1 = &vertexes[v1];
-      li->v2 = &vertexes[v2];
+
+      // e6y
+      // moved down for additional checks to avoid overflow
+      // if wrong vertexe's indexes are in SEGS lump
+      // see below for more detailed information
+      //li->v1 = &vertexes[v1];
+      //li->v2 = &vertexes[v2];
 
       li->miniseg = false; // figgi -- there are no minisegs in classic BSP nodes
-      li->length  = GetDistance(li->v2->x - li->v1->x, li->v2->y - li->v1->y);
+
+      // e6y: moved down, see below
+      //li->length  = GetDistance(li->v2->x - li->v1->x, li->v2->y - li->v1->y);
+
       li->angle = (SHORT(ml->angle))<<16;
       li->offset =(SHORT(ml->offset))<<16;
       linedef = (unsigned short)SHORT(ml->linedef);
+
+      //e6y: check for wrong indexes
+      if ((unsigned)linedef >= (unsigned)numlines)
+      {
+        I_Error("P_LoadSegs: seg %d references a non-existent linedef %d",
+          i, (unsigned)linedef);
+      }
+
       ldef = &lines[linedef];
       li->linedef = ldef;
       side = SHORT(ml->side);
+
+      //e6y: check for wrong indexes
+      if ((unsigned)ldef->sidenum[side] >= (unsigned)numsides)
+      {
+        I_Error("P_LoadSegs: linedef %d for seg %d references a non-existent sidedef %d",
+          linedef, i, (unsigned)ldef->sidenum[side]);
+      }
+
       li->sidedef = &sides[ldef->sidenum[side]];
 
       /* cph 2006/09/30 - our frontsector can be the second side of the
@@ -427,6 +451,36 @@ static void P_LoadSegs (int lump)
         li->backsector = sides[ldef->sidenum[side^1]].sector;
       else
         li->backsector = 0;
+
+      // e6y
+      // check and fix wrong references to non-existent vertexes
+      // see e1m9 @ NIVELES.WAD
+      // http://www.doomworld.com/idgames/index.php?id=12647
+      if (v1 >= numvertexes || v2 >= numvertexes)
+      {
+        lprintf(LO_WARN, 
+          "P_LoadSegs: compatibility loss - seg %d references a non-existent vertex (%d, %d)\n",
+          i, v1, v2);
+        lprintf(LO_WARN, "");
+        if (li->sidedef == &sides[li->linedef->sidenum[0]])
+        {
+          li->v1 = lines[ml->linedef].v1;
+          li->v2 = lines[ml->linedef].v2;
+        }
+        else
+        {
+          li->v1 = lines[ml->linedef].v2;
+          li->v2 = lines[ml->linedef].v1;
+        }
+      }
+      else
+      {
+        li->v1 = &vertexes[v1];
+        li->v2 = &vertexes[v2];
+      }
+
+      //e6y: now we can calculate it
+      li->length  = GetDistance(li->v2->x - li->v1->x, li->v2->y - li->v1->y);
     }
 
   W_UnlockLumpNum(lump); // cph - release the data
