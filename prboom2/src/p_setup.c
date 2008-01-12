@@ -463,7 +463,8 @@ static void P_LoadSegs (int lump)
         
         if (demorecording)
         {
-          I_Error(strcat(str, "Demo recording on levels with invalid nodes is not allowed"), i, v1);
+          I_Error(strcat(str, "Demo recording on levels with invalid nodes is not allowed"),
+            i, (v1 >= numvertexes ? v1 : v2));
         }
 
         if (v1 >= numvertexes)
