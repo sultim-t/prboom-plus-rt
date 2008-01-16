@@ -3105,7 +3105,11 @@ static void gld_DrawSprite(GLSprite *sprite)
   {
     if (!(sprite->thing->flags&(MF_SOLID|MF_SPAWNCEILING)))
     {
+      float xcenter = (sprite->x1 + sprite->x2) * 0.5f;
+      float ycenter = (sprite->y1 + sprite->y2) * 0.5f;
+      glTranslatef(xcenter, ycenter, 0);
       glRotatef(paperitems_pitch,1.0f,0.0f,0.0f);
+      glTranslatef(-xcenter, -ycenter, 0);
     }
   }
 
