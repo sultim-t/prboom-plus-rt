@@ -35,6 +35,10 @@
  *
  *-----------------------------------------------------------------------------*/
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdio.h>
 #include <fcntl.h>
 
@@ -3227,6 +3231,7 @@ setup_menu_t gen_settings6[] = { // General Settings screen4
   {"Allow Hi-Res Textures"     ,S_YESNO|S_PRGWARN,m_null,G_X,G_Y+ 15*8, {"gl_texture_usehires"}, 0, 0, M_ChangeTextureUseHires},
   {"Allow Hi-Res Patches"      ,S_YESNO|S_PRGWARN,m_null,G_X,G_Y+ 16*8, {"gl_patch_usehires"}, 0, 0, M_ChangeTextureUseHires},
   {"Override PWAD's graphics with Hi-Res" ,S_YESNO|S_PRGWARN,m_null,G_X,G_Y+ 17*8, {"gl_hires_override_pwads"}},
+  {"Sector Light Mode"         ,S_CHOICE,m_null,G_X,G_Y+18*8, {"gl_lightmode"}, 0, 0, M_ChangeLightMode, gl_lightmodes},
 #endif
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {gen_settings5}},
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings7}},
@@ -4578,6 +4583,21 @@ boolean M_Responder (event_t* ev) {
 
     if (ch == key_gamma)       // gamma toggle
       {
+//e6y
+#ifdef GL_DOOM
+        if (V_GetMode() == VID_MODEGL && gl_lightmode == gl_lightmode_gzdoom)
+        {
+          static char str[200];
+          useglgamma++;
+          if (useglgamma > MAX_GLGAMMA)
+            useglgamma = 0;
+          sprintf(str, "Gamma correction level %d", useglgamma); 
+          players[consoleplayer].message = str; 
+          gld_SetGammaRamp(useglgamma);
+        }
+        else
+#endif
+        {
       usegamma++;
       if (usegamma > 4)
   usegamma = 0;
@@ -4589,6 +4609,7 @@ boolean M_Responder (event_t* ev) {
   s_GAMMALVL4;
       V_SetPalette(0);
       return true;
+        }
       }
 
 

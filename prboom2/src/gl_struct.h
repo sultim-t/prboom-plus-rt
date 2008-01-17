@@ -38,6 +38,15 @@ extern int nodesVersion;
 typedef enum { gl_render_precise_speed, gl_render_precise_quality } gl_render_precise_t;
 extern gl_render_precise_t gl_render_precise;
 extern const char *gl_render_precises[];
+
+#define MAX_GLGAMMA 32
+typedef enum { gl_lightmode_glboom, gl_lightmode_gzdoom } gl_lightmode_t;
+extern gl_lightmode_t gl_lightmode;
+extern const char *gl_lightmodes[];
+extern int gl_light_ambient;
+extern int useglgamma;
+int gld_SetGammaRamp(int gamma);
+
 extern int gl_seamless;
 extern boolean gl_arb_multitexture;
 extern boolean gl_arb_texture_compression;

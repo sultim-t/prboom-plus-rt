@@ -679,6 +679,19 @@ void M_ChangeTextureUseHires(void)
   if (gl_texture_usehires_default || gl_patch_usehires_default)
     gl_boom_colormaps_default = false;
 }
+
+void M_ChangeLightMode(void)
+{
+  if (gl_lightmode == gl_lightmode_glboom)
+  {
+    gld_SetGammaRamp(0);
+  }
+
+  if (gl_lightmode == gl_lightmode_gzdoom)
+  {
+    gld_SetGammaRamp(useglgamma);
+  }
+}
 #endif
 
 void M_Mouse(int choice, int *sens);

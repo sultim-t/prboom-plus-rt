@@ -844,6 +844,12 @@ default_t defaults[] =
    def_str,ss_none},
   {"gl_invul_bw_method", {&gl_invul_bw_method},  {0},0,1,
    def_int,ss_stat},
+  {"gl_lightmode",{(int*)&gl_lightmode},{gl_lightmode_glboom},
+   gl_lightmode_glboom, gl_lightmode_gzdoom, def_int,ss_none},
+  {"gl_light_ambient", {&gl_light_ambient},  {20},0,255,
+   def_int,ss_stat},
+  {"useglgamma",{&useglgamma},{6},0,MAX_GLGAMMA,
+   def_int,ss_none},
 #endif
   {"Prboom-plus emulation settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"overrun_spechit_warn", {&overrun_spechit_warn},  {0},0,1,

@@ -253,6 +253,7 @@ void M_ChangeGLRenderPrecise(void);
 void M_ChangeSpriteClip(void);
 void M_ChangeAllowBoomColormaps(void);
 void M_ChangeTextureUseHires(void);
+void M_ChangeLightMode(void);
 #endif
 void M_ChangeSpeed(void);
 void M_ChangeScreenMultipleFactor(void);
