@@ -61,7 +61,10 @@
 // MUSIC API.
 //
 
+// This is to keep the 10.4 build working on 10.5
+// It's ugly but this header does fail for some reason -- NS
 #define __OS_OSMESSAGENOTIFICATION_H
+
 #include <Carbon/Carbon.h>
 #include <QuickTime/Movies.h>
 #include "mmus2mid.h"
