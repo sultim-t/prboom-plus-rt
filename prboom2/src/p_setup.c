@@ -205,28 +205,31 @@ static void P_GetNodesVersion(int lumpnum, int gl_lumpnum)
 {
   const void *data;
 
+  int ver = -1;
+  nodesVersion = 0;
+
   data = W_CacheLumpNum(gl_lumpnum+ML_GL_VERTS);
   if ( (gl_lumpnum > lumpnum) && (forceOldBsp == false) && (compatibility_level >= prboom_2_compatibility) ) {
     if (*(const int *)data == gNd2) {
       data = W_CacheLumpNum(gl_lumpnum+ML_GL_SEGS);
       if (*(const int *)data == gNd3) {
-        nodesVersion = gNd3;
-        lprintf(LO_DEBUG, "P_GetNodesVersion: found version 3 nodes\n");
-        I_Error("P_GetNodesVersion: version 3 nodes not supported\n");
+        ver = 3;
       } else {
         nodesVersion = gNd2;
         lprintf(LO_DEBUG, "P_GetNodesVersion: found version 2 nodes\n");
       }
     }
     if (*(const int *)data == gNd4) {
-      nodesVersion = gNd4;
-      lprintf(LO_DEBUG, "P_GetNodesVersion: found version 4 nodes\n");
-      I_Error("P_GetNodesVersion: version 4 nodes not supported\n");
+      ver = 4;
     }
     if (*(const int *)data == gNd5) {
-      nodesVersion = gNd5;
-      lprintf(LO_DEBUG, "P_GetNodesVersion: found version 5 nodes\n");
-      I_Error("P_GetNodesVersion: version 5 nodes not supported\n");
+      ver = 5;
+    }
+    //e6y: unknown gl nodes will be ignored
+    if (nodesVersion == 0 && ver != -1)
+    {
+      lprintf(LO_DEBUG,"P_GetNodesVersion: found version %d nodes\n", ver);
+      lprintf(LO_DEBUG,"P_GetNodesVersion: version %d nodes not supported\n", ver);
     }
   } else {
     nodesVersion = 0;
