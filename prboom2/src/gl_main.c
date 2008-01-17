@@ -631,21 +631,17 @@ void gld_Init(int width, int height)
   glClear(GL_COLOR_BUFFER_BIT);
   glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
 
-#ifdef _WIN32
   // e6y
   // With this command line switch we can reset desktop gamma
   // after crash in case of gzdoom's sector light mode was used
-  // Sorry, but I don't know analogues of ExitProcess for other platforms,
-  // so it's win32 specific
   if (M_CheckParm("-resetgamma"))
   {
     if (gld_SetGammaRamp(0))
     {
       lprintf(LO_ERROR, "gld_Init: gammaramp has been successfully restored\n");
-      ExitProcess(0);
+      _exit(0);
     }
   }
-#endif
   
   gld_InitLightTable();
   M_ChangeLightMode();
