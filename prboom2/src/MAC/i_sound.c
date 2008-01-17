@@ -61,6 +61,7 @@
 // MUSIC API.
 //
 
+#define __OS_OSMESSAGENOTIFICATION_H
 #include <Carbon/Carbon.h>
 #include <QuickTime/Movies.h>
 #include "mus2mid.h"
