@@ -187,6 +187,9 @@ GLfloat gl_whitecolor[4]={1.0f,1.0f,1.0f,1.0f};
  */
 float lighttable[5][256]; //e6y: now it calculates at startup
 
+Uint16 startup_ramp[3][256];
+int gl_DeviceSupportsGamma = false;
+
 static void gld_InitLightTable(void)
 {
   int i, g;
@@ -198,6 +201,15 @@ static void gld_InitLightTable(void)
     {
       lighttable[g][i] = (float)((1.0f - exp(pow(i / 255.0f, 3) * gamma[g])) / (1.0f - exp(1.0f * gamma[g])));
     }
+  }
+}
+
+void gld_SaveGammaRamp(void)
+{
+  gl_DeviceSupportsGamma = (SDL_GetGammaRamp(startup_ramp[0], startup_ramp[1], startup_ramp[2]) != -1);
+  if (!gl_DeviceSupportsGamma)
+  {
+    lprintf(LO_WARN, "gld_SaveGammaRamp: Gamma ramp manipulation not supported\n");
   }
 }
 
@@ -219,6 +231,15 @@ static void CalcGamma (int gamma, Uint16 gammalookup[256])
 int gld_SetGammaRamp(int gamma)
 {
   Uint16 ramp[3][256];
+
+  if (gamma == -1)
+  {
+    if (gl_DeviceSupportsGamma)
+    {
+      return (SDL_SetGammaRamp(startup_ramp[0], startup_ramp[1], startup_ramp[2]) != -1);
+    }
+    return false;
+  }
 
   CalcGamma (gamma, ramp[0]);
   CalcGamma (gamma, ramp[1]);

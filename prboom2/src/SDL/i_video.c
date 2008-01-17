@@ -753,6 +753,7 @@ void I_UpdateVideoMode(void)
     SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
     e6y_MultisamplingSet();//e6y
     screen = SDL_SetVideoMode(REAL_SCREENWIDTH, REAL_SCREENHEIGHT, gl_colorbuffer_bits, init_flags);
+    gld_SaveGammaRamp();
   } else {
     // e6y: processing of screen_multiply
     screen = SDL_SetVideoMode(REAL_SCREENWIDTH, REAL_SCREENHEIGHT, 8, init_flags);
@@ -926,6 +927,24 @@ static void UpdateFocus(void)
   {
     V_SetPalette(st_palette);
   }
+
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL)
+  {
+    if (gl_lightmode == gl_lightmode_gzdoom)
+    {
+      if (!window_focused)
+      {
+        // e6y: Restore of startup gamma if window loses focus
+        gld_SetGammaRamp(-1);
+      }
+      else
+      {
+        gld_SetGammaRamp(useglgamma);
+      }
+    }
+  }
+#endif
 
   // Should the screen be grabbed?
   //    screenvisible = (state & SDL_APPACTIVE) != 0;

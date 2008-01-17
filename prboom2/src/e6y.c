@@ -684,7 +684,7 @@ void M_ChangeLightMode(void)
 {
   if (gl_lightmode == gl_lightmode_glboom)
   {
-    gld_SetGammaRamp(0);
+    gld_SetGammaRamp(-1);
   }
 
   if (gl_lightmode == gl_lightmode_gzdoom)
