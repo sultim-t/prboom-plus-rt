@@ -21,6 +21,7 @@ require 'rake/loaders/makefile'
 
 begin
 	unless NOT_UNIVERSAL
+		ENV['MACOSX_DEPLOYMENT_TARGET'] = '10.4'
 		@commonflags += ' -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk '
 		@ldflags += ' -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk '
 	end
