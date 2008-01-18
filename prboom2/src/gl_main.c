@@ -213,46 +213,76 @@ void gld_SaveGammaRamp(void)
   }
 }
 
-static void CalcGamma (int gamma, Uint16 gammalookup[256])
+static void CalculateGammaRamp (float gamma, Uint16 *ramp)
 {
-  // I found this formula on the web at
-  // <http://panda.mostang.com/sane/sane-gamma.html>,
-  // but that page no longer exits.
-
   int i;
-  float invgamma = 1.0f / ((BETWEEN(0, MAX_GLGAMMA, gamma)) / 10.0f + 1.0f);
 
-  for (i = 0; i < 256; i++)
+  // 0.0 gamma is all black
+  if (gamma <= 0.0f)
   {
-    gammalookup[i] = (Uint16)((255.0f * pow ((float)i / 255.0f, invgamma)) * 256.0f);
+    for (i = 0; i < 256; i++)
+    {
+      ramp[i] = 0;
+    }
+    return;
+  }
+  else
+  {
+    // 1.0 gamma is identity
+    if (gamma == 1.0f)
+    {
+      for (i = 0; i < 256; i++)
+      {
+        ramp[i] = (i << 8) | i;
+      }
+      return;
+    }
+    else
+    {
+      // Calculate a real gamma ramp
+      int value;
+      gamma = 1.0f / gamma;
+      for (i = 0; i < 256; i++)
+      {
+        value = (int)(pow((double)i / 256.0, gamma) * 65535.0 + 0.5);
+        if (value > 65535)
+        {
+          value = 65535;
+        }
+        ramp[i] = (Uint16)value;
+      }
+    }
   }
 }
 
 int gld_SetGammaRamp(int gamma)
 {
   Uint16 ramp[3][256];
+  int succeeded = false;
+  float Gamma = (BETWEEN(0, MAX_GLGAMMA, gamma)) / 10.0f + 1.0f;
 
   if (gamma == -1)
   {
     if (gl_DeviceSupportsGamma)
     {
-      return (SDL_SetGammaRamp(startup_ramp[0], startup_ramp[1], startup_ramp[2]) != -1);
+      succeeded = (SDL_SetGammaRamp(startup_ramp[0], startup_ramp[1], startup_ramp[2]) != -1);
     }
-    return false;
   }
-
-  CalcGamma (gamma, ramp[0]);
-  CalcGamma (gamma, ramp[1]);
-  CalcGamma (gamma, ramp[2]);
-
-  if (SDL_SetGammaRamp(ramp[0], ramp[1], ramp[2]) == -1)
+  else
   {
-    lprintf(LO_WARN, "gld_SetGammaRamp: Gamma ramp manipulation not supported\n");
-    gl_lightmode = gl_lightmode_glboom;
-    return false;
+    CalculateGammaRamp(Gamma, ramp[0]);
+    CalculateGammaRamp(Gamma, ramp[1]);
+    CalculateGammaRamp(Gamma, ramp[2]);
+
+    succeeded = (SDL_SetGammaRamp(ramp[0], ramp[1], ramp[2]) != -1);
+    if (!succeeded)
+    {
+      lprintf(LO_WARN, "gld_SetGammaRamp: Gamma ramp manipulation not supported\n");
+      gl_lightmode = gl_lightmode_glboom;
+    }
   }
 
-  return true;
+  return succeeded;
 }
 
 static float gld_CalcLightLevel(int lightlevel)
