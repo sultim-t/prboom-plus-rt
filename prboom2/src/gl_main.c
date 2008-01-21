@@ -2058,17 +2058,18 @@ void gld_StartDrawScene(void)
 //  viewMaxY = viewz;
   mlook_or_fov = GetMouseLook() || (render_fov != FOV90);
   if(!mlook_or_fov)
+  {
     pitch=0.0f;
+    paperitems_pitch = 0.0f;
+  }
   else
   {
     pitch=(float)(float)(viewpitch>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
+    paperitems_pitch = ((pitch > 87.0f && pitch <= 90.0f) ? 87.0f : pitch);
     viewPitch = (pitch>180 ? pitch-360 : pitch);
     skyXShift = -2.0f*((yaw+90.0f)/90.0f/fovscale);
     skyYShift = viewPitch<skyUpAngle ? skyUpShift : (float)sin(viewPitch*__glPi/180.0f)-0.2f;
   }
-  paperitems_pitch=(float)(viewpitch>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
-  if (paperitems_pitch>87.0f && paperitems_pitch<=90.0f)
-    paperitems_pitch = 87.0f;
   
   invul_method = 0;
   if (players[displayplayer].fixedcolormap == 32)
@@ -3074,29 +3075,32 @@ void gld_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling)
 
 static void gld_DrawSprite(GLSprite *sprite)
 {
+  float offsety;
+
   rendered_vissprites++;
 
   gld_BindPatch(sprite->gltexture,sprite->cm);
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
+
   // Bring items up out of floor by configurable amount times .01 Mead 8/13/03
-  //e6y: adjust sprite clipping
-  if (gl_spriteclip != spriteclip_const)
-    glTranslatef(sprite->x,sprite->y,sprite->z);
-  else
-    glTranslatef(sprite->x,sprite->y+ (.01f * (float)gl_sprite_offset),sprite->z);
-
-  glRotatef(inv_yaw,0.0f,1.0f,0.0f);
-
-  //e6y
-  if (!render_paperitems)
+  // e6y: adjust sprite clipping
+  offsety = (gl_spriteclip != spriteclip_const ? sprite->y : sprite->y + (.01f * (float)gl_sprite_offset));
+  if (render_paperitems)
   {
-    if (!(sprite->thing->flags&(MF_SOLID|MF_SPAWNCEILING)))
+    glTranslatef(sprite->x, offsety, sprite->z);
+
+    glRotatef(inv_yaw,0.0f,1.0f,0.0f);
+  }
+  else
+  {
+    if (!(sprite->thing->flags & (MF_SOLID | MF_SPAWNCEILING)))
     {
       float xcenter = (sprite->x1 + sprite->x2) * 0.5f;
       float ycenter = (sprite->y1 + sprite->y2) * 0.5f;
-      glTranslatef(xcenter, ycenter, 0);
-      glRotatef(paperitems_pitch,1.0f,0.0f,0.0f);
+      glTranslatef(sprite->x + xcenter, offsety + ycenter, sprite->z);
+      glRotatef(inv_yaw, 0.0f, 1.0f, 0.0f);
+      glRotatef(paperitems_pitch, 1.0f, 0.0f, 0.0f);
       glTranslatef(-xcenter, -ycenter, 0);
     }
   }
