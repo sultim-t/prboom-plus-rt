@@ -492,8 +492,8 @@ static void P_ZMovement (mobj_t* mo)
 
   // check for smooth step up
 
-  if (mo->player &&
-      mo->player->mo == mo &&  // killough 5/12/98: exclude voodoo dolls
+  if (mo->player && //e6y: restoring original visual behaviour for demo_compatibility
+      (demo_compatibility || mo->player->mo == mo) &&  // killough 5/12/98: exclude voodoo dolls
       mo->z < mo->floorz)
     {
     mo->player->viewheight -= mo->floorz-mo->z;
@@ -558,7 +558,16 @@ floater:
     P_DamageMobj(mo, NULL, NULL, mo->health);
   else
     if (mo->player && /* killough 5/12/98: exclude voodoo dolls */
-        mo->player->mo == mo && mo->momz < -GRAVITY*8)
+        // e6y
+        // Restoring original visual behaviour for demo_compatibility.
+        // Viewheight of consoleplayer should be decreased for a moment
+        // after voodoo doll hits the ground.
+        // This additional condition makes sense only for plutonia complevel
+        // when voodoo doll falls down after teleporting,
+        // but can be applied globally for all demo_compatibility complevels,
+        // because original sources do not exclude voodoo dolls from condition above,
+        // but Boom does it.
+        (demo_compatibility || mo->player->mo == mo) && mo->momz < -GRAVITY*8)
       {
         // Squat down.
         // Decrease viewheight for a moment
