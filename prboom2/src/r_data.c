@@ -587,7 +587,17 @@ int R_FlatNumForName(const char *name)    // killough -- const added
 {
   int i = (W_CheckNumForName)(name, ns_flats);
   if (i == -1)
-    I_Error("R_FlatNumForName: %.8s not found", name);
+  {
+    // e6y
+    // Ability to play wads with wrong flat names
+    // Unknown flats will be replaced with "NO TEXTURE" preset from prboom-plus.wad
+    lprintf(LO_DEBUG, "R_FlatNumForName: %.8s not found\n", name);
+    i = (W_CheckNumForName)("-N0_TEX-", ns_flats);
+    if (i == -1)
+    {
+      I_Error("R_FlatNumForName: -N0_TEX- not found");
+    }
+  }
   return i - firstflat;
 }
 
