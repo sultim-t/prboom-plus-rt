@@ -3086,23 +3086,20 @@ static void gld_DrawSprite(GLSprite *sprite)
   // Bring items up out of floor by configurable amount times .01 Mead 8/13/03
   // e6y: adjust sprite clipping
   offsety = (gl_spriteclip != spriteclip_const ? sprite->y : sprite->y + (.01f * (float)gl_sprite_offset));
-  if (render_paperitems)
+  if (!render_paperitems && !(sprite->thing->flags & (MF_SOLID | MF_SPAWNCEILING)))
+  {
+    float xcenter = (sprite->x1 + sprite->x2) * 0.5f;
+    float ycenter = (sprite->y1 + sprite->y2) * 0.5f;
+    glTranslatef(sprite->x + xcenter, offsety + ycenter, sprite->z);
+    glRotatef(inv_yaw, 0.0f, 1.0f, 0.0f);
+    glRotatef(paperitems_pitch, 1.0f, 0.0f, 0.0f);
+    glTranslatef(-xcenter, -ycenter, 0);
+  }
+  else
   {
     glTranslatef(sprite->x, offsety, sprite->z);
 
     glRotatef(inv_yaw,0.0f,1.0f,0.0f);
-  }
-  else
-  {
-    if (!(sprite->thing->flags & (MF_SOLID | MF_SPAWNCEILING)))
-    {
-      float xcenter = (sprite->x1 + sprite->x2) * 0.5f;
-      float ycenter = (sprite->y1 + sprite->y2) * 0.5f;
-      glTranslatef(sprite->x + xcenter, offsety + ycenter, sprite->z);
-      glRotatef(inv_yaw, 0.0f, 1.0f, 0.0f);
-      glRotatef(paperitems_pitch, 1.0f, 0.0f, 0.0f);
-      glTranslatef(-xcenter, -ycenter, 0);
-    }
   }
 
   if(sprite->shadow)
