@@ -45,6 +45,7 @@
 #include "m_random.h"
 #include "m_bbox.h"
 #include "lprintf.h"
+#include "m_argv.h"
 #include "e6y.h"//e6y
 
 static mobj_t    *tmthing;
@@ -2311,6 +2312,12 @@ void P_MapEnd(void) {
 // of the spechit array.
 // No more desyncs on compet-n\hr.wad\hr18*.lmp, all strain.wad\map07 demos etc.
 // http://www.doomworld.com/vb/showthread.php?s=&threadid=35214
+// See more information on:
+// doomworld.com/vb/doom-speed-demos/35214-spechits-reject-and-intercepts-overflow-lists
+
+// Spechit overrun magic value.
+#define DEFAULT_SPECHIT_MAGIC 0x01C09C98
+
 static void SpechitOverrun(line_t *ld)
 {
   if (demo_compatibility && numspechit > 8)
@@ -2328,18 +2335,45 @@ static void SpechitOverrun(line_t *ld)
 
     if (overrun_spechit_emulate)
     {
-      // e6y
-      // There are no more desyncs in the following dosdoom demos: 
-      // flsofdth.wad\fod3uv.lmp - http://www.doomworld.com/sda/flsofdth.htm
-      // hr.wad\hf181430.lmp - http://www.doomworld.com/tas/hf181430.zip
-      // hr.wad\hr181329.lmp - http://www.doomworld.com/tas/hr181329.zip
-      // icarus.wad\ic09uv.lmp - http://competn.doom2.net/pub/sda/i-o/icuvlmps.zip
-      
-      int addr = spechit_magic + (ld - lines) * 0x3E;
+      static unsigned int baseaddr = 0;
+      unsigned int addr;
+
+      if (baseaddr == 0)
+      {
+        int p;
+
+        // This is the first time we have had an overrun.  Work out
+        // what base address we are going to use.
+        // Allow a spechit value to be specified on the command line.
+
+        //
+        // Use the specified magic value when emulating spechit overruns.
+        //
+
+        p = M_CheckParm("-spechit");
+        
+        if (p > 0)
+        {
+          //baseaddr = atoi(myargv[p+1]);
+          StrToInt(myargv[p+1], (long*)&baseaddr);
+        }
+        else
+        {
+          baseaddr = DEFAULT_SPECHIT_MAGIC;
+        }
+      }
+
+      // Calculate address used in doom2.exe
+
+      addr = baseaddr + (ld - lines) * 0x3E;
+
       if (compatibility_level == dosdoom_compatibility || compatibility_level == tasdoom_compatibility)
       {
-        extern fixed_t   tmfloorz;
-        extern fixed_t   tmceilingz;
+        // There are no more desyncs in the following dosdoom demos: 
+        // flsofdth.wad\fod3uv.lmp - http://www.doomworld.com/sda/flsofdth.htm
+        // hr.wad\hf181430.lmp - http://www.doomworld.com/tas/hf181430.zip
+        // hr.wad\hr181329.lmp - http://www.doomworld.com/tas/hr181329.zip
+        // icarus.wad\ic09uv.lmp - http://competn.doom2.net/pub/sda/i-o/icuvlmps.zip
 
         switch(numspechit)
         {
@@ -2359,9 +2393,6 @@ static void SpechitOverrun(line_t *ld)
       }
       else
       {
-        extern fixed_t tmbbox[4];
-        extern boolean crushchange, nofit;
-
         switch(numspechit)
         {
         case 9: 

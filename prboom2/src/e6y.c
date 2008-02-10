@@ -98,9 +98,6 @@
 #endif
 #endif
 
-#define DEFAULT_SPECHIT_MAGIC (0x01C09C98)
-//#define DEFAULT_SPECHIT_MAGIC (0x84000000)
-
 spriteclipmode_t gl_spriteclip;
 const char *gl_spriteclipmodes[] = {"constant","always", "smart"};
 int gl_sprite_offset;
@@ -186,8 +183,6 @@ int render_aspect_height;
 float render_aspect_ratio;
 
 int misc_fastexit;
-
-unsigned int spechit_magic;
 
 char *sdl_videodriver;
 int palette_ondamage;
@@ -394,14 +389,6 @@ void e6y_InitCommandLine(void)
         traces[i].trace->count = count;
       }
     }
-  }
-
-  // spechit magic
-  spechit_magic = DEFAULT_SPECHIT_MAGIC;
-  if ((p = M_CheckParm("-spechit")) && (p < myargc-1))
-  {
-    if (!StrToInt(myargv[p+1], (long*)&spechit_magic))
-      spechit_magic = DEFAULT_SPECHIT_MAGIC;
   }
 
   shorttics = M_CheckParm("-shorttics");
@@ -1315,80 +1302,6 @@ char hud_trace_things_pickup[80];
 char hud_trace_lines_cross[80];
 
 int clevfromrecord = false;
-
-typedef struct
-{
-  int len;
-  int* adr;
-} intercepts_overrun_t;
-
-void InterceptsOverrun(size_t num_intercepts, intercept_t *intercept)
-{
-  if (num_intercepts>128 && demo_compatibility
-    && (overrun_intercept_warn || overrun_intercept_emulate))
-  {
-    if (overrun_intercept_warn)
-      ShowOverflowWarning(overrun_intercept_emulate, &overrun_intercept_promted, false, "INTERCEPTS", "");
-
-    if (overrun_intercept_emulate)
-    {
-      
-      extern fixed_t bulletslope;
-      extern mobj_t **blocklinks;
-      extern int bmapwidth, bmapheight;
-      extern long *blockmap;
-      extern fixed_t bmaporgx, bmaporgy;
-      extern long *blockmaplump;
-      
-      intercepts_overrun_t overrun[] = 
-      {
-        {4, (int*)0},
-        {4, (int*)0},//&earlyout},
-        {4, (int*)0},//&intercept_p},
-        {4, (int*)&lowfloor},
-        {4, (int*)&openbottom},
-        {4, (int*)&opentop},
-        {4, (int*)&openrange},
-        {4, (int*)0},
-        {120, (int*)0},//&activeplats},
-        {8, (int*)0},
-        {4, (int*)&bulletslope},
-        {4, (int*)0},//&swingx},
-        {4, (int*)0},//&swingy},
-        {4, (int*)0},
-        {40, (int*)&playerstarts},
-        {4, (int*)0},//&blocklinks},
-        {4, (int*)&bmapwidth},
-        {4, (int*)0},//&blockmap},
-        {4, (int*)&bmaporgx},
-        {4, (int*)&bmaporgy},
-        {4, (int*)0},//&blockmaplump},
-        {4, (int*)&bmapheight},
-        {0, (int*)0}
-      };
-      
-      int i, j, offset;
-      int count = (num_intercepts - 128) * 12 - 12;
-      int* value = (int*)intercept;
-      
-      for (j = 0; j < 3; j++, value++, count+=4)
-      {
-        i = 0;
-        offset = 0;
-        while (overrun[i].len)
-        {
-          if (offset + overrun[i].len > count)
-          {
-            if (overrun[i].adr)
-              *(overrun[i].adr+(count-offset)/4) = *value;
-            break;
-          }
-          offset += overrun[i++].len;
-        }
-      }
-    }
-  }
-}
 
 char hud_trace_things_health[80];
 char hud_trace_things_pickup[80];

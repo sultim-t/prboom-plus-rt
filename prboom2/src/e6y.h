@@ -191,8 +191,6 @@ extern float render_aspect_ratio;
 
 extern int misc_fastexit;
 
-extern unsigned int spechit_magic;
-
 extern char *sdl_videodriver;
 extern int palette_ondamage;
 extern int palette_onbonus;
@@ -447,8 +445,6 @@ extern char hud_trace_things_pickup[80];
 extern char hud_trace_lines_cross[80];
 
 extern int clevfromrecord;
-
-void InterceptsOverrun(size_t num_intercepts, intercept_t *intercept);
 
 void CheckThingsPickupTracer(mobj_t *mobj);
 void CheckThingsHealthTracer(mobj_t *mobj);
