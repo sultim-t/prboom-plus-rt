@@ -338,17 +338,42 @@ static void L_CommandOnChange(void)
 
   case 2:
     {
-      HKEY hKey;
+      HKEY hKeyRoot, hKey;
       DWORD Disposition;
-      if (RegCreateKeyEx(HKEY_CLASSES_ROOT, ".lmp\\shell\\open\\command", 0, NULL, 0, KEY_WRITE, NULL, &hKey, &Disposition) == ERROR_SUCCESS)
+      DWORD result;
+      char *msg;
+
+      if ((int)GetVersion() < 0)
+      {
+        hKeyRoot = HKEY_LOCAL_MACHINE; // win9x
+      }
+      else
+      {
+        hKeyRoot = HKEY_CURRENT_USER;
+      }
+
+      result = RegCreateKeyEx(hKeyRoot, 
+        "software\\classes\\.lmp\\shell\\open\\command", 
+        0, NULL, 0, KEY_WRITE, NULL, &hKey, &Disposition);
+      
+      if (result == ERROR_SUCCESS)
       {
         char str[PATH_MAX];
         sprintf(str, "\"%s\" \"%%1\"", *myargv);
         
-        RegSetValueEx(hKey, NULL, 0, REG_SZ, str, strlen(str) + 1);
+        result = RegSetValueEx(hKey, NULL, 0, REG_SZ, str, strlen(str) + 1);
+
         RegCloseKey(hKey);
       }
-      MessageBox(launcher.HWNDServer, "Succesfully Installed", LAUNCHER_CAPTION, MB_OK|MB_ICONEXCLAMATION);
+
+      if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+          NULL, result, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (char *)&msg, 512, NULL))
+      {
+        MessageBox(launcher.HWNDServer, msg, LAUNCHER_CAPTION,
+          MB_OK | (result == ERROR_SUCCESS ? MB_ICONASTERISK : MB_ICONEXCLAMATION));
+
+        LocalFree(msg);
+      }
     }
     break;
 
