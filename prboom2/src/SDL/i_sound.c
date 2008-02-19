@@ -72,6 +72,8 @@
 #include "i_pcsound.h"
 #include "e6y.h"
 
+#define MAXMIDLENGTH (96 * 1024)
+
 int snd_pcspeaker;
 
 // The number of internal mixing channels,
@@ -722,14 +724,18 @@ void I_UnRegisterSong(int handle)
 #endif
 }
 
+// Determine whether memory block is a .mid file 
+static boolean IsMid(const unsigned char *mem, int len)
+{
+  return len > 4 && !memcmp(mem, "MThd", 4);
+}
+
 int I_RegisterSong(const void *data, size_t len)
 {
 #ifdef HAVE_MIXER
   FILE *midfile;
   boolean MidiIsReady = false;
 
-  if ( len < 32 )
-    return 0; // the data should at least as big as the MUS header
   if ( music_tmp == NULL )
     return 0;
   midfile = fopen(music_tmp, "wb");
@@ -737,10 +743,24 @@ int I_RegisterSong(const void *data, size_t len)
     lprintf(LO_ERROR,"Couldn't write MIDI to %s\n", music_tmp);
     return 0;
   }
-  /* Convert MUS chunk to MIDI? */
-  if ( memcmp(data, "MUS", 3) == 0 )
+
+  // e6y
+  // New logic is from chocolate-doom
+  // Now you can hear title music in deca.wad
+  // http://www.doomworld.com/idgames/index.php?id=8808
+  //
+  // MUS files begin with "MUS"
+  // Reject anything which doesnt have this signature
+
+  // Determine whether memory block is a .mid file
+  if (IsMid(data, len) && len < MAXMIDLENGTH)
+  {
+    MidiIsReady = fwrite(data, len, 1, midfile) == 1;
+  }
+  else
   {
     // e6y
+    // Assume a MUS file and try to convert
     // New mus -> mid conversion code thanks to Ben Ryves <benryves@benryves.com>
     // This plays back a lot of music closer to Vanilla Doom - eg. tnt.wad map02
     void *outbuf;
@@ -760,8 +780,6 @@ int I_RegisterSong(const void *data, size_t len)
 
     mem_fclose(instream);
     mem_fclose(outstream);
-  } else {
-    MidiIsReady = fwrite(data, len, 1, midfile) == 1;
   }
   fclose(midfile);
 
