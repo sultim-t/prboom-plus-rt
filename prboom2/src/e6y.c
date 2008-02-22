@@ -2053,13 +2053,19 @@ int IsDemoPlayback()
 //
 //===========================================================================
 
+#ifdef WORDS_BIGENDIAN
+#define MSB 0
+#else
+#define MSB 3
+#endif
+
 #define CHKPIX(ofs) \
-	(l1[(ofs)*4+3]==255 ? (( ((long*)l1)[0] = ((long*)l1)[ofs]&0xffffff), trans=true ) : false)
+	(l1[(ofs)*4+MSB]==255 ? (( ((long*)l1)[0] = ((long*)l1)[ofs]&0xffffff00), trans=true ) : false)
 
 boolean SmoothEdges(unsigned char * buffer,int w, int h)
 {
 	int x,y;
-	boolean trans=buffer[3]==0; // If I set this to false here the code won't detect textures 
+	boolean trans=buffer[MSB]==0; // If I set this to false here the code won't detect textures 
 							 // that only contain transparent pixels.
 	unsigned char * l1;
 
@@ -2068,34 +2074,34 @@ boolean SmoothEdges(unsigned char * buffer,int w, int h)
 	l1=buffer;
 
 
-	if (l1[3]==0 && !CHKPIX(1)) CHKPIX(w);
+	if (l1[MSB]==0 && !CHKPIX(1)) CHKPIX(w);
 	l1+=4;
 	for(x=1;x<w-1;x++, l1+=4)
 	{
-		if (l1[3]==0 &&	!CHKPIX(-1) && !CHKPIX(1)) CHKPIX(w);
+		if (l1[MSB]==0 &&	!CHKPIX(-1) && !CHKPIX(1)) CHKPIX(w);
 	}
-	if (l1[3]==0 && !CHKPIX(-1)) CHKPIX(w);
+	if (l1[MSB]==0 && !CHKPIX(-1)) CHKPIX(w);
 	l1+=4;
 
 	for(y=1;y<h-1;y++)
 	{
-		if (l1[3]==0 && !CHKPIX(-w) && !CHKPIX(1)) CHKPIX(w);
+		if (l1[MSB]==0 && !CHKPIX(-w) && !CHKPIX(1)) CHKPIX(w);
 		l1+=4;
 		for(x=1;x<w-1;x++, l1+=4)
 		{
-			if (l1[3]==0 &&	!CHKPIX(-w) && !CHKPIX(-1) && !CHKPIX(1)) CHKPIX(w);
+			if (l1[MSB]==0 &&	!CHKPIX(-w) && !CHKPIX(-1) && !CHKPIX(1)) CHKPIX(w);
 		}
-		if (l1[3]==0 && !CHKPIX(-w) && !CHKPIX(-1)) CHKPIX(w);
+		if (l1[MSB]==0 && !CHKPIX(-w) && !CHKPIX(-1)) CHKPIX(w);
 		l1+=4;
 	}
 
-	if (l1[3]==0 && !CHKPIX(-w)) CHKPIX(1);
+	if (l1[MSB]==0 && !CHKPIX(-w)) CHKPIX(1);
 	l1+=4;
 	for(x=1;x<w-1;x++, l1+=4)
 	{
-		if (l1[3]==0 &&	!CHKPIX(-w) && !CHKPIX(-1)) CHKPIX(1);
+		if (l1[MSB]==0 &&	!CHKPIX(-w) && !CHKPIX(-1)) CHKPIX(1);
 	}
-	if (l1[3]==0 && !CHKPIX(-w)) CHKPIX(-1);
+	if (l1[MSB]==0 && !CHKPIX(-w)) CHKPIX(-1);
 
 	return trans;
 }
