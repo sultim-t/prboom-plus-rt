@@ -2365,25 +2365,37 @@ static void gld_DrawWall(GLWall *wall)
   {
     if ( wall->gltexture )
     {
+      float sx, sy;
+
       glMatrixMode(GL_TEXTURE);
       glPushMatrix();
       
       if (!mlook_or_fov)
       {
-        if ((wall->flag&GLDWF_SKYFLIP)==GLDWF_SKYFLIP)
-          glScalef(-128.0f/(float)wall->gltexture->buffer_width,200.0f/320.0f*2.0f,1.0f);
+        if ((wall->flag & GLDWF_SKYFLIP) == GLDWF_SKYFLIP)
+          sx = -128.0f / (float)wall->gltexture->buffer_width;
         else
-          glScalef(128.0f/(float)wall->gltexture->buffer_width,200.0f/320.0f*2.0f,1.0f);
-        glTranslatef(wall->skyyaw,wall->skyymid,0.0f);
+          sx = +128.0f / (float)wall->gltexture->buffer_width;
+
+        //sy = 200.0f / 320.0f * (256 / wall->gltexture->buffer_height);
+        sy = 160.0f / (float)wall->gltexture->buffer_height;
+
+        glScalef(sx, sy, 1.0f);
+        glTranslatef(wall->skyyaw, wall->skyymid, 0.0f);
       }
       else 
       {
-        float k = (wall->gltexture->buffer_width == 256 ? 64.0f : 128.0f);
-        if ((wall->flag&GLDWF_SKYFLIP)==GLDWF_SKYFLIP)
-          glScalef(-k/(float)wall->gltexture->buffer_width*fovscale,200.0f/320.0f*fovscale,1.0f);
+        if ((wall->flag & GLDWF_SKYFLIP) == GLDWF_SKYFLIP)
+          sx = (wall->gltexture->buffer_width == 256 ? -64.0f : -128.0f) *
+            fovscale / (float)wall->gltexture->buffer_width;
         else
-          glScalef(+k/(float)wall->gltexture->buffer_width*fovscale,200.0f/320.0f*fovscale,1.0f);
-        glTranslatef(wall->skyyaw,wall->skyymid,0.0f);
+          sx = (wall->gltexture->buffer_width == 256 ? 64.0f : 128.0f) *
+            fovscale / (float)wall->gltexture->buffer_width;
+
+        sy = 200.0f / 320.0f * fovscale;
+
+        glScalef(sx, sy, 1.0f);
+        glTranslatef(wall->skyyaw, wall->skyymid, 0.0f);
       }
 
       if (!SkyDrawed)
