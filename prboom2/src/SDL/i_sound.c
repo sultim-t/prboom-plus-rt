@@ -72,8 +72,6 @@
 #include "i_pcsound.h"
 #include "e6y.h"
 
-#define MAXMIDLENGTH (96 * 1024)
-
 int snd_pcspeaker;
 
 // The number of internal mixing channels,
@@ -753,7 +751,7 @@ int I_RegisterSong(const void *data, size_t len)
   // Reject anything which doesnt have this signature
 
   // Determine whether memory block is a .mid file
-  if (IsMid(data, len) && len < MAXMIDLENGTH)
+  if (IsMid(data, len))
   {
     MidiIsReady = fwrite(data, len, 1, midfile) == 1;
   }
