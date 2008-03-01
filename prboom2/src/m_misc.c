@@ -216,7 +216,7 @@ default_t defaults[] =
 #ifdef _WIN32
   {"System settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"Set this to 1 if you experience problems running the game on a multi-processor machine",{NULL},{0},UL,UL,def_none,ss_none},
-  {"process_affinity_mask", {&process_affinity_mask}, {0},-1,UL, def_int,ss_stat},
+  {"process_affinity_mask", {&process_affinity_mask}, {1},-1,UL, def_int,ss_stat},
 #endif
   
   {"Misc settings",{NULL},{0},UL,UL,def_none,ss_none},
