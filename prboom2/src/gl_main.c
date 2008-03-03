@@ -2697,7 +2697,10 @@ void gld_AddWall(seg_t *seg)
            (backsector->ceilingheight<=frontsector->floorheight))
          )
       {
-        wall.ybottom=(float)backsector->floorheight/MAP_SCALE;
+        // e6y
+        // There is no more visual glitches with sky on Icarus map14 sector 187
+        // Old code: wall.ybottom=(float)backsector->floorheight/MAP_SCALE;
+        wall.ybottom=((float)(backsector->floorheight + seg->sidedef->rowoffset))/MAP_SCALE;
         SKYTEXTURE(frontsector->sky,backsector->sky);
         ADDWALL(&wall);
       }
