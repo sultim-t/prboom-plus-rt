@@ -4276,7 +4276,7 @@ boolean M_Responder (event_t* ev) {
   if (ch == key_screenshot)
     {
     M_ScreenShot ();
-    return true;
+    // Don't eat the keypress in this case. See sf bug #1843280.
     }
 
   // If there is no active menu displayed...
