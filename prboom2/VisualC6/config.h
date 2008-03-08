@@ -156,12 +156,23 @@
 /* Define if you want to use FBO for some tricks in OpenGL */
 #define USE_FBO_TECHNIQUE 1
 
+/* Shut up warnings */
+#ifdef __INTEL_COMPILER
+  #pragma warning(disable : 94 144 175 177 186 188 279 556 589 810)
+#endif // __INTEL_COMPILER
+
 #ifdef _WIN32
 
 /* Define if you want to have PrBoom-Plus.wad in the exe  */
 //#define ALL_IN_ONE 1
 
 #ifdef _MSC_VER
+
+//#define ALL_WARNINGS
+#ifdef ALL_WARNINGS
+  #pragma warning(error : 4701) // local variable *may* be used without init
+  #pragma warning(error : 4189) // initialized but unused variable
+#endif // ALL_WARNINGS
 
 #ifdef _DEBUG
   #define LINK_LIBRARY(x) comment(lib, x"_D.lib")

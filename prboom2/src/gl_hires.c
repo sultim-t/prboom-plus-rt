@@ -466,7 +466,7 @@ static int gld_HiresGetTextureName(GLTexture *gltexture, char *img_path, char *d
   static char *hiresdir = NULL;
 
   char texname[9];
-  char *texname_p;
+  char *texname_p = NULL;
   int i;
 
   hires_path_item_t *checklist = NULL;
@@ -531,6 +531,9 @@ static int gld_HiresGetTextureName(GLTexture *gltexture, char *img_path, char *d
     }
     break;
   }
+
+  if (!texname_p)
+    return false;
 
   strncpy(texname, texname_p, 8);
   texname[8] = 0;

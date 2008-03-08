@@ -267,7 +267,6 @@ static void I_EndDoom(void)
     int i, l = W_LumpLength(lump) / 2;
 
     /* cph - colour ENDOOM by rain */
-    int oldbg = -1, oldcolor = -1, bold = 0, oldbold = -1, color = 0;
 #ifndef _WIN32
     if (endoom_mode & endoom_nonasciichars)
       /* switch to secondary charset, and set to cp437 (IBM charset) */
@@ -287,6 +286,8 @@ static void I_EndDoom(void)
 #else
       if (endoom_mode & endoom_colours)
       {
+        int oldbg = -1, oldcolor = -1, bold = 0, oldbold = -1, color = 0;
+
         if (!(i % 80))
         {
           /* reset color but not bold when we start a new line */

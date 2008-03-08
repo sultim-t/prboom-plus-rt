@@ -402,7 +402,6 @@ void G_CheckDemoContinue(void)
     void G_BeginRecording (void);
 
     byte buf[512];
-    byte *demo_p = buf;
     size_t len = fread(buf, 1, sizeof(buf), _demofp);
     len = G_ReadDemoHeader(buf, len, true) - buf;
     fseek(_demofp, len, SEEK_SET);

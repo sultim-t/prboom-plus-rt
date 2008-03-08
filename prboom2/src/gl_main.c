@@ -1440,7 +1440,7 @@ static void gld_PrecalculateSector(int num)
   int bestline;
   int bestlinecount;
   vertex_t *startvertex;
-  vertex_t *currentvertex;
+  vertex_t *currentvertex = NULL; //e6y: fix use of uninitialized local variable below
   angle_t lineangle;
   angle_t angle;
   angle_t bestangle;
@@ -1967,7 +1967,6 @@ void gld_DrawSkyBox(void)
   {
     float fU1,fU2,fV1,fV2;
     float k1, k2;
-    boolean mlook = GetMouseLook();
 
     glMatrixMode(GL_TEXTURE);
     glPushMatrix();
@@ -2196,8 +2195,6 @@ static void gld_InvertScene(void)
 
 void gld_EndDrawScene(void)
 {
-  player_t *player = &players[displayplayer];
-
   glDisable(GL_POLYGON_SMOOTH);
 
   glViewport(0, 0, SCREENWIDTH, SCREENHEIGHT);

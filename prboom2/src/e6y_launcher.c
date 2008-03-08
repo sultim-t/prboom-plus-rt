@@ -1331,9 +1331,10 @@ VOID OnWMNotify(LPARAM lParam)
       {
         int i;
         int count = 0;
-        int listPWADCount = SendMessage(launcher.listPWAD, LB_GETCOUNT, 0, 0);
         int *selection = NULL;
         int selectioncount = 0;
+
+        SendMessage(launcher.listPWAD, LB_GETCOUNT, 0, 0);
 
         selectioncount = L_SelGetList(&selection);
 
@@ -1390,7 +1391,6 @@ static boolean L_LauncherIsNeeded(void)
 void LauncherShow(void)
 {
   int result;
-  int nCmdShow = SW_SHOW;
 
   if (!L_LauncherIsNeeded())
     return;
