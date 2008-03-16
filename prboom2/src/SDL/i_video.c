@@ -603,11 +603,19 @@ int I_GetModeFromString(const char *modestr)
 
   if (!stricmp(modestr,"15")) {
     mode = VID_MODE15;
+  } else if (!stricmp(modestr,"15bit")) {
+    mode = VID_MODE15;
   } else if (!stricmp(modestr,"16")) {
+    mode = VID_MODE16;
+  } else if (!stricmp(modestr,"16bit")) {
     mode = VID_MODE16;
   } else if (!stricmp(modestr,"32")) {
     mode = VID_MODE32;
+  } else if (!stricmp(modestr,"32bit")) {
+    mode = VID_MODE32;
   } else if (!stricmp(modestr,"gl")) {
+    mode = VID_MODEGL;
+  } else if (!stricmp(modestr,"OpenGL")) {
     mode = VID_MODEGL;
   } else {
     mode = VID_MODE8;
