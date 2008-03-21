@@ -290,7 +290,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
 
     for (col=0 ; (unsigned int)col<=w ; desttop++, col++, x++) {
       int i;
-      const int colindex = (flags & VPT_FLIP) ? ((w - col)>>16): (col>>16);
+      const int colindex = (flags & VPT_FLIP) ? (w - col) : (col);
       const rcolumn_t *column = R_GetPatchColumn(patch, colindex);
 
       if (x < 0)
