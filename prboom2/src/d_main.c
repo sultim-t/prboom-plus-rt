@@ -1435,18 +1435,41 @@ static void D_DoomMainSetup(void)
   if ((p = M_CheckParm("-nowindow")))
       desired_fullscreen = 1;
 
-  { // -geometry handling, change screen size for this session only
-    // e6y: new code by me
+  // e6y
+  // change the screen size for the current session only
+  // syntax: -geom WidthxHeight[w|f]
+  // examples: -geom 320x200f, -geom 640x480w, -geom 1024x768
+  { 
     int w, h;
+    char c;
+
+    w = desired_screenwidth;
+    h = desired_screenheight;
 
     if (!(p = M_CheckParm("-geom")))
       p = M_CheckParm("-geometry");
 
-    if (!(p && (p+1<myargc) && sscanf(myargv[p+1], "%dx%d", &w, &h) == 2))
+    if (p && p + 1 < myargc)
     {
-      w = desired_screenwidth;
-      h = desired_screenheight;
+      int count = sscanf(myargv[p+1], "%dx%d%c", &w, &h, &c);
+      
+      // at least width and height must be specified
+      // restoring original values if not
+      if (count < 2)
+      {
+        w = desired_screenwidth;
+        h = desired_screenheight;
+      }
+
+      if (count >= 3)
+      {
+        if (tolower(c) == 'w')
+          desired_fullscreen = 0;
+        if (tolower(c) == 'f')
+          desired_fullscreen = 1;
+      }
     }
+
     I_CalculateRes(w, h);
   }
 
