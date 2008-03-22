@@ -382,12 +382,12 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
     drawvars.short_pitch = screens[scrn].short_pitch;
     drawvars.int_pitch = screens[scrn].int_pitch;
 
-    /* e6y if (!(flags & VPT_STRETCH)) {
-      DX = 1 << 16;
+    if (!(flags & VPT_STRETCH)) {
+      //e6y DX = 1 << 16;
       DXI = 1 << 16;
-      DY = 1 << 16;
+      //e6y DY = 1 << 16;
       DYI = 1 << 16;
-    }*/
+    }
 
     if (flags & VPT_TRANS) {
       colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, drawvars.filterpatch, RDRAW_FILTER_NONE);
@@ -402,10 +402,20 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
     right = ( (x + patch->width) * DX ) >> FRACBITS;
     bottom = ( (y + patch->height) * DY ) >> FRACBITS;
     */
-    left = ( (x * SCREENWIDTH) / 320 );
-    top = ( (y * SCREENHEIGHT) / 200 );
-    right = ( ((x + patch->width) * SCREENWIDTH) / 320 );
-    bottom = ( ((y + patch->height) * SCREENHEIGHT) / 200 );
+    if (!(flags & VPT_STRETCH))
+    {
+      left = x;
+      top = y;
+      right = x + patch->width;
+      bottom = y + patch->height;
+    }
+    else
+    {
+      left = ( (x * SCREENWIDTH) / 320 );
+      top = ( (y * SCREENHEIGHT) / 200 );
+      right = ( ((x + patch->width) * SCREENWIDTH) / 320 );
+      bottom = ( ((y + patch->height+1) * SCREENHEIGHT) / 200 );
+    }
 
     dcvars.texheight = patch->height;
     dcvars.iscale = DYI;
@@ -447,8 +457,16 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
         dcvars.yl = (((y + post->topdelta) * DY)>>FRACBITS);
         dcvars.yh = (((y + post->topdelta + post->length) * DY - (FRACUNIT>>1))>>FRACBITS);
         */
-        dcvars.yl = ( (((y + post->topdelta) * SCREENHEIGHT) / 200) );
-        dcvars.yh = ( (((y + post->topdelta + post->length) * SCREENHEIGHT) / 200) - 1 );
+        if (!(flags & VPT_STRETCH))
+        {
+          dcvars.yl = y + post->topdelta;
+          dcvars.yh = ((((y + post->topdelta + post->length) << 16) - (FRACUNIT>>1))>>FRACBITS);
+        }
+        else
+        {
+          dcvars.yl = ( (((y + post->topdelta) * SCREENHEIGHT) / 200) );
+          dcvars.yh = ( (((y + post->topdelta + post->length) * SCREENHEIGHT) / 200) - 1 );
+        }
         dcvars.edgeslope = post->slope;
 
         if ((dcvars.yh < 0) || (dcvars.yh < top))
