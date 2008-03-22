@@ -189,7 +189,7 @@ static void I_GetEvent(SDL_Event *Event)
 
   case SDL_MOUSEBUTTONDOWN:
   case SDL_MOUSEBUTTONUP:
-  if (mouse_currently_grabbed)
+  if (mouse_enabled) // recognise clicks even if the pointer isn't grabbed
   {
     event.type = ev_mouse;
     event.data1 = I_SDLtoDoomMouseState(SDL_GetMouseState(NULL, NULL));
