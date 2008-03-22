@@ -80,8 +80,8 @@ int             leds_always_off = 0; // Expected by m_misc, not relevant
 
 // Mouse handling
 extern int     usemouse;        // config file var
-static boolean grabMouse;       // internal var
-static int mouse_currently_grabbed;
+static boolean mouse_enabled; // usemouse, but can be overriden by -nomouse
+static boolean mouse_currently_grabbed;
 
 /////////////////////////////////////////////////////////////////////////////////
 // Keyboard handling
@@ -227,7 +227,7 @@ void I_StartTic (void)
 {
   SDL_Event Event;
   {
-    int should_be_grabbed = grabMouse &&
+    boolean should_be_grabbed = mouse_enabled &&
       !(paused || (gamestate != GS_LEVEL) || demoplayback);
 
     if (mouse_currently_grabbed != should_be_grabbed)
@@ -254,10 +254,13 @@ void I_StartFrame (void)
 
 static void I_InitInputs(void)
 {
-  // check if the user wants to grab the mouse
-  grabMouse = M_CheckParm("-nomouse") ? false : usemouse ? true : false;
+  int nomouse_parm = M_CheckParm("-nomouse");
+
+  // check if the user wants to use the mouse
+  mouse_enabled = usemouse && !nomouse_parm;
+
   // e6y: fix for turn-snapping bug on fullscreen in software mode
-  if (!M_CheckParm("-nomouse"))
+  if (!nomouse_parm)
     SDL_WarpMouse((unsigned short)(SCREENWIDTH/2), (unsigned short)(SCREENHEIGHT/2));
 
   I_InitJoystick();
