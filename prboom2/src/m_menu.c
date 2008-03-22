@@ -2818,11 +2818,15 @@ enum {
   enem_friction,
   enem_help_friends,
 
+#ifdef DOGS
   enem_helpers,
+#endif
 
   enem_distfriend,
 
+#ifdef DOGS
   enem_dog_jumping,
+#endif
 
   enem_end
 };
@@ -2847,6 +2851,7 @@ setup_menu_t enem_settings1[] =  // Enemy Settings screen
 
   {"Rescue Dying Friends",S_YESNO,m_null,E_X,E_Y+ enem_help_friends*8, {"help_friends"}},
 
+#ifdef DOGS
   // killough 7/19/98
   {"Number Of Single-Player Helper Dogs",S_NUM|S_LEVWARN,m_null,E_X,E_Y+ enem_helpers*8, {"player_helpers"}},
 
@@ -2854,6 +2859,7 @@ setup_menu_t enem_settings1[] =  // Enemy Settings screen
   {"Distance Friends Stay Away",S_NUM,m_null,E_X,E_Y+ enem_distfriend*8, {"friend_distance"}},
 
   {"Allow dogs to jump down",S_YESNO,m_null,E_X,E_Y+ enem_dog_jumping*8, {"dog_jumping"}},
+#endif
 
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
@@ -2965,7 +2971,8 @@ enum {
 #define G_YA3 (G_YA2+6*8)
 #define GF_X 76
 
-static const char *videomodes[] = {"8bit",/*"16bit","32bit",*/"OpenGL"};
+static const char *videomodes[] = {"8bit","15bit","16bit",
+                                   "32bit","OpenGL", NULL};
 
 static const char *gltexfilters[] = {"GL_NEAREST","GL_LINEAR",
                                      "GL_LINEAR_MIPMAP_LINEAR",
@@ -4498,7 +4505,7 @@ boolean M_Responder (event_t* ev) {
   if (ch == key_screenshot)
     {
     M_ScreenShot ();
-    return true;
+    // Don't eat the keypress in this case. See sf bug #1843280.
     }
 
   // If there is no active menu displayed...

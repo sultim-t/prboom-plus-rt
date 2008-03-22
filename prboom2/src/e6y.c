@@ -73,6 +73,7 @@
 #include "i_video.h"
 #include "info.h"
 #include "i_simd.h"
+#include "r_screenmultiply.h"
 #include "gl_struct.h"
 #ifdef GL_DOOM
 #include "gl_intern.h"
@@ -157,10 +158,6 @@ int render_detailedflats;
 int render_multisampling;
 int render_paperitems;
 int render_wipescreen;
-int render_screen_multiply;
-int screen_multiply;
-int render_interlaced_scanning;
-int interlaced_scanning_requires_clearing;
 int mouse_acceleration;
 int demo_overwriteexisting;
 int overrun_spechit_warn;
@@ -1379,176 +1376,6 @@ void ClearLinesCrossTracer(void)
 float paperitems_pitch;
 
 int levelstarttic;
-
-static void R_ProcessScreenMultiplyBlock2x(byte* pixels_src, byte* pixels_dest, 
-                                         int pitch_src, int pitch_dest,
-                                         int ytop, int ybottom,
-                                         int interlaced)
-{
-  int x, y;
-
-  if (interlaced)
-  {
-    for (y = ytop; y <= ybottom; y++)
-    {
-      unsigned int *pdest = (unsigned int *)(pixels_dest + y * (pitch_dest * 2));
-      byte *psrc = pixels_src + y * pitch_src;
-      x = SCREENWIDTH / 2;
-      while (x > 0)
-      {
-        unsigned int data_dest = *psrc | (*(psrc + 1) << 16);
-        data_dest |= data_dest << 8;
-        psrc += 2;
-        x--;
-        *pdest++ = data_dest;
-      }
-    }
-  }
-  else
-  {
-    for (y = ytop; y <= ybottom; y++)
-    {
-      unsigned int *pdest = (unsigned int *)(pixels_dest + y * (pitch_dest * 2));
-      byte *pdest_saved = (byte*)pdest;
-      byte *psrc = pixels_src + y * pitch_src;
-      x = SCREENWIDTH / 2;
-      while (x > 0)
-      {
-        unsigned int data_dest = *psrc | (*(psrc + 1) << 16);
-        data_dest |= data_dest << 8;
-        psrc += 2;
-        x--;
-        *pdest++ = data_dest;
-      }
-      memcpy_fast(pdest_saved + pitch_dest, pdest_saved, pitch_dest);
-    }
-  }
-}
-
-static void R_ProcessScreenMultiplyBlock4x(byte* pixels_src, byte* pixels_dest, 
-                                         int pitch_src, int pitch_dest,
-                                         int ytop, int ybottom,
-                                         int interlaced)
-{
-  int i, x, y;
-
-  for (y = ytop; y <= ybottom; y++)
-  {
-    unsigned int *pdest = (unsigned int *)(pixels_dest + y * (pitch_dest * 4));
-    byte *pdest_saved = (byte*)pdest;
-    byte *psrc = pixels_src + y * pitch_src;
-    x = SCREENWIDTH;
-    while (x > 0)
-    {
-      unsigned int data_dest = *psrc | (*psrc << 16);
-      data_dest |= data_dest << 8;
-      psrc++;
-      x--;
-      *pdest++ = data_dest;
-    }
-    if (!interlaced)
-    {
-      for (i = 1; i < screen_multiply; i++)
-        memcpy_fast(pdest_saved + i * pitch_dest, pdest_saved, pitch_dest);
-    }
-  }
-}
-
-static void R_ProcessScreenMultiplyBlock(byte* pixels_src, byte* pixels_dest, 
-                                         int pitch_src, int pitch_dest,
-                                         int ytop, int ybottom,
-                                         int interlaced)
-{
-  int x, y, i;
-  byte *psrc = pixels_src + pitch_src * ybottom;
-  byte *pdest = pixels_dest + pitch_dest * (ybottom * screen_multiply);
-  byte *pdest_saved = pdest;
-  byte *data_src;
-
-  if (screen_multiply == 2)
-  {
-    for (y = ybottom; y >= ytop; y--)
-    {
-      data_src = psrc;
-      psrc -= pitch_src; 
-      for (x = 0; x < SCREENWIDTH / 2 ; x++, data_src += 2)
-      {
-        unsigned int data_dest = *data_src | ((*(data_src + 1)) << 16);
-        data_dest |= data_dest << 8;
-        *((unsigned int*)pdest) = data_dest;
-        pdest += sizeof(unsigned int);
-      }
-      if (!interlaced)
-        memcpy_fast(pdest_saved + pitch_dest, pdest_saved, pitch_dest);
-      pdest_saved = pdest = pdest_saved - pitch_dest * 2;
-    }
-  }
-  else
-  {
-    for (y = ybottom; y >= ytop; y--)
-    {
-      data_src = psrc;
-      psrc -= pitch_src; 
-      for (x = 0; x < SCREENWIDTH ; x++, data_src++)
-      {
-        for (i = 0; i < screen_multiply; i++)
-          *pdest++ = *data_src;
-      }
-      if (!render_interlaced_scanning)
-      {
-        for (i = 1; i < screen_multiply; i++)
-          memcpy_fast(pdest_saved + i * pitch_dest, pdest_saved, pitch_dest);
-      }
-      pdest_saved = pdest = pdest_saved - pitch_dest * screen_multiply;
-    }
-  }
-}
-
-void R_ProcessScreenMultiply(byte* pixels_src, byte* pixels_dest, int pitch_src, int pitch_dest)
-{
-  if (screen_multiply > 1)
-  {
-    // there is no necessity to do it each tic
-    if (interlaced_scanning_requires_clearing)
-    {
-      // needed for "directx" video driver with double buffering
-      // two pages should be cleared
-      interlaced_scanning_requires_clearing = (interlaced_scanning_requires_clearing + 1)%3;
-
-      memset_fast(pixels_dest, 0, pitch_dest * screen_multiply * SCREENHEIGHT);
-    }
-
-    switch (screen_multiply)
-    {
-    case 2:
-      R_ProcessScreenMultiplyBlock2x(pixels_src, pixels_dest, 
-        pitch_src, pitch_dest, 0, SCREENHEIGHT - 1, render_interlaced_scanning);
-      break;
-    case 4:
-      R_ProcessScreenMultiplyBlock4x(pixels_src, pixels_dest, 
-        pitch_src, pitch_dest, 0, SCREENHEIGHT - 1, render_interlaced_scanning);
-      break;
-    default:
-      {
-        // e6y: The following code works correctly even if pixels_src == pixels_dest
-        boolean same = (pixels_src == pixels_dest);
-        R_ProcessScreenMultiplyBlock(pixels_src, pixels_dest, 
-          pitch_src, pitch_dest, (same ? 1 : 0), SCREENHEIGHT - 1, render_interlaced_scanning);
-        if (same)
-        {
-          // never happens after SDL_LockSurface()
-          static byte *tmpbuf = NULL;
-          if (!tmpbuf)
-            tmpbuf = malloc(pitch_src);
-          memcpy_fast(tmpbuf, pixels_src, pitch_src);
-          R_ProcessScreenMultiplyBlock(tmpbuf, pixels_dest, 
-            pitch_src, pitch_dest, 0, 0, render_interlaced_scanning);
-        }
-        break;
-      }
-    }
-  }
-}
 
 int demo_patterns_count;
 char *demo_patterns_mask;

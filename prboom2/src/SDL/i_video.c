@@ -71,6 +71,7 @@
 #include "lprintf.h"
 
 #include "i_simd.h"
+#include "r_screenmultiply.h"
 #include "e6y.h"//e6y
 
 //e6y: new mouse code
@@ -417,7 +418,8 @@ void I_FinishUpdate (void)
       // e6y: processing of screen_multiply
       if (screen_multiply > 1)
       {
-        R_ProcessScreenMultiply(screens[0].data, screen->pixels, screens[0].pitch, screen->pitch);
+        R_ProcessScreenMultiply(screens[0].data, screen->pixels,
+          V_GetPixelDepth(), screens[0].byte_pitch, screen->pitch);
       }
       else
       {
@@ -426,9 +428,9 @@ void I_FinishUpdate (void)
         h=screen->h;
         for (; h>0; h--)
         {
-          memcpy_fast(dest,src,SCREENWIDTH); //e6y
+          memcpy_fast(dest,src,SCREENWIDTH*V_GetPixelDepth()); //e6y
           dest+=screen->pitch;
-          src+=screens[0].pitch;
+          src+=screens[0].byte_pitch;
         }
       }
 
@@ -470,8 +472,8 @@ void I_ReadScreen (screeninfo_t *dest)
   height = MIN(screen->h, dest->height);
   for (h=height; h>0; h--) {
     memcpy(dstofs, srcofs, width);
-    srcofs += screen->pitch;
-    dstofs += dest->pitch;
+    srcofs += screens[0].byte_pitch;
+    dstofs += dest->byte_pitch;
   }
   if (locked)
   {
@@ -623,9 +625,9 @@ void I_CalculateRes(unsigned int width, unsigned int height)
     SCREENWIDTH = (width+15) & ~15;
     SCREENHEIGHT = height;
     if (!(SCREENWIDTH % 1024)) {
-      SCREENPITCH = SCREENWIDTH+32;
+      SCREENPITCH = SCREENWIDTH*V_GetPixelDepth()+32;
     } else {
-      SCREENPITCH = SCREENWIDTH;
+      SCREENPITCH = SCREENWIDTH*V_GetPixelDepth();
     }
   }
 
@@ -652,13 +654,17 @@ void I_SetRes(void)
   for (i=0; i<3; i++) {
     screens[i].width = REAL_SCREENWIDTH;
     screens[i].height = REAL_SCREENHEIGHT;
-    screens[i].pitch = REAL_SCREENPITCH;
+    screens[i].byte_pitch = REAL_SCREENPITCH;
+    screens[i].short_pitch = REAL_SCREENPITCH / V_GetModePixelDepth(VID_MODE16);
+    screens[i].int_pitch = REAL_SCREENPITCH / V_GetModePixelDepth(VID_MODE32);
   }
 
   // statusbar
   screens[4].width = REAL_SCREENWIDTH;
-  screens[4].height = (ST_SCALED_HEIGHT+1) * screen_multiply;
-  screens[4].pitch = REAL_SCREENPITCH;
+  screens[4].height = (ST_SCALED_HEIGHT+1);
+  screens[4].byte_pitch = REAL_SCREENPITCH;
+  screens[4].short_pitch = REAL_SCREENPITCH / V_GetModePixelDepth(VID_MODE16);
+  screens[4].int_pitch = REAL_SCREENPITCH / V_GetModePixelDepth(VID_MODE32);
 
   lprintf(LO_INFO,"I_SetRes: Using resolution %dx%d\n", REAL_SCREENWIDTH, REAL_SCREENHEIGHT);
 }
@@ -696,6 +702,32 @@ void I_InitGraphics(void)
   }
 }
 
+int I_GetModeFromString(const char *modestr)
+{
+  video_mode_t mode;
+
+  if (!stricmp(modestr,"15")) {
+    mode = VID_MODE15;
+  } else if (!stricmp(modestr,"15bit")) {
+    mode = VID_MODE15;
+  } else if (!stricmp(modestr,"16")) {
+    mode = VID_MODE16;
+  } else if (!stricmp(modestr,"16bit")) {
+    mode = VID_MODE16;
+  } else if (!stricmp(modestr,"32")) {
+    mode = VID_MODE32;
+  } else if (!stricmp(modestr,"32bit")) {
+    mode = VID_MODE32;
+  } else if (!stricmp(modestr,"gl")) {
+    mode = VID_MODEGL;
+  } else if (!stricmp(modestr,"OpenGL")) {
+    mode = VID_MODEGL;
+  } else {
+    mode = VID_MODE8;
+  }
+  return mode;
+}
+
 void I_UpdateVideoMode(void)
 {
   int init_flags;
@@ -704,20 +736,13 @@ void I_UpdateVideoMode(void)
 
   lprintf(LO_INFO, "I_UpdateVideoMode: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, desired_fullscreen ? "fullscreen" : "nofullscreen");
 
-  mode = default_videomode;
+  mode = I_GetModeFromString(default_videomode);
   if ((i=M_CheckParm("-vidmode")) && i<myargc-1) {
-    /*if (!stricmp(myargv[i+1],"16")) {
-      mode = VID_MODE16;
-    } else if (!stricmp(myargv[i+1],"32")) {
-      mode = VID_MODE32;
-    } else*/ if (!stricmp(myargv[i+1],"gl")) {
-      mode = VID_MODEGL;
-    } else {
-      mode = VID_MODE8;
-    }
+    mode = I_GetModeFromString(myargv[i+1]);
   }
-  V_InitMode(mode);
 
+  V_InitMode(mode);
+  V_DestroyUnusedTrueColorPalettes();
   V_FreeScreens();
 
   I_SetRes();
@@ -758,7 +783,7 @@ void I_UpdateVideoMode(void)
 #endif
   } else {
     // e6y: processing of screen_multiply
-    screen = SDL_SetVideoMode(REAL_SCREENWIDTH, REAL_SCREENHEIGHT, 8, init_flags);
+    screen = SDL_SetVideoMode(REAL_SCREENWIDTH, REAL_SCREENHEIGHT, V_GetNumPixelBits(), init_flags);
   }
 
   if(screen == NULL) {
@@ -774,7 +799,9 @@ void I_UpdateVideoMode(void)
   {
     screens[0].not_on_heap = true;
     screens[0].data = (unsigned char *) (screen->pixels);
-    screens[0].pitch = screen->pitch;
+    screens[0].byte_pitch = screen->pitch;
+    screens[0].short_pitch = screen->pitch / V_GetModePixelDepth(VID_MODE16);
+    screens[0].int_pitch = screen->pitch / V_GetModePixelDepth(VID_MODE32);
   }
   else
   {

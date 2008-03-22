@@ -848,6 +848,14 @@ SOURCE=..\src\r_plane.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\r_screenmultiply.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\r_screenmultiply.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\r_segs.c
 # End Source File
 # Begin Source File

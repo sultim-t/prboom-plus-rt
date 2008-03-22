@@ -118,6 +118,7 @@ r_fps.c
 r_main.c
 r_patch.c
 r_plane.c
+r_screenmultiply.c
 r_segs.c
 r_sky.c
 r_things.c
@@ -201,14 +202,14 @@ task(:image => :bundle) do |t|
 	imagePath = "/Volumes/#{imageName}"
 
 	if File::directory?(imagePath)
-		sh("diskutil unmount #{imagePath}")
+		sh("diskutil eject #{imagePath}")
 	end
 
 	sh("hdiutil create -fs HFS+ -volname #{imageName} -ov -type SPARSE -attach #{imageName}")
 	cp_r([BUNDLEDIR, '../AUTHORS', '../COPYING', '../NEWS', '../README', '../doc'], imagePath)
 
 	cp('MAC/Image-DS_Store', "#{imagePath}/.DS_Store")
-	sh("diskutil unmount #{imagePath}")
+	sh("diskutil eject #{imagePath}")
 
 	rm_f("#{imageName}.dmg")
 	sh("hdiutil convert #{imageName}.sparseimage -format UDZO -o #{imageName}")

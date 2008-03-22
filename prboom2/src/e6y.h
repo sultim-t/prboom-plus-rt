@@ -163,9 +163,6 @@ extern int render_detailedflats;
 extern int render_multisampling;
 extern int render_paperitems;
 extern int render_wipescreen;
-extern int render_screen_multiply;
-extern int screen_multiply;
-extern int render_interlaced_scanning;
 extern int mouse_acceleration;
 extern int demo_overwriteexisting;
 extern int overrun_spechit_warn;
@@ -457,8 +454,6 @@ extern boolean isskytexture;
 void D_AddDehFile (const char *file, wad_source_t source);
 
 extern int levelstarttic;
-
-void R_ProcessScreenMultiply(byte* pixels_src, byte* pixels_dest, int pitch_src, int pitch_dest);
 
 extern int demo_patterns_count;
 extern char *demo_patterns_mask;

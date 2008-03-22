@@ -50,9 +50,9 @@ COMMON_SRC = \
  f_wipe.h       p_maputl.c         r_plane.c        z_zone.h	\
  md5.c          md5.h              p_checksum.h     p_checksum.c \
  r_patch.c      r_patch.h          r_fps.c          r_fps.h \
+ r_filter.c     r_filter.h \
  e6y.c          e6y.h              i_simd.c         i_simd.h \
- r_filter.c     r_filter.h         r_drawcolumn.inl r_drawflush.inl \
- r_drawspan.inl i_pcsound.c        i_pcsound.h
+ i_pcsound.c    i_pcsound.h        r_screenmultiply.c r_screenmultiply.h
 
 NET_CLIENT_SRC = d_client.c
 
@@ -74,3 +74,6 @@ MUS2MID_SRC = memio.c memio.h mus2mid.c mus2mid.h
 
 prboom_plus_SOURCES = $(COMMON_SRC) $(NET_CLIENT_SRC) $(USE_GL_SRC) $(WAD_SRC) $(MUS2MID_SRC)
 prboom_plus_LDADD = SDL/libsdldoom.a PCSOUND/libpcsound.a @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ @GL_LIBS@ @MATH_LIB@
+
+EXTRA_DIST = \
+ r_drawcolumn.inl r_drawflush.inl r_drawspan.inl r_drawcolpipeline.inl

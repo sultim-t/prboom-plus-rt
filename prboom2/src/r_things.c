@@ -298,8 +298,14 @@ static vissprite_t *R_NewVisSprite(void)
 {
   if (num_vissprite >= num_vissprite_alloc)             // killough
     {
+      size_t num_vissprite_alloc_prev = num_vissprite_alloc;
+
       num_vissprite_alloc = num_vissprite_alloc ? num_vissprite_alloc*2 : 128;
       vissprites = realloc(vissprites,num_vissprite_alloc*sizeof(*vissprites));
+      
+      //e6y: set all fields to zero
+      memset(vissprites + num_vissprite_alloc_prev, 0,
+        (num_vissprite_alloc - num_vissprite_alloc_prev)*sizeof(*vissprites));
     }
  return vissprites + num_vissprite++;
 }
@@ -430,11 +436,6 @@ static void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
     {
       texturecolumn = frac>>FRACBITS;
       dcvars.texu = frac;
-
-#ifdef RANGECHECK
-      if (texturecolumn < 0 || texturecolumn >= patch->width)
-        I_Error ("R_DrawSpriteRange: Bad texturecolumn");
-#endif
 
       R_DrawMaskedColumn(
         patch,
@@ -637,6 +638,9 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
     return;
   }
 #endif
+  
+  //vis->isplayersprite = false; // e6y
+
   // killough 3/27/98: save sector for special clipping later
   vis->heightsec = heightsec;
 

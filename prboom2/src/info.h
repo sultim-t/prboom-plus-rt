@@ -184,7 +184,9 @@ typedef enum
   SPR_TLP2,
   SPR_TNT1, /* add invisible sprite              phares 3/8/98 */
 
+#ifdef DOGS
   SPR_DOGS, /* killough 7/19/98: Marine's best friend :) */
+#endif
 
   NUMSPRITES  /* counter of how many there are */
 
@@ -1170,6 +1172,7 @@ typedef enum
   S_DETONATE2,
   S_DETONATE3,
 
+  // always count dog states, even if dogs are disabled
   S_DOGS_STND,      /* killough 7/19/98: Marine's best friend :) */
   S_DOGS_STND2,
   S_DOGS_RUN1,
@@ -1412,7 +1415,9 @@ typedef enum {
   MT_PUSH,    /* controls push source - phares */
   MT_PULL,    /* controls pull source - phares 3/20/98 */
 
+#ifdef DOGS
   MT_DOGS,    /* killough 7/19/98: Marine's best friend */
+#endif
 
   /* proff 11/22/98: Andy Baker's stealth monsters (next 12)
    * cph - moved below the MBF stuff, no need to displace them */

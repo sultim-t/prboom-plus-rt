@@ -1678,6 +1678,11 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   // killough 4/4/98: split load of sidedefs into two parts,
   // to allow texture names to be used in special linedefs
 
+  // refuse to load Hexen-format maps, avoid segfaults
+  if ((i = lumpnum + ML_BLOCKMAP + 1) < numlumps
+      && !strncmp(lumpinfo[i].name, "BEHAVIOR", 8))
+    I_Error("P_SetupLevel: %s: Hexen format not supported", lumpname);
+
 #if 1
   // figgi 10/19/00 -- check for gl lumps and load them
   P_GetNodesVersion(lumpnum,gl_lumpnum);
@@ -1749,18 +1754,29 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   /* cph - reset all multiplayer starts */
   memset(playerstarts,0,sizeof(playerstarts));
   deathmatch_p = deathmatchstarts;
+  for (i = 0; i < MAXPLAYERS; i++)
+    players[i].mo = NULL;
+
   P_MapStart();
 
   P_LoadThings(lumpnum+ML_THINGS);
 
   // if deathmatch, randomly spawn the active players
   if (deathmatch)
+  {
     for (i=0; i<MAXPLAYERS; i++)
       if (playeringame[i])
         {
-          players[i].mo = NULL;
+          players[i].mo = NULL; // not needed? - done before P_LoadThings
           G_DeathMatchSpawnPlayer(i);
         }
+  }
+  else // if !deathmatch, check all necessary player starts actually exist
+  {
+    for (i=0; i<MAXPLAYERS; i++)
+      if (playeringame[i] && !players[i].mo)
+        I_Error("P_SetupLevel: missing player %d start\n", i+1);
+  }
 
   // killough 3/26/98: Spawn icon landings:
   if (gamemode==commercial)
