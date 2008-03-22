@@ -207,7 +207,11 @@ static void R_ProcessScreenMultiplyBlock4x(byte* pixels_src, byte* pixels_dest,
   for (y = ybottom; y >= ytop; y--)\
   {\
     data_src = psrc;\
-    (byte *)psrc -= pitch_src; \
+    { /* GCC didn't like (byte *)psrc -= pitch_src; */ \
+      byte *p = (byte *)psrc;\
+      p -= pitch_src;\
+      psrc = (SCREENTYPE *)p;\
+    }\
     for (x = 0; x < SCREENWIDTH; x++, data_src++)\
     {\
       for (i = 0; i < screen_multiply; i++)\
