@@ -939,15 +939,15 @@ static void V_PlotPixel8(int scrn, int x, int y, byte color) {
 }
 
 static void V_PlotPixel15(int scrn, int x, int y, byte color) {
-  *(unsigned short *)(&screens[scrn].data)[x+screens[scrn].short_pitch*y] = VID_PAL15(color, VID_COLORWEIGHTMASK);
+  ((unsigned short *)screens[scrn].data)[x+screens[scrn].short_pitch*y] = VID_PAL15(color, VID_COLORWEIGHTMASK);
 }
 
 static void V_PlotPixel16(int scrn, int x, int y, byte color) {
-  *(unsigned short *)(&screens[scrn].data)[x+screens[scrn].short_pitch*y] = VID_PAL16(color, VID_COLORWEIGHTMASK);
+  ((unsigned short *)screens[scrn].data)[x+screens[scrn].short_pitch*y] = VID_PAL16(color, VID_COLORWEIGHTMASK);
 }
 
 static void V_PlotPixel32(int scrn, int x, int y, byte color) {
-  *(unsigned int *)(&screens[scrn].data)[x+screens[scrn].int_pitch*y] = VID_PAL32(color, VID_COLORWEIGHTMASK);
+  ((unsigned int *)screens[scrn].data)[x+screens[scrn].int_pitch*y] = VID_PAL32(color, VID_COLORWEIGHTMASK);
 }
 
 //
