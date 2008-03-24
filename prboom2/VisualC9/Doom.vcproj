@@ -5133,6 +5133,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\r_screenmultiply.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\r_screenmultiply.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\r_segs.c"
 				>
 				<FileConfiguration

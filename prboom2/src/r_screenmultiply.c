@@ -26,6 +26,10 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
+ * DESCRIPTION:
+ *      Screen multiply stuff. There are three algos:
+ *      fast special methods for 2x and 4x and universal algo
+ *
  *-----------------------------------------------------------------------------*/
 
 #ifdef HAVE_CONFIG_H

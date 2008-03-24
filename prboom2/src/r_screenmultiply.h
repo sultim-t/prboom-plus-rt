@@ -27,7 +27,8 @@
  *  02111-1307, USA.
  *
  * DESCRIPTION:
- *      R_ProcessScreenMultiplyBlock2x_8bit.
+ *      Screen multiply stuff. There are three algos:
+ *      fast special methods for 2x and 4x and universal algo
  *
  *-----------------------------------------------------------------------------*/
 
