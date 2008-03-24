@@ -1614,9 +1614,22 @@ void M_DoScreenShot (const char* fname)
 {
   extern int st_palette;//e6y
   screeninfo_t screenshot;
-  FILE	*fp = fopen(fname,"wb");
+  FILE	*fp;
   const byte *pal;
-  int        pplump = W_GetNumForName("PLAYPAL");
+  int pplump;
+
+  //e6y: support for non 8-bit modes
+  if (V_GetMode() != VID_MODEGL && V_GetPixelDepth() != 1)
+  {
+    if (SDL_SaveBMP(SDL_GetVideoSurface(), fname) != 0)
+    {
+      doom_printf("M_DoScreenShot: Error writing screenshot");
+    }
+    return;
+  }
+
+  fp = fopen(fname,"wb");
+  pplump = W_GetNumForName("PLAYPAL");
 
   if (!fp) {
     doom_printf("Error opening %s", fname);
