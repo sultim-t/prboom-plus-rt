@@ -2774,7 +2774,7 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
       demo_p = G_ReadOptions(demo_p);  // killough 3/1/98: Read game options
 
       if (demover == 200)              // killough 6/3/98: partially fix v2.00 demos
-        demo_p += 128-GAME_OPTION_SIZE;
+        demo_p += 256-GAME_OPTION_SIZE;
     }
 
   if (sizeof(comp_lev_str)/sizeof(comp_lev_str[0]) != MAX_COMPATIBILITY_LEVEL)
