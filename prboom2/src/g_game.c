@@ -2900,13 +2900,17 @@ void G_SaveRestoreGameOptions(int save)
     {1, 0, &player_bobbing},
     {1, 0, &demo_insurance},
     {1, 0, &monster_infighting},
+#ifdef DOGS
     {1, 0, &dogs},
+#endif
     {1, 0, &distfriend},
     {1, 0, &monster_backing},
     {1, 0, &monster_avoid_hazards},
     {1, 0, &monster_friction},
     {1, 0, &help_friends},
+#ifdef DOGS
     {1, 0, &dog_jumping},
+#endif
     {1, 0, &monkeys},
   
     {2, 0, &forceOldBsp},
