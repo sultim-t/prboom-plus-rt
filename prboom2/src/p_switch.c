@@ -85,10 +85,25 @@ void P_InitSwitchList(void)
           (max_numswitches = max_numswitches ? max_numswitches*2 : 8));
     if (SHORT(alphSwitchList[i].episode) <= episode) //jff 5/11/98 endianess
     {
+      int texture1, texture2;
+
       if (!SHORT(alphSwitchList[i].episode))
         break;
-      switchlist[index++] = R_TextureNumForName(alphSwitchList[i].name1);
-      switchlist[index++] = R_TextureNumForName(alphSwitchList[i].name2);
+
+      // Ignore switches referencing unknown texture names, instead of exiting.
+      // Warn if either one is missing, but only add if both are valid.
+      texture1 = R_CheckTextureNumForName(alphSwitchList[i].name1);
+      if (texture1 == -1)
+        lprintf(LO_WARN, "P_InitSwitchList: unknown texture %s\n",
+            alphSwitchList[i].name1);
+      texture2 = R_CheckTextureNumForName(alphSwitchList[i].name2);
+      if (texture2 == -1)
+        lprintf(LO_WARN, "P_InitSwitchList: unknown texture %s\n",
+            alphSwitchList[i].name2);
+      if (texture1 != -1 && texture2 != -1) {
+        switchlist[index++] = texture1;
+        switchlist[index++] = texture2;
+      }
     }
   }
 
