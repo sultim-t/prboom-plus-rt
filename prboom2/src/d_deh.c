@@ -1668,7 +1668,8 @@ static void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint_64_t value) {
     case 19: mi->damage = (int)value; return;
     case 20: mi->activesound = (int)value; return;
     case 21: mi->flags = value; return;
-    case 22: mi->raisestate = (int)value; return;
+    case 22: return; // "Bits2", unused
+    case 23: mi->raisestate = (int)value; return;
     default: return;
   }
 }
