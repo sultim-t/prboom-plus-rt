@@ -74,7 +74,7 @@ int mapcolor_frnd;    // friendly sprite color
 int mapcolor_enemy;   // enemy sprite color
 int mapcolor_hair;    // crosshair color
 int mapcolor_sngl;    // single player arrow color
-int mapcolor_plyr[4] = { 112, 88, 64, 176 }; // colors for player arrows in multiplayer
+int mapcolor_plyr[4] = { 112, 88, 64, 32 }; // colors for player arrows in multiplayer
 
 //jff 3/9/98 add option to not show secret sectors until entered
 int map_secret_after;
