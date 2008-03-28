@@ -107,6 +107,9 @@ angle_t R_PointToAngle(fixed_t x, fixed_t y);
 angle_t R_PointToAngle2(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2);
 subsector_t *R_PointInSubsector(fixed_t x, fixed_t y);
 
+//e6y: made more precise
+angle_t R_PointToAngleEx(fixed_t x, fixed_t y);
+
 //
 // REFRESH - the actual rendering functions.
 //

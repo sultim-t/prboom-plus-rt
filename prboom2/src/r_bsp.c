@@ -304,8 +304,8 @@ static void R_AddLine (seg_t *line)
 
   curline = line;
 
-  angle1 = R_PointToAngle (line->v1->x, line->v1->y);
-  angle2 = R_PointToAngle (line->v2->x, line->v2->y);
+  angle1 = R_PointToAngleEx (line->v1->x, line->v1->y);
+  angle2 = R_PointToAngleEx (line->v2->x, line->v2->y);
 
   // Clip to view edges.
   span = angle1 - angle2;
@@ -440,8 +440,8 @@ static boolean R_CheckBBox(const fixed_t *bspcoord)
       return true;
 
     check = checkcoord[boxpos];
-    angle1 = R_PointToAngle (bspcoord[check[0]], bspcoord[check[1]]) - viewangle;
-    angle2 = R_PointToAngle (bspcoord[check[2]], bspcoord[check[3]]) - viewangle;
+    angle1 = R_PointToAngleEx (bspcoord[check[0]], bspcoord[check[1]]) - viewangle;
+    angle2 = R_PointToAngleEx (bspcoord[check[2]], bspcoord[check[3]]) - viewangle;
   }
 
   // cph - replaced old code, which was unclear and badly commented

@@ -204,6 +204,33 @@ angle_t R_PointToAngle2(fixed_t viewx, fixed_t viewy, fixed_t x, fixed_t y)
     0;
 }
 
+// e6y
+// The precision of the code above is abysmal so use the CRT atan2 function instead!
+
+// FIXME - use of this function should be disabled on architectures with
+// poor floating point support! Imagine how slow this would be on ARM, say.
+
+#include <math.h>
+
+angle_t R_PointToAngleEx(fixed_t x, fixed_t y)
+{
+  static int old_y_viewy;
+  static int old_x_viewx;
+  static int old_result;
+
+  int y_viewy = y - viewy;
+  int x_viewx = x - viewx;
+
+  if (old_y_viewy != y_viewy || old_x_viewx != x_viewx)
+  {
+    old_y_viewy = y_viewy;
+    old_x_viewx = x_viewx;
+
+    old_result = (int)(atan2(y_viewy, x_viewx) * ANG180/M_PI);
+  }
+  return old_result;
+}
+
 //
 // R_InitTextureMapping
 //
