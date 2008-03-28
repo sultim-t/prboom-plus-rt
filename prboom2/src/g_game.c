@@ -98,6 +98,7 @@
 static size_t   savegamesize = SAVEGAMESIZE; // killough
 static boolean  netdemo;
 static const byte *demobuffer;   /* cph - only used for playback */
+static int demolength; // check for overrun (missing DEMOMARKER)
 static FILE    *demofp; /* cph - record straight to file */
 //e6y static 
 const byte *demo_p;
@@ -2380,12 +2381,9 @@ void G_ReadDemoTiccmd (ticcmd_t* cmd)
 
   if (*demo_p == DEMOMARKER)
     G_CheckDemoStatus();      // end of demo data stream
-  else
-  
-  //e6y: check for overrun
-  if (demoplayback && demo_curr_tic > demo_tics_count * demo_playerscount)
+  else if (demoplayback && demo_p+(longtics?5:4) > demobuffer + demolength)
   {
-    lprintf(LO_WARN, "The demo has no DEMOMARKER (0x80) at the end\n");
+    lprintf(LO_WARN, "G_ReadDemoTiccmd: missing DEMOMARKER\n");
     G_CheckDemoStatus();
   }
 
@@ -3232,24 +3230,26 @@ void G_DoPlayDemo(void)
 
   ExtractFileBase(defdemoname,basename);           // killough
   basename[8] = 0;
-  demobuffer = demo_p = W_CacheLumpNum(demolumpnum = W_GetNumForName(basename));
-  /* cph - store lump number for unlocking later */
 
-  demo_p = G_ReadDemoHeader(demo_p, W_LumpLength(demolumpnum), true);
+  /* cph - store lump number for unlocking later */
+  demolumpnum = W_GetNumForName(basename);
+  demobuffer = W_CacheLumpNum(demolumpnum);
+  demolength = W_LumpLength(demolumpnum);
+
+  demo_p = G_ReadDemoHeader(demobuffer, demolength, true);
 
   //e6y
   {
     int i;
-    int demolumplen = W_LumpLength(demolumpnum);
     demo_playerscount = 0;
     for (i=0; i<MAXPLAYERS; i++)
     {
       if (playeringame[i])
         demo_playerscount++;
     }
-    if (demo_playerscount > 0 && demolumplen > 0)
+    if (demo_playerscount > 0 && demolength > 0)
     {
-      demo_tics_count = (demolumplen - (demo_p - demobuffer + 1)) / 
+      demo_tics_count = (demolength - (demo_p - demobuffer + 1)) / 
         (longtics ? 5 : 4) / demo_playerscount;
       demo_curr_tic = 0;
       sprintf(demo_len_st, "\x1b\x35/%d:%02d", 

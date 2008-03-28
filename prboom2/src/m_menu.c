@@ -201,6 +201,7 @@ extern int map_point_coordinates; // killough 10/98
 extern char* chat_macros[];  // chat macros
 extern const char* shiftxform;
 extern default_t defaults[];
+extern int numdefaults;
 
 // end of externs added for setup menus
 

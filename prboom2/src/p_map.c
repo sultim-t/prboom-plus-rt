@@ -631,6 +631,7 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
   // ones, by allowing the moving thing (tmthing) to move if it's non-solid,
   // despite another solid thing being in the way.
   // killough 4/11/98: Treat no-clipping things as not blocking
+  // ...but not in demo_compatibility mode
 
   // e6y
   // Correction of wrong return value with demo_compatibility.

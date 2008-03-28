@@ -106,7 +106,7 @@ int             leds_always_off = 0; // Expected by m_misc, not relevant
 
 // Mouse handling
 extern int     usemouse;        // config file var
-static boolean grabMouse;       // internal var
+static boolean mouse_enabled; // usemouse, but can be overriden by -nomouse
 
 /////////////////////////////////////////////////////////////////////////////////
 // Keyboard handling
@@ -215,7 +215,7 @@ static void I_GetEvent(SDL_Event *Event)
 
   case SDL_MOUSEBUTTONDOWN:
   case SDL_MOUSEBUTTONUP:
-  if (window_focused)
+  if (mouse_enabled && window_focused)
   {
     event.type = ev_mouse;
     event.data1 = I_SDLtoDoomMouseState(SDL_GetMouseState(NULL, NULL));
@@ -269,11 +269,13 @@ void I_StartFrame (void)
 
 static void I_InitInputs(void)
 {
-  // check if the user wants to grab the mouse
-  grabMouse = M_CheckParm("-nomouse") ? false : usemouse ? true : false;
+  int nomouse_parm = M_CheckParm("-nomouse");
+
+  // check if the user wants to use the mouse
+  mouse_enabled = usemouse && !nomouse_parm;
   
   //e6y
-  if (grabMouse)
+  if (mouse_enabled)
   {
     Uint8 data[1] = {0x00};
     cursors[0] = SDL_GetCursor();
@@ -918,7 +920,7 @@ static boolean MouseShouldBeGrabbed()
     return true;
 
   // if we specify not to grab the mouse, never grab
-  if (!grabMouse)
+  if (!mouse_enabled)
     return false;
 
   // always grab the mouse in camera mode when playing levels 
