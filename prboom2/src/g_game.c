@@ -259,7 +259,7 @@ int    bodyqueslot, bodyquesize;        // killough 2/8/98
 mobj_t **bodyque = 0;                   // phares 8/10/98
 
 static void G_DoSaveGame (boolean menu);
-static const byte* G_ReadDemoHeader(const byte* demo_p);
+static const byte* G_ReadDemoHeader(const byte* demo_p, size_t size, boolean failonerror);
 
 //
 // G_BuildTiccmd
@@ -2214,7 +2214,7 @@ void G_ReadDemoTiccmd (ticcmd_t* cmd)
 
   if (*demo_p == DEMOMARKER)
     G_CheckDemoStatus();      // end of demo data stream
-  else if (demoplayback && demo_p > demobuffer + demolength)
+  else if (demoplayback && demo_p + (longtics?5:4) > demobuffer + demolength)
   {
     lprintf(LO_WARN, "G_ReadDemoTiccmd: missing DEMOMARKER\n");
     G_CheckDemoStatus();
@@ -2289,16 +2289,19 @@ void G_RecordDemo (const char* name)
       int slot = -1;
       int rc;
       int bytes_per_tic;
+      const byte* pos;
 
       { /* Read the demo header for options etc */
         byte buf[200];
-        size_t len;
-        fread(buf, 1, sizeof(buf), demofp);
-      
-        len = G_ReadDemoHeader(buf) - buf;
-        fseek(demofp, len, SEEK_SET);
+        size_t len = fread(buf, 1, sizeof(buf), demofp);
+        pos = G_ReadDemoHeader(buf, len, false);
+        if (pos)
+        {
+          fseek(demofp, pos - buf, SEEK_SET);
+        }
       }
       bytes_per_tic = longtics ? 5 : 4;
+    if (pos)
       /* Now read the demo to find the last save slot */
       do {
         byte buf[5];
@@ -2647,10 +2650,30 @@ static int G_GetOriginalDoomCompatLevel(int ver)
   return doom2_19_compatibility;
 }
 
-static const byte* G_ReadDemoHeader(const byte *demo_p)
+//e6y: Check for overrun
+static boolean CheckForOverrun(const byte *start_p, const byte *current_p, size_t maxsize, size_t size, boolean failonerror)
+{
+  size_t pos = current_p - start_p;
+  if (pos + size > maxsize)
+  {
+    if (failonerror)
+      I_Error("G_ReadDemoHeader: wrong demo header\n");
+    else
+      return true;
+  }
+  return false;
+}
+
+static const byte* G_ReadDemoHeader(const byte *demo_p, size_t size, boolean failonerror)
 {
   skill_t skill;
   int i, episode, map;
+
+  // e6y
+  // The local variable should be used instead of demobuffer,
+  // because demobuffer can be uninitialized
+  const byte *header_p = demo_p;
+
   const byte *option_p = NULL;      /* killough 11/98 */
 
   basetic = gametic;  // killough 9/29/98
@@ -2658,6 +2681,10 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
   // killough 2/22/98, 2/28/98: autodetect old demos and act accordingly.
   // Old demos turn on demo_compatibility => compatibility; new demos load
   // compatibility flag, and other flags as well, as a part of the demo.
+
+  //e6y: check for overrun
+  if (CheckForOverrun(header_p, demo_p, size, 1, failonerror))
+    return NULL;
 
   demover = *demo_p++;
   longtics = 0;
@@ -2694,7 +2721,11 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
 
       if ((skill=demover) >= 100)         // For demos from versions >= 1.4
         {
-	  compatibility_level = G_GetOriginalDoomCompatLevel(demover);
+          //e6y: check for overrun
+          if (CheckForOverrun(header_p, demo_p, size, 8, failonerror))
+            return NULL;
+
+          compatibility_level = G_GetOriginalDoomCompatLevel(demover);
           skill = *demo_p++;
           episode = *demo_p++;
           map = *demo_p++;
@@ -2706,7 +2737,11 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
         }
       else
         {
-	  compatibility_level = doom_12_compatibility;
+          //e6y: check for overrun
+          if (CheckForOverrun(header_p, demo_p, size, 2, failonerror))
+            return NULL;
+
+          compatibility_level = doom_12_compatibility;
           episode = *demo_p++;
           map = *demo_p++;
           deathmatch = respawnparm = fastparm =
@@ -2720,12 +2755,20 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
       switch (demover) {
       case 200: /* BOOM */
       case 201:
+        //e6y: check for overrun
+        if (CheckForOverrun(header_p, demo_p, size, 1, failonerror))
+          return NULL;
+
         if (!*demo_p++)
 	  compatibility_level = boom_201_compatibility;
         else
 	  compatibility_level = boom_compatibility_compatibility;
 	  break;
       case 202:
+        //e6y: check for overrun
+        if (CheckForOverrun(header_p, demo_p, size, 1, failonerror))
+          return NULL;
+
         if (!*demo_p++)
 	  compatibility_level = boom_202_compatibility;
         else
@@ -2734,7 +2777,7 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
       case 203:
 	/* LxDoom or MBF - determine from signature
 	 * cph - load compatibility level */
-	switch (demobuffer[2]) {
+	switch (*(header_p + 2)) {
 	case 'B': /* LxDoom */
 	  /* cph - DEMOSYNC - LxDoom demos recorded in compatibility modes support dropped */
 	  compatibility_level = lxdoom_1_compatibility;
@@ -2767,6 +2810,10 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
 	demo_p++;
 	break;
       }
+      //e6y: check for overrun
+      if (CheckForOverrun(header_p, demo_p, size, 5, failonerror))
+        return NULL;
+
       skill = *demo_p++;
       episode = *demo_p++;
       map = *demo_p++;
@@ -2776,6 +2823,10 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
       /* killough 11/98: save option pointer for below */
       if (mbf_features)
 	option_p = demo_p;
+
+      //e6y: check for overrun
+      if (CheckForOverrun(header_p, demo_p, size, GAME_OPTION_SIZE, failonerror))
+        return NULL;
 
       demo_p = G_ReadOptions(demo_p);  // killough 3/1/98: Read game options
 
@@ -2790,6 +2841,10 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
 
   if (demo_compatibility)  // only 4 players can exist in old demos
     {
+      //e6y: check for overrun
+      if (CheckForOverrun(header_p, demo_p, size, 4, failonerror))
+        return NULL;
+
       for (i=0; i<4; i++)  // intentionally hard-coded 4 -- killough
         playeringame[i] = *demo_p++;
       for (;i < MAXPLAYERS; i++)
@@ -2797,6 +2852,10 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
     }
   else
     {
+      //e6y: check for overrun
+      if (CheckForOverrun(header_p, demo_p, size, MAXPLAYERS, failonerror))
+        return NULL;
+
       for (i=0 ; i < MAXPLAYERS; i++)
         playeringame[i] = *demo_p++;
       demo_p += MIN_MAXPLAYERS - MAXPLAYERS;
@@ -2830,7 +2889,7 @@ void G_DoPlayDemo(void)
   demobuffer = W_CacheLumpNum(demolumpnum);
   demolength = W_LumpLength(demolumpnum);
 
-  demo_p = G_ReadDemoHeader(demobuffer);
+  demo_p = G_ReadDemoHeader(demobuffer, demolength, true);
 
   gameaction = ga_nothing;
   usergame = false;
