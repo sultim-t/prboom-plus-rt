@@ -704,8 +704,10 @@ static void P_LoadLineDefs (int lump)
         }
 
       /* calculate sound origin of line to be its midpoint */
-      ld->soundorg.x = (ld->bbox[BOXLEFT] + ld->bbox[BOXRIGHT] ) / 2;
-      ld->soundorg.y = (ld->bbox[BOXTOP]  + ld->bbox[BOXBOTTOM]) / 2;
+      //e6y: fix sound origin for large levels
+      // no need for comp_sound test, these are only used when comp_sound = 0
+      ld->soundorg.x = ld->bbox[BOXLEFT] / 2 + ld->bbox[BOXRIGHT] / 2;
+      ld->soundorg.y = ld->bbox[BOXTOP] / 2 + ld->bbox[BOXBOTTOM] / 2;
 
       ld->iLineID=i; // proff 04/05/2000: needed for OpenGL
       ld->sidenum[0] = SHORT(mld->sidenum[0]);
@@ -1369,8 +1371,17 @@ static int P_GroupLines (void)
     int block;
 
     // set the degenmobj_t to the middle of the bounding box
-    sector->soundorg.x = (bbox[BOXRIGHT]+bbox[BOXLEFT])/2;
-    sector->soundorg.y = (bbox[BOXTOP]+bbox[BOXBOTTOM])/2;
+    if (comp[comp_sound])
+    {
+      sector->soundorg.x = (bbox[BOXRIGHT]+bbox[BOXLEFT])/2;
+      sector->soundorg.y = (bbox[BOXTOP]+bbox[BOXBOTTOM])/2;
+    }
+    else
+    {
+      //e6y: fix sound origin for large levels
+      sector->soundorg.x = bbox[BOXRIGHT]/2+bbox[BOXLEFT]/2;
+      sector->soundorg.y = bbox[BOXTOP]/2+bbox[BOXBOTTOM]/2;
+    }
 
     // adjust bounding box to map blocks
     block = (bbox[BOXTOP]-bmaporgy+MAXRADIUS)>>MAPBLOCKSHIFT;
