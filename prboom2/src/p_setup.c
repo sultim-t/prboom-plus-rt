@@ -1555,7 +1555,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 
   // refuse to load Hexen-format maps, avoid segfaults
   if ((i = lumpnum + ML_BLOCKMAP + 1) < numlumps
-      && !strncmp(lumpinfo[i].name, "BEHAVIOR", 8))
+      && !strncasecmp(lumpinfo[i].name, "BEHAVIOR", 8))
     I_Error("P_SetupLevel: %s: Hexen format not supported", lumpname);
 
 #if 1
