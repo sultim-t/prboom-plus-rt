@@ -221,6 +221,19 @@ angle_t R_PointToAngleEx(fixed_t x, fixed_t y)
   int y_viewy = y - viewy;
   int x_viewx = x - viewx;
 
+#ifdef GL_DOOM
+  if (V_GetMode() != VID_MODEGL)
+  {
+    if (y_viewy < INT_MAX/4 && x_viewx < INT_MAX/4
+        && y_viewy > -INT_MAX/4 && x_viewx > -INT_MAX/4)
+      return R_PointToAngle(x, y);
+  }
+#else
+  if (y_viewy < INT_MAX/4 && x_viewx < INT_MAX/4
+      && y_viewy > -INT_MAX/4 && x_viewx > -INT_MAX/4)
+    return R_PointToAngle(x, y);
+#endif
+
   if (old_y_viewy != y_viewy || old_x_viewx != x_viewx)
   {
     old_y_viewy = y_viewy;
