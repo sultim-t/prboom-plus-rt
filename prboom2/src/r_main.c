@@ -238,6 +238,7 @@ angle_t R_PointToAngleEx(fixed_t x, fixed_t y)
 
   if (!render_precise)
   {
+    // e6y: here is where "slime trails" can SOMETIMES occur
 #ifdef GL_DOOM
     if (V_GetMode() != VID_MODEGL)
     {
