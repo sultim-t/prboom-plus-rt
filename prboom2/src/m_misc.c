@@ -70,6 +70,7 @@
 #include "r_draw.h"
 #include "r_demo.h"
 #include "r_fps.h"
+#include "r_main.h"
 
 //e6y
 #include "r_screenmultiply.h"
@@ -799,6 +800,8 @@ default_t defaults[] =
    def_int,ss_stat},
   {"render_interlaced_scanning", {&render_interlaced_scanning},  {0},0,1,
    def_bool,ss_stat},
+  {"render_precise",{(int*)&render_precise},{render_precise_quality},
+   render_precise_speed, render_precise_quality, def_int,ss_none},
 
 #ifdef GL_DOOM
   {"Prboom-plus OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
@@ -823,8 +826,6 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"test_voodoo", {&test_voodoo},  {0},0,1,
    def_bool,ss_stat},
-  {"gl_render_precise",{(int*)&gl_render_precise},{gl_render_precise_quality},
-   gl_render_precise_speed, gl_render_precise_quality, def_int,ss_none},
   {"gl_boom_colormaps", {&gl_boom_colormaps_default},  {1},0,1,
    def_bool,ss_stat},
   {"gl_texture_usehires", {&gl_texture_usehires_default},  {0},0,1,

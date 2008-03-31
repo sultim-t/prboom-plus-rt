@@ -74,8 +74,9 @@
 #include "info.h"
 #include "i_simd.h"
 #include "r_screenmultiply.h"
-#include "gl_struct.h"
+#include "r_main.h"
 #ifdef GL_DOOM
+#include "gl_struct.h"
 #include "gl_intern.h"
 #endif
 #include "g_game.h"
@@ -489,16 +490,18 @@ void M_ChangeMaxViewPitch(void)
 
   viewpitch = 0;
 }
+#endif // GL_DOOM
 
-void M_ChangeGLRenderPrecise(void)
+void M_ChangeRenderPrecise(void)
 {
+#ifdef GL_DOOM
   if (V_GetMode() != VID_MODEGL)
   {
     gl_seamless = false;
     return;
   }
 
-  if (gl_render_precise)
+  if (render_precise)
   {
     gl_seamless = true;
     gld_InitVertexData();
@@ -508,8 +511,8 @@ void M_ChangeGLRenderPrecise(void)
     gl_seamless = false;
     gld_CleanVertexData();
   }
+#endif // GL_DOOM
 }
-#endif
 
 void M_ChangeScreenMultipleFactor(void)
 {
@@ -1396,7 +1399,7 @@ void I_AfterUpdateVideoMode(void)
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL) {
     M_ChangeFOV();
-    M_ChangeGLRenderPrecise();
+    M_ChangeRenderPrecise();
     M_ChangeCompTranslucency();
   }
 #endif

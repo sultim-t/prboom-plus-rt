@@ -35,9 +35,6 @@
 #define _GL_STRUCT_H
 
 extern int nodesVersion;
-typedef enum { gl_render_precise_speed, gl_render_precise_quality } gl_render_precise_t;
-extern gl_render_precise_t gl_render_precise;
-extern const char *gl_render_precises[];
 
 #define MAX_GLGAMMA 32
 typedef enum { gl_lightmode_glboom, gl_lightmode_gzdoom } gl_lightmode_t;

@@ -3212,10 +3212,11 @@ setup_menu_t gen_settings5[] = { // General Settings screen3
   {"Max View Pitch",              S_NUM,   m_null,G_X,G_Y+7*8, {"movement_maxviewpitch"}, 0, 0, M_ChangeMaxViewPitch},
 #endif
   {"Common Render",               S_SKIP|S_TITLE,m_null,G_X,G_Y+9*8},
-  {"Change Palette On Pain",      S_YESNO,m_null,G_X,G_Y+ 10*8, {"palette_ondamage"}},
-  {"Change Palette On Bonus",     S_YESNO,m_null,G_X,G_Y+ 11*8, {"palette_onbonus"}},
-  {"Change Palette On Powers",    S_YESNO,m_null,G_X,G_Y+ 12*8, {"palette_onpowers"}},
-  {"Wipe Screen Effect",          S_YESNO,m_null,G_X,G_Y+ 13*8, {"render_wipescreen"}},
+  {"Rendering quality",           S_CHOICE, m_null,G_X,G_Y+ 10*8, {"render_precise"}, 0, 0, M_ChangeRenderPrecise, render_precises},
+  {"Wipe Screen Effect",          S_YESNO,m_null,G_X,G_Y+ 11*8, {"render_wipescreen"}},
+  {"Change Palette On Pain",      S_YESNO,m_null,G_X,G_Y+ 13*8, {"palette_ondamage"}},
+  {"Change Palette On Bonus",     S_YESNO,m_null,G_X,G_Y+ 14*8, {"palette_onbonus"}},
+  {"Change Palette On Powers",    S_YESNO,m_null,G_X,G_Y+ 15*8, {"palette_onpowers"}},
   {"<- PREV",S_SKIP|S_PREV, m_null,KB_PREV, KB_Y+20*8, {gen_settings4}},
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings6}},
   {0,S_SKIP|S_END,m_null}
@@ -3234,7 +3235,6 @@ setup_menu_t gen_settings6[] = { // General Settings screen4
   {"Paper Items"               ,S_YESNO,m_null,G_X,G_Y+10*8, {"render_paperitems"}},
   {"Adjust Sprite Clipping"    ,S_CHOICE,m_null,G_X,G_Y+11*8, {"gl_spriteclip"}, 0, 0, M_ChangeSpriteClip, gl_spriteclipmodes},
   {"Item out of Floor offset"  ,S_NUM  ,m_null,G_X,G_Y+12*8, {"gl_sprite_offset"}},
-  {"Rendering quality"         ,S_CHOICE, m_null,G_X,G_Y+13*8, {"gl_render_precise"}, 0, 0, M_ChangeGLRenderPrecise, gl_render_precises},
   {"Allow Colormaps"           ,S_YESNO|S_PRGWARN,m_null,G_X,G_Y+ 14*8, {"gl_boom_colormaps"}, 0, 0, M_ChangeAllowBoomColormaps},
   {"Allow Hi-Res Textures"     ,S_YESNO|S_PRGWARN,m_null,G_X,G_Y+ 15*8, {"gl_texture_usehires"}, 0, 0, M_ChangeTextureUseHires},
   {"Allow Hi-Res Patches"      ,S_YESNO|S_PRGWARN,m_null,G_X,G_Y+ 16*8, {"gl_patch_usehires"}, 0, 0, M_ChangeTextureUseHires},

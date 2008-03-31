@@ -121,6 +121,11 @@ subsector_t *R_PointInSubsector(fixed_t x, fixed_t y);
 //e6y: made more precise
 angle_t R_PointToAngleEx(fixed_t x, fixed_t y);
 
+//e6y
+typedef enum { render_precise_speed, render_precise_quality } render_precise_t;
+extern render_precise_t render_precise;
+extern const char *render_precises[];
+
 //
 // REFRESH - the actual rendering functions.
 //

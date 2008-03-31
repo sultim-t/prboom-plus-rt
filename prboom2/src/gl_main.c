@@ -108,8 +108,6 @@ float gl_motionblur_c = 0.9f;
 //e6y
 int gl_invul_bw_method;
 static boolean SkyDrawed;
-gl_render_precise_t gl_render_precise;
-const char *gl_render_precises[] = {"Speed","Quality"};
 
 gl_lightmode_t gl_lightmode;
 const char *gl_lightmodes[] = {"glboom","gzdoom"};
