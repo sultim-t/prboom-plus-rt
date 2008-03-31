@@ -219,6 +219,10 @@ angle_t R_PointToAngle2(fixed_t viewx, fixed_t viewy, fixed_t x, fixed_t y)
 
 // e6y
 // The precision of the code above is abysmal so use the CRT atan2 function instead!
+
+// FIXME - use of this function should be disabled on architectures with
+// poor floating point support! Imagine how slow this would be on ARM, say.
+
 angle_t R_PointToAngleEx(fixed_t x, fixed_t y)
 {
   static int old_y_viewy;
@@ -231,11 +235,13 @@ angle_t R_PointToAngleEx(fixed_t x, fixed_t y)
 #ifdef GL_DOOM
   if (V_GetMode() != VID_MODEGL)
   {
-    if (y_viewy < INT_MAX/4 && x_viewx < INT_MAX/4)
+    if (y_viewy < INT_MAX/4 && x_viewx < INT_MAX/4
+        && y_viewy > -INT_MAX/4 && x_viewx > -INT_MAX/4)
       return R_PointToAngle(x, y);
   }
 #else
-  if (y_viewy < INT_MAX/4 && x_viewx < INT_MAX/4)
+  if (y_viewy < INT_MAX/4 && x_viewx < INT_MAX/4
+      && y_viewy > -INT_MAX/4 && x_viewx > -INT_MAX/4)
     return R_PointToAngle(x, y);
 #endif
 

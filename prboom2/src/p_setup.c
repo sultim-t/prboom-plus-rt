@@ -786,17 +786,10 @@ static void P_LoadLineDefs (int lump)
         }
 
       /* calculate sound origin of line to be its midpoint */
-      if (comp[comp_sound])
-      {
-        ld->soundorg.x = (ld->bbox[BOXLEFT] + ld->bbox[BOXRIGHT] ) / 2;
-        ld->soundorg.y = (ld->bbox[BOXTOP]  + ld->bbox[BOXBOTTOM]) / 2;
-      }
-      else
-      {
-        //e6y: fix sound origin for large levels
-        ld->soundorg.x = ld->bbox[BOXLEFT] / 2 + ld->bbox[BOXRIGHT] / 2;
-        ld->soundorg.y = ld->bbox[BOXTOP] / 2 + ld->bbox[BOXBOTTOM] / 2;
-      }
+      //e6y: fix sound origin for large levels
+      // no need for comp_sound test, these are only used when comp_sound = 0
+      ld->soundorg.x = ld->bbox[BOXLEFT] / 2 + ld->bbox[BOXRIGHT] / 2;
+      ld->soundorg.y = ld->bbox[BOXTOP] / 2 + ld->bbox[BOXBOTTOM] / 2;
 
       ld->iLineID=i; // proff 04/05/2000: needed for OpenGL
       ld->sidenum[0] = SHORT(mld->sidenum[0]);
@@ -1680,7 +1673,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 
   // refuse to load Hexen-format maps, avoid segfaults
   if ((i = lumpnum + ML_BLOCKMAP + 1) < numlumps
-      && !strncmp(lumpinfo[i].name, "BEHAVIOR", 8))
+      && !strncasecmp(lumpinfo[i].name, "BEHAVIOR", 8))
     I_Error("P_SetupLevel: %s: Hexen format not supported", lumpname);
 
 #if 1

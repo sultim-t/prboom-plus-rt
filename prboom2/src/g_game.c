@@ -149,6 +149,10 @@ int             longtics;
 // but without having to be recording every time.
 int shorttics;
 
+//e6y
+int democontinue = false;
+char democontinuename[PATH_MAX];
+
 //
 // controls (have defaults)
 //
@@ -274,8 +278,7 @@ int    bodyqueslot, bodyquesize;        // killough 2/8/98
 mobj_t **bodyque = 0;                   // phares 8/10/98
 
 static void G_DoSaveGame (boolean menu);
-//e6y static
-const byte* G_ReadDemoHeader(const byte* demo_p, size_t size, boolean failonerror);
+static const byte* G_ReadDemoHeader(const byte* demo_p, size_t size, boolean failonerror);
 
 //e6y: save/restore all data which could be changed by G_ReadDemoHeader
 static void G_SaveRestoreGameOptions(int save);
@@ -2381,7 +2384,7 @@ void G_ReadDemoTiccmd (ticcmd_t* cmd)
 
   if (*demo_p == DEMOMARKER)
     G_CheckDemoStatus();      // end of demo data stream
-  else if (demoplayback && demo_p+(longtics?5:4) > demobuffer + demolength)
+  else if (demoplayback && demo_p + (longtics?5:4) > demobuffer + demolength)
   {
     lprintf(LO_WARN, "G_ReadDemoTiccmd: missing DEMOMARKER\n");
     G_CheckDemoStatus();
@@ -2847,7 +2850,7 @@ static int G_GetOriginalDoomCompatLevel(int ver)
 }
 
 //e6y: Check for overrun
-boolean CheckForOverrun(const byte *start_p, const byte *current_p, size_t maxsize, size_t size, boolean failonerror)
+static boolean CheckForOverrun(const byte *start_p, const byte *current_p, size_t maxsize, size_t size, boolean failonerror)
 {
   size_t pos = current_p - start_p;
   if (pos + size > maxsize)
@@ -2986,12 +2989,10 @@ void G_SaveRestoreGameOptions(int save)
   }
 }
 
-const byte* G_ReadDemoHeader(const byte *demo_p, size_t size, boolean failonerror)
+static const byte* G_ReadDemoHeader(const byte *demo_p, size_t size, boolean failonerror)
 {
   skill_t skill;
   int i, episode, map;
-  // e6y demover should be global. See P_UseSpecialLine()
-  // int demover;
 
   // e6y
   // The local variable should be used instead of demobuffer,
@@ -3506,5 +3507,22 @@ void G_ReadDemoContinueTiccmd (ticcmd_t* cmd)
       _demofp = 0;
       democontinue = false;
     }
+  }
+}
+
+//e6y
+void G_CheckDemoContinue(void)
+{
+  if (democontinue)
+  {
+    byte buf[512];
+    size_t len = fread(buf, 1, sizeof(buf), _demofp);
+    len = G_ReadDemoHeader(buf, len, true) - buf;
+    fseek(_demofp, len, SEEK_SET);
+
+    singledemo = true;
+    autostart = true;
+    G_RecordDemo(democontinuename);
+    G_BeginRecording();
   }
 }

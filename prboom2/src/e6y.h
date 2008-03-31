@@ -117,7 +117,6 @@ extern int totalleveltimes;
 extern int secretfound;
 extern int messagecenter_counter;
 extern int demo_skiptics;
-extern int democontinue;
 extern int demo_tics_count;
 extern int demo_curr_tic;
 extern int demo_playerscount;
@@ -226,7 +225,6 @@ void e6y_assert(const char *format, ...);
 
 void ParamsMatchingCheck();
 void e6y_InitCommandLine(void);
-void G_CheckDemoContinue(void);
 
 void P_WalkTicker ();
 void P_ResetWalkcam(boolean ResetCoord, boolean ResetSight);

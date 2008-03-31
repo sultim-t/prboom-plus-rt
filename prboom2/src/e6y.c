@@ -112,7 +112,6 @@ boolean wasWiped = false;
 int secretfound;
 int messagecenter_counter;
 int demo_skiptics;
-int democontinue = false;
 int demo_playerscount;
 int demo_tics_count;
 int demo_curr_tic;
@@ -299,8 +298,6 @@ prboom_comp_t prboom_comp[PC_MAX] = {
   {0x00000000, 0x02040802, 0, "-allow_sky_transfer_in_boom"},
 };
 
-char democontinuename[PATH_MAX];
-
 void e6y_InitCommandLine(void)
 {
   int i, p;
@@ -389,25 +386,6 @@ void e6y_InitCommandLine(void)
   }
 
   shorttics = M_CheckParm("-shorttics");
-}
-
-void G_CheckDemoContinue(void)
-{
-  if (democontinue)
-  {
-    void G_RecordDemo (const char* name);
-    void G_BeginRecording (void);
-
-    byte buf[512];
-    size_t len = fread(buf, 1, sizeof(buf), _demofp);
-    len = G_ReadDemoHeader(buf, len, true) - buf;
-    fseek(_demofp, len, SEEK_SET);
-
-    singledemo = true;
-    autostart = true;
-    G_RecordDemo(democontinuename);
-    G_BeginRecording();
-  }
 }
 
 void G_SkipDemoStart(void)
