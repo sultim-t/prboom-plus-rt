@@ -167,15 +167,48 @@ mapthing_t playerstarts[MAXPLAYERS];
 static int previous_episode = -1;
 static int previous_map = -1;
 
+int samelevel = false;
+
 boolean SameLevel(int episode, int map)
 {
   return ((map == previous_map) && (episode == previous_episode));
+}
+
+// e6y: Smart malloc
+// Used by P_SetupLevel() for smart data loading
+// Do nothing if level is the same
+boolean malloc_IfSameLevel(void** p, size_t size)
+{
+  if (!samelevel)
+  {
+    (*p) = malloc(size);
+    return true;
+  }
+  return false;
+}
+
+// e6y: Smart calloc
+// Used by P_SetupLevel() for smart data loading
+// Clear the memory without allocation if level is the same
+boolean calloc_IfSameLevel(void** p, size_t n1, size_t n2)
+{
+  if (!samelevel)
+  {
+    (*p) = calloc(n1, n2);
+    return true;
+  }
+  else
+  {
+    memset((*p), 0, n1 * n2);
+    return false;
+  }
 }
 
 void AcceptLevel(int episode, int map)
 {
   previous_episode = episode;
   previous_map = map;
+  samelevel = false;
 }
 
 //
@@ -254,7 +287,7 @@ static void P_LoadVertexes (int lump)
   numvertexes = W_LumpLength(lump) / sizeof(mapvertex_t);
 
   // Allocate zone memory for buffer.
-  vertexes = Z_Malloc(numvertexes*sizeof(vertex_t),PU_LEVEL,0);
+  malloc_IfSameLevel(&vertexes, numvertexes * sizeof(vertex_t));
 
   // Load data into cache.
   // cph 2006/07/29 - cast to mapvertex_t here, making the loop below much neater
@@ -300,7 +333,7 @@ static void P_LoadVertexes2(int lump, int gllump)
       const mapglvertex_t*  mgl;
 
       numvertexes += (W_LumpLength(gllump) - GL_VERT_OFFSET)/sizeof(mapglvertex_t);
-      vertexes   = Z_Malloc (numvertexes*sizeof(vertex_t),PU_LEVEL,0);
+      malloc_IfSameLevel(&vertexes, numvertexes * sizeof(vertex_t));
       mgl      = (const mapglvertex_t *) (gldata + GL_VERT_OFFSET);
 
       for (i = firstglvertex; i < numvertexes; i++)
@@ -313,7 +346,7 @@ static void P_LoadVertexes2(int lump, int gllump)
     else
     {
       numvertexes += W_LumpLength(gllump)/sizeof(mapvertex_t);
-      vertexes     = Z_Malloc (numvertexes*sizeof(vertex_t),PU_LEVEL,0);
+      malloc_IfSameLevel(&vertexes, numvertexes * sizeof(vertex_t));
       ml       = (const mapvertex_t *)gldata;
 
       for (i = firstglvertex; i < numvertexes; i++)
@@ -384,7 +417,7 @@ static void P_LoadSegs (int lump)
   const mapseg_t *data; // cph - const
 
   numsegs = W_LumpLength(lump) / sizeof(mapseg_t);
-  segs = Z_Calloc(numsegs,sizeof(seg_t),PU_LEVEL,0);
+  calloc_IfSameLevel(&segs, numsegs, sizeof(seg_t));
   data = (const mapseg_t *)W_CacheLumpNum(lump); // cph - wad lump handling updated
 
   if ((!data) || (!numsegs))
@@ -515,7 +548,7 @@ static void P_LoadGLSegs(int lump)
   line_t    *ldef;
 
   numsegs = W_LumpLength(lump) / sizeof(glseg_t);
-  segs = Z_Malloc(numsegs * sizeof(seg_t), PU_LEVEL, 0);
+  malloc_IfSameLevel(&segs, numsegs * sizeof(seg_t));
   memset(segs, 0, numsegs * sizeof(seg_t));
   ml = (const glseg_t*)W_CacheLumpNum(lump);
 
@@ -576,7 +609,7 @@ static void P_LoadSubsectors (int lump)
   int  i;
 
   numsubsectors = W_LumpLength (lump) / sizeof(mapsubsector_t);
-  subsectors = Z_Calloc(numsubsectors,sizeof(subsector_t),PU_LEVEL,0);
+  calloc_IfSameLevel(&subsectors, numsubsectors, sizeof(subsector_t));
   data = (const mapsubsector_t *)W_CacheLumpNum(lump);
 
   if ((!data) || (!numsubsectors))
@@ -602,7 +635,7 @@ static void P_LoadSectors (int lump)
   int  i;
 
   numsectors = W_LumpLength (lump) / sizeof(mapsector_t);
-  sectors = Z_Calloc (numsectors,sizeof(sector_t),PU_LEVEL,0);
+  calloc_IfSameLevel(&sectors, numsectors, sizeof(sector_t));
   data = W_CacheLumpNum (lump); // cph - wad lump handling updated
 
   for (i=0; i<numsectors; i++)
@@ -659,7 +692,7 @@ static void P_LoadNodes (int lump)
   int  i;
 
   numnodes = W_LumpLength (lump) / sizeof(mapnode_t);
-  nodes = Z_Malloc (numnodes*sizeof(node_t),PU_LEVEL,0);
+  malloc_IfSameLevel(&nodes, numnodes * sizeof(node_t));
   data = W_CacheLumpNum (lump); // cph - wad lump handling updated
 
   if ((!data) || (!numnodes))
@@ -742,7 +775,7 @@ static void P_LoadLineDefs (int lump)
   int  i;
 
   numlines = W_LumpLength (lump) / sizeof(maplinedef_t);
-  lines = Z_Calloc (numlines,sizeof(line_t),PU_LEVEL,0);
+  calloc_IfSameLevel(&lines, numlines, sizeof(line_t));
   data = W_CacheLumpNum (lump); // cph - wad lump handling updated
 
   for (i=0; i<numlines; i++)
@@ -869,7 +902,7 @@ static void P_LoadLineDefs2(int lump)
 static void P_LoadSideDefs (int lump)
 {
   numsides = W_LumpLength(lump) / sizeof(mapsidedef_t);
-  sides = Z_Calloc(numsides,sizeof(side_t),PU_LEVEL,0);
+  calloc_IfSameLevel(&sides, numsides, sizeof(side_t));
 }
 
 // killough 4/4/98: delay using texture names until
@@ -1213,8 +1246,7 @@ static void P_CreateBlockMap(void)
 
   // Create the blockmap lump
 
-  blockmaplump = Z_Malloc(sizeof(*blockmaplump) * (4+NBlocks+linetotal),
-                          PU_STATIC, 0);
+  malloc_IfSameLevel(&blockmaplump, sizeof(*blockmaplump) * (4 + NBlocks + linetotal));
   // blockmap header
 
   blockmaplump[0] = bmaporgx = xorg << FRACBITS;
@@ -1273,7 +1305,7 @@ static void P_LoadBlockMap (int lump)
       long i;
       // cph - const*, wad lump handling updated
       const short *wadblockmaplump = W_CacheLumpNum(lump);
-      blockmaplump = Z_Malloc(sizeof(*blockmaplump) * count, PU_STATIC, 0);
+      malloc_IfSameLevel(&blockmaplump, sizeof(*blockmaplump) * count);
 
       // killough 3/1/98: Expand wad blockmap into larger internal one,
       // by treating all offsets except -1 as unsigned and zero-extending
@@ -1300,7 +1332,7 @@ static void P_LoadBlockMap (int lump)
     }
 
   // clear out mobj chains - CPhipps - use calloc
-  blocklinks = Z_Calloc (bmapwidth*bmapheight,sizeof(*blocklinks),PU_STATIC,0);
+  calloc_IfSameLevel(&(void*)blocklinks, bmapwidth * bmapheight, sizeof(*blocklinks));
   blockmap = blockmaplump+4;
 }
 
@@ -1600,6 +1632,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   int   gl_lumpnum;
 
   //e6y
+  samelevel = SameLevel(episode, map);
   totallive = 0;
   transparentpresent = false;
 
@@ -1627,19 +1660,10 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   }
   
 #ifdef GL_DOOM
-  // e6y
-  // vertexes data should be purged here,
-  // because it depends from sectors
-  gld_CleanVertexData();
-#endif
-
-#ifdef GL_DOOM
-// proff 11/99: clean the memory from textures etc.
+  // proff 11/99: clean the memory from textures etc.
+  if (!samelevel)
   {
-    if (!SameLevel(episode, map))
-    {
-      gld_CleanMemory();
-    }
+    gld_CleanMemory();
   }
 #endif
 
@@ -1676,9 +1700,27 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
       && !strncasecmp(lumpinfo[i].name, "BEHAVIOR", 8))
     I_Error("P_SetupLevel: %s: Hexen format not supported", lumpname);
 
-#if 1
   // figgi 10/19/00 -- check for gl lumps and load them
   P_GetNodesVersion(lumpnum,gl_lumpnum);
+
+  // e6y: speedup of level reloading
+  // Most of level's structures now are allocated with PU_STATIC instead of PU_LEVEL
+  // It is important for OpenGL, because in case of the same data in memory
+  // we can skip recalculation of much stuff
+  if (!samelevel)
+  {
+    free(segs);
+    free(nodes);
+    free(subsectors);
+
+    free(blocklinks);
+    free(blockmaplump);
+
+    free(lines);
+    free(sides);
+    free(sectors);
+    free(vertexes);
+  }
 
   if (nodesVersion > 0)
     P_LoadVertexes2 (lumpnum+ML_VERTEXES,gl_lumpnum+ML_GL_VERTS);
@@ -1690,10 +1732,11 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   P_LoadSideDefs2 (lumpnum+ML_SIDEDEFS);
   P_LoadLineDefs2 (lumpnum+ML_LINEDEFS);
 
-  if (!SameLevel(episode, map))
+  // e6y: speedup of level reloading
+  // Do not reload BlockMap for same level,
+  // because in case of big level P_CreateBlockMap eats much time
+  if (!samelevel)
   {
-    Z_Free(blocklinks);
-    Z_Free(blockmaplump);
     P_LoadBlockMap  (lumpnum+ML_BLOCKMAP);
   }
   else
@@ -1713,21 +1756,6 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
     P_LoadNodes(lumpnum + ML_NODES);
     P_LoadSegs(lumpnum + ML_SEGS);
   }
-
-#else
-
-  P_LoadVertexes  (lumpnum+ML_VERTEXES);
-  P_LoadSectors   (lumpnum+ML_SECTORS);
-  P_LoadSideDefs  (lumpnum+ML_SIDEDEFS);             // killough 4/4/98
-  P_LoadLineDefs  (lumpnum+ML_LINEDEFS);             //       |
-  P_LoadSideDefs2 (lumpnum+ML_SIDEDEFS);             //       |
-  P_LoadLineDefs2 (lumpnum+ML_LINEDEFS);             // killough 4/4/98
-  P_LoadBlockMap  (lumpnum+ML_BLOCKMAP);             // killough 3/1/98
-  P_LoadSubsectors(lumpnum+ML_SSECTORS);
-  P_LoadNodes     (lumpnum+ML_NODES);
-  P_LoadSegs      (lumpnum+ML_SEGS);
-
-#endif
 
   // reject loading and underflow padding separated out into new function
   // P_GroupLines modified to return a number the underflow padding needs

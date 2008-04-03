@@ -1049,8 +1049,8 @@ static void gld_AddGlobalVertexes(int count)
   if ((gld_num_vertexes+count)>=gld_max_vertexes)
   {
     gld_max_vertexes+=count+1024;
-    gld_vertexes=Z_Realloc(gld_vertexes,gld_max_vertexes*sizeof(GLVertex),PU_LEVEL,0);
-    gld_texcoords=Z_Realloc(gld_texcoords,gld_max_vertexes*sizeof(GLTexcoord),PU_LEVEL,0);
+    gld_vertexes=Z_Realloc(gld_vertexes,gld_max_vertexes*sizeof(GLVertex),PU_STATIC,0);
+    gld_texcoords=Z_Realloc(gld_texcoords,gld_max_vertexes*sizeof(GLTexcoord),PU_STATIC,0);
   }
 }
 
@@ -1235,7 +1235,7 @@ static void gld_FlatConvexCarver(int ssidx, int num, divline_t *list)
         int currentsector=ssec->sector->iSectorID;
 
         sectorloops[ currentsector ].loopcount++;
-        sectorloops[ currentsector ].loops=Z_Realloc(sectorloops[currentsector].loops,sizeof(GLLoopDef)*sectorloops[currentsector].loopcount, PU_LEVEL, 0);
+        sectorloops[ currentsector ].loops=Z_Realloc(sectorloops[currentsector].loops,sizeof(GLLoopDef)*sectorloops[currentsector].loopcount, PU_STATIC, 0);
         sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].mode=GL_TRIANGLE_FAN;
         sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].vertexcount=numedgepoints;
         sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].vertexindex=gld_num_vertexes;
@@ -1331,7 +1331,7 @@ static void CALLBACK ntessBegin( GLenum type )
   sectorloops[ currentsector ].loopcount++;
   // reallocate to get space for another loop
   // PU_LEVEL is used, so this gets freed before a new level is loaded
-  sectorloops[ currentsector ].loops=Z_Realloc(sectorloops[currentsector].loops,sizeof(GLLoopDef)*sectorloops[currentsector].loopcount, PU_LEVEL, 0);
+  sectorloops[ currentsector ].loops=Z_Realloc(sectorloops[currentsector].loops,sizeof(GLLoopDef)*sectorloops[currentsector].loopcount, PU_STATIC, 0);
   // set initial values for current loop
   // currentloop is -> sectorloops[currentsector].loopcount-1
   sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].mode=type;
@@ -1705,7 +1705,7 @@ void gld_GetSubSectorVertices(boolean *sectorclosed)
       int currentsector = ssector->sector->iSectorID;
 
       sectorloops[currentsector].loopcount++;
-      sectorloops[currentsector].loops = Z_Realloc(sectorloops[currentsector].loops,sizeof(GLLoopDef)*sectorloops[currentsector].loopcount, PU_LEVEL, 0);
+      sectorloops[currentsector].loops = Z_Realloc(sectorloops[currentsector].loops,sizeof(GLLoopDef)*sectorloops[currentsector].loopcount, PU_STATIC, 0);
       sectorloops[currentsector].loops[sectorloops[currentsector].loopcount-1].mode    = GL_TRIANGLE_FAN;
       sectorloops[currentsector].loops[sectorloops[currentsector].loopcount-1].vertexcount = numedgepoints;
       sectorloops[currentsector].loops[sectorloops[currentsector].loopcount-1].vertexindex = gld_num_vertexes;
@@ -1806,17 +1806,17 @@ void gld_PreprocessSectors(void)
     I_Error("gld_PreprocessSectors: Not enough memory for array sectorclosed");
   memset(sectorclosed, 0, sizeof(boolean)*numsectors);
 
-  sectorloops=Z_Malloc(sizeof(GLSector)*numsectors,PU_LEVEL,0);
+  sectorloops=Z_Malloc(sizeof(GLSector)*numsectors,PU_STATIC,0);
   if (!sectorloops)
     I_Error("gld_PreprocessSectors: Not enough memory for array sectorloops");
   memset(sectorloops, 0, sizeof(GLSector)*numsectors);
 
-  sectorrendered=Z_Malloc(numsectors*sizeof(byte),PU_LEVEL,0);
+  sectorrendered=Z_Malloc(numsectors*sizeof(byte),PU_STATIC,0);
   if (!sectorrendered)
     I_Error("gld_PreprocessSectors: Not enough memory for array sectorrendered");
   memset(sectorrendered, 0, numsectors*sizeof(byte));
 
-  segrendered=Z_Malloc(numsegs*sizeof(byte),PU_LEVEL,0);
+  segrendered=Z_Malloc(numsegs*sizeof(byte),PU_STATIC,0);
   if (!segrendered)
     I_Error("gld_PreprocessSectors: Not enough memory for array segrendered");
   memset(segrendered, 0, numsegs*sizeof(byte));
@@ -2883,7 +2883,7 @@ static void gld_PreprocessSegs(void)
 {
   int i;
 
-  gl_segs=Z_Malloc(numsegs*sizeof(GLSeg),PU_LEVEL,0);
+  gl_segs=Z_Malloc(numsegs*sizeof(GLSeg),PU_STATIC,0);
   for (i=0; i<numsegs; i++)
   {
     gl_segs[i].x1=-(float)segs[i].v1->x/(float)MAP_SCALE;
@@ -3463,9 +3463,42 @@ void gld_DrawScene(player_t *player)
 
 void gld_PreprocessLevel(void)
 {
-  gld_Precache();
-  gld_PreprocessSectors();
-  gld_PreprocessSegs();
+  extern int samelevel;
+
+  // e6y: speedup of level reloading
+  // Do not preprocess GL data twice for same level
+  if (!samelevel)
+  {
+    int i;
+    static numsectors_prev = 0;
+
+    free(gl_segs);
+
+    free(gld_texcoords);
+    free(gld_vertexes);
+
+    free(segrendered);
+    free(sectorrendered);
+    
+    for (i = 0; i < numsectors_prev; i++)
+    {
+      free(sectorloops[i].loops);
+    }
+    free(sectorloops);
+
+    gld_Precache();
+    gld_PreprocessSectors();
+    gld_PreprocessSegs();
+
+    numsectors_prev = numsectors;
+  }
+  else
+  {
+    //from gld_PreprocessSectors
+    memset(sectorrendered, 0, numsectors*sizeof(byte));
+    memset(segrendered, 0, numsegs*sizeof(byte));
+  }
+
   memset(&gld_drawinfo,0,sizeof(GLDrawInfo));
   glTexCoordPointer(2,GL_FLOAT,0,gld_texcoords);
   glVertexPointer(3,GL_FLOAT,0,gld_vertexes);
