@@ -241,16 +241,10 @@ angle_t R_PointToAngleEx(fixed_t x, fixed_t y)
     // e6y: here is where "slime trails" can SOMETIMES occur
 #ifdef GL_DOOM
     if (V_GetMode() != VID_MODEGL)
-    {
+#endif
       if (y_viewy < INT_MAX/4 && x_viewx < INT_MAX/4
           && y_viewy > -INT_MAX/4 && x_viewx > -INT_MAX/4)
         return R_PointToAngle(x, y);
-    }
-#else
-    if (y_viewy < INT_MAX/4 && x_viewx < INT_MAX/4
-        && y_viewy > -INT_MAX/4 && x_viewx > -INT_MAX/4)
-      return R_PointToAngle(x, y);
-#endif
   }
 
   if (old_y_viewy != y_viewy || old_x_viewx != x_viewx)
