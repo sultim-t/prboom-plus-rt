@@ -51,6 +51,8 @@ float xCamera,yCamera;
 TAnimItemParam *anim_flats = NULL;
 TAnimItemParam *anim_textures = NULL;
 
+void gld_ShutdownDetail(void);
+
 float distance2piece(float x0, float y0, float x1, float y1, float x2, float y2)
 {
   float t, w;
@@ -122,10 +124,17 @@ void gld_InitDetail(void)
       
       SDL_FreeSurface(surf);
       render_canusedetail = true;
+
+      atexit(gld_ShutdownDetail);
     }
   }
 
   M_ChangeUseDetail();
+}
+
+void gld_ShutdownDetail(void)
+{
+  glDeleteTextures(1, &idDetail);
 }
 
 void gld_PreprocessDetail(void)
