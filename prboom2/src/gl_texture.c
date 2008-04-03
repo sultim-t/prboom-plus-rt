@@ -187,6 +187,29 @@ void* NewIntDynArray(int dimCount, int *dims)
 }
 
 // e6y
+// Get index of player->fixedcolormap for GLTexture().glTexExID array
+// There are three known values for player->fixedcolormap: 0, 1 and 32
+// 0 (normal) -> 0; 1 (pw_infrared) -> 1; 32 (pw_invulnerability) -> 2
+#define PLAYERCOLORMAP_COUNT (3)
+int gld_GetPlayerColormapIndex(int fixedcolormap)
+{
+  static int data[NUMCOLORMAPS+1] = {
+     0,  1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,
+     2
+  };
+
+  if (data[fixedcolormap] == -1)
+  {
+    I_Error("gld_GetFixedColormapIndex: Unknown player->fixedcolormap?");
+  }
+
+  return data[fixedcolormap];
+}
+
+// e6y
 // The common function for adding textures and patches
 // Used by gld_AddNewGLTexture and gld_AddNewGLPatchTexture
 static GLTexture *gld_AddNewGLTexItem(int num, int count, GLTexture ***items)
@@ -207,7 +230,7 @@ static GLTexture *gld_AddNewGLTexItem(int num, int count, GLTexture ***items)
     if (gl_boom_colormaps)
     {
       GLTexture *texture = (*items)[num];
-      int dims[3] = {(CR_LIMIT+MAXPLAYERS), (NUMCOLORMAPS+1), numcolormaps};
+      int dims[3] = {(CR_LIMIT+MAXPLAYERS), (PLAYERCOLORMAP_COUNT), numcolormaps};
       texture->glTexExID = NewIntDynArray(3, dims);
     }
   }
@@ -606,7 +629,7 @@ void gld_BindTexture(GLTexture *gltexture)
 
   //e6y
   if (gl_boom_colormaps)
-    glTexID = &gltexture->glTexExID[CR_DEFAULT][frame_fixedcolormap][boom_cm];
+    glTexID = &gltexture->glTexExID[CR_DEFAULT][gld_GetPlayerColormapIndex(frame_fixedcolormap)][boom_cm];
   else
     glTexID = &gltexture->glTexID[CR_DEFAULT];
 
@@ -783,7 +806,7 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
 
   //e6y
   if (gl_boom_colormaps)
-    glTexID = &gltexture->glTexExID[cm][frame_fixedcolormap][boom_cm];
+    glTexID = &gltexture->glTexExID[cm][gld_GetPlayerColormapIndex(frame_fixedcolormap)][boom_cm];
   else
     glTexID = &gltexture->glTexID[cm];
 
@@ -951,7 +974,7 @@ void gld_BindFlat(GLTexture *gltexture)
 
   //e6y
   if (gl_boom_colormaps)
-    glTexID = &gltexture->glTexExID[CR_DEFAULT][frame_fixedcolormap][boom_cm];
+    glTexID = &gltexture->glTexExID[CR_DEFAULT][gld_GetPlayerColormapIndex(frame_fixedcolormap)][boom_cm];
   else
     glTexID = &gltexture->glTexID[CR_DEFAULT];
 
@@ -1064,7 +1087,7 @@ static void gld_CleanTexItems(int count, GLTexture ***items)
         int cm, n;
         for (j=0; j<(CR_LIMIT+MAXPLAYERS); j++)
         {
-          for (n=0; n<NUMCOLORMAPS+1; n++)
+          for (n=0; n<PLAYERCOLORMAP_COUNT; n++)
           {
             for (cm=0; cm<numcolormaps; cm++)
             {
