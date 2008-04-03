@@ -369,7 +369,6 @@ static void I_UploadNewPalette(int pal)
 
 void I_ShutdownGraphics(void)
 {
-  gld_CleanMemory();
   SDL_FreeCursor(cursors[1]);
   DeactivateMouse();
 }

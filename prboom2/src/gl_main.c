@@ -713,6 +713,8 @@ void gld_Init(int width, int height)
     }
   }
 #endif
+
+  atexit(gld_CleanMemory); //e6y
 }
 
 void gld_InitCommandLine(void)
