@@ -2534,58 +2534,9 @@ static void gld_DrawWall(GLWall *wall)
     (w).vb=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->buffer_height)\
   )
 
-// e6y
-// Sky textures with a zero index should be forced
-// See third episode of requiem.wad
-#define SKYTEXTURE(sky1,sky2)\
-  if ((sky1) & PL_SKYFLAT)\
-  {\
-    const line_t *l = &lines[sky1 & ~PL_SKYFLAT];\
-    const side_t *s = *l->sidenum + sides;\
-    wall.gltexture=gld_RegisterTexture(texturetranslation[s->toptexture], false, texturetranslation[s->toptexture]==skytexture);\
-    if (!mlook_or_fov) {\
-      wall.skyyaw=-2.0f*((-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)/90.0f);\
-      wall.skyymid = 200.0f/319.5f*(((float)s->rowoffset/(float)FRACUNIT - 28.0f)/100.0f);\
-    } else {\
-      wall.skyyaw=-2.0f*(((270.0f-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)+90.0f)/90.0f/fovscale);\
-      wall.skyymid = skyYShift+(((float)s->rowoffset/(float)FRACUNIT)/100.0f);\
-    }\
-    wall.flag = l->special==272 ? GLDWF_SKY : GLDWF_SKYFLIP;\
-    wall.gltexture->flags |= GLTEXTURE_SKY;\
-  }\
-  else\
-  if ((sky2) & PL_SKYFLAT)\
-  {\
-    const line_t *l = &lines[sky2 & ~PL_SKYFLAT];\
-    const side_t *s = *l->sidenum + sides;\
-    wall.gltexture=gld_RegisterTexture(texturetranslation[s->toptexture], false, texturetranslation[s->toptexture]==skytexture);\
-    if (!mlook_or_fov) {\
-      wall.skyyaw=-2.0f*((-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)/90.0f);\
-      wall.skyymid = 200.0f/319.5f*(((float)s->rowoffset/(float)FRACUNIT - 28.0f)/100.0f);\
-    } else {\
-      wall.skyyaw=-2.0f*(((270.0f-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)+90.0f)/90.0f/fovscale);\
-      wall.skyymid = skyYShift+(((float)s->rowoffset/(float)FRACUNIT)/100.0f);\
-    }\
-    wall.flag = l->special==272 ? GLDWF_SKY : GLDWF_SKYFLIP;\
-    wall.gltexture->flags |= GLTEXTURE_SKY;\
-  }\
-  else\
-  {\
-    wall.gltexture=gld_RegisterTexture(skytexture, false, true);\
-    if (!mlook_or_fov) {\
-      wall.skyyaw=-2.0f*((yaw+90.0f)/90.0f);\
-      wall.skyymid = 200.0f/319.5f*((100.0f)/100.0f);\
-    } else {\
-      wall.skyyaw=-2.0f*(((270.0f-(float)((viewangle)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)+90.0f)/90.0f/fovscale);\
-      wall.skyymid = skyYShift;\
-    }\
-    wall.flag = GLDWF_SKY;\
-    wall.gltexture->flags |= GLTEXTURE_SKY;\
-  };
-
 #define ADDWALL(wall)\
 {\
-  if (*wall.alpha!=1.0f)\
+  if ((*wall).alpha!=1.0f)\
   {\
     if (gld_drawinfo.num_twalls>=gld_drawinfo.max_twalls)\
     {\
@@ -2606,6 +2557,72 @@ static void gld_DrawWall(GLWall *wall)
     gld_drawinfo.walls[gld_drawinfo.num_walls++]=*wall;\
   }\
 };
+
+// e6y
+// Sky textures with a zero index should be forced
+// See third episode of requiem.wad
+static void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2)
+{
+  line_t *l = NULL;
+  wall->gltexture = NULL;
+
+  if ((sky1) & PL_SKYFLAT)
+  {
+    l = &lines[sky1 & ~PL_SKYFLAT];
+  }
+  else
+  {
+    if ((sky2) & PL_SKYFLAT)
+    {
+      l = &lines[sky2 & ~PL_SKYFLAT];
+    }
+  }
+  
+  if (l)
+  {
+    side_t *s = *l->sidenum + sides;
+    wall->gltexture = gld_RegisterTexture(texturetranslation[s->toptexture], false,
+      texturetranslation[s->toptexture] == skytexture || l->special == 271 || l->special == 272);
+    if (wall->gltexture)
+    {
+      if (!mlook_or_fov)
+      {
+        wall->skyyaw  = -2.0f*((-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)/90.0f);
+        wall->skyymid = 200.0f/319.5f*(((float)s->rowoffset/(float)FRACUNIT - 28.0f)/100.0f);
+      }
+      else
+      {
+        wall->skyyaw  = -2.0f*(((270.0f-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)+90.0f)/90.0f/fovscale);
+        wall->skyymid = skyYShift+(((float)s->rowoffset/(float)FRACUNIT)/100.0f);
+      }
+      wall->flag = (l->special == 272 ? GLDWF_SKY : GLDWF_SKYFLIP);
+    }
+  }
+  else
+  {
+    wall->gltexture = gld_RegisterTexture(skytexture, false, true);
+    if (wall->gltexture)
+    {
+      if (!mlook_or_fov)
+      {
+        wall->skyyaw  = -2.0f*((yaw+90.0f)/90.0f);
+        wall->skyymid = 200.0f/319.5f*((100.0f)/100.0f);
+      }
+      else
+      {
+        wall->skyyaw  =-2.0f*(((270.0f-(float)((viewangle)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)+90.0f)/90.0f/fovscale);
+        wall->skyymid = skyYShift;
+      }
+      wall->flag = GLDWF_SKY;
+    }
+  }
+
+  if (wall->gltexture)
+  {
+    wall->gltexture->flags |= GLTEXTURE_SKY;
+    ADDWALL(wall);
+  }
+}
 
 void gld_AddWall(seg_t *seg)
 {
@@ -2648,15 +2665,13 @@ void gld_AddWall(seg_t *seg)
     {
       wall.ytop=255.0f;
       wall.ybottom=(float)frontsector->ceilingheight/MAP_SCALE;
-      SKYTEXTURE(frontsector->sky,frontsector->sky);
-      ADDWALL(&wall);
+      gld_AddSkyTexture(&wall, frontsector->sky, frontsector->sky);
     }
     if (frontsector->floorpic==skyflatnum)
     {
       wall.ytop=(float)frontsector->floorheight/MAP_SCALE;
       wall.ybottom=-255.0f;
-      SKYTEXTURE(frontsector->sky,frontsector->sky);
-      ADDWALL(&wall);
+      gld_AddSkyTexture(&wall, frontsector->sky, frontsector->sky);
     }
     temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->midtexture], true, false);
     if (temptex)
@@ -2698,8 +2713,7 @@ void gld_AddWall(seg_t *seg)
         // There is no more visual glitches with sky on Icarus map14 sector 187
         // Old code: wall.ybottom=(float)backsector->floorheight/MAP_SCALE;
         wall.ybottom=((float)(backsector->floorheight + seg->sidedef->rowoffset))/MAP_SCALE;
-        SKYTEXTURE(frontsector->sky,backsector->sky);
-        ADDWALL(&wall);
+        gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky);
       }
       else
       {
@@ -2710,16 +2724,14 @@ void gld_AddWall(seg_t *seg)
           // old code: wall.ybottom=(float)frontsector->ceilingheight/MAP_SCALE;
           wall.ybottom=(float)MAX(frontsector->ceilingheight,backsector->ceilingheight)/MAP_SCALE;
 
-          SKYTEXTURE(frontsector->sky,backsector->sky);
-          ADDWALL(&wall);
+          gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky);
         }
         else
           if ( (backsector->ceilingheight <= frontsector->floorheight) ||
                (backsector->ceilingpic != skyflatnum) )
           {
             wall.ybottom=(float)backsector->ceilingheight/MAP_SCALE;
-            SKYTEXTURE(frontsector->sky,backsector->sky);
-            ADDWALL(&wall);
+            gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky);
           }
       }
     }
@@ -2828,24 +2840,21 @@ bottomtexture:
          )
       {
         wall.ytop=(float)backsector->floorheight/MAP_SCALE;
-        SKYTEXTURE(frontsector->sky,backsector->sky);
-        ADDWALL(&wall);
+        gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky);
       }
       else
       {
         if ( (texturetranslation[seg->sidedef->bottomtexture]!=NO_TEXTURE) )
         {
           wall.ytop=(float)frontsector->floorheight/MAP_SCALE;
-          SKYTEXTURE(frontsector->sky,backsector->sky);
-          ADDWALL(&wall);
+          gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky);
         }
         else
           if ( (backsector->floorheight >= frontsector->ceilingheight) ||
                (backsector->floorpic != skyflatnum) )
           {
             wall.ytop=(float)backsector->floorheight/MAP_SCALE;
-            SKYTEXTURE(frontsector->sky,backsector->sky);
-            ADDWALL(&wall);
+            gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky);
           }
       }
     }
@@ -2876,7 +2885,6 @@ bottomtexture:
 #undef CALC_TEX_VALUES_MIDDLE1S
 #undef CALC_TEX_VALUES_MIDDLE2S
 #undef CALC_TEX_VALUES_BOTTOM
-#undef SKYTEXTURE
 #undef ADDWALL
 
 static void gld_PreprocessSegs(void)
