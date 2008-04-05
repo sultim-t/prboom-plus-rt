@@ -732,7 +732,7 @@ int I_RegisterMusic( const char* filename, musicinfo_t *song )
     {
       song->data = 0;
       song->handle = 0;
-      song->lumpnum = -1; //this doesn't seem to cause problems
+      song->lumpnum = 0;
       return 0;
     }
 #else
