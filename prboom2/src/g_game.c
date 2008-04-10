@@ -615,7 +615,8 @@ static void G_DoLoadLevel (void)
   }
 
   P_SetupLevel (gameepisode, gamemap, 0, gameskill);
-  displayplayer = consoleplayer;    // view the guy you are playing
+  if (!demoplayback) // Don't switch views if playing a demo
+    displayplayer = consoleplayer;    // view the guy you are playing
   gameaction = ga_nothing;
   Z_CheckHeap ();
 
