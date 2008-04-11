@@ -1386,7 +1386,7 @@ static void AM_drawPlayers(void)
     if (playeringame[i]) {
       fixed_t x = p->mo->x >> FRACTOMAPBITS, y = p->mo->y >> FRACTOMAPBITS;//e6y
       if (automapmode & am_rotate)
-  AM_rotate(&x, &y, ANG90-plr->mo->angle, plr->mo->x >> FRACTOMAPBITS, plr->mo->y >> FRACTOMAPBITS);
+        AM_rotate(&x, &y, ANG90-plr->mo->angle, plr->mo->x, plr->mo->y);
 
       AM_drawLineCharacter (player_arrow, NUMPLYRLINES, 0, p->mo->angle,
           p->powers[pw_invisibility] ? 246 /* *close* to black */
