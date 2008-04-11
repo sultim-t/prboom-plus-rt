@@ -1380,7 +1380,7 @@ static void AM_drawPlayers(void)
   for (i=0;i<MAXPLAYERS;i++) {
     player_t* p = &players[i];
 
-    if ( (deathmatch && !singledemo) && p != plr)
+    if ( (deathmatch && !demoplayback) && p != plr)
       continue;
 
     if (playeringame[i]) {
