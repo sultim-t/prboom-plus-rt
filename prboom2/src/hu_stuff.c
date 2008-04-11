@@ -1501,14 +1501,17 @@ boolean HU_Responder(event_t *ev)
       }
       eatkey = true;
     }//jff 2/26/98 no chat if message review is displayed
-    else if (!message_list && netgame && ev->data1 == key_chat)
+    // killough 10/02/98: no chat if demo playback
+    // no chat in -solo-net mode
+    else if (!demoplayback && !message_list && netgame && numplayers > 1)
+    {
+      if (ev->data1 == key_chat)
     {
       eatkey = chat_on = true;
       HUlib_resetIText(&w_chat);
       HU_queueChatChar(HU_BROADCAST);
-    }//jff 2/26/98  no chat if message review is displayed
-    // killough 10/02/98: no chat if demo playback
-    else if (!demoplayback && !message_list && netgame && numplayers > 2)
+    }
+    else if (numplayers > 2)
     {
       for (i=0; i<MAXPLAYERS ; i++)
       {
@@ -1537,6 +1540,7 @@ boolean HU_Responder(event_t *ev)
           }
         }
       }
+    }
     }
   }//jff 2/26/98 no chat functions if message review is displayed
   else if (!message_list)
