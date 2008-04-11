@@ -1384,11 +1384,14 @@ static void AM_drawPlayers(void)
       continue;
 
     if (playeringame[i]) {
+      fixed_t x = p->mo->x >> FRACTOMAPBITS, y = p->mo->y >> FRACTOMAPBITS;//e6y
+      if (automapmode & am_rotate)
+  AM_rotate(&x, &y, ANG90-plr->mo->angle, plr->mo->x >> FRACTOMAPBITS, plr->mo->y >> FRACTOMAPBITS);
+
       AM_drawLineCharacter (player_arrow, NUMPLYRLINES, 0, p->mo->angle,
           p->powers[pw_invisibility] ? 246 /* *close* to black */
           : mapcolor_plyr[i], //jff 1/6/98 use default color
-          p->mo->x >> FRACTOMAPBITS,//e6y
-          p->mo->y >> FRACTOMAPBITS);//e6y
+          x, y);
     }
   }
 }
