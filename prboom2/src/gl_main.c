@@ -68,6 +68,7 @@
 #include "p_spec.h"
 #include "i_system.h"
 #include "m_argv.h"
+#include "i_video.h"
 #include "e6y.h"//e6y
 //e6y: all OpenGL extentions will be disabled with TRUE
 int gl_compatibility = 0;
@@ -255,6 +256,7 @@ static void CalculateGammaRamp (float gamma, Uint16 *ramp)
 
 int gld_SetGammaRamp(int gamma)
 {
+  static int first = true;
   Uint16 ramp[3][256];
   int succeeded = false;
   float Gamma = (BETWEEN(0, MAX_GLGAMMA, gamma)) / 10.0f + 1.0f;
@@ -268,6 +270,25 @@ int gld_SetGammaRamp(int gamma)
   }
   else
   {
+    if (first && desired_fullscreen)
+    {
+      // From GZDoom:
+      //
+      // Fix for Radeon 9000, possibly other R200s: When the device is
+      // reset, it resets the gamma ramp, but the driver apparently keeps a
+      // cached copy of the ramp that it doesn't update, so when
+      // SetGammaRamp is called later to handle the NeedGammaUpdate flag,
+      // it doesn't do anything, because the gamma ramp is the same as the
+      // one passed in the last call, even though the visible gamma ramp 
+      // actually has changed.
+      //
+      // So here we force the gamma ramp to something absolutely horrible and
+      // trust that we will be able to properly set the gamma later
+      first = false;
+      memset(ramp[2], 0, sizeof(ramp[2]));
+      SDL_SetGammaRamp(NULL, NULL, ramp[2]);
+    }
+
     CalculateGammaRamp(Gamma, ramp[0]);
     CalculateGammaRamp(Gamma, ramp[1]);
     CalculateGammaRamp(Gamma, ramp[2]);
