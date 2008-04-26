@@ -625,7 +625,10 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
       && tmthing->z + tmthing->height <= thing->z // head height <= base
       // top of thing trying to move under the body <= bottom of body
       && compbad_get(&comperr_hangsolid))
+  {
+    tmceilingz = thing->z; // pretend ceiling height is at body's base
     return true;
+  }
 
   // killough 3/16/98: Allow non-solid moving objects to move through solid
   // ones, by allowing the moving thing (tmthing) to move if it's non-solid,
