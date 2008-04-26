@@ -3524,6 +3524,11 @@ void gld_PreprocessLevel(void)
   else
   {
     //from gld_PreprocessSectors
+    int i;
+
+    for (i = 0; i < numsectors; i++)
+      gld_PrepareSectorSpecialEffects(i);
+
     memset(sectorrendered, 0, numsectors*sizeof(byte));
     memset(segrendered, 0, numsegs*sizeof(byte));
   }
