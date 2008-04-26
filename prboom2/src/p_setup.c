@@ -177,30 +177,28 @@ boolean SameLevel(int episode, int map)
 // e6y: Smart malloc
 // Used by P_SetupLevel() for smart data loading
 // Do nothing if level is the same
-boolean malloc_IfSameLevel(void** p, size_t size)
+static void *malloc_IfSameLevel(void* p, size_t size)
 {
   if (!samelevel)
   {
-    (*p) = malloc(size);
-    return true;
+    return malloc(size);
   }
-  return false;
+  return p;
 }
 
 // e6y: Smart calloc
 // Used by P_SetupLevel() for smart data loading
 // Clear the memory without allocation if level is the same
-boolean calloc_IfSameLevel(void** p, size_t n1, size_t n2)
+static void *calloc_IfSameLevel(void* p, size_t n1, size_t n2)
 {
   if (!samelevel)
   {
-    (*p) = calloc(n1, n2);
-    return true;
+    return calloc(n1, n2);
   }
   else
   {
-    memset((*p), 0, n1 * n2);
-    return false;
+    memset(p, 0, n1 * n2);
+    return p;
   }
 }
 
@@ -287,7 +285,7 @@ static void P_LoadVertexes (int lump)
   numvertexes = W_LumpLength(lump) / sizeof(mapvertex_t);
 
   // Allocate zone memory for buffer.
-  malloc_IfSameLevel(&vertexes, numvertexes * sizeof(vertex_t));
+  vertexes = malloc_IfSameLevel(vertexes, numvertexes * sizeof(vertex_t));
 
   // Load data into cache.
   // cph 2006/07/29 - cast to mapvertex_t here, making the loop below much neater
@@ -333,7 +331,7 @@ static void P_LoadVertexes2(int lump, int gllump)
       const mapglvertex_t*  mgl;
 
       numvertexes += (W_LumpLength(gllump) - GL_VERT_OFFSET)/sizeof(mapglvertex_t);
-      malloc_IfSameLevel(&vertexes, numvertexes * sizeof(vertex_t));
+      vertexes = malloc_IfSameLevel(vertexes, numvertexes * sizeof(vertex_t));
       mgl      = (const mapglvertex_t *) (gldata + GL_VERT_OFFSET);
 
       for (i = firstglvertex; i < numvertexes; i++)
@@ -346,7 +344,7 @@ static void P_LoadVertexes2(int lump, int gllump)
     else
     {
       numvertexes += W_LumpLength(gllump)/sizeof(mapvertex_t);
-      malloc_IfSameLevel(&vertexes, numvertexes * sizeof(vertex_t));
+      vertexes = malloc_IfSameLevel(vertexes, numvertexes * sizeof(vertex_t));
       ml       = (const mapvertex_t *)gldata;
 
       for (i = firstglvertex; i < numvertexes; i++)
@@ -417,7 +415,7 @@ static void P_LoadSegs (int lump)
   const mapseg_t *data; // cph - const
 
   numsegs = W_LumpLength(lump) / sizeof(mapseg_t);
-  calloc_IfSameLevel(&segs, numsegs, sizeof(seg_t));
+  segs = calloc_IfSameLevel(segs, numsegs, sizeof(seg_t));
   data = (const mapseg_t *)W_CacheLumpNum(lump); // cph - wad lump handling updated
 
   if ((!data) || (!numsegs))
@@ -548,7 +546,7 @@ static void P_LoadGLSegs(int lump)
   line_t    *ldef;
 
   numsegs = W_LumpLength(lump) / sizeof(glseg_t);
-  malloc_IfSameLevel(&segs, numsegs * sizeof(seg_t));
+  segs = malloc_IfSameLevel(segs, numsegs * sizeof(seg_t));
   memset(segs, 0, numsegs * sizeof(seg_t));
   ml = (const glseg_t*)W_CacheLumpNum(lump);
 
@@ -609,7 +607,7 @@ static void P_LoadSubsectors (int lump)
   int  i;
 
   numsubsectors = W_LumpLength (lump) / sizeof(mapsubsector_t);
-  calloc_IfSameLevel(&subsectors, numsubsectors, sizeof(subsector_t));
+  subsectors = calloc_IfSameLevel(subsectors, numsubsectors, sizeof(subsector_t));
   data = (const mapsubsector_t *)W_CacheLumpNum(lump);
 
   if ((!data) || (!numsubsectors))
@@ -635,7 +633,7 @@ static void P_LoadSectors (int lump)
   int  i;
 
   numsectors = W_LumpLength (lump) / sizeof(mapsector_t);
-  calloc_IfSameLevel(&sectors, numsectors, sizeof(sector_t));
+  sectors = calloc_IfSameLevel(sectors, numsectors, sizeof(sector_t));
   data = W_CacheLumpNum (lump); // cph - wad lump handling updated
 
   for (i=0; i<numsectors; i++)
@@ -692,7 +690,7 @@ static void P_LoadNodes (int lump)
   int  i;
 
   numnodes = W_LumpLength (lump) / sizeof(mapnode_t);
-  malloc_IfSameLevel(&nodes, numnodes * sizeof(node_t));
+  nodes = malloc_IfSameLevel(nodes, numnodes * sizeof(node_t));
   data = W_CacheLumpNum (lump); // cph - wad lump handling updated
 
   if ((!data) || (!numnodes))
@@ -775,7 +773,7 @@ static void P_LoadLineDefs (int lump)
   int  i;
 
   numlines = W_LumpLength (lump) / sizeof(maplinedef_t);
-  calloc_IfSameLevel(&lines, numlines, sizeof(line_t));
+  lines = calloc_IfSameLevel(lines, numlines, sizeof(line_t));
   data = W_CacheLumpNum (lump); // cph - wad lump handling updated
 
   for (i=0; i<numlines; i++)
@@ -902,7 +900,7 @@ static void P_LoadLineDefs2(int lump)
 static void P_LoadSideDefs (int lump)
 {
   numsides = W_LumpLength(lump) / sizeof(mapsidedef_t);
-  calloc_IfSameLevel(&sides, numsides, sizeof(side_t));
+  sides = calloc_IfSameLevel(sides, numsides, sizeof(side_t));
 }
 
 // killough 4/4/98: delay using texture names until
@@ -1246,7 +1244,7 @@ static void P_CreateBlockMap(void)
 
   // Create the blockmap lump
 
-  malloc_IfSameLevel(&blockmaplump, sizeof(*blockmaplump) * (4 + NBlocks + linetotal));
+  blockmaplump = malloc_IfSameLevel(blockmaplump, sizeof(*blockmaplump) * (4 + NBlocks + linetotal));
   // blockmap header
 
   blockmaplump[0] = bmaporgx = xorg << FRACBITS;
@@ -1305,7 +1303,7 @@ static void P_LoadBlockMap (int lump)
       long i;
       // cph - const*, wad lump handling updated
       const short *wadblockmaplump = W_CacheLumpNum(lump);
-      malloc_IfSameLevel(&blockmaplump, sizeof(*blockmaplump) * count);
+      blockmaplump = malloc_IfSameLevel(blockmaplump, sizeof(*blockmaplump) * count);
 
       // killough 3/1/98: Expand wad blockmap into larger internal one,
       // by treating all offsets except -1 as unsigned and zero-extending
@@ -1332,7 +1330,7 @@ static void P_LoadBlockMap (int lump)
     }
 
   // clear out mobj chains - CPhipps - use calloc
-  calloc_IfSameLevel(&(void*)blocklinks, bmapwidth * bmapheight, sizeof(*blocklinks));
+  blocklinks = calloc_IfSameLevel(blocklinks, bmapwidth * bmapheight, sizeof(*blocklinks));
   blockmap = blockmaplump+4;
 }
 
