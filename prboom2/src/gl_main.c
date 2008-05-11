@@ -3499,7 +3499,7 @@ void gld_PreprocessLevel(void)
   if (!samelevel)
   {
     int i;
-    static numsectors_prev = 0;
+    static int numsectors_prev = 0;
 
     free(gl_segs);
 
