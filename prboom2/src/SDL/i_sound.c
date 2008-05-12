@@ -722,75 +722,122 @@ void I_UnRegisterSong(int handle)
 #endif
 }
 
-// Determine whether memory block is a .mid file 
-static boolean IsMid(const unsigned char *mem, int len)
+// e6y: from chocolate-doom
+// New mus -> mid conversion code thanks to Ben Ryves <benryves@benryves.com>
+// This plays back a lot of music closer to Vanilla Doom - eg. tnt.wad map02
+static boolean ConvertMus(byte *musdata, int len, char *filename)
 {
-  return len > 4 && !memcmp(mem, "MThd", 4);
+  MEMFILE *instream;
+  MEMFILE *outstream;
+  void *outbuf;
+  size_t outbuf_len;
+  int result;
+
+  instream = mem_fopen_read(musdata, len);
+  outstream = mem_fopen_write();
+
+  result = mus2mid(instream, outstream);
+
+  if (result == 0)
+  {
+    mem_get_buf(outstream, &outbuf, &outbuf_len);
+
+    M_WriteFile(filename, outbuf, outbuf_len);
+  }
+
+  mem_fclose(instream);
+  mem_fclose(outstream);
+
+  return result;
 }
 
 int I_RegisterSong(const void *data, size_t len)
 {
 #ifdef HAVE_MIXER
-  FILE *midfile;
-  boolean MidiIsReady = false;
 
-  if ( music_tmp == NULL )
-    return 0;
-  midfile = fopen(music_tmp, "wb");
-  if ( midfile == NULL ) {
-    lprintf(LO_ERROR,"Couldn't write MIDI to %s\n", music_tmp);
-    return 0;
-  }
+  boolean io_errors = false;
 
-  // e6y
-  // New logic is from chocolate-doom
+  if (music_tmp == NULL)
+    return 0;
+
+  // e6y: new logic by me
   // Now you can hear title music in deca.wad
   // http://www.doomworld.com/idgames/index.php?id=8808
-  //
-  // MUS files begin with "MUS"
-  // Reject anything which doesnt have this signature
+  // Ability to use mp3 and ogg as inwad lump
 
-  // Determine whether memory block is a .mid file
-  if (IsMid(data, len))
+  music[0] = NULL;
+
+  if (len > 4 && memcmp(data, "MUS", 3) != 0)
   {
-    MidiIsReady = fwrite(data, len, 1, midfile) == 1;
+    // The header has no MUS signature
+    // Let's try to load this song with SDL
+    io_errors = M_WriteFile(music_tmp, (void*)data, len) == 0;
+    if (!io_errors)
+    {
+      int i = 0;
+      static char* music_tmp_alt_names[] = {"doom.tmp.ogg", "doom.tmp.mp3", NULL};
+
+      music[0] = Mix_LoadMUS(music_tmp);
+
+      // Current SDL_mixer (up to 1.2.8) cannot load some MP3 and OGG
+      // without proper extention
+      while (!music[0] && music_tmp_alt_names[i])
+      {
+        io_errors = M_WriteFile(music_tmp_alt_names[i], (void*)data, len) == 0;
+        if (!io_errors)
+        {
+          music[0] = Mix_LoadMUS(music_tmp_alt_names[i]);
+        }
+        i++;
+      }
+    }
   }
-  else
+
+  // e6y: from Chocolate-Doom
+  // Assume a MUS file and try to convert
+  if (!music[0])
   {
-    // e6y
-    // Assume a MUS file and try to convert
-    // New mus -> mid conversion code thanks to Ben Ryves <benryves@benryves.com>
-    // This plays back a lot of music closer to Vanilla Doom - eg. tnt.wad map02
+    MEMFILE *instream;
+    MEMFILE *outstream;
     void *outbuf;
     size_t outbuf_len;
     int result;
-    
-    MEMFILE *instream = mem_fopen_read((void*)data, len);
-    MEMFILE *outstream = mem_fopen_write();
+
+    instream = mem_fopen_read((void*)data, len);
+    outstream = mem_fopen_write();
 
     result = mus2mid(instream, outstream);
 
     if (result == 0)
     {
       mem_get_buf(outstream, &outbuf, &outbuf_len);
-      MidiIsReady = M_WriteFile(music_tmp, outbuf, outbuf_len);
+
+      io_errors = M_WriteFile(music_tmp, outbuf, outbuf_len) == 0;
+
+      if (!io_errors)
+      {
+        // Load the MUS
+        music[0] = Mix_LoadMUS(music_tmp);
+      }
     }
 
     mem_fclose(instream);
     mem_fclose(outstream);
   }
-  fclose(midfile);
-
-  if (!MidiIsReady)
+  
+  // Failed to load
+  if (!music[0])
   {
-    lprintf(LO_ERROR,"Couldn't write MIDI to %s\n", music_tmp);
-    return 0;
+    if (io_errors)
+    {
+      lprintf(LO_ERROR, "Error writing song\n");
+    }
+    else
+    {
+      lprintf(LO_ERROR, "Error loading song: %s\n", Mix_GetError());
+    }
   }
 
-  music[0] = Mix_LoadMUS(music_tmp);
-  if ( music[0] == NULL ) {
-    lprintf(LO_ERROR,"Couldn't load MIDI from %s: %s\n", music_tmp, Mix_GetError());
-  }
 #endif
   return (0);
 }
