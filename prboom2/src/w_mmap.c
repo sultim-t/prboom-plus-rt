@@ -83,10 +83,16 @@ static void W_ReportLocks(void)
 {
   int i;
   lprintf(LO_DEBUG, "W_ReportLocks:\nLump     Size   Locks  Tics\n");
-  for (i=0; i<numlumps; i++) {
-    if (cachelump[i].locks > 0)
-      lprintf(LO_DEBUG, "%8.8s %6u %2d   %6d\n", lumpinfo[i].name,
+  if (cachelump)
+  {
+    for (i=0; i<numlumps; i++)
+    {
+      if (cachelump[i].locks > 0)
+      {
+        lprintf(LO_DEBUG, "%8.8s %6u %2d   %6d\n", lumpinfo[i].name,
         W_LumpLength(i), cachelump[i].locks, gametic - cachelump[i].locktic);
+      }
+    }
   }
 }
 #endif
@@ -137,6 +143,7 @@ void W_DoneCache(void)
     }
   }
   free(mapped_wad);
+  mapped_wad = NULL;
 }
 
 void W_InitCache(void)
@@ -206,7 +213,7 @@ void W_InitCache(void)
             0,
             0
           );
-        if (mapped_wad[wad_index].hnd_map==NULL)
+        if (mapped_wad[wad_index].data==NULL)
           I_Error("W_InitCache: MapViewOfFile for memory mapping failed (LastError %i)",GetLastError());
       }
     }
@@ -279,6 +286,7 @@ void W_DoneCache(void)
       }
   }
   free(mapped_wad);
+  mapped_wad = NULL;
 }
 
 const void* W_CacheLumpNum(int lump)
