@@ -916,8 +916,6 @@ static void IdentifyVersion (void)
 // Find a Response File
 //
 
-#define MAXARGVS 100
-
 static void FindResponseFile (void)
 {
   int i;
@@ -964,8 +962,8 @@ static void FindResponseFile (void)
 	  int k;
           lprintf(LO_ERROR,"\nResponse file empty!\n");
 
-	  newargv = calloc(sizeof(char *),MAXARGVS);
-	  newargv[0] = myargv[0];
+          newargv = calloc(sizeof(char *),myargc);
+          newargv[0] = myargv[0];
           for (k = 1,index = 1;k < myargc;k++)
           {
             if (i!=k)
@@ -980,7 +978,7 @@ static void FindResponseFile (void)
 
 	{
 	  const char *firstargv = myargv[0];
-	  newargv = calloc(sizeof(char *),MAXARGVS);
+	  newargv = calloc(sizeof(char *),myargc);
 	  newargv[0] = firstargv;
 	}
 
@@ -1049,114 +1047,138 @@ static void FindResponseFile (void)
 // area allocated in FindResponseFile, or our own areas from strdups.
 //
 // CPhipps - OUCH! Writing into *myargv is too dodgy, damn
+//
+// e6y
+// Fixed crash if numbers of wads/lmps/dehs is greater than 100
+// Fixed bug when length of argname is smaller than 3
+// Refactoring of the code to avoid use the static arrays
+// The logic of DoLooseFiles has been rewritten in more optimized style
+// MAXARGVS has been removed.
 
 static void DoLooseFiles(void)
 {
-  char *wads[MAXARGVS];  // store the respective loose filenames
-  char *lmps[MAXARGVS];
-  char *dehs[MAXARGVS];
+  char **wads;  // store the respective loose filenames
+  char **lmps;
+  char **dehs;
   int wadcount = 0;      // count the loose filenames
   int lmpcount = 0;
   int dehcount = 0;
-  int i,j,p;
+  int i,k,p;
   const char **tmyargv;  // use these to recreate the argv array
   int tmyargc;
-  boolean skip[MAXARGVS]; // CPhipps - should these be skipped at the end
+  boolean *skip; // CPhipps - should these be skipped at the end
 
-  for (i=0; i<MAXARGVS; i++)
+  struct {
+    char *ext;
+    char ***list;
+    int *count;
+  } looses[] = {
+    {".wad", &wads, &wadcount},
+    {".lmp", &lmps, &lmpcount},
+    {".deh", &dehs, &dehcount},
+    {".bex", &dehs, &dehcount},
+    // assume wad if no extension or length of the extention is not equal to 3
+    // must be last entrie
+    {"",     &wads, &wadcount},
+    {0}
+  };
+
+  struct {
+    char *cmdparam;
+    char ***list;
+    int *count;
+  } params[] = {
+    {"-file"    , &wads, &wadcount},
+    {"-deh"     , &dehs, &dehcount},
+    {"-playdemo", &lmps, &lmpcount},
+    {0}
+  };
+
+  wads = malloc(myargc * sizeof(*wads));
+  lmps = malloc(myargc * sizeof(*lmps));
+  dehs = malloc(myargc * sizeof(*dehs));
+  skip = malloc(myargc * sizeof(boolean));
+
+  for (i = 0; i < myargc; i++)
     skip[i] = false;
 
-  for (i=1;i<myargc;i++)
+  for (i = 1; i < myargc; i++)
   {
+    int arglen, extlen;
+
     if (*myargv[i] == '-') break;  // quit at first switch
 
     // so now we must have a loose file.  Find out what kind and store it.
-    j = strlen(myargv[i]);
-    if (!stricmp(&myargv[i][j-4],".wad"))
-      wads[wadcount++] = strdup(myargv[i]);
-    if (!stricmp(&myargv[i][j-4],".lmp"))
-      lmps[lmpcount++] = strdup(myargv[i]);
-    if (!stricmp(&myargv[i][j-4],".deh"))
-      dehs[dehcount++] = strdup(myargv[i]);
-    if (!stricmp(&myargv[i][j-4],".bex"))
-      dehs[dehcount++] = strdup(myargv[i]);
-    if (myargv[i][j-4] != '.')  // assume wad if no extension
-      wads[wadcount++] = strdup(myargv[i]);
+    arglen = strlen(myargv[i]);
+    
+    k = 0;
+    while (looses[k].ext)
+    {
+      extlen = strlen(looses[k].ext);
+      if (arglen - extlen >= 0 && !stricmp(&myargv[i][arglen - extlen], looses[k].ext))
+      {
+        (*(looses[k].list))[(*looses[k].count)++] = strdup(myargv[i]);
+        break;
+      }
+      k++;
+    }
+    /*if (myargv[i][j-4] != '.')  // assume wad if no extension
+      wads[wadcount++] = strdup(myargv[i]);*/
     skip[i] = true; // nuke that entry so it won't repeat later
   }
 
   // Now, if we didn't find any loose files, we can just leave.
-  if (wadcount+lmpcount+dehcount == 0) return;  // ******* early return ****
-
-  if ((p = M_CheckParm ("-file")))
+  if (wadcount+lmpcount+dehcount != 0)
   {
-    skip[p] = true;    // nuke the entry
-    while (++p != myargc && *myargv[p] != '-')
+    k = 0;
+    while (params[k].cmdparam)
     {
-      wads[wadcount++] = strdup(myargv[p]);
-      skip[p] = true;  // null any we find and save
+      if ((p = M_CheckParm (params[k].cmdparam)))
+      {
+        skip[p] = true;    // nuke the entry
+        while (++p != myargc && *myargv[p] != '-')
+        {
+          (*(params[k].list))[(*params[k].count)++] = strdup(myargv[p]);
+          skip[p] = true;  // null any we find and save
+        }
+      }
+      k++;
     }
-  }
 
-  if ((p = M_CheckParm ("-deh")))
-  {
-    skip[p] = true;    // nuke the entry
-    while (++p != myargc && *myargv[p] != '-')
+    // Now go back and redo the whole myargv array with our stuff in it.
+    // First, create a new myargv array to copy into
+    tmyargv = calloc(sizeof(char *), myargc);
+    tmyargv[0] = myargv[0]; // invocation
+    tmyargc = 1;
+
+    k = 0;
+    while (params[k].cmdparam)
     {
-      dehs[dehcount++] = strdup(myargv[p]);
-      skip[p] = true;  // null any we find and save
+      // put our stuff into it
+      if (*(params[k].count) > 0)
+      {
+        tmyargv[tmyargc++] = strdup(params[k].cmdparam); // put the switch in
+        for (i=0;i<*(params[k].count);)
+          tmyargv[tmyargc++] = (*(params[k].list))[i++]; // allocated by strdup above
+      }
+      k++;
     }
-  }
 
-  if ((p = M_CheckParm ("-playdemo")))
-  {
-    skip[p] = true;    // nuke the entry
-    while (++p != myargc && *myargv[p] != '-')
+    // then copy everything that's there now
+    for (i = 1; i < myargc; i++)
     {
-      lmps[lmpcount++] = strdup(myargv[p]);
-      skip[p] = true;  // null any we find and save
+      if (!skip[i])  // skip any zapped entries
+        tmyargv[tmyargc++] = myargv[i];  // pointers are still valid
     }
+    // now make the global variables point to our array
+    myargv = tmyargv;
+    myargc = tmyargc;
   }
 
-  // Now go back and redo the whole myargv array with our stuff in it.
-  // First, create a new myargv array to copy into
-  tmyargv = calloc(sizeof(char *),MAXARGVS);
-  tmyargv[0] = myargv[0]; // invocation
-  tmyargc = 1;
-
-  // put our stuff into it
-  if (wadcount > 0)
-  {
-    tmyargv[tmyargc++] = strdup("-file"); // put the switch in
-    for (i=0;i<wadcount;)
-      tmyargv[tmyargc++] = wads[i++]; // allocated by strdup above
-  }
-
-  // for -deh
-  if (dehcount > 0)
-  {
-    tmyargv[tmyargc++] = strdup("-deh");
-    for (i=0;i<dehcount;)
-      tmyargv[tmyargc++] = dehs[i++];
-  }
-
-  // for -playdemo
-  if (lmpcount > 0)
-  {
-    tmyargv[tmyargc++] = strdup("-playdemo");
-    for (i=0;i<lmpcount;)
-      tmyargv[tmyargc++] = lmps[i++];
-  }
-
-  // then copy everything that's there now
-  for (i=1;i<myargc;i++)
-  {
-    if (!skip[i])  // skip any zapped entries
-      tmyargv[tmyargc++] = myargv[i];  // pointers are still valid
-  }
-  // now make the global variables point to our array
-  myargv = tmyargv;
-  myargc = tmyargc;
+  free(wads);
+  free(lmps);
+  free(dehs);
+  free(skip);
 }
 
 /* cph - MBF-like wad/deh/bex autoload code */
