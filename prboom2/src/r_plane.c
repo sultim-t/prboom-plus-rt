@@ -57,6 +57,7 @@
 #include "r_things.h"
 #include "r_sky.h"
 #include "r_plane.h"
+#include "r_main.h"
 #include "v_video.h"
 #include "lprintf.h"
 
@@ -97,9 +98,6 @@ static fixed_t planeheight;
 
 static fixed_t basexscale, baseyscale;
 static fixed_t cachedheight[MAX_SCREENHEIGHT];
-static fixed_t cacheddistance[MAX_SCREENHEIGHT];
-static fixed_t cachedxstep[MAX_SCREENHEIGHT];
-static fixed_t cachedystep[MAX_SCREENHEIGHT];
 static fixed_t xoffs,yoffs;    // killough 2/28/98: flat offsets
 
 fixed_t yslope[MAX_SCREENHEIGHT], distscale[MAX_SCREENWIDTH];
@@ -139,26 +137,45 @@ static void R_MapPlane(int y, int x1, int x2, draw_span_vars_t *dsvars)
     I_Error ("R_MapPlane: %i, %i at %i",x1,x2,y);
 #endif
 
-  if (planeheight != cachedheight[y])
-    {
-      cachedheight[y] = planeheight;
-      distance = cacheddistance[y] = FixedMul (planeheight, yslope[y]);
-      dsvars->xstep = cachedxstep[y] = FixedMul (distance,basexscale);
-      dsvars->ystep = cachedystep[y] = FixedMul (distance,baseyscale);
-    }
+  // e6y
+  //
+  // [RH]Instead of using the xtoviewangle array, I calculated the fractional values
+  // at the middle of the screen, then used the calculated ds_xstep and ds_ystep
+  // to step from those to the proper texture coordinate to start drawing at.
+  // That way, the texture coordinate is always calculated by its position
+  // on the screen and not by its position relative to the edge of the visplane.
+  //
+  // Visplanes with the same texture now match up far better than before.
+  //
+  // See cchest2.wad/map02/room with sector #265
+
+  distance = FixedMul (planeheight, yslope[y]);
+
+  if (!render_precise)
+  {
+    dsvars->xstep = FixedMul (distance,basexscale);
+    dsvars->ystep = FixedMul (distance,baseyscale);
+
+    length = FixedMul (distance,distscale[x1]);
+    angle = (viewangle + xtoviewangle[x1])>>ANGLETOFINESHIFT;
+
+    // killough 2/28/98: Add offsets
+    dsvars->xfrac =  viewx + FixedMul(finecosine[angle], length) + xoffs;
+    dsvars->yfrac = -viewy - FixedMul(finesine[angle],   length) + yoffs;
+  }
   else
-    {
-      distance = cacheddistance[y];
-      dsvars->xstep = cachedxstep[y];
-      dsvars->ystep = cachedystep[y];
-    }
+  {
+    float slope;
+    unsigned int realy;
 
-  length = FixedMul (distance,distscale[x1]);
-  angle = (viewangle + xtoviewangle[x1])>>ANGLETOFINESHIFT;
+    slope = (float)(planeheight / 65535.0f / D_abs(centery - y));
+    dsvars->xstep = (unsigned int)(viewcos * slope * viewfocratio);
+    dsvars->ystep = (unsigned int)(viewsin * slope * viewfocratio);
 
-  // killough 2/28/98: Add offsets
-  dsvars->xfrac =  viewx + FixedMul(finecosine[angle], length) + xoffs;
-  dsvars->yfrac = -viewy - FixedMul(finesine[angle],   length) + yoffs;
+    realy =  distance >> 16;
+    dsvars->xfrac = -viewy + yoffs - viewsin * (distance >> 16) + (x1 - centerx) * dsvars->xstep;
+    dsvars->yfrac =  viewx + xoffs + viewcos * (distance >> 16) + (x1 - centerx) * dsvars->ystep;
+  }
 
   if (drawvars.filterfloor == RDRAW_FILTER_LINEAR) {
     dsvars->xfrac -= (FRACUNIT>>1);
