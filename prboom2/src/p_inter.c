@@ -369,7 +369,17 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
         return;
       player->health = mega_health;
       player->mo->health = player->health;
-      P_GiveArmor (player,blue_armor_class);
+      // e6y
+      // Fix wrong processing of the "Blue Armor Class" string from a DEH
+      // Description:
+      // P_GiveArmor(player, armortype) is inlined in doom2.exe.
+      // There are two entries of GiveArmor(*,blue_armor_class) in the sources.
+      // The first is for MegaArmor and the second is for Supercharge.
+      // If you change the "Blue Armor Class" value in a DEH, then dehacked
+      // replaces only the first entry in the EXE (MegaArmor entrie). So for the
+      // second we must always use armortype=2 instead of blue_armor_class value
+      // from a DEH
+      P_GiveArmor (player,2);
       player->message = s_GOTMSPHERE; // Ty 03/22/98 - externalized
       sound = sfx_getpow;
       break;
