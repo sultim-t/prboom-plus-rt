@@ -297,6 +297,8 @@ prboom_comp_t prboom_comp[PC_MAX] = {
   {0x00000000, 0x02040601, 0, "-uninitialize_crush_field_for_stairs"},
   {0x00000000, 0x02040802, 0, "-force_boom_findnexthighestfloor"},
   {0x00000000, 0x02040802, 0, "-allow_sky_transfer_in_boom"},
+  {0x00000000, 0x02040803, 0, "-apply_green_armor_class_to_armor_bonuses"},
+  {0x00000000, 0x02040803, 0, "-apply_blue_armor_class_to_megasphere"},
 };
 
 void e6y_InitCommandLine(void)
