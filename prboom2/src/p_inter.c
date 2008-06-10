@@ -350,8 +350,9 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
       // if they are present and becomes equal to very large value in this case
       if (player->armorpoints > max_armor && compatibility_level != doom_12_compatibility)
         player->armorpoints = max_armor;
+      // e6y: always set armor class to 1 when picking up an armor bonus.
       if (!player->armortype)
-        player->armortype = green_armor_class;
+        player->armortype = 1;
       player->message = s_GOTARMBONUS; // Ty 03/22/98 - externalized
       break;
 
