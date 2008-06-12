@@ -274,6 +274,8 @@ static void I_InitInputs(void)
   // check if the user wants to use the mouse
   mouse_enabled = usemouse && !nomouse_parm;
   
+  SDL_PumpEvents();
+
   //e6y
   if (mouse_enabled)
   {
