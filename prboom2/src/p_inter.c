@@ -355,7 +355,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
       // dehacked only affects the GreenArmor.
       if (!player->armortype)
         player->armortype =
-         (prboom_comp[PC_APPLY_GREEN_ARMOR_CLASS_TO_ARMOR_BONUSES].state ? 
+         ((!demo_compatibility || prboom_comp[PC_APPLY_GREEN_ARMOR_CLASS_TO_ARMOR_BONUSES].state) ? 
           green_armor_class : 1);
       player->message = s_GOTARMBONUS; // Ty 03/22/98 - externalized
       break;
@@ -378,7 +378,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
       // We always give armor type 2 for the megasphere;
       // dehacked only affects the MegaArmor.
       P_GiveArmor (player,
-         (prboom_comp[PC_APPLY_BLUE_ARMOR_CLASS_TO_MEGASPHERE].state ? 
+         ((!demo_compatibility || prboom_comp[PC_APPLY_BLUE_ARMOR_CLASS_TO_MEGASPHERE].state) ? 
           blue_armor_class : 2));
       player->message = s_GOTMSPHERE; // Ty 03/22/98 - externalized
       sound = sfx_getpow;
