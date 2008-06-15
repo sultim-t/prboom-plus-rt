@@ -274,6 +274,9 @@ int gld_GetTexDimension(int value);
 void gld_SetTexturePalette(GLenum target);
 void gld_Precache(void);
 
+//gamma
+void gld_GammaCorrect(unsigned char *buffer, int bufSize);
+
 //e6y: from gl_vertex
 void gld_SplitLeftEdge(const GLWall *wall, boolean detail, float detail_w, float detail_h);
 void gld_SplitRightEdge(const GLWall *wall, boolean detail, float detail_w, float detail_h);

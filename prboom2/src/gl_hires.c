@@ -759,6 +759,8 @@ static int gld_LoadHiresItem(GLTexture *gltexture,
             {
               gld_BindHiresItem(gltexture, glTexID);
 
+              gld_GammaCorrect(tex_buffer, gltexture->buffer_size);
+
               glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
                 tex_width, tex_height,
                 0, GL_RGBA, GL_UNSIGNED_BYTE, tex_buffer);
@@ -799,6 +801,8 @@ static int gld_LoadHiresItem(GLTexture *gltexture,
     tex_width  = gld_GetTexDimension(surf->w);
     tex_height = gld_GetTexDimension(surf->h);
     tex_buffer_size = tex_width * tex_height * 4;
+
+    gld_GammaCorrect(surf->pixels, surf->pitch * surf->h);
 
 #ifdef USE_GLU_MIPMAP
     if (gltexture->mipmap & use_mipmapping)

@@ -111,9 +111,10 @@ int gl_invul_bw_method;
 static boolean SkyDrawed;
 
 gl_lightmode_t gl_lightmode;
-const char *gl_lightmodes[] = {"glboom","gzdoom"};
+const char *gl_lightmodes[] = {"glboom","gzdoom","mixed"};
 int gl_light_ambient;
 int useglgamma;
+Uint16 gl_hardware_gamma[3][256];
 
 boolean gl_arb_multitexture = false;
 boolean gl_arb_texture_compression = false;
@@ -254,10 +255,36 @@ static void CalculateGammaRamp (float gamma, Uint16 *ramp)
   }
 }
 
+void gld_GammaCorrect(unsigned char *buffer, int bufSize)
+{
+  if (gl_lightmode == gl_lightmode_mixed)
+  {
+    int i;
+    static int prevgamma = -1;
+
+    if (useglgamma != prevgamma)
+    {
+      float g = (BETWEEN(0, MAX_GLGAMMA, useglgamma)) / 10.0f + 1.0f;
+
+      prevgamma = useglgamma;
+
+      CalculateGammaRamp(g, gl_hardware_gamma[0]);
+      CalculateGammaRamp(g, gl_hardware_gamma[1]);
+      CalculateGammaRamp(g, gl_hardware_gamma[2]);
+    }
+
+    for (i = 0; i < bufSize-4; i+=4)
+    {
+      buffer[i+0] = gl_hardware_gamma[0][buffer[i+0]]/256;
+      buffer[i+1] = gl_hardware_gamma[1][buffer[i+1]]/256;
+      buffer[i+2] = gl_hardware_gamma[2][buffer[i+2]]/256;
+    }
+  }
+}
+
 int gld_SetGammaRamp(int gamma)
 {
   static int first = true;
-  Uint16 ramp[3][256];
   int succeeded = false;
   float Gamma = (BETWEEN(0, MAX_GLGAMMA, gamma)) / 10.0f + 1.0f;
 
@@ -285,15 +312,15 @@ int gld_SetGammaRamp(int gamma)
       // So here we force the gamma ramp to something absolutely horrible and
       // trust that we will be able to properly set the gamma later
       first = false;
-      memset(ramp[2], 0, sizeof(ramp[2]));
-      SDL_SetGammaRamp(NULL, NULL, ramp[2]);
+      memset(gl_hardware_gamma[2], 0, sizeof(gl_hardware_gamma[2]));
+      SDL_SetGammaRamp(NULL, NULL, gl_hardware_gamma[2]);
     }
 
-    CalculateGammaRamp(Gamma, ramp[0]);
-    CalculateGammaRamp(Gamma, ramp[1]);
-    CalculateGammaRamp(Gamma, ramp[2]);
+    CalculateGammaRamp(Gamma, gl_hardware_gamma[0]);
+    CalculateGammaRamp(Gamma, gl_hardware_gamma[1]);
+    CalculateGammaRamp(Gamma, gl_hardware_gamma[2]);
 
-    succeeded = (SDL_SetGammaRamp(ramp[0], ramp[1], ramp[2]) != -1);
+    succeeded = (SDL_SetGammaRamp(gl_hardware_gamma[0], gl_hardware_gamma[1], gl_hardware_gamma[2]) != -1);
     if (!succeeded)
     {
       lprintf(LO_WARN, "gld_SetGammaRamp: Gamma ramp manipulation not supported\n");
@@ -304,26 +331,49 @@ int gld_SetGammaRamp(int gamma)
   return succeeded;
 }
 
-static float gld_CalcLightLevel(int lightlevel)
+typedef float (*gld_CalcLightLevel_f)(int lightlevel);
+
+static float gld_CalcLightLevel_glboom(int lightlevel)
+{
+  return (lighttable[usegamma][BETWEEN(0, 255, lightlevel)]);
+}
+
+static float gld_CalcLightLevel_gzdoom(int lightlevel)
 {
   float light;
 
-  if (gl_lightmode == gl_lightmode_gzdoom)
-  {
-    if (lightlevel < 192) 
-      light = (192.0f - (192 - lightlevel) * 1.95f);
-    else
-      light = (float)lightlevel;
-
-    if (light < gl_light_ambient)
-      light = (float)gl_light_ambient;
-
-    return light / 255.0f;
-  }
+  if (lightlevel < 192) 
+    light = (192.0f - (192 - lightlevel) * 1.95f);
   else
-  {
-    return (lighttable[usegamma][BETWEEN(0, 255, lightlevel)]);
-  }
+    light = (float)lightlevel;
+
+  if (light < gl_light_ambient)
+    light = (float)gl_light_ambient;
+
+  return light / 255.0f;
+}
+static float gld_CalcLightLevel_mixed(int lightlevel)
+{
+  float light;
+
+  light = (float)lightlevel;
+
+  if (light < gl_light_ambient)
+    light = (float)gl_light_ambient;
+
+  return light / 256.0f;
+}
+
+static gld_CalcLightLevel_f gld_CalcLightLevelFuncs[gl_lightmode_last] =
+{
+  gld_CalcLightLevel_glboom,
+  gld_CalcLightLevel_gzdoom,
+  gld_CalcLightLevel_mixed,
+};
+
+static float gld_CalcLightLevel(int lightlevel)
+{
+  return gld_CalcLightLevelFuncs[gl_lightmode](lightlevel);
 }
 
 void gld_StaticLightAlpha(float light, float alpha)

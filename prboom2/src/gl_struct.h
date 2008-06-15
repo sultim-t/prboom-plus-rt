@@ -37,13 +37,21 @@
 extern int nodesVersion;
 
 #define MAX_GLGAMMA 32
-typedef enum { gl_lightmode_glboom, gl_lightmode_gzdoom } gl_lightmode_t;
+typedef enum
+{
+  gl_lightmode_glboom,
+  gl_lightmode_gzdoom,
+  gl_lightmode_mixed,
+
+  gl_lightmode_last
+} gl_lightmode_t;
 extern gl_lightmode_t gl_lightmode;
 extern const char *gl_lightmodes[];
 extern int gl_light_ambient;
 extern int useglgamma;
 int gld_SetGammaRamp(int gamma);
 void gld_SaveGammaRamp(void);
+void gld_FlushTextures(void);
 
 extern int gl_seamless;
 extern boolean gl_arb_multitexture;

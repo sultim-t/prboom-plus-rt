@@ -4593,7 +4593,7 @@ boolean M_Responder (event_t* ev) {
       {
 //e6y
 #ifdef GL_DOOM
-        if (V_GetMode() == VID_MODEGL && gl_lightmode == gl_lightmode_gzdoom)
+        if (V_GetMode() == VID_MODEGL)
         {
           static char str[200];
           useglgamma++;
@@ -4601,7 +4601,15 @@ boolean M_Responder (event_t* ev) {
             useglgamma = 0;
           sprintf(str, "Gamma correction level %d", useglgamma); 
           players[consoleplayer].message = str; 
-          gld_SetGammaRamp(useglgamma);
+
+          if (gl_lightmode == gl_lightmode_gzdoom)
+          {
+            gld_SetGammaRamp(useglgamma);
+          }
+          if (gl_lightmode == gl_lightmode_mixed)
+          {
+            gld_FlushTextures();
+          }
         }
         else
 #endif

@@ -657,6 +657,12 @@ void M_ChangeLightMode(void)
   {
     gld_SetGammaRamp(useglgamma);
   }
+
+  if (gl_lightmode == gl_lightmode_mixed)
+  {
+    gld_SetGammaRamp(-1);
+    gld_FlushTextures();
+  }
 }
 #endif
 

@@ -666,6 +666,7 @@ void gld_BindTexture(GLTexture *gltexture)
   if (*glTexID==0)
     glGenTextures(1,glTexID);
   glBindTexture(GL_TEXTURE_2D, *glTexID);
+  gld_GammaCorrect(buffer, gltexture->buffer_size);
 #ifdef USE_GLU_MIPMAP
   if (gltexture->mipmap & use_mipmapping)
   {
@@ -837,6 +838,7 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   else
     memset(buffer,0,gltexture->buffer_size);
   gld_AddPatchToTexture(gltexture, buffer, patch, 0, 0, cm, gl_paletted_texture);
+  gld_GammaCorrect(buffer, gltexture->buffer_size);
 
   // e6y
   // Post-process the texture data after the buffer has been created.
@@ -1008,6 +1010,7 @@ void gld_BindFlat(GLTexture *gltexture)
   if (*glTexID==0)
     glGenTextures(1,glTexID);
   glBindTexture(GL_TEXTURE_2D, *glTexID);
+  gld_GammaCorrect(buffer, gltexture->buffer_size);
 #ifdef USE_GLU_MIPMAP
   if (gltexture->mipmap & use_mipmapping)
   {
@@ -1108,6 +1111,12 @@ static void gld_CleanTexItems(int count, GLTexture ***items)
     }
   }
   memset((*items),0,count*sizeof(GLTexture *));
+}
+
+void gld_FlushTextures(void)
+{
+  gld_CleanTexItems(numtextures, &gld_GLTextures);
+  gld_CleanTexItems(numlumps, &gld_GLPatchTextures);
 }
 
 void gld_Precache(void)
