@@ -275,6 +275,7 @@ void gld_SetTexturePalette(GLenum target);
 void gld_Precache(void);
 
 //gamma
+void gld_ResetGammaRamp(void);
 void gld_GammaCorrect(unsigned char *buffer, int bufSize);
 
 //e6y: from gl_vertex

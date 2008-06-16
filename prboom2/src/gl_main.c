@@ -111,10 +111,8 @@ int gl_invul_bw_method;
 static boolean SkyDrawed;
 
 gl_lightmode_t gl_lightmode;
-const char *gl_lightmodes[] = {"glboom","gzdoom","mixed"};
+const char *gl_lightmodes[] = {"glboom", "gzdoom", "mixed"};
 int gl_light_ambient;
-int useglgamma;
-Uint16 gl_hardware_gamma[3][256];
 
 boolean gl_arb_multitexture = false;
 boolean gl_arb_texture_compression = false;
@@ -187,9 +185,6 @@ GLfloat gl_whitecolor[4]={1.0f,1.0f,1.0f,1.0f};
  */
 float lighttable[5][256]; //e6y: now it calculates at startup
 
-Uint16 startup_ramp[3][256];
-int gl_DeviceSupportsGamma = false;
-
 static void gld_InitLightTable(void)
 {
   int i, g;
@@ -202,133 +197,6 @@ static void gld_InitLightTable(void)
       lighttable[g][i] = (float)((1.0f - exp(pow(i / 255.0f, 3) * gamma[g])) / (1.0f - exp(1.0f * gamma[g])));
     }
   }
-}
-
-void gld_SaveGammaRamp(void)
-{
-  gl_DeviceSupportsGamma = (SDL_GetGammaRamp(startup_ramp[0], startup_ramp[1], startup_ramp[2]) != -1);
-  if (!gl_DeviceSupportsGamma)
-  {
-    lprintf(LO_WARN, "gld_SaveGammaRamp: Gamma ramp manipulation not supported\n");
-  }
-}
-
-static void CalculateGammaRamp (float gamma, Uint16 *ramp)
-{
-  int i;
-
-  // 0.0 gamma is all black
-  if (gamma <= 0.0f)
-  {
-    for (i = 0; i < 256; i++)
-    {
-      ramp[i] = 0;
-    }
-    return;
-  }
-  else
-  {
-    // 1.0 gamma is identity
-    if (gamma == 1.0f)
-    {
-      for (i = 0; i < 256; i++)
-      {
-        ramp[i] = (i << 8) | i;
-      }
-      return;
-    }
-    else
-    {
-      // Calculate a real gamma ramp
-      int value;
-      gamma = 1.0f / gamma;
-      for (i = 0; i < 256; i++)
-      {
-        value = (int)(pow((double)i / 256.0, gamma) * 65535.0 + 0.5);
-        if (value > 65535)
-        {
-          value = 65535;
-        }
-        ramp[i] = (Uint16)value;
-      }
-    }
-  }
-}
-
-void gld_GammaCorrect(unsigned char *buffer, int bufSize)
-{
-  if (gl_lightmode == gl_lightmode_mixed)
-  {
-    int i;
-    static int prevgamma = -1;
-
-    if (useglgamma != prevgamma)
-    {
-      float g = (BETWEEN(0, MAX_GLGAMMA, useglgamma)) / 10.0f + 1.0f;
-
-      prevgamma = useglgamma;
-
-      CalculateGammaRamp(g, gl_hardware_gamma[0]);
-      CalculateGammaRamp(g, gl_hardware_gamma[1]);
-      CalculateGammaRamp(g, gl_hardware_gamma[2]);
-    }
-
-    for (i = 0; i < bufSize-4; i+=4)
-    {
-      buffer[i+0] = gl_hardware_gamma[0][buffer[i+0]]/256;
-      buffer[i+1] = gl_hardware_gamma[1][buffer[i+1]]/256;
-      buffer[i+2] = gl_hardware_gamma[2][buffer[i+2]]/256;
-    }
-  }
-}
-
-int gld_SetGammaRamp(int gamma)
-{
-  static int first = true;
-  int succeeded = false;
-  float Gamma = (BETWEEN(0, MAX_GLGAMMA, gamma)) / 10.0f + 1.0f;
-
-  if (gamma == -1)
-  {
-    if (gl_DeviceSupportsGamma)
-    {
-      succeeded = (SDL_SetGammaRamp(startup_ramp[0], startup_ramp[1], startup_ramp[2]) != -1);
-    }
-  }
-  else
-  {
-    if (first && desired_fullscreen)
-    {
-      // From GZDoom:
-      //
-      // Fix for Radeon 9000, possibly other R200s: When the device is
-      // reset, it resets the gamma ramp, but the driver apparently keeps a
-      // cached copy of the ramp that it doesn't update, so when
-      // SetGammaRamp is called later to handle the NeedGammaUpdate flag,
-      // it doesn't do anything, because the gamma ramp is the same as the
-      // one passed in the last call, even though the visible gamma ramp 
-      // actually has changed.
-      //
-      // So here we force the gamma ramp to something absolutely horrible and
-      // trust that we will be able to properly set the gamma later
-      first = false;
-      memset(gl_hardware_gamma[2], 0, sizeof(gl_hardware_gamma[2]));
-      SDL_SetGammaRamp(NULL, NULL, gl_hardware_gamma[2]);
-    }
-
-    CalculateGammaRamp(Gamma, gl_hardware_gamma[0]);
-    CalculateGammaRamp(Gamma, gl_hardware_gamma[1]);
-    CalculateGammaRamp(Gamma, gl_hardware_gamma[2]);
-
-    succeeded = (SDL_SetGammaRamp(gl_hardware_gamma[0], gl_hardware_gamma[1], gl_hardware_gamma[2]) != -1);
-    if (!succeeded)
-    {
-      lprintf(LO_WARN, "gld_SetGammaRamp: Gamma ramp manipulation not supported\n");
-      gl_lightmode = gl_lightmode_glboom;
-    }
-  }
-
-  return succeeded;
 }
 
 typedef float (*gld_CalcLightLevel_f)(int lightlevel);
@@ -354,14 +222,10 @@ static float gld_CalcLightLevel_gzdoom(int lightlevel)
 }
 static float gld_CalcLightLevel_mixed(int lightlevel)
 {
-  float light;
-
-  light = (float)lightlevel;
-
-  if (light < gl_light_ambient)
-    light = (float)gl_light_ambient;
-
-  return light / 256.0f;
+  if (lightlevel < gl_light_ambient)
+    return (float)gl_light_ambient / 255.0f;
+  else
+    return (float)lightlevel / 255.0f;
 }
 
 static gld_CalcLightLevel_f gld_CalcLightLevelFuncs[gl_lightmode_last] =
@@ -752,17 +616,11 @@ void gld_Init(int width, int height)
   glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
 
   // e6y
-  // With this command line switch we can reset desktop gamma
-  // after crash in case of gzdoom's sector light mode was used
-  if (M_CheckParm("-resetgamma"))
-  {
-    if (gld_SetGammaRamp(0))
-    {
-      lprintf(LO_ERROR, "gld_Init: gammaramp has been successfully restored\n");
-      _exit(0);
-    }
-  }
-  
+  // if you have a prior crash in the game,
+  // you can restore the gamma values to at least a linear value
+  // with -resetgamma command-line switch
+  gld_ResetGammaRamp();
+
   gld_InitLightTable();
   M_ChangeLightMode();
 

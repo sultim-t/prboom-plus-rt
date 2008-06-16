@@ -50,7 +50,7 @@ extern const char *gl_lightmodes[];
 extern int gl_light_ambient;
 extern int useglgamma;
 int gld_SetGammaRamp(int gamma);
-void gld_SaveGammaRamp(void);
+void gld_CheckHardwareGamma(void);
 void gld_FlushTextures(void);
 
 extern int gl_seamless;

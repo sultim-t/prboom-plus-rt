@@ -783,7 +783,7 @@ void I_UpdateVideoMode(void)
     e6y_MultisamplingSet();//e6y
     screen = SDL_SetVideoMode(REAL_SCREENWIDTH, REAL_SCREENHEIGHT, gl_colorbuffer_bits, init_flags);
 #ifdef GL_DOOM
-    gld_SaveGammaRamp();
+    gld_CheckHardwareGamma();
 #endif
   } else {
     // e6y: processing of screen_multiply
