@@ -293,7 +293,7 @@ void M_DrawMessages(void);
 void M_DrawChatStrings(void);
 void M_Compat(int);       // killough 10/98
 void M_ChangeDemoSmoothTurns(void);
-void M_ChangeAnisotropic(void);
+void M_ChangeTextureParams(void);
 void M_General(int);      // killough 10/98
 void M_DrawCompat(void);  // killough 10/98
 void M_DrawGeneral(void); // killough 10/98
@@ -3008,14 +3008,14 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
 #ifdef GL_DOOM
   {"OpenGL", S_SKIP|S_TITLE, m_null, G_X, G_YA2 - 12},
 
-  {"Texture filter", S_CHOICE|S_PRGWARN, m_null, G_X,
-   G_YA2 + general_gl_texfilter*8, {"gl_tex_filter_string"}, 0, 0, NULL, gltexfilters},
+  {"Texture filter", S_CHOICE, m_null, G_X,
+   G_YA2 + general_gl_texfilter*8, {"gl_tex_filter_string"}, 0, 0, M_ChangeTextureParams, gltexfilters},
 
-  {"Anisotropic filter", S_CHOICE|S_PRGWARN, m_null, G_X,
-   G_YA2 + general_gl_texfilter_anisotropic*8, {"gl_texture_filter_anisotropic"}, 0, 0, M_ChangeAnisotropic, gltexfilters_anisotropics},
+  {"Anisotropic filter", S_CHOICE, m_null, G_X,
+   G_YA2 + general_gl_texfilter_anisotropic*8, {"gl_texture_filter_anisotropic"}, 0, 0, M_ChangeTextureParams, gltexfilters_anisotropics},
 
-  {"Texture format", S_CHOICE|S_PRGWARN, m_null, G_X,
-   G_YA2 + general_gl_texformat*8, {"gl_tex_format_string"}, 0, 0, NULL, gltexformats},
+  {"Texture format", S_CHOICE, m_null, G_X,
+   G_YA2 + general_gl_texformat*8, {"gl_tex_format_string"}, 0, 0, M_ChangeTextureParams, gltexformats},
   {"Item out of Floor offset", S_NUM, m_null, G_X,
   G_YA2 + general_flooroffset*8, {"gl_sprite_offset"}},
 #endif
@@ -3294,9 +3294,10 @@ void M_ChangeDemoSmoothTurns(void)
   R_SmoothPlaying_Reset(NULL);
 }
 
-void M_ChangeAnisotropic(void)
+void M_ChangeTextureParams(void)
 {
-
+  gld_InitTextureParams();
+  gld_FlushTextures();
 }
 
 // Setting up for the General screen. Turn on flags, set pointers,

@@ -70,7 +70,8 @@ extern int gl_boom_colormaps;
 extern int gl_boom_colormaps_default;
 
 void gld_Init(int width, int height);
-void gld_InitCommandLine();
+void gld_InitCommandLine(void);
+void gld_InitTextureParams(void);
 
 void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e flags);
 void gld_DrawBackground(const char* name);

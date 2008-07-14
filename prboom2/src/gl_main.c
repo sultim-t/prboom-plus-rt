@@ -450,74 +450,8 @@ void gld_InitGLVersion(void)
   }
 }
 
-void gld_Init(int width, int height)
+void gld_InitTextureParams(void)
 {
-  GLfloat params[4]={0.0f,0.0f,1.0f,0.0f};
-  GLfloat BlackFogColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-
-  lprintf(LO_INFO,"GL_VENDOR: %s\n",glGetString(GL_VENDOR));
-  lprintf(LO_INFO,"GL_RENDERER: %s\n",glGetString(GL_RENDERER));
-  lprintf(LO_INFO,"GL_VERSION: %s\n",glGetString(GL_VERSION));
-  lprintf(LO_INFO,"GL_EXTENSIONS:\n");
-  {
-    char ext_name[256];
-    const char *extensions = glGetString(GL_EXTENSIONS);
-    const char *rover = extensions;
-    const char *p = rover;
-
-    while (*rover)
-    {
-      p = rover;
-      while (*p && *p != ' ')
-        p++;
-      if (*p)
-      {
-        int len = MIN(p-rover, sizeof(ext_name)-1);
-        memset(ext_name, 0, sizeof(ext_name));
-        strncpy(ext_name, rover, len);
-        lprintf(LO_INFO,"\t%s\n", ext_name);
-      }
-      rover = p;
-      while (*rover && *rover == ' ')
-        rover++;
-    }
-  }
-
-  gld_InitExtensions(glGetString(GL_EXTENSIONS));
-  //gl_shared_texture_palette = false;
-  gld_InitPalettedTextures();
-
-  glViewport(0, 0, SCREENWIDTH, SCREENHEIGHT);
-
-  glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
-  glClearDepth(1.0f);
-
-  glGetIntegerv(GL_MAX_TEXTURE_SIZE,&gld_max_texturesize);
-  //gld_max_texturesize=16;
-  lprintf(LO_INFO,"GL_MAX_TEXTURE_SIZE=%i\n",gld_max_texturesize);
-
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // proff_dis
-  glShadeModel(GL_FLAT);
-  glEnable(GL_TEXTURE_2D);
-  glDepthFunc(GL_LEQUAL);
-  glEnable(GL_ALPHA_TEST);
-  glAlphaFunc(GL_GEQUAL,0.5f);
-  glDisable(GL_CULL_FACE);
-  glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-
-  glTexGenfv(GL_Q,GL_EYE_PLANE,params);
-  glTexGenf(GL_S,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
-  glTexGenf(GL_T,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
-  glTexGenf(GL_Q,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
-  glFogi (GL_FOG_MODE, GL_EXP);
-  glFogfv(GL_FOG_COLOR, BlackFogColor);
-  glFogf (GL_FOG_DENSITY, (float)fog_density/1000.0f);
-  glHint (GL_FOG_HINT, GL_NICEST);
-  glFogf (GL_FOG_START, 0.0f);
-  glFogf (GL_FOG_END, 1.0f);
   if (!strcasecmp(gl_tex_filter_string,"GL_NEAREST_MIPMAP_NEAREST"))
   {
     use_mipmapping=true;
@@ -605,10 +539,81 @@ void gld_Init(int width, int height)
     gl_tex_format=GL_RGBA;
     lprintf(LO_INFO,"Using texture format GL_RGBA.\n");
   }
-  
+}
+
+void gld_Init(int width, int height)
+{
+  GLfloat params[4]={0.0f,0.0f,1.0f,0.0f};
+  GLfloat BlackFogColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+  lprintf(LO_INFO,"GL_VENDOR: %s\n",glGetString(GL_VENDOR));
+  lprintf(LO_INFO,"GL_RENDERER: %s\n",glGetString(GL_RENDERER));
+  lprintf(LO_INFO,"GL_VERSION: %s\n",glGetString(GL_VERSION));
+  lprintf(LO_INFO,"GL_EXTENSIONS:\n");
+  {
+    char ext_name[256];
+    const char *extensions = glGetString(GL_EXTENSIONS);
+    const char *rover = extensions;
+    const char *p = rover;
+
+    while (*rover)
+    {
+      p = rover;
+      while (*p && *p != ' ')
+        p++;
+      if (*p)
+      {
+        int len = MIN(p-rover, sizeof(ext_name)-1);
+        memset(ext_name, 0, sizeof(ext_name));
+        strncpy(ext_name, rover, len);
+        lprintf(LO_INFO,"\t%s\n", ext_name);
+      }
+      rover = p;
+      while (*rover && *rover == ' ')
+        rover++;
+    }
+  }
+
+  gld_InitExtensions(glGetString(GL_EXTENSIONS));
+  //gl_shared_texture_palette = false;
+  gld_InitPalettedTextures();
+
+  glViewport(0, 0, SCREENWIDTH, SCREENHEIGHT);
+
+  glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
+  glClearDepth(1.0f);
+
+  glGetIntegerv(GL_MAX_TEXTURE_SIZE,&gld_max_texturesize);
+  //gld_max_texturesize=16;
+  lprintf(LO_INFO,"GL_MAX_TEXTURE_SIZE=%i\n",gld_max_texturesize);
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // proff_dis
+  glShadeModel(GL_FLAT);
+  glEnable(GL_TEXTURE_2D);
+  glDepthFunc(GL_LEQUAL);
+  glEnable(GL_ALPHA_TEST);
+  glAlphaFunc(GL_GEQUAL,0.5f);
+  glDisable(GL_CULL_FACE);
+  glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+
+  glTexGenfv(GL_Q,GL_EYE_PLANE,params);
+  glTexGenf(GL_S,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
+  glTexGenf(GL_T,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
+  glTexGenf(GL_Q,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
+  glFogi (GL_FOG_MODE, GL_EXP);
+  glFogfv(GL_FOG_COLOR, BlackFogColor);
+  glFogf (GL_FOG_DENSITY, (float)fog_density/1000.0f);
+  glHint (GL_FOG_HINT, GL_NICEST);
+  glFogf (GL_FOG_START, 0.0f);
+  glFogf (GL_FOG_END, 1.0f);
+
   //e6y
   gld_InitGLVersion();
   gld_InitExtensionsEx();
+  gld_InitTextureParams();
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   gld_Finish();
