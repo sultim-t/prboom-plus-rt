@@ -3296,8 +3296,13 @@ void M_ChangeDemoSmoothTurns(void)
 
 void M_ChangeTextureParams(void)
 {
-  gld_InitTextureParams();
-  gld_FlushTextures();
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL)
+  {
+    gld_InitTextureParams();
+    gld_FlushTextures();
+  }
+#endif
 }
 
 // Setting up for the General screen. Turn on flags, set pointers,
