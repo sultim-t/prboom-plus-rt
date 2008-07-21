@@ -65,6 +65,11 @@ enum sloped_edge_type_e {
   RDRAW_MASKEDCOLUMNEDGE_SLOPED
 };
 
+typedef enum
+{
+  DRAW_COLUMN_ISPATCH = 0x00000001
+} draw_column_flags_e;
+
 // Packaged into a struct - POPE
 typedef struct {
   int                 x;
@@ -85,6 +90,7 @@ typedef struct {
   // 1 if R_DrawColumn* is currently drawing a masked column, otherwise 0
   int                 drawingmasked;
   enum sloped_edge_type_e edgetype;
+  unsigned int        flags; //e6y: for detect patches ind colfunc()
 } draw_column_vars_t;
 
 void R_SetDefaultDrawColumnVars(draw_column_vars_t *dcvars);

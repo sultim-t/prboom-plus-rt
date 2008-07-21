@@ -45,6 +45,8 @@
 #include "r_filter.h"
 #include "lprintf.h"
 
+cb_video_t video;
+
 // Each screen is [SCREENWIDTH*SCREENHEIGHT];
 screeninfo_t screens[NUM_SCREENS];
 
@@ -365,10 +367,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
     int   col;
     int   w = (patch->width << 16) - 1; // CPhipps - -1 for faster flipping
     int   left, right, top, bottom;
-    //e6y int   DX  = (SCREENWIDTH<<16)  / 320;
-    int   DXI = (320<<16)          / SCREENWIDTH;
-    //e6y int   DY  = (SCREENHEIGHT<<16) / 200;
-    int   DYI = (200<<16)          / SCREENHEIGHT;
+    int   DXI, DYI;
     R_DrawColumn_f colfunc;
     draw_column_vars_t dcvars;
     draw_vars_t olddrawvars = drawvars;
@@ -382,13 +381,6 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
     drawvars.short_pitch = screens[scrn].short_pitch;
     drawvars.int_pitch = screens[scrn].int_pitch;
 
-    if (!(flags & VPT_STRETCH)) {
-      //e6y DX = 1 << 16;
-      DXI = 1 << 16;
-      //e6y DY = 1 << 16;
-      DYI = 1 << 16;
-    }
-
     if (flags & VPT_TRANS) {
       colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, drawvars.filterpatch, RDRAW_FILTER_NONE);
       dcvars.translation = trans;
@@ -396,14 +388,12 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
       colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_STANDARD, drawvars.filterpatch, RDRAW_FILTER_NONE);
     }
 
-    /* e6y
-    left = ( x * DX ) >> FRACBITS;
-    top = ( y * DY ) >> FRACBITS;
-    right = ( (x + patch->width) * DX ) >> FRACBITS;
-    bottom = ( (y + patch->height) * DY ) >> FRACBITS;
-    */
+    //e6y: predefined arrays are used
     if (!(flags & VPT_STRETCH))
     {
+      DXI = 1 << 16;
+      DYI = 1 << 16;
+
       left = x;
       top = y;
       right = x + patch->width;
@@ -411,10 +401,13 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
     }
     else
     {
-      left = ( (x * SCREENWIDTH) / 320 );
-      top = ( (y * SCREENHEIGHT) / 200 );
-      right = ( ((x + patch->width) * SCREENWIDTH) / 320 );
-      bottom = ( ((y + patch->height+1) * SCREENHEIGHT) / 200 );
+      DXI = video.xstep;
+      DYI = video.ystep;
+
+      left = video.x1lookup[x];
+      top = video.y1lookup[y];
+      right = video.x2lookup[x + patch->width - 1];
+      bottom = video.y2lookup[y + patch->height - 1];
     }
 
     dcvars.texheight = patch->height;
@@ -453,10 +446,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
         const rpost_t *post = &column->posts[i];
         int yoffset = 0;
 
-        /* e6y
-        dcvars.yl = (((y + post->topdelta) * DY)>>FRACBITS);
-        dcvars.yh = (((y + post->topdelta + post->length) * DY - (FRACUNIT>>1))>>FRACBITS);
-        */
+        //e6y
         if (!(flags & VPT_STRETCH))
         {
           dcvars.yl = y + post->topdelta;
@@ -464,8 +454,13 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
         }
         else
         {
-          dcvars.yl = ( (((y + post->topdelta) * SCREENHEIGHT) / 200) );
-          dcvars.yh = ( (((y + post->topdelta + post->length) * SCREENHEIGHT) / 200) - 1 );
+          // e6y
+          // More accurate patch drawing from Eternity.
+          // Predefined arrays are used instead of dynamic calculation 
+          // of the top and bottom screen coordinates of a column.
+          // Also, it should be faster.
+          dcvars.yl = video.y1lookup[y + post->topdelta];
+          dcvars.yh = video.y2lookup[y + post->topdelta + post->length - 1];
         }
         dcvars.edgeslope = post->slope;
 
@@ -499,6 +494,9 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
         dcvars.nextsource = nextcolumn ? nextcolumn->pixels + post->topdelta + yoffset: dcvars.source;
 
         dcvars.texturemid = -((dcvars.yl-centery)*dcvars.iscale);
+
+        //e6y
+        dcvars.flags |= DRAW_COLUMN_ISPATCH; 
 
         colfunc(&dcvars);
       }

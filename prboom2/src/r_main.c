@@ -377,6 +377,60 @@ void R_SetViewSize(int blocks)
   setblocks = blocks;
 }
 
+void R_SetupViewScaling(void)
+{
+  int i;
+  fixed_t frac = 0, lastfrac;
+  // SoM: ANYRES
+  // Moved stuff, reformatted a bit
+  // haleyjd 04/03/05: removed unnecessary FixedDiv calls
+
+  video.xscale  = (SCREENWIDTH << FRACBITS) / 320;
+  video.xstep   = ((320 << FRACBITS) / SCREENWIDTH) + 1;
+  video.yscale  = (SCREENHEIGHT << FRACBITS) / 200;
+  video.ystep   = ((200 << FRACBITS) / SCREENHEIGHT) + 1;
+
+  // SoM: ok, assemble the realx1/x2 arrays differently. To start, we are using floats
+  // to do the scaling which is 100 times more accurate, secondly, I realized that the
+  // reason the old single arrays were causing problems was they was only calculating the 
+  // top-left corner of the scaled pixels. Calculating widths through these arrays is wrong
+  // because the scaling will change the final scaled widths depending on what their unscaled
+  // screen coords were. Thusly, all rectangles should be converted to unscaled x1, y1, x2, y2
+  // coords, scaled, and then converted back to x, y, w, h
+  video.x1lookup[0] = 0;
+  lastfrac = frac = 0;
+  for(i = 0; i < SCREENWIDTH; i++)
+  {
+    if(frac >> FRACBITS > lastfrac >> FRACBITS)
+    {
+      video.x1lookup[frac >> FRACBITS] = i;
+      video.x2lookup[lastfrac >> FRACBITS] = i-1;
+      lastfrac = frac;
+    }
+
+    frac += video.xstep;
+  }
+  video.x2lookup[319] = SCREENWIDTH - 1;
+  video.x1lookup[320] = video.x2lookup[320] = SCREENWIDTH;
+
+
+  video.y1lookup[0] = 0;
+  lastfrac = frac = 0;
+  for(i = 0; i < SCREENHEIGHT; i++)
+  {
+    if(frac >> FRACBITS > lastfrac >> FRACBITS)
+    {
+      video.y1lookup[frac >> FRACBITS] = i;
+      video.y2lookup[lastfrac >> FRACBITS] = i-1;
+      lastfrac = frac;
+    }
+
+    frac += video.ystep;
+  }
+  video.y2lookup[199] = SCREENHEIGHT - 1;
+  video.y1lookup[200] = video.y2lookup[200] = SCREENHEIGHT;
+}
+
 //
 // R_ExecuteSetViewSize
 //
@@ -386,6 +440,8 @@ void R_ExecuteSetViewSize (void)
   int i;
 
   setsizeneeded = false;
+
+  R_SetupViewScaling();
 
   if (setblocks == 11)
     {

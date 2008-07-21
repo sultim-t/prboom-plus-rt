@@ -46,6 +46,34 @@
 // VIDEO
 //
 
+typedef struct
+{
+   // SoM: Not implemented (yet)
+   //int bitdepth;
+
+//   int         width, height;
+//   int         pitch;
+//   fixed_t     widthfrac, heightfrac;
+   fixed_t     xscale, yscale;
+   fixed_t     xstep, ystep;
+
+//   float       xscalef, yscalef;
+//   float       xstepf, ystepf;
+//   boolean     scaled; // SoM: should be set when the scale values are
+
+   // SoM: if set to true, screens[0] is the SDL_Screen surface
+//   boolean     usescreen;
+//   byte        *screens[5];
+
+   // SoM 1-31-04: This will insure that scaled patches and such are put in the right places
+   int x1lookup[321];
+   int y1lookup[201];
+   int x2lookup[321];
+   int y2lookup[201];
+} cb_video_t;
+
+extern cb_video_t video;
+
 #define CENTERY     (SCREENHEIGHT/2)
 
 // Screen 0 is the screen updated by I_Update screen.

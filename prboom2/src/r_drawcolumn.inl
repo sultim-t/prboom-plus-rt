@@ -168,7 +168,10 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
   #if (R_DRAWCOLUMN_PIPELINE & RDC_BILINEAR)
     frac = dcvars->texturemid - (FRACUNIT>>1) + (dcvars->yl-centery)*fracstep;
   #else
-    frac = dcvars->texturemid + (dcvars->yl-centery)*fracstep;
+    if (dcvars->flags & DRAW_COLUMN_ISPATCH)
+      frac = (dcvars->yl * fracstep) & 0xFFFF;
+    else
+      frac = dcvars->texturemid + (dcvars->yl-centery)*fracstep;
   #endif
 
   if (dcvars->drawingmasked && dcvars->edgetype == RDRAW_MASKEDCOLUMNEDGE_SLOPED) {

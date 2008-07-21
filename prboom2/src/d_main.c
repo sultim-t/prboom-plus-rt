@@ -244,6 +244,11 @@ void D_Display (void)
   if (!I_StartDisplay())
     return;
 
+  if (setsizeneeded) {               // change the view size if needed
+    R_ExecuteSetViewSize();
+    oldgamestate = -1;            // force background redraw
+  }
+
   // save the current screen if about to wipe
   if (wipe = gamestate != wipegamestate)
     wipe_StartScreen();
@@ -274,11 +279,6 @@ void D_Display (void)
     boolean redrawborderstuff;
 
     HU_Erase();
-
-    if (setsizeneeded) {               // change the view size if needed
-      R_ExecuteSetViewSize();
-      oldgamestate = -1;            // force background redraw
-    }
 
     // Work out if the player view is visible, and if there is a border
     viewactive = (!(automapmode & am_active) || (automapmode & am_overlay)) && !inhelpscreens;
