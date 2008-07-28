@@ -1504,6 +1504,9 @@ static void D_DoomMainSetup(void)
   lprintf(LO_INFO,"V_Init: allocate screens.\n");
   V_Init();
 
+  //e6y: some stuff from command-line should be initialised before ProcessDehFile()
+  e6y_InitCommandLine();
+
   // CPhipps - autoloading of wads
   // Designed to be general, instead of specific to boomlump.wad
   // Some people might find this useful
@@ -1635,7 +1638,6 @@ static void D_DoomMainSetup(void)
   D_InitNetGame();
 
   //e6y
-  e6y_InitCommandLine();
 #ifdef _WIN32
   LauncherShow();
 #endif

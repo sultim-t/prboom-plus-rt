@@ -1673,14 +1673,14 @@ static void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint_64_t value) {
     // There is no more synch on http://www.doomworld.com/sda/dwdemo/w303-115.zip
     // (with correction in PIT_CheckThing)
     case 22:
-      if (IsDemoPlayback() && prboom_comp[PC_FORCE_INCORRECT_PROCESSING_OF_RESPAWN_FRAME_ENTRY].state)
+      if (prboom_comp[PC_FORCE_INCORRECT_PROCESSING_OF_RESPAWN_FRAME_ENTRY].state)
       {
         mi->raisestate = (int)value;
         return;
       }
       break;
     case 23:
-      if (IsDemoPlayback() && !prboom_comp[PC_FORCE_INCORRECT_PROCESSING_OF_RESPAWN_FRAME_ENTRY].state)
+      if (!prboom_comp[PC_FORCE_INCORRECT_PROCESSING_OF_RESPAWN_FRAME_ENTRY].state)
       {
         mi->raisestate = (int)value;
         return;

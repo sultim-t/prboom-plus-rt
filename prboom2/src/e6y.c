@@ -292,7 +292,7 @@ prboom_comp_t prboom_comp[PC_MAX] = {
   {0xffffffff, 0x02040802, 0, "-force_lxdoom_demo_compatibility"},
   {0x00000000, 0x0202061b, 0, "-allow_ssg_direct"},
   {0x00000000, 0x02040601, 0, "-treat_no_clipping_things_as_not_blocking"},
-  {0x00000000, 0x02040601, 0, "-force_incorrect_processing_of_respawn_frame_entry"},
+  {0x00000000, 0x02040803, 0, "-force_incorrect_processing_of_respawn_frame_entry"},
   {0x00000000, 0x02040601, 0, "-force_correct_code_for_3_keys_doors_in_mbf"},
   {0x00000000, 0x02040601, 0, "-uninitialize_crush_field_for_stairs"},
   {0x00000000, 0x02040802, 0, "-force_boom_findnexthighestfloor"},
