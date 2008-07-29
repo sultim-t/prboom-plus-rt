@@ -628,8 +628,6 @@ static void R_SetupFrame (player_t *player)
   validcount++;
 }
 
-int autodetect_hom = 0;       // killough 2/7/98: HOM autodetection flag
-
 //
 // R_ShowStats
 //
@@ -700,7 +698,7 @@ void R_RenderPlayerView (player_t* player)
     gld_StartDrawScene();
 #endif
   } else {
-    if (autodetect_hom)
+    if (flashing_hom)
     { // killough 2/10/98: add flashing red HOM indicators
       unsigned char color=(gametic % 20) < 9 ? 0xb0 : 0;
       V_FillRect(0, viewwindowx, viewwindowy, viewwidth, viewheight, color);

@@ -561,8 +561,7 @@ static void cheat_ddt()
 // killough 2/7/98: HOM autodetection
 static void cheat_hom()
 {
-  extern int autodetect_hom;           // Ty 03/27/98 - *not* externalized
-  plyr->message = (autodetect_hom = !autodetect_hom) ? "HOM Detection On" :
+  plyr->message = (flashing_hom = !flashing_hom) ? "HOM Detection On" :
     "HOM Detection Off";
 }
 
