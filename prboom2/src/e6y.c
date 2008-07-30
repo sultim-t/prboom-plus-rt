@@ -443,6 +443,19 @@ void G_SkipDemoStop(void)
 #endif
 }
 
+void G_SkipDemoCheck(void)
+{
+  if (doSkip && gametic > 0)
+  {
+    if (((startmap <= 1) && 
+         (gametic > demo_skiptics + (demo_skiptics > 0 ? 0 : demo_tics_count))) ||
+        (demo_warp && gametic - levelstarttic > demo_skiptics))
+     {
+       G_SkipDemoStop();
+     }
+  }
+}
+
 void M_ChangeSpeed(void)
 {
   extern int sidemove[2];

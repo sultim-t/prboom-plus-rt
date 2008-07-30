@@ -341,11 +341,8 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 
   forward = side = 0;
 
-  //e6y
-  if ((doSkip) &&
-     ((startmap<=1 && demo_skiptics>0 && gametic>demo_skiptics) ||
-     (demo_warp && gametic-levelstarttic>demo_skiptics)))
-    G_SkipDemoStop();
+  G_SkipDemoCheck(); //e6y
+
   if (democontinue)
   {
     mousex = mousey = 0;

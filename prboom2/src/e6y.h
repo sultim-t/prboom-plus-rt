@@ -233,6 +233,7 @@ extern boolean sound_inited_once;
 void e6y_I_uSleep(unsigned long usecs);
 void G_SkipDemoStart(void);
 void G_SkipDemoStop(void);
+void G_SkipDemoCheck(void);
 
 #ifdef GL_DOOM
 void M_ChangeMouseLook(void);
