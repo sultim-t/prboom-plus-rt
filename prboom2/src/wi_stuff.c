@@ -332,10 +332,10 @@ static int    cnt_pause;
 //
 
 // You Are Here graphic
-static const char* yah[2] = { "WIURH0", "WIURH1" };
+static const char* yah[3] = { "WIURH0", "WIURH1", 0 };
 
 // splat
-static const char* splat = "WISPLAT";
+static const char* splat[2] = {"WISPLAT", 0};
 
 // %, : graphics
 static const char percent[] = {"WIPCNT"};
@@ -533,7 +533,7 @@ WI_drawOnLnode  // draw stuff at a location by episode/map#
     {
       i++;
     }
-  } while (!fits && i!=2);
+  } while (!fits && i!=2 && c[i]);
 
   if (fits && i<2)
   {
@@ -545,7 +545,7 @@ WI_drawOnLnode  // draw stuff at a location by episode/map#
   {
     // DEBUG
     //jff 8/3/98 use logical output routine
-    lprintf(LO_DEBUG,"Could not place patch on level %d", n+1);
+    lprintf(LO_DEBUG,"Could not place patch on level %d\n", n+1);
   }
 }
 
@@ -947,11 +947,11 @@ void WI_drawShowNextLoc(void)
 
     // draw a splat on taken cities.
     for (i=0 ; i<=last ; i++)
-      WI_drawOnLnode(i, &splat);
+      WI_drawOnLnode(i, splat);
 
     // splat the secret level?
     if (wbs->didsecret)
-      WI_drawOnLnode(8, &splat);
+      WI_drawOnLnode(8, splat);
 
     // draw flashing ptr
     if (snl_pointeron)
