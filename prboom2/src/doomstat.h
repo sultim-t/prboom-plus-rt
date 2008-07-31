@@ -68,6 +68,9 @@ extern  boolean modifiedgame;
 // CPhipps - new compatibility handling
 extern complevel_t compatibility_level, default_compatibility_level;
 
+//e6y: hacked exe to emulate.
+GameExe_t game_exe;
+
 extern int demover; //e6y
 
 // CPhipps - old compatibility testing flags aliased to new handling

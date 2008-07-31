@@ -81,6 +81,11 @@ typedef enum {
   none
 } GameMission_t;
 
+// What hacked exe are we emulating?
+typedef enum {
+  EXE_CHEX      // Chex Quest executable (based on Final Doom)
+} GameExe_t;
+
 // Identify language to use, software localization.
 typedef enum {
   english,

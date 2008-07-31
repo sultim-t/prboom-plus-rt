@@ -770,6 +770,12 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
   if (target->tics < 1)
     target->tics = 1;
 
+  // In Chex Quest, monsters don't drop items.
+  if (game_exe == EXE_CHEX)
+  {
+    return;
+  }
+
   // Drop stuff.
   // This determines the kind of object spawned
   // during the death frame of a thing.

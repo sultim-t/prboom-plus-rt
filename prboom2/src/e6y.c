@@ -389,6 +389,16 @@ void e6y_InitCommandLine(void)
   }
 
   shorttics = M_CheckParm("-shorttics");
+
+  // What hacked exe are we emulating?
+  game_exe = 0;
+  if ((p = M_CheckParm("-exe")) && (p < myargc-1))
+  {
+    if (!strcasecmp(myargv[p + 1], "chex") || !strcasecmp(myargv[p + 1], "chex.exe"))
+    {
+      game_exe = EXE_CHEX;
+    }
+  }
 }
 
 void G_SkipDemoStart(void)
