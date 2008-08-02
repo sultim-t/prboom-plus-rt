@@ -83,6 +83,7 @@ typedef enum {
 
 // What hacked exe are we emulating?
 typedef enum {
+  EXE_NONE,
   EXE_CHEX      // Chex Quest executable (based on Final Doom)
 } GameExe_t;
 
