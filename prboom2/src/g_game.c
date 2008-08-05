@@ -3092,6 +3092,25 @@ static const byte* G_ReadDemoHeader(const byte *demo_p, size_t size, boolean fai
           // http://www.doomworld.com/idgames/index.php?id=13976
           respawnparm = M_CheckParm("-respawn");
           nomonsters = M_CheckParm("-nomonsters");
+
+          // e6y: detection of more unsupported demo formats
+          if (*(header_p + size - 1) == DEMOMARKER)
+          {
+            int game = 0;
+            
+            if ((size - 8) % 4 == 0) game |= 1;
+            
+            // file size test;
+            // DOOM_old and HERETIC don't use maps>9;
+            // 2 at 4,6 means playerclass=mage -> not DOOM_old or HERETIC;
+            if ((size >= 8 && (size - 8) % 4 != 0) ||
+                (map > 9) ||
+                (size >= 6 && (*(header_p + 4) == 2 || *(header_p + 6) == 2)))
+            {
+              I_Error("Unrecognised demo format.");
+            }
+          }
+
         }
       G_Compatibility();
     }
