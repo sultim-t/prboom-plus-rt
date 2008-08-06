@@ -2646,7 +2646,8 @@ void gld_AddWall(seg_t *seg)
         // e6y
         // There is no more visual glitches with sky on Icarus map14 sector 187
         // Old code: wall.ybottom=(float)backsector->floorheight/MAP_SCALE;
-        wall.ybottom=((float)(backsector->floorheight + seg->sidedef->rowoffset))/MAP_SCALE;
+        wall.ybottom=((float)(backsector->floorheight +
+          (seg->sidedef->rowoffset > 0 ? seg->sidedef->rowoffset : 0)))/MAP_SCALE;
         gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky);
       }
       else
@@ -2739,6 +2740,12 @@ void gld_AddWall(seg_t *seg)
         linelen=abs(ceiling_height-floor_height);
         wall.ytop=((float)MIN(ceilingmin, ceiling_height)/(float)MAP_SCALE);
         wall.ybottom=((float)MAX(floormax, floor_height)/(float)MAP_SCALE);
+
+        // e6y: z-fighting
+        // The supersecret "COOL!" area of Kama Sutra map15 as example
+        if (wall.ytop < wall.ybottom)
+          goto bottomtexture;
+
         wall.flag=GLDWF_M2S;
         wall.ul=OU((wall),(seg))+(0.0f);
         wall.ur=OU(wall,(seg))+((segs[seg->iSegID].length)/(float)wall.gltexture->buffer_width);
