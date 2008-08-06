@@ -503,6 +503,8 @@ static void I_ShutdownSDL(void)
 
 void I_PreInitGraphics(void)
 {
+  int p;
+
   // Initialize SDL
   unsigned int flags = 0;
   if (!(M_CheckParm("-nodraw") && M_CheckParm("-nosound")))
@@ -516,34 +518,45 @@ void I_PreInitGraphics(void)
   // to prevent problems with certain laptops, 64-bit Windows, and Windows Vista.  
   // The DirectX driver is still available, and can be selected by setting 
   // the environment variable SDL_VIDEODRIVER to "directx".
-  {
-    int p;
-    char *video_driver;
-    if ((p = M_CheckParm("-videodriver")) && (p < myargc - 1))
-      video_driver = strdup(myargv[p + 1]);
-    else
-      video_driver = strdup(sdl_videodriver);
 
-    if (strcasecmp(video_driver, "default"))
-    {
-      // videodriver != default
-      char buf[80];
-      strcpy(buf, "SDL_VIDEODRIVER=");
-      strncat(buf, video_driver, sizeof(buf) - sizeof(buf[0]) - strlen(buf));
-      putenv(buf);
-    }
-    else
-    {
-      // videodriver == default
-#ifdef _WIN32
-      if ((int)GetVersion() < 0 && V_GetMode() != VID_MODEGL ) // win9x
-        putenv("SDL_VIDEODRIVER=directx");
-#endif
-    }
-    free(video_driver);
+  if ((p = M_CheckParm("-videodriver")) && (p < myargc - 1))
+  {
+    free(sdl_videodriver);
+    sdl_videodriver = strdup(myargv[p + 1]);
   }
 
-  if ( SDL_Init(flags) < 0 ) {
+  if (strcasecmp(sdl_videodriver, "default"))
+  {
+    // videodriver != default
+    char buf[80];
+    strcpy(buf, "SDL_VIDEODRIVER=");
+    strncat(buf, sdl_videodriver, sizeof(buf) - sizeof(buf[0]) - strlen(buf));
+    putenv(buf);
+  }
+  else
+  {
+    // videodriver == default
+#ifdef _WIN32
+    if ((int)GetVersion() < 0 && V_GetMode() != VID_MODEGL ) // win9x
+      putenv("SDL_VIDEODRIVER=directx");
+#endif
+  }
+
+  p = SDL_Init(flags);
+
+  if (p < 0 && strcasecmp(sdl_videodriver, "default"))
+  {
+    //e6y: wrong videodriver?
+    lprintf(LO_ERROR, "Could not initialize SDL with SDL_VIDEODRIVER=%s [%s]\n", sdl_videodriver, SDL_GetError());
+
+    putenv("SDL_VIDEODRIVER=");
+    free(sdl_videodriver);
+    sdl_videodriver = strdup("default");
+    p = SDL_Init(flags);
+  }
+
+  if (p < 0)
+  {
     I_Error("Could not initialize SDL [%s]", SDL_GetError());
   }
 
