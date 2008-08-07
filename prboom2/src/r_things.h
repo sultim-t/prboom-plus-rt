@@ -56,9 +56,11 @@ extern fixed_t pspriteiscale;
 /* proff 11/06/98: Added for high-res */
 extern fixed_t pspritexscale;
 extern fixed_t pspriteyscale;
+#ifdef GL_DOOM
 //e6y: added for GL
 extern float pspritexscale_f;
 extern float pspriteyscale_f;
+#endif
 
 void R_DrawMaskedColumn(const rpatch_t *patch,
                         R_DrawColumn_f colfunc,

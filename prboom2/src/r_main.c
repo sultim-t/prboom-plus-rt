@@ -33,7 +33,6 @@
  *
  *-----------------------------------------------------------------------------*/
 
-
 #include "doomstat.h"
 #include "d_net.h"
 #include "w_wad.h"
@@ -486,9 +485,11 @@ void R_ExecuteSetViewSize (void)
 // proff 11/06/98: Added for high-res
   pspritexscale = (centerx << FRACBITS) / 160;
   pspriteyscale = (((SCREENHEIGHT*viewwidth)/SCREENWIDTH) << FRACBITS) / 200;
+#ifdef GL_DOOM
   //e6y: added for GL
   pspritexscale_f = (float)centerx/160.0f;
   pspriteyscale_f = (((float)SCREENHEIGHT*viewwidth)/(float)SCREENWIDTH) / 200.0f;
+#endif
 
   // thing clipping
   for (i=0 ; i<viewwidth ; i++)
