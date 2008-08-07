@@ -793,7 +793,6 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   GLTexture *gltexture;
   float fU1,fU2,fV1,fV2;
   int x1,y1,x2,y2;
-  float scale;
   float light;
 
   gltexture=gld_RegisterPatch(firstspritelump+weaponlump, CR_DEFAULT);
@@ -804,13 +803,14 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   fV1=0;
   fU2=gltexture->scalexfac;
   fV2=gltexture->scaleyfac;
+  // e6y
+  // More precise weapon drawing:
+  // Shotgun from DSV3_War looks correctly now. Especially during movement.
+  // There is no more line of graphics under certain weapons.
   x1=viewwindowx+vis->x1;
-  //x2=viewwindowx+vis->x2;
-  //e6y: shotgun from DSV3_War looks correctly now. Especially during movement.
-  x2=x1+(int)((float)gltexture->realtexwidth*(float)pspritexscale/(float)FRACUNIT);
-  scale=((float)vis->scale/(float)FRACUNIT);
-  y1=viewwindowy+centery-(int)(((float)vis->texturemid/(float)FRACUNIT)*scale);
-  y2=y1+(int)((float)gltexture->realtexheight*scale)+1;
+  x2=x1+(int)((float)gltexture->realtexwidth*pspritexscale_f);
+  y1=viewwindowy+centery-(int)(((float)vis->texturemid/(float)FRACUNIT)*pspriteyscale_f);
+  y2=y1+(int)((float)gltexture->realtexheight*pspriteyscale_f)+1;
   light=gld_CalcLightLevel(lightlevel);
 
   // e6y

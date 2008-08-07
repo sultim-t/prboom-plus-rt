@@ -486,6 +486,9 @@ void R_ExecuteSetViewSize (void)
 // proff 11/06/98: Added for high-res
   pspritexscale = (centerx << FRACBITS) / 160;
   pspriteyscale = (((SCREENHEIGHT*viewwidth)/SCREENWIDTH) << FRACBITS) / 200;
+  //e6y: added for GL
+  pspritexscale_f = (float)centerx/160.0f;
+  pspriteyscale_f = (((float)SCREENHEIGHT*viewwidth)/(float)SCREENWIDTH) / 200.0f;
 
   // thing clipping
   for (i=0 ; i<viewwidth ; i++)

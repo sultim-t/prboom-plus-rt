@@ -67,6 +67,9 @@ fixed_t pspriteiscale;
 // proff 11/06/98: Added for high-res
 fixed_t pspritexscale;
 fixed_t pspriteyscale;
+//e6y: added for GL
+float pspriteyscale_f;
+float pspritexscale_f;
 
 // constant arrays
 //  used for psprite clipping and initializing clipping
