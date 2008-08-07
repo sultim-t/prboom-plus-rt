@@ -5567,6 +5567,15 @@ void M_StartControlPanel (void)
 
   NewDef.lastOn = defaultskill - 1;
 
+  // e6y
+  // We need to remove the fourth episode for pre-ultimate complevels.
+  // It is located here instead of M_Init() because of TNTCOMP cheat.
+  EpiDef.numitems = ep_end;
+  if (compatibility_level < ultdoom_compatibility || gamemode == shareware)
+  {
+    EpiDef.numitems--;
+  }
+
   default_verify = 0;                  // killough 10/98
   menuactive = 1;
   currentMenu = &MainDef;         // JDC

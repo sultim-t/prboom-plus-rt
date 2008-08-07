@@ -2324,6 +2324,12 @@ void G_InitNew(skill_t skill, int episode, int map)
   if (episode < 1)
     episode = 1;
 
+  //e6y: We need to remove the fourth episode for pre-ultimate complevels.
+  if (compatibility_level < ultdoom_compatibility && episode > 3)
+  {
+    episode = 3;
+  }
+
   if (gamemode == retail)
     {
       if (episode > 4)
