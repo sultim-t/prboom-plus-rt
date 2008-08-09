@@ -69,6 +69,7 @@
 #include "i_system.h"
 #include "m_argv.h"
 #include "i_video.h"
+#include "i_main.h"
 #include "e6y.h"//e6y
 //e6y: all OpenGL extentions will be disabled with TRUE
 int gl_compatibility = 0;
@@ -78,7 +79,7 @@ int gl_compatibility = 0;
 GLint glSceneImageFBOTexID = 0;
 GLuint glDepthBufferFBOTexID = 0;
 GLuint glSceneImageTextureFBOTexID = 0;
-unsigned int gld_CreateScreenSizeFBO(void);
+boolean gld_CreateScreenSizeFBO(void);
 void gld_FreeScreenSizeFBO(void);
 void gld_InitMotionBlur(void);
 #endif
@@ -96,6 +97,7 @@ int SceneInTexture = false;
 
 //e6y: motion bloor
 int gl_motionblur;
+int gl_use_motionblur = false;
 char *gl_motionblur_minspeed;
 char *gl_motionblur_att_a;
 char *gl_motionblur_att_b;
@@ -118,6 +120,8 @@ boolean gl_arb_multitexture = false;
 boolean gl_arb_texture_compression = false;
 boolean gl_ext_framebuffer_object = false;
 boolean gl_ext_blend_color = false;
+
+boolean gl_use_FBO = false;
 
 /* ARB_multitexture command function pointers */
 PFNGLACTIVETEXTUREARBPROC        GLEXT_glActiveTextureARB        = NULL;
@@ -631,19 +635,17 @@ void gld_Init(int width, int height)
 
   // Vortex: Create FBO object and associated render targets
 #ifdef USE_FBO_TECHNIQUE
-  if (gl_ext_framebuffer_object)
-  {
-    unsigned int status = gld_CreateScreenSizeFBO();
 
-    if (status == GL_FRAMEBUFFER_COMPLETE_EXT)
+  gl_use_motionblur = gl_ext_framebuffer_object && gl_motionblur && gl_ext_blend_color;
+
+  gl_use_FBO = gl_ext_framebuffer_object && (gl_use_motionblur || !gl_boom_colormaps);
+
+  if (gl_use_FBO)
+  {
+    if (gld_CreateScreenSizeFBO())
     {
       // motion blur setup
       gld_InitMotionBlur();
-    }
-    else
-    {
-      lprintf(LO_ERROR, "gld_CreateScreenSizeFBO: Cannot create framebuffer object (error code: %d)\n", status);
-      gl_ext_framebuffer_object = false;
     }
   }
 #endif
@@ -2025,7 +2027,7 @@ void gld_StartDrawScene(void)
   }
 
 #ifdef USE_FBO_TECHNIQUE
-  if (gl_motionblur && gl_ext_blend_color)
+  if (gl_use_motionblur)
   {
     ticcmd_t *cmd = &players[displayplayer].cmd;
     int camera_speed = cmd->forwardmove * cmd->forwardmove + cmd->sidemove * cmd->sidemove;
@@ -3464,9 +3466,9 @@ void gld_PreprocessLevel(void)
 
 // Vortex: some FBO stuff
 #ifdef USE_FBO_TECHNIQUE
-unsigned int gld_CreateScreenSizeFBO(void)
+boolean gld_CreateScreenSizeFBO(void)
 {
-  int status;
+  int status = 0;
 
   if (!gl_ext_framebuffer_object)
     return false;
@@ -3488,14 +3490,32 @@ unsigned int gld_CreateScreenSizeFBO(void)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   
-  GLEXT_glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, glSceneImageTextureFBOTexID, 0);
-  status = GLEXT_glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+  // e6y
+  // Some ATI’s drivers have a bug whereby adding the depth renderbuffer
+  // and then a texture causes the application to crash.
+  // This should be kept in mind when doing any FBO related work and
+  // tested for as it is possible it could be fixed in a future driver revision
+  // thus rendering the problem non-existent.
+  PRBOOM_TRY(EXEPTION_glFramebufferTexture2DEXT)
+  {
+    GLEXT_glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, glSceneImageTextureFBOTexID, 0);
+    status = GLEXT_glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+  }
+  PRBOOM_EXCEPT(EXEPTION_glFramebufferTexture2DEXT)
 
-  GLEXT_glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  if (status == GL_FRAMEBUFFER_COMPLETE_EXT)
+  {
+    GLEXT_glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  }
+  else
+  {
+    lprintf(LO_ERROR, "gld_CreateScreenSizeFBO: Cannot create framebuffer object (error code: %d)\n", status);
+    gl_ext_framebuffer_object = false;
+  }
 
   atexit(gld_FreeScreenSizeFBO);
 
-  return status;
+  return (status == GL_FRAMEBUFFER_COMPLETE_EXT);
 }
 
 void gld_FreeScreenSizeFBO(void)
@@ -3510,7 +3530,7 @@ void gld_FreeScreenSizeFBO(void)
 
 void gld_InitMotionBlur(void)
 {
-  if (gl_motionblur && gl_ext_blend_color)
+  if (gl_use_motionblur)
   {
     float f;
 

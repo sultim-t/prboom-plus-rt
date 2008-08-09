@@ -157,6 +157,8 @@ static void I_SignalHandler(int s)
 
   signal(s,SIG_IGN);  /* Ignore future instances of this signal.*/
 
+  I_ExeptionProcess(); //e6y
+
   strcpy(buf,"Exiting on signal: ");
   I_SigString(buf+strlen(buf),2000-strlen(buf),s);
 
@@ -169,6 +171,45 @@ static void I_SignalHandler(int s)
   I_Error("I_SignalHandler: %s", buf);
 }
 
+//
+// e6y: exeptions handling
+//
+
+static ExeptionsList_t current_exception_index;
+
+ExeptionParam_t ExeptionsParams[EXEPTION_MAX + 1] =
+{
+  {NULL},
+  {"gld_CreateScreenSizeFBO: Access violation in glFramebufferTexture2DEXT.\n\n"
+    "Are you using ATI graphics? Try to update your drivers "
+    "or change gl_compatibility variable in cfg to 1.\n"},
+  {NULL}
+};
+
+void I_ExeptionBegin(ExeptionsList_t exception_index)
+{
+  if (current_exception_index == EXEPTION_NONE)
+  {
+    current_exception_index = exception_index;
+  }
+  else
+  {
+    I_Error("I_SignalStateSet: signal_state set!");
+  }
+}
+
+void I_ExeptionEnd(void)
+{
+  current_exception_index = EXEPTION_NONE;
+}
+
+void I_ExeptionProcess(void)
+{
+  if (current_exception_index > EXEPTION_NONE && current_exception_index < EXEPTION_MAX)
+  {
+    I_Error("%s", ExeptionsParams[current_exception_index]);
+  }
+}
 
 
 /* killough 2/22/98: Add support for ENDBOOM, which is PC-specific
