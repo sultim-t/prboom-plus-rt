@@ -699,7 +699,7 @@ static int gld_LoadHiresItem(GLTexture *gltexture,
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
           (numMipmaps ? gl_mipmap_filter : gl_tex_filter));
         if (gl_use_texture_filter_anisotropic && numMipmaps)
-          glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)gl_texture_filter_anisotropic);
+          glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)(1<<gl_texture_filter_anisotropic));
         
         free(ddsimage->pixels);
         free(ddsimage);
@@ -817,7 +817,7 @@ static int gld_LoadHiresItem(GLTexture *gltexture,
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_mipmap_filter);
       if (gl_use_texture_filter_anisotropic)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)gl_texture_filter_anisotropic);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)(1<<gl_texture_filter_anisotropic));
 
       result = true;
       goto l_exit;
