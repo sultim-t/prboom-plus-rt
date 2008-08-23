@@ -49,6 +49,9 @@ Main Menu\Options\Setup\Status Bar / HUD (on last page)
 Additional PrBoom-Plus settings are available here:
 Main Menu\Options\General
 
+ OPENGL
+  Anisotropic Filter    ; The setting can be changed from this menu option in-game.
+
  SOUND & MUSIC
   PC Speaker Emulation  ; Emulates the PC Speaker sound effects from vanilla Doom
 
@@ -79,6 +82,10 @@ Main Menu\Options\General
   Max View Pitch        ; Option for restriction of the maximal looking up/down angle. (0-90)
 
  COMMON RENDER             ; Settings that apply with either renderer
+  Render Quality           ; Offers a choice between Speed or Quality - the latter reduces the chance of 
+                             rendering imprecisions, particularly on some ATI cards
+                             In software mode, 'Quality' can kill some "slime trails" and visplanes with 
+                             the same texture match up far better 
   Change Palette on Pain   ; Red eyes on pain
   Change Palette on Bonus  ; Blinking on item pick-up
   Change Palette on Powers ; Various visual effects on taking power-ups
@@ -99,8 +106,6 @@ Main Menu\Options\General
                            Smart - if the sprite is below the floor, and it's not a hanger/floater/missile, 
                                    and it's not a fully dead corpse;
   Item out of Floor Offset ; Value for 'Constant' option in "Adjust Sprite Clipping".
-  Render Quality         ; Offers a choice between Speed or Quality - the latter reduces the chance of 
-                           rendering imprecisions, particularly on some ATI cards
   Allow Colormaps        ; Option to use a colormap (in iwad or pwad) for invulnerability effect, and to 
                            use Boom's colormap feature - this comes at some cost in performance; if not 
                            selected, Boom colormaps are not applied at all, and the invulnerability effect 
@@ -110,6 +115,8 @@ Main Menu\Options\General
   Override Pwad's Graphics with Hi-Res ; If there is a hi-res texture (etc.) with the same name as a texture in 
                            a pwad that has been loaded, use the hi-res one. Note that this can lead to very odd 
                            results. This option is useful if loading plutonia.wad or tnt.wad *as a pwad*.
+  Sector Light Mode      ; Choice between glboom, gzdoom and mixed; the 'mixed' lighting mode for opengl uses 
+                           gamma ramps like in gzdoom mode, but applies new gamma to textures.
 
  SOFT RENDER                      ; Settings that apply only with the software renderer
   Screen Multiple Factor (1-none) ; Screen Multiple system for doubling up the screen 
@@ -169,10 +176,13 @@ Additional command-line parameters:
 "-solo-net" - for play, recording or playback using "single-player coop" mode. Equivalent to using prboom_server with -N 1
 "-window" - for temporarily using windowed mode without saving this in the cfg.
 "-nowindow" - for temporarily using fullscreen mode without saving this in the cfg.
-"-geom NxM" - for temporarily using a particular resolution without saving this in the cfg; e.g. -geom 1280x1024.
 "-aspect NxM" - for using a different aspect ratio; e.g. -aspect 5x4, -aspect 8x5 or -aspect 2x1.
 "-videodriver name" - for setting up the videodriver name that SDL will use. "windib" and "directx" are available for Windows. See SDL documentation for other platforms. "-videodriver default" can be used to force SDL behaviour by default.
 "-shorttics" - forces the same mouse behaviour as when recording (i.e. the converse of "-longtics")
+"-resetgamma" - restores the original gamma after a crash
+"-exe chex" - causes the game to play like chex.exe (Chex Quest) - chex.wad and chex.deh required too
+"-geom NxM" [basic syntax] - for temporarily using a particular resolution without saving this in the cfg; e.g. -geom 1280x1024.
+"-geom WidthxHeight[w|f]" [advanced syntax] - w - windowed, f - fullscreen. Examples: -geom 320x200f, -geom 640x480w
 
 Command-line parameters for playback of demos recorded with old versions that desynch due to recording bugs:
 "-emulate [prboom_ver]" - for viewing old desynching Prboom demos with all recording bugs from a particular version emulated. For example, "-emulate 2.2.6" would be used to play back a desynching demo recorded with prboom 2.2.6. This would be instead of using the various command-line options for each recording bug (see below) from that version.
@@ -196,6 +206,7 @@ Additional and enhanced command-line parameters for demo playback:
 "-nomonsters" - for playback of -nomonsters demos recorded with Doom.exe 1.2
 "-respawn" - for playback of -respawn demos recorded with Doom.exe 1.2
 "-auto" - enables the autoloading of wads according to the lmp file-name. See below for information.
+"-exe chex" - to playback chex.exe (Chex Quest) demos
 
 Additional command-line parameters for cheating/TAS functions:
 "-trace_thingshealth ThingID [ThingID] [ThingID]" - displays the current health of the specified Things (in the HUD)
