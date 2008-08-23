@@ -22,6 +22,8 @@ Change Log
 [*] OpenGL: Original doom added/removed one light level for walls exactly vertical/horizontal on a map, but old code used 8 instead of 16.
 [*] More precise rotation of sprites if render_paperitems is set to zero.
 [*] Unsupported GL nodes will be ignored instead of closing PrBoom-Plus with an error message.
+[*] Ability to play wads with wrong flat names. Unknown flats will be replaced with "NO TEXTURE" preset from prboom-plus.wad.
+[*] Make missing sounds non-fatal. Makes sense for doom.wad v1.2 to skip some absent sounds.
 [*] Intercepts overrun code should work properly on big endian machines as well as little endian machines.
 [*] The title screen music in deca.wad is a corrupted mus that nonetheless somehow manages to play properly in Vanilla Doom. Now you can hear such music in PrBoom-Plus too, because new mus2mid code is capable of converting the corrupted mus when MUS header checking is disabled.
 [*] MBF Sky property-transfer linedef types will be applied for boom compatibility again. It was a bad idea to disable it.
@@ -33,6 +35,7 @@ Change Log
 [*] There is no longer a need to restart glboom-plus after a change of texture filter (mipmap, aniso)
 [*] More accurate patch drawing. Predefined arrays are used instead of dynamic calculation of the top and bottom screen coordinates of a column. New algo makes sense for small elements of the HUD (digits) in resolutions which are not multiple of 320x200.
 [*] "-videodriver" switch choice is saved in cfg.
+[*] For pre-Ultimate Doom complevels, the fourth episode is not allowed.
 [-] Fixed crash after "reset to defaults" from in-game menu. It's an old bug and all the previous versions of prboom worked without crash only by luck.
 [-] Fixed bug if translucency percentage is less than 50, in which case all translucent textures and sprites disappeared completely.
 [-] Disabling transparency in OpenGL for original sprites which are not changed by dehacked, because it does not work correctly in cases when transparent sprites are behind transparent walls. Global sorting of transparent sprites and walls is needed.
@@ -49,7 +52,9 @@ Change Log
 [-] Fixed wrong processing of the "Blue Armor Class" and "Green Armor Class" strings from a DEH.
 [-] "Flashing HOM indicator" option did nothing. Fixed.
 [-] Fixed crash between e1m4 and e1m5 on chex.wad.
+[-] Key for entering setup menu had no entry in config.
 [-] The supersecret "COOL!" area of Kama Sutra map15 had a rather ugly texturing bug (GL only).
+[-] There is no longer a line of graphics under certain weapons in GL.
 
 From PrBoom
 - Added high color rendering.
