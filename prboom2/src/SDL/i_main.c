@@ -66,6 +66,7 @@
 
 #include "i_simd.h"
 #include "e6y.h"
+#include "TEXTSCREEN/txt_main.h"
 
 /* Most of the following has been rewritten by Lee Killough
  *
@@ -261,11 +262,85 @@ static void PrintVer(void)
   lprintf(LO_INFO,"%s\n",I_GetVersionString(vbuf,200));
 }
 
+//
+// ENDOOM support using text mode emulation
+//
+static void I_EndDoom(void)
+{
+  int lump_eb, lump_ed, lump = -1;
+
+  const unsigned char *endoom_data;
+  unsigned char *screendata;
+
+  if (misc_fastexit)
+  {
+    return;
+  }
+
+  /* CPhipps - ENDOOM/ENDBOOM selection */
+  lump_eb = W_CheckNumForName("ENDBOOM");/* jff 4/1/98 sign our work    */
+  lump_ed = W_CheckNumForName("ENDOOM"); /* CPhipps - also maybe ENDOOM */
+
+  if (lump_eb == -1)
+    lump = lump_ed;
+  else if (lump_ed == -1)
+    lump = lump_eb;
+  else
+  { /* Both ENDOOM and ENDBOOM are present */
+#define LUMP_IS_NEW(num) (!((lumpinfo[num].source == source_iwad) || (lumpinfo[num].source == source_auto_load)))
+    switch ((LUMP_IS_NEW(lump_ed) ? 1 : 0 ) |
+      (LUMP_IS_NEW(lump_eb) ? 2 : 0)) {
+    case 1:
+      lump = lump_ed;
+      break;
+    case 2:
+      lump = lump_eb;
+      break;
+    default:
+      /* Both lumps have equal priority, both present */
+      lump = (P_Random(pr_misc) & 1) ? lump_ed : lump_eb;
+      break;
+    }
+  }
+
+  if (lump != -1)
+  {
+    endoom_data = W_CacheLumpNum(lump);
+    
+    // Set up text mode screen
+    TXT_Init();
+    
+    // Make sure the new window has the right title and icon
+    I_SetWindowCaption();
+    I_SetWindowIcon();
+    
+    // Write the data to the screen memory
+    screendata = TXT_GetScreenData();
+    memcpy(screendata, endoom_data, 4000);
+    
+    // Wait for a keypress
+    while (true)
+    {
+      TXT_UpdateScreen();
+      
+      if (TXT_GetChar() >= 0)
+      {
+        break;
+      }
+      
+      TXT_Sleep(0);
+    }
+    
+    // Shut down text mode screen
+    TXT_Shutdown();
+  }
+}
+
 /* I_EndDoom
  * Prints out ENDOOM or ENDBOOM, using some common sense to decide which.
  * cphipps - moved to l_main.c, made static
  */
-static void I_EndDoom(void)
+static void I_EndDoom2(void)
 {
   int lump_eb, lump_ed, lump = -1;
 
@@ -449,8 +524,8 @@ int main(int argc, char **argv)
 #ifdef _WIN32
   if (!M_CheckParm("-nodraw")) {
     /* initialize the console window */
-    Init_ConsoleWin();
-    atexit(Done_ConsoleWin);
+    //Init_ConsoleWin();
+    //atexit(Done_ConsoleWin);
   }
 #endif
 
