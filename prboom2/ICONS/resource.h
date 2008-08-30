@@ -3,9 +3,10 @@
 #define IDI_ICON3                       103
 #define IDI_ICON4                       104
 #define IDI_ICON5                       105
-#define IDR_ALL_IN_ONE_LUMP             106
-#define IDD_LAUNCHERSERVERDIALOG        107
-#define IDD_LAUNCHERCLIENTDIALOG        108
+#define IDI_ICON6                       106
+#define IDR_ALL_IN_ONE_LUMP             110
+#define IDD_LAUNCHERSERVERDIALOG        120
+#define IDD_LAUNCHERCLIENTDIALOG        121
 #define IDC_TAB1                        1003
 #define IDC_COMBO1                      1004
 #define IDC_IWADCOMBO                   1004

@@ -44,6 +44,8 @@
 void I_PreInitGraphics(void); /* CPhipps - do stuff immediately on start */
 void I_CalculateRes(unsigned int width, unsigned int height); /* calculate resolution */
 void I_SetRes(void); /* set resolution */
+void I_SetWindowCaption(void); /* Set the window caption */
+void I_SetWindowIcon(void); /* Set the application icon */
 void I_InitGraphics (void);
 void I_UpdateVideoMode(void);
 void I_ShutdownGraphics(void);

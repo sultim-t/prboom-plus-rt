@@ -686,9 +686,67 @@ void I_SetRes(void)
   lprintf(LO_INFO,"I_SetRes: Using resolution %dx%d\n", REAL_SCREENWIDTH, REAL_SCREENHEIGHT);
 }
 
+// 
+// Set the window caption
+//
+
+void I_SetWindowCaption(void)
+{
+  char *buf;
+
+  buf = malloc(strlen(PACKAGE) + strlen(VERSION) + 10);
+
+  sprintf(buf, "%s %s", PACKAGE, VERSION);
+
+  SDL_WM_SetCaption(buf, NULL);
+
+  free(buf);
+}
+
+// 
+// Set the application icon
+// 
+
+#include "icon.c"
+
+void I_SetWindowIcon(void)
+{
+    SDL_Surface *surface;
+    Uint8 *mask;
+    int i;
+
+    // Generate the mask
+  
+    mask = malloc(icon_w * icon_h / 8);
+    memset(mask, 0, icon_w * icon_h / 8);
+
+    for (i=0; i<icon_w * icon_h; ++i) 
+    {
+        if (icon_data[i * 3] != 0x00
+         || icon_data[i * 3 + 1] != 0x00
+         || icon_data[i * 3 + 2] != 0x00)
+        {
+            mask[i / 8] |= 1 << (7 - i % 8);
+        }
+    }
+
+    surface = SDL_CreateRGBSurfaceFrom(icon_data,
+                                       icon_w,
+                                       icon_h,
+                                       24,
+                                       icon_w * 3,
+                                       0xff << 0,
+                                       0xff << 8,
+                                       0xff << 16,
+                                       0);
+
+    SDL_WM_SetIcon(surface, mask);
+    SDL_FreeSurface(surface);
+    free(mask);
+}
+
 void I_InitGraphics(void)
 {
-  char titlebuffer[2048];
   static int    firsttime=1;
 
   if (firsttime)
@@ -704,11 +762,11 @@ void I_InitGraphics(void)
     /* Set the video mode */
     I_UpdateVideoMode();
 
-    /* Setup the window title */
-    strcpy(titlebuffer,PACKAGE);
-    strcat(titlebuffer," ");
-    strcat(titlebuffer,VERSION);
-    SDL_WM_SetCaption(titlebuffer, titlebuffer);
+    //e6y: setup the window title
+    I_SetWindowCaption();
+
+    //e6y: set the application icon
+    I_SetWindowIcon();
 
     /* Initialize the input system */
     I_InitInputs();
