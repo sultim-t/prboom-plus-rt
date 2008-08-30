@@ -540,6 +540,10 @@ SOURCE=..\src\i_video.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\icon.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\info.c
 # End Source File
 # Begin Source File
@@ -1414,6 +1418,162 @@ SOURCE=..\src\pcsound\pcsound_sdl.c
 # Begin Source File
 
 SOURCE=..\src\pcsound\pcsound_win32.c
+# End Source File
+# End Group
+# Begin Group "TextScreen Source Files"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\doomkeys.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\textscreen.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_button.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_button.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_checkbox.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_checkbox.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_desktop.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_desktop.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_dropdown.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_dropdown.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_font.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_gui.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_gui.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_inputbox.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_inputbox.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_io.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_io.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_label.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_label.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_main.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_radiobutton.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_radiobutton.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_sdl.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_sdl.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_separator.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_separator.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_spinctrl.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_spinctrl.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_strut.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_strut.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_table.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_table.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_widget.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_widget.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_window.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_window.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_window_action.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_window_action.h
 # End Source File
 # End Group
 # Begin Source File

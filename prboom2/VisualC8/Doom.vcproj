@@ -2452,6 +2452,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\icon.c"
+				>
+			</File>
+			<File
 				RelativePath="..\src\info.c"
 				>
 				<FileConfiguration
@@ -6901,6 +6905,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\ICONS\prboom-plus.ico"
+				>
+			</File>
+			<File
 				RelativePath="..\Icons\resource.h"
 				>
 			</File>
@@ -6934,6 +6942,158 @@
 			</File>
 			<File
 				RelativePath="..\src\protocol.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="TextScreen Source Files"
+			>
+			<File
+				RelativePath="..\src\TEXTSCREEN\textscreen.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_button.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_button.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_checkbox.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_checkbox.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_desktop.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_desktop.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_dropdown.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_dropdown.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_font.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_gui.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_gui.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_inputbox.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_inputbox.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_io.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_io.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_label.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_label.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_main.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_radiobutton.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_radiobutton.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_sdl.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_sdl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_separator.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_separator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_spinctrl.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_spinctrl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_strut.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_strut.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_table.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_table.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_widget.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_widget.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_window.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_window.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_window_action.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_window_action.h"
 				>
 			</File>
 		</Filter>
