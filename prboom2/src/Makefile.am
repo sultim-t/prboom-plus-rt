@@ -76,4 +76,4 @@ prboom_plus_SOURCES = $(COMMON_SRC) $(NET_CLIENT_SRC) $(USE_GL_SRC) $(WAD_SRC) $
 prboom_plus_LDADD = SDL/libsdldoom.a PCSOUND/libpcsound.a TEXTSCREEN/libtextscreen.a @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ @GL_LIBS@ @MATH_LIB@
 
 EXTRA_DIST = \
- r_drawcolumn.inl r_drawflush.inl r_drawspan.inl r_drawcolpipeline.inl
+ r_drawcolumn.inl r_drawflush.inl r_drawspan.inl r_drawcolpipeline.inl icon.c

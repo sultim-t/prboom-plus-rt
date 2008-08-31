@@ -22,5 +22,4 @@ libtextscreen_a_SOURCES =                                 \
 	txt_widget.c             txt_widget.h             \
 	txt_window.c             txt_window.h             \
 	txt_window_action.c      txt_window_action.h      \
-	txt_font.h
-
+	txt_font.h               doomkeys.h
