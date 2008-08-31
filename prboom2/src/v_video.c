@@ -404,10 +404,20 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
       DXI = video.xstep;
       DYI = video.ystep;
 
-      left = video.x1lookup[x];
-      top = video.y1lookup[y];
-      right = video.x2lookup[x + patch->width - 1];
-      bottom = video.y2lookup[y + patch->height - 1];
+      //FIXME: Is it needed only for F_BunnyScroll?
+
+      left = (x < 0 || x > 320 ? (x * SCREENWIDTH)  / 320 : video.x1lookup[x]);
+      top =  (y < 0 || y > 200 ? (y * SCREENHEIGHT) / 200 : video.y1lookup[y]);
+
+      if (x + patch->width < 0 || x + patch->width > 320)
+        right = ( ((x + patch->width - 1) * SCREENWIDTH) / 320 );
+      else
+        right = video.x2lookup[x + patch->width - 1];
+
+      if (y + patch->height < 0 || y + patch->height > 200)
+        bottom = ( ((y + patch->height - 0) * SCREENHEIGHT) / 200 );
+      else
+        bottom = video.y2lookup[y + patch->height - 1];
     }
 
     dcvars.texheight = patch->height;
