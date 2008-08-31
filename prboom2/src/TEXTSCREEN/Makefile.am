@@ -1,9 +1,4 @@
-
 AM_CFLAGS = @SDL_CFLAGS@ -I../src
-
-# build this directory before the examples directory.
-
-SUBDIRS= . examples
 
 noinst_LIBRARIES=libtextscreen.a
 
