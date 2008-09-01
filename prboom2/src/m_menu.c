@@ -1067,7 +1067,8 @@ static void M_QuitResponse(int ch)
       i--;
     }
   }
-  exit(0); // killough
+  //e6y: I_SafeExit instead of exit - prevent recursive exits
+  I_SafeExit(0); // killough
 }
 
 void M_QuitDOOM(int choice)
