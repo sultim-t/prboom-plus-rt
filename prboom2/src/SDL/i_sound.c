@@ -628,6 +628,10 @@ static Mix_Music *music[2] = { NULL, NULL };
 
 char* music_tmp = NULL; /* cph - name of music temporary file */
 
+// List of extensions that can be appended to music_tmp. First must be "".
+static const char *music_tmp_ext[] = { "", ".mp3", ".ogg" };
+#define MUSIC_TMP_EXT (sizeof(music_tmp_ext)/sizeof(*music_tmp_ext))
+
 #endif
 
 void I_ShutdownMusic(void)
