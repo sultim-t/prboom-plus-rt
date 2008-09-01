@@ -638,8 +638,17 @@ void I_ShutdownMusic(void)
 {
 #ifdef HAVE_MIXER
   if (music_tmp) {
-    unlink(music_tmp);
-    lprintf(LO_DEBUG, "I_ShutdownMusic: removing %s\n", music_tmp);
+    int i;
+    char *name;
+
+    for (i = 0; i < MUSIC_TMP_EXT; i++)
+    {
+      name = malloc(strlen(music_tmp) + strlen(music_tmp_ext[i]) + 1);
+      sprintf(name, "%s%s", music_tmp, music_tmp_ext[i]);
+      if (!unlink(name))
+        lprintf(LO_DEBUG, "I_ShutdownMusic: removed %s\n", name);
+      free(name);
+    }
     free(music_tmp);
 	music_tmp = NULL;
   }
