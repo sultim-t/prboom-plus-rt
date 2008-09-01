@@ -79,9 +79,6 @@ fixed_t  viewx, viewy, viewz;
 angle_t  viewangle;
 fixed_t  viewcos, viewsin;
 player_t *viewplayer;
-// e6y: Added for more precise flats drawing
-float viewfocratio;
-
 extern lighttable_t **walllights;
 
 static mobj_t *oviewer;
@@ -471,8 +468,6 @@ void R_ExecuteSetViewSize (void)
   projection = centerxfrac;
 // proff 11/06/98: Added for high-res
   projectiony = ((SCREENHEIGHT * centerx * 320) / 200) / SCREENWIDTH * FRACUNIT;
-  // e6y: this is a precalculated value for more precise flats drawing (see R_MapPlane)
-  viewfocratio = 1.6f / ((float)SCREENWIDTH / (float)SCREENHEIGHT);
 
   R_InitBuffer (scaledviewwidth, viewheight);
 

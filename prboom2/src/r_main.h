@@ -60,8 +60,6 @@ extern fixed_t  projection;
 // proff 11/06/98: Added for high-res
 extern fixed_t  projectiony;
 extern int      validcount;
-// e6y: Added for more precise flats drawing
-extern float viewfocratio;
 
 //
 // Rendering stats
