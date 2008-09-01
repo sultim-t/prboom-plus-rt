@@ -641,6 +641,7 @@ void I_ShutdownMusic(void)
     int i;
     char *name;
 
+    S_StopMusic();
     for (i = 0; i < MUSIC_TMP_EXT; i++)
     {
       name = malloc(strlen(music_tmp) + strlen(music_tmp_ext[i]) + 1);
