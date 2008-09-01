@@ -626,7 +626,7 @@ void I_InitSound(void)
 
 static Mix_Music *music[2] = { NULL, NULL };
 
-char* music_tmp = NULL; /* cph - name of music temporary file */
+static char *music_tmp = NULL; /* cph - name of music temporary file */
 
 // List of extensions that can be appended to music_tmp. First must be "".
 static const char *music_tmp_ext[] = { "", ".mp3", ".ogg" };
@@ -650,7 +650,7 @@ void I_ShutdownMusic(void)
       free(name);
     }
     free(music_tmp);
-	music_tmp = NULL;
+    music_tmp = NULL;
   }
 #endif
 }
@@ -660,12 +660,12 @@ void I_InitMusic(void)
 #ifdef HAVE_MIXER
   if (!music_tmp) {
 #ifndef _WIN32
-    music_tmp = strdup("/tmp/prboom-music-XXXXXX");
+    music_tmp = strdup("/tmp/prboom-plus-music-XXXXXX");
     {
       int fd = mkstemp(music_tmp);
       if (fd<0) {
         lprintf(LO_ERROR, "I_InitMusic: failed to create music temp file %s", music_tmp);
-        free(music_tmp); return;
+        free(music_tmp); music_tmp = NULL; return;
       } else 
         close(fd);
     }
@@ -788,7 +788,7 @@ int I_RegisterSong(const void *data, size_t len)
     for (i = 0; i < MUSIC_TMP_EXT; i++)
     {
       // Current SDL_mixer (up to 1.2.8) cannot load some MP3 and OGG
-      // without proper extention
+      // without proper extension
       name = malloc(strlen(music_tmp) + strlen(music_tmp_ext[i]) + 1);
       sprintf(name, "%s%s", music_tmp, music_tmp_ext[i]);
 
