@@ -758,7 +758,8 @@ static boolean ConvertMus(byte *musdata, int len, char *filename)
 int I_RegisterSong(const void *data, size_t len)
 {
 #ifdef HAVE_MIXER
-
+  int i;
+  char *name;
   boolean io_errors = false;
 
   if (music_tmp == NULL)
@@ -775,25 +776,19 @@ int I_RegisterSong(const void *data, size_t len)
   {
     // The header has no MUS signature
     // Let's try to load this song with SDL
-    io_errors = M_WriteFile(music_tmp, (void*)data, len) == 0;
-    if (!io_errors)
+    for (i = 0; i < MUSIC_TMP_EXT; i++)
     {
-      int i = 0;
-      static char* music_tmp_alt_names[] = {"doom.tmp.ogg", "doom.tmp.mp3", NULL};
-
-      music[0] = Mix_LoadMUS(music_tmp);
-
       // Current SDL_mixer (up to 1.2.8) cannot load some MP3 and OGG
       // without proper extention
-      while (!music[0] && music_tmp_alt_names[i])
-      {
-        io_errors = M_WriteFile(music_tmp_alt_names[i], (void*)data, len) == 0;
-        if (!io_errors)
-        {
-          music[0] = Mix_LoadMUS(music_tmp_alt_names[i]);
-        }
-        i++;
-      }
+      name = malloc(strlen(music_tmp) + strlen(music_tmp_ext[i]) + 1);
+      sprintf(name, "%s%s", music_tmp, music_tmp_ext[i]);
+
+      io_errors = (M_WriteFile(name, (void*)data, len) == 0);
+      if (!io_errors)
+        music[0] = Mix_LoadMUS(name);
+      free(name);
+      if (music[0])
+        break; // successfully loaded
     }
   }
 
