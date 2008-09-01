@@ -272,6 +272,10 @@ static void I_EndDoom(void)
   const unsigned char *endoom_data;
   unsigned char *screendata;
 
+#ifndef _WIN32
+  PrintVer();
+#endif
+
   if (misc_fastexit)
   {
     return;
