@@ -308,4 +308,7 @@ extern char *gl_motionblur_linear_b;
 
 extern int imageformats[];
 
+//missing flats (fake floors and ceilings)
+void gld_PreprocessFakeSectors(void);
+
 #endif // _GL_INTERN_H

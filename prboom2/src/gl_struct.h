@@ -115,4 +115,7 @@ void gld_clipper_SafeAddClipRange(angle_t startangle, angle_t endangle);
 void gld_clipper_Clear(void);
 angle_t gld_FrustumAngle(void);
 
+//missing flats (fake floors and ceilings)
+sector_t* GetBestFake(sector_t *sector, int ceiling, int validcount);
+
 #endif // _GL_STRUCT_H

@@ -627,95 +627,41 @@ static void R_Subsector(int num)
                 frontsector->ceiling_yoffs
                 ) : NULL;
 #ifdef GL_DOOM
+  // e6y
+  // New algo can handle fake flats and ceilings
+  // much more correctly and fastly the the original
+  //
   // check if the sector is faked
   if ((frontsector==sub->sector)  && (V_GetMode() == VID_MODEGL))
   {
+    sector_t *tmpsec;
     // if the sector has bottomtextures, then the floorheight will be set to the
     // highest surounding floorheight
-    if ((frontsector->no_bottomtextures) || (!floorplane))
+    if ((frontsector->flags & NO_BOTTOMTEXTURES) || (!floorplane))
     {
-      int i=frontsector->linecount;
-      
-      //e6y: this gives a huge speedup on levels with sectors which have many lines
-      if(frontsector->floor_validcount == validcount)
-      {
-        dummyfloorplane.height = frontsector->highestfloor_height;
-        dummyfloorplane.lightlevel = frontsector->highestfloor_lightlevel;
-      }
-      else
-      {
-      frontsector->floor_validcount = validcount;
+      tmpsec = GetBestFake(frontsector, 0, validcount);
 
-      dummyfloorplane.height=INT_MIN;
-      while (i--)
+      if (tmpsec && frontsector->floorheight != tmpsec->floorheight)
       {
-        line_t *tmpline=frontsector->lines[i];
-        if (tmpline->backsector)
-          if (tmpline->backsector != frontsector)
-            if (tmpline->backsector->floorheight>dummyfloorplane.height)
-            {
-              dummyfloorplane.height=tmpline->backsector->floorheight;
-              dummyfloorplane.lightlevel=tmpline->backsector->lightlevel;
-            }
-        if (tmpline->frontsector)
-          if (tmpline->frontsector != frontsector)
-            if (tmpline->frontsector->floorheight>dummyfloorplane.height)
-            {
-              dummyfloorplane.height=tmpline->frontsector->floorheight;
-              dummyfloorplane.lightlevel=tmpline->frontsector->lightlevel;
-            }
+        dummyfloorplane.height = tmpsec->floorheight;
+        dummyfloorplane.lightlevel = tmpsec->lightlevel;
+        dummyfloorplane.picnum = tmpsec->floorpic;
+        floorplane = &dummyfloorplane;
       }
-      
-      //e6y
-      frontsector->highestfloor_height = dummyfloorplane.height;
-      frontsector->highestfloor_lightlevel = dummyfloorplane.lightlevel;
-      }
-
-      if (dummyfloorplane.height!=INT_MIN)
-        floorplane=&dummyfloorplane;
     }
+    
     // the same for ceilings. they will be set to the lowest ceilingheight
-    if ((frontsector->no_toptextures) || (!ceilingplane))
+    if ((frontsector->flags & NO_TOPTEXTURES) || (!ceilingplane))
     {
-      int i=frontsector->linecount;
+      tmpsec = GetBestFake(frontsector, 1, validcount);
 
-      //e6y: this gives a huge speedup on levels with sectors which have many lines
-      if(frontsector->ceil_validcount == validcount)
+      if (tmpsec && frontsector->ceilingheight != tmpsec->ceilingheight)
       {
-        dummyceilingplane.height = frontsector->lowestceil_height;
-        dummyceilingplane.lightlevel = frontsector->lowestceil_lightlevel;
+        dummyceilingplane.height = tmpsec->ceilingheight;
+        dummyceilingplane.lightlevel = tmpsec->lightlevel;
+        dummyceilingplane.picnum = tmpsec->ceilingpic;
+        ceilingplane = &dummyceilingplane;
       }
-      else
-      {
-      frontsector->ceil_validcount = validcount;
-
-      dummyceilingplane.height=INT_MAX;
-      while (i--)
-      {
-        line_t *tmpline=frontsector->lines[i];
-        if (tmpline->backsector)
-          if (tmpline->backsector != frontsector)
-            if (tmpline->backsector->ceilingheight<dummyceilingplane.height)
-            {
-              dummyceilingplane.height=tmpline->backsector->ceilingheight;
-              dummyceilingplane.lightlevel=tmpline->backsector->lightlevel;
-            }
-        if (tmpline->frontsector)
-          if (tmpline->frontsector != frontsector)
-            if (tmpline->frontsector->ceilingheight<dummyceilingplane.height)
-            {
-              dummyceilingplane.height=tmpline->frontsector->ceilingheight;
-              dummyceilingplane.lightlevel=tmpline->frontsector->lightlevel;
-            }
-      }
-      
-      //e6y
-      frontsector->lowestceil_height = dummyceilingplane.height;
-      frontsector->lowestceil_lightlevel = dummyceilingplane.lightlevel;
-      }
-
-      if (dummyceilingplane.height!=INT_MAX)
-        ceilingplane=&dummyceilingplane;
     }
   }
 #endif

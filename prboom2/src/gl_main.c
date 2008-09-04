@@ -1658,41 +1658,6 @@ void gld_GetSubSectorVertices(boolean *sectorclosed)
   }
 }
 
-static void gld_PrepareSectorSpecialEffects(int num)
-{
-  int i;
-
-  // the following is for specialeffects. see r_bsp.c in R_Subsector
-  sectors[num].no_toptextures=true;
-  sectors[num].no_bottomtextures=true;
-  for (i=0; i<sectors[num].linecount; i++)
-  {
-    if ( (sectors[num].lines[i]->sidenum[0]!=NO_INDEX) &&
-         (sectors[num].lines[i]->sidenum[1]!=NO_INDEX) )
-    {
-      if (sides[sectors[num].lines[i]->sidenum[0]].toptexture!=NO_TEXTURE)
-        sectors[num].no_toptextures=false;
-      if (sides[sectors[num].lines[i]->sidenum[0]].bottomtexture!=NO_TEXTURE)
-        sectors[num].no_bottomtextures=false;
-      if (sides[sectors[num].lines[i]->sidenum[1]].toptexture!=NO_TEXTURE)
-        sectors[num].no_toptextures=false;
-      if (sides[sectors[num].lines[i]->sidenum[1]].bottomtexture!=NO_TEXTURE)
-        sectors[num].no_bottomtextures=false;
-    }
-    else
-    {
-      sectors[num].no_toptextures=false;
-      sectors[num].no_bottomtextures=false;
-    }
-  }
-#ifdef _DEBUG
-  if (sectors[num].no_toptextures)
-    lprintf(LO_INFO,"Sector %i has no toptextures\n",num);
-  if (sectors[num].no_bottomtextures)
-    lprintf(LO_INFO,"Sector %i has no bottomtextures\n",num);
-#endif
-}
-
 // gld_PreprocessLevel
 //
 // this checks all sectors if they are closed and calls gld_PrecalculateSector to
@@ -1823,9 +1788,6 @@ void gld_PreprocessSectors(void)
   }
   Z_Free(vertexcheck);
 #endif /* USE_GLU_TESS */
-
-  for (i=0; i<numsectors; i++)
-    gld_PrepareSectorSpecialEffects(i);
 
   // figgi -- adapted for glnodes
   if (nodesVersion == 0)
@@ -2973,11 +2935,11 @@ static void gld_AddFlat(int sectornum, boolean ceiling, visplane_t *plane)
       return;
     // get the texture. flattranslation is maintained by doom and
     // contains the number of the current animation frame
-    flat.gltexture=gld_RegisterFlat(flattranslation[sector->floorpic], true);
+    flat.gltexture=gld_RegisterFlat(flattranslation[plane->picnum], true);
     if (!flat.gltexture)
       return;
     // get the lightlevel from floorlightlevel
-    flat.light=gld_CalcLightLevel(floorlightlevel+(extralight<<5));
+    flat.light=gld_CalcLightLevel(plane->lightlevel+(extralight<<5));
     // calculate texture offsets
     flat.uoffs=(float)sector->floor_xoffs/(float)FRACUNIT;
     flat.voffs=(float)sector->floor_yoffs/(float)FRACUNIT;
@@ -2988,11 +2950,11 @@ static void gld_AddFlat(int sectornum, boolean ceiling, visplane_t *plane)
       return;
     // get the texture. flattranslation is maintained by doom and
     // contains the number of the current animation frame
-    flat.gltexture=gld_RegisterFlat(flattranslation[sector->ceilingpic], true);
+    flat.gltexture=gld_RegisterFlat(flattranslation[plane->picnum], true);
     if (!flat.gltexture)
       return;
     // get the lightlevel from ceilinglightlevel
-    flat.light=gld_CalcLightLevel(ceilinglightlevel+(extralight<<5));
+    flat.light=gld_CalcLightLevel(plane->lightlevel+(extralight<<5));
     // calculate texture offsets
     flat.uoffs=(float)sector->ceiling_xoffs/(float)FRACUNIT;
     flat.voffs=(float)sector->ceiling_yoffs/(float)FRACUNIT;
@@ -3439,17 +3401,14 @@ void gld_PreprocessLevel(void)
 
     gld_Precache();
     gld_PreprocessSectors();
+    gld_PreprocessFakeSectors();
     gld_PreprocessSegs();
 
     numsectors_prev = numsectors;
   }
   else
   {
-    //from gld_PreprocessSectors
-    int i;
-
-    for (i = 0; i < numsectors; i++)
-      gld_PrepareSectorSpecialEffects(i);
+    gld_PreprocessFakeSectors();
 
     memset(sectorrendered, 0, numsectors*sizeof(byte));
     memset(segrendered, 0, numsegs*sizeof(byte));

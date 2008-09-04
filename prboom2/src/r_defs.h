@@ -88,11 +88,13 @@ typedef struct
 // Stores things/mobjs.
 //
 
+#define NO_TOPTEXTURES        0x00000001
+#define NO_BOTTOMTEXTURES     0x00000002
+
 typedef struct
 {
   int iSectorID; // proff 04/05/2000: needed for OpenGL and used in debugmode by the HUD to draw sectornum
-  boolean no_toptextures;
-  boolean no_bottomtextures;
+  unsigned int flags;    //e6y: instead of .no_toptextures and .no_bottomtextures
   fixed_t floorheight;
   fixed_t ceilingheight;
   int nexttag,firsttag;  // killough 1/30/98: improves searches for tags.
@@ -155,12 +157,9 @@ typedef struct
   short tag;
 
   //e6y
-  int floor_validcount;
-  int ceil_validcount;
-  fixed_t highestfloor_height;
-  fixed_t lowestceil_height;
-  short highestfloor_lightlevel;
-  short lowestceil_lightlevel;
+#ifdef GL_DOOM
+  int fakegroup[2];
+#endif
 } sector_t;
 
 //
