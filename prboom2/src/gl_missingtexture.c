@@ -252,41 +252,56 @@ sector_t* GetBestFake(sector_t *sector, int ceiling, int validcount)
   int i;
   int groupid = sector->fakegroup[ceiling];
 
-  if (fakeplanes[groupid].validcount == validcount)
+  if (fakeplanes[groupid].validcount != validcount)
   {
-    return fakeplanes[groupid].sector;
-  }
+    fakeplanes[groupid].validcount = validcount;
+    fakeplanes[groupid].sector = NULL;
 
-  fakeplanes[groupid].sector = NULL;
-
-  if (fakeplanes[groupid].ceiling)
-  {
-    fixed_t min_height = INT_MAX;
-    for (i = 0; i < fakeplanes[groupid].count; i++)
+    if (fakeplanes[groupid].ceiling)
     {
-      if (!(fakeplanes[groupid].list[i]->flags & NO_TOPTEXTURES) &&
-        fakeplanes[groupid].list[i]->ceilingheight < min_height)
+      fixed_t min_height = INT_MAX;
+      for (i = 0; i < fakeplanes[groupid].count; i++)
       {
-        min_height = fakeplanes[groupid].list[i]->ceilingheight;
-        fakeplanes[groupid].sector = fakeplanes[groupid].list[i];
+        if (!(fakeplanes[groupid].list[i]->flags & NO_TOPTEXTURES) &&
+          fakeplanes[groupid].list[i]->ceilingheight < min_height)
+        {
+          min_height = fakeplanes[groupid].list[i]->ceilingheight;
+          fakeplanes[groupid].sector = fakeplanes[groupid].list[i];
+        }
+      }
+    }
+    else
+    {
+      fixed_t max_height = INT_MIN;
+      for (i = 0; i < fakeplanes[groupid].count; i++)
+      {
+        if (!(fakeplanes[groupid].list[i]->flags & NO_BOTTOMTEXTURES) &&
+          fakeplanes[groupid].list[i]->floorheight > max_height)
+        {
+          max_height = fakeplanes[groupid].list[i]->floorheight;
+          fakeplanes[groupid].sector = fakeplanes[groupid].list[i];
+        }
       }
     }
   }
-  else
+
+  if (fakeplanes[groupid].sector)
   {
-    fixed_t max_height = INT_MIN;
-    for (i = 0; i < fakeplanes[groupid].count; i++)
+    if (fakeplanes[groupid].ceiling)
     {
-      if (!(fakeplanes[groupid].list[i]->flags & NO_BOTTOMTEXTURES) &&
-        fakeplanes[groupid].list[i]->floorheight > max_height)
+      if (sector->ceilingheight < fakeplanes[groupid].sector->ceilingheight)
       {
-        max_height = fakeplanes[groupid].list[i]->floorheight;
-        fakeplanes[groupid].sector = fakeplanes[groupid].list[i];
+        return sector;
+      }
+    }
+    else
+    {
+      if (sector->floorheight > fakeplanes[groupid].sector->floorheight)
+      {
+        return sector;
       }
     }
   }
-
-  fakeplanes[groupid].validcount = validcount;
 
   return fakeplanes[groupid].sector;
 }
