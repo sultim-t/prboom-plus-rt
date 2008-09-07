@@ -1,5 +1,12 @@
 Change Log
 
+2.4.8.4 @ 2008.09.07
+[*] New application icon.
+[*] ENDOOM/ENDBOOM support using text mode emulation by fraggle.
+[*] New algorithm for detection of fake flats and ceilings. It is much more correct and little bit quicker. Now glboom+ can detect complex systems from sectors without bottom/top textures and draw correct height, lighting and pic. Eternal.wad, map05, sectors 462 and 489 are simple examples; see sourceforge bug #2083354 for more examples.
+[-] Memory overrun in F_BunnyScroll in software mode. Introduced in 2.4.8.3.
+[-] Wrong flats drawing in software mode. Introduced in 2.4.8.3.
+
 2.4.8.3 @ 2008.08.23
 [!] Updated to the latest prboom 2.4.8. (SVN build, revision 2741)
 [+] Support for DDS format of hires textures.

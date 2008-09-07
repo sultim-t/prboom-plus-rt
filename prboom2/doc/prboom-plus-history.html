@@ -43,6 +43,96 @@
 
 <h1>Change Log</h1>
 
+<br><span class="ver">2.4.8.4</span>
+<span class="date">&nbsp;@&nbsp;2008-Sep-07</span>
+<table>
+<tr><td class="aaa">[*]</td><td>New application icon.
+<tr><td class="aaa">[*]</td><td>ENDOOM/ENDBOOM support using text mode emulation by fraggle.
+
+<tr><td class="aaa">[*]</td><td>New algorithm for detection of fake flats and ceilings. It is much more correct and little bit quicker. Now glboom+ can detect complex systems from sectors without bottom/top textures and draw correct height, lighting and pic. Eternal.wad, map05, sectors 462 and 489 are simple examples; see sourceforge bug #2083354 for more examples.
+<tr><td class="aaa">[-]</td><td>Memory overrun in F_BunnyScroll in software mode. Introduced in 2.4.8.3.
+<tr><td class="aaa">[-]</td><td>Wrong flats drawing in software mode. Introduced in 2.4.8.3.
+</table>
+
+<br><span class="ver">2.4.8.3</span>
+<span class="date">&nbsp;@&nbsp;2008-Aug-23</span>
+<table>
+<tr><td class="aaa">[!]</td><td>Updated to the latest prboom 2.4.8. (SVN build, revision 2741)
+<tr><td class="aaa">[+]</td><td>Support for DDS format of hires textures.
+
+<tr><td class="aaa">[+]</td><td>Ability to change the level of anisotropic filtering from the in-game menu.
+<tr><td class="aaa">[+]</td><td>Real "black and white" effect for invul. It needs OpenGL 1.3.
+<tr><td class="aaa">[+]</td><td>Motion blur effect for strafe50. (gl_motionbloor 1 in config)
+<tr><td class="aaa">[+]</td><td>Ability to use only the allowed CPUs. It is necessary for buggy SDL_mixer (<=1.2.8 at least) on multi-processors at least win32 systems. process_affinity_mask in config. A process affinity mask is a bit vector in which each bit represents the processor on which the threads of the process are allowed to run.
+<tr><td class="aaa">[+]</td><td>gl_compatibility variable in cfg. Try setting it to 1 if you have any problems in OpenGL. All OpenGL extentions will be disabled in this case.
+<tr><td class="aaa">[+]</td><td>An alternative way of sky drawing was added (gl_drawskys 2 in cfg). This method make sense only for old hardware which has no support for GL_TEXTURE_GEN_*. Voodoo, for example. There are some bugs with alternative skies (see map12), but it is better than being without a sky at all. If you have red color instead of sky, then this ability is for you.
+<tr><td class="aaa">[+]</td><td>Ability to play wads with wrong SEGS lump if workaround is possible. Demo recording is not allowed on such levels. See e1m9 @ <a href="http://www.doomworld.com/idgames/index.php?id=12647">NIVELES.WAD</a> as example.
+
+<tr><td class="aaa">[+]</td><td>Additional sector light mode was added. (Options\General\Sector Light Mode - GZDOOM) This method has 32 levels of brightness instead of 5. There is new command-line switch "-resetgamma" for restoring original gamma after crashes.
+<tr><td class="aaa">[+]</td><td>Ability to play MP3 and OGG from wad.
+<tr><td class="aaa">[+]</td><td>New 'mixed' lighting mode for opengl. It uses gamma ramps like in gzdoom mode and it has 32 levels of gamma, but instead of changing device gamma it applies new gamma to textures. So it needs to reload all textures after change of gamma.
+<tr><td class="aaa">[+]</td><td>Added demo compatibility with chex.exe  ("-exe chex" command-line switch)
+<pre class="code">glboom-plus.exe -iwad doom.wad -exe chex -file chex.wad -deh chex.deh -playdemo chex1.lmp
+You must use chex.deh by fraggle
+http://chexmania.tripod.com/downloads.htm
+http://www.doomworld.com/idgames/?id=15420</pre>
+<tr><td class="aaa">[*]</td><td>Win32 build is compiled with Microsoft Visual Studio 2008.
+<tr><td class="aaa">[*]</td><td>OpenGL: Original doom added/removed one light level for walls exactly vertical/horizontal on a map, but old code used 8 instead of 16.
+<tr><td class="aaa">[*]</td><td>More precise rotation of sprites if render_paperitems is set to zero.
+<tr><td class="aaa">[*]</td><td>Unsupported GL nodes will be ignored instead of closing PrBoom-Plus with an error message.
+
+<tr><td class="aaa">[*]</td><td>Ability to play wads with wrong flat names. Unknown flats will be replaced with "NO TEXTURE" preset from prboom-plus.wad.
+<tr><td class="aaa">[*]</td><td>Make missing sounds non-fatal. Makes sense for doom.wad v1.2 to skip some absent sounds.
+<tr><td class="aaa">[*]</td><td>Intercepts overrun code should work properly on big endian machines as well as little endian machines.
+<tr><td class="aaa">[*]</td><td>The title screen music in <a href="http://www.doomworld.com/idgames/index.php?id=8808">deca.wad</a> is a corrupted mus that nonetheless somehow manages to play properly in Vanilla Doom. Now you can hear such music in PrBoom-Plus too, because new mus2mid code is capable of converting the corrupted mus when MUS header checking is disabled.
+<tr><td class="aaa">[*]</td><td>MBF Sky property-transfer linedef types will be applied for boom compatibility again. It was a bad idea to disable it.
+<tr><td class="aaa">[*]</td><td>Advanced syntax for -geom command-line switch. Syntax: -geom WidthxHeight[w|f], w - windowed, f - fullscreen. Examples: -geom 320x200f, -geom 640x480w, -geom 1024x768
+<tr><td class="aaa">[*]</td><td>Speedup in software renderer.
+
+<tr><td class="aaa">[*]</td><td>"Rendering Quality" now is available in software mode too. "Quality" mode can kill some "slime trails", but it works slower. In the previous version of PrBoom-Plus the "Quality" mode was forced.
+<tr><td class="aaa">[*]</td><td>Lower memory usage if colormaps are used in OpenGL.
+<tr><td class="aaa">[*]</td><td>Speedup of level reloading in OpenGL mode (savegame, loadgame, loadgame...). Loadgame from the current (same) level now is much faster (100x). It is very noticeable on big levels like MAP05 @ <a href="http://www.doomworld.com/idgames/index.php?id=15125">epic.wad</a>.
+<tr><td class="aaa">[*]</td><td>There is no longer a need to restart glboom-plus after a change of texture filter (mipmap, aniso)
+<tr><td class="aaa">[*]</td><td>More accurate patch drawing. Predefined arrays are used instead of dynamic calculation of the top and bottom screen coordinates of a column. New algo makes sense for small elements of the HUD (digits) in resolutions which are not multiple of 320x200.
+<tr><td class="aaa">[*]</td><td>"-videodriver" switch choice is saved in cfg.
+<tr><td class="aaa">[*]</td><td>For pre-Ultimate Doom complevels, the fourth episode is not allowed.
+<tr><td class="aaa">[-]</td><td>Fixed crash after "reset to defaults" from in-game menu. It's an old bug and all the previous versions of prboom worked without crash only by luck.
+
+<tr><td class="aaa">[-]</td><td>Fixed bug if translucency percentage is less than 50, in which case all translucent textures and sprites disappeared completely.
+<tr><td class="aaa">[-]</td><td>Disabling transparency in OpenGL for original sprites which are not changed by dehacked, because it does not work correctly in cases when transparent sprites are behind transparent walls. Global sorting of transparent sprites and walls is needed.
+<tr><td class="aaa">[-]</td><td>Mouse look did not work on automap in overlay mode.
+<tr><td class="aaa">[-]</td><td>Fix bug with bringing up the launcher with SHIFT key.
+<tr><td class="aaa">[-]</td><td>Rooms you haven't visited and are behind closed doors (with no windows) show up on the automap when you walk up to the doors without opening them. This bug was introduced in the 2.4.8.2 release with new clipper code.
+<tr><td class="aaa">[-]</td><td>Fixed problems with association of PrBoom-Plus with DOOM demos if you are not Administrator. Makes sense for Vista.
+<tr><td class="aaa">[-]</td><td>Fix bug with sky at the bottom part of an imaginary skybox around a level if mouse look is used. Map30 @  "Deus Vult II: First Edition" is a good example.
+<tr><td class="aaa">[-]</td><td>OpenGL: More correct (similar to software) drawing of skies with height more than 128 if mouse look is not used.
+<tr><td class="aaa">[-]</td><td>Fix random color of pixels instead of black during first wiping on fullscreen in software mode.
+
+<tr><td class="aaa">[-]</td><td>Bug with sprites on big-endian systems like Apple's Macintosh line prior to the Intel switch.
+<tr><td class="aaa">[-]</td><td>Fixed error in OpenGL when upper texture on the linedef with "Transfer Sky Texture" action is not set ('-'). 'ASHWALL1' with zero index must be forced in this case, which I did for normal not transferred skies some time ago.
+<tr><td class="aaa">[-]</td><td>Fix vanilla imprecise calculation (vibrations) of the texture coordinates for flats in software renderer. Visplanes with the same texture now match up far better than before. You can see this bug on cchest2.wad\map02 in the room with moving illumination around the room with sector 265. The new algo is ~1% slower than the original and will be used only if render_precise is 1.
+<tr><td class="aaa">[-]</td><td>Fixed wrong processing of the "Blue Armor Class" and "Green Armor Class" strings from a DEH.
+<tr><td class="aaa">[-]</td><td>"Flashing HOM indicator" option did nothing. Fixed.
+<tr><td class="aaa">[-]</td><td>Fixed crash between e1m4 and e1m5 on <a href="http://chexmania.tripod.com/downloads.htm">chex.wad</a>.
+<tr><td class="aaa">[-]</td><td>Key for entering setup menu had no entry in config.
+<tr><td class="aaa">[-]</td><td>The supersecret "COOL!" area of Kama Sutra map15 had a rather ugly texturing bug (GL only).
+
+<tr><td class="aaa">[-]</td><td>There is no longer a line of graphics under certain weapons in GL.
+
+<tr><td></td><td><b>From PrBoom</b>
+<tr><td class="aaa">-</td><td>Added high color rendering
+<tr><td class="aaa">-</td><td>Ignore switches that reference unknown textures instead of exiting
+<tr><td class="aaa">-</td><td>When using spy mode in a multiplayer demo in demo_compatibility mode, play the expected player's pickup sounds (the currently displayed player, not the player at the console when the demo was recorded)
+<tr><td class="aaa">-</td><td>Fix crash when loading maps with missing player starts.
+<tr><td class="aaa">-</td><td>Fix crash when reloading network savegames.
+<tr><td class="aaa">-</td><td>Fix bug in transparency rendering caused by doing it in two places.
+<tr><td class="aaa">-</td><td>Fix the colour of player 4 (red) in multiplayer.
+
+<tr><td class="aaa">-</td><td>Fix position of netgame player arrows on automap in rotate mode.
+<tr><td class="aaa">-</td><td>Always draw player arrows on the automap in deathmatch demo playback. Previously they'd only be drawn if you played the demo from the command line.
+<tr><td class="aaa">-</td><td>Ignore chat key presses in demo playback and in -solo-net
+</table>
+
 <br><span class="ver">2.4.8.2</span>
 <span class="date">&nbsp;@&nbsp;2007-10-16</span>
 <table>
