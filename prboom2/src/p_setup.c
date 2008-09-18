@@ -166,12 +166,17 @@ mapthing_t playerstarts[MAXPLAYERS];
 
 static int previous_episode = -1;
 static int previous_map = -1;
+static int previous_nodesVersion = -1;
 
 int samelevel = false;
 
-boolean SameLevel(int episode, int map)
+static boolean SameLevel(int episode, int map, int nodesVersion)
 {
-  return ((map == previous_map) && (episode == previous_episode));
+  return (
+    (map == previous_map) && 
+    (episode == previous_episode) &&
+    (nodesVersion == previous_nodesVersion)
+  );
 }
 
 // e6y: Smart malloc
@@ -202,10 +207,11 @@ static void *calloc_IfSameLevel(void* p, size_t n1, size_t n2)
   }
 }
 
-void AcceptLevel(int episode, int map)
+static void AcceptLevel(int episode, int map, int nodesVersion)
 {
   previous_episode = episode;
   previous_map = map;
+  previous_nodesVersion = nodesVersion;
   samelevel = false;
 }
 
@@ -1630,7 +1636,6 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   int   gl_lumpnum;
 
   //e6y
-  samelevel = SameLevel(episode, map);
   totallive = 0;
   transparentpresent = false;
 
@@ -1657,14 +1662,6 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
     rejectlump = -1;
   }
   
-#ifdef GL_DOOM
-  // proff 11/99: clean the memory from textures etc.
-  if (!samelevel)
-  {
-    gld_CleanMemory();
-  }
-#endif
-
   P_InitThinkers();
 
   // if working with a devlopment map, reload it
@@ -1705,8 +1702,16 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   // Most of level's structures now are allocated with PU_STATIC instead of PU_LEVEL
   // It is important for OpenGL, because in case of the same data in memory
   // we can skip recalculation of much stuff
+
+  samelevel = SameLevel(episode, map, nodesVersion);
+
   if (!samelevel)
   {
+#ifdef GL_DOOM
+    // proff 11/99: clean the memory from textures etc.
+    gld_CleanMemory();
+#endif
+
     free(segs);
     free(nodes);
     free(subsectors);
@@ -1823,7 +1828,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   //e6y
   P_ResetWalkcam(true, true);
   R_SmoothPlaying_Reset(NULL);
-  AcceptLevel(episode, map);
+  AcceptLevel(episode, map, nodesVersion);
 }
 
 //
