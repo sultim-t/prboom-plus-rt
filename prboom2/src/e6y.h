@@ -330,6 +330,10 @@ typedef struct timetable_s
   int stat[TT_MAX];
 } timetable_t;
 
+#ifdef _WIN32
+char* WINError(void);
+#endif
+
 extern int stats_level;
 void e6y_G_DoCompleted(void);
 void e6y_G_CheckDemoStatus(void);

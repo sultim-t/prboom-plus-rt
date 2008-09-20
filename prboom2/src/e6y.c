@@ -39,9 +39,6 @@
 #include <windows.h>
 #include <direct.h>
 #include <winreg.h>
-#else
-#include <unistd.h>
-#include <sched.h>
 #endif
 #ifdef GL_DOOM
 #include <SDL_opengl.h>
@@ -251,54 +248,6 @@ char* WINError(void)
   return WinEBuff;
 }
 #endif
-
-//
-// Ability to use only the allowed CPUs
-//
-
-void I_SetAffinityMask(void)
-{
-  // Set the process affinity mask so that all threads
-  // run on the same processor.  This is a workaround for a bug in 
-  // SDL_mixer that causes occasional crashes.
-  if (process_affinity_mask)
-  {
-    char *errbuf = NULL;
-#ifdef _WIN32
-    if (!SetProcessAffinityMask(GetCurrentProcess(), process_affinity_mask))
-    {
-      errbuf = WINError();
-    }
-#else
-    // POSIX version:
-    int i;
-    {
-      cpu_set_t set;
-
-      CPU_ZERO(&set);
-
-      for(i = 0; i < 16; i++)
-      {
-        CPU_SET((process_affinity_mask>>i)&1, &set);
-      }
-
-      if (sched_setaffinity(getpid(), sizeof(set), &set) == -1)
-      {
-        errbuf = strerror(errno);
-      }
-    }
-#endif
-
-    if (errbuf == NULL)
-    {
-      lprintf(LO_INFO, "I_SetAffinityMask: manual affinity mask is %d\n", process_affinity_mask);
-    }
-    else
-    {
-      lprintf(LO_ERROR, "I_SetAffinityMask: failed to set process affinity mask (%s)\n", errbuf);
-    }
-  }
-}
 
 //--------------------------------------------------
 #ifdef _WIN32

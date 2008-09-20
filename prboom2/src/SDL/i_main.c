@@ -37,9 +37,17 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#else
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#include <sched.h>
+#endif
+
 #include "doomdef.h"
 #include "m_argv.h"
 #include "d_main.h"
@@ -496,6 +504,54 @@ static void I_Quit (void)
 #ifdef SECURE_UID
 uid_t stored_euid = -1;
 #endif
+
+//
+// Ability to use only the allowed CPUs
+//
+
+static void I_SetAffinityMask(void)
+{
+  // Set the process affinity mask so that all threads
+  // run on the same processor.  This is a workaround for a bug in 
+  // SDL_mixer that causes occasional crashes.
+  if (process_affinity_mask)
+  {
+    char *errbuf = NULL;
+#ifdef _WIN32
+    if (!SetProcessAffinityMask(GetCurrentProcess(), process_affinity_mask))
+    {
+      errbuf = WINError();
+    }
+#else
+    // POSIX version:
+    int i;
+    {
+      cpu_set_t set;
+
+      CPU_ZERO(&set);
+
+      for(i = 0; i < 16; i++)
+      {
+        CPU_SET((process_affinity_mask>>i)&1, &set);
+      }
+
+      if (sched_setaffinity(getpid(), sizeof(set), &set) == -1)
+      {
+        errbuf = strerror(errno);
+      }
+    }
+#endif
+
+    if (errbuf == NULL)
+    {
+      lprintf(LO_INFO, "I_SetAffinityMask: manual affinity mask is %d\n", process_affinity_mask);
+    }
+    else
+    {
+      lprintf(LO_ERROR, "I_SetAffinityMask: failed to set process affinity mask (%s)\n", errbuf);
+    }
+  }
+}
 
 //int main(int argc, const char * const * argv)
 int main(int argc, char **argv)
