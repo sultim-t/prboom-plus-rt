@@ -215,11 +215,8 @@ int map_point_coordinates;
 default_t defaults[] =
 {
   //e6y
-#ifdef _WIN32
   {"System settings",{NULL},{0},UL,UL,def_none,ss_none},
-  {"Set this to 1 if you experience problems running the game on a multi-processor machine",{NULL},{0},UL,UL,def_none,ss_none},
   {"process_affinity_mask", {&process_affinity_mask}, {1},-1,UL, def_int,ss_stat},
-#endif
   
   {"Misc settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"default_compatibility_level",{(int*)&default_compatibility_level},

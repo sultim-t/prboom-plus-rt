@@ -39,6 +39,9 @@
 #include <windows.h>
 #include <direct.h>
 #include <winreg.h>
+#else
+#include <unistd.h>
+#include <sched.h>
 #endif
 #ifdef GL_DOOM
 #include <SDL_opengl.h>
@@ -221,23 +224,80 @@ static boolean saved_nomusicparm;
 
 int process_affinity_mask;
 
+#ifdef _WIN32
+char* WINError(void)
+{
+  static char *WinEBuff = NULL;
+  DWORD err = GetLastError();
+  char *ch;
+
+  if (WinEBuff)
+  {
+    LocalFree(WinEBuff);
+  }
+
+  if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+    NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+    (LPTSTR) &WinEBuff, 0, NULL) == 0)
+  {
+    return "Unknown error";
+  }
+
+  if ((ch = strchr(WinEBuff, '\n')) != 0)
+    *ch = 0;
+  if ((ch = strchr(WinEBuff, '\r')) != 0)
+    *ch = 0;
+
+  return WinEBuff;
+}
+#endif
+
+//
 // Ability to use only the allowed CPUs
-// For example it is necessary for buggy SDL_mixer (<=1.2.8 at least)
+//
+
 void I_SetAffinityMask(void)
 {
-#ifdef _WIN32
+  // Set the process affinity mask so that all threads
+  // run on the same processor.  This is a workaround for a bug in 
+  // SDL_mixer that causes occasional crashes.
   if (process_affinity_mask)
   {
-    if (SetProcessAffinityMask(GetCurrentProcess(), process_affinity_mask))
+    char *errbuf = NULL;
+#ifdef _WIN32
+    if (!SetProcessAffinityMask(GetCurrentProcess(), process_affinity_mask))
+    {
+      errbuf = WINError();
+    }
+#else
+    // POSIX version:
+    int i;
+    {
+      cpu_set_t set;
+
+      CPU_ZERO(&set);
+
+      for(i = 0; i < 16; i++)
+      {
+        CPU_SET((process_affinity_mask>>i)&1, &set);
+      }
+
+      if (sched_setaffinity(getpid(), sizeof(set), &set) == -1)
+      {
+        errbuf = strerror(errno);
+      }
+    }
+#endif                           y
+
+    if (errbuf == NULL)
     {
       lprintf(LO_INFO, "I_SetAffinityMask: manual affinity mask is %d\n", process_affinity_mask);
     }
     else
     {
-      lprintf(LO_ERROR, "I_SetAffinityMask: failed to set process affinity mask (errorcode: %d)\n", GetLastError());
+      lprintf(LO_ERROR, "I_SetAffinityMask: failed to set process affinity mask (%s)\n", errbuf);
     }
   }
-#endif
 }
 
 //--------------------------------------------------
