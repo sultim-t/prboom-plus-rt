@@ -287,7 +287,7 @@ void I_SetAffinityMask(void)
         errbuf = strerror(errno);
       }
     }
-#endif                           y
+#endif
 
     if (errbuf == NULL)
     {
