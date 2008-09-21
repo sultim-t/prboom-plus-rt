@@ -38,15 +38,18 @@
 #include "config.h"
 #endif
 
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #else
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
 #include <sched.h>
 #endif
+
+#include <errno.h>
 
 #include "doomdef.h"
 #include "m_argv.h"
