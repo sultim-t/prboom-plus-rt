@@ -200,6 +200,13 @@ static void I_GetEvent(SDL_Event *Event)
 
   switch (Event->type) {
   case SDL_KEYDOWN:
+    // e6y
+    // Eating of Alt-Tab event to prevent switching to the automap
+    // after task switching on Windows
+#ifdef _WIN32
+    if ((Event->key.keysym.mod & KMOD_LALT) && Event->key.keysym.sym == SDLK_TAB)
+      break;
+#endif
     event.type = ev_keydown;
     event.data1 = I_TranslateKey(&Event->key.keysym);
     D_PostEvent(&event);
