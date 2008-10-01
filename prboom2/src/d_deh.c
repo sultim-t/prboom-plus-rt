@@ -2468,8 +2468,8 @@ static void deh_procText(DEHFILE *fpin, FILE* fpout, char *line)
   // It corrects buggy behaviour on "All Hell is Breaking Loose" TC
   // http://www.doomworld.com/idgames/index.php?id=6480 
   static boolean sprnames_state[NUMSPRITES+1];
-  static boolean S_sfx_state[NUMMUSIC];
-  static boolean S_music_state[NUMSFX];
+  static boolean S_sfx_state[NUMSFX];
+  static boolean S_music_state[NUMMUSIC];
 
   // Ty 04/11/98 - Included file may have NOTEXT skip flag set
   if (includenotext) // flag to skip included deh-style text
