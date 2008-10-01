@@ -942,7 +942,7 @@ static void FindResponseFile (void)
         // proff 04/05/2000: Added for searching responsefile
         if (size < 0)
         {
-          strcat(strcpy(fname,I_DoomExeDir()),&myargv[i][1]);
+          SNPRINTF(fname, sizeof(fname), "%s/%s", I_DoomExeDir(), &myargv[i][1]);
           AddDefaultExtension(fname,".rsp");
 	  size = M_ReadFile(fname, &file);
         }
