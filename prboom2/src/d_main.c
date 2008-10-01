@@ -928,7 +928,7 @@ static void FindResponseFile (void)
 	int indexinfile;
         byte *file = NULL;
         const char **moreargs = malloc(myargc * sizeof(const char*));
-        const char **newargv;
+        char **newargv;
         // proff 04/05/2000: Added for searching responsefile
         char fname[PATH_MAX+1];
 
@@ -963,11 +963,11 @@ static void FindResponseFile (void)
           lprintf(LO_ERROR,"\nResponse file empty!\n");
 
           newargv = calloc(sizeof(char *),myargc);
-          newargv[0] = myargv[0];
+          newargv[0] = (char*)myargv[0];
           for (k = 1,index = 1;k < myargc;k++)
           {
             if (i!=k)
-              newargv[index++] = myargv[k];
+              newargv[index++] = (char*)myargv[k];
           }
           myargc = index; myargv = newargv;
           return;
@@ -978,8 +978,8 @@ static void FindResponseFile (void)
 
 	{
 	  const char *firstargv = myargv[0];
-	  newargv = calloc(sizeof(char *),myargc);
-	  newargv[0] = firstargv;
+	  newargv = calloc(sizeof(char *), 1);
+	  newargv[0] = (char*)firstargv;
 	}
 
         {
@@ -1007,12 +1007,14 @@ static void FindResponseFile (void)
 
 	      // Terminate string, realloc and add to argv
 	      *p = 0;
+        newargv = realloc(newargv, sizeof(char *) * (indexinfile + 1));
 	      newargv[indexinfile++] = realloc(s,strlen(s)+1);
 	    }
 	  } while(size > 0);
 	}
 	free(file);
 
+  newargv = realloc(newargv, sizeof(char *) * (indexinfile + index));
 	memcpy((void *)&newargv[indexinfile],moreargs,index*sizeof(moreargs[0]));
 	free((void *)moreargs);
 
@@ -1063,7 +1065,7 @@ static void DoLooseFiles(void)
   int wadcount = 0;      // count the loose filenames
   int lmpcount = 0;
   int dehcount = 0;
-  int i,k,p;
+  int i,k,n,p;
   const char **tmyargv;  // use these to recreate the argv array
   int tmyargc;
   boolean *skip; // CPhipps - should these be skipped at the end
@@ -1130,6 +1132,7 @@ static void DoLooseFiles(void)
   // Now, if we didn't find any loose files, we can just leave.
   if (wadcount+lmpcount+dehcount != 0)
   {
+    n = 0;
     k = 0;
     while (params[k].cmdparam)
     {
@@ -1142,12 +1145,19 @@ static void DoLooseFiles(void)
           skip[p] = true;  // null any we find and save
         }
       }
+      else
+      {
+        if (*(params[k].count) > 0)
+        {
+          n++;
+        }
+      }
       k++;
     }
 
     // Now go back and redo the whole myargv array with our stuff in it.
     // First, create a new myargv array to copy into
-    tmyargv = calloc(sizeof(char *), myargc);
+    tmyargv = calloc(sizeof(char *), myargc + n);
     tmyargv[0] = myargv[0]; // invocation
     tmyargc = 1;
 
