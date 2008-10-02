@@ -1,5 +1,11 @@
 Change Log
 
+2.4.8.5 @ 2008.10.02
+[*] Set processor affinity mask under non-Windows platforms using the POSIX API (from chocolate-doom). This is a workaround for a bug in SDL_mixer that causes occasional crashes.
+[-] Fixed crash when the nodes used for in-wad demo playback are not the same as those used for playing. (introduced in 2.4.8.3)
+[-] Strange behaviour may result if a dehacked patch changed the music or sound lump names. (introduced in 2.4.8.2)
+[-] Fixed crash if a response file (i.e. @myargs.rsm) is used.
+
 2.4.8.4 @ 2008.09.07
 [*] New application icon.
 [*] ENDOOM/ENDBOOM support using text mode emulation by fraggle.
