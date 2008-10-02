@@ -525,6 +525,9 @@ static void I_SetAffinityMask(void)
     {
       errbuf = WINError();
     }
+#elif defined(MACOSX)
+    // Nothing for now
+    errbuf = "Not defined on Mac OS X";
 #else
     // POSIX version:
     int i;
