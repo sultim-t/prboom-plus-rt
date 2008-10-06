@@ -1,6 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT([prboom],[2.4.8])
 AC_CONFIG_AUX_DIR(autotools)
+AC_CONFIG_MACRO_DIR(autotools)
 
 dnl --- Check for target system type - before initialising Automake
 AC_CANONICAL_TARGET
