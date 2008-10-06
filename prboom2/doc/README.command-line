@@ -378,9 +378,9 @@ NAME
        prboom-game-server - Server for network games of PrBoom.
 
 SYNOPSIS
-       prboom-game-sever [ -adfnrv ] [ -e epis ] [ -l level ] [ -t ticdup ]  [
-       -x xtics ] [ -p port ] [ -s skill ] [ -N players ]  [ -c conffilename ]
-        [ -w wadname[,dl_url ]]
+       prboom-game-server  [ -adfnrv ] [ -e epis ] [ -l level ] [ -t ticdup ]
+       [ -x xtics ] [ -p port ] [ -s skill ] [ -N players ]  [ -c conffilename
+       ]  [ -w wadname[,dl_url ]]
 
 DESCRIPTION
        PrBoom  is a version of the 3D shoot'em'up Doom, originally by id soft-
@@ -492,32 +492,33 @@ NAME
        prboom - PrBoom, a version of Doom for Unix, Linux and Windows systems
 
 SYNOPSIS
-       prboom [ -complevel lvl ]  [ -width w ] [ -height h ] [ -viewangle n ]
-       [  -iwad iwadname ] [ -file wad1 ... ] [ -deh deh_file ] [ -noload ]  [
-       -loadgame {0,1,2,3,4,5,6,7} ] [ -warp {  map  |  epis  level  }  -skill
-       {1,2,3,4,5}  ]  [ {-fastdemo,-timedemo,-playdemo} demofile [ -ffmap num
-       ] ] [ -record demofile ] [ -solonet ]    [  -net  hostname[:port]  ]  [
-       -deathmatch [ -altdeath ] ] [ { -timer mins | -avg }] ]  [ -nosound ] [
-       -nosfx ] [ -nomusic] [ -nojoy ] [ -nomouse ] [ -noaccel ] [ -nodraw ]
-       [  -config  myconf ] [ -save savedir ]  [ -bexout bexdbg ] [ -debugfile
-       debug_file ] [ -devparm ] [ -noblit ] [ -nodrawers ]
+       prboom [ -complevel lvl ]  [ -width w ] [ -height h ] [ -viewangle n  ]
+       [ -vidmode gl ] [ -[no]fullscreen ] [ -[no]window ]  [ -iwad iwadname ]
+       [ -file wad1 ... ]  [  -deh  deh_file  ]  [  -noload  ]    [  -loadgame
+       {0,1,2,3,4,5,6,7}  ] [ -warp { map | epis level } -skill {1,2,3,4,5} ]
+       [ {-fastdemo,-timedemo,-playdemo} demofile [ -ffmap num ] ]  [  -record
+       demofile ] [ -solonet ]  [ -net hostname[:port] ] [ -deathmatch [ -alt-
+       death ] ] [ { -timer mins | -avg }] ]  [ -nosound ] [ -nosfx ] [ -nomu-
+       sic] [ -nojoy ] [ -nomouse ] [ -noaccel ] [ -nodraw ]  [ -config myconf
+       ] [ -save savedir ]  [ -bexout bexdbg ] [  -debugfile  debug_file  ]  [
+       -devparm ] [ -noblit ] [ -nodrawers ]
 
 DESCRIPTION
-       PrBoom is a version of the 3D shoot'em'up Doom, originally by iD  soft-
-       ware.   It  is  based  on  Boom,  a  version of Doom adapted by TeamTNT
+       PrBoom  is a version of the 3D shoot'em'up Doom, originally by iD soft-
+       ware.  It is based on Boom,  a  version  of  Doom  adapted  by  TeamTNT
        (http://www.teamtnt.com/) for DOS. PrBoom uses the SDL library, meaning
-       it  can  run on a variety of different systems, including Windows, X11,
+       it can run on a variety of different systems, including  Windows,  X11,
        Linux/SVGALib.
 
 Options
        -complevel lvl
-              This sets the compatibility mode that PrBoom  runs  in.  If  you
+              This  sets  the  compatibility  mode that PrBoom runs in. If you
               need to change this, see README.compat.
 
 
 Video Options
        -width w
-              Specifies  the width of the PrBoom window, in pixels. Default is
+              Specifies the width of the PrBoom window, in pixels. Default  is
               320, the width must be greater than 320..
 
        -height h
@@ -525,20 +526,32 @@ Video Options
               200, the height must be greater than 200.
 
        -viewangle n
-              Causes  the  player view to be rotated by a given offset (speci-
+              Causes the player view to be rotated by a given  offset  (speci-
               fied in 45degree increments, in the range 0..7) from the way the
               player is facing.
 
+       -vidmode gl
+              Use the OpenGL video mode. The default is to  use  the  software
+              video mode.
+
+       -fullscreen, -nofullscreen
+              These options toggle fullscreen mode. The default is fullscreen.
+
+       -window, -nowindow
+              This pair of options also toggle fullscreen mode. They only take
+              effect  for this prboom session and do not alter your configura-
+              tion file.
+
 WAD Options
        -iwad iwadname
-              Specifies  the  location of the IWAD file, typically doom.wad or
+              Specifies the location of the IWAD file, typically  doom.wad  or
               doom2.wad (or doom2f.wad). This tells prboom where the main .wad
               file that came with the version of Doom that you own is.
 
        -file wad1 ...
-              Specifies  a  list of PWAD files to load in addition to the IWAD
+              Specifies a list of PWAD files to load in addition to  the  IWAD
               file. PWAD files modify the existing Doom game, by adding levels
-              or  new  sounds or graphics. PWAD files are widely available for
+              or new sounds or graphics. PWAD files are widely  available  for
               download; try ftp.cdrom.com/pub/idgames for starters.
 
        -deh deh_file
@@ -549,23 +562,23 @@ Game Options
               Instructs PrBoom to load the specified saved game immediately.
 
        -warp { map | epis level }
-              Tells PrBoom to begin a new game  immediately.  For  Doom  1  or
-              Ultimate  Doom, you must specify the episode and level number to
-              begin at (epis is 1 for Knee-Deep in the Dead, 2 for  Shores  of
+              Tells  PrBoom  to  begin  a  new game immediately. For Doom 1 or
+              Ultimate Doom, you must specify the episode and level number  to
+              begin  at  (epis is 1 for Knee-Deep in the Dead, 2 for Shores of
               Hell, 3 for Inferno, 4 for Ultimate Doom; level is between 1 and
               9). For Doom ][ or Final Doom, you must specify the map to begin
               at, which is between 1 and 2 (0 for German Doom ][).
 
        -skill n
-              Tells  PrBoom to begin the game at skill level n (1 for ITYTD, 2
-              for Not Too Rough, 3 for Hurt Me Plenty, 4 for  Ultraviolent,  5
+              Tells PrBoom to begin the game at skill level n (1 for ITYTD,  2
+              for  Not  Too Rough, 3 for Hurt Me Plenty, 4 for Ultraviolent, 5
               for Nightmare).
 
        -respawn
               Tells PrBoom that monsters that die should respawn (come back to
               life) after a while. Not for the inexperienced.
 
-       -fast  Tells PrBoom to make all the monsters move   react  faster.  Not
+       -fast  Tells  PrBoom  to  make all the monsters move  react faster. Not
               for the inexperienced.
 
        -nomonsters
@@ -573,27 +586,27 @@ Game Options
 
 Multiplayer Options
        -net hostname[:port]
-              Specifies  that a TCP/IP network game is to be started. hostname
-              is the name of the machine on which the network game  server  is
-              running  (prboom-game-server).  For more information about this,
-              see prboom-game-server(6) and the README that came with  prboom.
-              port  is  the port number on the remote machine to which to con-
-              nect; if not specified,  the  default  of  5030  (which  is  the
+              Specifies that a TCP/IP network game is to be started.  hostname
+              is  the  name of the machine on which the network game server is
+              running (prboom-game-server). For more information  about  this,
+              see  prboom-game-server(6) and the README that came with prboom.
+              port is the port number on the remote machine to which  to  con-
+              nect;  if  not  specified,  the  default  of  5030 (which is the
               default for prboom-game-server(6) ) is assumed.  The server will
               configure your PrBoom settings, so that all the players have the
               same game settings (skill, map etc).
 
        Also, the server may specify additional PWAD files to play with; if you
-       do not have the required .WAD file, PrBoom will ask the  server  for  a
-       download  path, and attempt to use wget(1) and if necessary unzip(1) to
+       do  not  have  the required .WAD file, PrBoom will ask the server for a
+       download path, and attempt to use wget(1) and if necessary unzip(1)  to
        download and extract the required WAD.
 
        -port portnum
-              Specifies the local port to use to communicate with  the  server
+              Specifies  the  local port to use to communicate with the server
               in a netgame.
 
        -deathmatch
-              No  longer  used.  Tells  PrBoom to begin a deathmatch game, but
+              No longer used. Tells PrBoom to begin  a  deathmatch  game,  but
               this is overridden by the server's settings. Only works for sin-
               gle play (!).
 
@@ -602,22 +615,22 @@ Multiplayer Options
               the deathmatch game. No longer used (specified by the server).
 
        -timer mins
-              No longer used. Specifies that levels will end after  mins  min-
+              No  longer  used. Specifies that levels will end after mins min-
               utes of play if the level is still being played, but is overrid-
-              den by the server in a netgame. Not  really  useful  for  single
+              den  by  the  server  in a netgame. Not really useful for single
               play.
 
        -avg   Equivalent to -timer 20
 
        -solo-net
               Used to run a single-player network game, without a network game
-              server. This enables network game items & options for an  other-
+              server.  This enables network game items & options for an other-
               wise single-player game; some demos are recorded like this.
 
 Demo (LMP) Options
        -record demofile
-              Instructs  PrBoom  to  begin  recording  a demo, to be stored in
-              demofile.lmp. You should specify game options to  specify  which
+              Instructs PrBoom to begin recording a  demo,  to  be  stored  in
+              demofile.lmp.  You  should specify game options to specify which
               level and skill to record at.
 
        -playdemo demofile
@@ -628,21 +641,21 @@ Demo (LMP) Options
               the length of the demo (in gametics) afterwards.
 
        -fastdemo demofile
-              Play the recorded demo demofile.lmp as fast as possible.  Useful
-              for  benchmarking PrBoom, as compared to other versions of Doom.
+              Play  the recorded demo demofile.lmp as fast as possible. Useful
+              for benchmarking PrBoom, as compared to other versions of  Doom.
 
        -ffmap num
               Fast forward the demo (play at max speed) until reaching map num
-              (note  that  this  takes  just  a  number, not a map name, so so
+              (note that this takes just a number,  not  a  map  name,  so  so
               -ffmap 7 to go fast until MAP07 or ExM7).
 
 I/O Options
        -nosound
-              Disables all sound effects and in-game music. This prevents  the
+              Disables  all sound effects and in-game music. This prevents the
               sound server loading, which lets the game run a little faster.
 
-       -nosfx Disables  sound  effects during the game. This does not stop the
-              sound server loading,  however,  so  for  best  performance  use
+       -nosfx Disables sound effects during the game. This does not  stop  the
+              sound  server  loading,  however,  so  for  best performance use
               -nosound.
 
        -nomusic
@@ -654,64 +667,64 @@ I/O Options
               Prevents the mouse being grabbed by the prboom window.
 
        -noaccel
-              For  prboom,  this prevents it using the MITShm server extension
-              for passing the screen data to the X server. This option may  be
-              required  if  the  X server is not local. For lsdoom, this tells
-              lsdoom not  to  use  the  accelerated  graphics  functions  that
-              SVGALib  provides  even  when  they are supported for your video
+              For prboom, this prevents it using the MITShm  server  extension
+              for  passing the screen data to the X server. This option may be
+              required if the X server is not local. For  lsdoom,  this  tells
+              lsdoom  not  to  use  the  accelerated  graphics  functions that
+              SVGALib provides even when they are  supported  for  your  video
               card (normally this is autodetected).
 
        -1, -2, -3
-              Specifies the scale factor by which to enlarge the  window.  The
-              default,  -1,  displays the normal 320x200 pixel Doom screen (or
-              whatever size is specified by the -width and -height  parameters
+              Specifies  the  scale factor by which to enlarge the window. The
+              default, -1, displays the normal 320x200 pixel Doom  screen  (or
+              whatever  size is specified by the -width and -height parameters
               or in the config file for prboom).  If this window is too small,
-              try using -2 or -3 to enlarge the window.  -nodraw Suppress  all
+              try  using -2 or -3 to enlarge the window.  -nodraw Suppress all
               graphical display. Only for debugging & demo testing.
 
 Configuration
        -config myconf
-              Loads  an  alternative  configuration  file,  named  myconf. The
-              default is boom.cfg(5), taken from the same directory as  PrBoom
-              was  run from, except when running with OpenGL, then the default
+              Loads an  alternative  configuration  file,  named  myconf.  The
+              default  is boom.cfg(5), taken from the same directory as PrBoom
+              was run from, except when running with OpenGL, then the  default
               is glboom.cfg(5).
 
        -save savedir
-              Causes prboom to  save  games  in  the  directory  specified  by
+              Causes  prboom  to  save  games  in  the  directory specified by
               savedir instead of ~/.prboom/.
 
 Debugging/Profiling Options
        -devparm
               Development mode. Mostly redundant these days, but it does force
-              non-lazy generation of texture lookups which can be  useful  for
+              non-lazy  generation  of texture lookups which can be useful for
               level authors debugging PWADs.
 
        -debugfile debug_file
-              Causes   some  debugging  information,  mainly  network  info  I
+              Causes  some  debugging  information,  mainly  network  info   I
               believe, to be written to the named file as prboom runs.
 
        -nodrawers
               Causes no rendering to be done. The only conceivable use of this
-              is  (a)  a multiplayer server (b) to test the speed of the other
+              is (a) a multiplayer server (b) to test the speed of  the  other
               routines in the program, when combined with -timedemo.
 
        -noblit
-              Causes no copying to the screen from the rendering buffer to  be
+              Causes  no copying to the screen from the rendering buffer to be
               performed. The only conceivable use of this is (a) a multiplayer
-              server (b) to test the speed of the other routines in  the  pro-
+              server  (b)  to test the speed of the other routines in the pro-
               gram, when combined with -timedemo.
 
        -bexout bexdbg
-              Causes  diagnostics  related to bex and dehacked file processing
+              Causes diagnostics related to bex and dehacked  file  processing
               to be written to the names file.
 
 More Information
        wget(1), unzip(1), boom.cfg(5), prboom-game-server(6)
 
-       For more information, see the README that came with  PrBoom,  the  Boom
+       For  more  information,  see the README that came with PrBoom, the Boom
        documentation, and your original Doom documentation.
 
-       Doom  is  a  registered  trademark  of  id software (http://www.idsoft-
+       Doom is a  registered  trademark  of  id  software  (http://www.idsoft-
        ware.com/).
 
 Author
