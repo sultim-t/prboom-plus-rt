@@ -2,8 +2,41 @@ This file shows a history of changes between PrBoom versions since v2.1.0.
 For historical reference, the complete LxDoom changelog follows it.
 
 Changes from v2.4.7 to v2.4.8
+- Manual page fixes from Debian
+- Fix position of netgame player arrows on the automap in rotate mode
+- Ignore chat key presses in multiplayer demo playback and -solo-net
+- In deathmatch demo playback always draw player arrows on the automap
+- In a multiplayer demo, don't reset view to console player on a new map
+- Fix crash when MP3 music is being used and the player changes back to
+  a piece of music that's already been loaded before
+- Avoid HOM effect on large maps such as epic.wad 5 [prb+]
+- Fix sound origins on large levels [prb+]
+- Handle demos with bad or missing headers [prb+]
+- Fix the colour of player 4 (red) in multiplayer
+- Play correct player pickup sounds in multiplayer demos
+- Don't allow solids to pass through no-clipping objects in Doom [prb+]
+- Restore Dehacked's ability to set the raisestate of a mobj [prb+]
+- Handle demos with a missing end marker [prb+]
 - Ignore switches that reference unknown textures instead of exiting
+- Fix crash when resetting a menu to defaults [prb+]
+- Fix crash when trying to play demos from Boom 2.00 [prb+]
+- Fix crash in multiplayer demos when there are still sounds playing
+  on map changes (e.g. players revving chainsaws) [prb+]
+- Fix mouse clicks on the intermission screen being ignored
+- Don't eat screenshot key presses (see sf bug #1843280)
+- Detect Hexen-format maps and refuse to play them, instead of crashing
 - Fix crash when loading maps with missing player starts
+- The backs of switches must be pressable in any demo recorded by
+  Boom 2.01, even those in Boom's "compatibility" mode [prb+]
+- Force comp_doorstuck=1 in Boom 2.01 compatibility mode [prb+]
+- comp_dropoff=1 was broken in MBF compatibility mode [prb+]
+- Restore --disable-dogs but make sure it doesn't break Dehacked
+- Fix desync if the user presses pause on the intermission screen [prb+]
+- comp_666 fixed: either cyberdemon or spider can end E2M8 or E3M8;
+  killing a baron on E3M8 won't cause the level to end any more [prb+]
+- Fix broken string matching in Dehacked [prb+]
+- Passing --disable-network to ./configure will compile the game without
+  network support; this may help if your platform lacks SDL_net
 - Fix crash when reloading network savegames (bug #1590350)
 - Fix bug in transparency rendering caused by doing it in two places
 - Added high color rendering
