@@ -255,8 +255,8 @@ static visplane_t *new_visplane(unsigned hash)
   if (!check)
   {
     // e6y: resolution limitation is removed
-    check = calloc(1, sizeof(*check) + sizeof(*check->top) * (SCREENWIDTH * 2 + sizeof(*check->bottom) * 4));
-    check->bottom = &check->top[SCREENWIDTH + sizeof(*check->bottom)];
+    check = calloc(1, sizeof(*check) + sizeof(*check->top) * (SCREENWIDTH * 2));
+    check->bottom = &check->top[SCREENWIDTH + 2];
   }
   else
     if (!(freetail = freetail->next))
@@ -343,7 +343,7 @@ visplane_t *R_CheckPlane(visplane_t *pl, int start, int stop)
   else
     unionh  = pl->maxx, intrh  = stop;
 
-  for (x=intrl ; x <= intrh && pl->top[x] == 0xffffffffu; x++) // dropoff overflow
+  for (x=intrl ; x <= intrh && pl->top[x] == 0xffffu; x++) // dropoff overflow
     ;
 
   if (x > intrh) { /* Can use existing plane; extend range */

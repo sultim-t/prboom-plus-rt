@@ -1441,9 +1441,6 @@ static void D_DoomMainSetup(void)
   G_ReloadDefaults();    // killough 3/4/98: set defaults just loaded.
   // jff 3/24/98 this sets startskill if it was -1
 
-  // Calculate the screen resolution and init all buffers
-  I_InitScreenResolution();
-
 #ifdef GL_DOOM
   // proff 04/05/2000: for GL-specific switches
   gld_InitCommandLine();
@@ -1452,6 +1449,9 @@ static void D_DoomMainSetup(void)
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"V_Init: allocate screens.\n");
   V_Init();
+
+  //e6y: Calculate the screen resolution and init all buffers
+  I_InitScreenResolution();
 
   //e6y: some stuff from command-line should be initialised before ProcessDehFile()
   e6y_InitCommandLine();
