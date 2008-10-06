@@ -26,7 +26,7 @@ section.
   5. Run the 'bootstrap' script in order to create the 'configure' script.
         ./bootstrap
      If you get this error:
-        aclocal: configure.in: 153: macro `AM_PATH_SDL' not found in library
+        aclocal: configure.ac: 153: macro `AM_PATH_SDL' not found in library
      Then you have to locate sdl.m4 and copy it to ./autotools/sdl.m4 in your
      prboom directory.
 
@@ -123,8 +123,8 @@ diffs or instructions to the address given in the `README' so they can
 be considered for the next release.  If at some point `config.cache'
 contains results you don't want to keep, you may remove or edit it.
 
-   The file `configure.in' is used to create `configure' by a program
-called `autoconf'.  You only need `configure.in' if you want to change
+   The file `configure.ac' is used to create `configure' by a program
+called `autoconf'.  You only need `configure.ac' if you want to change
 it or regenerate `configure' using a newer version of `autoconf'.
 
 Compilers and Options
