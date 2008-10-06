@@ -742,8 +742,6 @@ void I_InitScreenResolution(void)
     }
   }
 
-  I_CalculateRes(w, h);
-
   lprintf(LO_INFO, "I_InitScreenResolution: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, desired_fullscreen ? "fullscreen" : "nofullscreen");
 
   mode = I_GetModeFromString(default_videomode);
@@ -751,8 +749,12 @@ void I_InitScreenResolution(void)
   {
     mode = I_GetModeFromString(myargv[i+1]);
   }
-
+  
   V_InitMode(mode);
+
+  I_CalculateRes(w, h);
+  V_DestroyUnusedTrueColorPalettes();
+  V_FreeScreens();
 
   // set first three to standard values
   for (i=0; i<3; i++) {
@@ -895,9 +897,6 @@ int I_GetModeFromString(const char *modestr)
 void I_UpdateVideoMode(void)
 {
   int init_flags;
-
-  V_DestroyUnusedTrueColorPalettes();
-  V_FreeScreens();
 
   // Initialize SDL with this graphics mode
   if (V_GetMode() == VID_MODEGL) {
