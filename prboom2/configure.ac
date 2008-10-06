@@ -231,8 +231,6 @@ AC_SUBST(MATH_LIB)
 AC_SUBST(GL_LIBS)
 AC_SUBST(CFLAGS)
 AC_SUBST(DOOMWADDIR)
-dnl -- ac_aux_dir - see Makefile.am
-AC_SUBST(ac_aux_dir)
 
 dnl --- output
 AC_OUTPUT(Makefile src/Makefile src/POSIX/Makefile src/SDL/Makefile src/MAC/Makefile doc/Makefile data/Makefile ICONS/Makefile VisualC6/Makefile VisualC8/Makefile prboom.spec)
