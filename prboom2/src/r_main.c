@@ -172,9 +172,25 @@ PUREFUNC int R_PointOnSegSide(fixed_t x, fixed_t y, const seg_t *line)
 //
 // killough 5/2/98: reformatted, cleaned up
 
+#include <math.h>
+
 angle_t R_PointToAngle(fixed_t x, fixed_t y)
 {
-  return (y -= viewy, (x -= viewx) || y) ?
+  static fixed_t oldx, oldy;
+  static angle_t oldresult;
+
+  x -= viewx; y -= viewy;
+
+  if ( /* !render_precise && */
+      // e6y: here is where "slime trails" can SOMETIMES occur
+#ifdef GL_DOOM
+      (V_GetMode() != VID_MODEGL) &&
+#endif
+      (x < INT_MAX/4 && x > -INT_MAX/4 && y < INT_MAX/4 && y > -INT_MAX/4)
+     )
+  {
+    // old R_PointToAngle
+    return (x || y) ?
     x >= 0 ?
       y >= 0 ?
         (x > y) ? tantoangle[SlopeDiv(y,x)] :                      // octant 0
@@ -186,6 +202,17 @@ angle_t R_PointToAngle(fixed_t x, fixed_t y)
         (x = -x) > (y = -y) ? ANG180+tantoangle[ SlopeDiv(y,x)] :  // octant 4
                               ANG270-1-tantoangle[SlopeDiv(x,y)] : // octant 5
     0;
+  }
+
+  // R_PointToAngleEx merged into R_PointToAngle
+  // e6y: The precision of the code above is abysmal so use the CRT atan2 function instead!
+  if (oldx != x || oldy != y)
+  {
+    oldx = x;
+    oldy = y;
+    oldresult = (angle_t)(atan2(y, x) * ANG180/M_PI);
+  }
+  return oldresult;
 }
 
 angle_t R_PointToAngle2(fixed_t viewx, fixed_t viewy, fixed_t x, fixed_t y)
@@ -202,46 +229,6 @@ angle_t R_PointToAngle2(fixed_t viewx, fixed_t viewy, fixed_t x, fixed_t y)
         (x = -x) > (y = -y) ? ANG180+tantoangle[ SlopeDiv(y,x)] :  // octant 4
                               ANG270-1-tantoangle[SlopeDiv(x,y)] : // octant 5
     0;
-}
-
-// e6y
-// The precision of the code above is abysmal so use the CRT atan2 function instead!
-
-// FIXME - use of this function should be disabled on architectures with
-// poor floating point support! Imagine how slow this would be on ARM, say.
-
-#include <math.h>
-
-angle_t R_PointToAngleEx(fixed_t x, fixed_t y)
-{
-  static int old_y_viewy;
-  static int old_x_viewx;
-  static int old_result;
-
-  int y_viewy = y - viewy;
-  int x_viewx = x - viewx;
-
-#ifdef GL_DOOM
-  if (V_GetMode() != VID_MODEGL)
-  {
-    if (y_viewy < INT_MAX/4 && x_viewx < INT_MAX/4
-        && y_viewy > -INT_MAX/4 && x_viewx > -INT_MAX/4)
-      return R_PointToAngle(x, y);
-  }
-#else
-  if (y_viewy < INT_MAX/4 && x_viewx < INT_MAX/4
-      && y_viewy > -INT_MAX/4 && x_viewx > -INT_MAX/4)
-    return R_PointToAngle(x, y);
-#endif
-
-  if (old_y_viewy != y_viewy || old_x_viewx != x_viewx)
-  {
-    old_y_viewy = y_viewy;
-    old_x_viewx = x_viewx;
-
-    old_result = (int)(atan2(y_viewy, x_viewx) * ANG180/M_PI);
-  }
-  return old_result;
 }
 
 //
