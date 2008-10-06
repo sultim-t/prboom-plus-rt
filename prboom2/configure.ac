@@ -8,7 +8,6 @@ AC_CANONICAL_TARGET
 
 dnl --- Fire up automake
 AM_INIT_AUTOMAKE([check-news foreign -Woverride -Wobsolete -Wportability -Wsyntax -Wunsupported])
-AM_MAINTAINER_MODE
 AM_CONFIG_HEADER(config.h)
 
 AC_MSG_CHECKING([checking whether to use x86 asm versions of some functions])
