@@ -46,9 +46,11 @@
 /* Visplane related. */
 extern int *lastopening; // dropoff overflow
 
-extern int floorclip[], ceilingclip[]; // dropoff overflow
-extern fixed_t yslope[], distscale[];
+// e6y: resolution limitation is removed
+extern int *floorclip, *ceilingclip; // dropoff overflow
+extern fixed_t *yslope, *distscale;
 
+void R_InitPlanesRes(void);
 void R_InitPlanes(void);
 void R_ClearPlanes(void);
 void R_DrawPlanes (void);

@@ -214,7 +214,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
           int_64_t t = ((int_64_t) centeryfrac << FRACBITS) -
             (int_64_t) dcvars.texturemid * spryscale;
           if (t + (int_64_t) textureheight[texnum] * spryscale < 0 ||
-              t > (int_64_t) MAX_SCREENHEIGHT << FRACBITS*2)
+              t > (int_64_t) SCREENHEIGHT << FRACBITS*2)
             continue;        // skip if the texture is out of screen's range
           sprtopscreen = (long)(t >> FRACBITS);
         }

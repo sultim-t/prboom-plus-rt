@@ -152,6 +152,8 @@ void R_DrawSpan(draw_span_vars_t *dsvars);
 
 void R_InitBuffer(int width, int height);
 
+void R_InitBuffersRes(void);
+
 // Initialize color translation tables, for player rendering etc.
 void R_InitTranslationTables(void);
 

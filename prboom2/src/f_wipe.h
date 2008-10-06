@@ -34,6 +34,9 @@
 #ifndef __F_WIPE_H__
 #define __F_WIPE_H__
 
+// e6y: resolution limitation is removed
+void R_InitMeltRes(void);
+
 /*
  * SCREEN WIPE PACKAGE
  */

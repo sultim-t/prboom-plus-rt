@@ -87,9 +87,12 @@ typedef enum
 
 static int    temp_x = 0;
 static int    tempyl[4], tempyh[4];
-static byte           byte_tempbuf[MAX_SCREENHEIGHT * 4];
-static unsigned short short_tempbuf[MAX_SCREENHEIGHT * 4];
-static unsigned int   int_tempbuf[MAX_SCREENHEIGHT * 4];
+
+// e6y: resolution limitation is removed
+static byte           *byte_tempbuf;
+static unsigned short *short_tempbuf;
+static unsigned int   *int_tempbuf;
+
 static int    startx = 0;
 static int    temptype = COL_NONE;
 static int    commontop, commonbot;
@@ -983,6 +986,21 @@ R_DrawSpan_f R_GetDrawSpanFunc(enum draw_filter_type_e filter,
 
 void R_DrawSpan(draw_span_vars_t *dsvars) {
   R_GetDrawSpanFunc(drawvars.filterfloor, drawvars.filterz)(dsvars);
+}
+
+void R_InitBuffersRes(void)
+{
+  extern byte *solidcol;
+
+  if (solidcol) free(solidcol);
+  if (byte_tempbuf) free(byte_tempbuf);
+  if (short_tempbuf) free(short_tempbuf);
+  if (int_tempbuf) free(int_tempbuf);
+
+  solidcol = malloc(SCREENWIDTH * sizeof(*solidcol));
+  byte_tempbuf = malloc((SCREENHEIGHT * 4) * sizeof(*byte_tempbuf));
+  short_tempbuf = malloc((SCREENHEIGHT * 4) * sizeof(*short_tempbuf));
+  int_tempbuf = malloc((SCREENHEIGHT * 4) * sizeof(*int_tempbuf));
 }
 
 //

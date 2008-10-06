@@ -1441,69 +1441,8 @@ static void D_DoomMainSetup(void)
   G_ReloadDefaults();    // killough 3/4/98: set defaults just loaded.
   // jff 3/24/98 this sets startskill if it was -1
 
-  // Video stuff
-  if ((p = M_CheckParm("-width")))
-    if (myargv[p+1])
-      desired_screenwidth = atoi(myargv[p+1]);
-
-  if ((p = M_CheckParm("-height")))
-    if (myargv[p+1])
-      desired_screenheight = atoi(myargv[p+1]);
-
-  if ((p = M_CheckParm("-fullscreen")))
-      use_fullscreen = 1;
-
-  if ((p = M_CheckParm("-nofullscreen")))
-      use_fullscreen = 0;
-
-  // e6y
-  // New command-line options for setting a window (-window) 
-  // or fullscreen (-nowindow) mode temporarily which is not saved in cfg.
-  // It works like "-geom" switch
-  desired_fullscreen = use_fullscreen;
-  if ((p = M_CheckParm("-window")))
-      desired_fullscreen = 0;
-
-  if ((p = M_CheckParm("-nowindow")))
-      desired_fullscreen = 1;
-
-  // e6y
-  // change the screen size for the current session only
-  // syntax: -geom WidthxHeight[w|f]
-  // examples: -geom 320x200f, -geom 640x480w, -geom 1024x768
-  { 
-    int w, h;
-    char c;
-
-    w = desired_screenwidth;
-    h = desired_screenheight;
-
-    if (!(p = M_CheckParm("-geom")))
-      p = M_CheckParm("-geometry");
-
-    if (p && p + 1 < myargc)
-    {
-      int count = sscanf(myargv[p+1], "%dx%d%c", &w, &h, &c);
-      
-      // at least width and height must be specified
-      // restoring original values if not
-      if (count < 2)
-      {
-        w = desired_screenwidth;
-        h = desired_screenheight;
-      }
-
-      if (count >= 3)
-      {
-        if (tolower(c) == 'w')
-          desired_fullscreen = 0;
-        if (tolower(c) == 'f')
-          desired_fullscreen = 1;
-      }
-    }
-
-    I_CalculateRes(w, h);
-  }
+  // Calculate the screen resolution and init all buffers
+  I_InitScreenResolution();
 
 #ifdef GL_DOOM
   // proff 04/05/2000: for GL-specific switches

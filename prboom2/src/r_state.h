@@ -103,7 +103,10 @@ extern angle_t          viewangle;
 extern player_t         *viewplayer;
 extern angle_t          clipangle;
 extern int              viewangletox[FINEANGLES/2];
-extern angle_t          xtoviewangle[MAX_SCREENWIDTH+1];  // killough 2/8/98
+
+// e6y: resolution limitation is removed
+extern angle_t          *xtoviewangle;  // killough 2/8/98
+
 extern fixed_t          rw_distance;
 extern angle_t          rw_normalangle;
 

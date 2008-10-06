@@ -59,6 +59,9 @@
 #include "doomtype.h"
 #include "v_video.h"
 #include "r_draw.h"
+#include "r_things.h"
+#include "r_plane.h"
+#include "f_wipe.h"
 #include "d_main.h"
 #include "d_event.h"
 #include "i_joy.h"
@@ -107,6 +110,8 @@ int             leds_always_off = 0; // Expected by m_misc, not relevant
 // Mouse handling
 extern int     usemouse;        // config file var
 static boolean mouse_enabled; // usemouse, but can be overriden by -nomouse
+
+int I_GetModeFromString(const char *modestr);
 
 /////////////////////////////////////////////////////////////////////////////////
 // Keyboard handling
@@ -570,6 +575,15 @@ void I_PreInitGraphics(void)
   atexit(I_ShutdownSDL);
 }
 
+// e6y: resolution limitation is removed
+void I_InitBuffersRes(void)
+{
+  R_InitMeltRes();
+  R_InitSpritesRes();
+  R_InitBuffersRes();
+  R_InitPlanesRes();
+}
+
 // e6y
 // GLBoom use this function for trying to set the closest supported resolution if the requested mode can't be set correctly.
 // For example glboom.exe -geom 1025x768 -nowindow will set 1024x768.
@@ -593,9 +607,6 @@ static void I_ClosestResolution (int *width, int *height, int flags)
       twidth = modes[i]->w;
       theight = modes[i]->h;
 
-      if (twidth > MAX_SCREENWIDTH || theight> MAX_SCREENHEIGHT)
-        continue;
-      
       if (twidth == *width && theight == *height)
         return;
 
@@ -657,7 +668,7 @@ void I_CalculateRes(unsigned int width, unsigned int height)
 
   // e6y: processing of screen_multiply
   {
-    int factor = ((V_GetMode() == VID_MODEGL) ? 1 : screen_multiply);
+    int factor = ((V_GetMode() == VID_MODEGL) ? 1 : render_screen_multiply);
     REAL_SCREENWIDTH = SCREENWIDTH * factor;
     REAL_SCREENHEIGHT = SCREENHEIGHT * factor;
     REAL_SCREENPITCH = SCREENPITCH * factor;
@@ -665,14 +676,83 @@ void I_CalculateRes(unsigned int width, unsigned int height)
 }
 
 // CPhipps -
-// I_SetRes
+// I_InitScreenResolution
 // Sets the screen resolution
 // e6y: processing of screen_multiply
-void I_SetRes(void)
+void I_InitScreenResolution(void)
 {
-  int i;
+  int i, p, w, h;
+  char c;
+  video_mode_t mode;
 
-  I_CalculateRes(SCREENWIDTH, SCREENHEIGHT);
+  // Video stuff
+  if ((p = M_CheckParm("-width")))
+    if (myargv[p+1])
+      desired_screenwidth = atoi(myargv[p+1]);
+
+  if ((p = M_CheckParm("-height")))
+    if (myargv[p+1])
+      desired_screenheight = atoi(myargv[p+1]);
+
+  if ((p = M_CheckParm("-fullscreen")))
+      use_fullscreen = 1;
+
+  if ((p = M_CheckParm("-nofullscreen")))
+      use_fullscreen = 0;
+
+  // e6y
+  // New command-line options for setting a window (-window) 
+  // or fullscreen (-nowindow) mode temporarily which is not saved in cfg.
+  // It works like "-geom" switch
+  desired_fullscreen = use_fullscreen;
+  if ((p = M_CheckParm("-window")))
+      desired_fullscreen = 0;
+
+  if ((p = M_CheckParm("-nowindow")))
+      desired_fullscreen = 1;
+
+  // e6y
+  // change the screen size for the current session only
+  // syntax: -geom WidthxHeight[w|f]
+  // examples: -geom 320x200f, -geom 640x480w, -geom 1024x768
+  w = desired_screenwidth;
+  h = desired_screenheight;
+
+  if (!(p = M_CheckParm("-geom")))
+    p = M_CheckParm("-geometry");
+
+  if (p && p + 1 < myargc)
+  {
+    int count = sscanf(myargv[p+1], "%dx%d%c", &w, &h, &c);
+
+    // at least width and height must be specified
+    // restoring original values if not
+    if (count < 2)
+    {
+      w = desired_screenwidth;
+      h = desired_screenheight;
+    }
+
+    if (count >= 3)
+    {
+      if (tolower(c) == 'w')
+        desired_fullscreen = 0;
+      if (tolower(c) == 'f')
+        desired_fullscreen = 1;
+    }
+  }
+
+  I_CalculateRes(w, h);
+
+  lprintf(LO_INFO, "I_InitScreenResolution: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, desired_fullscreen ? "fullscreen" : "nofullscreen");
+
+  mode = I_GetModeFromString(default_videomode);
+  if ((i=M_CheckParm("-vidmode")) && i<myargc-1)
+  {
+    mode = I_GetModeFromString(myargv[i+1]);
+  }
+
+  V_InitMode(mode);
 
   // set first three to standard values
   for (i=0; i<3; i++) {
@@ -690,7 +770,9 @@ void I_SetRes(void)
   screens[4].short_pitch = REAL_SCREENPITCH / V_GetModePixelDepth(VID_MODE16);
   screens[4].int_pitch = REAL_SCREENPITCH / V_GetModePixelDepth(VID_MODE32);
 
-  lprintf(LO_INFO,"I_SetRes: Using resolution %dx%d\n", REAL_SCREENWIDTH, REAL_SCREENHEIGHT);
+  I_InitBuffersRes();
+
+  lprintf(LO_INFO,"I_InitScreenResolution: Using resolution %dx%d\n", REAL_SCREENWIDTH, REAL_SCREENHEIGHT);
 }
 
 // 
@@ -813,21 +895,9 @@ int I_GetModeFromString(const char *modestr)
 void I_UpdateVideoMode(void)
 {
   int init_flags;
-  int i;
-  video_mode_t mode;
 
-  lprintf(LO_INFO, "I_UpdateVideoMode: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, desired_fullscreen ? "fullscreen" : "nofullscreen");
-
-  mode = I_GetModeFromString(default_videomode);
-  if ((i=M_CheckParm("-vidmode")) && i<myargc-1) {
-    mode = I_GetModeFromString(myargv[i+1]);
-  }
-
-  V_InitMode(mode);
   V_DestroyUnusedTrueColorPalettes();
   V_FreeScreens();
-
-  I_SetRes();
 
   // Initialize SDL with this graphics mode
   if (V_GetMode() == VID_MODEGL) {

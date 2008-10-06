@@ -42,8 +42,9 @@
 
 /* Constant arrays used for psprite clipping and initializing clipping. */
 
-extern int negonearray[MAX_SCREENWIDTH];       /* killough 2/8/98: */ // dropoff overflow
-extern int screenheightarray[MAX_SCREENWIDTH]; /* change to MAX_*  */ // dropoff overflow
+// e6y: resolution limitation is removed
+extern int *negonearray;       /* killough 2/8/98: */ // dropoff overflow
+extern int *screenheightarray; /* change to MAX_*  */ // dropoff overflow
 
 /* Vars for R_DrawMaskedColumn */
 
@@ -71,6 +72,7 @@ void R_DrawMaskedColumn(const rpatch_t *patch,
 void R_SortVisSprites(void);
 void R_AddSprites(subsector_t* subsec, int lightlevel);
 void R_DrawPlayerSprites(void);
+void R_InitSpritesRes(void);
 void R_InitSprites(const char * const * namelist);
 void R_ClearSprites(void);
 void R_DrawMasked(void);

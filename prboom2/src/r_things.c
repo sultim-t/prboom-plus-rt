@@ -76,8 +76,9 @@ float pspritexscale_f;
 // constant arrays
 //  used for psprite clipping and initializing clipping
 
-int negonearray[MAX_SCREENWIDTH];        // killough 2/8/98: // dropoff overflow
-int screenheightarray[MAX_SCREENWIDTH];  // change to MAX_* // dropoff overflow
+// e6y: resolution limitation is removed
+int *negonearray;        // killough 2/8/98: // dropoff overflow
+int *screenheightarray;  // change to MAX_* // dropoff overflow
 
 //
 // INITIALIZATION FUNCTIONS
@@ -92,6 +93,17 @@ int numsprites;
 
 static spriteframe_t sprtemp[MAX_SPRITE_FRAMES];
 static int maxframe;
+
+void R_InitSpritesRes(void)
+{
+  if (xtoviewangle) free(xtoviewangle);
+  if (negonearray) free(negonearray);
+  if (screenheightarray) free(screenheightarray);
+
+  xtoviewangle = malloc((SCREENWIDTH + 1) * sizeof(*xtoviewangle));
+  negonearray = malloc(SCREENWIDTH * sizeof(*negonearray));
+  screenheightarray = malloc(SCREENWIDTH * sizeof(*screenheightarray));
+}
 
 //
 // R_InstallSpriteLump
@@ -280,7 +292,7 @@ static size_t num_vissprite, num_vissprite_alloc, num_vissprite_ptrs;
 void R_InitSprites(const char * const *namelist)
 {
   int i;
-  for (i=0; i<MAX_SCREENWIDTH; i++)    // killough 2/8/98
+  for (i=0; i<SCREENWIDTH; i++)    // killough 2/8/98
     negonearray[i] = -1;
   R_InitSpriteDefs(namelist);
 }
@@ -1010,13 +1022,19 @@ void R_SortVisSprites (void)
 static void R_DrawSprite (vissprite_t* spr)
 {
   drawseg_t *ds;
-  int     clipbot[MAX_SCREENWIDTH]; // killough 2/8/98: // dropoff overflow
-  int     cliptop[MAX_SCREENWIDTH]; // change to MAX_*  // dropoff overflow
+  static int     *clipbot = NULL; // killough 2/8/98: // dropoff overflow
+  static int     *cliptop = NULL; // change to MAX_*  // dropoff overflow
   int     x;
   int     r1;
   int     r2;
   fixed_t scale;
   fixed_t lowscale;
+
+  if (!clipbot)
+  {
+    clipbot = malloc(SCREENWIDTH * sizeof(*clipbot));
+    cliptop = malloc(SCREENWIDTH * sizeof(*cliptop));
+  }
 
   for (x = spr->x1 ; x<=spr->x2 ; x++)
     clipbot[x] = cliptop[x] = -2;

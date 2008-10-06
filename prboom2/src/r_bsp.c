@@ -69,7 +69,8 @@ void R_ClearDrawSegs(void)
 // Instead of clipsegs, let's try using an array with one entry for each column,
 // indicating whether it's blocked by a solid wall yet or not.
 
-byte solidcol[MAX_SCREENWIDTH];
+// e6y: resolution limitation is removed
+byte *solidcol;
 
 // CPhipps -
 // R_ClipWallSegment

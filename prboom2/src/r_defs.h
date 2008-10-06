@@ -425,11 +425,12 @@ typedef struct visplane
   int picnum, lightlevel, minx, maxx;
   fixed_t height;
   fixed_t xoffs, yoffs;         // killough 2/28/98: Support scrolling flats
-  unsigned int pad1;          // leave pads for [minx-1]/[maxx+1]
-  unsigned int top[MAX_SCREENWIDTH];
-  unsigned int pad2, pad3;    // killough 2/8/98, 4/25/98
-  unsigned int bottom[MAX_SCREENWIDTH];
-  unsigned int pad4; // dropoff overflow
+  // e6y: resolution limitation is removed
+  // bottom and top arrays are dynamically
+  // allocated immediately after the visplane
+  unsigned short *bottom;
+  unsigned short pad1;          // leave pads for [minx-1]/[maxx+1]
+  unsigned short top[3];
 } visplane_t;
 
 #endif

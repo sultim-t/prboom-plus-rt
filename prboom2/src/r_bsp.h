@@ -50,7 +50,8 @@ extern sector_t *backsector;
 extern drawseg_t *drawsegs;
 extern unsigned maxdrawsegs;
 
-extern byte solidcol[MAX_SCREENWIDTH];
+// e6y: resolution limitation is removed
+extern byte *solidcol;
 
 extern drawseg_t *ds_p;
 

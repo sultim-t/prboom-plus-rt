@@ -80,11 +80,15 @@ int *openings,*lastopening; // dropoff overflow
 //  floorclip starts out SCREENHEIGHT
 //  ceilingclip starts out -1
 
-int floorclip[MAX_SCREENWIDTH], ceilingclip[MAX_SCREENWIDTH]; // dropoff overflow
+// dropoff overflow
+// e6y: resolution limitation is removed
+int *floorclip = NULL;
+int *ceilingclip = NULL;
 
 // spanstart holds the start of a plane span; initialized to 0 at start
 
-static int spanstart[MAX_SCREENHEIGHT];                // killough 2/8/98
+// e6y: resolution limitation is removed
+static int *spanstart = NULL;                // killough 2/8/98
 
 //
 // texture mapping
@@ -96,13 +100,42 @@ static fixed_t planeheight;
 // killough 2/8/98: make variables static
 
 static fixed_t basexscale, baseyscale;
-static fixed_t cachedheight[MAX_SCREENHEIGHT];
-static fixed_t cacheddistance[MAX_SCREENHEIGHT];
-static fixed_t cachedxstep[MAX_SCREENHEIGHT];
-static fixed_t cachedystep[MAX_SCREENHEIGHT];
+static fixed_t *cachedheight = NULL;
+static fixed_t *cacheddistance = NULL;
+static fixed_t *cachedxstep = NULL;
+static fixed_t *cachedystep = NULL;
 static fixed_t xoffs,yoffs;    // killough 2/28/98: flat offsets
 
-fixed_t yslope[MAX_SCREENHEIGHT], distscale[MAX_SCREENWIDTH];
+// e6y: resolution limitation is removed
+fixed_t *yslope = NULL;
+fixed_t *distscale = NULL;
+
+void R_InitPlanesRes(void)
+{
+  if (floorclip) free(floorclip);
+  if (ceilingclip) free(ceilingclip);
+  if (spanstart) free(spanstart);
+
+  if (cachedheight) free(cachedheight);
+  if (cacheddistance) free(cacheddistance);
+  if (cachedxstep) free(cachedxstep);
+  if (cachedystep) free(cachedystep);
+
+  if (yslope) free(yslope);
+  if (distscale) free(distscale);
+
+  floorclip = malloc(SCREENWIDTH * sizeof(*floorclip));
+  ceilingclip = malloc(SCREENWIDTH * sizeof(*ceilingclip));
+  spanstart = malloc(SCREENHEIGHT * sizeof(*spanstart));
+
+  cachedheight = malloc(SCREENHEIGHT * sizeof(*cachedheight));
+  cacheddistance = malloc(SCREENHEIGHT * sizeof(*cacheddistance));
+  cachedxstep = malloc(SCREENHEIGHT * sizeof(*cachedxstep));
+  cachedystep = malloc(SCREENHEIGHT * sizeof(*cachedystep));
+
+  yslope = malloc(SCREENHEIGHT * sizeof(*yslope));
+  distscale = malloc(SCREENWIDTH * sizeof(*distscale));
+}
 
 //
 // R_InitPlanes
@@ -220,7 +253,11 @@ static visplane_t *new_visplane(unsigned hash)
 {
   visplane_t *check = freetail;
   if (!check)
-    check = calloc(1, sizeof *check);
+  {
+    // e6y: resolution limitation is removed
+    check = calloc(1, sizeof(*check) + sizeof(*check->top) * (SCREENWIDTH * 2 + sizeof(*check->bottom) * 4));
+    check->bottom = &check->top[SCREENWIDTH + sizeof(*check->bottom)];
+  }
   else
     if (!(freetail = freetail->next))
       freehead = &freetail;
@@ -246,7 +283,7 @@ visplane_t *R_DupPlane(const visplane_t *pl, int start, int stop)
       new_pl->yoffs = pl->yoffs;
       new_pl->minx = start;
       new_pl->maxx = stop;
-      memset(new_pl->top, 0xff, sizeof new_pl->top);
+      memset(new_pl->top, 0xff, sizeof(*new_pl->top) * SCREENWIDTH);
       return new_pl;
 }
 //
@@ -284,7 +321,7 @@ visplane_t *R_FindPlane(fixed_t height, int picnum, int lightlevel,
   check->xoffs = xoffs;               // killough 2/28/98: Save offsets
   check->yoffs = yoffs;
 
-  memset (check->top, 0xff, sizeof check->top);
+  memset (check->top, 0xff, sizeof(*check->top) * SCREENWIDTH);
 
   return check;
 }
@@ -442,7 +479,7 @@ static void R_DoDrawPlane(visplane_t *pl)
 
       stop = pl->maxx + 1;
       planezlight = zlight[light];
-      pl->top[pl->minx-1] = pl->top[stop] = 0xffffffffu; // dropoff overflow
+      pl->top[pl->minx-1] = pl->top[stop] = 0xffffu; // dropoff overflow
 
       for (x = pl->minx ; x <= stop ; x++)
          R_MakeSpans(x,pl->top[x-1],pl->bottom[x-1],
