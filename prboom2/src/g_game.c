@@ -2690,6 +2690,18 @@ static const byte* G_ReadDemoHeader(const byte *demo_p, size_t size, boolean fai
   demover = *demo_p++;
   longtics = 0;
 
+  // e6y
+  // Handling of unrecognized demo formats
+  // Versions up to 1.2 use a 7-byte header - first byte is a skill level.
+  // Versions after 1.2 use a 13-byte header - first byte is a demoversion.
+  // BOOM's demoversion starts from 200
+  if (!((demover >=   0  && demover <=   4) ||
+        (demover >= 104  && demover <= 111) ||
+        (demover >= 200  && demover <= 214)))
+  {
+    I_Error("G_ReadDemoHeader: Unknown demo format %d.", demover);
+  }
+
   if (demover < 200)     // Autodetect old demos
     {
       if (demover >= 111) longtics = 1;
