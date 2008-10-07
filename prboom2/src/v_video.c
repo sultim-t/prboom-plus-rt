@@ -403,7 +403,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
 
     dcvars.texheight = patch->height;
     dcvars.iscale = DYI;
-    dcvars.drawingmasked = max(patch->width, patch->height) > 8;
+    dcvars.drawingmasked = MAX(patch->width, patch->height) > 8;
     dcvars.edgetype = drawvars.patch_edges;
 
     if (drawvars.filterpatch == RDRAW_FILTER_LINEAR) {

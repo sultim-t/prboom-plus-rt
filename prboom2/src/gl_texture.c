@@ -444,8 +444,8 @@ GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap)
     gltexture->topoffset=0;
     gltexture->tex_width=gld_GetTexDimension(gltexture->realtexwidth);
     gltexture->tex_height=gld_GetTexDimension(gltexture->realtexheight);
-    gltexture->width=min(gltexture->realtexwidth, gltexture->tex_width);
-    gltexture->height=min(gltexture->realtexheight, gltexture->tex_height);
+    gltexture->width=MIN(gltexture->realtexwidth, gltexture->tex_width);
+    gltexture->height=MIN(gltexture->realtexheight, gltexture->tex_height);
     gltexture->buffer_width=gltexture->tex_width;
     gltexture->buffer_height=gltexture->tex_height;
 #ifdef USE_GLU_IMAGESCALE
@@ -599,15 +599,15 @@ GLTexture *gld_RegisterPatch(int lump, int cm)
     gltexture->topoffset=patch->topoffset;
     gltexture->tex_width=gld_GetTexDimension(gltexture->realtexwidth);
     gltexture->tex_height=gld_GetTexDimension(gltexture->realtexheight);
-    gltexture->width=min(gltexture->realtexwidth, gltexture->tex_width);
-    gltexture->height=min(gltexture->realtexheight, gltexture->tex_height);
+    gltexture->width=MIN(gltexture->realtexwidth, gltexture->tex_width);
+    gltexture->height=MIN(gltexture->realtexheight, gltexture->tex_height);
     gltexture->buffer_width=gltexture->tex_width;
     gltexture->buffer_height=gltexture->tex_height;
 #ifdef USE_GLU_IMAGESCALE
-    gltexture->width=min(gltexture->realtexwidth, gltexture->tex_width);
-    gltexture->height=min(gltexture->realtexheight, gltexture->tex_height);
-    gltexture->buffer_width=max(gltexture->realtexwidth, gltexture->tex_width);
-    gltexture->buffer_height=max(gltexture->realtexheight, gltexture->tex_height);
+    gltexture->width=MIN(gltexture->realtexwidth, gltexture->tex_width);
+    gltexture->height=MIN(gltexture->realtexheight, gltexture->tex_height);
+    gltexture->buffer_width=MAX(gltexture->realtexwidth, gltexture->tex_width);
+    gltexture->buffer_height=MAX(gltexture->realtexheight, gltexture->tex_height);
 #endif
     gltexture->buffer_size=gltexture->buffer_width*gltexture->buffer_height*4;
     R_UnlockPatchNum(lump);
@@ -722,8 +722,8 @@ GLTexture *gld_RegisterFlat(int lump, boolean mipmap)
     gltexture->topoffset=0;
     gltexture->tex_width=gld_GetTexDimension(gltexture->realtexwidth);
     gltexture->tex_height=gld_GetTexDimension(gltexture->realtexheight);
-    gltexture->width=min(gltexture->realtexwidth, gltexture->tex_width);
-    gltexture->height=min(gltexture->realtexheight, gltexture->tex_height);
+    gltexture->width=MIN(gltexture->realtexwidth, gltexture->tex_width);
+    gltexture->height=MIN(gltexture->realtexheight, gltexture->tex_height);
     gltexture->buffer_width=gltexture->tex_width;
     gltexture->buffer_height=gltexture->tex_height;
 #ifdef USE_GLU_IMAGESCALE

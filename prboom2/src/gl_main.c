@@ -246,7 +246,7 @@ static const float lighttable[5][256] =
   }
 };
 
-#define gld_CalcLightLevel(lightlevel) (lighttable[usegamma][max(min((lightlevel),255),0)])
+#define gld_CalcLightLevel(lightlevel) (lighttable[usegamma][MAX(MIN((lightlevel),255),0)])
 
 /*
 // experimental new lighting code
@@ -348,7 +348,7 @@ void gld_Init(int width, int height)
         p++;
       if (*p)
       {
-        int len = min(p-rover, sizeof(ext_name)-1);
+        int len = MIN(p-rover, sizeof(ext_name)-1);
         memset(ext_name, 0, sizeof(ext_name));
         strncpy(ext_name, rover, len);
         lprintf(LO_INFO,"\t%s\n", ext_name);
@@ -2152,7 +2152,7 @@ void gld_AddWall(seg_t *seg)
           // e6y
           // It corrects some problem with sky, but I do not remember which one
           // old code: wall.ybottom=(float)frontsector->ceilingheight/MAP_SCALE;
-          wall.ybottom=(float)max(frontsector->ceilingheight,backsector->ceilingheight)/MAP_SCALE;
+          wall.ybottom=(float)MAX(frontsector->ceilingheight,backsector->ceilingheight)/MAP_SCALE;
 
           SKYTEXTURE(frontsector->sky,backsector->sky);
           ADDWALL(&wall);
@@ -2194,14 +2194,14 @@ void gld_AddWall(seg_t *seg)
       {
         if (seg->backsector->ceilingheight<=seg->frontsector->floorheight)
           goto bottomtexture;
-        floor_height=max(seg->frontsector->floorheight,seg->backsector->floorheight)+(seg->sidedef->rowoffset);
+        floor_height=MAX(seg->frontsector->floorheight,seg->backsector->floorheight)+(seg->sidedef->rowoffset);
         ceiling_height=floor_height+(wall.gltexture->realtexheight<<FRACBITS);
       }
       else
       {
         if (seg->backsector->ceilingheight<=seg->frontsector->floorheight)
           goto bottomtexture;
-        ceiling_height=min(seg->frontsector->ceilingheight,seg->backsector->ceilingheight)+(seg->sidedef->rowoffset);
+        ceiling_height=MIN(seg->frontsector->ceilingheight,seg->backsector->ceilingheight)+(seg->sidedef->rowoffset);
         floor_height=ceiling_height-(wall.gltexture->realtexheight<<FRACBITS);
       }
       // e6y
@@ -2219,16 +2219,16 @@ void gld_AddWall(seg_t *seg)
         mip = (float)wall.gltexture->realtexheight/(float)wall.gltexture->buffer_height;
 //        if ( (texturetranslation[seg->sidedef->bottomtexture]!=R_TextureNumForName("-")) )
         if (seg->sidedef->bottomtexture)
-          floormax=max(seg->frontsector->floorheight,seg->backsector->floorheight);
+          floormax=MAX(seg->frontsector->floorheight,seg->backsector->floorheight);
         else
           floormax=floor_height;
         if (seg->sidedef->toptexture)
-          ceilingmin=min(seg->frontsector->ceilingheight,seg->backsector->ceilingheight);
+          ceilingmin=MIN(seg->frontsector->ceilingheight,seg->backsector->ceilingheight);
         else
           ceilingmin=ceiling_height;
         linelen=abs(ceiling_height-floor_height);
-        wall.ytop=((float)min(ceilingmin, ceiling_height)/(float)MAP_SCALE);
-        wall.ybottom=((float)max(floormax, floor_height)/(float)MAP_SCALE);
+        wall.ytop=((float)MIN(ceilingmin, ceiling_height)/(float)MAP_SCALE);
+        wall.ybottom=((float)MAX(floormax, floor_height)/(float)MAP_SCALE);
         wall.flag=GLDWF_M2S;
         wall.ul=OU((wall),(seg))+(0.0f);
         wall.ur=OU(wall,(seg))+((segs[seg->iSegID].length)/(float)wall.gltexture->buffer_width);

@@ -31,13 +31,6 @@
 #ifndef R_FILTER_H
 #define R_FILTER_H
 
-#ifndef max
-#define max(a,b) ((a)>(b)?(a):(b))
-#endif
-#ifndef min
-#define min(a,b) ((a)<(b)?(a):(b))
-#endif
-
 #define DITHER_DIM 4
 
 extern byte filter_ditherMatrix[DITHER_DIM][DITHER_DIM];
@@ -69,7 +62,7 @@ void R_FilterInit(void);
 #define filter_getRoundedForColumn(texV, nextRowTexV) \
   filter_getScale2xQuadColors( \
     source[      ((texV)>>FRACBITS)              ], \
-    source[      (max(0, ((texV)>>FRACBITS)-1))  ], \
+    source[      (MAX(0, ((texV)>>FRACBITS)-1))  ], \
     nextsource[  ((texV)>>FRACBITS)              ], \
     source[      ((nextRowTexV)>>FRACBITS)       ], \
     prevsource[  ((texV)>>FRACBITS)              ] \

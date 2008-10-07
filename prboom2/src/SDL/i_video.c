@@ -410,17 +410,15 @@ void I_FinishUpdate (void)
 //
 // I_ReadScreen
 //
-#ifndef min
-#define min(a,b) ((a)<(b)?(a):(b))
-#endif
 void I_ReadScreen (screeninfo_t *dest)
 {
   int h;
   byte *srcofs = screens[0].data;
   byte *dstofs = dest->data;
   int width, height;
-  width = min(screens[0].width, dest->width);
-  height = min(screens[0].height, dest->height);
+
+  width = MIN(screens[0].width, dest->width);
+  height = MIN(screens[0].height, dest->height);
   for (h=height; h>0; h--) {
     memcpy(dstofs, srcofs, width);
     srcofs += screens[0].byte_pitch;

@@ -23,10 +23,6 @@ void (*P_Checksum)(int) = p_checksum_nop;
 static FILE *outfile = NULL;
 static struct MD5Context md5global;
 
-#ifndef MIN
-# define MIN(x,y) ((x) < (y) ? (x) : (y))
-#endif
-
 void P_RecordChecksum(const char *file) {
     size_t fnsize;
 

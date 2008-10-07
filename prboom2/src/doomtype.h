@@ -46,6 +46,14 @@ typedef enum {false, true} boolean;
 typedef unsigned char byte;
 #endif
 
+//e6y
+#ifndef MAX
+#define MAX(a,b) ((a)>(b)?(a):(b))
+#endif
+#ifndef MIN
+#define MIN(a,b) ((a)<(b)?(a):(b))
+#endif
+
 /* cph - Wrapper for the long long type, as Win32 used a different name.
  * Except I don't know what to test as it's compiler specific
  * Proff - I fixed it */

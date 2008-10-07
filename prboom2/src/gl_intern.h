@@ -82,13 +82,6 @@ int gld_GetTexDimension(int value);
 void gld_SetTexturePalette(GLenum target);
 void gld_Precache(void);
 
-#ifndef max
-#define max(a,b) ((a)>(b)?(a):(b))
-#endif
-#ifndef min
-#define min(a,b) ((a)<(b)?(a):(b))
-#endif
-
 PFNGLCOLORTABLEEXTPROC gld_ColorTableEXT;
 
 #endif // _GL_INTERN_H
