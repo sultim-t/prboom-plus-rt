@@ -3207,7 +3207,7 @@ setup_menu_t comp_settings1[] =  // Compatibility Settings screen #1
   {"Arch-Vile resurrects invincible ghosts", S_YESNO, m_null, C_X,
    C_Y + compat_vile * COMP_SPC, {"comp_vile"}},
 
-  {"Pain Elemental limited to 20 lost souls", S_YESNO, m_null, C_X,
+  {"Pain Elementals limited to 21 lost souls", S_YESNO, m_null, C_X,
    C_Y + compat_pain * COMP_SPC, {"comp_pain"}},
 
   {"Lost souls get stuck behind walls", S_YESNO, m_null, C_X,
