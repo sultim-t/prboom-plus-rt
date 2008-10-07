@@ -269,14 +269,11 @@ void P_Ticker (void)
    * All of this complicated mess is used to preserve demo sync.
    */
 
-  R_UpdateInterpolations ();
-  r_NoInterpolate = true;
-
   if (paused || (menuactive && !demoplayback && !netgame &&
      players[consoleplayer].viewz != 1))
     return;
 
-  r_NoInterpolate = false;
+  R_UpdateInterpolations ();
 
   P_MapStart();
                // not if this is an intermission screen

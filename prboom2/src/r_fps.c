@@ -77,7 +77,6 @@ static fixed2_t *bakipos;
 static interpolation_t *curipos;
 
 static boolean NoInterpolateView;
-boolean r_NoInterpolate;
 static boolean didInterp;
 boolean WasRenderedInTryRunTics;
 

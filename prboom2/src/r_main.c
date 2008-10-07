@@ -468,16 +468,17 @@ subsector_t *R_PointInSubsector(fixed_t x, fixed_t y)
 static void R_SetupFrame (player_t *player)
 {
   int cm;
+  boolean NoInterpolate = paused || (menuactive && !demoplayback);
 
   viewplayer = player;
 
-  if (player->mo != oviewer || r_NoInterpolate)
+  if (player->mo != oviewer || NoInterpolate)
   {
     R_ResetViewInterpolation ();
     oviewer = player->mo;
   }
   tic_vars.frac = I_GetTimeFrac ();
-  if (r_NoInterpolate)
+  if (NoInterpolate)
     tic_vars.frac = FRACUNIT;
   R_InterpolateView (player, tic_vars.frac);
 
