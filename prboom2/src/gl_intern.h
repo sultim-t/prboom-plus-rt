@@ -71,7 +71,8 @@ extern unsigned char gld_palmap[256];
 extern GLTexture *last_gltexture;
 extern int last_cm;
 
-GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap);
+//e6y: in some cases textures with a zero index (NO_TEXTURE) should be registered
+GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap, boolean force);
 void gld_BindTexture(GLTexture *gltexture);
 GLTexture *gld_RegisterPatch(int lump, int cm);
 void gld_BindPatch(GLTexture *gltexture, int cm);

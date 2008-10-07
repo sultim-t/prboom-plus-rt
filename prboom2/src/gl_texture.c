@@ -409,21 +409,14 @@ static void gld_AddFlatToTexture(GLTexture *gltexture, unsigned char *buffer, co
   }
 }
 
-GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap)
+//e6y: "force" flag for loading texture with zero index
+GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap, boolean force)
 {
   GLTexture *gltexture;
 
-  if (texture_num==NO_TEXTURE)
-// e6y: about isskytexture hack
-// The sky in the third episode of Requiem was not drawn.
-// It did not work correctly because the SKY3 has a zero index in the TEXTURE1 table.
-// Textures with a zero (FALSE) index are not displayed in vanilla,
-// AASHITTY in doom2.wad for example.
-// But the sky textures are processed by different code in DOOM,
-// which does not have this bug.
-// This flag is set in SKYTEXTURE macro and checked here for skipping unnecessary return
-    if (!isskytexture || texture_num!=skytexture)
-      return NULL;
+  //e6y: textures with zero index should be loaded sometimes
+  if (texture_num==NO_TEXTURE && !force)
+    return NULL;
   gltexture=gld_AddNewGLTexture(texture_num);
   if (!gltexture)
     return NULL;
@@ -929,7 +922,7 @@ void gld_Precache(void)
 
   for (i = numtextures; --i >= 0; )
     if (hitlist[i])
-      gld_BindTexture(gld_RegisterTexture(i,true));
+      gld_BindTexture(gld_RegisterTexture(i,true,false));
 
   // Precache sprites.
   memset(hitlist, 0, numsprites);

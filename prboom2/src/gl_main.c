@@ -2016,20 +2016,15 @@ static void gld_DrawWall(GLWall *wall)
     (w).vb=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->buffer_height)\
   )
 
-// e6y: about isskytexture hack
-// The sky in the third episode of Requiem was not drawn.
-// It did not work correctly because the SKY3 has a zero index in the TEXTURE1 table.
-// Textures with a zero (FALSE) index are not displayed in vanilla,
-// AASHITTY in doom2.wad for example.
-// But the sky textures are processed by different code in DOOM,
-// which does not have this bug.
+// e6y
+// Sky textures with a zero index should be forced
+// See third episode of requiem.wad
 #define SKYTEXTURE(sky1,sky2)\
-  isskytexture = true;\
   if ((sky1) & PL_SKYFLAT)\
   {\
     const line_t *l = &lines[sky1 & ~PL_SKYFLAT];\
     const side_t *s = *l->sidenum + sides;\
-    wall.gltexture=gld_RegisterTexture(texturetranslation[s->toptexture], false);\
+    wall.gltexture=gld_RegisterTexture(texturetranslation[s->toptexture], false, texturetranslation[s->toptexture]==skytexture);\
     wall.skyyaw=-2.0f*((-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)/90.0f);\
     wall.skyymid = 200.0f/319.5f*(((float)s->rowoffset/(float)FRACUNIT - 28.0f)/100.0f);\
     wall.flag = l->special==272 ? GLDWF_SKY : GLDWF_SKYFLIP;\
@@ -2039,19 +2034,18 @@ static void gld_DrawWall(GLWall *wall)
   {\
     const line_t *l = &lines[sky2 & ~PL_SKYFLAT];\
     const side_t *s = *l->sidenum + sides;\
-    wall.gltexture=gld_RegisterTexture(texturetranslation[s->toptexture], false);\
+    wall.gltexture=gld_RegisterTexture(texturetranslation[s->toptexture], false, texturetranslation[s->toptexture]==skytexture);\
     wall.skyyaw=-2.0f*((-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)/90.0f);\
     wall.skyymid = 200.0f/319.5f*(((float)s->rowoffset/(float)FRACUNIT - 28.0f)/100.0f);\
     wall.flag = l->special==272 ? GLDWF_SKY : GLDWF_SKYFLIP;\
   }\
   else\
   {\
-    wall.gltexture=gld_RegisterTexture(skytexture, false);\
+    wall.gltexture=gld_RegisterTexture(skytexture, false, true);\
     wall.skyyaw=-2.0f*((yaw+90.0f)/90.0f);\
     wall.skyymid = 200.0f/319.5f*((100.0f)/100.0f);\
     wall.flag = GLDWF_SKY;\
-  }\
-  isskytexture = false;
+  };
 
 #define ADDWALL(wall)\
 {\
@@ -2108,7 +2102,7 @@ void gld_AddWall(seg_t *seg)
       SKYTEXTURE(frontsector->sky,frontsector->sky);
       ADDWALL(&wall);
     }
-    temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->midtexture], true);
+    temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->midtexture], true, false);
     if (temptex)
     {
       wall.gltexture=temptex;
@@ -2171,7 +2165,7 @@ void gld_AddWall(seg_t *seg)
     {
       if (!((frontsector->ceilingpic==skyflatnum) && (backsector->ceilingpic==skyflatnum)))
       {
-        temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->toptexture], true);
+        temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->toptexture], true, false);
         if (temptex)
         {
           wall.gltexture=temptex;
@@ -2186,8 +2180,16 @@ void gld_AddWall(seg_t *seg)
     }
 
     /* midtexture */
-    temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->midtexture], true);
-    if (temptex)
+    //e6y
+    if (comp[comp_maskedanim])
+      temptex=gld_RegisterTexture(seg->sidedef->midtexture, true, false);
+    else
+      // e6y
+      // Animated middle textures with a zero index should be forced
+      // See spacelab.wad (http://www.doomworld.com/idgames/index.php?id=6826)
+      temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->midtexture], true, true);
+
+    if (temptex && seg->sidedef->midtexture != NO_TEXTURE)
     {
       wall.gltexture=temptex;
       if ( (LINE->flags & ML_DONTPEGBOTTOM) >0)
@@ -2287,7 +2289,7 @@ bottomtexture:
     }
     if (floor_height<ceiling_height)
     {
-      temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->bottomtexture], true);
+      temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->bottomtexture], true, false);
       if (temptex)
       {
         wall.gltexture=temptex;
