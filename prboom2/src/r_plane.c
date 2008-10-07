@@ -124,17 +124,17 @@ void R_InitPlanesRes(void)
   if (yslope) free(yslope);
   if (distscale) free(distscale);
 
-  floorclip = malloc(SCREENWIDTH * sizeof(*floorclip));
-  ceilingclip = malloc(SCREENWIDTH * sizeof(*ceilingclip));
-  spanstart = malloc(SCREENHEIGHT * sizeof(*spanstart));
+  floorclip = calloc(1, SCREENWIDTH * sizeof(*floorclip));
+  ceilingclip = calloc(1, SCREENWIDTH * sizeof(*ceilingclip));
+  spanstart = calloc(1, SCREENHEIGHT * sizeof(*spanstart));
 
-  cachedheight = malloc(SCREENHEIGHT * sizeof(*cachedheight));
-  cacheddistance = malloc(SCREENHEIGHT * sizeof(*cacheddistance));
-  cachedxstep = malloc(SCREENHEIGHT * sizeof(*cachedxstep));
-  cachedystep = malloc(SCREENHEIGHT * sizeof(*cachedystep));
+  cachedheight = calloc(1, SCREENHEIGHT * sizeof(*cachedheight));
+  cacheddistance = calloc(1, SCREENHEIGHT * sizeof(*cacheddistance));
+  cachedxstep = calloc(1, SCREENHEIGHT * sizeof(*cachedxstep));
+  cachedystep = calloc(1, SCREENHEIGHT * sizeof(*cachedystep));
 
-  yslope = malloc(SCREENHEIGHT * sizeof(*yslope));
-  distscale = malloc(SCREENWIDTH * sizeof(*distscale));
+  yslope = calloc(1, SCREENHEIGHT * sizeof(*yslope));
+  distscale = calloc(1, SCREENWIDTH * sizeof(*distscale));
 }
 
 //
@@ -240,7 +240,7 @@ void R_ClearPlanes(void)
   lastopening = openings;
 
   // texture calculation
-  memset (cachedheight, 0, sizeof(cachedheight));
+  memset (cachedheight, 0, SCREENHEIGHT * sizeof(*cachedheight));
 
   // scale will be unit scale at SCREENWIDTH/2 distance
   basexscale = FixedDiv (viewsin,projection);

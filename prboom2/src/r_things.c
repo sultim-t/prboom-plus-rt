@@ -100,9 +100,9 @@ void R_InitSpritesRes(void)
   if (negonearray) free(negonearray);
   if (screenheightarray) free(screenheightarray);
 
-  xtoviewangle = malloc((SCREENWIDTH + 1) * sizeof(*xtoviewangle));
-  negonearray = malloc(SCREENWIDTH * sizeof(*negonearray));
-  screenheightarray = malloc(SCREENWIDTH * sizeof(*screenheightarray));
+  xtoviewangle = calloc(1, (SCREENWIDTH + 1) * sizeof(*xtoviewangle));
+  negonearray = calloc(1, SCREENWIDTH * sizeof(*negonearray));
+  screenheightarray = calloc(1, SCREENWIDTH * sizeof(*screenheightarray));
 }
 
 //

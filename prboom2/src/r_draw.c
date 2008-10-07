@@ -997,10 +997,10 @@ void R_InitBuffersRes(void)
   if (short_tempbuf) free(short_tempbuf);
   if (int_tempbuf) free(int_tempbuf);
 
-  solidcol = malloc(SCREENWIDTH * sizeof(*solidcol));
-  byte_tempbuf = malloc((SCREENHEIGHT * 4) * sizeof(*byte_tempbuf));
-  short_tempbuf = malloc((SCREENHEIGHT * 4) * sizeof(*short_tempbuf));
-  int_tempbuf = malloc((SCREENHEIGHT * 4) * sizeof(*int_tempbuf));
+  solidcol = calloc(1, SCREENWIDTH * sizeof(*solidcol));
+  byte_tempbuf = calloc(1, (SCREENHEIGHT * 4) * sizeof(*byte_tempbuf));
+  short_tempbuf = calloc(1, (SCREENHEIGHT * 4) * sizeof(*short_tempbuf));
+  int_tempbuf = calloc(1, (SCREENHEIGHT * 4) * sizeof(*int_tempbuf));
 }
 
 //
