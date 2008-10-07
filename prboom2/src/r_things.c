@@ -570,8 +570,10 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
     return;
 
   // killough 4/9/98: clip things which are out of view due to height
-  if (fz  > viewz + FixedDiv(centeryfrac, xscale) ||
-      gzt < viewz - FixedDiv(centeryfrac-viewheight, xscale))
+  // e6y: fix of hanging decoration disappearing in Batman Doom MAP02
+  // centeryfrac -> viewheightfrac
+  if (fz  > viewz + FixedDiv(viewheightfrac, xscale) ||
+      gzt < viewz - FixedDiv(viewheightfrac-viewheight, xscale))
     return;
 
     // killough 3/27/98: exclude things totally separated
