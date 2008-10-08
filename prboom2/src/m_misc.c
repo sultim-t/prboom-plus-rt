@@ -878,7 +878,8 @@ default_t defaults[] =
 
 #ifdef _WIN32
   {"Prboom-plus launcher settings",{NULL},{0},UL,UL,def_none,ss_none},
-  {"launcher_enable", {&launcher_enable},  {0},0,1, def_bool,ss_stat},
+  {"launcher_enable",{(int*)&launcher_enable},{launcher_enable_never},
+   launcher_enable_never, launcher_enable_always, def_int,ss_none},
   {"launcher_history0", {NULL,&launcher_history[0]}, {0,""},UL,UL,def_str,ss_none},
   {"launcher_history1", {NULL,&launcher_history[1]}, {0,""},UL,UL,def_str,ss_none},
   {"launcher_history2", {NULL,&launcher_history[2]}, {0,""},UL,UL,def_str,ss_none},

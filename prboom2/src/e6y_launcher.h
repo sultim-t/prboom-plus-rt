@@ -36,7 +36,9 @@
 
 #ifdef _WIN32
 
-extern int launcher_enable;
+typedef enum { launcher_enable_never, launcher_enable_smart, launcher_enable_always } launcher_enable_t;
+extern launcher_enable_t launcher_enable;
+extern const char *launcher_enable_states[];
 extern char *launcher_history[10];
 
 void LauncherShow(void);

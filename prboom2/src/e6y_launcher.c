@@ -94,7 +94,8 @@ typedef struct
 
 launcher_t launcher;
 
-int launcher_enable;
+spriteclipmode_t launcher_enable;
+const char *launcher_enable_states[] = {"never", "smart", "always"};
 char *launcher_history[LAUNCHER_HISTORY_SIZE];
 
 static char launchercachefile[PATH_MAX];
@@ -1374,6 +1375,9 @@ static boolean L_LauncherIsNeeded(void)
 //  SHIFT for invert
 //  if (GetAsyncKeyState(VK_SHIFT) ? launcher_enable : !launcher_enable)
 //    return false;
+
+  if (launcher_enable == launcher_enable_always)
+    return true;
 
   if (!launcher_enable && !(GetKeyState(VK_SHIFT) & 0x8000))
     return false;
