@@ -1326,8 +1326,8 @@ static void D_DoomMainSetup(void)
     }
 
     /* cphipps - the main display. This shows the build date, copyright, and game type */
-    lprintf(LO_ALWAYS,"PrBoom (built %s), playing: %s\n"
-      "PrBoom is released under the GNU General Public license v2.0.\n"
+    lprintf(LO_ALWAYS,PACKAGE_TITLE" (built %s), playing: %s\n"
+      PACKAGE_TITLE" is released under the GNU General Public license v2.0.\n"
       "You are welcome to redistribute it under certain conditions.\n"
       "It comes with ABSOLUTELY NO WARRANTY. See the file COPYING for details.\n",
       version_date, doomverstr);

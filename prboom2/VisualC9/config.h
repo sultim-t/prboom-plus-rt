@@ -151,6 +151,9 @@
 /* Name of package */
 #define PACKAGE "prboom-plus"
 
+/* Capitalised name of package */
+#define PACKAGE_TITLE "PrBoom-Plus"
+
 //e6y
 /* Version number of package */
 #define VERSION "2.4.8.6"

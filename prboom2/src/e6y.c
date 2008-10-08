@@ -827,7 +827,7 @@ void I_vWarning(const char *message, va_list argList)
     SwitchToWindow(GetDesktopWindow());
     Init_ConsoleWin();
     if (con_hWnd) SwitchToWindow(con_hWnd);
-    MessageBox(con_hWnd,msg,"PrBoom-Plus",MB_OK | MB_TASKMODAL | MB_TOPMOST);
+    MessageBox(con_hWnd,msg,PACKAGE_TITLE,MB_OK | MB_TASKMODAL | MB_TOPMOST);
     SwitchToWindow(WIN32_GetHWND());
   }
 #endif

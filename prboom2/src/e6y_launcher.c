@@ -62,7 +62,7 @@ typedef HRESULT (WINAPI *EnableThemeDialogTexturePROC)(HWND, DWORD);
 #define FA_DIREC	0x00000010
 #define LAUNCHER_HISTORY_SIZE 10
 
-#define LAUNCHER_CAPTION "Prboom-Plus Launcher"
+#define LAUNCHER_CAPTION PACKAGE_TITLE" Launcher"
 
 typedef struct
 {
@@ -1075,7 +1075,7 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
         FreeLibrary(hMod);
       }
 
-      SendMessage(launcher.listCMD, CB_ADDSTRING, 0, (LPARAM)"Rebuild the PrBoom-Plus cache");
+      SendMessage(launcher.listCMD, CB_ADDSTRING, 0, (LPARAM)"Rebuild the "PACKAGE_TITLE" cache");
       SendMessage(launcher.listCMD, CB_ADDSTRING, 0, (LPARAM)"Clear all Launcher's history");
       SendMessage(launcher.listCMD, CB_ADDSTRING, 0, (LPARAM)"Associate the current EXE with DOOM demos");
 
@@ -1396,7 +1396,7 @@ void LauncherShow(void)
     return;
 
   InitCommonControls();
-  sprintf(launchercachefile,"%s/prboom-plus.cache", I_DoomExeDir());
+  sprintf(launchercachefile,"%s/"PACKAGE".cache", I_DoomExeDir());
 
   result = DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_LAUNCHERSERVERDIALOG), NULL, (DLGPROC)LauncherServerCallback);
 

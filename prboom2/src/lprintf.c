@@ -376,7 +376,7 @@ void I_Error(const char *error, ...)
 #ifdef _MSC_VER
   if (!M_CheckParm ("-nodraw")) {
     //Init_ConsoleWin();
-    MessageBox(con_hWnd,errmsg,"PrBoom-Plus",MB_OK | MB_TASKMODAL | MB_TOPMOST);
+    MessageBox(con_hWnd,errmsg,PACKAGE_TITLE,MB_OK | MB_TASKMODAL | MB_TOPMOST);
   }
 #endif
   I_SafeExit(-1);
