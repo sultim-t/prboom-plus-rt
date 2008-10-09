@@ -631,19 +631,6 @@ static void G_DoLoadLevel (void)
   // killough 5/13/98: in case netdemo has consoleplayer other than green
   ST_Start();
   HU_Start();
-
-  // killough: make -timedemo work on multilevel demos
-  // Move to end of function to minimize noise -- killough 2/22/98:
-
-  if (timingdemo)
-    {
-      static int first=1;
-      if (first)
-        {
-          starttime = I_GetTime_RealTime ();
-          first=0;
-        }
-    }
 }
 
 
@@ -2909,6 +2896,8 @@ void G_DoPlayDemo(void)
 
   demoplayback = true;
   R_SmoothPlaying_Reset(NULL); // e6y
+
+  starttime = I_GetTime_RealTime ();
 }
 
 //
