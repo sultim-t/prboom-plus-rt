@@ -82,6 +82,10 @@ void P_Thrust(player_t* player,angle_t angle,fixed_t move)
 
 static void P_Bob(player_t *player, angle_t angle, fixed_t move)
 {
+  //e6y
+  if (!mbf_features)
+    return;
+
   player->momx += FixedMul(move,finecosine[angle >>= ANGLETOFINESHIFT]);
   player->momy += FixedMul(move,finesine[angle]);
 }
@@ -115,6 +119,16 @@ void P_CalcHeight (player_t* player)
      + FixedMul (player->mo->momy,player->mo->momy))>>2 :
     player_bobbing ? (FixedMul(player->momx,player->momx) +
         FixedMul(player->momy,player->momy))>>2 : 0;
+
+    //e6y
+    if (compatibility_level >= boom_202_compatibility && 
+        compatibility_level <= lxdoom_1_compatibility &&
+        player->mo->friction > ORIG_FRICTION) // ice?
+    {
+      if (player->bob > (MAXBOB>>2))
+        player->bob = MAXBOB>>2;
+    }
+    else
 
   if (player->bob > MAXBOB)
     player->bob = MAXBOB;
@@ -197,7 +211,8 @@ void P_MovePlayer (player_t* player)
   // ice, because the player still "works just as hard" to move, while the
   // thrust applied to the movement varies with 'movefactor'.
 
-  if (cmd->forwardmove | cmd->sidemove) // killough 10/98
+  //e6y
+  if ((!demo_compatibility && !mbf_features) || (cmd->forwardmove | cmd->sidemove)) // killough 10/98
     {
       if (onground || mo->flags & MF_BOUNCES) // killough 8/9/98
       {

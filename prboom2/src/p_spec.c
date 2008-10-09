@@ -2838,6 +2838,81 @@ static void P_SpawnScrollers(void)
     }
 }
 
+// e6y
+// restored boom's friction code
+
+/////////////////////////////
+//
+// Add a friction thinker to the thinker list
+//
+// Add_Friction adds a new friction thinker to the list of active thinkers.
+//
+
+static void Add_Friction(int friction, int movefactor, int affectee)
+    {
+    friction_t *f = Z_Malloc(sizeof *f, PU_LEVSPEC, 0);
+
+    f->thinker.function/*.acp1*/ = /*(actionf_p1) */T_Friction;
+    f->friction = friction;
+    f->movefactor = movefactor;
+    f->affectee = affectee;
+    P_AddThinker(&f->thinker);
+    }
+
+/////////////////////////////
+//
+// This is where abnormal friction is applied to objects in the sectors.
+// A friction thinker has been spawned for each sector where less or
+// more friction should be applied. The amount applied is proportional to
+// the length of the controlling linedef.
+
+void T_Friction(friction_t *f)
+    {
+    sector_t *sec;
+    mobj_t   *thing;
+    msecnode_t* node;
+
+    if (compatibility || !variable_friction)
+        return;
+
+    sec = sectors + f->affectee;
+
+    // Be sure the special sector type is still turned on. If so, proceed.
+    // Else, bail out; the sector type has been changed on us.
+
+    if (!(sec->special & FRICTION_MASK))
+        return;
+
+    // Assign the friction value to players on the floor, non-floating,
+    // and clipped. Normally the object's friction value is kept at
+    // ORIG_FRICTION and this thinker changes it for icy or muddy floors.
+
+    // In Phase II, you can apply friction to Things other than players.
+
+    // When the object is straddling sectors with the same
+    // floorheight that have different frictions, use the lowest
+    // friction value (muddy has precedence over icy).
+
+    node = sec->touching_thinglist; // things touching this sector
+    while (node)
+        {
+        thing = node->m_thing;
+        if (thing->player &&
+            !(thing->flags & (MF_NOGRAVITY | MF_NOCLIP)) &&
+            thing->z <= sec->floorheight)
+            {
+            if ((thing->friction == ORIG_FRICTION) ||     // normal friction?
+              (f->friction < thing->friction))
+                {
+                thing->friction   = f->friction;
+                thing->movefactor = f->movefactor;
+                }
+            }
+        node = node->m_snext;
+        }
+    }
+
+
 // killough 3/7/98 -- end generalized scroll effects
 
 ////////////////////////////////////////////////////////////////////////////
@@ -2938,6 +3013,10 @@ static void P_SpawnFriction(void)
             // on every tic, adjusting its friction, putting unnecessary
             // drag on CPU. New code adjusts friction of sector only once
             // at level startup, and then uses this friction value.
+
+            //e6y: boom's friction code for boom compatibility
+            if (!demo_compatibility && !mbf_features)
+              Add_Friction(friction,movefactor,s);
 
             sectors[s].friction = friction;
             sectors[s].movefactor = movefactor;

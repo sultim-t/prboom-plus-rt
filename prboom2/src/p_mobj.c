@@ -139,6 +139,10 @@ static void P_XYMovement (mobj_t* mo)
   {
   player_t *player;
   fixed_t xmove, ymove;
+
+  //e6y
+  fixed_t   oldx,oldy; // phares 9/10/98: reducing bobbing/momentum on ice
+
 #if 0
   fixed_t   ptryx;
   fixed_t   ptryy;
@@ -177,11 +181,9 @@ static void P_XYMovement (mobj_t* mo)
   xmove = mo->momx;
   ymove = mo->momy;
 
-#if 0
   oldx = mo->x; // phares 9/10/98: new code to reduce bobbing/momentum
   oldy = mo->y; // when on ice & up against wall. These will be compared
                 // to your x,y values later to see if you were able to move
-#endif
 
   do
     {
@@ -320,6 +322,8 @@ static void P_XYMovement (mobj_t* mo)
       // killough 10/98:
       // Don't affect main player when voodoo dolls stop, except in old demos:
 
+//    if ( player&&(unsigned)((player->mo->state - states)- S_PLAY_RUN1) < 4)
+//      P_SetMobjState (player->mo, S_PLAY);
       if (player && (unsigned)(player->mo->state - states - S_PLAY_RUN1) < 4
     && (player->mo == mo || compatibility_level >= lxdoom_1_compatibility))
   P_SetMobjState(player->mo, S_PLAY);
@@ -351,6 +355,38 @@ static void P_XYMovement (mobj_t* mo)
        * cph - DEMOSYNC - need old code for Boom demos?
        */
 
+      //e6y
+      if (compatibility_level <= boom_201_compatibility)
+      {
+        // phares 3/17/98
+        // Friction will have been adjusted by friction thinkers for icy
+        // or muddy floors. Otherwise it was never touched and
+        // remained set at ORIG_FRICTION
+        mo->momx = FixedMul(mo->momx,mo->friction);
+        mo->momy = FixedMul(mo->momy,mo->friction);
+        mo->friction = ORIG_FRICTION; // reset to normal for next tic
+      }
+      else if (compatibility_level <= lxdoom_1_compatibility)
+      {
+        // phares 9/10/98: reduce bobbing/momentum when on ice & up against wall
+
+        if ((oldx == mo->x) && (oldy == mo->y)) // Did you go anywhere?
+          { // No. Use original friction. This allows you to not bob so much
+            // if you're on ice, but keeps enough momentum around to break free
+            // when you're mildly stuck in a wall.
+          mo->momx = FixedMul(mo->momx,ORIG_FRICTION);
+          mo->momy = FixedMul(mo->momy,ORIG_FRICTION);
+          }
+        else
+          { // Yes. Use stored friction.
+          mo->momx = FixedMul(mo->momx,mo->friction);
+          mo->momy = FixedMul(mo->momy,mo->friction);
+          }
+        mo->friction = ORIG_FRICTION; // reset to normal for next tic
+      }
+      else
+      {
+
       fixed_t friction = P_GetFriction(mo, NULL);
 
       mo->momx = FixedMul(mo->momx, friction);
@@ -366,6 +402,8 @@ static void P_XYMovement (mobj_t* mo)
     player->momx = FixedMul(player->momx, ORIG_FRICTION);
     player->momy = FixedMul(player->momy, ORIG_FRICTION);
   }
+
+      }
 
     }
   }
@@ -826,6 +864,9 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
   mobj->PrevZ = mobj->z;
 
   mobj->thinker.function = P_MobjThinker;
+
+  //e6y
+  mobj->friction    = ORIG_FRICTION;                        // phares 3/17/98
 
   mobj->target = mobj->tracer = mobj->lastenemy = NULL;
   P_AddThinker (&mobj->thinker);

@@ -182,6 +182,48 @@ int P_GetMoveFactor(const mobj_t *mo, int *frictionp)
 {
   int movefactor, friction;
 
+  //e6y
+  if (!mbf_features)
+  {
+    int momentum;
+
+    movefactor = ORIG_FRICTION_FACTOR;
+
+    if (!compatibility && variable_friction &&
+      !(mo->flags & (MF_NOGRAVITY | MF_NOCLIP)))
+    {
+      friction = mo->friction;
+      if (friction == ORIG_FRICTION)            // normal floor
+        ;
+      else if (friction > ORIG_FRICTION)        // ice
+      {
+        movefactor = mo->movefactor;
+        ((mobj_t*)mo)->movefactor = ORIG_FRICTION_FACTOR;  // reset
+      }
+      else                                      // sludge
+      {
+
+        // phares 3/11/98: you start off slowly, then increase as
+        // you get better footing
+
+        momentum = (P_AproxDistance(mo->momx,mo->momy));
+        movefactor = mo->movefactor;
+        if (momentum > MORE_FRICTION_MOMENTUM<<2)
+          movefactor <<= 3;
+
+        else if (momentum > MORE_FRICTION_MOMENTUM<<1)
+          movefactor <<= 2;
+
+        else if (momentum > MORE_FRICTION_MOMENTUM)
+          movefactor <<= 1;
+
+        ((mobj_t*)mo)->movefactor = ORIG_FRICTION_FACTOR;  // reset
+      }
+    }                                                       //     ^
+
+    return(movefactor);                                       //     |
+  }
+
   // If the floor is icy or muddy, it's harder to get moving. This is where
   // the different friction factors are applied to 'trying to move'. In
   // p_mobj.c, the friction factors are applied as you coast and slow down.
@@ -1055,12 +1097,25 @@ void P_HitSlideLine (line_t* ld)
 
   /* killough 10/98: only bounce if hit hard (prevents wobbling)
    * cph - DEMOSYNC - should only affect players in Boom demos? */
-  icyfloor =
-    (mbf_features ?
-     P_AproxDistance(tmxmove, tmymove) > 4*FRACUNIT : !compatibility) &&
+
+  //e6y
+  if (mbf_features)
+  {
+    icyfloor =
+    P_AproxDistance(tmxmove, tmymove) > 4*FRACUNIT &&
     variable_friction &&  // killough 8/28/98: calc friction on demand
     slidemo->z <= slidemo->floorz &&
     P_GetFriction(slidemo, NULL) > ORIG_FRICTION;
+  }
+  else
+  {
+    extern boolean onground;
+    icyfloor = !compatibility &&
+    variable_friction &&
+    slidemo->player &&
+    onground && 
+    slidemo->friction > ORIG_FRICTION;
+  }
 
   if (ld->slopetype == ST_HORIZONTAL)
     {
