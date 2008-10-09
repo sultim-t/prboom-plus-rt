@@ -305,7 +305,10 @@ static patchnum_t faces[ST_NUMFACES];
 // face background
 static patchnum_t faceback; // CPhipps - single background, translated for different players
 
- // main bar right
+//e6y: status bar background
+static patchnum_t stbarbg;
+
+// main bar right
 static patchnum_t armsbg;
 
 // weapon ownership patches
@@ -389,7 +392,8 @@ static void ST_refreshBackground(void)
       // proff 05/17/2000: draw to the frontbuffer in OpenGL
       if (V_GetMode() == VID_MODEGL)
         y=ST_Y;
-      V_DrawNamePatch(ST_X, y, BG, "STBAR", CR_DEFAULT, VPT_STRETCH);
+      V_DrawNumPatch(ST_X, y, BG, stbarbg.lumpnum, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNumPatch(ST_ARMSBGX, y, BG, armsbg.lumpnum, CR_DEFAULT, VPT_STRETCH);
 
       // killough 3/7/98: make face background change with displayplayer
       if (netgame)
@@ -398,7 +402,6 @@ static void ST_refreshBackground(void)
            displayplayer ? CR_LIMIT+displayplayer : CR_DEFAULT,
            displayplayer ? (VPT_TRANS | VPT_STRETCH) : VPT_STRETCH);
       }
-
       V_CopyRect(ST_X, y, BG, ST_SCALED_WIDTH, ST_SCALED_HEIGHT, ST_X, ST_SCALED_Y, FG, VPT_NONE);
     }
 }
@@ -800,7 +803,8 @@ static void ST_drawWidgets(boolean refresh)
   else
     STlib_updatePercent(&w_armor, CR_BLUE2, refresh); //killough 2/28/98
 
-  STlib_updateBinIcon(&w_armsbg, refresh);
+  //e6y: moved to ST_refreshBackground() for correct single-pass stretching
+  //STlib_updateBinIcon(&w_armsbg, refresh);
 
   for (i=0;i<6;i++)
     STlib_updateMultIcon(&w_arms[i], refresh);
@@ -884,6 +888,9 @@ static void ST_loadGraphics(boolean doload)
       sprintf(namebuf, "STKEYS%d", i);
       R_SetPatchNum(&keys[i], namebuf);
     }
+
+  //e6y: status bar background
+  R_SetPatchNum(&stbarbg, "STBAR");
 
   // arms background
   R_SetPatchNum(&armsbg, "STARMS");
