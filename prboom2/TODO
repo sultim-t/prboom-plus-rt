@@ -708,3 +708,455 @@ List of revisions from PrBoom 2.3:
 -1284 (renderer)
 -1309 ()
 DONE!
+
+--------------------------------------------------------------------------
+
+PrBoom-plus revisions since "Stuff to port from prboom-plus"
+<http://sourceforge.net/mailarchive/message.php?msg_name=BE37299E-8C02-48FA-924B-6E9F8C5CCDC8%40gmx.net>
+
+    unexamined
++   done
+%   partially done
+-   of interest
+?   not sure
+x   not of interest
+ !  needs attention
+
++   r2312 | fix of hanging decoration disappearing in Batman Doom MAP02
+?   r2313 | comp[comp_oofsound] - done
++   r2319 | the global variable r_NoInterpolate is not necessary any more (s
++   r2320 | don't thrash cpu during pausing (should be applied to prboom)
++   r2321 | do nothing if a pause has been pressed during playback. pausing
+x   r2322 | "-auto" for autoloading of wads according to the lmp file-name
+?!  r2323 | correction of smart items clipping code: not a fully dead corpse
+?!  r2324 | heh, previous commiting was unsaved version.fixed
+?!  r2325 | there are three modes of sprite clipping in opengl:
+?!  r2326 | gl_sprite_offset moved to globals; things with MF_MISSILE should
+?!  r2327 | some comment changed
++   r2328 | fixed(?) cph's bug(?) introduced in r1431
++   r2329 | fix for 2328. maybe better possible
+x   r2330 | bug with def_arr type (Z_Realloc do not fill additional region o
++   r2331 | comp_doorstuck should be forced for boom201 compatibility (at le
+x   r2332 | launcher
++   r2333 | cph's one more bug: The current behaviour with comp_666 is that
++   r2334 | Check for prevention of possible collisions between level of com
++   r2335 | revert to r2333
++   r2336 | Additional check of gameepisode in A_BossDeath is added, because
+?!  r2337 | small fix for opengl, sky and mouselook
+x   r2338 | progress bar during demo playback works during skipping
+x   r2339 | minimization of distinctions with trunk
+x   r2341 | Merged r2304:2340 from trunk
+-   r2342 | Optional removal of a quit sound delay (it is old Prboom-Plus's
+-   r2344 | Improved support for Doom v1.2:
+x   r2345 | - the progress bar did not work correctly for demos with more th
+x   r2346 | Predefined translucency setting (comp_translucency) should not o
+x   r2347 | Prevention of division by zero in G_DoPlayDemo() if players coun
++   r2348 | Handling of unrecognized demo formats
++   r2349 | fix for r2348 (Doom v1.2 demos)
++   r2350 | comments
+x   r2351 | Files for -auto should be searched in all standard places: curre
+x   r2352 | Sometimes the figures for kills, items, etc., stop getting updat
+?   r2353 | warning C4018: '==' : signed/unsigned mismatch
+x   r2356 | to avoid conflicts prboom-plus.wad should be added with full pat
+x   r2357 | launcher
+x   r2358 | launcher again
+x   r2359 | launcher again again
+x   r2360 | added I_vWarning() function
+?   r2361 | I_FindFile: searching exe dir before current dir, check wfname a
++   r2362 | Better compatibility with boom v2.01. There are no more desync o
++   r2363 | fix for r2362
++   r2364 | demover is global now. it's required for demos recorded in "demo
++   r2365 | Three separate definitions of max and min are moved in doomtype.
+x   r2366 | Compilation fixes:
++   r2367 | max, min are renamed to MAX, MIN to avoid all possible warnings
++   r2368 | removing unnecessary code (after r2367)
+?!  r2369 | spriteclip code shouldn't be applied to things with MF_NOGRAVITY
+x   r2370 | Removed files and folders with compiled pcre libs
+x   r2371 | pcre projects are added to main solution
+?   r2372 | New savegame format with continuous numbering. Now it is not nec
+?   r2373 | missed PACKAGEVERSION in VisualC6\config.h
+?   r2374 | ALL_IN_ONE define for having PrBoom-Plus.wad in the exe (win32 o
+?   r2375 | fix compilation
+x   r2376 | Merged r2340:2355 from trunk
++   r2377 | Fixed mbf_compatibility incompatibility. There is no more desync
+x   r2378 | Demo Progress Bar during skipping will be updated not more often
+x   r2380 | All-in-one doesn't find resource wad when using -auto
++   r2381 | "All boss types can trigger tag 666 at ExM8" -> "Emulate pre-Ult
++   r2382 | There is no more crashes on boom200 demos (wrongly header readin
++!  r2383 | Animated middle textures with a zero index should be forced.
+?!  r2384 | New mouse code without SDL lags. Win32 mouse handling was remove
+-   r2385 | non traditional menu was removed to avoid bugs with Alien Vendet
+?!  r2386 | New mouse code: Sounds as nonsense, but SDL mouse lags are depen
+?   r2387 | do not clear events queue at the start (like vanilla)
+?!  r2388 | some comments about new mouse code
+?!  r2389 | There is no more win32 specific code in new mouse code. Now it w
+x   r2390 | launcher: wrong strings in history combo
+-   r2391 | sound_noquitsound is renamed to misc_fastexit
+?!  r2392 | missed SDL_WM_GrabInput(SDL_GRAB_OFF)
+-   r2393 | do not process mouse input in menu because it's buggy and annoyi
+x   r2394 | Merged r2355:2379 from trunk
+%   r2395 | fix some compilation problems on MAC and POSIX
+?!  r2396 | very small improvement
++   r2397 | Fixed Boom incompatibilities. There are no more desyncs on Donce
++   r2398 | Fixed Boom incompatibilities. Original friction and bobbing code
+x   r2399 | bump version to 2.4.8.2
+    r2400 | REJECT overflow cannot be emulated if the REJECT size is not div
+    r2401 | Not used function (RejectOverrunAddInt) has been removed
+    r2402 | Boom's color maps are supported in OpenGL mode
+    r2403 | Boom's colormaps: some comments are added
+    r2404 | Effect of invulnerability uses a colormap instead of hard-coding
+    r2405 | comp[comp_skymap] works in OpenGL mode now;
+    r2406 | "Paper Items" setting is not applied to hanging things.
+    r2407 | always grab the mouse in camera mode when playing levels and men
+    r2408 | [-] PrBoom bug: %DOOMWADDIR% had no effect for PWADs.
+    r2409 | Boom's colormaps in OpenGL: fix crash in gld_Precache
+    r2410 | New mus -> mid conversion code thanks to Ben Ryves <benryves@ben
+    r2411 | [-] new invulnerability/colormap handling in
+    r2412 | some new files are removed before readding with corrected eol st
+    r2413 | New mus2mid conversion code. All tabs are replaced with spaces.
+    r2414 | Fixed eol style of files
+    r2415 | fix compilation with vc2005
+    r2416 | check of bounds of the matched part in autoplaydemo mode for cor
+    r2417 | PCRE_NOTBOL flag is removed from regexec(). Not needed.
+    r2418 | A bug with the new music code: midi files (i.e. directly placed
+    r2421 | fix warning with vc6
+    r2422 | Merged r2379:2420 from trunk
+    r2424 | [-] Strip of rendered graphics appears under status bar
+    r2425 | fix for r2424 and OpenGL
+    r2426 | Merged r2420:2423 from trunk
+    r2430 | fix for r2424 and MP: SP status bar displayed for DM
+    r2431 | Attempt to fix the bug #1653750: With OpenGL rendering, many of
+    r2432 | Make it compile on Mac OS X again. Music is disabled for now.
+    r2433 | Make music work again.
+    r2440 | better math: there are no more strips of rendered graphics (at 6
+    r2441 | Fixed incompatibility with original EXE's (complevels 0..6) on l
+    r2442 | Dynamic calculation of PACKAGEVERSION
+    r2443 | duplicated code after old merge
+    r2444 | global BETWEEN define
+    r2445 | In PRBoom the player's weapon is displayed much darker than in o
+    r2446 | Boom's colormaps in OpenGL: fix for idbeholdl+idbeholdv
+    r2449 | PrBoom-Plus bug: When radsuit ends, palette changes w/o warning
+    r2450 | When playing back with -recordfromto, and before resuming record
+    r2451 | Issue with lines (boxes) that appear around the elements that ch
+    r2452 | small optimization of gld_InitGLVersion()
+    r2453 | Post-process the texture data after the buffer has been created.
+    r2460 | Fixes to the posix build system:
+    r2462 | Improved support for Doom v1.2
+    r2463 | Reorganization of the code for looking for bex/deh patches in al
+    r2466 | Make "Not all required files are found" more user-friendly
+    r2467 | [-] When a file with the bex extension is used in an autoloading
+    r2468 | Correction for DEHs which swap the values of two strings.
+    r2469 | interpolation for weapon bobbing
+    r2470 | Two-pass method for better usability of automap:
+    r2471 | New command-line switch "-emulate prboom_ver" for emulation of o
+    r2473 | Kills/Items/Secrets percentage reported wrong if too high
+    r2474 | -emulate and -force_* command-line switches work only during dem
+    r2475 | comp_sound has been merged with comp_oofsound and moved to the c
+    r2476 | - "Zombie players can exit levels"
+    r2479 | bugs if USE_VERTEX_ARRAYS not defined
+    r2480 | Add PC speaker code from chocolate-doom
+    r2481 | added pcsound library
+    r2482 | Boom's colormaps in OpenGL: memory leak
+    r2483 | Do not clear video memory after loading on same level
+    r2484 | (f)printf => lprintf in PCSOUND files
+    r2485 | bug introduced in r2482 - wrong indexes were used
+    r2486 | PrBoom bug: Par times are not shown
+    r2487 | Sometimes the pistol sounds that play while the tallies are bein
+    r2488 | Has made compatible my correction of par times (r2486) with "-au
+    r2489 | fix "-emulation" code
+    r2490 | let's show the warning if savegame is from the previous version
+    r2491 | has made dynamic changing of gamespeed more smooth
+    r2492 | "-force_lxdoom_demo_compatibility" comman-line switch for emulat
+    r2493 | On ExM8 of movie runs, the total time is often displayed wrong.
+    r2494 | -force_lxdoom_demo_compatibility: there are no more desynchs on
+    r2495 | The ultimate 'ATI sucks' fix: Some of ATIs graphics cards are so
+    r2496 | big comment for r2473:
+    r2497 | fix for demoprogressbar with veeeeeeery long demos on high resol
+    r2498 | fix compilation problems
+    r2499 | gl_render_precise variable for control of the new seamless code
+    r2500 | Move the window to the screen center if stupid SDL create it in
+    r2501 | Fix crash when the program wants to S_AdjustSoundParams() for pl
+    r2502 | The local variable should be used in G_ReadDemoHeader() instead
+    r2503 | check for overrun in G_ReadDemoHeader()
+    r2504 | allow -recordfromto for all levels of compatibility
+    r2505 | "-emulate prboom_ver" includes bug with direct switch to SSG in
+    r2506 | huge speedup (up to 10x) on levels with sectors which have many
+    r2507 | fix for r2506
+    r2508 | -emultae prboom-ver stuff: few new entries are added
+    r2509 | Monsters spawned by Icon of Sin should not be countable for tota
+    r2510 | comment for previous commit (r2509)
+    r2511 | S_DISABLE and CR_DISABLE for disabled items in menu to avoid bug
+    r2512 | Sound initialization was broken in r2508 if "-skipsec" command-l
+    r2513 | Attempt to revert some old changes made in prboom+. Probably all
+    r2514 | A lot of cleanups, speedups and bugfixes in render:
+    r2515 | Avoid crashes at end of demos if DEMOMARKER (0x80) does not exis
+    r2516 | fix for r2515
+    r2517 | fix for r2506 (huge speedup on levels with sectors which have ma
+    r2518 | Fox for "The ultimate 'ATI sucks' fix" (r2495)
+    r2519 | fix compilation problems
+    r2520 | Compatibility with common mapping errors "linedefs w/o tags appl
+    r2521 | M_DoScreenShot did not work with "-videodriver directx" on fulls
+    r2522 | Optimization of "quality" mode of "rendering quality" setting. V
+    r2523 | fix compilation problems
+    r2524 | Do not use seamless code ("quality" mode) in software mode
+    r2525 | missed M_ChangeGLRenderPrecise call
+    r2526 | In GL mode, the IDRATE info for sprites is always displayed as 0
+    r2527 | Try to fix building prboom-plus under linux again.
+    r2528 | Optimization of "quality" mode of "rendering quality" setting. F
+    r2529 | fix r2513: statusbar were not updated in automap mode on softwar
+    r2530 | There is no more visual glitches with sky on Icarus map14 and He
+    r2531 | nothing. comment.
+    r2532 | Fix of no warning (flashes between shadowed and solid) when invi
+    r2533 | PrBoom bug: When putting -devparm in the command line, prboom-pl
+    r2534 | Do not rebuild blockmap on the same level (after save/load)
+    r2535 | Blinking during demoskip on fullscreen
+    r2536 | Don't thrash cpu if the window doesnt have focus
+    r2537 | Original P_FindNextHighestFloor() is restored for demo_compatibi
+    r2538 | Ability to force -nomonsters and -respawn for playback of 1.2 de
+    r2539 | 1. gl_boom_colormaps config's variable to reduce memory use
+    r2540 | USE_GLU_IMAGESCALE is temporarily enabled to avoid some bugs
+    r2541 | optimization: make heightlist static to avoid malloc/free pair i
+    r2543 | DemoProgresBar continued to be displayed for in-wad demos (demo1
+    r2544 | There are TWO bugs in the ouch face code. Not only was the condi
+    r2545 | Move mouse sensitivity menu upwards a little to avoid overlap wi
+    r2546 | The bug in algorithm of splitting of a sector into the closed co
+    r2547 | There is a new command-line switch "-shorttics". This makes it p
+    r2548 | fix compilation problem
+    r2549 | Fix compilation on Mac OS X.
+    r2550 | fix sound origin for large levels
+    r2551 | fix previous revision r2550
+    r2552 | Premature program exit during map26 in 4-player coop demo 29uv4p
+    r2553 | dded two new precalculated float fields in GLTexture struct
+    r2554 | Wrong calculation of x2 coordinate of a weapon in gld_DrawWeapon
+    r2555 | fix for r2554
+    r2556 | M_ChangeFOV() and M_ChangeGLRenderPrecise() should be under cond
+    r2557 | two video pages should be cleared in gld_Init to avoid blink dur
+    r2558 | Remove any line which has a clone with the same vertexes and ori
+    r2559 | "Allow Boom colormaps" setting => "Allow colormaps"
+    r2560 | wipe screen effect in OpenGL
+    r2561 | wipe screen effect in OpenGL: fix memory overflow
+    r2562 | fixed slowdown during screen melt at 1024x768 on some systems
+    r2563 | fix menu bug after r2560 (wipe screen effect in OpenGL)
+    r2564 | Changes in algorithm of GL wipe. Now it works more quickly, requ
+    r2565 | Add gl_wipe.c to src/Makefile.am
+    r2566 | Transferred sky texture on scrolled wall was not scrolled if mou
+    r2567 | merge R_CheckTextureNumForName from prboom
+    r2568 | Fix compilation on Mac OS X: add gl_wipe.c to src/MAC/Rakefile
+    r2569 | vertical scroll on transferred sky texture works now too (if mou
+    r2570 | scroll stuff from the latest revisions is temporally disabled
+    r2571 | scroll on transferred sky texture is enabled again
+    r2572 | [-] GL wipe: white screen during final screen animation in some
+    r2573 | sky property-transfer linedef types should be applied only for M
+    r2574 | sky transfer under prboom_comp now
+    r2575 | Reuse of a current palette to avoid black screen at software ful
+    r2576 | unnecessary (duplicated) call of UpdateGrab() is removed from D_
+    r2577 | More adequate warning of possibility of desynch in compatibility
+    r2578 | from chocolate-doom r958: Initialise tracksize variable before m
+    r2580 | hires textures
+    r2581 | hires:
+    r2582 | hires patches
+    r2583 | fake colormaps for hires patches
+    r2584 | fix progress of load hires on fullscreen
+    r2585 | hires: fix for hires patches and sts_always_red; optimization of
+    r2586 | hires: another fix for progress bar
+    r2587 | all gluBuild2DMipmaps entries had wrong second parameter: gl_tex
+    r2588 | caching of non power of two hires textures. it speed up loading
+    r2589 | Import the clipper code from gzdoom. Thanks to GrafZahl. PrBoom
+    r2592 | new defaults
+    r2593 | Type of useType in gl_hires.c/gld_HiresGetTextureName was unknow
+    r2594 | HAVE_LIBSDL_IMAGE stuff: sources now are compilable even if you
+    r2595 | configure.in: Test for SDL_image being installed.
+    r2600 | duplicated items are removed in prboom-plus.wad
+    r2601 | fix compilation problems with msvc2005
+    r2602 | another fix compilation problems with msvc2005
+    r2603 | definition for hires textures on MAC
+    r2605 | plus needs SDL_image
+    r2606 | Don't redefine M_PI when already defined; reduces compiler spew
+    r2607 | Find hires textures on more platforms and with less case sensiti
+    r2608 | Find hires textures in lowercase in cases of case-sensitive file
+    r2609 | fix SEGV in HU_Start() when gamemap is not initialized
+    r2610 | update docs
+    r2611 | History is no longer stored on the Internet
+    r2612 | strlwr is not portable
+    r2613 | Update doc/Makefile.am to include prboom-plus-* documentation fi
+    r2614 | Check for strlwr in configure.in (used in gl_hires.c)
+    r2615 | Fixed crash in M_ResetDefaults().
+    r2616 | fixed bug if translucency percentage is less than 50, then all t
+    r2618 | Disabling transparency in OpenGL for original sprites which are
+    r2619 | typo
+    r2620 | allowing to bind mouse buttons through in-game menu was broken i
+    r2621 | fix bug during recording non-compatible demos (complevel >= 9) w
+    r2622 | do not update progress of loading hires more often than 35 times
+    r2623 | Support for DDS format of hires textures. DDSes can be loaded wi
+    r2624 | config.h: do not link SDL_image.lib if HAVE_LIBSDL_IMAGE is not
+    r2625 | do not update progress of hires loading if no real hires was loa
+    r2626 | configurable level of aniso (from in-game menu Off..16x)
+    r2627 | Better distinguish the PrBoom launcher from the PrBoom Plus one
+    r2628 | execution time of gld_Precache() -> stdout.txt
+    r2629 | Mouse look did not work on automap in overlay mode.
+    r2630 | Do not try to find hires textures in non existing dirs over and
+    r2631 | universal SNPRINTF instead of
+    r2632 | Applying SNPRINTF for whole code
+    r2633 | small fix for SNPRINTF (defines)
+    r2634 | wrong index in launcher. how it worked earlier?
+    r2635 | Technique of rendering to texture; Real black and white effect f
+    r2636 | some compatibility stuff with new invul effect and old hardware
+    r2637 | More 'real' invul effect without using colormaps (needs opengl 1
+    r2638 | More informative message if frame buffer object (FBO) has not be
+    r2639 | GL_RGBA8 for SceneImageTextureFBO instead of gl_tex_format. Is i
+    r2640 | Do not try to create a frame buffer if GL_EXT_framebuffer_object
+    r2641 | Ability to use only the allowed CPUs. For example it is necessar
+    r2642 | %d for GetLastError() instead of %s of course
+    r2643 | gl_compatibility variable; all OpenGL extentions will be disable
+    r2644 | FBO: cleanup
+    r2645 | An alternative way of drawing the sky was added (gl_drawskys ==
+    r2646 | Solution for Visual Studio 2008.
+    r2647 | Bump version number to 2.4.8.3
+    r2648 | OpenGL: Fake contrast should add/remove one light level for wall
+    r2649 | Fix condition for bringing up the launcher if SHIFT key is press
+    r2650 | fix Visual Studio 2008 solution
+    r2651 | help_friends is zero by default now, because it super slow. I ha
+    r2652 | wrong GL_TEXTURE_MAG_FILTER for detail texture
+    r2653 | fixed bug in gl wipe
+    r2654 | Fix bug in new clipper code. Some unnecessary lines were drawn.
+    r2655 | Do not use FBO for all frames. Should be used only if motion blu
+    r2656 | Never grab the mouse when window does not have focus
+    r2657 | Check and fix wrong references to non-existent vertexes in SEGS
+    r2658 | More informative warning for previous revision
+    r2659 | Disable demo recording on levels with invalid nodes (see previou
+    r2660 | fix for error quit message in r2659
+    r2661 | More precise rotation of sprite if render_paperitems is equal to
+    r2662 | Additional sector light mode was added (Options\General\Sector L
+    r2665 | Fix compilation on Mac OS X 10.5 when using 10.4u SDK.
+    r2667 | _exit() instead of ExitProcess() for "-resetgamma"
+    r2668 | Restore of startup gamma if window loses focus
+    r2669 | fix compilation problems
+    r2672 | Unknown gl nodes will be ignored instead of I_Error message
+    r2673 | Avoid zdoom's code in additional sector light mode. Now it is fr
+    r2674 | optimization of sprite rotation
+    r2675 | Restoring original visual behaviour for demo_compatibility. View
+    r2676 | Ability to play wads with wrong flat names. Unknown flats will b
+    r2677 | Make missing sounds non-fatal. Makes sense for doom.wad v1.2 for
+    r2678 | fix bug of r2674
+    r2679 | Revert r2530. Icarus map14 and Hell Revialed map20 will have pro
+    r2680 | Refactor the intercepts overrun code so that it should work prop
+    r2681 | Launcher (win32): Now you can associate the current EXE with DOO
+    r2682 | New logic in music detection code from chocolate-doom.
+    r2683 | sky property-transfer linedef types will be applied for boom com
+    r2684 | Try to fix SmoothEdges on big endian systems; fixes sprite issue
+    r2685 | refix SmoothEdges for little endian and tabs replaced with space
+    r2686 | Fix bug with sky in the bottom part of an imaginary skybox aroun
+    r2687 | opengl: more correct (similar to software) drawing of skies with
+    r2688 | Clear the screen to black in V_AllocScreen(). Makes sense for wi
+    r2689 | there is no restriction for length of midies. fix for r2682
+    r2690 | process_affinity_mask is 1 by default
+    r2691 | another try to fix problem with sky on map14 @ Icarus.wad sector
+    r2696 | Fixed some warnings about uninitialized/unused variables and shu
+    r2700 | Merged r2423:2699 from trunk (hicolor)
+    r2701 | Advanced syntax for -geom command-line switch
+    r2702 | Fix compilation. GCC doesn't like casted lvalues: (byte *)psrc -
+    r2705 | fix for latest merge r2700 and r2440
+    r2707 | added description to r_screenmultiply.c.h;
+    r2708 | Screens works now for non 8-bit modes in software (16-bit, 32-bi
+    r2712 | dogs
+    r2719 | Merged r2699:2718 from trunk
+    r2723 | Speed up in R_PointToAngleEx() in software mode
+    r2726 | Merged r2718:2725 from trunk
+    r2727 | gl_render_precise now is known as render_precise and applies to
+    r2728 | comment added for r2727
+    r2729 | better code for r2723
+    r2730 | lower memory usage if glcolormaps are used
+    r2731 | Clean the memory from GL textures, etc in I_ShutdownGraphics
+    r2732 | Simplification of the code for the previous revision r2731
+    r2733 | Speedup of level reloading in OpenGL mode
+    r2735 | Fixed error in OpenGL if upper texture on the linedef with "Tran
+    r2742 | Merged r2725:2741 from trunk
+    r2743 | Fixed bug with GL gamma in GZDoom mode for some buggy drivers:
+    r2744 | Use MEM_SEEK_SET for memio, not SEEK_SET (from chocolate-doom an
+    r2755 | Fix for r2733 (Speedup of level reloading in OpenGL mode):
+    r2756 | Remove duplicate declaration of G_ReadDemoHeader in e6y.h
+    r2757 | Fix {m,c}alloc_IfSameLevel build failure
+    r2758 | comperr_hangsolid: Pretend there's a fake ceiling under a body
+    r2761 | explicit type was missed in r2733
+    r2762 | Removal of duplicates from cfg.
+    r2763 | Fix for r2682: non-MUS/MIDI music (MOD, S3M, etc) was broken the
+    r2764 | Fixed crash (Not enough storage is available to process this com
+    r2765 | Fixed crash if numbers of wads/lmps/dehs is greater than 100.
+    r2766 | Fix vanilla unprecise calculation (vibrations) of the texture co
+    r2767 | Fix wrong processing of the "Blue Armor Class" string from a DEH
+    r2768 | Fix wrong processing of the "Green Armor Class" string from a DE
+    r2769 | comments for the previous two revisions
+    r2770 | Ability to play demos recorded with old prbooms with wrong proce
+    r2771 | Previous fixes for wrong processing of armor classes from a deh
+    r2772 | Pump the event loop (SDL_PumpEvents) in I_InitInputs() before fi
+    r2773 | New 'mixed' lighting mode for opengl. It uses gamma ramps like i
+    r2774 | hardware gamma stuff has been moved to gl_gamma.c
+    r2775 | Fix build failure, add new file gl_gamma.c to src/Makefile.am
+    r2776 | Fix compilation with MSVC2008
+    r2777 | There is no more necessity to restart glboom after change of tex
+    r2778 | Fix compilation problems for nongl configurations
+    r2779 | More accurate patch drawing. Predefined arrays are used instead
+    r2780 | fix gamma in glboom mode (introduced in r2773, r2774)
+    r2781 | refix "Respawn frame" part of r2117
+    r2782 | "Flashing HOM indicator" option did nothing. Fixed.
+    r2783 | Ability to use negative numbers with -skipsec switch. "-skipsec
+    r2784 | Fixed crash in case if WI_drawOnLnode will try to get access to
+    r2785 | Added demo compatibility with chex.exe
+    r2786 | The latest column of patches was not drawn. Introduced in r2779
+    r2787 | The level of compatibility at which fix for comp_stairs should b
+    r2788 | fixed stupid mistake in chex stuff (r2785)
+    r2789 | key_setup was not saved in cfg
+    r2790 | detection of more unsupported demo formats
+    r2791 | Texture bug. GL only. Example in ksutra.wad map15, "COOL!" area.
+    r2792 | videodriver name now saved in cfg
+    r2793 | The fourth episode for pre ultimate doom complevels is not allow
+    r2794 | More precise weapon drawing in GL: there is no more line of grap
+    r2795 | make GL stuff from the previous revision (r2794) under GL_DOOM d
+    r2796 | One more 'ATI sucks' revision.
+    r2797 | fixed anisotropic filtering. 16x now is 16x instead of 4x
+    r2798 | Prepare for release 2.4.8.3.
+    r2799 | missed change log entries
+    r2801 | Text mode emulation code from Chocolate-Doom
+    r2802 | New application icon and loading it through SDL
+    r2803 | Updated MSVC project files for using text mode emulation code
+    r2804 | ENDOOM support using text mode emulation
+    r2805 | missed icon.c and python script from chocolate-doom for generati
+    r2806 | Add textscreen to autotools
+    r2807 | Add icon.c and doomkeys.h to autotools
+    r2808 | quick and lazy fix for memory overrun introduced in r2779
+    r2809 | Restore version banner output on exit
+    r2810 | -r2766
+    r2811 | Separate out list of extensions to be added to music_tmp
+    r2812 | Construct temporary filename from music_tmp with extension added
+    r2813 | I_ShutdownMusic: delete music_tmp and all its possible extension
+    r2814 | Minor music_tmp-related fixes
+    r2815 | prevent recursive exits
+    r2816 | stop music before shutdown
+    r2817 | New algorithm for detection of fake flats and ceilings. It is mu
+    r2818 | Fix build failure, add new file gl_missingtexture.c to src/Makef
+    r2819 | r2817+: better handling of fake floors/ceilings for sectors with
+    r2820 | bump version to 2.4.8.4
+    r2821 | Update docs and change log
+    r2822 | Fixed compilation on Mac?
+    r2823 | added gl_gamma to Rakefile
+    r2824 | Shift Mac build to 10.5 target
+    r2825 | Remove headers from mac build
+    r2827 | bump version to 2.4.8.5
+    r2828 | Fixed crash when nodes used for in-wad demo playback are not equ
+    r2829 | Set processor affinity under non-Windows platforms using the POS
+    r2830 | random symbol after #endif
+    r2831 | I_SetAffinityMask() has moved to i_main.c from e6y.c
+    r2832 | Fix compilation on *nix
+    r2833 | Eating of Alt-Tab event to prevent switching to the automap afte
+    r2834 | Stupid bug in deh processing. Thanks Death-Destiny for the hint
+    r2835 | Fixed old bug in searching responsefile.
+    r2836 | fixed crash with @responsefile
+    r2837 | change log for 2.4.8.5
+    r2838 | bump version to 2.4.8.6
+    r2839 | For now, set a no-op I_SetAffinityMask for the Mac
+    r2850 | Resolution limitation is removed. Memory usage has decreased as
+    r2852 | fixed crash if screenblocks is not equal to 11 (introduced in th
+    r2853 | fixed hi-color modes for r2850
+    r2863 | fixed bug with caching planes heights (introduced in r2850)
+    r2864 | "PrBoom-Plus" -> PACKAGE_TITLE
+    r2865 | Temporarily define PACKAGE_TITLE in configure.in and MAC/config.
