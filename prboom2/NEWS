@@ -2,6 +2,16 @@ This file shows a history of changes between PrBoom versions since v2.1.0.
 For historical reference, the complete LxDoom changelog follows it.
 
 Changes from v2.4.7 to v2.4.8
+- Don't process mouse input in the menus [prb+]
+- Always use Doom's main menu order to avoid bugs with Alien Vendetta [prb+]
+- Remove line of junk graphics below status bar [prb+]
+- Restore Boom friction and bobbing code [prb+]
+- Fix crash by testing for null targets in mancubus fire code pointers
+- Restore last known enemy check in Boom compatibility [prb+]
+- Animated middle textures with zero index forced [prb+]
+- Better handling of unrecognised demo formats [prb+]
+- Fix for hanging decoration disappearing in Batman Doom MAP02 [prb+]
+- Fix menu description: pain elementals are limited to 21 lost souls
 - Manual page fixes from Debian
 - Fix position of netgame player arrows on the automap in rotate mode
 - Ignore chat key presses in multiplayer demo playback and -solo-net
