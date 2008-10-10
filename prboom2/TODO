@@ -785,7 +785,7 @@ x   r2380 | All-in-one doesn't find resource wad when using -auto
 +   r2382 | There is no more crashes on boom200 demos (wrongly header readin
 +!  r2383 | Animated middle textures with a zero index should be forced.
 ?!  r2384 | New mouse code without SDL lags. Win32 mouse handling was remove
--   r2385 | non traditional menu was removed to avoid bugs with Alien Vendet
++   r2385 | non traditional menu was removed to avoid bugs with Alien Vendet
 ?!  r2386 | New mouse code: Sounds as nonsense, but SDL mouse lags are depen
 ?   r2387 | do not clear events queue at the start (like vanilla)
 ?!  r2388 | some comments about new mouse code
@@ -793,42 +793,42 @@ x   r2380 | All-in-one doesn't find resource wad when using -auto
 x   r2390 | launcher: wrong strings in history combo
 -   r2391 | sound_noquitsound is renamed to misc_fastexit
 ?!  r2392 | missed SDL_WM_GrabInput(SDL_GRAB_OFF)
--   r2393 | do not process mouse input in menu because it's buggy and annoyi
++   r2393 | do not process mouse input in menu because it's buggy and annoyi
 x   r2394 | Merged r2355:2379 from trunk
 %   r2395 | fix some compilation problems on MAC and POSIX
 ?!  r2396 | very small improvement
 +   r2397 | Fixed Boom incompatibilities. There are no more desyncs on Donce
 +   r2398 | Fixed Boom incompatibilities. Original friction and bobbing code
 x   r2399 | bump version to 2.4.8.2
-    r2400 | REJECT overflow cannot be emulated if the REJECT size is not div
-    r2401 | Not used function (RejectOverrunAddInt) has been removed
-    r2402 | Boom's color maps are supported in OpenGL mode
-    r2403 | Boom's colormaps: some comments are added
-    r2404 | Effect of invulnerability uses a colormap instead of hard-coding
-    r2405 | comp[comp_skymap] works in OpenGL mode now;
-    r2406 | "Paper Items" setting is not applied to hanging things.
-    r2407 | always grab the mouse in camera mode when playing levels and men
-    r2408 | [-] PrBoom bug: %DOOMWADDIR% had no effect for PWADs.
-    r2409 | Boom's colormaps in OpenGL: fix crash in gld_Precache
-    r2410 | New mus -> mid conversion code thanks to Ben Ryves <benryves@ben
-    r2411 | [-] new invulnerability/colormap handling in
-    r2412 | some new files are removed before readding with corrected eol st
-    r2413 | New mus2mid conversion code. All tabs are replaced with spaces.
-    r2414 | Fixed eol style of files
-    r2415 | fix compilation with vc2005
-    r2416 | check of bounds of the matched part in autoplaydemo mode for cor
-    r2417 | PCRE_NOTBOL flag is removed from regexec(). Not needed.
-    r2418 | A bug with the new music code: midi files (i.e. directly placed
-    r2421 | fix warning with vc6
-    r2422 | Merged r2379:2420 from trunk
-    r2424 | [-] Strip of rendered graphics appears under status bar
-    r2425 | fix for r2424 and OpenGL
-    r2426 | Merged r2420:2423 from trunk
-    r2430 | fix for r2424 and MP: SP status bar displayed for DM
-    r2431 | Attempt to fix the bug #1653750: With OpenGL rendering, many of
-    r2432 | Make it compile on Mac OS X again. Music is disabled for now.
-    r2433 | Make music work again.
-    r2440 | better math: there are no more strips of rendered graphics (at 6
+x   r2400 | REJECT overflow cannot be emulated if the REJECT size is not div
+x   r2401 | Not used function (RejectOverrunAddInt) has been removed
+?!  r2402 | Boom's color maps are supported in OpenGL mode
+?!  r2403 | Boom's colormaps: some comments are added
+?!  r2404 | Effect of invulnerability uses a colormap instead of hard-coding
+?!  r2405 | comp[comp_skymap] works in OpenGL mode now;
+x   r2406 | "Paper Items" setting is not applied to hanging things.
+x   r2407 | always grab the mouse in camera mode when playing levels and men
+-   r2408 | [-] PrBoom bug: %DOOMWADDIR% had no effect for PWADs.
+?!  r2409 | Boom's colormaps in OpenGL: fix crash in gld_Precache
+-!  r2410 | New mus -> mid conversion code thanks to Ben Ryves <benryves@ben
+?!  r2411 | [-] new invulnerability/colormap handling in
+-!  r2412 | some new files are removed before readding with corrected eol st
+-!  r2413 | New mus2mid conversion code. All tabs are replaced with spaces.
+-!  r2414 | Fixed eol style of files
+?   r2415 | fix compilation with vc2005
+x   r2416 | check of bounds of the matched part in autoplaydemo mode for cor
+x   r2417 | PCRE_NOTBOL flag is removed from regexec(). Not needed.
+-!  r2418 | A bug with the new music code: midi files (i.e. directly placed
+x   r2421 | fix warning with vc6
+x   r2422 | Merged r2379:2420 from trunk
++   r2424 | [-] Strip of rendered graphics appears under status bar
++   r2425 | fix for r2424 and OpenGL
+x   r2426 | Merged r2420:2423 from trunk
++   r2430 | fix for r2424 and MP: SP status bar displayed for DM
+?!  r2431 | Attempt to fix the bug #1653750: With OpenGL rendering, many of
+-!  r2432 | Make it compile on Mac OS X again. Music is disabled for now.
+-!  r2433 | Make music work again.
+-!  r2440 | better math: there are no more strips of rendered graphics (at 6
     r2441 | Fixed incompatibility with original EXE's (complevels 0..6) on l
     r2442 | Dynamic calculation of PACKAGEVERSION
     r2443 | duplicated code after old merge
@@ -1160,3 +1160,33 @@ x   r2399 | bump version to 2.4.8.2
     r2863 | fixed bug with caching planes heights (introduced in r2850)
     r2864 | "PrBoom-Plus" -> PACKAGE_TITLE
     r2865 | Temporarily define PACKAGE_TITLE in configure.in and MAC/config.
+
+--------------------------------------------------------------------------
+
+Convert status bar code to use V_DrawNamePatch instead of V_DrawNumPatch
+
+Screenshots have garbled colours in high colour modes
+
+Support trivial maps (bug #1837422): patches available but is it worth fixing?
+
+--------------------------------------------------------------------------
+
+Unresolved issues mentioned in the Doomworld thread since 2.4.7
+http://www.doomworld.com/vb/source-ports/23525-prboom-issues-thread/
+
+- http://www.doomworld.com/vb/post/640575
+  - don't modify default skill from new game menu
+  - psprite brightness, weapons are too dark (I believe pr+ fixes this)
+- http://www.doomworld.com/vb/post/644107
+  mbf options lumps (bad idea, dehacked changing cheats is annoying enough)
+- http://www.doomworld.com/vb/post/648619
+  suggestion to steal chocolate-doom's netgame code
+- http://www.doomworld.com/vb/post/654924
+  cheat codes don't work in -altdeath in single player but do in vanilla
+- http://www.doomworld.com/vb/post/699446
+  http://www.doomworld.com/vb/post/700314
+  http://www.doomworld.com/vb/post/712531
+  several different people complaining about the music
+- http://www.doomworld.com/vb/post/699684
+  draw boom fullscreen menus directly over the game?
+  patches available, would prefer review before committing.
