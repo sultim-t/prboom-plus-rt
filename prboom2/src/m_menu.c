@@ -75,8 +75,6 @@ int mouseSensitivity_vert;  // has default
 
 int showMessages;    // Show messages has default, 0 = off, 1 = on
 
-int traditional_menu;
-
 int hide_setup=1; // killough 5/15/98
 
 // Blocky mode, has default, 0 = high, 1 = normal
@@ -333,9 +331,9 @@ enum
 menuitem_t MainMenu[]=
 {
   {1,"M_NGAME", M_NewGame, 'n'},
+  {1,"M_OPTION",M_Options, 'o'},
   {1,"M_LOADG", M_LoadGame,'l'},
   {1,"M_SAVEG", M_SaveGame,'s'},
-  {1,"M_OPTION",M_Options, 'o'},
   // Another hickup with Special edition.
   {1,"M_RDTHIS",M_ReadThis,'r'},
   {1,"M_QUITG", M_QuitDOOM,'q'}
@@ -3178,7 +3176,6 @@ enum
   compat_moveblock,
   compat_model,
   compat_zerotags,
-  compat_menu,
   compat_666 = 0,
   compat_soul,
   compat_maskedanim,
@@ -3256,9 +3253,6 @@ setup_menu_t comp_settings2[] =  // Compatibility Settings screen #2
 
   {"Linedef effects work with sector tag = 0", S_YESNO, m_null, C_X,
    C_Y + compat_zerotags * COMP_SPC, {"comp_zerotags"}},
-
-  {"Use Doom's main menu ordering", S_YESNO, m_null, C_X,
-   C_Y + compat_menu * COMP_SPC, {"traditional_menu"}, 0, 0, M_ResetMenu},
 
   {"<- PREV", S_SKIP|S_PREV, m_null, KB_PREV, C_Y+C_NEXTPREV,{comp_settings1}},
 
@@ -5606,29 +5600,12 @@ void M_Init(void)
       break;
     }
 
-  M_ResetMenu();        // killough 10/98
   M_InitHelpScreen();   // init the help screen       // phares 4/08/98
   M_InitExtendedHelp(); // init extended help screens // phares 3/30/98
 
   M_ChangeDemoSmoothTurns();
 }
 
-// killough 10/98: allow runtime changing of menu order
-
-void M_ResetMenu(void)
-{
-  // killough 4/17/98:
-  // Doom traditional menu, for arch-conservatives like yours truly
-
-  while ((traditional_menu ? M_SaveGame : M_Options)
-   != MainMenu[options].routine)
-    {
-      menuitem_t t       = MainMenu[loadgame];
-      MainMenu[loadgame] = MainMenu[options];
-      MainMenu[options]  = MainMenu[savegame];
-      MainMenu[savegame] = t;
-    }
-}
 //
 // End of General Routines
 //

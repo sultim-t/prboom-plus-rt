@@ -256,8 +256,6 @@ default_t defaults[] =
    def_bool,ss_stat}, // makes percent signs on status bar always gray
   {"sts_traditional_keys",{&sts_traditional_keys},{0},0,1,  // killough 2/28/98
    def_bool,ss_stat}, // disables doubled card and skull key display on status bar
-  {"traditional_menu",{&traditional_menu},{1},0,1,
-   def_bool,ss_none}, // force use of Doom's main menu ordering // killough 4/17/98
   {"show_messages",{&showMessages},{1},0,1,
    def_bool,ss_none}, // enables message display
   {"autorun",{&autorun},{0},0,1,  // killough 3/6/98: preserve autorun across games
