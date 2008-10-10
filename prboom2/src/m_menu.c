@@ -4148,61 +4148,7 @@ boolean M_Responder (event_t* ev) {
     }
 
   } else {
-   // Process mouse input
-
-    if (ev->type == ev_mouse && mousewait < I_GetTime()) {
-      mousey += ev->data3;
-      if (mousey < lasty-30)
-  {
-    ch = key_menu_down;                            // phares 3/7/98
-    mousewait = I_GetTime() + 5;
-    mousey = lasty -= 30;
-  }
-      else if (mousey > lasty+30)
-  {
-    ch = key_menu_up;                              // phares 3/7/98
-    mousewait = I_GetTime() + 5;
-    mousey = lasty += 30;
-  }
-
-      mousex += ev->data2;
-      if (mousex < lastx-30)
-  {
-    ch = key_menu_left;                            // phares 3/7/98
-    mousewait = I_GetTime() + 5;
-    mousex = lastx -= 30;
-  }
-      else if (mousex > lastx+30)
-  {
-    ch = key_menu_right;                           // phares 3/7/98
-    mousewait = I_GetTime() + 5;
-    mousex = lastx += 30;
-  }
-
-      if (ev->data1&1)
-  {
-    ch = key_menu_enter;                           // phares 3/7/98
-    mousewait = I_GetTime() + 15;
-  }
-
-      if (ev->data1&2)
-  {
-    ch = key_menu_backspace;                       // phares 3/7/98
-    mousewait = I_GetTime() + 15;
-  }
-
-      // phares 4/4/98:
-      // Handle mouse button 3, and allow it to pass down
-      // to where key binding can eat it.
-
-      if (setup_active && set_keybnd_active)
-  if (ev->data1&4)
-    {
-    ch = 0; // meaningless, just to get you past the check for -1
-    mousewait = I_GetTime() + 15;
-    }
-    }
-    else
+    // Mouse input processing removed
 
       // Process keyboard input
 
