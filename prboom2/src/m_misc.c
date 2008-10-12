@@ -943,11 +943,10 @@ void M_LoadDefaults (void)
 #endif
             "%s%s%sboom.cfg", exedir, HasTrailingSlash(exedir) ? "" : "/", 
 #if ((defined GL_DOOM) && (defined _MSC_VER))
-            "gl"
+            "gl");
 #else
-            "pr"
+            "pr");
 #endif
-            );
   }
 
   lprintf (LO_CONFIRM, " default file: %s\n",defaultfile);
