@@ -724,9 +724,23 @@ void gld_SetPalette(int palette)
   }
 }
 
-void gld_ReadScreen (byte* scr)
+unsigned char *gld_ReadScreen(void)
 {
-  glReadPixels(0,0,SCREENWIDTH,SCREENHEIGHT,GL_RGB,GL_UNSIGNED_BYTE,scr);
+  unsigned char *scr;
+  unsigned char buffer[MAX_SCREENWIDTH*3];
+  int i;
+
+  scr = malloc(SCREENWIDTH * SCREENHEIGHT * 3);
+  if (scr) {
+    glReadPixels(0,0,SCREENWIDTH,SCREENHEIGHT,GL_RGB,GL_UNSIGNED_BYTE,scr);
+    for (i=0; i<SCREENHEIGHT/2; i++) {
+      memcpy(buffer, &scr[i*SCREENWIDTH*3], SCREENWIDTH*3);
+      memcpy(&scr[i*SCREENWIDTH*3],
+          &scr[(SCREENHEIGHT-(i+1))*SCREENWIDTH*3], SCREENWIDTH*3);
+      memcpy(&scr[(SCREENHEIGHT-(i+1))*SCREENWIDTH*3], buffer, SCREENWIDTH*3);
+    }
+  }
+  return scr;
 }
 
 GLvoid gld_Set2DMode(void)

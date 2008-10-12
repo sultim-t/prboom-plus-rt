@@ -415,6 +415,28 @@ void I_FinishUpdate (void)
 //
 int I_ScreenShot (const char *fname)
 {
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL)
+  {
+    int result = -1;
+    unsigned char *pixel_data = gld_ReadScreen();
+
+    if (pixel_data)
+    {
+      SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(
+          pixel_data, SCREENWIDTH, SCREENHEIGHT, 24, SCREENWIDTH*3,
+          0x000000ff, 0x0000ff00, 0x00ff0000, 0);
+
+      if (surface)
+      {
+        result = SDL_SaveBMP(surface, fname);
+        SDL_FreeSurface(surface);
+      }
+      free(pixel_data);
+    }
+    return result;
+  } else
+#endif
   return SDL_SaveBMP(SDL_GetVideoSurface(), fname);
 }
 
