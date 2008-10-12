@@ -244,7 +244,6 @@ prboom2/src/Makefile.am eol=lf
 prboom2/src/POSIX/Makefile.am eol=lf
 prboom2/src/SDL/Makefile.am eol=lf
 prboom2/tests/demo-testing.csv -text
-pyboom/main.py -text
 website/cgi-bin/genlin.cgi -text
 website/html/DOOM04.jpg -text
 website/html/DOOM05.jpg -text
