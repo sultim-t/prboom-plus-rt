@@ -44,6 +44,10 @@
 
 #include "SDL.h"
 
+#ifdef HAVE_LIBPNG
+#include <png.h>
+#endif
+
 #include "m_argv.h"
 #include "doomstat.h"
 #include "doomdef.h"
@@ -413,6 +417,163 @@ void I_FinishUpdate (void)
 //
 // I_ScreenShot
 //
+#ifdef HAVE_LIBPNG
+
+#if 0
+static int WritePNGfile(FILE* fp, const byte* data,
+    const int width, const int height, const byte* palette)
+{
+  png_structp png_ptr;
+  png_infop info_ptr;
+  boolean gl = V_GetMode() == VID_MODEGL;
+  png_time ptime;
+  int y, result = -1;
+
+  png_ptr = png_create_write_struct(
+      PNG_LIBPNG_VER_STRING,
+      png_error_ptr_NULL,
+      error_fn, NULL);
+
+  if (png_ptr == NULL)
+    return -1;
+
+  png_set_compression_level(png_ptr, 2);
+
+  info_ptr = png_create_info_struct(png_ptr);
+
+  if (info_ptr != NULL) {
+    png_init_io(png_ptr, fp);
+    png_set_IHDR(
+        png_ptr, info_ptr, width, height, 8,
+        !gl ? PNG_COLOR_TYPE_PALETTE : PNG_COLOR_TYPE_RGB,
+        PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+    if (palette)
+      png_set_PLTE(
+          png_ptr, info_ptr,
+          (png_colorp)palette, PNG_MAX_PALETTE_LENGTH);
+
+    png_convert_from_time_t(&ptime, time(NULL));
+    png_set_tIME(png_ptr, info_ptr, &ptime);
+
+    /* Now write the image header and data */
+
+    png_write_info(png_ptr, info_ptr);
+    for (y = 0; y < height; y++)
+      png_write_row(png_ptr, data + y*width*(gl ? 3 : 1));
+
+    png_write_end(png_ptr, info_ptr);
+    result = 0;
+  }
+  png_destroy_write_struct(&png_ptr,  png_infopp_NULL);
+  return result;
+}
+#endif
+
+static void error_fn(png_structp p, png_const_charp s)
+{
+  lprintf(LO_ERROR, "I_ScreenShot: %s\n", s);
+}
+
+static void warning_fn(png_structp p, png_const_charp s)
+{
+  lprintf(LO_WARN, "I_ScreenShot: %s\n", s);
+}
+
+static int I_WritePNGData(png_structp png_ptr, png_infop info_ptr)
+{
+  int y, result = -1;
+
+  switch (V_GetMode())
+  {
+#ifdef GL_DOOM
+    case VID_MODEGL:
+      {
+        unsigned char *pixel_data = gld_ReadScreen();
+
+        if (pixel_data)
+        {
+          png_write_info(png_ptr, info_ptr);
+          for (y = 0; y < SCREENHEIGHT; y++)
+            png_write_row(png_ptr, pixel_data + y*SCREENWIDTH*3);
+          png_write_end(png_ptr, info_ptr);
+
+          free(pixel_data);
+          result = 0;
+        }
+      }
+      break;
+#endif
+    case VID_MODE8:
+      {
+        int lump = W_GetNumForName("PLAYPAL");
+        const byte *palette = W_CacheLumpNum(lump);
+
+        png_set_PLTE(png_ptr, info_ptr,
+            (const png_colorp)palette, PNG_MAX_PALETTE_LENGTH);
+
+        png_write_info(png_ptr, info_ptr);
+        for (y = 0; y < SCREENHEIGHT; y++)
+          png_write_row(png_ptr, screens[0].data + y*SCREENWIDTH);
+        png_write_end(png_ptr, info_ptr);
+
+        W_UnlockLumpNum(lump);
+        result = 0;
+      }
+      break;
+    case VID_MODE15:
+    case VID_MODE16:
+    case VID_MODE32:
+    default:
+      lprintf(LO_WARN, "I_ScreenShot: unsupported video mode\n");
+      break;
+  }
+  return result;
+}
+
+int I_ScreenShot (const char *fname)
+{
+  int result = -1;
+  FILE *fp = fopen(fname, "wb");
+
+  if (fp)
+  {
+    png_struct *png_ptr = png_create_write_struct(
+        PNG_LIBPNG_VER_STRING, png_error_ptr_NULL, error_fn, warning_fn);
+
+    if (png_ptr)
+    {
+      png_info *info_ptr = png_create_info_struct(png_ptr);
+
+      if (info_ptr)
+      {
+        png_time ptime;
+
+        png_set_compression_level(png_ptr, 2);
+        png_init_io(png_ptr, fp);
+        png_set_IHDR(
+            png_ptr, info_ptr, SCREENWIDTH, SCREENHEIGHT, 8,
+            (V_GetMode() == VID_MODE8)
+              ? PNG_COLOR_TYPE_PALETTE
+              : PNG_COLOR_TYPE_RGB,
+            PNG_INTERLACE_NONE,
+            PNG_COMPRESSION_TYPE_DEFAULT,
+            PNG_FILTER_TYPE_DEFAULT);
+
+        png_convert_from_time_t(&ptime, time(NULL));
+        png_set_tIME(png_ptr, info_ptr, &ptime);
+
+        result = I_WritePNGData(png_ptr, info_ptr);
+      }
+      png_destroy_write_struct(&png_ptr,  png_infopp_NULL);
+    }
+    fclose(fp);
+  }
+  return result;
+}
+
+#else // !HAVE_LIBPNG
+
 int I_ScreenShot (const char *fname)
 {
 #ifdef GL_DOOM
@@ -439,6 +600,8 @@ int I_ScreenShot (const char *fname)
 #endif
   return SDL_SaveBMP(SDL_GetVideoSurface(), fname);
 }
+
+#endif // HAVE_LIBPNG
 
 //
 // I_SetPalette

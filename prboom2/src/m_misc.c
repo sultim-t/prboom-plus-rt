@@ -1023,51 +1023,6 @@ void M_LoadDefaults (void)
 // SCREEN SHOTS
 //
 
-#ifdef HAVE_LIBPNG
-
-#include <png.h>
-
-static void error_fn(png_structp p, png_const_charp s)
-{ screenshot_write_error = true; lprintf(LO_ERROR, "%s\n", s); }
-
-static void WritePNGfile(FILE* fp, const byte* data,
-       const int width, const int height, const byte* palette)
-{
-  png_structp png_ptr;
-  png_infop info_ptr;
-  boolean gl = V_GetMode() == VID_MODEGL;
-
-  png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, png_error_ptr_NULL, error_fn, NULL);
-  png_set_compression_level(png_ptr, 2);
-  if (png_ptr == NULL) { screenshot_write_error = true; return; }
-  info_ptr = png_create_info_struct(png_ptr);
-  if (info_ptr != NULL) {
-    png_init_io(png_ptr, fp);
-    png_set_IHDR(png_ptr, info_ptr, width, height, 8, !gl ? PNG_COLOR_TYPE_PALETTE : PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-
-    if (palette)
-      png_set_PLTE(png_ptr, info_ptr, (png_colorp)palette, PNG_MAX_PALETTE_LENGTH);
-    {
-      png_time t;
-      png_convert_from_time_t(&t, time(NULL));
-      png_set_tIME(png_ptr, info_ptr, &t);
-    }
-
-    { /* Now write the image header and data */
-      int y;
-
-      png_write_info(png_ptr, info_ptr);
-      for (y = 0; y < height; y++)
-        png_write_row(png_ptr, data + (gl ? height - y - 1 : y)*width*(gl ? 3 : 1));
-    }
-
-    png_write_end(png_ptr, info_ptr);
-  }
-  png_destroy_write_struct(&png_ptr,  png_infopp_NULL);
-}
-
-#endif /* !HAVE_LIBPNG */
-
 //
 // M_ScreenShot
 //
