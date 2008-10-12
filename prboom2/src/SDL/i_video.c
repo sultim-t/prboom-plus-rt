@@ -338,7 +338,10 @@ static void I_UploadNewPalette(int pal)
 
   // store the colors to the current display
   // SDL_SetColors(SDL_GetVideoSurface(), colours+256*pal, 0, 256);
-  SDL_SetPalette(SDL_GetVideoSurface(),SDL_PHYSPAL,colours+256*pal, 0, 256);
+  SDL_SetPalette(
+      SDL_GetVideoSurface(),
+      SDL_LOGPAL | SDL_PHYSPAL,
+      colours+256*pal, 0, 256);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -408,22 +411,11 @@ void I_FinishUpdate (void)
 }
 
 //
-// I_ReadScreen
+// I_ScreenShot
 //
-void I_ReadScreen (screeninfo_t *dest)
+int I_ScreenShot (const char *fname)
 {
-  int h;
-  byte *srcofs = screens[0].data;
-  byte *dstofs = dest->data;
-  int width, height;
-
-  width = MIN(screens[0].width, dest->width);
-  height = MIN(screens[0].height, dest->height);
-  for (h=height; h>0; h--) {
-    memcpy(dstofs, srcofs, width);
-    srcofs += screens[0].byte_pitch;
-    dstofs += dest->byte_pitch;
-  }
+  return SDL_SaveBMP(SDL_GetVideoSurface(), fname);
 }
 
 //
