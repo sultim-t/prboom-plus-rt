@@ -1023,9 +1023,6 @@ void M_LoadDefaults (void)
 // SCREEN SHOTS
 //
 
-// CPhipps - nasty but better than nothing
-static boolean screenshot_write_error;
-
 #ifdef HAVE_LIBPNG
 
 #include <png.h>
@@ -1096,35 +1093,34 @@ void M_DoScreenShot (const char* fname)
 #define SCREENSHOT_DIR "."
 #endif
 
+#ifdef HAVE_LIBPNG
+#define SCREENSHOT_EXT ".png"
+#else
+#define SCREENSHOT_EXT ".bmp"
+#endif
+
 void M_ScreenShot(void)
 {
   static int shot;
   char       lbmname[PATH_MAX + 1];
   int        startshot;
 
-  screenshot_write_error = false;
+  if (!access(SCREENSHOT_DIR,2))
+  {
+    startshot = shot; // CPhipps - prevent infinite loop
 
-  if (access(SCREENSHOT_DIR,2)) screenshot_write_error = true;
+    do {
+      sprintf(lbmname,SCREENSHOT_DIR "/doom%02d" SCREENSHOT_EXT, shot++);
+    } while (!access(lbmname,0) && (shot != startshot) && (shot < 10000));
 
-  startshot = shot; // CPhipps - prevent infinite loop
-
-  do {
-#ifdef HAVE_LIBPNG
-    sprintf(lbmname,"%s/doom%02d.png", SCREENSHOT_DIR, shot++);
-#else
-    sprintf(lbmname,"%s/doom%02d.bmp", SCREENSHOT_DIR, shot++);
-#endif
-  } while (!access(lbmname,0) && (shot != startshot) && (shot < 10000));
-
-  if (!access(lbmname,0)) screenshot_write_error = true;
-
-  if (screenshot_write_error) {
-    doom_printf ("M_ScreenShot: Couldn't create screenshot");
-    // killough 4/18/98
-    return;
+    if (access(lbmname,0))
+    {
+      S_StartSound(NULL,gamemode==commercial ? sfx_radio : sfx_tink);
+      M_DoScreenShot(lbmname); // cph
+      return;
+    }
   }
 
-  M_DoScreenShot(lbmname); // cph
-
-  S_StartSound(NULL,gamemode==commercial ? sfx_radio : sfx_tink);
+  doom_printf ("M_ScreenShot: Couldn't create screenshot");
+  return;
 }
