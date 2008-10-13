@@ -581,7 +581,14 @@ static void P_LoadNodes (int lump)
   data = W_CacheLumpNum (lump); // cph - wad lump handling updated
 
   if ((!data) || (!numnodes))
-    I_Error("P_LoadNodes: no nodes in level");
+  {
+    // allow trivial maps
+    if (numsubsectors == 1)
+      lprintf(LO_INFO,
+          "P_LoadNodes: trivial map (no nodes, one subsector)\n");
+    else
+      I_Error("P_LoadNodes: no nodes in level");
+  }
 
   for (i=0; i<numnodes; i++)
     {

@@ -456,6 +456,11 @@ void R_Init (void)
 subsector_t *R_PointInSubsector(fixed_t x, fixed_t y)
 {
   int nodenum = numnodes-1;
+
+  // special case for trivial maps (single subsector, no nodes)
+  if (numnodes == 0)
+    return subsectors;
+
   while (!(nodenum & NF_SUBSECTOR))
     nodenum = nodes[nodenum].children[R_PointOnSide(x, y, nodes+nodenum)];
   return &subsectors[nodenum & ~NF_SUBSECTOR];
