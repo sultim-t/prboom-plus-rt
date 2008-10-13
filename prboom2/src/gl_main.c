@@ -1127,7 +1127,9 @@ static void gld_CarveFlats(int bspnode, int numdivlines, divline_t *divlines, bo
   {
     // We have arrived at a subsector. The divline list contains all
     // the partition lines that carve out the subsector.
-    int ssidx = bspnode & (~NF_SUBSECTOR);
+    // special case for trivial maps (no nodes, single subsector)
+    int ssidx = (numnodes != 0) ? bspnode & (~NF_SUBSECTOR) : 0;
+
     if (!sectorclosed[subsectors[ssidx].sector->iSectorID])
       gld_FlatConvexCarver(ssidx, numdivlines, divlines);
     return;
