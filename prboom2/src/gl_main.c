@@ -724,6 +724,13 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
     }
     glColor3f(cm2RGB[cm][0], cm2RGB[cm][1], cm2RGB[cm][2]);//, cm2RGB[cm][3]);
   }
+  else
+  {
+    // e6y
+    // This is a workaround for some on-board Intel video cards.
+    // Do you know more elegant solution?
+    glColor3f(1.0f, 1.0f, 1.0f);
+  }
 
   glBegin(GL_TRIANGLE_STRIP);
     glTexCoord2f(fU1, fV1); glVertex2f((xpos),(ypos));
@@ -838,7 +845,7 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
     glTexCoord2f(fU2, fV1); glVertex2f((float)(x2),(float)(y1));
     glTexCoord2f(fU2, fV2); glVertex2f((float)(x2),(float)(y2));
   glEnd();
-  if(viewplayer->mo->flags & MF_SHADOW)
+  if(!vis->colormap)
   {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glAlphaFunc(GL_GEQUAL,0.5f);
