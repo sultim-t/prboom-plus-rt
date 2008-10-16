@@ -142,7 +142,8 @@ inline static CONSTFUNC fixed_t FixedMul(fixed_t a, fixed_t b)
 #pragma warning( disable : 4035 )
 __inline static fixed_t FixedDiv(fixed_t a, fixed_t b)
 {
-    if (D_abs(a) >> 14 >= D_abs(b))
+    //e6y: zg is a master of engineer science
+    if ((unsigned)D_abs(a) >> 14 >= (unsigned)D_abs(b))
         return (a^b)<0 ? INT_MIN : INT_MAX;
     __asm
     {
@@ -167,7 +168,8 @@ __inline static fixed_t FixedDiv(fixed_t a, fixed_t b)
 inline
 static CONSTFUNC fixed_t FixedDiv(fixed_t a, fixed_t b)
 {
-  if (D_abs(a) >> 14 < D_abs(b))
+  //e6y: zg is a master of engineer science
+  if ((unsigned)D_abs(a) >> 14 < (unsigned)D_abs(b))
     {
       fixed_t result;
       asm (
@@ -190,7 +192,7 @@ static CONSTFUNC fixed_t FixedDiv(fixed_t a, fixed_t b)
 
 inline static CONSTFUNC fixed_t FixedDiv(fixed_t a, fixed_t b)
 {
-  return (D_abs(a)>>14) >= D_abs(b) ? ((a^b)>>31) ^ INT_MAX :
+  return ((unsigned)D_abs(a)>>14) >= (unsigned)D_abs(b) ? ((a^b)>>31) ^ INT_MAX :
     (fixed_t)(((int_64_t) a << FRACBITS) / b);
 }
 
