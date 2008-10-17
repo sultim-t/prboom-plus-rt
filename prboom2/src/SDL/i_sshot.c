@@ -97,6 +97,50 @@ static int write_png_palette(
   return result;
 }
 
+static void fill_buffer_indexed(SDL_Surface *scr, void *buffer)
+{
+  memcpy(buffer, scr->pixels, SCREENWIDTH * SCREENHEIGHT);
+}
+
+static void fill_buffer_hicolor(SDL_Surface *scr, void *buffer)
+{
+  SDL_PixelFormat *fmt = scr->format;
+  png_color *pixel = buffer;
+  byte *source = scr->pixels;
+  int y;
+
+  // translate SDL pixel format into png_color
+  for (y = SCREENWIDTH * SCREENHEIGHT;
+      y > 0;
+      pixel++, source += fmt->BytesPerPixel, y--)
+  {
+    Uint32 p = *(Uint32 *)source;
+    pixel->red   = (((p & fmt->Rmask)>>fmt->Rshift)<<fmt->Rloss);
+    pixel->green = (((p & fmt->Gmask)>>fmt->Gshift)<<fmt->Gloss);
+    pixel->blue  = (((p & fmt->Bmask)>>fmt->Bshift)<<fmt->Bloss);
+  }
+}
+
+enum {
+  SCREENSHOT_SDL_INDEXED,
+  SCREENSHOT_SDL_HICOLOR,
+  SCREENSHOT_SDL_MODES
+};
+
+static const struct screenshot_sdl_func {
+  const size_t pixel_size;
+  void (*fill_buffer)(SDL_Surface *scr, void *buffer);
+} screenshot_sdl_funcs[SCREENSHOT_SDL_MODES] = {
+  {
+    sizeof(char),
+    fill_buffer_indexed
+  },
+  {
+    sizeof(png_color),
+    fill_buffer_hicolor
+  },
+};
+
 static int screenshot_indexed(
     png_struct *png_ptr, png_info *info_ptr, SDL_Surface *scr)
 {
