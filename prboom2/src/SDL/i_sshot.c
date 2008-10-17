@@ -97,16 +97,40 @@ static int write_png_palette(
   return result;
 }
 
-static int screenshot_indexed(png_struct *png_ptr, png_info *info_ptr)
+static int screenshot_indexed(
+    png_struct *png_ptr, png_info *info_ptr, SDL_Surface *scr)
 {
-  int y;
+  int y, result = -1;
+  byte *pixel_data;
 
-  png_write_info(png_ptr, info_ptr);
-  for (y = 0; y < SCREENHEIGHT; y++)
-    png_write_row(png_ptr, screens[0].data + y*SCREENWIDTH);
-  png_write_end(png_ptr, info_ptr);
+  pixel_data = malloc(SCREENWIDTH * SCREENHEIGHT);
 
-  return 0;
+  if (pixel_data)
+  {
+    int lock_needed = SDL_MUSTLOCK(scr);
+    int lock_was_successful = 0;
+
+    if (!lock_needed || SDL_LockSurface(scr) >= 0)
+    {
+      lock_was_successful = 1;
+      memcpy(pixel_data, scr->pixels, SCREENWIDTH * SCREENHEIGHT);
+      if (lock_needed)
+        SDL_UnlockSurface(scr);
+    }
+
+    if (lock_was_successful)
+    {
+      png_write_info(png_ptr, info_ptr);
+      for (y = 0; y < SCREENHEIGHT; y++)
+        png_write_row(png_ptr, pixel_data + y*SCREENWIDTH);
+      png_write_end(png_ptr, info_ptr);
+
+      result = 0;
+    }
+
+    free(pixel_data);
+  }
+  return result;
 }
 
 //
@@ -179,7 +203,7 @@ int I_ScreenShot (const char *fname)
 #endif
           case VID_MODE8:
             if (write_png_palette(png_ptr, info_ptr, scr) >= 0)
-              result = screenshot_indexed(png_ptr, info_ptr);
+              result = screenshot_indexed(png_ptr, info_ptr, scr);
             break;
 
           case VID_MODE15:
