@@ -72,6 +72,9 @@ static void warning_fn(png_structp p, png_const_charp s)
 // Software mode screenshots
 //
 
+// Write the indexed palette of the passed surface to the PNG file
+// Called from I_ScreenShot in 8bpp mode only
+
 static int write_png_palette(
     png_struct *png_ptr, png_info *info_ptr, SDL_Surface *scr)
 {
@@ -82,6 +85,7 @@ static int write_png_palette(
 
   if (palette)
   {
+    // Convert SDL palette to libpng
     for (i = 0; i < scr->format->palette->ncolors; i++) {
       palette[i].red   = scr->format->palette->colors[i].r;
       palette[i].green = scr->format->palette->colors[i].g;
@@ -96,6 +100,9 @@ static int write_png_palette(
   }
   return result;
 }
+
+// Helper functions for screenshot_sdl
+// Encapsulate differences between writing indexed palette and hicolor images
 
 static void fill_buffer_indexed(SDL_Surface *scr, void *buffer)
 {
@@ -121,6 +128,8 @@ static void fill_buffer_hicolor(SDL_Surface *scr, void *buffer)
   }
 }
 
+// screenshot_sdl is called with a pointer to one of these structs
+
 enum {
   SCREENSHOT_SDL_INDEXED,
   SCREENSHOT_SDL_HICOLOR,
@@ -141,6 +150,9 @@ static const struct screenshot_sdl_func {
   },
 };
 
+// Write the contents of the surface to the PNG file
+// Called from I_ScreenShot when the PNG file is ready to write to
+
 static int screenshot_sdl(
     png_struct *png_ptr, png_info *info_ptr,
     SDL_Surface *scr, const struct screenshot_sdl_func *mode)
@@ -157,6 +169,7 @@ static int screenshot_sdl(
 
     if (!lock_needed || SDL_LockSurface(scr) >= 0)
     {
+      // While the screen is locked write it into a buffer
       lock_was_successful = 1;
       mode->fill_buffer(scr, pixel_data);
       if (lock_needed)
@@ -165,6 +178,7 @@ static int screenshot_sdl(
 
     if (lock_was_successful)
     {
+      // Write out the buffer
       png_write_info(png_ptr, info_ptr);
       for (y = 0; y < SCREENHEIGHT; y++)
         png_write_row(png_ptr, pixel_data + y*SCREENWIDTH*mode->pixel_size);
@@ -206,6 +220,8 @@ static int screenshot_gl(png_struct *png_ptr, png_info *info_ptr)
 //
 // I_ScreenShot - PNG version
 //
+
+// Open the PNG file, set it up to be written to, and call screenshot_sdl
 
 int I_ScreenShot (const char *fname)
 {
