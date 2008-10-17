@@ -50,7 +50,6 @@
 #include "v_video.h"
 #include "i_video.h"
 #include "z_zone.h"
-#include "w_wad.h"
 #include "lprintf.h"
 
 #ifdef HAVE_LIBPNG
@@ -73,15 +72,29 @@ static void warning_fn(png_structp p, png_const_charp s)
 // 8bpp screenshots (indexed color mode)
 //
 
-static void write_png_palette(png_struct *png_ptr, png_info *info_ptr)
+static int write_png_palette(
+    png_struct *png_ptr, png_info *info_ptr, SDL_Surface *scr)
 {
-  int lump = W_GetNumForName("PLAYPAL");
-  const byte *palette = W_CacheLumpNum(lump);
+  int i, result = -1;
+  png_color *palette;
 
-  png_set_PLTE(png_ptr, info_ptr,
-      (const png_color *)palette, PNG_MAX_PALETTE_LENGTH);
+  palette = malloc(sizeof(*palette) * scr->format->palette->ncolors);
 
-  W_UnlockLumpNum(lump);
+  if (palette)
+  {
+    for (i = 0; i < scr->format->palette->ncolors; i++) {
+      palette[i].red   = scr->format->palette->colors[i].r;
+      palette[i].green = scr->format->palette->colors[i].g;
+      palette[i].blue  = scr->format->palette->colors[i].b;
+    }
+
+    png_set_PLTE(png_ptr, info_ptr,
+        palette, scr->format->palette->ncolors);
+
+    free(palette);
+    result = 0;
+  }
+  return result;
 }
 
 static int screenshot_indexed(png_struct *png_ptr, png_info *info_ptr)
@@ -141,6 +154,7 @@ int I_ScreenShot (const char *fname)
 
       if (info_ptr)
       {
+        SDL_Surface *scr = SDL_GetVideoSurface();
         png_time ptime;
 
         png_set_compression_level(png_ptr, 2);
@@ -164,8 +178,8 @@ int I_ScreenShot (const char *fname)
             break;
 #endif
           case VID_MODE8:
-            write_png_palette(png_ptr, info_ptr);
-            result = screenshot_indexed(png_ptr, info_ptr);
+            if (write_png_palette(png_ptr, info_ptr, scr) >= 0)
+              result = screenshot_indexed(png_ptr, info_ptr);
             break;
 
           case VID_MODE15:
