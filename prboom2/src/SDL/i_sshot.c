@@ -69,7 +69,7 @@ static void warning_fn(png_structp p, png_const_charp s)
 }
 
 //
-// 8bpp screenshots (indexed color mode)
+// Software mode screenshots
 //
 
 static int write_png_palette(
@@ -141,13 +141,14 @@ static const struct screenshot_sdl_func {
   },
 };
 
-static int screenshot_indexed(
-    png_struct *png_ptr, png_info *info_ptr, SDL_Surface *scr)
+static int screenshot_sdl(
+    png_struct *png_ptr, png_info *info_ptr,
+    SDL_Surface *scr, const struct screenshot_sdl_func *mode)
 {
   int y, result = -1;
   byte *pixel_data;
 
-  pixel_data = malloc(SCREENWIDTH * SCREENHEIGHT);
+  pixel_data = malloc(SCREENWIDTH * SCREENHEIGHT * mode->pixel_size);
 
   if (pixel_data)
   {
@@ -157,7 +158,7 @@ static int screenshot_indexed(
     if (!lock_needed || SDL_LockSurface(scr) >= 0)
     {
       lock_was_successful = 1;
-      memcpy(pixel_data, scr->pixels, SCREENWIDTH * SCREENHEIGHT);
+      mode->fill_buffer(scr, pixel_data);
       if (lock_needed)
         SDL_UnlockSurface(scr);
     }
@@ -166,60 +167,7 @@ static int screenshot_indexed(
     {
       png_write_info(png_ptr, info_ptr);
       for (y = 0; y < SCREENHEIGHT; y++)
-        png_write_row(png_ptr, pixel_data + y*SCREENWIDTH);
-      png_write_end(png_ptr, info_ptr);
-
-      result = 0;
-    }
-
-    free(pixel_data);
-  }
-  return result;
-}
-
-//
-// 15, 16, 32bpp mode screenshots
-//
-
-static int screenshot_hicolor(
-    png_struct *png_ptr, png_info *info_ptr, SDL_Surface *scr)
-{
-  int y, result = -1;
-  png_color *pixel_data;
-
-  pixel_data = malloc(sizeof(*pixel_data) * SCREENWIDTH * SCREENHEIGHT);
-
-  if (pixel_data)
-  {
-    int lock_needed = SDL_MUSTLOCK(scr);
-    int lock_was_successful = 0;
-
-    if (!lock_needed || SDL_LockSurface(scr) >= 0)
-    {
-      SDL_PixelFormat *f = scr->format;
-      png_color *pixel = pixel_data;
-      byte *source = scr->pixels;
-
-      lock_was_successful = 1;
-
-      for (y = SCREENWIDTH * SCREENHEIGHT;
-          y > 0;
-          pixel++, source += f->BytesPerPixel, y--)
-      {
-        Uint32 p = *(Uint32 *)source;
-        pixel->red   = (((p & f->Rmask)>>f->Rshift)<<f->Rloss);
-        pixel->green = (((p & f->Gmask)>>f->Gshift)<<f->Gloss);
-        pixel->blue  = (((p & f->Bmask)>>f->Bshift)<<f->Bloss);
-      }
-      if (lock_needed)
-        SDL_UnlockSurface(scr);
-    }
-
-    if (lock_was_successful)
-    {
-      png_write_info(png_ptr, info_ptr);
-      for (y = 0; y < SCREENHEIGHT; y++)
-        png_write_row(png_ptr, (png_byte *)(pixel_data + y*SCREENWIDTH));
+        png_write_row(png_ptr, pixel_data + y*SCREENWIDTH*mode->pixel_size);
       png_write_end(png_ptr, info_ptr);
 
       result = 0;
@@ -300,13 +248,15 @@ int I_ScreenShot (const char *fname)
 #endif
           case VID_MODE8:
             if (write_png_palette(png_ptr, info_ptr, scr) >= 0)
-              result = screenshot_indexed(png_ptr, info_ptr, scr);
+              result = screenshot_sdl(png_ptr, info_ptr, scr,
+                  &screenshot_sdl_funcs[SCREENSHOT_SDL_INDEXED]);
             break;
 
           case VID_MODE15:
           case VID_MODE16:
           case VID_MODE32:
-            result = screenshot_hicolor(png_ptr, info_ptr, scr);
+            result = screenshot_sdl(png_ptr, info_ptr, scr,
+                &screenshot_sdl_funcs[SCREENSHOT_SDL_HICOLOR]);
             break;
 
           default:
