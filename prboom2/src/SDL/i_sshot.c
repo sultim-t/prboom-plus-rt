@@ -134,6 +134,59 @@ static int screenshot_indexed(
 }
 
 //
+// 15, 16, 32bpp mode screenshots
+//
+
+static int screenshot_hicolor(
+    png_struct *png_ptr, png_info *info_ptr, SDL_Surface *scr)
+{
+  int y, result = -1;
+  png_color *pixel_data;
+
+  pixel_data = malloc(sizeof(*pixel_data) * SCREENWIDTH * SCREENHEIGHT);
+
+  if (pixel_data)
+  {
+    int lock_needed = SDL_MUSTLOCK(scr);
+    int lock_was_successful = 0;
+
+    if (!lock_needed || SDL_LockSurface(scr) >= 0)
+    {
+      SDL_PixelFormat *f = scr->format;
+      png_color *pixel = pixel_data;
+      byte *source = scr->pixels;
+
+      lock_was_successful = 1;
+
+      for (y = SCREENWIDTH * SCREENHEIGHT;
+          y > 0;
+          pixel++, source += f->BytesPerPixel, y--)
+      {
+        Uint32 p = *(Uint32 *)source;
+        pixel->red   = (((p & f->Rmask)>>f->Rshift)<<f->Rloss);
+        pixel->green = (((p & f->Gmask)>>f->Gshift)<<f->Gloss);
+        pixel->blue  = (((p & f->Bmask)>>f->Bshift)<<f->Bloss);
+      }
+      if (lock_needed)
+        SDL_UnlockSurface(scr);
+    }
+
+    if (lock_was_successful)
+    {
+      png_write_info(png_ptr, info_ptr);
+      for (y = 0; y < SCREENHEIGHT; y++)
+        png_write_row(png_ptr, (png_byte *)(pixel_data + y*SCREENWIDTH));
+      png_write_end(png_ptr, info_ptr);
+
+      result = 0;
+    }
+
+    free(pixel_data);
+  }
+  return result;
+}
+
+//
 // OpenGL mode screenshots
 //
 #ifdef GL_DOOM
@@ -209,8 +262,10 @@ int I_ScreenShot (const char *fname)
           case VID_MODE15:
           case VID_MODE16:
           case VID_MODE32:
+            result = screenshot_hicolor(png_ptr, info_ptr, scr);
+            break;
+
           default:
-            lprintf(LO_WARN, "I_ScreenShot: unsupported video mode\n");
             break;
         }
       }
