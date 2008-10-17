@@ -243,6 +243,7 @@ prboom2/src/MAC/macsupport.rb -text
 prboom2/src/Makefile.am eol=lf
 prboom2/src/POSIX/Makefile.am eol=lf
 prboom2/src/SDL/Makefile.am eol=lf
+prboom2/src/SDL/i_sshot.c -text
 prboom2/tests/demo-testing.csv -text
 website/cgi-bin/genlin.cgi -text
 website/html/DOOM04.jpg -text
