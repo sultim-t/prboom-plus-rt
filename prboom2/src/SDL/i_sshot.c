@@ -55,6 +55,10 @@
 
 #ifdef HAVE_LIBPNG
 
+//
+// Error functions needed by libpng
+//
+
 static void error_fn(png_structp p, png_const_charp s)
 {
   lprintf(LO_ERROR, "I_ScreenShot: %s\n", s);
@@ -65,56 +69,57 @@ static void warning_fn(png_structp p, png_const_charp s)
   lprintf(LO_WARN, "I_ScreenShot: %s\n", s);
 }
 
-static int I_WritePNGData(png_structp png_ptr, png_infop info_ptr)
+//
+// 8bpp screenshots (indexed color mode)
+//
+
+static void write_png_palette(png_struct *png_ptr, png_info *info_ptr)
 {
-  int y, result = -1;
+  int lump = W_GetNumForName("PLAYPAL");
+  const byte *palette = W_CacheLumpNum(lump);
 
-  switch (V_GetMode())
-  {
-#ifdef GL_DOOM
-    case VID_MODEGL:
-      {
-        unsigned char *pixel_data = gld_ReadScreen();
+  png_set_PLTE(png_ptr, info_ptr,
+      (const png_color *)palette, PNG_MAX_PALETTE_LENGTH);
 
-        if (pixel_data)
-        {
-          png_write_info(png_ptr, info_ptr);
-          for (y = 0; y < SCREENHEIGHT; y++)
-            png_write_row(png_ptr, pixel_data + y*SCREENWIDTH*3);
-          png_write_end(png_ptr, info_ptr);
-
-          free(pixel_data);
-          result = 0;
-        }
-      }
-      break;
-#endif
-    case VID_MODE8:
-      {
-        int lump = W_GetNumForName("PLAYPAL");
-        const byte *palette = W_CacheLumpNum(lump);
-
-        png_set_PLTE(png_ptr, info_ptr,
-            (const png_colorp)palette, PNG_MAX_PALETTE_LENGTH);
-
-        png_write_info(png_ptr, info_ptr);
-        for (y = 0; y < SCREENHEIGHT; y++)
-          png_write_row(png_ptr, screens[0].data + y*SCREENWIDTH);
-        png_write_end(png_ptr, info_ptr);
-
-        W_UnlockLumpNum(lump);
-        result = 0;
-      }
-      break;
-    case VID_MODE15:
-    case VID_MODE16:
-    case VID_MODE32:
-    default:
-      lprintf(LO_WARN, "I_ScreenShot: unsupported video mode\n");
-      break;
-  }
-  return result;
+  W_UnlockLumpNum(lump);
 }
+
+static int screenshot_indexed(png_struct *png_ptr, png_info *info_ptr)
+{
+  int y;
+
+  png_write_info(png_ptr, info_ptr);
+  for (y = 0; y < SCREENHEIGHT; y++)
+    png_write_row(png_ptr, screens[0].data + y*SCREENWIDTH);
+  png_write_end(png_ptr, info_ptr);
+
+  return 0;
+}
+
+//
+// OpenGL mode screenshots
+//
+#ifdef GL_DOOM
+static int screenshot_gl(png_struct *png_ptr, png_info *info_ptr)
+{
+  unsigned char *pixel_data = gld_ReadScreen();
+
+  if (pixel_data)
+  {
+    int y;
+
+    png_write_info(png_ptr, info_ptr);
+    for (y = 0; y < SCREENHEIGHT; y++)
+      png_write_row(png_ptr, pixel_data + y*SCREENWIDTH*3);
+    png_write_end(png_ptr, info_ptr);
+
+    free(pixel_data);
+    return 0;
+  }
+  else
+    return -1;
+}
+#endif
 
 //
 // I_ScreenShot - PNG version
@@ -152,7 +157,24 @@ int I_ScreenShot (const char *fname)
         png_convert_from_time_t(&ptime, time(NULL));
         png_set_tIME(png_ptr, info_ptr, &ptime);
 
-        result = I_WritePNGData(png_ptr, info_ptr);
+        switch (V_GetMode()) {
+#ifdef GL_DOOM
+          case VID_MODEGL:
+            result = screenshot_gl(png_ptr, info_ptr);
+            break;
+#endif
+          case VID_MODE8:
+            write_png_palette(png_ptr, info_ptr);
+            result = screenshot_indexed(png_ptr, info_ptr);
+            break;
+
+          case VID_MODE15:
+          case VID_MODE16:
+          case VID_MODE32:
+          default:
+            lprintf(LO_WARN, "I_ScreenShot: unsupported video mode\n");
+            break;
+        }
       }
       png_destroy_write_struct(&png_ptr,  png_infopp_NULL);
     }
