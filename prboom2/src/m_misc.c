@@ -1065,7 +1065,7 @@ void M_ScreenShot(void)
     startshot = shot; // CPhipps - prevent infinite loop
 
     do {
-      sprintf(lbmname,SCREENSHOT_DIR "/doom%02d" SCREENSHOT_EXT, shot++);
+      sprintf(lbmname,"%s/doom%02d" SCREENSHOT_EXT, SCREENSHOT_DIR, shot++);
     } while (!access(lbmname,0) && (shot != startshot) && (shot < 10000));
 
     if (access(lbmname,0))
