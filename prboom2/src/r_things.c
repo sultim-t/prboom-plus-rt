@@ -522,12 +522,11 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
              thing->frame);
 #endif
 
-  sprframe = &sprdef->spriteframes[thing->frame & FF_FRAMEMASK];
-
-  // If sprframe is NULL the sprite is not in the IWAD.
-  if (!sprframe)
+  if (!sprdef->spriteframes)
     I_Error ("R_ProjectSprite: Missing spriteframes %i : %i", thing->sprite,
              thing->frame);
+
+  sprframe = &sprdef->spriteframes[thing->frame & FF_FRAMEMASK];
 
   if (sprframe->rotate)
     {
