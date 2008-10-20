@@ -775,7 +775,9 @@ static void R_DrawPSprite (pspdef_t *psp, int lightlevel)
   else if (psp->state->frame & FF_FULLBRIGHT)
     vis->colormap = fullcolormap;            // full bright // killough 3/20/98
   else
-    vis->colormap = R_ColourMap(lightlevel,pspritescale);  // local light
+    // add a fudge factor to better match the original game
+    vis->colormap = R_ColourMap(lightlevel,
+        FixedMul(pspritescale, 0x2b000));  // local light
 
   // proff 11/99: don't use software stuff in OpenGL
   if (V_GetMode() != VID_MODEGL)
