@@ -736,35 +736,6 @@ void I_UnRegisterSong(int handle)
 #endif
 }
 
-// e6y: from chocolate-doom
-// New mus -> mid conversion code thanks to Ben Ryves <benryves@benryves.com>
-// This plays back a lot of music closer to Vanilla Doom - eg. tnt.wad map02
-static boolean ConvertMus(byte *musdata, int len, char *filename)
-{
-  MEMFILE *instream;
-  MEMFILE *outstream;
-  void *outbuf;
-  size_t outbuf_len;
-  int result;
-
-  instream = mem_fopen_read(musdata, len);
-  outstream = mem_fopen_write();
-
-  result = mus2mid(instream, outstream);
-
-  if (result == 0)
-  {
-    mem_get_buf(outstream, &outbuf, &outbuf_len);
-
-    M_WriteFile(filename, outbuf, outbuf_len);
-  }
-
-  mem_fclose(instream);
-  mem_fclose(outstream);
-
-  return result;
-}
-
 int I_RegisterSong(const void *data, size_t len)
 {
 #ifdef HAVE_MIXER
@@ -815,6 +786,9 @@ int I_RegisterSong(const void *data, size_t len)
     instream = mem_fopen_read((void*)data, len);
     outstream = mem_fopen_write();
 
+    // e6y: from chocolate-doom
+    // New mus -> mid conversion code thanks to Ben Ryves <benryves@benryves.com>
+    // This plays back a lot of music closer to Vanilla Doom - eg. tnt.wad map02
     result = mus2mid(instream, outstream);
 
     if (result == 0)
