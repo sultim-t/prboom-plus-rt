@@ -9,8 +9,7 @@
 SUBDIRS = SDL POSIX MAC
 
 gamesdir=$(prefix)/games
-EXTRA_PROGRAMS = prboom
-games_PROGRAMS = @BUILD_DOOM@ prboom-game-server
+games_PROGRAMS = prboom prboom-game-server
 
 CFLAGS = @CFLAGS@ @SDL_CFLAGS@
 
