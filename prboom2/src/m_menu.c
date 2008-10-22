@@ -650,10 +650,6 @@ static void M_VerifyNightmare(int ch)
   if (ch != 'y')
     return;
 
-  //jff 3/24/98 remember last skill selected
-  // killough 10/98 moved to here
-  defaultskill = nightmare+1;
-
   G_DeferedInitNew(nightmare,epi+1,1);
   M_ClearMenus ();
 }
@@ -665,10 +661,6 @@ void M_ChooseSkill(int choice)
       M_StartMessage(s_NIGHTMARE,M_VerifyNightmare,true);
       return;
     }
-
-  //jff 3/24/98 remember last skill selected
-  // killough 10/98 moved to here
-  defaultskill = choice+1;
 
   G_DeferedInitNew(choice,epi+1,1);
   M_ClearMenus ();
