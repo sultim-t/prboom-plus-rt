@@ -632,6 +632,40 @@ static void I_ClosestResolution (int *width, int *height, int flags)
   }
 }  
 
+int process_affinity_mask;
+int try_to_reduce_cpu_cache_misses;
+
+// e6y
+// It is a simple test of CPU cache misses.
+unsigned int I_TestCPUCacheMisses(int width, int height)
+{
+  int i, k;
+  char *s, *d, *ps, *pd;
+  unsigned int tickStart, tickEnd;
+  
+  s = malloc(width * height);
+  d = malloc(width * height);
+
+  tickStart = SDL_GetTicks();
+  for(k = 0; k < 1000; k++)
+  {
+    ps = s;
+    pd = d;
+    for(i = 0; i < height; i++)
+    {
+      pd[0] = ps[0];
+      pd += width;
+      ps += width;
+    }
+  }
+  tickEnd = SDL_GetTicks();
+
+  free(d);
+  free(s);
+
+  return (tickEnd - tickStart);
+}
+
 // CPhipps -
 // I_CalculateRes
 // Calculates the screen resolution, possibly using the supplied guide
@@ -657,12 +691,36 @@ void I_CalculateRes(unsigned int width, unsigned int height)
     SCREENHEIGHT = height;
     SCREENPITCH = SCREENWIDTH;
   } else {
+    unsigned int t1, t2;
+    int pitch1, pitch2;
+
     SCREENWIDTH = (width+15) & ~15;
     SCREENHEIGHT = height;
-    if (!(SCREENWIDTH % 1024)) {
-      SCREENPITCH = SCREENWIDTH*V_GetPixelDepth()+32;
-    } else {
-      SCREENPITCH = SCREENWIDTH*V_GetPixelDepth();
+
+    // e6y
+    // Trying to optimise screen pitch for reducing of CPU cache misses.
+    // It is extremally important for wiping in software.
+    // I have ~20x improvement in speed with using 1056 instead of 1024 on Pentium4
+    // and only ~10% for Core2Duo
+    if (try_to_reduce_cpu_cache_misses)
+    {
+      pitch1 = SCREENWIDTH * V_GetPixelDepth();
+      pitch2 = SCREENWIDTH * V_GetPixelDepth() + 32;
+
+      t1 = I_TestCPUCacheMisses(pitch1, SCREENHEIGHT);
+      t2 = I_TestCPUCacheMisses(pitch2, SCREENHEIGHT);
+
+      lprintf(LO_INFO, "I_CalculateRes: trying to optimise screen pitch\n");
+      lprintf(LO_INFO, "I_CalculateRes: test case for pitch=%d is %d msec\n", pitch1, t1);
+      lprintf(LO_INFO, "I_CalculateRes: test case for pitch=%d is %d msec\n", pitch2, t2);
+
+      SCREENPITCH = (t1 <= t2 ? pitch1 : pitch2);
+
+      lprintf(LO_INFO, "I_CalculateRes: optimised screen pitch is %d\n", SCREENPITCH);
+    }
+    else
+    {
+      SCREENPITCH = SCREENWIDTH * V_GetPixelDepth();
     }
   }
 

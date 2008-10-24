@@ -80,6 +80,11 @@ extern int use_doublebuffer;  /* proff 2001-7-4 - controls wether to use doubleb
 extern int use_fullscreen;  /* proff 21/05/2000 */
 extern int desired_fullscreen; //e6y
 
+// e6y: Set the process affinity mask so that all threads
+extern int process_affinity_mask;
+// e6y: Try to optimise screen pitch for reducing of CPU cache misses.
+extern int try_to_reduce_cpu_cache_misses;
+
 //e6y
 extern boolean window_focused;
 void UpdateGrab(void);

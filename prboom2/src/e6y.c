@@ -219,8 +219,6 @@ static boolean saved_nodrawers;
 static boolean saved_nosfxparm;
 static boolean saved_nomusicparm;
 
-int process_affinity_mask;
-
 #ifdef _WIN32
 char* WINError(void)
 {
