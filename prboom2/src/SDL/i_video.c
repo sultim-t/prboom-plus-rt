@@ -711,12 +711,12 @@ void I_CalculateRes(unsigned int width, unsigned int height)
       t2 = I_TestCPUCacheMisses(pitch2, SCREENHEIGHT);
 
       lprintf(LO_INFO, "I_CalculateRes: trying to optimise screen pitch\n");
-      lprintf(LO_INFO, "I_CalculateRes: test case for pitch=%d is %d msec\n", pitch1, t1);
-      lprintf(LO_INFO, "I_CalculateRes: test case for pitch=%d is %d msec\n", pitch2, t2);
+      lprintf(LO_INFO, " test case for pitch=%d is %d msec\n", pitch1, t1);
+      lprintf(LO_INFO, " test case for pitch=%d is %d msec\n", pitch2, t2);
 
       SCREENPITCH = (t1 <= t2 ? pitch1 : pitch2);
 
-      lprintf(LO_INFO, "I_CalculateRes: optimised screen pitch is %d\n", SCREENPITCH);
+      lprintf(LO_INFO, " optimised screen pitch is %d\n", SCREENPITCH);
     }
     else
     {
