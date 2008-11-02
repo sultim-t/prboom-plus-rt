@@ -252,6 +252,9 @@ sector_t* GetBestFake(sector_t *sector, int ceiling, int validcount)
   int i;
   int groupid = sector->fakegroup[ceiling];
 
+  if (groupid == -1)
+    return NULL;
+
   if (fakeplanes[groupid].validcount != validcount)
   {
     fakeplanes[groupid].validcount = validcount;
