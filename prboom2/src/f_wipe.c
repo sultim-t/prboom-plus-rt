@@ -81,7 +81,7 @@ static int wipe_initMelt(int ticks)
     // copy start screen to main screen
     for(i=0;i<SCREENHEIGHT;i++)
     memcpy(wipe_scr.data+i*wipe_scr.byte_pitch,
-           wipe_scr_start.data+i*wipe_scr.byte_pitch,
+           wipe_scr_start.data+i*wipe_scr_start.byte_pitch,
            SCREENWIDTH*V_GetPixelDepth());
   }
 
