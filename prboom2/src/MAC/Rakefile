@@ -51,6 +51,7 @@ SDL/i_main.c
 SDL/i_network.c
 SDL/i_joy.c
 SDL/i_sound.c
+SDL/i_sshot.c
 SDL/i_system.c
 SDL/i_video.c
 MAC/i_system.m
