@@ -42,671 +42,976 @@ List of revisions from PrBoom 2.3:
 [ ] - empty or not wanted
 [-] - interesting but not merged yet
 
-+597
-+598
-+599
-+602
--603 Chasecam
--604 Chasecam
- 605
-+606
- 607
--608 Chasecam
- 609
- 610
- 611
- 612
- 613
-+614
- 615
- 616
- 617
- 618
- 619
- 620
- 621
- 622
- 623
- 624
- 625
- 626
- 627
-+628
-+629
-+630
-+631
-+632
-+633
- 634
- 635
-+636
-+637
-+638
-+639
-+640
- 641
-+642
-+643
-+644
-+645
-+646
- 647 (will break Mac)
-+648
-+649
-+650
-+651
- 652 (not necessary)
- 653 (we don't want the new menu code)
- 654
- 655
-+656
- 657 (the useful stuff is already in)
- 658 (g_bind is not used)
- 659
- 660
-+661
-+662
-+663
- 667 (g_config)
- 668 (g_config)
- 669 (g_config)
-+670
- 671 (g_config)
- 672
- 673
- 674
-+675
- 676 (Dreamcast)
- 677 (Dreamcast)
- 678 (Dreamcast)
- 679 (Dreamcast)
- 680 (Binding/Console)
- 681 (Dreamcast)
- 682 (Dreamcast)
- 683
- 684
-+685 (was already merged)
- 686
-+687 (was already merged)
++    r597 | Add player number to spawn as a parameter to P_SpawnPlayer, repl
++    r598 | Improved P_InterceptVector that isn't subject to overflows Remov
++    r599 | Check whether usleep(3) is supported, and fall back on select(2)
++    r602 | Changed long long to int_64_t.
+-    r603 | Added chasecam patch and fixed long long problems. Worked withou
+            Chasecam
+-    r604 | Added p_chase.*
+            Chasecam
+     r605 | Support saving games at all compat levels - this will be necessa
++    r606 | Linux byteorder.h macros are unsigned, so we must force them to
+     r607 | Linux byteorder.h macros are unsigned, so we must force them to
+-    r608 | Nice catch Quasar` - fix sprite clipping for cameras in underwat
+            Chasecam
+     r609 | Minor fix
+     r610 | General cleanup of EV_BuildStairs Fix scanning for multiple stai
+     r611 | Separate demo sync stuff into its own section Add Final Doom tel
+     r612 | Fix dropoff flag for Boom demos
+     r613 | Fix D_DoomExeDir. Win2000 and possibly others don't report the f
++    r614 | Fix D_DoomExeDir. Win2000 and possibly others don't report the f
+     r615 | Bump version number
+     r616 | Merge rewritten R_DrawSpan from the dev tree
+     r617 | Final demo support refinements, inc. -complevel (which was docum
+     r618 | Include spec file in the tarball, and build RPM with -ta
+     r619 | From the 2.3.x tree: Cleaned up sound code. I_StartSound gets ch
+     r620 | Bump version number.
+     r621 | Various things for 2.2.2
+     r622 | Update with WAD generated from the dev tree, no v1.2 compat save
+     r623 | Imported doublebuffering and fullscreen toggle from dev tree.
+     r624 | Put samplerate a little bit down, because when timidity is used
+     r625 | Update boom.cfg.5 with new video options, from Proff Man page fi
+     r626 | This commit was manufactured by cvs2svn to create tag 'prboom_2_
+     r627 | Released 2.2.2
++    r628 | comp_stairs fix and EV_BuildStairs cleanup from stable branch
++    r629 | Boom dropoff compat fix, from stable branch
++    r630 | *** empty log message ***
++    r631 | Merge newer version from stable branch Switch to %configure and
++    r632 | Very minor spacing fixes
++    r633 | Must distribute prboom.txt so the make can pass prboom.wad
+     r634 | Distros have caught up with us and are shipping SDL 1.2 now Clea
+     r635 | Fix typo
++    r636 | Rationalise the light level calcs for sprites and walls - new fu
++    r637 | SDL video corectness fix - use SDL_MUSTLOCK to determine if we h
++    r638 | We need malloc wrappers to do error handling etc; just go back t
++    r639 | New I_Read wrapper for read(2) - partial read handling - error h
++    r640 | Clear curline after use, so preventing R_ColourMap applying it t
+     r641 | New savegame format revision, save compat level in saves so we c
++    r642 | Get rid of the SIGPIPE handler - it's been unused since we switc
++    r643 | Merge in Proff's port of the BEX extensions from Eternity for mu
++    r644 | Fix some d_deh.c compile warnings Make lots of internal processi
++    r645 | Eliminate another static buffer in favour of doom_printf
++    r646 | Doom v1.2 did not animate 2s middle textures (cf levels/d-f/dmsp
+     r647 | We always compile with SDL_mixer these days,  so drop all the ho
+            (will break Mac)
++    r648 | Clean up POSIX build process - remove obsolete stuff about no-ne
++    r649 | Clarify the base[xy]scale logic a bit, use correct global variab
++    r650 | Eliminate some redundant variables and calculations in R_StoreWa
++    r651 | Remove sprite{width,offset,topoffset}, these were just caches of
+     r652 | Fixed latest changes for Visual C++.
+            (not necessary)
+     r653 | Added the new menu code from SMMU.
+            (we don't want the new menu code)
+     r654 | HEADER_SIZE must be derived from sizeof(memblock_t), which can b
+     r655 | Fix typo causing keypad 5 to map to PAD0
++    r656 | Fix keypad 5 Use SDL_SetPalette (SDL1.2 feature which allows us
+     r657 | Update POSIX Makefile for new menu system files Remove obsoleted
+            (the useful stuff is already in)
+     r658 | Fix running with no existing config file (but the currently comm
+            (g_bind is not used)
+     r659 | Removed unused I_ConTextAttr.
+     r660 | I'm stupid or somewhat, I_ConTextAttr IS used. I should check th
++    r661 | For consistency, keep all linked thinkers on a class list - have
++    r662 | Remove duplicate extern for thinkercap from doomstat.h Move comm
++    r663 | Remove old Linux joystick code
+     r667 | Move config file stuff to g_config.c Split out code for specific
+            (g_config)
+     r668 | Added g_config to VisualC project files.
+            (g_config)
+     r669 | Added g_config.h.
+            (g_config)
++    r670 | Minor cleanup
+     r671 | Makefile change for g_config.[ch], which I forgot to commit yest
+            (g_config)
+     r672 | This commit was manufactured by cvs2svn to create branch 'axes_s
+     r673 | Robert Sherwood's axes patch
+     r674 | G_SaveDefaults callback set up only after G_LoadDefaults done Ad
++    r675 | Removed Dreamcast stuff which doesn't belong here.
+     r676 | Updated Dreamcast stuff (some bugs left).
+            (Dreamcast)
+     r677 | Updated/cleaned up Dreamcast stuff (some bugs left). Fixed some
+            (Dreamcast)
+     r678 | Updated/cleaned up Dreamcast stuff. Works now, the bugs weren't
+            (Dreamcast)
+     r679 | Added sound to Dreamcast version.
+            (Dreamcast)
+     r680 | Fixed tolower(*s++) bug.
+            (Binding/Console)
+     r681 | Fixed D_DoomExeDir for Dreamcast.
+            (Dreamcast)
+     r682 | Added keyboard support for Dreamcast.
+            (Dreamcast)
+     r683 | From rsherwood: Axes now scale against the appropriate values (i
+     r684 | Added "Installation From CVS" (Steven Elliott).
++    r685 | Added "Installation From CVS" (Steven Elliott).
+            (was already merged)
+     r686 | P_SpawnPlayer must only be called with mthing_t's from the playe
++    r687 | On the right branch this time, merge the fix for my player start
+            (was already merged)
  688-707
- 708 (TODO)
-+709 (was already merged)
- 710
- 711
-+712 (was already merged)
-+713 (was already merged)
- 714 (new config format)
-+715 (was already merged)
-+716 (was already merged)
- 717
- 718
- 719
- 720
- 721
- 722
- 723
- 724
-+725
-+726 (was already merged)
- 727
-+728
-+729 (parts were missing)
-+730 (was already merged)
--731 (Chasecam)
--732 (Generalise axes handling for input devices)
-+733
-+734 (was already merged)
- 735
-+736
-+737 (was already merged)
- 738
- 739
-+740 (cleaned up)
-+741 (was already merged)
-+742 (was already merged)
-+743 (was already merged)
- 744 (new config format)
- 745
- 746 (console)
- 747 (console)
- 748 (from 2.2)
--749 (axes)
- 750 (binding)
- 751 (new menu stuff)
- 752
- 753
- 754
- 755
- 756
- 757
- 758
- 759
- 760
-+761 (from 2.2)
-+762
- 763 (menu)
- 764
-+765 (was already merged)
- 766
-+767
- 768 (skipped, related to previous)
- 769
- 770 (menu, console)
- 771
-+772 (2.2)
--773 (Dynamic OpenGL)
--774 (Tesselator)
- 775 (config)
- 776 (binding)
- 777 (Tesselator)
--778 (renderer)
- 779
--780 (renderer)
--781 (renderer)
- 782 (console)
- 783 (console)
--784 (renderer)
- 785
- 786 (console)
- 787
- 788 (binding)
--789 (renderer)
--790 (renderer)
- 791
--792 (renderer)
--793 (renderer)
--794 (renderer)
--795 (renderer)
--796 (renderer)
--797 (renderer)
--798 (renderer)
--799 (renderer)
--800 (renderer)
- 801 (console)
--802 (renderer)
--803 (renderer)
--804 (renderer)
--805 (renderer)
--806 (renderer)
--807 (renderer)
--808 (renderer)
- 809 (console)
- 810 (menu)
--811 (renderer)
- 812 (console)
--813 (renderer)
--814 (renderer)
--815 (renderer)
--816 (renderer)
-+817
-+818 (was already merged)
- 819 (console)
- 820
- 821
--822 (renderer)
- 823
--824 (renderer)
--825 (renderer)
--826 (renderer)
--827 (renderer)
-+828 (was already merged)
--829 (renderer)
- 830
-+831 (was already merged)
--832 (renderer)
--833 (renderer)
--834 (renderer)
- 835
- 836
- 837
--838 (renderer)
- 839
- 840
- 841
- 842
- 843
- 844
- 845
- 846
- 847
- 848
- 849
- 850
- 851
- 852
- 853
- 854
- 855
-+856 (2.2)
- 857
- 858
-+859 (was already merged)
- 860
- 861
- 862
- 863
- 864 (menu)
- 865
- 866
- 867
- 868
- 869
- 870
--871 (renderer)
--872 (renderer)
- 873 (console)
--874 (renderer)
- 875 (menu)
--876 (renderer)
--877 (menu graphics)
- 878 (console)
- 879 (menu)
- 880 (console)
- 881 (binding)
--882 (rendering)
- 883 (menu)
- 884
-+885
- 886 (console)
- 887 (menu)
- 888 (console)
- 889 (console)
- 890 (console)
- 891 (menu)
- 892 (console)
- 893
- 894
--895 (renderer)
--896 (VIDD)
- 897
- 898 (console)
- 899 (menu)
- 900 (g_demo)
--901 (IWAD switching)
--902 (VIDD)
- 903 (console)
- 904 (console)
- 905 (menu)
- 906 (menu)
--907 (IWAD switching)
- 908 (IWAD switching, menu)
--909 (VIDD)
- 910
--911 (IWAD switching)
- 912 (net from smmu)
- 913 (fraggle script)
--914 (renderer)
--915 (renderer)
- 916 (fraggle script)
- 917 (fraggle script)
--918 (font graphics)
--919 (font handling - better get it from Eternity)
--920 (font handling)
- 921
- 922 (console)
--923 (font handling)
- 924
- 925
- 926 (smmu hud)
- 927 (fraggle script)
- 928 (fraggle script)
- 929 (menu)
- 930 (console)
--931 (renderer)
- 932 (fraggle script)
- 933 (fraggle script)
--934 (some constants)
--935 (P_FadeLight)
- 936 (console)
- 937 (HUD)
- 938
--939 (Removed message from player_t, use doom_printf or player_printf instead)
--940 (chasecam)
--941 (blockmap)
--942 (several changes)
--943 (FPS drawer)
- 944 (smmu)
--945 (font)
- 946
--947 (IWAD switching)
- 948 (console)
- 949 (gravity variable)
- 950 (hubs)
- 951
- 952 (hubs)
- 953 (intermission camera)
- 954
- 955
- 956
--957 (renderer)
- 958 (smmu)
- 959 (smmu)
- 960
--961 (font)
- 962
--963 (bodyqueue)
- 964 (smmu - sound)
- 965
--966 (chasecam)
- 967 (smmu)
- 968 (smmu)
- 969
- 970
- 971
- 972
- 973
- 974
- 975 (smmu)
- 976 (smmu)
- 977 (smmu)
- 978
- 979
- 980
- 981
- 982
- 983
- 984
- 985
- 986
- 987
- 988
- 989
- 990
- 991
- 992
- 993
- 994
- 995
- 996
- 997
- 998
- 999
- 1000
- 1001
- 1002
- 1003
- 1004 (console, net)
--1005 (renderer)
- 1006
- 1007
--1008 (renderer)
- 1009
-+1010 (2.2)
-+1011 (sprite clipping fix)
-+1012 (2.2)
- 1013
- 1014
- 1015
- 1016
- 1017
- 1018
- 1019
- 1020
- 1021
- 1022
- 1023
- 1024
-+1025 (2.2)
- 1026
- 1027
- 1028
- 1029
- 1030
-+1031 (2.2)
-+1032 (2.2)
-+1033 (2.2)
-+1034 (2.2)
-+1035 (2.2)
-+1036 (2.2)
-+1037 (2.2)
- 1038
- 1039
- 1040
- 1041
- 1042
- 1043
- 1044
- 1045
- 1046
- 1047
- 1048
- 1049
--1050 (network explanation)
- 1051 (config)
- 1052 (menu)
- 1053
- 1054
- 1055
- 1056
- 1057
- 1058
- 1059
- 1060
- 1061
- 1062
- 1063
--1064 (renderer)
- 1065
- 1066
-+1067 (2.2)
- 1068
- 1069
- 1070
- 1071
- 1072
- 1073
- 1074
- 1075
- 1076 (hub)
--1077 (font)
--1078 (IWAD switching)
--1079 (renderer)
- 1080
- 1081
- 1082
-+1083 (2.2)
- 1084
--1085 (renderer)
- 1086
--1087 (font)
- 1088
- 1089
--1090 (renderer)
--1091 (renderer)
--1092 (renderer)
--1093 (renderer)
- 1094
- 1095 (menu, iwad switching)
- 1096 (smmu savegames)
--1097 (renderer)
- 1098
- 1099
- 1100 (hud)
- 1101 (binding)
- 1102 (smmu savegame)
- 1103
- 1104
- 1105
- 1106
- 1107
- 1108 (binding)
- 1109
--1110 (renderer)
- 1111
- 1112
- 1113 (hud)
- 1114 (console)
--1115 (renderer)
--1116 (renderer)
--1117 (renderer)
--1118 (renderer)
- 1119 (VIDD)
- 1120
- 1121
- 1122
- 1123
- 1124
- 1125
- 1126
- 1127
--1128 (renderer)
--1129 (renderer)
- 1130
- 1131
- 1132
- 1133
-+1134 (2.2)
- 1135
- 1136
- 1137
--1138 (renderer)
- 1139
- 1140
- 1141
--1142 (init sound)
- 1143
- 1144
--1145 (blazing door sound)
-+1146 (2.2)
- 1147
-+1148 (z_zone)
- 1149
-+1150 (z_zone)
-+1151 (2.2)
- 1152
-+1153 (2.2)
- 1154
-+1155 (z_zone)
- 1156
--1157 (renderer)
-+1158 (z_zone)
-+1159 (was already merged)
- 1160
-+1161 (was already merged)
- 1162
- 1163 (console)
-+1164 (was already merged)
- 1165
--1166 (renderer)
- 1167
- 1168
--1169 (sounds)
--1170 (default settings)
- 1171
- 1172
--1173 (networking on windows)
--1174 (G_ChangedPlayerColor)
--1175 (psnprintf)
--1176 (buffers)
--1177 (renderer)
- 1178 (console)
--1179 (font)
- 1180 (console)
- 1181
- 1182 (net)
- 1183
- 1184
- 1185 (net)
- 1186
-+1187 (was already merged)
- 1188
- 1189 (net)
--1190 (sound)
-+1191 (z_zone)
- 1192
- 1193 (smmu fixes from eternity)
- 1194 (smmu fixes from eternity)
-+1195 (was already merged)
-+1196
-+1197
- 1198
- 1199
- 1200
-+1201 (2.2)
- 1202
--1203 (psnprintf)
--1204 (psnprintf)
- 1205
-!1206 (savegame)
-+1207 (2.2)
- 1208
-+1209 (was already merged)
- 1210
- 1211
- 1212
- 1213
- 1214
- 1215
- 1216
- 1217
- 1218
- 1219
- 1220
--1221 (IWAD switching)
--1222 (renderer)
--1223 (renderer)
-+1224 (was already merged)
- 1225
- 1226
- 1227
--1228 (psnprintf)
- 1229
- 1230
- 1231
-+1232 (was already merged)
- 1233
- 1234
- 1235
- 1236
- 1237
- 1238
- 1239
- 1240
- 1241
- 1242
- 1243
- 1244
-+1245 (was already merged)
--1246 (music volume 0)
-+1247 (was already merged)
- 1248
--1249 (renderer)
- 1250
- 1251
- 1252
- 1253
- 1254
- 1255
- 1256
-+1257 (was already merged)
- 1258
--1259 (defaults)
- 1260
-+1261 (was already merged)
- 1262
--1263 (sounds)
-+1264 (was already merged)
- 1265
-+1266 (2.2)
-+1267 (was already merged)
- 1268
- 1269
-+1270 (2.2)
- 1271
-+1272 (was already merged)
-+1273 (2.2)
--1274 (key repeat)
- 1275 (console)
- 1276
- 1277
- 1278
- 1279
- 1280
- 1281
- 1282
- 1283
--1284 (renderer)
--1309 ()
+     r708 | Updated.
+            (TODO)
++    r709 | Intermission screen demo sync bug fixed Also fix a possible time
+            (was already merged)
+     r710 | Added additional check for extensions.
+     r711 | Fix for compiling prboom_server on windows.
++    r712 | Fixed some z_zone related problems.
+            (was already merged)
++    r713 | Fix WAD bugs that can cause crashes even in demo compatibility m
+            (was already merged)
+     r714 | New config file name prboom.config for both GL and non-GL versio
+            (new config format)
++    r715 | Pull forward fixes from stable tree: Fix numeric keypad. Kill th
+            (was already merged)
++    r716 | Another fix fromt he stable branch: Fix fastparm and respawnparm
+            (was already merged)
+     r717 | HEADER_SIZE must be derived from sizeof(memblock_t), which can b
+     r718 | Crop some old bits Update on progress Add comp_sound idea
+     r719 | Update some email addresses
+     r720 | *** empty log message ***
+     r721 | Correct compatibility levels comment
+     r722 | Import items from 2.2.2 and 2.2.3
+     r723 | pedantic html fix
+     r724 | Add super shotgun/A_CheckReload fix.
++    r725 | Fix file handle leak in R_InitTranMap when called before WADs lo
++    r726 | Make A_CheckReload actually work. Compatibility optioned for old
+            (was already merged)
+     r727 | Fix typo.
++    r728 | Some patches from selliot to improve handling of missing monster
++    r729 | Make M_ReadFile return -1 on error, so we can distniguish an emp
+            (parts were missing)
++    r730 | LOL, backslash escaping, what was I thinking, the windows users
+            (was already merged)
+-    r731 | Initialise gamestate so it's not GS_LEVEL. This stops a SEGV if
+            (Chasecam)
+-    r732 | Merged in the axes stuff. It's a more general replacement of the
+            (Generalise axes handling for input devices)
++    r733 | Clear player mobj's at level end - they're allocated PU_LEVEL so
++    r734 | Add back in horrible kludge used in 2.2.x to stop desyncs in the
+            (was already merged)
+     r735 | i_joy.c is gone
++    r736 | Removed now unused X11 and OSS.
++    r737 | New comp_sound compatibility option: - player only ever hears th
+            (was already merged)
+     r738 | *** empty log message ***
+     r739 | Updated.
++    r740 | Moved D_DoomExeDir and FindWADFile to i_system. Renamed to I_Doo
+            (cleaned up)
++    r741 | -forceoldbsp is valid for non-GL builds
+            (was already merged)
++    r742 | Fix comp_skymap. Looks like I just overlooked this one when I di
+            (was already merged)
++    r743 | Added the MP3 loading. MP3 will only be loaded if the music lump
+            (was already merged)
+     r744 | Load default config from a wad if config file not found.
+            (new config format)
+     r745 | Strings in menuitem_t will be const
+     r746 | Add the latest new compatibility levels.
+            (console)
+     r747 | Enable gamma correction with new config system.
+            (console)
+     r748 | Extension usage from 2.2.x.
+            (from 2.2)
+-    r749 | Save sensitivity settings.
+            (axes)
+     r750 | Small fix for keybinding names.
+            (binding)
+     r751 | Credits.
+            (new menu stuff)
+     r752 | Fix version strings.
+     r753 | Updated.
+     r754 | Hopefully fix some Linux/NVidia problems.
+     r755 | *** empty log message ***
+     r756 | Minor corrections
+     r757 | More corrections
+     r758 | Another HTML fix.
+     r759 | Move ssg fix to the right section.
+     r760 | Add DivlineSide coord-swapping bug. Add more info on p_sight.c d
++    r761 | Fix swapped coord in LOS calcs involving east-west walls  (this
+            (from 2.2)
++    r762 | Auto-fix WAD bug where 1S line uses negative sidedef number othe
+     r763 | Add back screenshot capability.
+            (menu)
+     r764 | Eliminate tmthing, redundant. Save tmx & tmy over P_CreateSecNod
++    r765 | Remove tmflags, redundant. Preserve tmx & tmy over calls to P_Cr
+            (was already merged)
+     r766 | Revised P_CreateSecNodeList details.
++    r767 | Added fix for 800x600 bug by John Popplewell, but currently put
+     r768 | Enabled fix for 800x600 bug by John Popplewell. Finetuned the va
+            (skipped, related to previous)
+     r769 | Removed debug hack.
+     r770 | Added statusbar console variables. Worked a little bit on the me
+            (menu, console)
+     r771 | Added hud and cheat console variables. Worked a little bit on th
++    r772 | Better invulnerability drawing for normal OpenGL (not paletted).
+            (2.2)
+-    r773 | Added better dynamic OpenGL loader (Linux makefiles need updates
+            (Dynamic OpenGL)
+-    r774 | Tried fixing release bug in tesselator. Not sucessful yet.
+            (Tesselator)
+     r775 | Sorting config file output (Lucas Pope).
+            (config)
+     r776 | Small bugfix for VC7. isprint doesn't like anything above 255 (L
+            (binding)
+     r777 | Disabling gluTesselator till it's fixed.
+            (Tesselator)
+-    r778 | New and unified software rendering by Lucas Pope. This adds 16 a
+            (renderer)
+     r779 | Accidently added this in the last update. This is the new sound
+-    r780 | Added fix for 800x600 bug by John Popplewell which wasn't in the
+            (renderer)
+-    r781 | Unified patch rendering (filtering etc) (Lucas Pope).
+            (renderer)
+     r782 | Added more console commands.
+            (console)
+     r783 | Added more console commands. Fixed OpenGL mode.
+            (console)
+-    r784 | Implemented on the fly video mode changing (8,16,32 bit).
+            (renderer)
+     r785 | updated
+     r786 | added s_samplerate console var
+            (console)
+     r787 | enclosed the signal handlers with #ifndef _DEBUG
+     r788 | small comment change
+            (binding)
+-    r789 | added the RDRAW_FILTER_ROUNDED filter method that combines the s
+            (renderer)
+-    r790 | added RDRAW_FILTER_ROUNDED support
+            (renderer)
+     r791 | Reverted back to old sound code, due to some problems.
+-    r792 | fixed V_PlotPatch clipping, still not perfect, but better. also
+            (renderer)
+-    r793 | added bufferWidth/Height and convertToBGRA parameters for the V_
+            (renderer)
+-    r794 | Fixed some bugs in the V_GetPlotted* function family.
+            (renderer)
+-    r795 | just some small little fixes
+            (renderer)
+-    r796 | Using new V_GetPlotted functions for the OpenGL texture generati
+            (renderer)
+-    r797 | Fix include filename case for compilation on Linux
+            (renderer)
+-    r798 | __cdecl presumably only needed on Win32; not available with gcc
+            (renderer)
+-    r799 | Case sensitive filename fixes
+            (renderer)
+-    r800 | Removed __cdecl.
+            (renderer)
+     r801 | showMessages now defaults to on.
+            (console)
+-    r802 | Fixed OpenGL/Software clash.
+            (renderer)
+-    r803 | Made OpenGL library name configurable. Added dynamic screen reso
+            (renderer)
+-    r804 | Removed test code.
+            (renderer)
+-    r805 | Moved DrawLine from am_map to v_video. Added all wrappers for Op
+            (renderer)
+-    r806 | Fixed resizing in windowed mode.
+            (renderer)
+-    r807 | Fixed warnings about different const modifier. Added small check
+            (renderer)
+-    r808 | Fixed some bugs (release version now works). Touched the memory
+            (renderer)
+     r809 | String const fix
+            (console)
+     r810 | Minor fixes
+            (menu)
+-    r811 | Removed all references to V_DrawMemPatch.
+            (renderer)
+     r812 | More const fixes.
+            (console)
+-    r813 | Screenshot is now a video system function.
+            (renderer)
+-    r814 | Removed GL_DOOM.
+            (renderer)
+-    r815 | Removed all remaining GL_DOOMs before full unification.
+            (renderer)
+-    r816 | Unified software and OpenGL into one executable. Nothing changed
+            (renderer)
++    r817 | cleaned up the PAUSE patch rendering
++    r818 | fixed a major bug that caused any deh patch that modified a mons
+            (was already merged)
+     r819 | Made slowturntics variable.
+            (console)
+     r820 | Merge "time" portability fix fom dev branch (wi_stuff.c:1.6->1.7
+     r821 | Bump version numbers Add link to HP-UX compilation instructions
+-    r822 | Fix inlining, min/max macros for gcc
+            (renderer)
+     r823 | Add gl_dyn.c, r_filter.h
+-    r824 | new TPatch format, VIDD integration, many fixed video issues
+            (renderer)
+-    r825 | new TPatch format, VIDD integration
+            (renderer)
+-    r826 | Fixed OpenGL calls to the new patch functions. Updated VisualC++
+            (renderer)
+-    r827 | Newlines at EOF to passify gcc.
+            (renderer)
++    r828 | Remove duplicate BuildBEXTables (well spotted, Quasar`).
+            (was already merged)
+-    r829 | Add r_patch.c.
+            (renderer)
+     r830 | BEX-equivalent strings output should have spaces around the =  (
++    r831 | BEX-equivalent strings output should have spaces around the =  (
+            (was already merged)
+-    r832 | Removed debug code.
+            (renderer)
+-    r833 | More error checking.
+            (renderer)
+-    r834 | Some code reorganisation. Added infinitePerspective which replac
+            (renderer)
+     r835 | Some code reorganisation.
+     r836 | Don't use paletted textures as default.
+     r837 | backported from 2.3.x: fixed a major bug that caused any deh pat
+-    r838 | Removed glu tesselation code, as it doesn't work properly and is
+            (renderer)
+     r839 | Don't use paletted textures as default.
+     r840 | Backported better invulnerability drawing for normal OpenGL (not
+     r841 | Removed glu tesselation code, as it doesn't work properly and is
+     r842 | Updated.
+     r843 | Bumped version number.
+     r844 | Commit Mead's/my countable item automap highlighting.
+     r845 | Fix SEGV on failed lookup for BEX codepointer.
+     r846 | Always rangecheck patch drawing to the framebuffer, we have no g
+     r847 | Respawn frame bug "reported" on DW forums by Graf Zahl.
+     r848 | Don't treat linedef types in the 0x8000-0xffff range as generali
+     r849 | Fix DEH_MOBJINFOMAX.
+     r850 | Removed need for far clipping plane.
+     r851 | Updated and added some details.
+     r852 | Added some stuff from 2.2.x.
+     r853 | Update and cleanup.
+     r854 | Clean up some code indenting.
+     r855 | Split visplane duplication into new function. Fix sky-over-sky H
++    r856 | From prboom_stable_2_2: Split visplane duplication into new func
+            (2.2)
+     r857 | Updated.
+     r858 | Fix erroneous extra shot noise when chaingun runs out of ammFix
++    r859 | Fix chaingun bullet-noise-after-last-bullet bug.
+            (was already merged)
+     r860 | Compatibility option the chaingun sound fix (Bahdko made me, hon
+     r861 | Add chaingun extra shot sound fix. HTML cleanups. Obscure email
+     r862 | Obscure email addresses against spam harvesting.
+     r863 | Another email link obscured.
+     r864 | Fix for crash when trying to load empty slot.
+            (menu)
+     r865 | Removed $Id: $ lines. This is for the future switch to subversio
+     r866 | Removed $Id: $ lines. This is for the future switch to subversio
+     r867 | Wow, I totally messed up the last checkin. At all places where a
+     r868 | Wow, I totally messed up the last checkin. At all places where a
+     r869 | Fixed compiling of prboom_server.
+     r870 | Wow, I totally messed up the last checkin. At all places where a
+-    r871 | Fixed double dcvars.translation mapping in 16 and 32 bit.
+            (renderer)
+-    r872 | Fixed tranlation mapping for rounding filter in 8 bit.
+            (renderer)
+     r873 | Added r_patchfilter and r_patchslope console variables.
+            (console)
+-    r874 | Patch drawing defaults to point filter and square borders as thi
+            (renderer)
+     r875 | Fix crash when doing timedemo from the menu.
+            (menu)
+-    r876 | Added translucent patch drawing (used in video settings menu).
+            (renderer)
+-    r877 | Added more menu graphics from smmu.
+            (menu graphics)
+     r878 | Added r_homflash console command.
+            (console)
+     r879 | Use smaller slider graphics from smmu. Boolean values are switch
+            (menu)
+     r880 | Output of lprintf now also goes to console.
+            (console)
+     r881 | Added names for keypad keys.
+            (binding)
+-    r882 | Renamed r_videomode to r_rendermode. The r_width, r_height and r
+            (rendering)
+     r883 | Video settings menu is much more complete (OpenGL stuff missing)
+            (menu)
+     r884 | Updated.
++    r885 | Made I_SoundInit callable more that once.
+     r886 | The snd_samplerate command is toggleable and only allows values
+            (console)
+     r887 | Fixed sound menu.
+            (menu)
+     r888 | Added use_mouse console variable.
+            (console)
+     r889 | Fixed compilation warning related to defdemoname. Made G_Compati
+            (console)
+     r890 | Moved default_compatibility_level and compatibility_level consol
+            (console)
+     r891 | Some small changes. Split up compatibility into two pages.
+            (menu)
+     r892 | Added p_cmd.c and made small related changes. This adds monster
+            (console)
+     r893 | Removed cvs log.
+     r894 | Removed non OpenGL versions.
+-    r895 | Added OpenGL console commands. Added OpenGL settings to video me
+            (renderer)
+-    r896 | Added ViddSys. Added viddsys project for VisualC6. Enabled vidd
+            (VIDD)
+     r897 | Added some stuff.
+     r898 | Removed unused stuff.
+            (console)
+     r899 | Reworked the menus a bit. Disabled some non working stuff for no
+            (menu)
+     r900 | Moved demo stuff from g_game to g_demo.
+            (g_demo)
+-    r901 | Implemented iwad console command for on the fly iwad switching.
+            (IWAD switching)
+-    r902 | Documentation for vidd.
+            (VIDD)
+     r903 | Fix drawing when console is fullscreen.
+            (console)
+     r904 | Added C_RunTextCmdf. Added c_addcommand_stats console command wh
+            (console)
+     r905 | Changed to use C_RunTextCmdf.
+            (menu)
+     r906 | Added iwad selection in "features->load wad".
+            (menu)
+-    r907 | Changed iwad from console command to console string and prevent
+            (IWAD switching)
+     r908 | Using g_iwad (from iwad console string) for default iwad when no
+            (IWAD switching, menu)
+-    r909 | Sound functions take const mobj_t * instead of void * for locati
+            (VIDD)
+     r910 | Moved includes bacuase of some changes in the header files.
+-    r911 | Sound functions take const mobj_t * instead of void * for locati
+            (IWAD switching)
+     r912 | Added c_net from smmu.
+            (net from smmu)
+     r913 | Added fraggle script files from smmu, but didn't integrate it in
+            (fraggle script)
+-    r914 | Made wall and floor filters seperatly selectable (to allow round
+            (renderer)
+-    r915 | Added Lucas Pope to credits.
+            (renderer)
+     r916 | Several small changes to let fraggle script stuff compile. Added
+            (fraggle script)
+     r917 | Added fraggle script files. Moved some files into project subfol
+            (fraggle script)
+-    r918 | Three font graphics from SMMU added.
+            (font graphics)
+-    r919 | Merging more stuff from SMMU: v_misc added and moved font handli
+            (font handling - better get it from Eternity)
+-    r920 | Using the new V_Text* functions here instead of implementing ess
+            (font handling)
+     r921 | Removed unused externs.
+     r922 | Some cleanup. Using V_IsPrint to check if char is printable. Add
+            (console)
+-    r923 | Initialize the font in v_misc.
+            (font handling)
+     r924 | For iwad switching: Initialize patches (R_Init) before any call
+     r925 | Definitions for silentmove sector flags.
+     r926 | Added totalfrags in preparation for the coming smmu hud code.
+            (smmu hud)
+     r927 | Added lightlevel_t. Added prototypes for new functions from smmu
+            (fraggle script)
+     r928 | Fixed type cast compiler warnings.
+            (fraggle script)
+     r929 | Using the recently added V_DrawBox function.
+            (menu)
+     r930 | Prevent adding a command twice, as this causes an endless loop l
+            (console)
+-    r931 | Typecast to prevent warning.
+            (renderer)
+     r932 | Added linedefs for scripting from smmu.
+            (fraggle script)
+     r933 | Last log entry is wrong. This added silentmove.
+            (fraggle script)
+-    r934 | Adding silentmove and using plat_up, plat_stop and palt_down con
+            (some constants)
+-    r935 | Added T_LightFade and P_FadeLight from smmu.
+            (P_FadeLight)
+     r936 | Enabled T_AddCommands and V_AddCommands. Some moving around of *
+            (console)
+     r937 | New hud from smmu with some small related changes. The fullscree
+            (HUD)
+     r938 | Removed cvs log.
+-    r939 | Removed message from player_t, use doom_printf or player_printf
+            (Removed message from player_t, use doom_printf or player_printf instead)
+-    r940 | Fix chasecam when teleporting.
+            (chasecam)
+-    r941 | Added r_blockmap.
+            (blockmap)
+-    r942 | Some code cleanups and documentation fixes. Very small changes f
+            (several changes)
+-    r943 | Enabled V_FPSDrawer:
+            (FPS drawer)
+     r944 | Added and enabled more smmu stuff.
+            (smmu)
+-    r945 | Fixed V_WriteTextXYGapFont call from using v_font to supplied fo
+            (font)
+     r946 | Small cleanups and added some variables from smmu.
+-    r947 | prboom.wad now loaded together with iwad. Using IndentifyVersion
+            (IWAD switching)
+     r948 | Added deh_loaded variable from smmu.
+            (console)
+     r949 | gravity is now a variable.
+            (gravity variable)
+     r950 | Renamed G_DeferedInitNew to G_DeferedInitNewNum and G_InitNew to
+            (hubs)
+     r951 | Moved G_Ticker to the end of the file.
+     r952 | Added p_info and p_hubs from smmu.
+            (hubs)
+     r953 | Some definitions (intermission camera related) and the barest mi
+            (intermission camera)
+     r954 | Check if soundfx is enabled in S_StopSounds to fix crash.
+     r955 | Moved "extern int screenblocks;" to r_main.h
+     r956 | Removed now unused extern int key_* definitions. Added G_Scrambl
+-    r957 | Print errors to console instead of calling I_Error.
+            (renderer)
+     r958 | Put code from g_game (G_DoLoadLevel) to init the sky texture nam
+            (smmu)
+     r959 | More things from smmu in P_SetupLevel.
+            (smmu)
+     r960 | Removed unused key_* definitions. Moved key_map_* definitions to
+-    r961 | Z_PrintStats is Z_DrawStats now and called from HU_Drawer. It's
+            (font)
+     r962 | MAXLOADWADS now 2 again, cause prboom is implicitely loaded.
+-    r963 | bodyqueue fix from mbf.
+            (bodyqueue)
+     r964 | New sound code from smmu.
+            (smmu - sound)
+     r965 | Reenabled quit sounds. Added i_endoom_delay to change delay when
+-    r966 | Small changes and additions from smmu.
+            (chasecam)
+     r967 | P_SetupLevel and G_InitNew take a levelname instead of gameepiso
+            (smmu)
+     r968 | Added death messages from smmu.
+            (smmu)
+     r969 | Bump version number for autoconf.
+     r970 | Sprite offsets must be flipped for flipped sprites. Thanks to fr
+     r971 | Further improve the P_CreateSecNodeList global variable cleanups
+     r972 | Fix endianness issues in tic field of network packets. Should be
+     r973 | cf http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=174541 Remov
+     r974 | Get line lengths right in README.command-line
+     r975 | Added more intermission code from smmu. Made some functions stat
+            (smmu)
+     r976 | Added use_startmap and startlevel. Added functions for dynamic w
+            (smmu)
+     r977 | Enabled some smmu stuff which didn't work before.
+            (smmu)
+     r978 | Removed ChangeLog as it's generated.
+     r979 | Reintroduce -nomouse option; essential for debugging.
+     r980 | Add comp_sound stuff, backported from the development version.
+     r981 | Set compatiility options correctly in netgames in old compatibil
+     r982 | Add support to network game server for reading config files. It
+     r983 | Added explanation for AM_PATH_SDL problem to compile from cvs se
+     r984 | Added explanation for AM_PATH_SDL problem to compile from cvs se
+     r985 | Added correct eol property.
+     r986 | Added correct eol property.
+     r987 | Fixed Makefile.am. Small posix related fixes.
+     r988 | Added Visual Studio .NET project files.
+     r989 | Added tab before each line of files.
+     r990 | More Makefile and posix fixes.
+     r991 | Posix fixes for OpenGL. Now always compiled in, as there are no
+     r992 | Makefiles are weird. Replaced tabs with spaces in file list.
+     r993 | Added VISUALCNET to distribution.
+     r994 | Added inl and vidd directorys to makefiles.
+     r995 | Fix end of line.
+     r996 | Fix case.
+     r997 | Fix case.
+     r998 | Added src/inl/Makefile and src/vidd/Makefile.
+     r999 | Fix end of line.
+    r1000 | Removed trailing slashes in I_DoomExeDir.
+    r1001 | Moved includes from gl_intern.h to gl_main.c and gl_texture.c. P
+    r1002 | Remove ChangeLog from distribution tarball - we don't have one.
+    r1003 | Remove readme.txt from distribution, as it is not in the reposit
+    r1004 | Sanity checking for netcmd numbers. Add more entries to netcmd e
+            (console, net)
+-   r1005 | Endian fixes.
+            (renderer)
+    r1006 | Removed PFNGLCOLORTABLEEXTPROC definition and added FAQ entry.
+    r1007 | Added GL_DOOM define.
+-   r1008 | More endian fixes.
+            (renderer)
+    r1009 | Reorder comp_sound to match 2.2.4.
++   r1010 | Import fixes from stable tree, revisions 823,825,827: - Respawn
+            (2.2)
++   r1011 | Port forward fraggle's sprite offset flipping fix. Clean up and
+            (sprite clipping fix)
++   r1012 | Port forward the fix for global variable overwriting (tmbbox) in
+            (2.2)
+    r1013 | New address for Barry Mead.
+    r1014 | Fix non-GL_Doom compilation.
+    r1015 | Allow s_sound.c to specify volume with greater precision. This a
+    r1016 | Work around defect in SDLNet_UDP_Bind channel support.
+    r1017 | Add a feedback mechanism to keep clients more accurately synchro
+    r1018 | Upadte email address and download address.
+    r1019 | Remove direct smpeg dependency - it should be pulled in automati
+    r1020 | Remove debugging accidentally committed yesterday, and update NE
+    r1021 | Add weapon pickup sounds, sprite flipping, and updated p_map.c f
+    r1022 | Protect another email address.
+    r1023 | Hide another email.
+    r1024 | Update for 2.2.4 release.
++   r1025 | Bring forward generalised line range fix from 2.2.x branch.
+            (2.2)
+    r1026 | Fix xtratics - it was generating negative tic #s and the server
+    r1027 | Added Makefile.am for extra files in generated tar.
+    r1028 | Tag the 2.2.4 release.
+    r1029 | Added more missing files to the Makefiles.
+    r1030 | Added missing GenEnd.
++   r1031 | Updates to spec file (from 2.2.4).
+            (2.2)
++   r1032 | Do not link smpeg (ported from 2.2.4).
+            (2.2)
++   r1033 | From 2.2.4, less strict automake checks.
+            (2.2)
++   r1034 | Port back-off support from 2.2.4. Port endianness fixes from 2.2
+            (2.2)
++   r1035 | As in 2.2.4, removed ChangeLog.
+            (2.2)
++   r1036 | Improve accuracy of sound calculations (sound range fix ported f
+            (2.2)
++   r1037 | Update NEWS with final 2.2.4 list.
+            (2.2)
+    r1038 | Tagging PrBoom 2.3.0
+    r1039 | PrBoom 2.3.0 released.
+    r1040 | Explain a bit that this is a rough'n'ready beta release. Solicit
+    r1041 | Windows release was bad.
+    r1042 | Some feedback.
+    r1043 | Updated.
+    r1044 | Correct the off-screen checking in HUlib_drawTextLine. This stop
+    r1045 | Bumped version number.
+    r1046 | Fix config.h for Windows. All references to "../config.h" were r
+    r1047 | Fix eol.
+    r1048 | Report error if port bind failed. Sanity checking on player numb
+    r1049 | Load OpenGL libraries only when needed.
+-   r1050 | I think this description of the networking is worth saving.
+            (network explanation)
+    r1051 | Take screenshot - f12 Quit - f10 Gama correction - f11
+            (config)
+    r1052 | Added autorun to menu. Updated todo.
+            (menu)
+    r1053 | Moved and added stuff for redesign.
+    r1054 | Forgot to rename.
+    r1055 | Mostly working like the old pages. I have to fix the tool first.
+    r1056 | With SimpleTAL 3.5, a small hack in pubtal and some small fixes
+    r1057 | Add navigation and reordered some things.
+    r1058 | Added hover effect for links.
+    r1059 | Added missing template.
+    r1060 | A very small readme on how to build the website.
+    r1061 | Nicer rollover effect.
+    r1062 | Fix eol. I finally found the option to prevent my editor from me
+    r1063 | Fix eol. I finally found the option to prevent my editor from me
+-   r1064 | More endian fixes. Now it works on big endian systems as far as
+            (renderer)
+    r1065 | Fixed ignore-filter.
+    r1066 | Not needed anymore.
++   r1067 | Obvious bug in my attempts to fix the T_VerticalDoor corruption
+            (2.2)
+    r1068 | Fix overzealous safety check added in last update.
+    r1069 | If server is closed before game start, exit the client too.
+    r1070 | We should call D_QuitNetGame for any client exit after the serve
+    r1071 | Better management of players joining and quitting during startup
+    r1072 | Demo players are after this: total live monsters count in the HU
+    r1073 | Set savegame root.
+    r1074 | fake_contrast should be on by default (used to be on but configu
+    r1075 | Bump version number.
+    r1076 | Marked hub and script related stuff with ifdefs.
+            (hub)
+-   r1077 | Fixed textcolours array, this caused segfaults.
+            (font)
+-   r1078 | Fix prboom.wad not found [Patch 949349].
+            (IWAD switching)
+-   r1079 | Fix texture pegging for upper textures [Patch 897801] [Bug 59999
+            (renderer)
+    r1080 | Set svn:eol-style property.
+    r1081 | Set svn:eol-style property.
+    r1082 | Make line_t junk static in A_LineEffect.
++   r1083 | Make line_t junk static in A_LineEffect [Bug 946686].
+            (2.2)
+    r1084 | Fix for new GCC warnings.
+-   r1085 | Wrap extremely long lines.
+            (renderer)
+    r1086 | Fix Bug #845129. Filenames with dots didn't work properly (and s
+-   r1087 | Fixed Bug #929248. Buffer overflow in F_TextWrite.
+            (font)
+    r1088 | Added SDLK_CARET as console key.
+    r1089 | Fix compilation.
+-   r1090 | (Partly) fix bug #851055. (Re)implemented multipatch textures. D
+            (renderer)
+-   r1091 | Fix bug #810700. It was some rounding error introduced with the
+            (renderer)
+-   r1092 | Limit the posts of a patch to the limits of the texture. As a si
+            (renderer)
+-   r1093 | Removed some unused code. I think this got obsolete with the new
+            (renderer)
+    r1094 | Added an ifdef USE_ULL_SUFFIX. This should be added with a test
+    r1095 | Fix bug #826682. Unavailable IWADs get disabled.
+            (menu, iwad switching)
+    r1096 | Fix savegames (Bug #896092).
+            (smmu savegames)
+-   r1097 | Fix multiple-patches-on-one-column textures (Bug #851055).
+            (renderer)
+    r1098 | Bump version number.
+    r1099 | Load OpenGL library only once.
+    r1100 | Fix bug #926548 and enhance widgets with the possibility to choo
+            (hud)
+    r1101 | Fix bug #810562. Bounded keys weren't checked when playing demo.
+            (binding)
+    r1102 | Tried to achive savegame compatibility with 2.2.x, but failed. T
+            (smmu savegame)
+    r1103 | Update email address.
+    r1104 | Use SDL_MUSTLOCK to determine whether si render direct to buffer
+    r1105 | Bump version number.
+    r1106 | A few minor fixes so far.
+    r1107 | Fix --enable-dogs
+    r1108 | Cheatcodes didn't work anymore and this change wasn't necessary
+            (binding)
+    r1109 | Updated.
+-   r1110 | Removed W_UnlockLump* calls made obsolte by the new renderer.
+            (renderer)
+    r1111 | Added a sanity check to prevent problems.
+    r1112 | Prevent compiler warning.
+    r1113 | Fix position of automap text widgets when using high-res.
+            (hud)
+    r1114 | Added devparm as console command.
+            (console)
+-   r1115 | Made R_GetTextureColumn simpler by using the new R_GetTextureCom
+            (renderer)
+-   r1116 | Added missing R_GetTextureColumn call for dcvars.prevcolumn.
+            (renderer)
+-   r1117 | Use user pointer on Z_Malloc.
+            (renderer)
+-   r1118 | Use normal malloc instead of Z_Malloc.
+            (renderer)
+    r1119 | Fix compiler warnings and a weird compiler error in Visual Studi
+            (VIDD)
+    r1120 | Updated to Visual Studio .NET 2003.
+    r1121 | Added test for ULL number suffix.
+    r1122 | Import r418 from trunk: Simplify event handling, logic is all in
+    r1123 | Update for new dmalloc API.
+    r1124 | Import r1115 from trunk, fixing dmalloc support. More consistent
+    r1125 | Merge r941 from trunk (plus Lee's comments from MBF): bodyqueue
+    r1126 | Import r707 from trunk, for bug #592350: Use M_ReadFile for Find
+    r1127 | Import r417 from trunk: No need for screenshot to be a gameactio
+-   r1128 | Fix texture offset when using linear filter in software mode.
+            (renderer)
+-   r1129 | Fixed bug #834202. Translucency setting wasn't saved. Patches ar
+            (renderer)
+    r1130 | Fixed several compiler warnings.
+    r1131 | Import r514 from trunk: Better inline asm from Eternity.
+    r1132 | Fast forward to given map # in demo playback.
+    r1133 | Fix desync caused by timing differences in intermission screen w
++   r1134 | Intermission screen desync on secrets counter. for e.g. 30cn3519
+            (2.2)
+    r1135 | Another demo sync fix for Boom.
+    r1136 | monkeys, traditional_menu, sts_always_red and weapon_recoil set
+    r1137 | Import r712 from trunk (needed to complement r418 imported yeste
+-   r1138 | Imported new colour translation code from SMMU/Eternity.
+            (renderer)
+    r1139 | Fixed a few warnings. Let z_zone.c compile on windows. Add defau
+    r1140 | Import r708 from trunk, needed to complement r707 imported yeste
+    r1141 | Ripped out tranmap caching.
+-   r1142 | Don't initialise sound before I_Init().
+            (init sound)
+    r1143 | Import 2.3.x prboom.wad.
+    r1144 | Blazing door hitting an obstacle should make a blazing door soun
+-   r1145 | Blazing door closing and hitting something should make a blazing
+            (blazing door sound)
++   r1146 | Live monster counter for HUD, imported from stable_2.2 r1064.
+            (2.2)
+    r1147 | Another blazing door noise bug.
++   r1148 | The new simplified z_zone implementation. It's just a wrapper ar
+            (z_zone)
+    r1149 | #include "z_zone.h", for malloc.
++   r1150 | Clear tmthing after each tic - could be referencing a freed obje
+            (z_zone)
++   r1151 | Demo fast forward to given map #, from stable_2.2.
+            (2.2)
+    r1152 | Fix autoconf warning.
++   r1153 | Live monster counter now worksa with archville resurrections.
+            (2.2)
+    r1154 | Live monster counter now counts archville resurrections.
++   r1155 | Fix r1142: need p_map.h for P_Map*.
+            (z_zone)
+    r1156 | Fix a possible SEGV due to tmthing holding a dangling pointer if
+-   r1157 | Made patches and texture composites of the new software renderer
+            (renderer)
++   r1158 | Added memory_size variable, which is the threshold at which purg
+            (z_zone)
++   r1159 | Fixed long standing backspace printing bug on windows.
+            (was already merged)
+    r1160 | Fixed long standing backspace printing bug on windows.
++   r1161 | Fixed missing 0 at end of string.
+            (was already merged)
+    r1162 | Fixed missing 0 at end of string.
+    r1163 | Add \n when printing HUD messages to console.
+            (console)
++   r1164 | Fixed rather big memory leak.
+            (was already merged)
+    r1165 | Fixed rather big memory leak.
+-   r1166 | Set edgeSloping when combining posts.
+            (renderer)
+    r1167 | Fixed config for new PubTal. Changed CSS a little bit.
+    r1168 | Generalised doors now make sounds appropriate to their speed. Th
+-   r1169 | Fix sounds based on speed of generalised doors. Fix comp_sound i
+            (sounds)
+-   r1170 | More original Doom like default settings.
+            (default settings)
+    r1171 | Padding for short REJECT lumps (fixes rq22-318.lmp and probably
+    r1172 | Make it possible to abort network checking on windows.
+-   r1173 | Make it possible to abort network checking on windows.
+            (networking on windows)
+-   r1174 | Completely removed G_ChangedPlayerColour.
+            (G_ChangedPlayerColor)
+-   r1175 | Added portable snprintf. Compile with warnings as errors on wind
+            (psnprintf)
+-   r1176 | Made some buffers bigger, so they will not overrun.
+            (buffers)
+-   r1177 | Small enhancements and bugfixes from Eternity. Fix indentation.
+            (renderer)
+    r1178 | Removed limit on aliases (from Eternity). Small enhancements and
+            (console)
+-   r1179 | Unify V_WriteText* and V_StringWidth* functions.
+            (font)
+    r1180 | Small enhancements and bugfixes from Eternity. Fix indentation.
+            (console)
+    r1181 | Fix compilation with gcc 3.4.x - inconsistency between header an
+    r1182 | Add calls to SMMU/Eternity net code.
+            (net)
+    r1183 | Fix dist target for newer autoconf.
+    r1184 | Enhanced Edition v1.9 demo support.
+    r1185 | Fix compilation of server.
+            (net)
+    r1186 | Implemented printing of tabs.
++   r1187 | Implemented printing of tabs.
+            (was already merged)
+    r1188 | Fix crash when player respawns in multiplayer due to new P_MapSt
+    r1189 | Small fix from Eternity. Small code cleanups. Fix compilation of
+            (net)
+-   r1190 | Fix bug #810566. Music stops playing after sound settings change
+            (sound)
++   r1191 | Fix player respawn crashes with new P_MapStart/End
+            (z_zone)
+    r1192 | Updated.
+    r1193 | Bug fixes from Eternity. Small code cleanups. Enabled some more
+            (smmu fixes from eternity)
+    r1194 | Bugfixes from Eternity. Small code cleanups. Enabled more stuff.
+            (smmu fixes from eternity)
++   r1195 | Renamed namespace to li_namespace.
+            (was already merged)
++   r1196 | Removed stealth monsters, they weren't supported in the renderer
++   r1197 | Ripped out the remaining stealth monster bits. The flags in p_mo
+    r1198 | Added psnprntf.* and m_fcvt.*.
+    r1199 | Added pastebin.
+    r1200 | Start level code also uses P_Map* and must be wrapped (else P_Ma
++   r1201 | Start level code also uses P_Map* and must be wrapped (else P_Ma
+            (2.2)
+    r1202 | Small changes to css. Moved passwords outside of pastebin.php. R
+-   r1203 | Don't use systems snprintf as replacement for psnprintf.
+            (psnprintf)
+-   r1204 | Use psnprintf instead of snprintf or sprintf.
+            (psnprintf)
+    r1205 | Fix for newer autoconf.
+!   r1206 | Fix prboom_3_compatibility savegames.
+            (savegame)
++   r1207 | Longtics/EE support ported from stable_2.2.
+            (2.2)
+    r1208 | doom2.exe only used the first 10 deathmatch starts.
++   r1209 | doom2.exe only used the first 10 deathmatch starts.
+            (was already merged)
+    r1210 | Transmit data for tic 0. This probably caused the first-tic desy
+    r1211 | Experimental proxy server between ipxsetup.exe's IPX networking
+    r1212 | Works now - fixed packet sizes and tic wrapping calcs.
+    r1213 | Make the backoff stronger, needed to need down the lag with doom
+    r1214 | Pack and pad the packet header struct, and ensure that the paddi
+    r1215 | Make demo noise a bit less intrusive.
+    r1216 | Prevent SEGV if server incorrectly give a bad consoleplayer numb
+    r1217 | Extra confirmation phase, to deal with clients that quit or lose
+    r1218 | MF_BLOCKMAP missing from Doom -> PrBoom flags conversion, and th
+    r1219 | non-SDL_net net code is gone. Remove makefile conditionals, as t
+    r1220 | Move GL_DOOM and COMPILE_VIDD from project settings to config.h.
+-   r1221 | Avoid crash when prboom.wad is not found.
+            (IWAD switching)
+-   r1222 | Avoid crash when the opengl extension string is too long.
+            (renderer)
+-   r1223 | Fix printing of opengl extension. The length was calculated inco
+            (renderer)
++   r1224 | Another fix for tabulators in the windows console window.
+            (was already merged)
+    r1225 | Backport of the fix for printing opengl extensions and the tabul
+    r1226 | Fix up .NET project files.
+    r1227 | updated.
+-   r1228 | Fix compilation of prboom_server.
+            (psnprintf)
+    r1229 | Fix compilation of prboom_server.
+    r1230 | EE got called v1.91
+    r1231 | EE got called v1.91
++   r1232 | Fix dehacked mobj bits conversion, cf r1218 from stable branch a
+            (was already merged)
+    r1233 | monster_backing off by default too.
+    r1234 | Fix my email address.
+    r1235 | Bring my email addresses up to date.
+    r1236 | PrBoom 2.2.5.
+    r1237 | PrBoom 2.3.0.
+    r1238 | Small fix to prevent unwanted newlines.
+    r1239 | Created tag for PrBoom 2.2.5.
+    r1240 | Bump version number.
+    r1241 | autoconf and rpm disagree about the use of an explicit platform
+    r1242 | Created tag for PrBoom 2.3.1.
+    r1243 | Bumped version number.
+    r1244 | Fix intermission screen splat/YaH code, which was crashing due t
++   r1245 | Fix off-screen you-are-here's on Inferno intermission screens.
+            (was already merged)
+-   r1246 | Don't play music when volume is 0.
+            (music volume 0)
++   r1247 | Fix fuzz drawing for hi-re.
+            (was already merged)
+    r1248 | Fix fuzz drawing for hi-re.
+-   r1249 | Fixed patch drawing with VPT_FLIP.
+            (renderer)
+    r1250 | updated.
+    r1251 | Fix hang when one network client exits.
+    r1252 | Update default server parameters to match the client.
+    r1253 | Fix some serious memory leaks.
+    r1254 | and news for the mem leak.
+    r1255 | Nicer diagnostics of player states.
+    r1256 | Fix NOSECTOR and NOBLOCKMAP effects in old dehacked patches.
++   r1257 | Fix nosector/noblockmap mixup.
+            (was already merged)
+    r1258 | and the NEWS item for the deh fix.
+-   r1259 | Set default netgame options the same as the default prboom.confi
+            (defaults)
+    r1260 | Fixed player spawn sound.
++   r1261 | Fixed player spawn sound.
+            (was already merged)
+    r1262 | Player reborn TFOG bug.
+-   r1263 | No oof sound on open 2S lines when comp_sound.
+            (sounds)
++   r1264 | Quick hack to enable network client to ride over temporary loss
+            (was already merged)
+    r1265 | Use g_game.h instead of redefining stuff. Backspace repeat.
++   r1266 | Bring into line with intended protocol, from stable branch.
+            (2.2)
++   r1267 | Bring slightly more into line with my work from 2.2.x. r1048+r10
+            (was already merged)
+    r1268 | Created bundle folder remotely.
+    r1269 | Created bundle for prboom2.
++   r1270 | Make I_WaitForPacket more useful, have a timeout.
+            (2.2)
+    r1271 | Repeat init packet - it might get lost or server is slow startin
++   r1272 | fix last commit.
+            (was already merged)
++   r1273 | Return time to next tick.
+            (2.2)
+-   r1274 | Enable key repeat.
+            (key repeat)
+    r1275 | Remove unused consdata in ticcmd.
+            (console)
+    r1276 | Treat warnings as errors.
+    r1277 | Fix some warnings.
+    r1278 | Don't what I mean, not what I say :-). Don't call SDL_GetTicks t
+    r1279 | More intelligent timing in TryRunTics.
+    r1280 | Smarter delays in TryRunTics. Also, listen for network packets w
+    r1281 | Use packet_set for PKT_TICC.
+    r1282 | Shorter delay while waiting on packet, so windows users have the
+    r1283 | Fix tntem cheat.
+-   r1284 | Fix HOM detection drawing.
+            (renderer)
+-   r1309 | Fix bug [1046368] and patch [1199312].
+            ()
 DONE!
 
 --------------------------------------------------------------------------
