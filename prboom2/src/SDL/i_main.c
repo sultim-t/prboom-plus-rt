@@ -399,6 +399,8 @@ int main(int argc, char **argv)
   signal(SIGABRT, I_SignalHandler);
 #endif
 
+  I_SetAffinityMask();
+
   /* cphipps - call to video specific startup code */
   I_PreInitGraphics();
 

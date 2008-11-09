@@ -50,6 +50,13 @@
 #endif
 #include <sys/stat.h>
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#else
+#include <sched.h>
+#endif
+
 #include "SDL.h"
 
 #ifdef HAVE_CONFIG_H
@@ -379,5 +386,88 @@ char* I_FindFile(const char* wfname, const char* ext)
   return NULL;
 }
 #endif
+
+#ifdef _WIN32
+static char* WINError(void)
+{
+  static char *WinEBuff = NULL;
+  DWORD err = GetLastError();
+  char *ch;
+
+  if (WinEBuff)
+  {
+    LocalFree(WinEBuff);
+  }
+
+  if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+    NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+    (LPTSTR) &WinEBuff, 0, NULL) == 0)
+  {
+    return "Unknown error";
+  }
+
+  if ((ch = strchr(WinEBuff, '\n')) != 0)
+    *ch = 0;
+  if ((ch = strchr(WinEBuff, '\r')) != 0)
+    *ch = 0;
+
+  return WinEBuff;
+}
+#endif
+
+#define DEFAULT_AFFINITY_MASK 1
+
+void I_SetAffinityMask(void)
+{
+  unsigned int process_affinity_mask = DEFAULT_AFFINITY_MASK;
+  int p = M_CheckParm("-affinity");
+
+  if (p && p < myargc-1)
+    process_affinity_mask = atoi(myargv[p+1]);
+
+  // Set the process affinity mask so that all threads
+  // run on the same processor.  This is a workaround for a bug in
+  // SDL_mixer that causes occasional crashes.
+  if (process_affinity_mask)
+  {
+    const char *errbuf = NULL;
+#ifdef _WIN32
+    if (!SetProcessAffinityMask(GetCurrentProcess(), process_affinity_mask))
+    {
+      errbuf = WINError();
+    }
+#elif defined(MACOSX)
+    // Nothing for now
+    errbuf = "Not defined on Mac OS X";
+#else
+    // POSIX version:
+    int i;
+    {
+      cpu_set_t set;
+
+      CPU_ZERO(&set);
+
+      for(i = 0; i < 16; i++)
+      {
+        CPU_SET((process_affinity_mask>>i)&1, &set);
+      }
+
+      if (sched_setaffinity(getpid(), sizeof(set), &set) == -1)
+      {
+        errbuf = strerror(errno);
+      }
+    }
+#endif
+
+    if (errbuf == NULL)
+    {
+      lprintf(LO_INFO, "I_SetAffinityMask: manual affinity mask is %d\n", process_affinity_mask);
+    }
+    else
+    {
+      lprintf(LO_ERROR, "I_SetAffinityMask: failed to set process affinity mask (%s)\n", errbuf);
+    }
+  }
+}
 
 #endif // PRBOOM_SERVER

@@ -72,4 +72,6 @@ void I_Read(int fd, void* buf, size_t sz);
 /* cph 2001/11/18 - Move W_Filelength to i_system.c */
 int I_Filelength(int handle);
 
+void I_SetAffinityMask(void);
+
 #endif
