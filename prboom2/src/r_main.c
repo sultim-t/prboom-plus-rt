@@ -34,6 +34,12 @@
  *-----------------------------------------------------------------------------*/
 
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#ifdef USE_SDL
+#include "SDL.h"
+#endif
 #include "doomstat.h"
 #include "d_net.h"
 #include "w_wad.h"
@@ -52,7 +58,6 @@
 #include "g_game.h"
 #include "r_demo.h"
 #include "r_fps.h"
-#include "SDL.h"
 
 // Fineangles in the SCREENWIDTH wide window.
 #define FIELDOFVIEW 2048
@@ -532,7 +537,7 @@ boolean rendering_stats;
 static void R_ShowStats(void)
 {
 //e6y
-#if 1
+#if USE_SDL
   static unsigned int FPS_SavedTick = 0, FPS_FrameCount = 0;
   unsigned int tick = SDL_GetTicks();
   FPS_FrameCount++;

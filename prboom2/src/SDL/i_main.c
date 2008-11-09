@@ -40,6 +40,9 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#ifdef USE_SDL
+#include "SDL.h"
+#endif
 #include "doomdef.h"
 #include "m_argv.h"
 #include "d_main.h"
@@ -56,9 +59,6 @@
 #include "i_main.h"
 #include "r_fps.h"
 #include "lprintf.h"
-#ifdef USE_SDL
-#include "SDL.h"
-#endif
 
 #include <signal.h>
 #include <stdio.h>

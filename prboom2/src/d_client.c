@@ -36,6 +36,21 @@
  *-----------------------------------------------------------------------------
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#include <sys/types.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#ifdef HAVE_SYS_WAIT_H
+#include <sys/wait.h>
+#endif
+
+#ifdef USE_SDL_NET
+ #include "SDL.h"
+#endif
+
 #include "doomtype.h"
 #include "doomstat.h"
 #include "d_net.h"
@@ -54,17 +69,6 @@
 #include "m_argv.h"
 #include "r_fps.h"
 #include "lprintf.h"
-
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-#include <sys/types.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#ifdef HAVE_SYS_WAIT_H
-#include <sys/wait.h>
-#endif
 
 static boolean   server;
 static int       remotetic; // Tic expected from the remote
