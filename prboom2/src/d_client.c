@@ -171,6 +171,7 @@ void D_InitNetGame (void)
   doomcom->consoleplayer = 0;
   doomcom->numnodes = 0; doomcom->numplayers = 1;
   localcmds = netcmds[consoleplayer];
+  netgame = (M_CheckParm("-solo-net") != 0);
 
   for (i=0; i<doomcom->numplayers; i++)
     playeringame[i] = true;
