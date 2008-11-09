@@ -144,4 +144,4 @@
 #define PACKAGE "prboom"
 
 /* Version number of package */
-#define VERSION "2.4.8"
+#define VERSION "2.5.0"

@@ -2,7 +2,7 @@ Installation From SVN
 =====================
 
 If you intend to compile PrBoom from a source tar file, such as
-prboom-2.4.8.tar.gz, as opposed to SVN, skip to the "Basic Installation"
+prboom-2.5.0.tar.gz, as opposed to SVN, skip to the "Basic Installation"
 section.
 
   1. Install and configure deutex.  If deutex is already installed and
