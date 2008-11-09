@@ -60,6 +60,9 @@
 #define ANG90   0x40000000
 #define ANG180  0x80000000
 #define ANG270  0xc0000000
+#ifndef M_PI
+#define M_PI    3.14159265358979323846
+#endif
 
 #define SLOPERANGE 2048
 #define SLOPEBITS    11

@@ -487,6 +487,10 @@ SOURCE=..\src\i_sound.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\SDL\i_sshot.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\SDL\i_system.c
 # End Source File
 # Begin Source File
