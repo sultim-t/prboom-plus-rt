@@ -161,8 +161,8 @@ AC_ARG_WITH([mixer],
   AC_HELP_STRING([--without-mixer],[Do not use SDL_mixer even if available]),
   [], AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,[],[],[$SDL_LIBS $MIXER_LIBS]))
 
-AC_ARG_ENABLE(network,
-  AS_HELP_STRING([--disable-network],[disables support for netgames]),
+AC_ARG_WITH(net,
+  AS_HELP_STRING([--without-net],[Do not use SDL_net even if available]),
   [
     dnl -- Networking was disabled by the user.
     NET_LIBS=
