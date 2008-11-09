@@ -55,6 +55,13 @@ typedef enum
   GLTEXTURE_HIRES     = 0x00000010,
 } GLTexture_flag_t;
 
+typedef struct gl_strip_coords_s
+{
+  GLfloat v[4][3];
+
+  GLfloat t[4][2];
+} gl_strip_coords_t;
+
 typedef struct
 {
   int index;
@@ -150,8 +157,10 @@ extern GLSeg *gl_segs;
 #define GLDWF_M1S 2
 #define GLDWF_M2S 3
 #define GLDWF_BOT 4
-#define GLDWF_SKY 5
-#define GLDWF_SKYFLIP 6
+#define GLDWF_TOPFLUD 5 //e6y: project the ceiling plane into the gap
+#define GLDWF_BOTFLUD 6 //e6y: project the floor plane into the gap
+#define GLDWF_SKY 7
+#define GLDWF_SKYFLIP 8
 
 typedef struct
 {
@@ -173,6 +182,7 @@ typedef enum
 {
   GLDIT_NONE,
   GLDIT_WALL,
+  GLDIT_FWALL, //e6y: projected wall
   GLDIT_TWALL, //e6y: transparent walls
   GLDIT_FLAT,
   GLDIT_SPRITE,
@@ -203,6 +213,10 @@ typedef struct
   GLWall *twalls;
   int num_twalls;
   int max_twalls;
+  //e6y: projected walls
+  GLWall *fwalls;
+  int num_fwalls;
+  int max_fwalls;
   //e6y: transparent sprites
   GLSprite *tsprites;
   int num_tsprites;
@@ -212,6 +226,9 @@ typedef struct
   int num_drawitems;
   int max_drawitems;
 } GLDrawInfo;
+
+void gld_DrawTriangleStrip(GLWall *wall, gl_strip_coords_t *c);
+void gld_DrawTriangleStripARB(GLWall *wall, gl_strip_coords_t *c1, gl_strip_coords_t *c2);
 
 void gld_StaticLightAlpha(float light, float alpha);
 #define gld_StaticLight(light) gld_StaticLightAlpha(light, 1.0f)
@@ -238,7 +255,7 @@ extern int last_cm;
 
 //e6y
 #define DETAIL_DISTANCE 9
-extern float xCamera,yCamera;
+extern float xCamera,yCamera,zCamera;
 float distance2piece(float x0, float y0, float x1, float y1, float x2, float y2);
 void gld_InitDetail(void);
 
@@ -309,6 +326,15 @@ extern char *gl_motionblur_linear_b;
 extern int imageformats[];
 
 //missing flats (fake floors and ceilings)
+
+float gld_CalcLightLevel(int lightlevel);
+
 void gld_PreprocessFakeSectors(void);
+
+void gld_SetupFloodStencil(GLWall *wall);
+void gld_ClearFloodStencil(GLWall *wall);
+
+void gld_SetupFloodedPlaneCoords(GLWall *wall, gl_strip_coords_t *c);
+void gld_SetupFloodedPlaneLight(GLWall *wall);
 
 #endif // _GL_INTERN_H

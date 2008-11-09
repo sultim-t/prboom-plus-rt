@@ -985,6 +985,7 @@ void I_UpdateVideoMode(void)
     SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
     SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, gl_colorbuffer_bits );
     SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
+    SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 8 );
     e6y_MultisamplingSet();//e6y
     screen = SDL_SetVideoMode(REAL_SCREENWIDTH, REAL_SCREENHEIGHT, gl_colorbuffer_bits, init_flags);
 #ifdef GL_DOOM
@@ -1047,7 +1048,13 @@ void I_UpdateVideoMode(void)
     SDL_GL_GetAttribute( SDL_GL_DEPTH_SIZE, &temp );
     lprintf(LO_INFO,"    SDL_GL_DEPTH_SIZE: %i\n",temp);
 #ifdef GL_DOOM
-  e6y_MultisamplingPrint();//e6y
+    SDL_GL_GetAttribute( SDL_GL_MULTISAMPLESAMPLES, &temp );
+    lprintf(LO_INFO,"    SDL_GL_MULTISAMPLESAMPLES: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &temp );
+    lprintf(LO_INFO,"    SDL_GL_MULTISAMPLEBUFFERS: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_STENCIL_SIZE, &temp );
+    lprintf(LO_INFO,"    SDL_GL_STENCIL_SIZE: %i\n",temp);
+
     gld_Init(SCREENWIDTH, SCREENHEIGHT);
 #endif
   }

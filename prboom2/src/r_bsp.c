@@ -633,7 +633,7 @@ static void R_Subsector(int num)
   // much more correctly and fastly the the original
   //
   // check if the sector is faked
-  if ((frontsector==sub->sector)  && (V_GetMode() == VID_MODEGL))
+  if ((V_GetMode() == VID_MODEGL) && (frontsector==sub->sector) && !gl_use_stencil)
   {
     sector_t *tmpsec;
     // if the sector has bottomtextures, then the floorheight will be set to the

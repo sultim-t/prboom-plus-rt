@@ -121,6 +121,7 @@ boolean gl_arb_texture_compression = false;
 boolean gl_ext_framebuffer_object = false;
 boolean gl_ext_blend_color = false;
 
+boolean gl_use_stencil = false;
 boolean gl_use_FBO = false;
 
 /* ARB_multitexture command function pointers */
@@ -239,7 +240,7 @@ static gld_CalcLightLevel_f gld_CalcLightLevelFuncs[gl_lightmode_last] =
   gld_CalcLightLevel_mixed,
 };
 
-static float gld_CalcLightLevel(int lightlevel)
+float gld_CalcLightLevel(int lightlevel)
 {
   return gld_CalcLightLevelFuncs[gl_lightmode](lightlevel);
 }
@@ -420,12 +421,15 @@ void gld_InitExtensionsEx(void)
     gl_ext_blend_color = false;
   }
 
+  gl_use_stencil = true;
+
   if (gl_compatibility)
   {
     gl_arb_multitexture = false;
     gl_arb_texture_compression = false;
     gl_ext_framebuffer_object = false;
     gl_ext_blend_color = false;
+    gl_use_stencil = false;
     glversion = OPENGL_VERSION_1_1;
   }
 }
@@ -655,6 +659,25 @@ void gld_Init(int width, int height)
 
 void gld_InitCommandLine(void)
 {
+}
+
+void gld_DrawTriangleStrip(GLWall *wall, gl_strip_coords_t *c)
+{
+  glBegin(GL_TRIANGLE_STRIP);
+  
+  glTexCoord2fv((const GLfloat*)&c->t[0]);
+  glVertex3fv((const GLfloat*)&c->v[0]);
+
+  glTexCoord2fv((const GLfloat*)&c->t[1]);
+  glVertex3fv((const GLfloat*)&c->v[1]);
+
+  glTexCoord2fv((const GLfloat*)&c->t[2]);
+  glVertex3fv((const GLfloat*)&c->v[2]);
+
+  glTexCoord2fv((const GLfloat*)&c->t[3]);
+  glVertex3fv((const GLfloat*)&c->v[3]);
+
+  glEnd();
 }
 
 #define SCALE_X(x)    ((flags & VPT_STRETCH)?((float)x)*(float)SCREENWIDTH/320.0f:(float)x)
@@ -1930,7 +1953,6 @@ void gld_DrawSkyBox(void)
 
 void gld_StartDrawScene(void)
 {
-  float trY ;
   //e6y float xCamera,yCamera;
 
   extern int screenblocks;
@@ -1953,7 +1975,7 @@ void gld_StartDrawScene(void)
   // Player coordinates
   xCamera=-(float)viewx/MAP_SCALE;
   yCamera=(float)viewy/MAP_SCALE;
-  trY=(float)viewz/MAP_SCALE;
+  zCamera=(float)viewz/MAP_SCALE;
 
   yaw=270.0f-(float)(viewangle>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
   inv_yaw=-90.0f+(float)(viewangle>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
@@ -2025,9 +2047,9 @@ void gld_StartDrawScene(void)
   }
 
 #ifdef _DEBUG
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 #else
-  glClear(GL_DEPTH_BUFFER_BIT);
+  glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 #endif
 
   if (gl_drawskys == 2)
@@ -2046,7 +2068,7 @@ void gld_StartDrawScene(void)
   glRotatef(roll,  0.0f, 0.0f, 1.0f);
   glRotatef(pitch, 1.0f, 0.0f, 0.0f);
   glRotatef(yaw,   0.0f, 1.0f, 0.0f);
-  glTranslatef(-xCamera, -trY, -yCamera);
+  glTranslatef(-xCamera, -zCamera, -yCamera);
 
   if (use_fog)
     glEnable(GL_FOG);
@@ -2056,6 +2078,7 @@ void gld_StartDrawScene(void)
   gld_drawinfo.num_walls=0;
   gld_drawinfo.num_flats=0;
   gld_drawinfo.num_sprites=0;
+  gld_drawinfo.num_fwalls=0;   //e6y: projected walls
   gld_drawinfo.num_tsprites=0; //e6y: transparent sprites
   gld_drawinfo.num_twalls=0;   //e6y: transparent walls
   gld_drawinfo.num_drawitems=0;
@@ -2348,31 +2371,47 @@ static void gld_DrawWall(GLWall *wall)
     }
     else
     {
-      gld_StaticLightAlpha(wall->light, wall->alpha);
+      if ((wall->flag == GLDWF_TOPFLUD) || (wall->flag == GLDWF_BOTFLUD))
+      {
+        gl_strip_coords_t c;
 
-      glBegin(GL_TRIANGLE_FAN);
+        gld_BindFlat(wall->gltexture);
 
-      // lower left corner
-      glTexCoord2f(wall->ul,wall->vb); glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
+        gld_SetupFloodStencil(wall);
+        gld_SetupFloodedPlaneCoords(wall, &c);
+        gld_SetupFloodedPlaneLight(wall);
+        gld_DrawTriangleStrip(wall, &c);
 
-      // split left edge of wall
-      if (gl_seamless && !wall->glseg->fracleft)
-        gld_SplitLeftEdge(wall, false, 0.0f, 0.0f);
+        gld_ClearFloodStencil(wall);
+      }
+      else
+      {
+        gld_StaticLightAlpha(wall->light, wall->alpha);
 
-      // upper left corner
-      glTexCoord2f(wall->ul,wall->vt); glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
+        glBegin(GL_TRIANGLE_FAN);
 
-      // upper right corner
-      glTexCoord2f(wall->ur,wall->vt); glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
+        // lower left corner
+        glTexCoord2f(wall->ul,wall->vb); glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
 
-      // split right edge of wall
-      if (gl_seamless && !wall->glseg->fracright)
-        gld_SplitRightEdge(wall, false, 0.0f, 0.0f);
+        // split left edge of wall
+        if (gl_seamless && !wall->glseg->fracleft)
+          gld_SplitLeftEdge(wall, false, 0.0f, 0.0f);
 
-      // lower right corner
-      glTexCoord2f(wall->ur,wall->vb); glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
+        // upper left corner
+        glTexCoord2f(wall->ul,wall->vt); glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
 
-      glEnd();
+        // upper right corner
+        glTexCoord2f(wall->ur,wall->vt); glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
+
+        // split right edge of wall
+        if (gl_seamless && !wall->glseg->fracright)
+          gld_SplitRightEdge(wall, false, 0.0f, 0.0f);
+
+        // lower right corner
+        glTexCoord2f(wall->ur,wall->vb); glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
+
+        glEnd();
+      }
     }
   }
 }
@@ -2438,6 +2477,17 @@ static void gld_DrawWall(GLWall *wall)
     (w).vt=OV((w),(seg))+(0.0f),\
     (w).vb=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->buffer_height)\
   )
+
+#define ADDFWALL(wall)\
+{\
+  if (gld_drawinfo.num_fwalls>=gld_drawinfo.max_fwalls)\
+  {\
+    gld_drawinfo.max_fwalls+=128;\
+    gld_drawinfo.fwalls=Z_Realloc(gld_drawinfo.fwalls,gld_drawinfo.max_fwalls*sizeof(GLWall),PU_LEVEL,0);\
+  }\
+  gld_AddDrawItem(GLDIT_FWALL, gld_drawinfo.num_fwalls);\
+  gld_drawinfo.fwalls[gld_drawinfo.num_fwalls++]=*wall;\
+};
 
 #define ADDWALL(wall)\
 {\
@@ -2646,6 +2696,20 @@ void gld_AddWall(seg_t *seg)
       if (!((frontsector->ceilingpic==skyflatnum) && (backsector->ceilingpic==skyflatnum)))
       {
         temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->toptexture], true, false);
+        if (!temptex && gl_use_stencil && backsector &&
+          frontsector->ceilingpic != skyflatnum && backsector->ceilingpic != skyflatnum)
+        {
+          wall.ytop=((float)(ceiling_height)/(float)MAP_SCALE)+SMALLDELTA;
+          wall.ybottom=((float)(floor_height)/(float)MAP_SCALE)-SMALLDELTA;
+          if (wall.ybottom >= zCamera)
+          {
+            wall.flag=GLDWF_TOPFLUD;
+            temptex=gld_RegisterFlat(flattranslation[seg->backsector->ceilingpic], true);
+            wall.gltexture=temptex;
+            ADDFWALL(&wall);
+          }
+        }
+        else
         if (temptex)
         {
           wall.gltexture=temptex;
@@ -2773,6 +2837,20 @@ bottomtexture:
     if (floor_height<ceiling_height)
     {
       temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->bottomtexture], true, false);
+      if (!temptex && gl_use_stencil && backsector &&
+        frontsector->floorpic != skyflatnum && backsector->floorpic != skyflatnum)
+      {
+        wall.ytop=((float)(ceiling_height)/(float)MAP_SCALE)+SMALLDELTA;
+        wall.ybottom=((float)(floor_height)/(float)MAP_SCALE)-SMALLDELTA;
+        if (wall.ytop <= zCamera)
+        {
+          wall.flag = GLDWF_BOTFLUD;
+          temptex=gld_RegisterFlat(flattranslation[seg->backsector->floorpic], true);
+          wall.gltexture=temptex;
+          ADDFWALL(&wall);
+        }
+      }
+      else
       if (temptex)
       {
         wall.gltexture=temptex;
@@ -3274,7 +3352,18 @@ void gld_DrawScene(player_t *player)
   {
     gld_ProcessWall(&gld_drawinfo.walls[i], &gl_alpha_blended, GLDWF_TOP, GLDWF_SKY - 1);
   }
-  
+
+  // projected walls
+  if (gl_use_stencil)
+  {
+    glEnable(GL_STENCIL_TEST);
+    for (i = gld_drawinfo.num_fwalls - 1; i >= 0; i--)
+    {
+      gld_ProcessWall(&gld_drawinfo.fwalls[i], &gl_alpha_blended, GLDWF_TOP, GLDWF_SKY - 1);
+    }
+    glDisable(GL_STENCIL_TEST);
+  }
+
   EnableAlphaBlend(&gl_alpha_blended);
 
  if (gl_drawskys != 2) // skybox is already applied if gl_drawskys == 2

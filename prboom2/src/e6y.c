@@ -762,15 +762,6 @@ void e6y_MultisamplingSet(void)
 #endif //GL_DOOM
 }
 
-void e6y_MultisamplingPrint(void)
-{
-  int temp;
-  SDL_GL_GetAttribute( SDL_GL_MULTISAMPLESAMPLES, &temp );
-  lprintf(LO_INFO,"    SDL_GL_MULTISAMPLESAMPLES: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &temp );
-  lprintf(LO_INFO,"    SDL_GL_MULTISAMPLEBUFFERS: %i\n",temp);
-}
-
 int StepwiseSum(int value, int direction, int step, int minval, int maxval, int defval)
 {
   static int prev_value = 0;

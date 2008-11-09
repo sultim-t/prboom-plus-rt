@@ -265,7 +265,6 @@ void R_RenderBSPNode(int bspnum);
 
 void e6y_MultisamplingCheck(void);
 void e6y_MultisamplingSet(void);
-void e6y_MultisamplingPrint(void);
 
 typedef struct prboom_comp_s
 {

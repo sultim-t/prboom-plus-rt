@@ -116,6 +116,7 @@ void gld_clipper_Clear(void);
 angle_t gld_FrustumAngle(void);
 
 //missing flats (fake floors and ceilings)
+extern boolean gl_use_stencil;
 sector_t* GetBestFake(sector_t *sector, int ceiling, int validcount);
 
 #endif // _GL_STRUCT_H

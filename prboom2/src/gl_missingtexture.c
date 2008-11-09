@@ -49,16 +49,16 @@
 #include "i_video.h"
 #include "hu_lib.h"
 #include "hu_stuff.h"
+#include "r_main.h"
 #include "e6y.h"
 
 typedef struct
 {
-  int id;
-  int count;
-  int validcount;
-  int ceiling;
-  sector_t *sector;
-  sector_t **list;
+  int count;        // size of the list with adjoining sectors
+  int validcount;   // finding of the best sector in the group only once in tic
+  int ceiling;      // this group is for ceilings or flats
+  sector_t *sector; // sector with the 'best' height for the sectors in list
+  sector_t **list;  // list of adjoining sectors
 } fakegroup_t;
 
 static int numfakeplanes = 0;
@@ -75,19 +75,25 @@ static void gld_PrepareSectorSpecialEffects(void)
   for (num = 0; num < numsectors; num++)
   {
     // the following is for specialeffects. see r_bsp.c in R_Subsector
-    sectors[num].flags=(NO_TOPTEXTURES|NO_BOTTOMTEXTURES);
+    sectors[num].flags = (NO_TOPTEXTURES | NO_BOTTOMTEXTURES);
+
     for (i=0; i<sectors[num].linecount; i++)
     {
-      if ( (sectors[num].lines[i]->sidenum[0]!=NO_INDEX) &&
-        (sectors[num].lines[i]->sidenum[1]!=NO_INDEX) )
+      unsigned short sidenum0 = sectors[num].lines[i]->sidenum[0];
+      unsigned short sidenum1 = sectors[num].lines[i]->sidenum[1];
+
+      side_t *side0 = (sidenum0 == NO_INDEX ? NULL : &sides[sidenum0]);
+      side_t *side1 = (sidenum1 == NO_INDEX ? NULL : &sides[sidenum1]);
+      
+      if (side0 && side1)
       {
-        if (sides[sectors[num].lines[i]->sidenum[0]].toptexture!=NO_TEXTURE)
+        if (side0->toptexture != NO_TEXTURE)
           sectors[num].flags &= ~NO_TOPTEXTURES;
-        if (sides[sectors[num].lines[i]->sidenum[0]].bottomtexture!=NO_TEXTURE)
+        if (side0->bottomtexture != NO_TEXTURE)
           sectors[num].flags &= ~NO_BOTTOMTEXTURES;
-        if (sides[sectors[num].lines[i]->sidenum[1]].toptexture!=NO_TEXTURE)
+        if (side1->toptexture != NO_TEXTURE)
           sectors[num].flags &= ~NO_TOPTEXTURES;
-        if (sides[sectors[num].lines[i]->sidenum[1]].bottomtexture!=NO_TEXTURE)
+        if (side1->bottomtexture != NO_TEXTURE)
           sectors[num].flags &= ~NO_BOTTOMTEXTURES;
       }
       else
@@ -157,8 +163,11 @@ static void gld_PreprocessFakeSector(int ceiling, sector_t *sector, int groupid)
 
 void gld_PreprocessFakeSectors(void)
 {
-  int i, j, k;
+  int i, j, k, ceiling;
   int groupid;
+
+  if (gl_use_stencil)
+    return;
 
   // free memory
   if (fakeplanes)
@@ -192,54 +201,35 @@ void gld_PreprocessFakeSectors(void)
 
   groupid = 0;
 
-  do
+  for (ceiling = 0; ceiling <= 1; ceiling++)
   {
-    for (i = 0; i < numsectors; i++)
-    {
-      if (!(sectors[i].flags & NO_BOTTOMTEXTURES) && sectors[i].fakegroup[0] == -1)
-      {
-        gld_PreprocessFakeSector(0, &sectors[i], groupid);
-        fakeplanes[groupid].ceiling = 0;
-        fakeplanes[groupid].list = malloc(fakeplanes[groupid].count * sizeof(sector_t*));
-        for (j = 0, k = 0; k < fakeplanes[groupid].count; k++)
-        {
-          if (!(sectors2[k]->flags & NO_BOTTOMTEXTURES))
-          {
-            fakeplanes[groupid].list[j++] = sectors2[k];
-          }
-        }
-        fakeplanes[groupid].count = j;
-        groupid++;
-        break;
-      }
-    }
-  }
-  while (i < numsectors);
+    unsigned int no_texture_flag = (ceiling ? NO_TOPTEXTURES : NO_BOTTOMTEXTURES);
 
-  // the same with ceilings
-  do
-  {
-    for (i = 0; i < numsectors; i++)
+    do
     {
-      if (!(sectors[i].flags & NO_TOPTEXTURES) && sectors[i].fakegroup[1] == -1)
+      for (i = 0; i < numsectors; i++)
       {
-        gld_PreprocessFakeSector(1, &sectors[i], groupid);
-        fakeplanes[groupid].ceiling = 1;
-        fakeplanes[groupid].list = malloc(fakeplanes[groupid].count * sizeof(sector_t*));
-        for (j = 0, k = 0; k < fakeplanes[groupid].count; k++)
+        if (!(sectors[i].flags & no_texture_flag)
+          && (sectors[i].fakegroup[ceiling] == -1))
         {
-          if (!(sectors2[k]->flags & NO_TOPTEXTURES))
+          gld_PreprocessFakeSector(ceiling, &sectors[i], groupid);
+          fakeplanes[groupid].ceiling = ceiling;
+          fakeplanes[groupid].list = malloc(fakeplanes[groupid].count * sizeof(sector_t*));
+          for (j = 0, k = 0; k < fakeplanes[groupid].count; k++)
           {
-            fakeplanes[groupid].list[j++] = sectors2[k];
+            if (!(sectors2[k]->flags & no_texture_flag))
+            {
+              fakeplanes[groupid].list[j++] = sectors2[k];
+            }
           }
+          fakeplanes[groupid].count = j;
+          groupid++;
+          break;
         }
-        fakeplanes[groupid].count = j;
-        groupid++;
-        break;
       }
     }
+    while (i < numsectors);
   }
-  while (i < numsectors);
 }
 
 //
@@ -307,4 +297,138 @@ sector_t* GetBestFake(sector_t *sector, int ceiling, int validcount)
   }
 
   return fakeplanes[groupid].sector;
+}
+
+//==========================================================================
+//
+// Flood gaps with the back side's ceiling/floor texture
+// This requires a stencil because the projected plane interferes with
+// the depth buffer
+//
+//==========================================================================
+
+void gld_SetupFloodStencil(GLWall *wall)
+{
+  int recursion = 0;
+
+  // Create stencil 
+  glStencilFunc(GL_EQUAL,recursion,~0);		// create stencil
+  glStencilOp(GL_KEEP,GL_KEEP,GL_INCR);		// increment stencil of valid pixels
+  glColorMask(0,0,0,0);						// don't write to the graphics buffer
+  //gl_EnableTexture(false);
+  glDisable(GL_TEXTURE_2D);
+  glColor3f(1,1,1);
+  glEnable(GL_DEPTH_TEST);
+  glDepthMask(true);
+
+  glBegin(GL_TRIANGLE_FAN);
+  glVertex3f(wall->glseg->x1, wall->ytop, wall->glseg->z1);
+  glVertex3f(wall->glseg->x1, wall->ybottom, wall->glseg->z1);
+  glVertex3f(wall->glseg->x2, wall->ybottom, wall->glseg->z2);
+  glVertex3f(wall->glseg->x2, wall->ytop, wall->glseg->z2);
+  glEnd();
+
+  glStencilFunc(GL_EQUAL,recursion+1,~0);		// draw sky into stencil
+  glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);		// this stage doesn't modify the stencil
+
+  glColorMask(1,1,1,1);						// don't write to the graphics buffer
+  //glEnableTexture(true);
+  glEnable(GL_TEXTURE_2D);
+  glDisable(GL_DEPTH_TEST);
+  glDepthMask(false);
+}
+
+void gld_ClearFloodStencil(GLWall *wall)
+{
+  int recursion = 0;
+
+  glStencilOp(GL_KEEP,GL_KEEP,GL_DECR);
+  //gl_EnableTexture(false);
+  glDisable(GL_TEXTURE_2D);
+  glColorMask(0,0,0,0);						// don't write to the graphics buffer
+  glColor3f(1,1,1);
+
+  glBegin(GL_TRIANGLE_FAN);
+  glVertex3f(wall->glseg->x1, wall->ytop, wall->glseg->z1);
+  glVertex3f(wall->glseg->x1, wall->ybottom, wall->glseg->z1);
+  glVertex3f(wall->glseg->x2, wall->ybottom, wall->glseg->z2);
+  glVertex3f(wall->glseg->x2, wall->ytop, wall->glseg->z2);
+  glEnd();
+
+  // restore old stencil op.
+  glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
+  glStencilFunc(GL_EQUAL,recursion,~0);
+  //gl_EnableTexture(true);
+  glEnable(GL_TEXTURE_2D);
+  glColorMask(1,1,1,1);
+  glEnable(GL_DEPTH_TEST);
+  glDepthMask(true);
+}
+
+//
+// Calculation of the coordinates of the gap
+//
+void gld_SetupFloodedPlaneCoords(GLWall *wall, gl_strip_coords_t *c)
+{
+  float prj_fac1, prj_fac2;
+  float k = 0.5f;
+  float ytop, ybottom, planez;
+
+  if (wall->flag == GLDWF_TOPFLUD)
+  {
+    ytop = wall->ybottom;
+    ybottom = wall->ytop;
+    planez = wall->ybottom;
+  }
+  else
+  {
+    ytop = wall->ytop;
+    ybottom = wall->ybottom;
+    planez = wall->ytop;
+  }
+
+  prj_fac1 = (ytop - zCamera) / (ytop - zCamera);
+  prj_fac2 = (ytop - zCamera) / (ybottom - zCamera);
+
+  c->v[0][0] = xCamera + prj_fac1 * (wall->glseg->x1 - xCamera);
+  c->v[0][1] = planez;
+  c->v[0][2] = yCamera + prj_fac1 * (wall->glseg->z1 - yCamera);
+
+  c->v[1][0] = xCamera + prj_fac2 * (wall->glseg->x1 - xCamera);
+  c->v[1][1] = planez;
+  c->v[1][2] = yCamera + prj_fac2 * (wall->glseg->z1 - yCamera);
+
+  c->v[2][0] = xCamera + prj_fac1 * (wall->glseg->x2 - xCamera);
+  c->v[2][1] = planez;
+  c->v[2][2] = yCamera + prj_fac1 * (wall->glseg->z2 - yCamera);
+
+  c->v[3][0] = xCamera + prj_fac2 * (wall->glseg->x2 - xCamera);
+  c->v[3][1] = planez;
+  c->v[3][2] = yCamera + prj_fac2 * (wall->glseg->z2 - yCamera);
+
+  c->t[0][0] = -c->v[0][0] / k;
+  c->t[0][1] = -c->v[0][2] / k;
+
+  c->t[1][0] = -c->v[1][0] / k;
+  c->t[1][1] = -c->v[1][2] / k;
+
+  c->t[2][0] = -c->v[2][0] / k;
+  c->t[2][1] = -c->v[2][2] / k;
+
+  c->t[3][0] = -c->v[3][0] / k;
+  c->t[3][1] = -c->v[3][2] / k;
+}
+
+void gld_SetupFloodedPlaneLight(GLWall *wall)
+{
+  if (wall->seg->backsector)
+  {
+    float light;
+    light = gld_CalcLightLevel(wall->seg->backsector->lightlevel+(extralight<<5));
+    gld_StaticLightAlpha(light, wall->alpha);
+  }
+  else
+  {
+    gld_StaticLightAlpha(wall->light, wall->alpha);
+  }
 }

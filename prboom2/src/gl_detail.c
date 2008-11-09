@@ -47,7 +47,7 @@ int glversion;
 unsigned int idDetail;
 int render_canusedetail;
 
-float xCamera,yCamera;
+float xCamera,yCamera,zCamera;
 TAnimItemParam *anim_flats = NULL;
 TAnimItemParam *anim_textures = NULL;
 
@@ -137,6 +137,41 @@ void gld_ShutdownDetail(void)
   glDeleteTextures(1, &idDetail);
 }
 
+void gld_DrawTriangleStripARB(GLWall *wall, gl_strip_coords_t *c1, gl_strip_coords_t *c2)
+{
+  glBegin(GL_TRIANGLE_STRIP);
+
+  // lower left corner
+  GLEXT_glMultiTexCoord2fvARB(GL_TEXTURE0_ARB,(const GLfloat*)&c1->t[0]); 
+  GLEXT_glMultiTexCoord2fvARB(GL_TEXTURE1_ARB,(const GLfloat*)&c2->t[0]);
+  glVertex3fv((const GLfloat*)&c1->v[0]);
+
+  // split left edge of wall
+  //if (gl_seamless && !wall->glseg->fracleft)
+  //  gld_SplitLeftEdge(wall, true, w, h);
+
+  // upper left corner
+  GLEXT_glMultiTexCoord2fvARB(GL_TEXTURE0_ARB,(const GLfloat*)&c1->t[1]);
+  GLEXT_glMultiTexCoord2fvARB(GL_TEXTURE1_ARB,(const GLfloat*)&c2->t[1]);
+  glVertex3fv((const GLfloat*)&c1->v[1]);
+
+  // upper right corner
+  GLEXT_glMultiTexCoord2fvARB(GL_TEXTURE0_ARB,(const GLfloat*)&c1->t[2]); 
+  GLEXT_glMultiTexCoord2fvARB(GL_TEXTURE1_ARB,(const GLfloat*)&c2->t[2]);
+  glVertex3fv((const GLfloat*)&c1->v[2]);
+
+  // split right edge of wall
+  //if (gl_seamless && !wall->glseg->fracright)
+  //  gld_SplitRightEdge(wall, true, w, h);
+
+  // lower right corner
+  GLEXT_glMultiTexCoord2fvARB(GL_TEXTURE0_ARB,(const GLfloat*)&c1->t[3]); 
+  GLEXT_glMultiTexCoord2fvARB(GL_TEXTURE1_ARB,(const GLfloat*)&c2->t[3]);
+  glVertex3fv((const GLfloat*)&c1->v[3]);
+
+  glEnd();
+}
+
 void gld_PreprocessDetail(void)
 {
   if (gl_arb_multitexture)
@@ -157,11 +192,58 @@ void gld_PreprocessDetail(void)
 void gld_DrawWallWithDetail(GLWall *wall)
 {
   float w, h, s;
-  TAnimItemParam *animitem = &anim_textures[wall->gltexture->index];
+  TAnimItemParam *animitem;
+  boolean fake = (wall->flag == GLDWF_TOPFLUD) || (wall->flag == GLDWF_BOTFLUD);
+  
+  if (fake)
+  {
+    int i;
+    gl_strip_coords_t c1;
+    gl_strip_coords_t c2;
+
+    gld_BindFlat(wall->gltexture);
+
+    animitem = &anim_flats[wall->gltexture->index - firstflat];
+    if (!animitem->anim)
+    {
+      s = 0.0f;
+    }
+    else
+    {
+      s = 1.0f / animitem->anim->numpics * animitem->index;
+      if (s < 0.001) s = 0.0f;
+    }
+
+    gld_SetupFloodStencil(wall);
+
+    w = s + wall->gltexture->realtexwidth / 18.0f;
+    h = s + wall->gltexture->realtexheight / 18.0f;
+
+    gld_SetupFloodedPlaneLight(wall);
+    gld_SetupFloodedPlaneCoords(wall, &c1);
+    for (i = 0; i < 4; i++)
+    {
+      c2.t[i][0] = c1.t[i][0] * w;
+      c2.t[i][1] = c1.t[i][1] * h;
+    }
+
+    GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
+    glEnable(GL_TEXTURE_2D);
+
+    gld_DrawTriangleStripARB(wall, &c1, &c2);
+
+    glDisable(GL_TEXTURE_2D);
+    GLEXT_glActiveTextureARB(GL_TEXTURE0_ARB);
+
+    gld_ClearFloodStencil(wall);
+
+    return;
+  }
 
   GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
   glEnable(GL_TEXTURE_2D);
 
+  animitem = &anim_textures[wall->gltexture->index];
   if (!animitem->anim)
   {
     s = 0.0f;
