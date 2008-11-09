@@ -216,7 +216,7 @@ angle_t R_PointToAngle(fixed_t x, fixed_t y)
   {
     oldx = x;
     oldy = y;
-    oldresult = (angle_t)(atan2(y, x) * ANG180/M_PI);
+    oldresult = (int)(atan2(y, x) * ANG180/M_PI);
   }
   return oldresult;
 }
