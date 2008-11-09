@@ -1134,11 +1134,11 @@ x   r2426 | Merged r2420:2423 from trunk
 -!  r2432 | Make it compile on Mac OS X again. Music is disabled for now.
 -!  r2433 | Make music work again.
 -!  r2440 | better math: there are no more strips of rendered graphics (at 6
-    r2441 | Fixed incompatibility with original EXE's (complevels 0..6) on l
-    r2442 | Dynamic calculation of PACKAGEVERSION
-    r2443 | duplicated code after old merge
-    r2444 | global BETWEEN define
-    r2445 | In PRBoom the player's weapon is displayed much darker than in o
+-   r2441 | Fixed incompatibility with original EXE's (complevels 0..6) on l
+?   r2442 | Dynamic calculation of PACKAGEVERSION
+x   r2443 | duplicated code after old merge
+?   r2444 | global BETWEEN define
++   r2445 | In PRBoom the player's weapon is displayed much darker than in o
     r2446 | Boom's colormaps in OpenGL: fix for idbeholdl+idbeholdv
     r2449 | PrBoom-Plus bug: When radsuit ends, palette changes w/o warning
     r2450 | When playing back with -recordfromto, and before resuming record
@@ -1310,8 +1310,8 @@ x   r2426 | Merged r2420:2423 from trunk
     r2638 | More informative message if frame buffer object (FBO) has not be
     r2639 | GL_RGBA8 for SceneImageTextureFBO instead of gl_tex_format. Is i
     r2640 | Do not try to create a frame buffer if GL_EXT_framebuffer_object
-    r2641 | Ability to use only the allowed CPUs. For example it is necessar
-    r2642 | %d for GetLastError() instead of %s of course
++   r2641 | Ability to use only the allowed CPUs. For example it is necessar
++   r2642 | %d for GetLastError() instead of %s of course
     r2643 | gl_compatibility variable; all OpenGL extentions will be disable
     r2644 | FBO: cleanup
     r2645 | An alternative way of drawing the sky was added (gl_drawskys ==
@@ -1448,40 +1448,41 @@ x   r2426 | Merged r2420:2423 from trunk
     r2825 | Remove headers from mac build
     r2827 | bump version to 2.4.8.5
     r2828 | Fixed crash when nodes used for in-wad demo playback are not equ
-    r2829 | Set processor affinity under non-Windows platforms using the POS
-    r2830 | random symbol after #endif
-    r2831 | I_SetAffinityMask() has moved to i_main.c from e6y.c
-    r2832 | Fix compilation on *nix
++   r2829 | Set processor affinity under non-Windows platforms using the POS
++   r2830 | random symbol after #endif
++   r2831 | I_SetAffinityMask() has moved to i_main.c from e6y.c
++   r2832 | Fix compilation on *nix
     r2833 | Eating of Alt-Tab event to prevent switching to the automap afte
     r2834 | Stupid bug in deh processing. Thanks Death-Destiny for the hint
     r2835 | Fixed old bug in searching responsefile.
     r2836 | fixed crash with @responsefile
     r2837 | change log for 2.4.8.5
     r2838 | bump version to 2.4.8.6
-    r2839 | For now, set a no-op I_SetAffinityMask for the Mac
++   r2839 | For now, set a no-op I_SetAffinityMask for the Mac
     r2850 | Resolution limitation is removed. Memory usage has decreased as
     r2852 | fixed crash if screenblocks is not equal to 11 (introduced in th
     r2853 | fixed hi-color modes for r2850
     r2863 | fixed bug with caching planes heights (introduced in r2850)
     r2864 | "PrBoom-Plus" -> PACKAGE_TITLE
     r2865 | Temporarily define PACKAGE_TITLE in configure.in and MAC/config.
-
---------------------------------------------------------------------------
-
-Convert status bar code to use V_DrawNamePatch instead of V_DrawNumPatch
-
-Screenshots have garbled colours in high colour modes
-
-Support trivial maps (bug #1837422): patches available but is it worth fixing?
+    r2866 | launcher_enable variable now has three values: "never", "smart"
+    r2891 | Status Bar was affected by light level of the sector on some on-
++   r2892 | Fixed crash with FixedDiv(-2147483648,x)
++   r2893 | added comment for the previous revision r2892 to know what happe
++   r2894 | 2892++ (more detailed comment for crash in FixedDiv)
+    r2907 | Unused ConvertMus() is removed. There are no more compiling erro
+    r2912 | fix for r2793: do not try to show the fourth episode in menu for
+    r2913 | Trying to optimise screen pitch for reducing of CPU cache misses
+    r2914 | changed formatting of stdout for the previous revision (r2913)
+    r2915 | fixed bug in r2817?
+    r2916 | another try of r2766: Fix vanilla unprecise calculation (vibrati
+    r2917 | fixed wipe in software
 
 --------------------------------------------------------------------------
 
 Unresolved issues mentioned in the Doomworld thread since 2.4.7
 http://www.doomworld.com/vb/source-ports/23525-prboom-issues-thread/
 
-- http://www.doomworld.com/vb/post/640575
-  - don't modify default skill from new game menu
-  - psprite brightness, weapons are too dark (I believe pr+ fixes this)
 - http://www.doomworld.com/vb/post/644107
   mbf options lumps (bad idea, dehacked changing cheats is annoying enough)
 - http://www.doomworld.com/vb/post/648619
@@ -1492,6 +1493,3 @@ http://www.doomworld.com/vb/source-ports/23525-prboom-issues-thread/
   http://www.doomworld.com/vb/post/700314
   http://www.doomworld.com/vb/post/712531
   several different people complaining about the music
-- http://www.doomworld.com/vb/post/699684
-  draw boom fullscreen menus directly over the game?
-  patches available, would prefer review before committing.

@@ -2,6 +2,18 @@ This file shows a history of changes between PrBoom versions since v2.1.0.
 For historical reference, the complete LxDoom changelog follows it.
 
 Changes from v2.4.7 to v2.5.0
+- Limit the game to one CPU core on a multicore machine [prb+]
+- Fix crash when out-of-range values are used in fixed point arithmetic [prb+]
+- Allow the game to build without SDL_mixer, add --without-mixer option to
+  ./configure to force this. Music support will be disabled in this case
+- Don't set the default game skill from the new game menu
+  Instead there is an option to set it explicitly in the General menu
+- Fix the brightness of the player's weapon
+- Fix linear filtering on flats in software mode
+- Fix crash when an unknown sprite is used with a non-zero frame number
+- Restore special case for trivial maps (bug #1837422)
+- Fix screenshots in high colour screen modes - if libpng is available at
+  build time it will be used, otherwise a BMP will be saved
 - Don't process mouse input in the menus [prb+]
 - Always use Doom's main menu order to avoid bugs with Alien Vendetta [prb+]
 - Remove line of junk graphics below status bar [prb+]
@@ -45,7 +57,7 @@ Changes from v2.4.7 to v2.5.0
 - comp_666 fixed: either cyberdemon or spider can end E2M8 or E3M8;
   killing a baron on E3M8 won't cause the level to end any more [prb+]
 - Fix broken string matching in Dehacked [prb+]
-- Passing --disable-network to ./configure will compile the game without
+- Passing --without-net to ./configure will compile the game without
   network support; this may help if your platform lacks SDL_net
 - Fix crash when reloading network savegames (bug #1590350)
 - Fix bug in transparency rendering caused by doing it in two places
