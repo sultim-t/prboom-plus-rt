@@ -53,8 +53,6 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#else
-#include <sched.h>
 #endif
 
 #include "SDL.h"
@@ -64,6 +62,9 @@
 #endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#ifdef HAVE_SCHED_H
+#include <sched.h>
 #endif
 #ifdef _MSC_VER
 #include <io.h>
@@ -439,7 +440,7 @@ void I_SetAffinityMask(void)
 #elif defined(MACOSX)
     // Nothing for now
     errbuf = "Not defined on Mac OS X";
-#else
+#elif defined(HAVE_SCHED_SETAFFINITY)
     // POSIX version:
     int i;
     {
@@ -457,6 +458,8 @@ void I_SetAffinityMask(void)
         errbuf = strerror(errno);
       }
     }
+#else
+    errbuf = "Not implemented";
 #endif
 
     if (errbuf == NULL)
