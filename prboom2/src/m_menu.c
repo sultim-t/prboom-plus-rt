@@ -4149,7 +4149,36 @@ boolean M_Responder (event_t* ev) {
     }
 
   } else {
-    // Mouse input processing removed
+   // Process mouse input
+
+    if (ev->type == ev_mouse && mousewait < I_GetTime()) {
+
+      // Only process mouse button input
+
+      if (ev->data1&1)
+  {
+    ch = key_menu_enter;                           // phares 3/7/98
+    mousewait = I_GetTime() + 15;
+  }
+
+      if (ev->data1&2)
+  {
+    ch = key_menu_backspace;                       // phares 3/7/98
+    mousewait = I_GetTime() + 15;
+  }
+
+      // phares 4/4/98:
+      // Handle mouse button 3, and allow it to pass down
+      // to where key binding can eat it.
+
+      if (setup_active && set_keybnd_active)
+  if (ev->data1&4)
+    {
+    ch = 0; // meaningless, just to get you past the check for -1
+    mousewait = I_GetTime() + 15;
+    }
+    }
+    else
 
       // Process keyboard input
 
