@@ -1227,11 +1227,10 @@ void M_LoadDefaults (void)
     SNPRINTF((char *)defaultfile, PATH_MAX,
             "%s%s%sboom-plus.cfg", exedir, HasTrailingSlash(exedir) ? "" : "/", 
 #if ((defined GL_DOOM) && (defined _MSC_VER))
-            "gl"
+            "gl");
 #else
-            "pr"
+            "pr");
 #endif
-            );
   }
 
   lprintf (LO_CONFIRM, " default file: %s\n",defaultfile);

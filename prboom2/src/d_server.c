@@ -33,6 +33,10 @@
  *-----------------------------------------------------------------------------
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -45,6 +49,10 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <sys/types.h>
+
+#ifdef USE_SDL_NET
+ #include "SDL.h"
+#endif
 
 #include "doomtype.h"
 #include "protocol.h"

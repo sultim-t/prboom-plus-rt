@@ -1842,6 +1842,9 @@ void A_FatAttack1(mobj_t *actor)
   mobj_t *mo;
   int    an;
 
+  if (!actor->target)
+    return;
+
   A_FaceTarget(actor);
 
   // Change direction  to ...
@@ -1861,6 +1864,9 @@ void A_FatAttack2(mobj_t *actor)
   mobj_t *mo;
   int    an;
 
+  if (!actor->target)
+    return;
+
   A_FaceTarget(actor);
   // Now here choose opposite deviation.
   actor->angle -= FATSPREAD;
@@ -1877,6 +1883,9 @@ void A_FatAttack3(mobj_t *actor)
 {
   mobj_t *mo;
   int    an;
+
+  if (!actor->target)
+    return;
 
   A_FaceTarget(actor);
 

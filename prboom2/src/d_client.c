@@ -36,6 +36,21 @@
  *-----------------------------------------------------------------------------
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#include <sys/types.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#ifdef HAVE_SYS_WAIT_H
+#include <sys/wait.h>
+#endif
+
+#ifdef USE_SDL_NET
+ #include "SDL.h"
+#endif
+
 #include "doomtype.h"
 #include "doomstat.h"
 #include "d_net.h"
@@ -54,18 +69,7 @@
 #include "m_argv.h"
 #include "r_fps.h"
 #include "lprintf.h"
-
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-#include <sys/types.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#ifdef HAVE_SYS_WAIT_H
-#include <sys/wait.h>
-#endif
-#include "e6y.h" //e6y
+#include "e6y.h"
 
 static boolean   server;
 static int       remotetic; // Tic expected from the remote
@@ -168,6 +172,7 @@ void D_InitNetGame (void)
   doomcom->consoleplayer = 0;
   doomcom->numnodes = 0; doomcom->numplayers = 1;
   localcmds = netcmds[consoleplayer];
+  netgame = (M_CheckParm("-solo-net") != 0);
 
   for (i=0; i<doomcom->numplayers; i++)
     playeringame[i] = true;

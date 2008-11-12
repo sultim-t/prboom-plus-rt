@@ -33,6 +33,12 @@
  *
  *-----------------------------------------------------------------------------*/
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#ifdef USE_SDL
+#include "SDL.h"
+#endif
 #include "doomstat.h"
 #include "d_net.h"
 #include "w_wad.h"
@@ -51,7 +57,6 @@
 #include "g_game.h"
 #include "r_demo.h"
 #include "r_fps.h"
-#include "SDL.h"
 #include <math.h>
 #include "e6y.h"//e6y
 
@@ -562,6 +567,11 @@ void R_Init (void)
 subsector_t *R_PointInSubsector(fixed_t x, fixed_t y)
 {
   int nodenum = numnodes-1;
+
+  // special case for trivial maps (single subsector, no nodes)
+  if (numnodes == 0)
+    return subsectors;
+
   while (!(nodenum & NF_SUBSECTOR))
     nodenum = nodes[nodenum].children[R_PointOnSide(x, y, nodes+nodenum)];
   return &subsectors[nodenum & ~NF_SUBSECTOR];
@@ -643,7 +653,7 @@ int renderer_fps = 0;
 static void R_ShowStats(void)
 {
 //e6y
-#if 1
+#if USE_SDL
   static unsigned int FPS_SavedTick = 0, FPS_FrameCount = 0;
   unsigned int tick = SDL_GetTicks();
   FPS_FrameCount++;

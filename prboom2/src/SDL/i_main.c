@@ -51,6 +51,10 @@
 
 #include <errno.h>
 
+#ifdef USE_SDL
+#include "SDL.h"
+#endif
+
 #include "doomdef.h"
 #include "m_argv.h"
 #include "d_main.h"
@@ -67,9 +71,6 @@
 #include "i_main.h"
 #include "r_fps.h"
 #include "lprintf.h"
-#ifdef USE_SDL
-#include "SDL.h"
-#endif
 
 #include <signal.h>
 #include <stdio.h>
@@ -525,10 +526,7 @@ static void I_SetAffinityMask(void)
     {
       errbuf = WINError();
     }
-#elif defined(MACOSX)
-    // Nothing for now
-    errbuf = "Not defined on Mac OS X";
-#else
+#elif defined(HAVE_SCHED_SETAFFINITY)
     // POSIX version:
     int i;
     {
@@ -546,6 +544,8 @@ static void I_SetAffinityMask(void)
         errbuf = strerror(errno);
       }
     }
+#else
+    return;
 #endif
 
     if (errbuf == NULL)
@@ -595,9 +595,6 @@ int main(int argc, char **argv)
   }
 #endif
 
-  //e6y: ability to use only the allowed CPUs
-  I_SetAffinityMask();
-
   /* Version info */
   lprintf(LO_INFO,"\n");
   PrintVer();
@@ -631,6 +628,9 @@ int main(int argc, char **argv)
   signal(SIGINT,  I_SignalHandler);  /* killough 3/6/98: allow CTRL-BRK during init */
   signal(SIGABRT, I_SignalHandler);
 #endif
+
+  //e6y: ability to use only the allowed CPUs
+  I_SetAffinityMask();
 
   /* cphipps - call to video specific startup code */
   I_PreInitGraphics();

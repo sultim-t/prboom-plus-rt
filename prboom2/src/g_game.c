@@ -3294,18 +3294,6 @@ void G_DoPlayDemo(void)
   R_SmoothPlaying_Reset(NULL); // e6y
 }
 
-//
-// G_TimeDemo
-//
-
-void G_TimeDemo(const char *name) // CPhipps - const char*
-{
-  timingdemo = true;
-  singletics = true;
-  defdemoname = name;
-  gameaction = ga_playdemo;
-}
-
 /* G_CheckDemoStatus
  *
  * Called after a death or level completion to allow demos to be cleaned up

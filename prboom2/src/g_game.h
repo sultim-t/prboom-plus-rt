@@ -56,8 +56,6 @@ void G_SaveGame(int slot, char *description); // Called by M_Responder.
 void G_BeginRecording(void);
 // CPhipps - const on these string params
 void G_RecordDemo(const char *name);          // Only called by startup code.
-void G_PlayDemo(const char *name);
-void G_TimeDemo(const char *name);
 void G_ExitLevel(void);
 void G_SecretExitLevel(void);
 void G_WorldDone(void);
