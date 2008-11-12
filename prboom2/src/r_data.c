@@ -670,7 +670,7 @@ void R_PrecacheLevel(void)
   register int i;
   register byte *hitlist;
 
-  if (demoplayback)
+  if (timingdemo)
     return;
 
   {

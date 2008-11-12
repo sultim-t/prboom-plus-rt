@@ -1136,7 +1136,7 @@ void gld_Precache(void)
     if (!precache)
       return;
 
-    if (demoplayback)
+    if (timingdemo)
       return;
   }
 
