@@ -1223,7 +1223,7 @@ static void gld_FlatConvexCarver(int ssidx, int num, divline_t *list)
   Z_Free(clippers);
 }
 
-static void gld_CarveFlats(int bspnode, int numdivlines, divline_t *divlines, boolean *sectorclosed)
+static void gld_CarveFlats(int bspnode, int numdivlines, divline_t *divlines)
 {
   node_t    *nod;
   divline_t *childlist, *dl;
@@ -1236,7 +1236,7 @@ static void gld_CarveFlats(int bspnode, int numdivlines, divline_t *divlines, bo
     // We have arrived at a subsector. The divline list contains all
     // the partition lines that carve out the subsector.
     int ssidx = bspnode & (~NF_SUBSECTOR);
-    if (!sectorclosed[subsectors[ssidx].sector->iSectorID])
+    if (!(subsectors[ssidx].sector->flags & SECTOR_IS_CLOSED))
       gld_FlatConvexCarver(ssidx, numdivlines, divlines);
     return;
   }
@@ -1256,13 +1256,13 @@ static void gld_CarveFlats(int bspnode, int numdivlines, divline_t *divlines, bo
   // The right child gets the original line (LEFT side clipped).
   dl->dx = nod->dx;
   dl->dy = nod->dy;
-  gld_CarveFlats(nod->children[0],childlistsize,childlist,sectorclosed);
+  gld_CarveFlats(nod->children[0],childlistsize,childlist);
 
   // The left side. We must reverse the line, otherwise the wrong
   // side would get clipped.
   dl->dx = -nod->dx;
   dl->dy = -nod->dy;
-  gld_CarveFlats(nod->children[1],childlistsize,childlist,sectorclosed);
+  gld_CarveFlats(nod->children[1],childlistsize,childlist);
 
   // We are finishing with this node, free the allocated list.
   Z_Free(childlist);
@@ -1649,7 +1649,7 @@ static void gld_PrecalculateSector(int num)
  *            (glnodes only)                *
  ********************************************/
 
-void gld_GetSubSectorVertices(boolean *sectorclosed)
+void gld_GetSubSectorVertices(void)
 {
   int      i, j;
   int      numedgepoints;
@@ -1659,7 +1659,7 @@ void gld_GetSubSectorVertices(boolean *sectorclosed)
   {
     ssector = &subsectors[i];
 
-    if (sectorclosed[ssector->sector->iSectorID])
+    if (ssector->sector->flags & SECTOR_IS_CLOSED)
       continue;
 
     numedgepoints  = ssector->numlines;
@@ -1712,7 +1712,6 @@ void gld_GetSubSectorVertices(boolean *sectorclosed)
 
 void gld_PreprocessSectors(void)
 {
-  boolean *sectorclosed;
   int i;
 #ifdef USE_GLU_TESS // figgi
   char *vertexcheck;
@@ -1731,11 +1730,6 @@ void gld_PreprocessSectors(void)
       fprintf(levelinfo,"E%iM%i\n",gameepisode,gamemap);
   }
 #endif
-
-  sectorclosed=Z_Malloc(numsectors*sizeof(boolean),PU_LEVEL,0);
-  if (!sectorclosed)
-    I_Error("gld_PreprocessSectors: Not enough memory for array sectorclosed");
-  memset(sectorclosed, 0, sizeof(boolean)*numsectors);
 
   sectorloops=Z_Malloc(sizeof(GLSector)*numsectors,PU_STATIC,0);
   if (!sectorloops)
@@ -1795,11 +1789,11 @@ void gld_PreprocessSectors(void)
       lprintf(LO_ERROR, "sector %i is not closed! %i lines in sector\n", i, sectors[i].linecount);
 #endif
       if (levelinfo) fprintf(levelinfo, "sector %i is not closed! %i lines in sector\n", i, sectors[i].linecount);
-      sectorclosed[i]=false;
+      sectors[i].flags &= ~SECTOR_IS_CLOSED;
     }
     else
     {
-      sectorclosed[i]=true;
+      sectors[i].flags |= SECTOR_IS_CLOSED;
       for (j=0; j<numvertexes; j++)
       {
         if ((vertexcheck[j]==1) || (vertexcheck[j]==2))
@@ -1808,12 +1802,12 @@ void gld_PreprocessSectors(void)
           lprintf(LO_ERROR, "sector %i is not closed at vertex %i ! %i lines in sector\n", i, j, sectors[i].linecount);
 #endif
           if (levelinfo) fprintf(levelinfo, "sector %i is not closed at vertex %i ! %i lines in sector\n", i, j, sectors[i].linecount);
-          sectorclosed[i]=false;
+          sectors[i].flags &= ~SECTOR_IS_CLOSED;
         }
       }
     }
     // figgi -- adapted for glnodes
-    if (sectorclosed[i])
+    if (sectors[i].flags & SECTOR_IS_CLOSED)
       gld_PrecalculateSector(i);
   }
   Z_Free(vertexcheck);
@@ -1821,12 +1815,11 @@ void gld_PreprocessSectors(void)
 
   // figgi -- adapted for glnodes
   if (nodesVersion == 0)
-    gld_CarveFlats(numnodes-1, 0, 0, sectorclosed);
+    gld_CarveFlats(numnodes-1, 0, 0);
   else
-    gld_GetSubSectorVertices(sectorclosed);
+    gld_GetSubSectorVertices();
 
   if (levelinfo) fclose(levelinfo);
-  Z_Free(sectorclosed);
 }
 
 static float roll     = 0.0f;
