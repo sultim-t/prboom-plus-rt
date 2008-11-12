@@ -1715,6 +1715,7 @@ void gld_PreprocessSectors(void)
   int i;
 #ifdef USE_GLU_TESS // figgi
   char *vertexcheck;
+  char *vertexcheck2;
   int v1num;
   int v2num;
   int j;
@@ -1753,8 +1754,9 @@ void gld_PreprocessSectors(void)
   gld_AddGlobalVertexes(numvertexes*2);
 
 #ifdef USE_GLU_TESS
-  vertexcheck=Z_Malloc(numvertexes*sizeof(char),PU_LEVEL,0);
-  if (!vertexcheck)
+  vertexcheck=malloc(numvertexes*sizeof(vertexcheck[0]));
+  vertexcheck2=malloc(numvertexes*sizeof(vertexcheck2[0]));
+  if (!vertexcheck || !vertexcheck2)
   {
     if (levelinfo) fclose(levelinfo);
     I_Error("gld_PreprocessSectors: Not enough memory for array vertexcheck");
@@ -1763,13 +1765,20 @@ void gld_PreprocessSectors(void)
 
   for (i=0; i<numsectors; i++)
   {
-    memset(vertexcheck,0,numvertexes*sizeof(char));
+    memset(vertexcheck,0,numvertexes*sizeof(vertexcheck[0]));
+    memset(vertexcheck2,0,numvertexes*sizeof(vertexcheck2[0]));
     for (j=0; j<sectors[i].linecount; j++)
     {
       v1num=((int)sectors[i].lines[j]->v1-(int)vertexes)/sizeof(vertex_t);
       v2num=((int)sectors[i].lines[j]->v2-(int)vertexes)/sizeof(vertex_t);
       if ((v1num>=numvertexes) || (v2num>=numvertexes))
         continue;
+
+      // e6y: for correct handling of missing textures.
+      // We do not need to apply some algos for isolated lines.
+      vertexcheck2[v1num]++;
+      vertexcheck2[v2num]++;
+
       if (sectors[i].lines[j]->sidenum[0]!=NO_INDEX)
         if (sides[sectors[i].lines[j]->sidenum[0]].sector==&sectors[i])
         {
@@ -1806,11 +1815,24 @@ void gld_PreprocessSectors(void)
         }
       }
     }
+
+    // e6y: marking all the isolated lines
+    for (j=0; j<sectors[i].linecount; j++)
+    {
+      v1num=((int)sectors[i].lines[j]->v1-(int)vertexes)/sizeof(vertex_t);
+      v2num=((int)sectors[i].lines[j]->v2-(int)vertexes)/sizeof(vertex_t);
+      if (vertexcheck2[v1num] < 2 && vertexcheck2[v2num] < 2)
+      {
+        sectors[i].lines[j]->r_flags |= RF_ISOLATED;
+      }
+    }
+    
     // figgi -- adapted for glnodes
     if (sectors[i].flags & SECTOR_IS_CLOSED)
       gld_PrecalculateSector(i);
   }
-  Z_Free(vertexcheck);
+  free(vertexcheck);
+  free(vertexcheck2);
 #endif /* USE_GLU_TESS */
 
   // figgi -- adapted for glnodes
@@ -2690,6 +2712,7 @@ void gld_AddWall(seg_t *seg)
       {
         temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->toptexture], true, false);
         if (!temptex && gl_use_stencil && backsector &&
+          !(seg->linedef->r_flags & RF_ISOLATED) &&
           frontsector->ceilingpic != skyflatnum && backsector->ceilingpic != skyflatnum)
         {
           wall.ytop=((float)(ceiling_height)/(float)MAP_SCALE)+SMALLDELTA;
@@ -2831,6 +2854,7 @@ bottomtexture:
     {
       temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->bottomtexture], true, false);
       if (!temptex && gl_use_stencil && backsector &&
+        !(seg->linedef->r_flags & RF_ISOLATED) &&
         frontsector->floorpic != skyflatnum && backsector->floorpic != skyflatnum)
       {
         wall.ytop=((float)(ceiling_height)/(float)MAP_SCALE)+SMALLDELTA;
