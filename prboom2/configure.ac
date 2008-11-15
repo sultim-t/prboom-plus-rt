@@ -3,14 +3,14 @@ AC_INIT([prboom-plus],[2.5.0.1])
 AC_DEFINE(PACKAGE_TITLE, ["PrBoom-Plus"], [Capitalised name of package])
 
 AC_CONFIG_AUX_DIR(autotools)
+AC_CONFIG_MACRO_DIR(autotools)
+
+dnl --- Check for target system type - before initialising Automake
+AC_CANONICAL_TARGET
 
 dnl --- Fire up automake
 AM_INIT_AUTOMAKE([foreign -Woverride -Wobsolete -Wportability -Wsyntax -Wunsupported])
-AM_MAINTAINER_MODE
 AM_CONFIG_HEADER(config.h)
-
-dnl --- Check for target system type
-AC_CANONICAL_TARGET
 
 AC_MSG_CHECKING([checking whether to use x86 asm versions of some functions])
 AC_ARG_ENABLE(i386-asm,AC_HELP_STRING([--disable-i386-asm],[Do not use i386 assembly]),,[
@@ -91,12 +91,14 @@ AC_TYPE_UID_T
 AC_TYPE_SIZE_T
 AC_DECL_SYS_SIGLIST
 AC_HEADER_SYS_WAIT
-AC_CHECK_HEADERS(unistd.h asm/byteorder.h)
+AC_CHECK_HEADERS(unistd.h asm/byteorder.h sched.h)
 
 dnl --- Library functions
 AC_CHECK_FUNC(stricmp,,AC_DEFINE(stricmp,strcasecmp,[Define to strcasecmp, if we have it]))
 AC_CHECK_FUNC(strnicmp,,AC_DEFINE(strnicmp,strncasecmp,[Define to strncasecmp, if we have it]))
-AC_CHECK_FUNCS(getopt inet_aton inet_pton inet_ntop snprintf vsnprintf mmap usleep strlwr)
+AC_CHECK_FUNC(min,AC_DEFINE(MIN,min,[If your platform has a fast version of min, define MIN to it]),)
+AC_CHECK_FUNC(max,AC_DEFINE(MAX,max,[If your platform has a fast version of max, define MAX to it]),)
+AC_CHECK_FUNCS(getopt inet_aton inet_pton inet_ntop snprintf vsnprintf mmap usleep strlwr sched_setaffinity)
 
 dnl --- Check for libraries
 dnl --- cph: we need pow(3) in SDL/i_sound.c; on some systems it gets pulled
@@ -166,8 +168,8 @@ echo "But I can compile the game server"
 BUILD_DOOM=""
 ,$SDL_LIBS $MIXER_LIBS)
 
-AC_ARG_ENABLE(network,
-  AS_HELP_STRING([--disable-network],[disables support for netgames]),
+AC_ARG_WITH(net,
+  AS_HELP_STRING([--without-net],[Do not use SDL_net even if available]),
   [
     dnl -- Networking was disabled by the user.
     NET_LIBS=
@@ -240,8 +242,6 @@ AC_SUBST(MATH_LIB)
 AC_SUBST(GL_LIBS)
 AC_SUBST(CFLAGS)
 AC_SUBST(DOOMWADDIR)
-dnl -- ac_aux_dir - see Makefile.am
-AC_SUBST(ac_aux_dir)
 
 dnl --- output
 AC_OUTPUT(Makefile src/Makefile src/POSIX/Makefile src/SDL/Makefile src/MAC/Makefile src/PCSOUND/Makefile src/TEXTSCREEN/Makefile doc/Makefile data/Makefile ICONS/Makefile VisualC6/Makefile VisualC8/Makefile prboom.spec)

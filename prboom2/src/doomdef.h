@@ -54,7 +54,7 @@
 #include <ctype.h>
 #include <limits.h>
 
-// this should go here, not in makefile/configure.in -- josh
+// this should go here, not in makefile/configure.ac -- josh
 #ifndef O_BINARY
 #define O_BINARY 0
 #endif
