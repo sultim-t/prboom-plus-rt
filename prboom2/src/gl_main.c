@@ -3493,6 +3493,15 @@ void gld_PreprocessLevel(void)
 {
   extern int samelevel;
 
+  if (doSkip)
+  {
+    // e6y
+    // Do not preprocess GL data during skipping,
+    // because it potentially will not be used.
+    // But preprocessing must be called immediately after stop of skipping.
+    return;
+  }
+
   // e6y: speedup of level reloading
   // Do not preprocess GL data twice for same level
   if (!samelevel)

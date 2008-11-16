@@ -214,11 +214,6 @@ float internal_render_fov = FOV90;
 int maxViewPitch;
 int minViewPitch;
 
-static boolean saved_fastdemo;
-static boolean saved_nodrawers;
-static boolean saved_nosfxparm;
-static boolean saved_nomusicparm;
-
 #ifdef _WIN32
 char* WINError(void)
 {
@@ -408,12 +403,19 @@ void e6y_InitCommandLine(void)
   }
 }
 
+static boolean saved_fastdemo;
+static boolean saved_nodrawers;
+static boolean saved_nosfxparm;
+static boolean saved_nomusicparm;
+static int saved_render_precise;
+
 void G_SkipDemoStart(void)
 {
   saved_fastdemo = fastdemo;
   saved_nodrawers = nodrawers;
   saved_nosfxparm = nosfxparm;
   saved_nomusicparm = nomusicparm;
+  saved_render_precise = render_precise;
   
   doSkip = true;
 
@@ -422,6 +424,10 @@ void G_SkipDemoStart(void)
   nodrawers = true;
   nosfxparm = true;
   nomusicparm = true;
+
+  render_precise = false;
+  M_ChangeRenderPrecise();
+
   I_Init2();
 }
 
@@ -433,6 +439,9 @@ void G_SkipDemoStop(void)
   nodrawers = saved_nodrawers;
   nosfxparm = saved_nosfxparm;
   nomusicparm = saved_nomusicparm;
+  
+  render_precise = saved_render_precise;
+  M_ChangeRenderPrecise();
 
   demo_stoponnext = false;
   demo_stoponend = false;
@@ -452,10 +461,7 @@ void G_SkipDemoStop(void)
 
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL) {
-    if (gl_texture_usehires)
-    {
-      gld_Precache();
-    }
+    gld_PreprocessLevel();
   }
 #endif
 }
