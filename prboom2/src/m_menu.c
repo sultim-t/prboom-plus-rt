@@ -2965,7 +2965,9 @@ enum {
 //  general_sndcard,
 //  general_muscard,
 //  general_detvoices,
+#ifdef HAVE_LIBSDL_MIXER
   general_sndpcspeaker,
+#endif
   general_sndchan,
   general_pitch
 };
@@ -3046,8 +3048,10 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
    G_YA2 + general_detvoices*8, {"detect_voices"}},
 #endif
 
+#ifdef HAVE_LIBSDL_MIXER
   {"PC Speaker emulation",     S_YESNO|S_PRGWARN, m_null,G_X,
    G_YA3 + general_sndpcspeaker*8, {"snd_pcspeaker"}},
+#endif
 
   {"Number of Sound Channels", S_NUM|S_PRGWARN, m_null, G_X,
    G_YA3 + general_sndchan*8, {"snd_channels"}},
