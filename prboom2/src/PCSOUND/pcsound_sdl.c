@@ -23,16 +23,25 @@
 //
 //-----------------------------------------------------------------------------
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "SDL.h"
+#ifdef HAVE_LIBSDL_MIXER
 #include "SDL_mixer.h"
+#endif
 
 #include "pcsound.h"
 
 //e6y
 #include "lprintf.h"
+
+// Can't do any of this without SDL_mixer
+#ifdef HAVE_LIBSDL_MIXER
 
 #define SQUARE_WAVE_AMP 0x2000
 
@@ -139,9 +148,11 @@ static void PCSound_Mix_Callback(void *udata, Uint8 *stream, int len)
         rightptr += 2;
     }
 }
+#endif // HAVE_LIBSDL_MIXER
 
 static int PCSound_SDL_Init(pcsound_callback_func callback_func)
 {
+#ifdef HAVE_LIBSDL_MIXER
     // Check that SDL_mixer has been opened already
     // If not, fail
 
@@ -166,6 +177,7 @@ static int PCSound_SDL_Init(pcsound_callback_func callback_func)
 
     Mix_SetPostMix(PCSound_Mix_Callback, NULL);
 
+#endif
     return 1;
 }
 
