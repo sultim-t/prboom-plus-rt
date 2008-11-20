@@ -9,8 +9,7 @@
 SUBDIRS = SDL POSIX MAC PCSOUND TEXTSCREEN
 
 gamesdir=$(prefix)/games
-EXTRA_PROGRAMS = prboom-plus
-games_PROGRAMS = @BUILD_DOOM@ prboom-plus-game-server
+games_PROGRAMS = prboom-plus prboom-plus-game-server
 
 CFLAGS = @CFLAGS@ @SDL_CFLAGS@
 

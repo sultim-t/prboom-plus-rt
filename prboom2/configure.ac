@@ -159,14 +159,9 @@ savelibs="$LIBS"
 LIBS="$LIBS $SDL_LIBS"
 AC_CHECK_FUNCS(SDL_JoystickGetAxis)
 LIBS="$savelibs"
-AC_CHECK_LIB(SDL_mixer,Mix_LoadMUS,[
-    AC_DEFINE(HAVE_LIBSDL_MIXER,1,[Define if you have the SDL mixer library -lSDL_mixer])
-    MIXER_LIBS="$MIXER_LIBS -lSDL_mixer"
-    BUILD_DOOM="prboom-plus"
-],echo "*** Cannot compile PrBoom without SDL_mixer installed"
-echo "But I can compile the game server"
-BUILD_DOOM=""
-,$SDL_LIBS $MIXER_LIBS)
+AC_ARG_WITH([mixer],
+  AC_HELP_STRING([--without-mixer],[Do not use SDL_mixer even if available]),
+  [], AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,[],[],[$SDL_LIBS $MIXER_LIBS]))
 
 AC_ARG_WITH(net,
   AS_HELP_STRING([--without-net],[Do not use SDL_net even if available]),
@@ -233,7 +228,6 @@ then
 fi
 
 AM_CONDITIONAL(WAD_MMAP,test "$ac_cv_func_mmap" = yes)
-AC_SUBST(BUILD_DOOM)
 AC_SUBST(MIXER_CFLAGS)
 AC_SUBST(MIXER_LIBS)
 AC_SUBST(NET_CFLAGS)
