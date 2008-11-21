@@ -235,6 +235,13 @@ void D_Display (void)
     }
     if (!gamekeydown[key_use])
       return;
+
+#ifdef GL_DOOM
+    if (V_GetMode() == VID_MODEGL)
+    {
+      gld_PreprocessLevel();
+    }
+#endif
   }
   if (!doSkip || !gamekeydown[key_use])
 

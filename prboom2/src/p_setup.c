@@ -164,20 +164,10 @@ size_t     num_deathmatchstarts;   // killough
 mapthing_t *deathmatch_p;
 mapthing_t playerstarts[MAXPLAYERS];
 
-static int previous_episode = -1;
-static int previous_map = -1;
-static int previous_nodesVersion = -1;
-
-int samelevel = false;
-
-static boolean SameLevel(int episode, int map, int nodesVersion)
-{
-  return (
-    (map == previous_map) && 
-    (episode == previous_episode) &&
-    (nodesVersion == previous_nodesVersion)
-  );
-}
+static int current_episode = -1;
+static int current_map = -1;
+static int current_nodesVersion = -1;
+static int samelevel = false;
 
 // e6y: Smart malloc
 // Used by P_SetupLevel() for smart data loading
@@ -205,14 +195,6 @@ static void *calloc_IfSameLevel(void* p, size_t n1, size_t n2)
     memset(p, 0, n1 * n2);
     return p;
   }
-}
-
-static void AcceptLevel(int episode, int map, int nodesVersion)
-{
-  previous_episode = episode;
-  previous_map = map;
-  previous_nodesVersion = nodesVersion;
-  samelevel = false;
 }
 
 //
@@ -1710,7 +1692,14 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   // It is important for OpenGL, because in case of the same data in memory
   // we can skip recalculation of much stuff
 
-  samelevel = SameLevel(episode, map, nodesVersion);
+  samelevel =
+    (map == current_map) &&
+    (episode == current_episode) &&
+    (nodesVersion == current_nodesVersion);
+
+  current_episode = episode;
+  current_map = map;
+  current_nodesVersion = nodesVersion;
 
   if (!samelevel)
   {
@@ -1828,14 +1817,20 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
-    // proff 11/99: calculate all OpenGL specific tables etc.
-    gld_PreprocessLevel();
+    // e6y
+    // Do not preprocess GL data during skipping,
+    // because it potentially will not be used.
+    // But preprocessing must be called immediately after stop of skipping.
+    if (!doSkip)
+    {
+      // proff 11/99: calculate all OpenGL specific tables etc.
+      gld_PreprocessLevel();
+    }
   }
 #endif
   //e6y
   P_ResetWalkcam(true, true);
   R_SmoothPlaying_Reset(NULL);
-  AcceptLevel(episode, map, nodesVersion);
 }
 
 //

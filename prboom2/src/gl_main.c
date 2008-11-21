@@ -71,6 +71,9 @@
 #include "i_video.h"
 #include "i_main.h"
 #include "e6y.h"//e6y
+
+int gl_preprocessed = false;
+
 //e6y: all OpenGL extentions will be disabled with TRUE
 int gl_compatibility = 0;
 
@@ -3499,20 +3502,9 @@ void gld_DrawScene(player_t *player)
 
 void gld_PreprocessLevel(void)
 {
-  extern int samelevel;
-
-  if (doSkip)
-  {
-    // e6y
-    // Do not preprocess GL data during skipping,
-    // because it potentially will not be used.
-    // But preprocessing must be called immediately after stop of skipping.
-    return;
-  }
-
   // e6y: speedup of level reloading
   // Do not preprocess GL data twice for same level
-  if (!samelevel)
+  if (!gl_preprocessed)
   {
     int i;
     static int numsectors_prev = 0;
@@ -3542,8 +3534,8 @@ void gld_PreprocessLevel(void)
   {
     gld_PreprocessFakeSectors();
 
-    memset(sectorrendered, 0, numsectors*sizeof(byte));
-    memset(segrendered, 0, numsegs*sizeof(byte));
+    memset(sectorrendered, 0, numsectors*sizeof(sectorrendered[0]));
+    memset(segrendered, 0, numsegs*sizeof(segrendered[0]));
   }
 
   memset(&gld_drawinfo,0,sizeof(GLDrawInfo));
@@ -3553,6 +3545,8 @@ void gld_PreprocessLevel(void)
   //e6y
   gld_PreprocessDetail();
   gld_InitVertexData();
+
+  gl_preprocessed = true;
 }
 
 // Vortex: some FBO stuff

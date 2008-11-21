@@ -233,6 +233,8 @@ void gld_DrawTriangleStripARB(GLWall *wall, gl_strip_coords_t *c1, gl_strip_coor
 void gld_StaticLightAlpha(float light, float alpha);
 #define gld_StaticLight(light) gld_StaticLightAlpha(light, 1.0f)
 
+extern int gl_preprocessed; //e6y
+
 extern GLDrawInfo gld_drawinfo;
 extern GLSector *sectorloops;
 extern GLVertex *gld_vertexes;
