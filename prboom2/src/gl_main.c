@@ -3375,12 +3375,20 @@ void gld_DrawScene(player_t *player)
   // projected walls
   if (gl_use_stencil)
   {
+    // Push bleeding floor/ceiling textures back a little in the z-buffer
+    // so they don't interfere with overlapping mid textures.
+    glPolygonOffset(1.0f, 128.0f);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+
     glEnable(GL_STENCIL_TEST);
     for (i = gld_drawinfo.num_fwalls - 1; i >= 0; i--)
     {
       gld_ProcessWall(&gld_drawinfo.fwalls[i], &gl_alpha_blended, GLDWF_TOP, GLDWF_SKY - 1);
     }
     glDisable(GL_STENCIL_TEST);
+
+    glPolygonOffset(0.0f, 0.0f);
+    glDisable(GL_POLYGON_OFFSET_FILL);
   }
 
   EnableAlphaBlend(&gl_alpha_blended);
