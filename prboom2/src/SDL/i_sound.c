@@ -536,7 +536,6 @@ void I_InitSound(void)
 {
 #ifdef HAVE_MIXER
   int audio_rate;
-  Uint16 audio_format;
   int audio_channels;
   int audio_buffers;
 
@@ -548,16 +547,11 @@ void I_InitSound(void)
 
   /* Initialize variables */
   audio_rate = snd_samplerate;
-#if ( SDL_BYTEORDER == SDL_BIG_ENDIAN )
-  audio_format = AUDIO_S16MSB;
-#else
-  audio_format = AUDIO_S16LSB;
-#endif
   audio_channels = 2;
   SAMPLECOUNT = 512;
   audio_buffers = SAMPLECOUNT*snd_samplerate/11025;
 
-  if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) < 0) {
+  if (Mix_OpenAudio(audio_rate, MIX_DEFAULT_FORMAT, audio_channels, audio_buffers) < 0) {
     lprintf(LO_INFO,"couldn't open audio with desired format\n");
     return;
   }
@@ -574,11 +568,7 @@ void I_InitSound(void)
 
   // Open the audio device
   audio.freq = snd_samplerate;
-#if ( SDL_BYTEORDER == SDL_BIG_ENDIAN )
-  audio.format = AUDIO_S16MSB;
-#else
-  audio.format = AUDIO_S16LSB;
-#endif
+  audio.format = MIX_DEFAULT_FORMAT;
   audio.channels = 2;
   audio.samples = SAMPLECOUNT*snd_samplerate/11025;
   audio.callback = I_UpdateSound;
