@@ -626,6 +626,10 @@ void I_InitSound(void)
 
 static Mix_Music *music[2] = { NULL, NULL };
 
+// Some tracks are directly streamed from the RWops;
+// we need to free them in the end
+static SDL_RWops *rw_midi = NULL;
+
 static char *music_tmp = NULL; /* cph - name of music temporary file */
 
 // List of extensions that can be appended to music_tmp. First must be "".
@@ -732,6 +736,13 @@ void I_UnRegisterSong(int handle)
   if ( music[handle] ) {
     Mix_FreeMusic(music[handle]);
     music[handle] = NULL;
+
+    // Free RWops
+    if(rw_midi != NULL)
+    {
+      SDL_FreeRW(rw_midi);
+      rw_midi = NULL;
+    }
   }
 #endif
 }
@@ -764,9 +775,21 @@ int I_RegisterSong(const void *data, size_t len)
       name = malloc(strlen(music_tmp) + strlen(music_tmp_ext[i]) + 1);
       sprintf(name, "%s%s", music_tmp, music_tmp_ext[i]);
 
-      io_errors = (M_WriteFile(name, (void*)data, len) == 0);
-      if (!io_errors)
-        music[0] = Mix_LoadMUS(name);
+      if (strlen(music_tmp_ext[i]) == 0)
+      {
+        //midi
+        rw_midi = SDL_RWFromMem((void*)data, len);
+        music[0] = Mix_LoadMUS_RW(rw_midi);
+      }
+      else
+      {
+        io_errors = (M_WriteFile(name, (void*)data, len) == 0);
+        if (!io_errors)
+        {
+          music[0] = Mix_LoadMUS(name);
+        }
+      }
+
       free(name);
       if (music[0])
         break; // successfully loaded
@@ -794,14 +817,9 @@ int I_RegisterSong(const void *data, size_t len)
     if (result == 0)
     {
       mem_get_buf(outstream, &outbuf, &outbuf_len);
-
-      io_errors = M_WriteFile(music_tmp, outbuf, outbuf_len) == 0;
-
-      if (!io_errors)
-      {
-        // Load the MUS
-        music[0] = Mix_LoadMUS(music_tmp);
-      }
+      
+      rw_midi = SDL_RWFromMem(outbuf, outbuf_len);
+      music[0] = Mix_LoadMUS_RW(rw_midi);
     }
 
     mem_fclose(instream);
@@ -811,6 +829,10 @@ int I_RegisterSong(const void *data, size_t len)
   // Failed to load
   if (!music[0])
   {
+    // Conversion failed, free everything
+    SDL_FreeRW(rw_midi);
+    rw_midi = NULL;
+
     if (io_errors)
     {
       lprintf(LO_ERROR, "Error writing song\n");
