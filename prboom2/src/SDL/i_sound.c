@@ -534,11 +534,20 @@ void I_ShutdownSound(void)
 
 void I_InitSound(void)
 {
-#ifdef HAVE_MIXER
   int audio_rate;
   int audio_channels;
   int audio_buffers;
 
+  // haleyjd: the docs say we should do this
+  if (SDL_InitSubSystem(SDL_INIT_AUDIO))
+  {
+    lprintf(LO_INFO, "Couldn't initialize SDL audio.\n");
+    nosfxparm = 0;
+    nomusicparm = 0;
+    return;
+  }
+
+#ifdef HAVE_MIXER
   if (sound_inited)
       I_ShutdownSound();
 
@@ -677,6 +686,10 @@ void I_PlaySong(int handle, int looping)
 #ifdef HAVE_MIXER
   if ( music[handle] ) {
     Mix_FadeInMusic(music[handle], looping ? -1 : 0, 500);
+    //Mix_PlayMusic(music[handle], looping ? -1 : 0);
+
+    // haleyjd 10/28/05: make sure volume settings remain consistent
+    I_SetMusicVolume(snd_MusicVolume);
   }
 #endif
 }
