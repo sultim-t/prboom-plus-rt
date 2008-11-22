@@ -786,9 +786,13 @@ int I_RegisterSong(const void *data, size_t len)
       {
         //midi
         rw_midi = SDL_RWFromMem((void*)data, len);
-        music[0] = Mix_LoadMUS_RW(rw_midi);
+        if (rw_midi)
+        {
+          music[0] = Mix_LoadMUS_RW(rw_midi);
+        }
       }
-      else
+
+      if (!music[0])
       {
         io_errors = (M_WriteFile(name, (void*)data, len) == 0);
         if (!io_errors)
@@ -826,7 +830,21 @@ int I_RegisterSong(const void *data, size_t len)
       mem_get_buf(outstream, &outbuf, &outbuf_len);
       
       rw_midi = SDL_RWFromMem(outbuf, outbuf_len);
-      music[0] = Mix_LoadMUS_RW(rw_midi);
+      if (rw_midi)
+      {
+        music[0] = Mix_LoadMUS_RW(rw_midi);
+      }
+      
+      if (!music[0])
+      {
+        io_errors = M_WriteFile(music_tmp, outbuf, outbuf_len) == 0;
+
+        if (!io_errors)
+        {
+          // Load the MUS
+          music[0] = Mix_LoadMUS(music_tmp);
+        }
+      }
     }
 
     mem_fclose(instream);
