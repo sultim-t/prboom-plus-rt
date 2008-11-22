@@ -577,7 +577,11 @@ void I_InitSound(void)
 
   // Open the audio device
   audio.freq = snd_samplerate;
-  audio.format = MIX_DEFAULT_FORMAT;
+#if ( SDL_BYTEORDER == SDL_BIG_ENDIAN )
+  audio.format = AUDIO_S16MSB;
+#else
+  audio.format = AUDIO_S16LSB;
+#endif
   audio.channels = 2;
   audio.samples = SAMPLECOUNT*snd_samplerate/11025;
   audio.callback = I_UpdateSound;
