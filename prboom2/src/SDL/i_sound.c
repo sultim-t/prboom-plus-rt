@@ -728,7 +728,7 @@ void I_UnRegisterSong(int handle)
     music[handle] = NULL;
 
     // Free RWops
-    if(rw_midi != NULL)
+    if (rw_midi != NULL)
     {
       SDL_FreeRW(rw_midi);
       rw_midi = NULL;
@@ -820,8 +820,11 @@ int I_RegisterSong(const void *data, size_t len)
   if (!music[0])
   {
     // Conversion failed, free everything
-    SDL_FreeRW(rw_midi);
-    rw_midi = NULL;
+    if (rw_midi != NULL)
+    {
+      SDL_FreeRW(rw_midi);
+      rw_midi = NULL;
+    }
 
     if (io_errors)
     {
