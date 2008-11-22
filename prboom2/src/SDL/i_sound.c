@@ -49,6 +49,7 @@
 #include "SDL_byteorder.h"
 #include "SDL_version.h"
 #ifdef HAVE_MIXER
+#define USE_RWOPS
 #include "SDL_mixer.h"
 #endif
 
