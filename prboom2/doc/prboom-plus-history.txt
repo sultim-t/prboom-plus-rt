@@ -1,5 +1,24 @@
 Change Log
 
+2.5.0.1 @ 2008.11.23
+[!] Updated to the latest prboom 2.4.8. (SVN build, revision 2936)
+[+] New hardware-mode algorithm for drawing flats into holes left by missing textures, greatly improving compatibility with software mode. This requires a stencil. This revision fixes at least one billion HOMs on various levels which use this software trick. Eternal.wad map28 as example. Old algo will be used with gl_compatibility 1 in cfg. Thanks to GrafZahl.
+[*] Resolution limitation is removed. Memory usage has decreased as a bonus. 7 mb instead of 8 on map01 @ doom2.wad and 14 mb instead of 18 on map05 @ epic.wad at 640x480.
+[*] launcher_enable variable now has three values: "never", "smart" and "always". "Smart" behaviour was default earlier.
+[*] Attempt to optimise screen pitch to reduce CPU cache misses in any resolution.
+[*] Do precache level with normal demo playback if level_precache 1
+[-] Fixed rare crash in FixedDiv introduced in Boom.
+[-] Status Bar was affected by light level of the sector on some on-board Intel video cards.
+[-] PrBoom will not try to show (with following unexpected exit) the fourth episode menu item for pre-ultimate iwads. Makes sense for doom.wad v1.2, DOOM 1 shareware and DOOM 1 registered. (introduced in 2.4.8.3)
+[-] Re-fix vanilla imprecise calculation (vibrations) of the texture coordinates for flats in software renderer.
+[-] Fixed wipe in software.
+
+From PrBoom
+- Restore special case for trivial maps (bug #1837422)
+- Fix linear filtering on flats in software mode
+- Fix crash when an unknown sprite is used with a non-zero frame number
+- Fix crash by testing for null targets in mancubus fire code pointers
+
 2.4.8.5 @ 2008.10.02
 [*] Set processor affinity mask under non-Windows platforms using the POSIX API (from chocolate-doom). This is a workaround for a bug in SDL_mixer that causes occasional crashes.
 [-] Fixed crash when the nodes used for in-wad demo playback are not the same as those used for playing. (introduced in 2.4.8.3)

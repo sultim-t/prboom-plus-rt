@@ -43,6 +43,27 @@
 
 <h1>Change Log</h1>
 
+<br><span class="ver">2.5.0.1</span>
+<span class="date">&nbsp;@&nbsp;2008-Nov-22</span>
+<table>
+<tr><td class="aaa">[!]</td><td>Updated to the latest prboom 2.5.0. (SVN build, revision 2936)
+<tr><td class="aaa">[+]</td><td>New hardware-mode algorithm for drawing flats into holes left by missing textures, greatly improving compatibility with software mode. This requires a stencil. This revision fixes at least one billion HOMs on various levels which use this software trick. Eternal.wad map28 as example. Old algo will be used with gl_compatibility 1 in cfg. Thanks to GrafZahl.
+<tr><td class="aaa">[*]</td><td>Resolution limitation is removed. Memory usage has decreased as a bonus. 7 mb instead of 8 on map01 @ doom2.wad and 14 mb instead of 18 on map05 @ epic.wad at 640x480.
+<tr><td class="aaa">[*]</td><td>launcher_enable variable now has three values: "never", "smart" and "always". "Smart" behaviour was default earlier.
+<tr><td class="aaa">[*]</td><td>Attempt to optimise screen pitch to reduce CPU cache misses in any resolution.
+<tr><td class="aaa">[*]</td><td>Do precache level with normal demo playback if level_precache 1
+<tr><td class="aaa">[-]</td><td>Fixed rare crash in FixedDiv introduced in Boom.
+<tr><td class="aaa">[-]</td><td>Status Bar was affected by light level of the sector on some on-board Intel video cards.
+<tr><td class="aaa">[-]</td><td>PrBoom will not try to show (with following unexpected exit) the fourth episode menu item for pre-ultimate iwads. Makes sense for doom.wad v1.2, DOOM 1 shareware and DOOM 1 registered. (introduced in 2.4.8.3)
+<tr><td class="aaa">[-]</td><td>Re-fix vanilla imprecise calculation (vibrations) of the texture coordinates for flats in software renderer.
+<tr><td class="aaa">[-]</td><td>Fixed wipe in software.
+<tr><td></td><td><b>From PrBoom</b>
+<tr><td class="aaa">-</td><td>Restore special case for trivial maps (bug #1837422)
+<tr><td class="aaa">-</td><td>Fix linear filtering on flats in software mode
+<tr><td class="aaa">-</td><td>Fix crash when an unknown sprite is used with a non-zero frame number
+<tr><td class="aaa">-</td><td>Fix crash by testing for null targets in mancubus fire code pointers
+</table>
+
 <br><span class="ver">2.4.8.5</span>
 <span class="date">&nbsp;@&nbsp;2008-Oct-02</span>
 <table>
