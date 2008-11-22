@@ -411,7 +411,7 @@ int W_SafeGetNumForName(const char *name)
 {
   int i = W_CheckNumForName (name);
   if (i == -1)
-    lprintf(LO_DEBUG, "W_GetNumForName: %.8s not found", name);
+    lprintf(LO_DEBUG, "W_GetNumForName: %.8s not found\n", name);
   return i;
 }
 
