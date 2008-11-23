@@ -107,7 +107,7 @@ AC_CHECK_LIB(m,pow)
 dnl - system specific stuff
 case "$target" in
     *-*-cygwin* | *-*-mingw32*)
-        SYS_GL_LIBS="-lopengl32"
+        SYS_GL_LIBS="-lopengl32 -lglu32"
         ;;
     *-*-beos*)
         SYS_GL_LIBS="-lGL -lGLU"
