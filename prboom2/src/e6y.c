@@ -63,7 +63,6 @@
 #include "s_sound.h"
 #include "i_main.h"
 #include "m_menu.h"
-#include "p_spec.h"
 #include "lprintf.h"
 #include "d_think.h"
 #include "m_argv.h"
