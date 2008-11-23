@@ -82,7 +82,7 @@
 
 //e6y
 #include "e6y.h"
-#ifdef _WIN32
+#ifdef USE_WINDOWS_LAUNCHER
 #include "e6y_launcher.h"
 #endif
 
@@ -1594,7 +1594,7 @@ static void D_DoomMainSetup(void)
   D_InitNetGame();
 
   //e6y
-#ifdef _WIN32
+#ifdef USE_WINDOWS_LAUNCHER
   LauncherShow();
 #endif
   CheckAutoDemo();

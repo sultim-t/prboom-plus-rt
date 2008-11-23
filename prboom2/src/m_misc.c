@@ -75,7 +75,7 @@
 //e6y
 #include "r_screenmultiply.h"
 #include "e6y.h"
-#ifdef _WIN32
+#ifdef USE_WINDOWS_LAUNCHER
 #include "e6y_launcher.h"
 #endif
 
@@ -879,7 +879,7 @@ default_t defaults[] =
   {"comperr_hangsolid", {&comperr_hangsolid},  {0},0,1,
    def_bool,ss_stat},
 
-#ifdef _WIN32
+#ifdef USE_WINDOWS_LAUNCHER
   {"Prboom-plus launcher settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"launcher_enable",{(int*)&launcher_enable},{launcher_enable_never},
    launcher_enable_never, launcher_enable_always, def_int,ss_none},
