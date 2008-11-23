@@ -1367,13 +1367,13 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
 
     case 2:
       // Open Door
-      if (EV_DoDoor(line,open) || demo_compatibility)
+      if (EV_DoDoor(line,openDoor) || demo_compatibility)
         line->special = 0;
       break;
 
     case 3:
       // Close Door
-      if (EV_DoDoor(line,close) || demo_compatibility)
+      if (EV_DoDoor(line,closeDoor) || demo_compatibility)
         line->special = 0;
       break;
 
@@ -1636,7 +1636,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
 
     case 75:
       // Close Door
-      EV_DoDoor(line,close);
+      EV_DoDoor(line,closeDoor);
       break;
 
     case 76:
@@ -1681,7 +1681,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
 
     case 86:
       // Open Door
-      EV_DoDoor(line,open);
+      EV_DoDoor(line,openDoor);
       break;
 
     case 87:
@@ -2236,7 +2236,7 @@ void P_ShootSpecialLine
 
     case 46:
       // 46 GR open door, stay open
-      EV_DoDoor(line,open);
+      EV_DoDoor(line,openDoor);
       P_ChangeSwitchTexture(line,1);
       break;
 

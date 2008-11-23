@@ -1029,7 +1029,7 @@ void A_KeenDie(mobj_t* mo)
       }
 
   junk.tag = 666;
-  EV_DoDoor(&junk,open);
+  EV_DoDoor(&junk,openDoor);
 }
 
 
