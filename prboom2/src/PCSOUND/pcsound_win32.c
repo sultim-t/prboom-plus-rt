@@ -23,7 +23,11 @@
 //
 //-----------------------------------------------------------------------------
 
-#ifdef _WIN32
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#ifdef USE_WIN32_PCSOUND_DRIVER
 
 #include "SDL.h"
 #include <windows.h>

@@ -164,6 +164,9 @@
 /* Define if you want to use FBO for some tricks in OpenGL */
 #define USE_FBO_TECHNIQUE 1
 
+/* Define if you want to use PC Speaker */
+#define USE_WIN32_PCSOUND_DRIVER
+
 /* Shut up warnings */
 #ifdef __INTEL_COMPILER
   #pragma warning(disable : 94 144 175 177 186 188 279 556 589 810)

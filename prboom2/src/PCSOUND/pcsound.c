@@ -34,7 +34,7 @@
 #include "doomtype.h"
 #include "lprintf.h"
 
-#ifdef _WIN32
+#ifdef USE_WIN32_PCSOUND_DRIVER
 extern pcsound_driver_t pcsound_win32_driver;
 #endif
 
@@ -49,7 +49,7 @@ static pcsound_driver_t *drivers[] =
 #ifdef HAVE_LINUX_KD_H
     &pcsound_linux_driver,
 #endif
-#ifdef _WIN32
+#ifdef USE_WIN32_PCSOUND_DRIVER
     &pcsound_win32_driver,
 #endif
     &pcsound_sdl_driver,
