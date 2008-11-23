@@ -3,6 +3,7 @@ Change Log
 2.5.0.1 @ 2008.11.23
 [!] Updated to the latest prboom 2.4.8. (SVN build, revision 2936)
 [+] New hardware-mode algorithm for drawing flats into holes left by missing textures, greatly improving compatibility with software mode. This requires a stencil. This revision fixes at least one billion HOMs on various levels which use this software trick. Eternal.wad map28 as example. Old algo will be used with gl_compatibility 1 in cfg. Thanks to GrafZahl.
+[+] Experimental cygwin/mingw32 compilation support.
 [*] Resolution limitation is removed. Memory usage has decreased as a bonus. 7 mb instead of 8 on map01 @ doom2.wad and 14 mb instead of 18 on map05 @ epic.wad at 640x480.
 [*] launcher_enable variable now has three values: "never", "smart" and "always". "Smart" behaviour was default earlier.
 [*] Attempt to optimise screen pitch to reduce CPU cache misses in any resolution.
