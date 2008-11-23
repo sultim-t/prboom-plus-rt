@@ -1477,6 +1477,36 @@ x   r2443 | duplicated code after old merge
     r2915 | fixed bug in r2817?
     r2916 | another try of r2766: Fix vanilla unprecise calculation (vibrati
     r2917 | fixed wipe in software
+    r2934 | New super-cool algorithm for drawing ceiling/floor texture into
+    r2937 | sectorclosed array is not necessary anymore. it is sector's flag
+    r2938 | Additional check for super-cool algo from r2934. We do not need
+    r2939 | Merged r2741:2936 from trunk (without *nix stuff)
+    r2940 | bump version to 2.5.0.1
+    r2941 | precache level with normal demoplayback and level_precache 1
+    r2942 | Merge r2841-2849,2862,2922,2928 from trunk
+    r2943 | Do not preprocess GL data during skipping, because it potentiall
+    r2944 | Hack PCSOUND SDL driver to compile without SDL_mixer
+    r2945 | Remove PC speaker sound menu options in the absence of SDL_mixer
+    r2946 | Merge r2910-2911 from trunk
+    r2947 | Push bleeding floor/ceiling textures back a little in the z-buff
+    r2948 | fix for r2943
+    r2949 | don't write mus/midi to file. just play it from memory
+    r2950 | using MIX_DEFAULT_FORMAT constant instead of check for endian
+    r2951 | checking rw_midi for NULL before SDL_FreeRW(rw_midi)
+    r2952 | don't use SDL_FreeRW for rw_midi at all
+    r2953 | +SDL_InitSubSystem(SDL_INIT_AUDIO) in I_InitSound
+    r2954 | '\n' is added in warning in W_SafeGetNumForName()
+    r2955 | Don't use MIX_DEFAULT_FORMAT when HAVE_MIXER is not defined
+    r2956 | Trying to use Mix_LoadMUS() if Mix_LoadMUS_RW() is failed
+    r2957 | Define USE_RWOPS before including SDL_mixer.h
+    r2958 | old part of R_ShowStats is removed
+    r2959 | Update docs and change log
+    r2960 | removed unused include
+    r2961 | Rename vldoor_e types 'open'/'close' to 'openDoor'/'closeDoor'
+    r2962 | check for USE_WINDOWS_LAUNCHER in corresponding places instead o
+    r2963 | Add -lglu32 to link command for cygwin/mingw32
+    r2964 | added USE_WIN32_PCSOUND_DRIVER define for ability to build with
+    r2965 | changelog
 
 --------------------------------------------------------------------------
 
