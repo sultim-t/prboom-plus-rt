@@ -2955,6 +2955,7 @@ enum {
 };
 
 enum {
+  general_gl_vsync,
   general_gl_texfilter,
   general_gl_texfilter_anisotropic,
   general_gl_texformat,
@@ -2975,7 +2976,7 @@ enum {
 #define G_X 250
 #define G_YA  44
 #define G_YA2 (G_YA+7*8)
-#define G_YA3 (G_YA2+6*8)
+#define G_YA3 (G_YA2+7*8)
 #define GF_X 76
 
 static const char *videomodes[] = {"8bit","15bit","16bit",
@@ -3013,6 +3014,9 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
 
 #ifdef GL_DOOM
   {"OpenGL", S_SKIP|S_TITLE, m_null, G_X, G_YA2 - 12},
+
+  {"Vertical Sync" ,S_YESNO|S_PRGWARN ,m_null,G_X,
+   G_YA2 + general_gl_vsync*8, {"gl_vsync"}},
 
   {"Texture filter", S_CHOICE, m_null, G_X,
    G_YA2 + general_gl_texfilter*8, {"gl_tex_filter_string"}, 0, 0, M_ChangeTextureParams, gltexfilters},

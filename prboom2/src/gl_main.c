@@ -160,6 +160,8 @@ extern int tran_filter_pct;
 
 boolean use_fog=false;
 
+int gl_vsync = true;
+
 int gl_nearclip=5;
 char *gl_tex_filter_string;
 int gl_tex_filter;

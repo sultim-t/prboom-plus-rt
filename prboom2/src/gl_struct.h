@@ -119,4 +119,7 @@ angle_t gld_FrustumAngle(void);
 extern boolean gl_use_stencil;
 sector_t* GetBestFake(sector_t *sector, int ceiling, int validcount);
 
+//vertical sync for GL
+extern int gl_vsync;
+
 #endif // _GL_STRUCT_H

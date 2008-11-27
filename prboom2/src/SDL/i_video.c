@@ -986,7 +986,13 @@ void I_UpdateVideoMode(void)
     SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, gl_colorbuffer_bits );
     SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
     SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 8 );
-    e6y_MultisamplingSet();//e6y
+
+    //e6y: vertical sync
+    SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, (gl_vsync ? 1 : 0));
+
+    //e6y: anti-aliasing
+    e6y_MultisamplingSet();
+
     screen = SDL_SetVideoMode(REAL_SCREENWIDTH, REAL_SCREENHEIGHT, gl_colorbuffer_bits, init_flags);
 #ifdef GL_DOOM
     gld_CheckHardwareGamma();

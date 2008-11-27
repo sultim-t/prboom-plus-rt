@@ -396,6 +396,8 @@ default_t defaults[] =
 
 #ifdef GL_DOOM
   {"OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
+  {"gl_vsync",{&gl_vsync},{1},0,1,
+   def_bool,ss_none},
   {"gl_nearclip",{&gl_nearclip},{5},0,UL,
    def_int,ss_none}, /* near clipping plane pos */
   {"gl_colorbuffer_bits",{&gl_colorbuffer_bits},{16},16,32,
