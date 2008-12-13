@@ -1948,7 +1948,7 @@ void G_Compatibility(void)
     // comp_zombie - prevent dead players triggering stuff
     { lxdoom_1_compatibility, mbf_compatibility },
     // comp_stairs - see p_floor.c
-    { boom_compatibility_compatibility, mbf_compatibility },
+    { boom_202_compatibility, mbf_compatibility },
     // comp_infcheat - FIXME
     { mbf_compatibility, mbf_compatibility },
     // comp_zerotags - allow zero tags in wads */
