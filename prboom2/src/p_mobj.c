@@ -567,8 +567,9 @@ floater:
         // and utter appropriate sound.
 
         mo->player->deltaviewheight = mo->momz>>3;
-        if (mo->health > 0) /* cph - prevent "oof" when dead */
-    S_StartSound (mo, sfx_oof);
+        /* cph - prevent "oof" when dead */
+        if (comp[comp_sound] || mo->health > 0)
+          S_StartSound (mo, sfx_oof);
       }
   mo->momz = 0;
       }
