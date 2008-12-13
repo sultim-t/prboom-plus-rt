@@ -2443,6 +2443,16 @@ static void deh_procText(DEHFILE *fpin, FILE* fpout, char *line)
   boolean found = FALSE;  // to allow early exit once found
   char* line2 = NULL;   // duplicate line for rerouting
 
+  // e6y
+  // Correction for DEHs which swap the values of two strings. For example:
+  // Text 4 4  Text 4 4;   Text 6 6      Text 6 6
+  // BOSSBOS2  BOS2BOSS;   RUNNINSTALKS  STALKSRUNNIN
+  // It corrects buggy behaviour on "All Hell is Breaking Loose" TC
+  // http://www.doomworld.com/idgames/index.php?id=6480
+  static boolean sprnames_state[NUMSPRITES+1];
+  static boolean S_sfx_state[NUMSFX];
+  static boolean S_music_state[NUMMUSIC];
+
   // Ty 04/11/98 - Included file may have NOTEXT skip flag set
   if (includenotext) // flag to skip included deh-style text
     {
@@ -2479,7 +2489,7 @@ static void deh_procText(DEHFILE *fpin, FILE* fpout, char *line)
       i=0;
       while (sprnames[i])  // null terminated list in info.c //jff 3/19/98
         {                                                      //check pointer
-          if (!strnicmp(sprnames[i],inbuffer,fromlen))         //not first char
+          if (!strnicmp(sprnames[i],inbuffer,fromlen) && !sprnames_state[i])         //not first char
             {
               if (fpout) fprintf(fpout,
                                  "Changing name of sprite at index %d from %s to %*s\n",
@@ -2492,6 +2502,9 @@ static void deh_procText(DEHFILE *fpin, FILE* fpout, char *line)
     // CPhipps - fix constness problem
     char *s;
     sprnames[i] = s = strdup(sprnames[i]);
+
+    //e6y: flag the sprite as changed
+    sprnames_state[i] = true;
 
     strncpy(s,&inbuffer[fromlen],tolen);
         }
@@ -2514,13 +2527,17 @@ static void deh_procText(DEHFILE *fpin, FILE* fpout, char *line)
           {
             // avoid short prefix erroneous match
             if (strlen(S_sfx[i].name) != (size_t)fromlen) continue;
-            if (!strnicmp(S_sfx[i].name,inbuffer,fromlen))
+            if (!strnicmp(S_sfx[i].name,inbuffer,fromlen) && !S_sfx_state[i])
               {
                 if (fpout) fprintf(fpout,
                                    "Changing name of sfx from %s to %*s\n",
                                    S_sfx[i].name,usedlen,&inbuffer[fromlen]);
 
                 S_sfx[i].name = strdup(&inbuffer[fromlen]);
+
+                //e6y: flag the SFX as changed
+                S_sfx_state[i] = true;
+
                 found = TRUE;
                 break;  // only one matches, quit early
               }
@@ -2532,13 +2549,17 @@ static void deh_procText(DEHFILE *fpin, FILE* fpout, char *line)
               {
                 // avoid short prefix erroneous match
                 if (strlen(S_music[i].name) != (size_t)fromlen) continue;
-                if (!strnicmp(S_music[i].name,inbuffer,fromlen))
+                if (!strnicmp(S_music[i].name,inbuffer,fromlen) && !S_music_state[i])
                   {
                     if (fpout) fprintf(fpout,
                                        "Changing name of music from %s to %*s\n",
                                        S_music[i].name,usedlen,&inbuffer[fromlen]);
 
                     S_music[i].name = strdup(&inbuffer[fromlen]);
+
+                    //e6y: flag the music as changed
+                    S_music_state[i] = true;
+
                     found = TRUE;
                     break;  // only one matches, quit early
                   }
