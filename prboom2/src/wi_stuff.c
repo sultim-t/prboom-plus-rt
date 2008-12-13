@@ -1255,10 +1255,28 @@ void WI_drawDeathmatchStats(void)
 //
 // Note: The term "Netgame" means a coop game
 //
-static short *cnt_kills;
-static short *cnt_items;
-static short *cnt_secret;
-static short *cnt_frags;
+
+// e6y
+// 'short' => 'int' for cnt_kills, cnt_items and cnt_secret
+//
+// Original sources use 'int' type for cnt_kills instead of 'short'
+// I don't know who have made change of type, but this change
+// leads to desynch  if 'kills' percentage is more than 32767.
+// Actually PrBoom will be in an infinite cycle at calculation of
+// percentage if the player will not press <Use> for acceleration, because
+// the condition (cnt_kills[0] >= (plrs[me].skills * 100) / wbs->maxkills)
+// will be always false in this case.
+//
+// If you will kill 800 monsters on MAP30 on Ultra-Violence skill and
+// will not press <Use>, vanilla will count up to 80000%, but PrBoom
+// will be in infinite cycle of counting:
+// (0, 1, 2, ..., 32766, 32767, -32768, -32767, ..., -1, 0, 1, ...)
+// Negative numbers will not be displayed.
+
+static int *cnt_kills;
+static int *cnt_items;
+static int *cnt_secret;
+static int *cnt_frags;
 static int    dofrags;
 static int    ng_state;
 
