@@ -972,7 +972,9 @@ void I_UpdateVideoMode(void)
   if ( desired_fullscreen )
     init_flags |= SDL_FULLSCREEN;
 
-  if (V_GetMode() == VID_MODEGL) {
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL)
+  {
     SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 0 );
     SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 0 );
     SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 0 );
@@ -994,10 +996,11 @@ void I_UpdateVideoMode(void)
     e6y_MultisamplingSet();
 
     screen = SDL_SetVideoMode(REAL_SCREENWIDTH, REAL_SCREENHEIGHT, gl_colorbuffer_bits, init_flags);
-#ifdef GL_DOOM
     gld_CheckHardwareGamma();
+  }
+  else
 #endif
-  } else {
+  {
     // e6y: processing of screen_multiply
     screen = SDL_SetVideoMode(REAL_SCREENWIDTH, REAL_SCREENHEIGHT, V_GetNumPixelBits(), init_flags);
   }
