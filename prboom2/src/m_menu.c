@@ -3235,7 +3235,7 @@ setup_menu_t comp_settings2[] =  // Compatibility Settings screen #2
   {"Powerup cheats are not infinite duration", S_YESNO, m_null, C_X,
    C_Y + compat_infcheat * COMP_SPC, {"comp_infcheat"}},
 
-  {"Zombie players can exit levels", S_YESNO, m_null, C_X,
+  {"Dead players can exit levels", S_YESNO, m_null, C_X,
    C_Y + compat_zombie * COMP_SPC, {"comp_zombie"}},
 
   {"Sky is unaffected by invulnerability", S_YESNO, m_null, C_X,
