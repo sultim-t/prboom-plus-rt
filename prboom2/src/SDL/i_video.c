@@ -228,7 +228,7 @@ void I_StartTic (void)
   SDL_Event Event;
   {
     boolean should_be_grabbed = mouse_enabled &&
-      !(paused || (gamestate != GS_LEVEL) || demoplayback);
+      !(paused || (gamestate != GS_LEVEL) || demoplayback || menuactive);
 
     if (mouse_currently_grabbed != should_be_grabbed)
       SDL_WM_GrabInput((mouse_currently_grabbed = should_be_grabbed)
