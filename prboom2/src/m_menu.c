@@ -3180,6 +3180,7 @@ enum
   compat_666 = 0,
   compat_soul,
   compat_maskedanim,
+  compat_sound
 };
 
 setup_menu_t comp_settings1[] =  // Compatibility Settings screen #1
@@ -3274,6 +3275,9 @@ setup_menu_t comp_settings3[] =  // Compatibility Settings screen #2
 
   {"2S middle textures do not animate", S_YESNO, m_null, C_X,
    C_Y + compat_maskedanim * COMP_SPC, {"comp_maskedanim"}},
+
+  {"Use exactly Doom's sound code behavior", S_YESNO, m_null, C_X,
+   C_Y + compat_sound * COMP_SPC, {"comp_sound"}},
 
   {"<- PREV", S_SKIP|S_PREV, m_null, KB_PREV, C_Y+C_NEXTPREV,{comp_settings2}},
 
