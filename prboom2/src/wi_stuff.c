@@ -1700,6 +1700,10 @@ void WI_updateStats(void)
           || (par_just && (!modifiedgame || deh_pars)))
         S_StartSound(0, sfx_barexp);
 
+      // Fast-forward total time in old complevels
+      if (compatibility_level < lxdoom_1_compatibility)
+        cnt_total_time = (wbs->totaltimes / TICRATE);
+
       // Only bump state if par timer has actually finished (demosync)
       if (par_done)
       {
