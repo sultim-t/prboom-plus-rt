@@ -1687,11 +1687,16 @@ void WI_updateStats(void)
         && (par_done || (modifiedgame && !deh_pars)))
     {
       S_StartSound(0, sfx_barexp);
-      sp_state++;
-      // Make sure all the counters have reached their targets
-      cnt_time = (plrs[me].stime / TICRATE);
-      cnt_total_time = (wbs->totaltimes / TICRATE);
-      cnt_par = (wbs->partime / TICRATE);
+
+      // Only bump state if par timer has actually finished (demosync)
+      if (par_done)
+      {
+        sp_state++;
+        // Make sure all the counters have reached their targets
+        cnt_time = (plrs[me].stime / TICRATE);
+        cnt_total_time = (wbs->totaltimes / TICRATE);
+        cnt_par = (wbs->partime / TICRATE);
+      }
     }
     // Otherwise, if any of the timers are still going, play gunshots
     else
