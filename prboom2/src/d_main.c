@@ -1177,6 +1177,17 @@ static void D_DoomMainSetup(void)
   DoLooseFiles();  // Ty 08/29/98 - handle "loose" files on command line
   IdentifyVersion();
 
+  // Load prboom.wad after IWAD but before everything else
+  {
+    char *data_wad_path = I_FindFile(PACKAGE ".wad", ".wad");
+
+    if (!data_wad_path)
+      I_Error(PACKAGE ".wad not found - cannot continue");
+
+    D_AddFile(data_wad_path, source_pre);
+    free(data_wad_path);
+  }
+
   // e6y: DEH files preloaded in wrong order
   // http://sourceforge.net/tracker/index.php?func=detail&aid=1418158&group_id=148658&atid=772943
   // The dachaked stuff has been moved below an autoload
