@@ -1688,6 +1688,10 @@ void WI_updateStats(void)
     {
       S_StartSound(0, sfx_barexp);
       sp_state++;
+      // Make sure all the counters have reached their targets
+      cnt_time = (plrs[me].stime / TICRATE);
+      cnt_total_time = (wbs->totaltimes / TICRATE);
+      cnt_par = (wbs->partime / TICRATE);
     }
     // Otherwise, if any of the timers are still going, play gunshots
     else
