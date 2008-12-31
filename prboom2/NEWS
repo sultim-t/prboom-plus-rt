@@ -1,6 +1,21 @@
 This file shows a history of changes between PrBoom versions since v2.1.0.
 For historical reference, the complete LxDoom changelog follows it.
 
+Changes since v2.5.0
+- Fix pistol sounds playing after intermission screen times have finished [prb+]
+- -noload does not stop prboom.wad being loaded, so the game can still run
+- User-autoloaded wad lumps (wadfile_1 etc) override those from prboom.wad
+- prboom.wad not counted as a PWAD so IWAD map par times are displayed [prb+]
+- More useful error message when prboom.wad is not found
+- Mouse is not grabbed when menus are active, so pointer can leave window
+- comp_zombie menu option text changed to better match its effect [prb+]
+- Menu option "Use exactly Doom's sound code behavior" for comp_sound [prb+]
+- Falling dead players make 'oof' sound in compatibility mode [prb+]
+- Fix intermission screen numbers counting up forever [prb+]
+- Allow Dehacked patches to swap strings (fixes allhell.wad) [prb+]
+- Force comp_stairs=1 in Boom "Doom compatibility" mode [prb+]
+- Fix inability to bind mouse buttons to actions from menus (broken in 2.5.0)
+
 Changes from v2.4.7 to v2.5.0
 - Limit the game to one CPU core on a multicore machine [prb+]
 - Fix crash when out-of-range values are used in fixed point arithmetic [prb+]

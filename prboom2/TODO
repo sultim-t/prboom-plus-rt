@@ -1139,43 +1139,43 @@ x   r2426 | Merged r2420:2423 from trunk
 x   r2443 | duplicated code after old merge
 ?   r2444 | global BETWEEN define
 +   r2445 | In PRBoom the player's weapon is displayed much darker than in o
-    r2446 | Boom's colormaps in OpenGL: fix for idbeholdl+idbeholdv
-    r2449 | PrBoom-Plus bug: When radsuit ends, palette changes w/o warning
-    r2450 | When playing back with -recordfromto, and before resuming record
-    r2451 | Issue with lines (boxes) that appear around the elements that ch
-    r2452 | small optimization of gld_InitGLVersion()
-    r2453 | Post-process the texture data after the buffer has been created.
-    r2460 | Fixes to the posix build system:
-    r2462 | Improved support for Doom v1.2
-    r2463 | Reorganization of the code for looking for bex/deh patches in al
-    r2466 | Make "Not all required files are found" more user-friendly
-    r2467 | [-] When a file with the bex extension is used in an autoloading
-    r2468 | Correction for DEHs which swap the values of two strings.
-    r2469 | interpolation for weapon bobbing
-    r2470 | Two-pass method for better usability of automap:
-    r2471 | New command-line switch "-emulate prboom_ver" for emulation of o
-    r2473 | Kills/Items/Secrets percentage reported wrong if too high
-    r2474 | -emulate and -force_* command-line switches work only during dem
-    r2475 | comp_sound has been merged with comp_oofsound and moved to the c
-    r2476 | - "Zombie players can exit levels"
-    r2479 | bugs if USE_VERTEX_ARRAYS not defined
-    r2480 | Add PC speaker code from chocolate-doom
-    r2481 | added pcsound library
-    r2482 | Boom's colormaps in OpenGL: memory leak
-    r2483 | Do not clear video memory after loading on same level
-    r2484 | (f)printf => lprintf in PCSOUND files
-    r2485 | bug introduced in r2482 - wrong indexes were used
-    r2486 | PrBoom bug: Par times are not shown
-    r2487 | Sometimes the pistol sounds that play while the tallies are bein
-    r2488 | Has made compatible my correction of par times (r2486) with "-au
+?!  r2446 | Boom's colormaps in OpenGL: fix for idbeholdl+idbeholdv
+?!  r2449 | PrBoom-Plus bug: When radsuit ends, palette changes w/o warning
+x   r2450 | When playing back with -recordfromto, and before resuming record
+?!  r2451 | Issue with lines (boxes) that appear around the elements that ch
+?!  r2452 | small optimization of gld_InitGLVersion()
+?!  r2453 | Post-process the texture data after the buffer has been created.
+-   r2460 | Fixes to the posix build system:
+-   r2462 | Improved support for Doom v1.2
+-   r2463 | Reorganization of the code for looking for bex/deh patches in al
+x   r2466 | Make "Not all required files are found" more user-friendly
+x   r2467 | [-] When a file with the bex extension is used in an autoloading
++   r2468 | Correction for DEHs which swap the values of two strings.
+-   r2469 | interpolation for weapon bobbing
+-   r2470 | Two-pass method for better usability of automap:
+-   r2471 | New command-line switch "-emulate prboom_ver" for emulation of o
++   r2473 | Kills/Items/Secrets percentage reported wrong if too high
+-   r2474 | -emulate and -force_* command-line switches work only during dem
++   r2475 | comp_sound has been merged with comp_oofsound and moved to the c
++   r2476 | - "Zombie players can exit levels"
+?!  r2479 | bugs if USE_VERTEX_ARRAYS not defined
+-   r2480 | Add PC speaker code from chocolate-doom
+-   r2481 | added pcsound library
+?!  r2482 | Boom's colormaps in OpenGL: memory leak
+?!  r2483 | Do not clear video memory after loading on same level
+-   r2484 | (f)printf => lprintf in PCSOUND files
+?!  r2485 | bug introduced in r2482 - wrong indexes were used
++   r2486 | PrBoom bug: Par times are not shown
++   r2487 | Sometimes the pistol sounds that play while the tallies are bein
+x   r2488 | Has made compatible my correction of par times (r2486) with "-au
     r2489 | fix "-emulation" code
     r2490 | let's show the warning if savegame is from the previous version
     r2491 | has made dynamic changing of gamespeed more smooth
     r2492 | "-force_lxdoom_demo_compatibility" comman-line switch for emulat
-    r2493 | On ExM8 of movie runs, the total time is often displayed wrong.
++   r2493 | On ExM8 of movie runs, the total time is often displayed wrong.
     r2494 | -force_lxdoom_demo_compatibility: there are no more desynchs on
     r2495 | The ultimate 'ATI sucks' fix: Some of ATIs graphics cards are so
-    r2496 | big comment for r2473:
++   r2496 | big comment for r2473:
     r2497 | fix for demoprogressbar with veeeeeeery long demos on high resol
     r2498 | fix compilation problems
     r2499 | gl_render_precise variable for control of the new seamless code
@@ -1408,7 +1408,7 @@ x   r2443 | duplicated code after old merge
     r2784 | Fixed crash in case if WI_drawOnLnode will try to get access to
     r2785 | Added demo compatibility with chex.exe
     r2786 | The latest column of patches was not drawn. Introduced in r2779
-    r2787 | The level of compatibility at which fix for comp_stairs should b
++   r2787 | The level of compatibility at which fix for comp_stairs should b
     r2788 | fixed stupid mistake in chex stuff (r2785)
     r2789 | key_setup was not saved in cfg
     r2790 | detection of more unsupported demo formats
@@ -1453,7 +1453,7 @@ x   r2443 | duplicated code after old merge
 +   r2831 | I_SetAffinityMask() has moved to i_main.c from e6y.c
 +   r2832 | Fix compilation on *nix
     r2833 | Eating of Alt-Tab event to prevent switching to the automap afte
-    r2834 | Stupid bug in deh processing. Thanks Death-Destiny for the hint
++   r2834 | Stupid bug in deh processing. Thanks Death-Destiny for the hint
     r2835 | Fixed old bug in searching responsefile.
     r2836 | fixed crash with @responsefile
     r2837 | change log for 2.4.8.5
