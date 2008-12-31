@@ -1174,6 +1174,8 @@ static void D_DoomMainSetup(void)
     forceOldBsp = true;
   }
 
+  D_BuildBEXTables(); // haleyjd
+
   DoLooseFiles();  // Ty 08/29/98 - handle "loose" files on command line
   IdentifyVersion();
 
@@ -1445,8 +1447,6 @@ static void D_DoomMainSetup(void)
   // the deh patch author that this is actually part of the EXE itself
   // Using -deh in BOOM, others use -dehacked.
   // Ty 03/18/98 also allow .bex extension.  .bex overrides if both exist.
-
-  D_BuildBEXTables(); // haleyjd
 
   p = M_CheckParm ("-deh");
   if (p)
