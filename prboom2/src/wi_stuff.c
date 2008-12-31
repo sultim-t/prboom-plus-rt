@@ -1668,30 +1668,32 @@ void WI_updateStats(void)
   }
   else if (sp_state == 8)
   {
-    if (!(bcnt&3))
-      S_StartSound(0, sfx_pistol);
+    int time_done, total_done, par_done; // finished counting?
 
-    cnt_time += 3;
+#define UPDATE_COUNT(count, inc, target, done) \
+    (count) += (inc); \
+    (done) = ((count) >= (target)); \
+    if ((done)) (count) = (target);
 
-    if (cnt_time >= plrs[me].stime / TICRATE)
-      cnt_time = plrs[me].stime / TICRATE;
+    UPDATE_COUNT(cnt_time, 3, (plrs[me].stime / TICRATE), time_done);
+    UPDATE_COUNT(cnt_total_time, 3, (wbs->totaltimes / TICRATE), total_done);
+    UPDATE_COUNT(cnt_par, 3, (wbs->partime / TICRATE), par_done);
+#undef UPDATE_COUNT
 
-    cnt_total_time += 3;
-
-    if (cnt_total_time >= wbs->totaltimes / TICRATE)
-      cnt_total_time = wbs->totaltimes / TICRATE;
-
-    cnt_par += 3;
-
-    if (cnt_par >= wbs->partime / TICRATE)
+    // If all three timers are finished, play explosion and bump state
+    // Ignore total time or par time if not counted or displayed
+    if (time_done
+        && (total_done || compatibility_level < lxdoom_1_compatibility)
+        && (par_done || (modifiedgame && !deh_pars)))
     {
-      cnt_par = wbs->partime / TICRATE;
-
-      if ((cnt_time >= plrs[me].stime / TICRATE) && (compatibility_level < lxdoom_1_compatibility || cnt_total_time >= wbs->totaltimes / TICRATE))
-      {
-        S_StartSound(0, sfx_barexp);
-        sp_state++;
-      }
+      S_StartSound(0, sfx_barexp);
+      sp_state++;
+    }
+    // Otherwise, if any of the timers are still going, play gunshots
+    else
+    {
+      if (!(bcnt&3))
+        S_StartSound(0, sfx_pistol);
     }
   }
   else if (sp_state == 10)
