@@ -1669,15 +1669,23 @@ void WI_updateStats(void)
   else if (sp_state == 8)
   {
     int time_done, total_done, par_done; // finished counting?
+    int time_just, total_just, par_just; // _just_ finished counting?
 
-#define UPDATE_COUNT(count, inc, target, done) \
+    // Test if counter is below target, then increment, and test again
+    // If the first is false and the second true, we've just gone over
+#define UPDATE_COUNT(count, inc, target, done, just) \
+    (just) = ((count) >= (target)); \
     (count) += (inc); \
     (done) = ((count) >= (target)); \
+    (just) = (!(just) && (done)); \
     if ((done)) (count) = (target);
 
-    UPDATE_COUNT(cnt_time, 3, (plrs[me].stime / TICRATE), time_done);
-    UPDATE_COUNT(cnt_total_time, 3, (wbs->totaltimes / TICRATE), total_done);
-    UPDATE_COUNT(cnt_par, 3, (wbs->partime / TICRATE), par_done);
+    UPDATE_COUNT(cnt_time, 3, (plrs[me].stime / TICRATE),
+        time_done, time_just);
+    UPDATE_COUNT(cnt_total_time, 3, (wbs->totaltimes / TICRATE),
+        total_done, total_just);
+    UPDATE_COUNT(cnt_par, 3, (wbs->partime / TICRATE),
+        par_done, par_just);
 #undef UPDATE_COUNT
 
     // If all three timers are finished, play explosion and bump state
@@ -1686,7 +1694,11 @@ void WI_updateStats(void)
         && (total_done || compatibility_level < lxdoom_1_compatibility)
         && (par_done || (modifiedgame && !deh_pars)))
     {
-      S_StartSound(0, sfx_barexp);
+      // Only play explosion once when counter has just finished
+      if (time_just
+          || (total_just && compatibility_level >= lxdoom_1_compatibility)
+          || (par_just && (!modifiedgame || deh_pars)))
+        S_StartSound(0, sfx_barexp);
 
       // Only bump state if par timer has actually finished (demosync)
       if (par_done)
