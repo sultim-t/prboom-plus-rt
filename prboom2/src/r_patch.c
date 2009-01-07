@@ -349,6 +349,9 @@ static void createPatch(int id) {
       prevColumn = R_GetPatchColumnClamped(patch, x-1);
 
       if (column->pixels[0] == 0xff) {
+        // e6y: marking of all patches with holes
+        patch->flags |= PATCH_HASHOLES;
+
         // force the first pixel (which is a hole), to use
         // the color from the next solid spot in the column
         for (y=0; y<patch->height; y++) {
@@ -366,7 +369,7 @@ static void createPatch(int id) {
 
         // this pixel is a hole
 
-        //e6y
+        // e6y: marking of all patches with holes
         patch->flags |= PATCH_HASHOLES;
 
         if (x && prevColumn->pixels[y-1] != 0xff) {
@@ -679,6 +682,9 @@ static void createTextureCompositePatch(int id) {
       prevColumn = R_GetPatchColumnClamped(composite_patch, x-1);
 
       if (column->pixels[0] == 0xff) {
+        // e6y: marking of all patches with holes
+        composite_patch->flags |= PATCH_HASHOLES;
+
         // force the first pixel (which is a hole), to use
         // the color from the next solid spot in the column
         for (y=0; y<composite_patch->height; y++) {
@@ -696,7 +702,7 @@ static void createTextureCompositePatch(int id) {
 
         // this pixel is a hole
 
-        //e6y
+        // e6y: marking of all patches with holes
         composite_patch->flags |= PATCH_HASHOLES;
 
         if (x && prevColumn->pixels[y-1] != 0xff) {
