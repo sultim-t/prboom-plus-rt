@@ -3255,6 +3255,21 @@ void G_DoPlayDemo(void)
   ExtractFileBase(defdemoname,basename);           // killough
   basename[8] = 0;
 
+  // e6y
+  // Do not exit if corresponding demo lump is not found.
+  // It makes sense for Plutonia and TNT IWADs, which have no DEMO4 lump,
+  // but DEMO4 should be in a demo cycle as real Plutonia and TNT have.
+  //
+  // Plutonia/Tnt executables exit with "W_GetNumForName: DEMO4 not found"
+  // message after playing of DEMO3, because DEMO4 is not present
+  // in the corresponding IWADs.
+  if (W_CheckNumForName(basename) < 0)
+  {
+    gameaction = ga_nothing;
+    usergame = false;
+    return;
+  }
+
   /* cph - store lump number for unlocking later */
   demolumpnum = W_GetNumForName(basename);
   demobuffer = W_CacheLumpNum(demolumpnum);

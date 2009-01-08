@@ -565,7 +565,10 @@ static struct
     {
       {NULL},
       {NULL},
-      {NULL},
+      // e6y
+      // Both Plutonia and TNT are commercial like Doom2,
+      // but in difference from  Doom2, they have demo4 in demo cycle.
+      {G_DeferedPlayDemo, "demo4"},
       {D_SetPageName, "CREDIT"},
     },
 
