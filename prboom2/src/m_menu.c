@@ -659,10 +659,6 @@ static void M_VerifyNightmare(int ch)
   if (ch != 'y')
     return;
 
-  //jff 3/24/98 remember last skill selected
-  // killough 10/98 moved to here
-  defaultskill = nightmare+1;
-
   G_DeferedInitNew(nightmare,epi+1,1);
   M_ClearMenus ();
 }
@@ -674,10 +670,6 @@ void M_ChooseSkill(int choice)
       M_StartMessage(s_NIGHTMARE,M_VerifyNightmare,true);
       return;
     }
-
-  //jff 3/24/98 remember last skill selected
-  // killough 10/98 moved to here
-  defaultskill = choice+1;
 
   G_DeferedInitNew(choice,epi+1,1);
   M_ClearMenus ();
@@ -3088,11 +3080,17 @@ enum {
 enum {
   general_corpse,
   general_realtic,
+  general_defskill,
 };
 
 #define G_YB  44
 #define G_YB1 (G_YB+44)
 #define G_YB2 (G_YB1+52)
+
+static const char *gen_skillstrings[] = {
+  // Dummy first option because defaultskill is 1-based
+  "", "ITYTD", "HNTR", "HMP", "UV", "NM", NULL
+};
 
 setup_menu_t gen_settings2[] = { // General Settings screen2
 
@@ -3130,6 +3128,9 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
   {"Smooth Demo Playback Factor", S_NUM, m_null, G_X,
    G_YB2 + general_smoothfactor*8, {"demo_smoothturnsfactor"}, 0, 0, M_ChangeDemoSmoothTurns},
  */
+
+  {"Default skill level", S_CHOICE, m_null, G_X,
+    G_YB2 + general_defskill*8, {"default_skill"}, 0, 0, NULL, gen_skillstrings},
 
   {"<- PREV",S_SKIP|S_PREV, m_null, KB_PREV, KB_Y+20*8, {gen_settings1}},
 
