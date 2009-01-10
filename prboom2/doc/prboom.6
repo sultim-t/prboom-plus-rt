@@ -11,7 +11,7 @@ prboom \- PrBoom, a version of Doom for Unix, Linux and Windows systems
 .BR
 [\| \-loadgame {0,1,2,3,4,5,6,7} \|] [\| \-warp { \fImap\fR | \fIepis level\fR } \-skill {1,2,3,4,5} \|]
 .BR
-[\| {\-fastdemo,\-timedemo,\-playdemo} \fIdemofile\fR [\| \-ffmap \fInum\fR \|] \|] [\| \-record \fIdemofile\fR \|] [\| \-solonet \|]
+[\| {\-fastdemo,\-timedemo,\-playdemo} \fIdemofile\fR [\| \-ffmap \fInum\fR \|] \|] [\| \-record \fIdemofile\fR \|] [\| \-solo-net | \-net1 \|]
 .BR
 [\| \-net \fIhostname\fR[\|:\fIport\fR\|] \|]
 [\| \-deathmatch [\| \-altdeath \|] \|] [\| { \-timer \fImins\fR | \-avg }\|] \|]
@@ -144,10 +144,12 @@ a netgame. Not really useful for single play.
 .BI \-avg
 Equivalent to \fB-timer 20\fP
 .TP
-.BI \-solo-net
+.BI \-solo-net\ |\ \-net1
 Used to run a single-player network game, without a network game server. This
 enables network game items & options for an otherwise single-player game; some
 demos are recorded like this.
+
+\-net1 is an alias for \-solo-net.
 .SH Demo (LMP) Options
 .TP
 .BI \-record\  demofile

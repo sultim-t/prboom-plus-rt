@@ -497,11 +497,11 @@ SYNOPSIS
        [ -file wad1 ... ]  [  -deh  deh_file  ]  [  -noload  ]    [  -loadgame
        {0,1,2,3,4,5,6,7}  ] [ -warp { map | epis level } -skill {1,2,3,4,5} ]
        [ {-fastdemo,-timedemo,-playdemo} demofile [ -ffmap num ] ]  [  -record
-       demofile ] [ -solonet ]  [ -net hostname[:port] ] [ -deathmatch [ -alt-
-       death ] ] [ { -timer mins | -avg }] ]  [ -nosound ] [ -nosfx ] [ -nomu-
-       sic] [ -nojoy ] [ -nomouse ] [ -noaccel ] [ -nodraw ]  [ -config myconf
-       ] [ -save savedir ]  [ -bexout bexdbg ] [  -debugfile  debug_file  ]  [
-       -devparm ] [ -noblit ] [ -nodrawers ]
+       demofile  ]  [  -solo-net | -net1 ]  [ -net hostname[:port] ] [ -death-
+       match [ -altdeath ] ] [ { -timer mins | -avg }]  ]    [  -nosound  ]  [
+       -nosfx  ] [ -nomusic] [ -nojoy ] [ -nomouse ] [ -noaccel ] [ -nodraw ]
+       [ -config myconf ] [ -save savedir ]  [ -bexout bexdbg ]  [  -debugfile
+       debug_file ] [ -devparm ] [ -noblit ] [ -nodrawers ]
 
 DESCRIPTION
        PrBoom  is a version of the 3D shoot'em'up Doom, originally by iD soft-
@@ -622,10 +622,12 @@ Multiplayer Options
 
        -avg   Equivalent to -timer 20
 
-       -solo-net
+       -solo-net | -net1
               Used to run a single-player network game, without a network game
               server.  This enables network game items & options for an other-
               wise single-player game; some demos are recorded like this.
+
+              -net1 is an alias for -solo-net.
 
 Demo (LMP) Options
        -record demofile

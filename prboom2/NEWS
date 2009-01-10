@@ -2,6 +2,7 @@ This file shows a history of changes between PrBoom versions since v2.1.0.
 For historical reference, the complete LxDoom changelog follows it.
 
 Changes since v2.5.0
+- Restore -net1 as an alias for -solo-net
 - Fix pistol sounds playing after intermission screen times have finished [prb+]
 - -noload does not stop prboom.wad being loaded, so the game can still run
 - User-autoloaded wad lumps (wadfile_1 etc) override those from prboom.wad
