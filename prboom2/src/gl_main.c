@@ -524,6 +524,11 @@ void gld_InitTextureParams(void)
   use_mipmapping = false;
 #endif
 
+  if (gl_color_mip_levels)
+  {
+    gl_tex_format=GL_RGBA;
+  }
+  else
   if (!strcasecmp(gl_tex_format_string,"GL_RGBA8"))
   {
     gl_tex_format=GL_RGBA8;

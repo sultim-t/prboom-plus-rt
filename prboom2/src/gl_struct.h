@@ -94,6 +94,9 @@ void gld_DrawScene(player_t *player);
 void gld_EndDrawScene(void);
 void gld_Finish();
 
+//stuff
+extern int gl_color_mip_levels;
+
 // wipe
 int gld_wipe_doMelt(int ticks, int *y_lookup);
 int gld_wipe_exitMelt(int ticks);

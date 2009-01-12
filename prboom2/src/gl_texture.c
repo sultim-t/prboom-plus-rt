@@ -80,6 +80,9 @@ int gl_tex_format=GL_RGB5_A1;
 //int gl_tex_format=GL_RGBA4;
 //int gl_tex_format=GL_RGBA2;
 
+// e6y: development aid to see texture mip usage
+int gl_color_mip_levels;
+
 int gl_boom_colormaps = -1;
 int gl_boom_colormaps_default;
 
@@ -602,6 +605,48 @@ GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap, boolean force)
   return gltexture;
 }
 
+// e6y: from Quake3
+// R_BlendOverTexture
+// Apply a color blend over a set of pixels
+static void R_BlendOverTexture(byte *data, int pixelCount, byte blend[4])
+{
+  int i;
+  int inverseAlpha;
+  int premult[3];
+
+  inverseAlpha = 255 - blend[3];
+  premult[0] = blend[0] * blend[3];
+  premult[1] = blend[1] * blend[3];
+  premult[2] = blend[2] * blend[3];
+
+  for(i = 0; i < pixelCount; i++, data += 4)
+  {
+    data[0] = (data[0] * inverseAlpha + premult[0]) >> 9;
+    data[1] = (data[1] * inverseAlpha + premult[1]) >> 9;
+    data[2] = (data[2] * inverseAlpha + premult[2]) >> 9;
+  }
+}
+
+byte	mipBlendColors[16][4] =
+{
+  {0,0,0,0},
+  {255,0,0,128},
+  {0,255,0,128},
+  {0,0,255,128},
+  {255,0,0,128},
+  {0,255,0,128},
+  {0,0,255,128},
+  {255,0,0,128},
+  {0,255,0,128},
+  {0,0,255,128},
+  {255,0,0,128},
+  {0,255,0,128},
+  {0,0,255,128},
+  {255,0,0,128},
+  {0,255,0,128},
+  {0,0,255,128},
+};
+
 int gld_BuildTexture(GLTexture *gltexture, 
                      void *data, int pitch, int width, int height,
                      unsigned char **out_buf, int *out_bufsize,
@@ -621,6 +666,29 @@ int gld_BuildTexture(GLTexture *gltexture,
   {
     gluBuild2DMipmaps(GL_TEXTURE_2D, gl_tex_format,
       width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+    //e6y: development aid to see texture mip usage
+    if (gl_color_mip_levels)
+    {
+      int w, h, miplevel;
+      static unsigned char *buf = NULL;
+
+      if (!buf)
+      {
+        buf = malloc(gld_max_texturesize * gld_max_texturesize * 4);
+      }
+
+      w = width;
+      h = height;
+
+      for (miplevel = 0; miplevel < 16 && w > 0 && h > 0; miplevel++, w >>= 1, h >>= 1)
+      {
+        glGetTexImage(GL_TEXTURE_2D, miplevel, gl_tex_format, GL_UNSIGNED_BYTE, buf);
+        R_BlendOverTexture((byte *)buf, w * h, mipBlendColors[miplevel]);
+        glTexImage2D( GL_TEXTURE_2D, miplevel, gl_tex_format, w, h,
+          0, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+      }
+    }
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);

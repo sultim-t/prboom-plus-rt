@@ -854,6 +854,8 @@ default_t defaults[] =
    def_int,ss_stat},
   {"useglgamma",{&useglgamma},{6},0,MAX_GLGAMMA,
    def_int,ss_none},
+  {"gl_color_mip_levels", {&gl_color_mip_levels},  {0},0,1,
+   def_bool,ss_stat},
 #endif
   {"Prboom-plus emulation settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"overrun_spechit_warn", {&overrun_spechit_warn},  {0},0,1,
