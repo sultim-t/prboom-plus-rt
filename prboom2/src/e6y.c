@@ -659,26 +659,17 @@ void M_ChangeAllowBoomColormaps(void)
 {
   if (gl_boom_colormaps == -1)
     gl_boom_colormaps = gl_boom_colormaps_default;
-  
-  if (gl_boom_colormaps_default)
-  {
-    gl_texture_usehires_default = false;
-    gl_patch_usehires_default = false;
-  }
 }
 
 void M_ChangeTextureUseHires(void)
 {
   extern setup_menu_t gen_settings6[];
 
-  if (gl_texture_usehires == -1)
-    gl_texture_usehires = gl_texture_usehires_default;
+  if (gl_texture_external_hires == -1)
+    gl_texture_external_hires = gl_texture_external_hires_default;
 
-  if (gl_patch_usehires == -1)
-    gl_patch_usehires = gl_patch_usehires_default;
-
-  if (gl_texture_usehires_default || gl_patch_usehires_default)
-    gl_boom_colormaps_default = false;
+  if (gl_texture_internal_hires == -1)
+    gl_texture_internal_hires = gl_texture_internal_hires_default;
 }
 
 void M_ChangeLightMode(void)

@@ -312,12 +312,23 @@ void gld_ResetLastTexture(void);
 
 PFNGLCOLORTABLEEXTPROC gld_ColorTableEXT;
 
+int gld_BuildTexture(GLTexture *gltexture, 
+                            void *data, int pitch, int width, int height,
+                            unsigned char **out_buf, int *out_bufsize,
+                            int *out_width, int *out_height);
+
 //hires
+extern int gl_usehires;
+void gld_PrecacheGLTexture(GLTexture *gltexture);
+void gld_InitHiRes(void);
 int gld_LoadHiresTex(GLTexture *gltexture, int *glTexID, int cm);
 GLuint CaptureScreenAsTexID(void);
 void gld_ProgressUpdate(char * text, int progress, int total);
 int gld_ProgressStart(void);
 int gld_ProgressEnd(void);
+
+//FBO
+void gld_InitFBO(void);
 
 //motion bloor
 extern int gl_motionblur;

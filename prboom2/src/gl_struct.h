@@ -101,10 +101,10 @@ int gld_wipe_StartScreen(void);
 int gld_wipe_EndScreen(void);
 
 // hires
-extern int gl_texture_usehires;
-extern int gl_texture_usehires_default;
-extern int gl_patch_usehires;
-extern int gl_patch_usehires_default;
+extern int gl_texture_external_hires;
+extern int gl_texture_external_hires_default;
+extern int gl_texture_internal_hires;
+extern int gl_texture_internal_hires_default;
 extern int gl_hires_override_pwads;
 extern char *gl_texture_hires_dir;
 int gld_PrecachePatches(void);

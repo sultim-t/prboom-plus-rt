@@ -63,13 +63,19 @@
 char* strlwr(char* str);
 #endif
 
-int gl_texture_usehires = -1;
-int gl_texture_usehires_default;
-int gl_patch_usehires = -1;
-int gl_patch_usehires_default;
+int gl_usehires = 0;
+int gl_texture_external_hires = -1;
+int gl_texture_external_hires_default;
+int gl_texture_internal_hires = -1;
+int gl_texture_internal_hires_default;
 int gl_hires_override_pwads;
 char *gl_texture_hires_dir = NULL;
 
+static const char* gld_HiRes_GetInternalName(GLTexture *gltexture);
+static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char *dds_path);
+static void gld_HiRes_Bind(GLTexture *gltexture, int *glTexID);
+static int gld_HiRes_LoadInternal(GLTexture *gltexture, int *glTexID);
+static int gld_HiRes_LoadExternal(GLTexture *gltexture, int *glTexID);
 
 #define DDRAW_H_MAKEFOURCC(ch0, ch1, ch2, ch3) \
   ((unsigned long)(unsigned char)(ch0) | ((unsigned long)(unsigned char)(ch1) << 8) | \
@@ -291,37 +297,35 @@ GLGenericImage * ReadDDSFile(const char *filename, int * bufsize, int * numMipma
 
 static SDL_PixelFormat RGBAFormat;
 
-static void gld_InitHiresTex(void)
-{
-  static boolean first = true;
-
-  if (first)
-  {
-    first = false;
-
-    //Init RGBAFormat
-    RGBAFormat.palette = 0;
-    RGBAFormat.colorkey = 0;
-    RGBAFormat.alpha = 0;
-    RGBAFormat.BitsPerPixel = 32;
-    RGBAFormat.BytesPerPixel = 4;
-  #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    RGBAFormat.Rmask = 0xFF000000; RGBAFormat.Rshift = 0; RGBAFormat.Rloss = 0;
-    RGBAFormat.Gmask = 0x00FF0000; RGBAFormat.Gshift = 8; RGBAFormat.Gloss = 0;
-    RGBAFormat.Bmask = 0x0000FF00; RGBAFormat.Bshift = 16; RGBAFormat.Bloss = 0;
-    RGBAFormat.Amask = 0x000000FF; RGBAFormat.Ashift = 24; RGBAFormat.Aloss = 0;
-  #else
-    RGBAFormat.Rmask = 0x000000FF; RGBAFormat.Rshift = 24; RGBAFormat.Rloss = 0;
-    RGBAFormat.Gmask = 0x0000FF00; RGBAFormat.Gshift = 16; RGBAFormat.Gloss = 0;
-    RGBAFormat.Bmask = 0x00FF0000; RGBAFormat.Bshift = 8; RGBAFormat.Bloss = 0;
-    RGBAFormat.Amask = 0xFF000000; RGBAFormat.Ashift = 0; RGBAFormat.Aloss = 0;
-  #endif
-  }
-}
-
 #endif // HAVE_LIBSDL_IMAGE
 
-static int gld_HiresGetTextureName(GLTexture *gltexture, char *img_path, char *dds_path)
+static const char* gld_HiRes_GetInternalName(GLTexture *gltexture)
+{
+  static char texname[9];
+  char *texname_p = NULL;
+
+  switch (gltexture->textype)
+  {
+  case GLDT_TEXTURE:
+    texname_p = textures[gltexture->index]->name;
+    break;
+  case GLDT_FLAT:
+  case GLDT_PATCH:
+    texname_p = lumpinfo[gltexture->index].name;
+    break;
+  }
+
+  if (!texname_p)
+    return NULL;
+
+  strncpy(texname, texname_p, 8);
+  texname[8] = 0;
+  strlwr(texname);
+
+  return texname;
+}
+
+static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char *dds_path)
 {
   typedef struct hires_path_item_s
   {
@@ -472,9 +476,8 @@ static int gld_HiresGetTextureName(GLTexture *gltexture, char *img_path, char *d
   hires_path_item_t *checklist = NULL;
   GLTexType useType = gltexture->textype;
 
-  boolean supported =
-    (gl_texture_usehires && ((useType == GLDT_TEXTURE) || (useType == GLDT_FLAT))) ||
-    (gl_patch_usehires && (useType == GLDT_PATCH));
+  boolean supported = (gl_texture_external_hires && 
+    ((useType == GLDT_TEXTURE) || (useType == GLDT_FLAT) || (useType == GLDT_PATCH)));
 
   img_path[0] = '\0';
   dds_path[0] = '\0';
@@ -611,8 +614,10 @@ static int gld_HiresGetTextureName(GLTexture *gltexture, char *img_path, char *d
   return false;
 }
 
-static void gld_BindHiresItem(GLTexture *gltexture, int *glTexID)
+static void gld_HiRes_Bind(GLTexture *gltexture, int *glTexID)
 {
+  gl_usehires = true;
+
   gltexture->flags |= GLTEXTURE_HIRES;
 
   if (gltexture->textype == GLDT_PATCH)
@@ -627,9 +632,46 @@ static void gld_BindHiresItem(GLTexture *gltexture, int *glTexID)
   glBindTexture(GL_TEXTURE_2D, *glTexID);
 }
 
-static int gld_LoadHiresItem(GLTexture *gltexture,
-                             const char *img_path, const char *dds_path,
-                             int *glTexID, int cm)
+static int gld_HiRes_LoadInternal(GLTexture *gltexture, int *glTexID)
+{
+  int result = false;
+  const char *lumpname;
+
+  lumpname = gld_HiRes_GetInternalName(gltexture);
+
+  if (lumpname)
+  {
+    int lump = (W_CheckNumForName)(lumpname, ns_hires);
+    if (lump != -1)
+    {
+      SDL_RWops *rw_data = SDL_RWFromMem((void*)W_CacheLumpNum(lump), W_LumpLength(lump));
+      SDL_Surface *surf_tmp = IMG_Load_RW(rw_data, true);
+
+      if (surf_tmp)
+      {
+        SDL_Surface *surf = SDL_ConvertSurface(surf_tmp, &RGBAFormat, surf_tmp->flags);
+        SDL_FreeSurface(surf_tmp);
+
+        if (surf)
+        {
+          gld_GammaCorrect(surf->pixels, surf->pitch * surf->h);
+
+          gld_HiRes_Bind(gltexture, glTexID);
+
+          result = gld_BuildTexture(gltexture, 
+            surf->pixels, surf->pitch, surf->w, surf->h,
+            NULL, NULL, NULL, NULL);
+
+          SDL_FreeSurface(surf);
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
+static int gld_HiRes_LoadExternal(GLTexture *gltexture, int *glTexID)
 {
   int result = false;
 
@@ -638,8 +680,9 @@ static int gld_LoadHiresItem(GLTexture *gltexture,
   int tex_width, tex_height, tex_buffer_size;
   unsigned char *tex_buffer = NULL;
 
-  boolean img_present = strlen(img_path) > 4;
-  boolean dds_present = strlen(dds_path) > 4;
+  char img_path[PATH_MAX];
+  char dds_path[PATH_MAX];
+  boolean img_present, dds_present;
   
   char cache_filename[PATH_MAX];
   FILE *cachefp = NULL;
@@ -649,10 +692,14 @@ static int gld_LoadHiresItem(GLTexture *gltexture,
 
   struct stat tex_stat;
 
-  if (!img_present && !dds_present)
-  {
+  if (!gld_HiRes_GetExternalName(gltexture, img_path, dds_path))
     return false;
-  }
+
+  img_present = strlen(img_path) > 4;
+  dds_present = strlen(dds_path) > 4;
+
+  if (!img_present && !dds_present)
+    return false;
 
   if (GLEXT_glCompressedTexImage2DARB && dds_present)
   {
@@ -668,7 +715,7 @@ static int gld_LoadHiresItem(GLTexture *gltexture,
       {
         int i, offset, size, blockSize;
 
-        gld_BindHiresItem(gltexture, glTexID);
+        gld_HiRes_Bind(gltexture, glTexID);
 
         offset = 0;
         blockSize = (ddsimage->format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
@@ -752,12 +799,12 @@ static int gld_LoadHiresItem(GLTexture *gltexture,
         {
           tex_buffer_size = tex_width * tex_height * 4;
 
-          tex_buffer = Z_Malloc(tex_buffer_size, PU_STATIC, 0);
+          tex_buffer = malloc(tex_buffer_size);
           if (tex_buffer)
           {
             if (fread(tex_buffer, tex_buffer_size, 1, cachefp) == 1)
             {
-              gld_BindHiresItem(gltexture, glTexID);
+              gld_HiRes_Bind(gltexture, glTexID);
 
               gld_GammaCorrect(tex_buffer, gltexture->buffer_size);
 
@@ -765,9 +812,14 @@ static int gld_LoadHiresItem(GLTexture *gltexture,
                 tex_width, tex_height,
                 0, GL_RGBA, GL_UNSIGNED_BYTE, tex_buffer);
 
+              glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+              glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+              glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
+              glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
+
               cache_read_ok = true;
             }
-            Z_Free(tex_buffer);
+            free(tex_buffer);
           }
         }
       }
@@ -778,13 +830,11 @@ static int gld_LoadHiresItem(GLTexture *gltexture,
 #ifdef HAVE_LIBSDL_IMAGE
   if (!cache_read_ok)
   {
-    gld_InitHiresTex();
-
     surf_tmp = IMG_Load(img_path);
 
     if (!surf_tmp)
     {
-      lprintf(LO_ERROR, "gld_LoadHiresItem: ");
+      lprintf(LO_ERROR, "gld_HiRes_LoadExternal: ");
       lprintf(LO_ERROR, SDL_GetError());
       lprintf(LO_ERROR, "\n");
       return false;
@@ -796,119 +846,33 @@ static int gld_LoadHiresItem(GLTexture *gltexture,
     if (!surf)
       return false;
 
-    gld_BindHiresItem(gltexture, glTexID);
-
-    tex_width  = gld_GetTexDimension(surf->w);
-    tex_height = gld_GetTexDimension(surf->h);
-    tex_buffer_size = tex_width * tex_height * 4;
-
     gld_GammaCorrect(surf->pixels, surf->pitch * surf->h);
 
-#ifdef USE_GLU_MIPMAP
-    if (gltexture->mipmap & use_mipmapping)
-    {
-      gluBuild2DMipmaps(GL_TEXTURE_2D, gl_tex_format,
-        surf->w, surf->h,
-        imageformats[surf->format->BytesPerPixel],
-        GL_UNSIGNED_BYTE, surf->pixels);
+    gld_HiRes_Bind(gltexture, glTexID);
 
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_mipmap_filter);
-      if (gl_use_texture_filter_anisotropic)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)(1<<gl_texture_filter_anisotropic));
+    result = gld_BuildTexture(gltexture, 
+      surf->pixels, surf->pitch, surf->w, surf->h,
+      &tex_buffer, &tex_buffer_size, &tex_width, &tex_height);
 
-      result = true;
-      goto l_exit;
-    }
-    else
-#endif // USE_GLU_MIPMAP
+    if (tex_buffer && (cache_write || !cache_read_ok))
     {
-#ifdef USE_GLU_IMAGESCALE
-      if ((surf->w != tex_width) || (surf->h != tex_height))
+      cachefp = fopen(cache_filename, "wb");
+      if (cachefp)
       {
-        tex_buffer = Z_Malloc(tex_buffer_size, PU_STATIC, 0);
-        if (!tex_buffer)
-        {
-          result = false;
-          goto l_exit;
-        }
-
-        gluScaleImage(GL_RGBA,
-          surf->w, surf->h,
-          GL_UNSIGNED_BYTE, surf->pixels,
-          tex_width, tex_height,
-          GL_UNSIGNED_BYTE, tex_buffer);
-
-        if (cache_write || !cache_read_ok)
-        {
-          cachefp = fopen(cache_filename, "wb");
-          if (cachefp)
-          {
-            fwrite(&tex_width, sizeof(tex_width), 1, cachefp);
-            fwrite(&tex_height, sizeof(tex_height), 1, cachefp);
-            fwrite(&tex_stat.st_mtime, sizeof(tex_stat.st_mtime), 1, cachefp);
-            fwrite(tex_buffer, tex_buffer_size, 1, cachefp);
-            fclose(cachefp);
-          }
-        }
-
-        glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
-          tex_width, tex_height,
-          0, GL_RGBA, GL_UNSIGNED_BYTE, tex_buffer);
-        
-        Z_Free(tex_buffer);
+        fwrite(&tex_width, sizeof(tex_width), 1, cachefp);
+        fwrite(&tex_height, sizeof(tex_height), 1, cachefp);
+        fwrite(&tex_stat.st_mtime, sizeof(tex_stat.st_mtime), 1, cachefp);
+        fwrite(tex_buffer, tex_buffer_size, 1, cachefp);
+        fclose(cachefp);
       }
-      else
-#endif // USE_GLU_IMAGESCALE
-      {
-        if ((surf->w != tex_width) || (surf->h != tex_height))
-        {
-          if (surf->w == tex_width)
-          {
-            tex_buffer = (unsigned char*)Z_Malloc(tex_buffer_size, PU_STATIC, 0);
-            memcpy(tex_buffer, surf->pixels, surf->w * surf->h * 4);
-          }
-          else
-          {
-            int y;
-            tex_buffer = Z_Calloc(1, tex_buffer_size, PU_STATIC, 0);
-            for (y = 0; y < surf->h; y++)          
-            {
-              memcpy(tex_buffer + y * tex_width * 4,
-                ((unsigned char*)surf->pixels) + y * surf->w * 4, surf->w * 4);
-            }
-          }
-        }
-        else
-        {
-          tex_buffer = surf->pixels;
-        }
-        
-        if (gl_paletted_texture) {
-          gld_SetTexturePalette(GL_TEXTURE_2D);
-          glTexImage2D( GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT,
-            tex_width, tex_height,
-            0, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, tex_buffer);
-        } else {
-          glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
-            tex_width, tex_height,
-            0, GL_RGBA, GL_UNSIGNED_BYTE, tex_buffer);
-        }
 
-        if ((surf->w != tex_width) || (surf->h != tex_height))
-          Z_Free(tex_buffer);
+      if (tex_buffer != surf->pixels)
+      {
+        free(tex_buffer);
       }
     }
   }
 #endif // HAVE_LIBSDL_IMAGE
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
 
   result = true;
   goto l_exit;
@@ -920,18 +884,41 @@ l_exit:
   return result;
 }
 
+void gld_InitHiRes(void)
+{
+  //Init RGBAFormat
+  RGBAFormat.palette = 0;
+  RGBAFormat.colorkey = 0;
+  RGBAFormat.alpha = 0;
+  RGBAFormat.BitsPerPixel = 32;
+  RGBAFormat.BytesPerPixel = 4;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+  RGBAFormat.Rmask = 0xFF000000; RGBAFormat.Rshift = 0; RGBAFormat.Rloss = 0;
+  RGBAFormat.Gmask = 0x00FF0000; RGBAFormat.Gshift = 8; RGBAFormat.Gloss = 0;
+  RGBAFormat.Bmask = 0x0000FF00; RGBAFormat.Bshift = 16; RGBAFormat.Bloss = 0;
+  RGBAFormat.Amask = 0x000000FF; RGBAFormat.Ashift = 24; RGBAFormat.Aloss = 0;
+#else
+  RGBAFormat.Rmask = 0x000000FF; RGBAFormat.Rshift = 24; RGBAFormat.Rloss = 0;
+  RGBAFormat.Gmask = 0x0000FF00; RGBAFormat.Gshift = 16; RGBAFormat.Gloss = 0;
+  RGBAFormat.Bmask = 0x00FF0000; RGBAFormat.Bshift = 8; RGBAFormat.Bloss = 0;
+  RGBAFormat.Amask = 0xFF000000; RGBAFormat.Ashift = 0; RGBAFormat.Aloss = 0;
+#endif
+
+  gl_usehires = false;
+
+  gld_PrecachePatches();
+}
+
 int gld_LoadHiresTex(GLTexture *gltexture, int *glTexID, int cm)
 {
-  char img_path[PATH_MAX];
-  char dds_path[PATH_MAX];
-
-  if (!gl_texture_usehires && !gl_patch_usehires)
+  if (!gl_texture_external_hires && !gl_texture_internal_hires)
     return false;
 
-  if (gld_HiresGetTextureName(gltexture, img_path, dds_path))
-  {
-    return gld_LoadHiresItem(gltexture, img_path, dds_path, glTexID, cm);
-  }
+  if (gl_texture_internal_hires && gld_HiRes_LoadInternal(gltexture, glTexID))
+    return true;
+
+  if (gl_texture_external_hires && gld_HiRes_LoadExternal(gltexture, glTexID))
+    return true;
 
   return false;
 }
@@ -1011,7 +998,7 @@ void gld_ProgressUpdate(char * text, int progress, int total)
     return;
 #endif // HAVE_LIBSDL_IMAGE
 
-  if (!gl_texture_usehires && !gl_patch_usehires)
+  if (!gl_texture_external_hires)
     return;
 
   if (!progress_texid)
@@ -1098,7 +1085,7 @@ int gld_PrecachePatches(void)
   char namebuf[16];
   int i, count, total;
 
-  if (!gl_patch_usehires)
+  if (!gl_texture_external_hires)
     return 0;
 
   gld_ProgressStart();
@@ -1116,9 +1103,14 @@ int gld_PrecachePatches(void)
       
       lumpinfo[lump].flags |= LUMP_STATIC;
       gltexture = gld_RegisterPatch(lump, CR_DEFAULT);
-      gld_BindPatch(gltexture, CR_DEFAULT);
-      if (gltexture && (gltexture->flags & GLTEXTURE_HIRES))
-        gld_ProgressUpdate("Loading Patches...", ++count, total);
+      if (gltexture)
+      {
+        gld_PrecacheGLTexture(gltexture);
+        if (gltexture && (gltexture->flags & GLTEXTURE_HIRES))
+        {
+          gld_ProgressUpdate("Loading Patches...", ++count, total);
+        }
+      }
     }
   }
 

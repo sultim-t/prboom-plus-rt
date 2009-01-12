@@ -602,6 +602,129 @@ GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap, boolean force)
   return gltexture;
 }
 
+int gld_BuildTexture(GLTexture *gltexture, 
+                     void *data, int pitch, int width, int height,
+                     unsigned char **out_buf, int *out_bufsize,
+                     int *out_width, int *out_height)
+{
+  int result = false;
+
+  int tex_width, tex_height, tex_buffer_size;
+  unsigned char *tex_buffer = NULL;
+  
+  tex_width  = gld_GetTexDimension(width);
+  tex_height = gld_GetTexDimension(height);
+  tex_buffer_size = tex_width * tex_height * 4;
+
+#ifdef USE_GLU_MIPMAP
+  if (gltexture->mipmap & use_mipmapping)
+  {
+    gluBuild2DMipmaps(GL_TEXTURE_2D, gl_tex_format,
+      width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_mipmap_filter);
+    if (gl_use_texture_filter_anisotropic)
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)(1<<gl_texture_filter_anisotropic));
+
+    result = true;
+    goto l_exit;
+  }
+  else
+#endif // USE_GLU_MIPMAP
+  {
+#ifdef USE_GLU_IMAGESCALE
+    if ((width != tex_width) || (height != tex_height))
+    {
+      tex_buffer = malloc(tex_buffer_size);
+      if (!tex_buffer)
+      {
+        result = false;
+        goto l_exit;
+      }
+
+      gluScaleImage(GL_RGBA, width, height,
+        GL_UNSIGNED_BYTE, data,
+        tex_width, tex_height,
+        GL_UNSIGNED_BYTE, tex_buffer);
+
+      glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
+        tex_width, tex_height,
+        0, GL_RGBA, GL_UNSIGNED_BYTE, tex_buffer);
+    }
+    else
+#endif // USE_GLU_IMAGESCALE
+    {
+      if ((width != tex_width) || (height != tex_height))
+      {
+        if (width == tex_width)
+        {
+          tex_buffer = (unsigned char*)malloc(tex_buffer_size);
+          memcpy(tex_buffer, data, width * height * 4);
+        }
+        else
+        {
+          int y;
+          tex_buffer = calloc(1, tex_buffer_size);
+          for (y = 0; y < height; y++)          
+          {
+            memcpy(tex_buffer + y * tex_width * 4,
+              ((unsigned char*)data) + y * width * 4, width * 4);
+          }
+        }
+      }
+      else
+      {
+        tex_buffer = data;
+      }
+
+      if (gl_paletted_texture) {
+        gld_SetTexturePalette(GL_TEXTURE_2D);
+        glTexImage2D( GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT,
+          tex_width, tex_height,
+          0, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, tex_buffer);
+      } else {
+        glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
+          tex_width, tex_height,
+          0, GL_RGBA, GL_UNSIGNED_BYTE, tex_buffer);
+      }
+    }
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
+  }
+
+l_exit:
+
+  if (out_buf)
+  {
+    *out_buf = tex_buffer;
+  }
+  else
+  {
+    if (tex_buffer && tex_buffer != data)
+    {
+      free(tex_buffer);
+      tex_buffer = NULL;
+    }
+  }
+
+  if (out_bufsize)
+    *out_bufsize = tex_buffer_size;
+  
+  if (out_width)
+    *out_width = tex_width;
+  if (out_height)
+    *out_height = tex_height;
+
+  return result;
+}
+
 void gld_BindTexture(GLTexture *gltexture)
 {
   const rpatch_t *patch;
@@ -667,64 +790,12 @@ void gld_BindTexture(GLTexture *gltexture)
     glGenTextures(1,glTexID);
   glBindTexture(GL_TEXTURE_2D, *glTexID);
   gld_GammaCorrect(buffer, gltexture->buffer_size);
-#ifdef USE_GLU_MIPMAP
-  if (gltexture->mipmap & use_mipmapping)
-  {
-    gluBuild2DMipmaps(GL_TEXTURE_2D, gl_tex_format,
-                      gltexture->buffer_width, gltexture->buffer_height,
-                      GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_mipmap_filter);
-    if (gl_use_texture_filter_anisotropic)
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)(1<<gl_texture_filter_anisotropic));
-  }
-  else
-#endif /* USE_GLU_MIPMAP */
-  {
-#ifdef USE_GLU_IMAGESCALE
-    if ((gltexture->buffer_width!=gltexture->tex_width) ||
-        (gltexture->buffer_height!=gltexture->tex_height)
-       )
-    {
-      unsigned char *scaledbuffer;
 
-      scaledbuffer=(unsigned char*)Z_Malloc(gltexture->tex_width*gltexture->tex_height*4,PU_STATIC,0);
-      if (scaledbuffer)
-      {
-        gluScaleImage(GL_RGBA,
-                      gltexture->buffer_width, gltexture->buffer_height,
-                      GL_UNSIGNED_BYTE,buffer,
-                      gltexture->tex_width, gltexture->tex_height,
-                      GL_UNSIGNED_BYTE,scaledbuffer);
-        Z_Free(buffer);
-        buffer=scaledbuffer;
-        glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
-                      gltexture->tex_width, gltexture->tex_height,
-                      0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-      }
-    }
-    else
-#endif /* USE_GLU_IMAGESCALE */
-    {
-      if (gl_paletted_texture) {
-        gld_SetTexturePalette(GL_TEXTURE_2D);
-        glTexImage2D( GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT,
-                      gltexture->buffer_width, gltexture->buffer_height,
-                      0, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, buffer);
-      } else {
-        glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
-                      gltexture->buffer_width, gltexture->buffer_height,
-                      0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-      }
-    }
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
-  }
-  Z_Free(buffer);
+  gld_BuildTexture(gltexture, buffer,
+    gltexture->buffer_width, gltexture->buffer_width, gltexture->buffer_height,
+    NULL, NULL, NULL, NULL);
+
+  free(buffer);
 }
 
 GLTexture *gld_RegisterPatch(int lump, int cm)
@@ -859,47 +930,12 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   if (*glTexID==0)
     glGenTextures(1,glTexID);
   glBindTexture(GL_TEXTURE_2D, *glTexID);
-#ifdef USE_GLU_IMAGESCALE
-  if ((gltexture->buffer_width>gltexture->tex_width) ||
-      (gltexture->buffer_height>gltexture->tex_height)
-     )
-  {
-    unsigned char *scaledbuffer;
 
-    scaledbuffer=(unsigned char*)Z_Malloc(gltexture->tex_width*gltexture->tex_height*4,PU_STATIC,0);
-    if (scaledbuffer)
-    {
-      gluScaleImage(GL_RGBA,
-                    gltexture->buffer_width, gltexture->buffer_height,
-                    GL_UNSIGNED_BYTE,buffer,
-                    gltexture->tex_width, gltexture->tex_height,
-                    GL_UNSIGNED_BYTE,scaledbuffer);
-      Z_Free(buffer);
-      buffer=scaledbuffer;
-      glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
-                    gltexture->tex_width, gltexture->tex_height,
-                    0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-    }
-  }
-  else
-#endif /* USE_GLU_IMAGESCALE */
-  {
-      if (gl_paletted_texture) {
-        gld_SetTexturePalette(GL_TEXTURE_2D);
-        glTexImage2D( GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT,
-                      gltexture->buffer_width, gltexture->buffer_height,
-                      0, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, buffer);
-      } else {
-        glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
-                      gltexture->buffer_width, gltexture->buffer_height,
-                      0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-      }
-  }
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, gltexture->wrap_mode);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gltexture->wrap_mode);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
-  Z_Free(buffer);
+  gld_BuildTexture(gltexture, buffer,
+    gltexture->buffer_width, gltexture->buffer_width, gltexture->buffer_height,
+    NULL, NULL, NULL, NULL);
+
+  free(buffer);
   R_UnlockPatchNum(gltexture->index);
 }
 
@@ -1011,64 +1047,12 @@ void gld_BindFlat(GLTexture *gltexture)
     glGenTextures(1,glTexID);
   glBindTexture(GL_TEXTURE_2D, *glTexID);
   gld_GammaCorrect(buffer, gltexture->buffer_size);
-#ifdef USE_GLU_MIPMAP
-  if (gltexture->mipmap & use_mipmapping)
-  {
-    gluBuild2DMipmaps(GL_TEXTURE_2D, gl_tex_format,
-                      gltexture->buffer_width, gltexture->buffer_height,
-                      GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_mipmap_filter);
-    if (gl_use_texture_filter_anisotropic)
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)(1<<gl_texture_filter_anisotropic));
-  }
-  else
-#endif /* USE_GLU_MIPMAP */
-  {
-#ifdef USE_GLU_IMAGESCALE
-    if ((gltexture->buffer_width!=gltexture->tex_width) ||
-        (gltexture->buffer_height!=gltexture->tex_height)
-       )
-    {
-      unsigned char *scaledbuffer;
 
-      scaledbuffer=(unsigned char*)Z_Malloc(gltexture->tex_width*gltexture->tex_height*4,PU_STATIC,0);
-      if (scaledbuffer)
-      {
-        gluScaleImage(GL_RGBA,
-                      gltexture->buffer_width, gltexture->buffer_height,
-                      GL_UNSIGNED_BYTE,buffer,
-                      gltexture->tex_width, gltexture->tex_height,
-                      GL_UNSIGNED_BYTE,scaledbuffer);
-        Z_Free(buffer);
-        buffer=scaledbuffer;
-        glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
-                      gltexture->tex_width, gltexture->tex_height,
-                      0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-      }
-    }
-    else
-#endif /* USE_GLU_IMAGESCALE */
-    {
-      if (gl_paletted_texture) {
-        gld_SetTexturePalette(GL_TEXTURE_2D);
-        glTexImage2D( GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT,
-                      gltexture->buffer_width, gltexture->buffer_height,
-                      0, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, buffer);
-      } else {
-        glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
-                      gltexture->buffer_width, gltexture->buffer_height,
-                      0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-      }
-    }
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
-  }
-  Z_Free(buffer);
+  gld_BuildTexture(gltexture, buffer,
+    gltexture->buffer_width, gltexture->buffer_width, gltexture->buffer_height,
+    NULL, NULL, NULL, NULL);
+
+  free(buffer);
   W_UnlockLumpNum(gltexture->index);
 }
 
@@ -1119,6 +1103,14 @@ void gld_FlushTextures(void)
   gld_CleanTexItems(numlumps, &gld_GLPatchTextures);
 }
 
+void gld_PrecacheGLTexture(GLTexture *gltexture)
+{
+  int *glTexID;
+  glTexID = &gltexture->glTexID[CR_DEFAULT];
+  glBindTexture(GL_TEXTURE_2D, *glTexID);
+  gld_LoadHiresTex(gltexture, glTexID, CR_DEFAULT);
+}
+
 void gld_Precache(void)
 {
   register int i;
@@ -1126,7 +1118,7 @@ void gld_Precache(void)
 
   unsigned int tics = SDL_GetTicks();
 
-  int usehires = gl_texture_usehires || gl_patch_usehires;
+  int usehires = gl_texture_external_hires || gl_texture_internal_hires;
 
   if (doSkip)
     return;
@@ -1140,7 +1132,7 @@ void gld_Precache(void)
       return;
   }
 
-  if (gl_texture_usehires)
+  if (gl_texture_external_hires)
   {
     gld_ProgressStart();
   }
@@ -1183,9 +1175,14 @@ void gld_Precache(void)
     if (hitlist[i])
     {
       GLTexture *gltexture = gld_RegisterFlat(i,true);
-      gld_BindFlat(gltexture);
-      if (gltexture && (gltexture->flags & GLTEXTURE_HIRES))
-        gld_ProgressUpdate("Loading Flats...", numflats - i, numflats);
+      if (gltexture)
+      {
+        gld_PrecacheGLTexture(gltexture);
+        if (gltexture && (gltexture->flags & GLTEXTURE_HIRES))
+        {
+          gld_ProgressUpdate("Loading Flats...", numflats - i, numflats);
+        }
+      }
     }
 
   // Precache textures.
@@ -1237,15 +1234,20 @@ void gld_Precache(void)
   //  name.
 
   if (hitlist)
-    hitlist[skytexture] = gl_texture_usehires ? 1 : 0;
+    hitlist[skytexture] = usehires ? 1 : 0;
 
   for (i = numtextures; --i >= 0; )
     if (hitlist[i])
     {
       GLTexture *gltexture = gld_RegisterTexture(i,true,false);
-      gld_BindTexture(gltexture);
-      if (gltexture && (gltexture->flags & GLTEXTURE_HIRES))
-        gld_ProgressUpdate("Loading Textures...", numtextures - i, numtextures);
+      if (gltexture)
+      {
+        gld_PrecacheGLTexture(gltexture);
+        if (gltexture && (gltexture->flags & GLTEXTURE_HIRES))
+        {
+          gld_ProgressUpdate("Loading Textures...", numtextures - i, numtextures);
+        }
+      }
     }
 
   // Precache sprites.
@@ -1268,15 +1270,27 @@ void gld_Precache(void)
             short *sflump = sprites[i].spriteframes[j].lump;
             int k = 7;
             do
-              gld_BindPatch(gld_RegisterPatch(firstspritelump + sflump[k],CR_DEFAULT),CR_DEFAULT);
+            {
+              GLTexture *gltexture = gld_RegisterPatch(firstspritelump + sflump[k],CR_DEFAULT);
+              if (gltexture)
+              {
+                gld_PrecacheGLTexture(gltexture);
+              }
+            }
             while (--k >= 0);
           }
       }
   Z_Free(hitlist);
 
-  if (gl_texture_usehires)
+  if (gl_texture_external_hires)
   {
     gld_ProgressEnd();
+  }
+
+  if (gl_usehires)
+  {
+    gl_boom_colormaps = false;
+    gld_InitFBO();
   }
 
   // e6y: some statistics.  make sense for hires

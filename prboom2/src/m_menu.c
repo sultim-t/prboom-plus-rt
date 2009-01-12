@@ -3249,8 +3249,8 @@ setup_menu_t gen_settings6[] = { // General Settings screen4
   {"Adjust Sprite Clipping"    ,S_CHOICE,m_null,G_X,G_Y+11*8, {"gl_spriteclip"}, 0, 0, M_ChangeSpriteClip, gl_spriteclipmodes},
   {"Item out of Floor offset"  ,S_NUM  ,m_null,G_X,G_Y+12*8, {"gl_sprite_offset"}},
   {"Allow Colormaps"           ,S_YESNO|S_PRGWARN,m_null,G_X,G_Y+ 14*8, {"gl_boom_colormaps"}, 0, 0, M_ChangeAllowBoomColormaps},
-  {"Allow Hi-Res Textures"     ,S_YESNO|S_PRGWARN,m_null,G_X,G_Y+ 15*8, {"gl_texture_usehires"}, 0, 0, M_ChangeTextureUseHires},
-  {"Allow Hi-Res Patches"      ,S_YESNO|S_PRGWARN,m_null,G_X,G_Y+ 16*8, {"gl_patch_usehires"}, 0, 0, M_ChangeTextureUseHires},
+  {"Allow Internal Hi-Res"      ,S_YESNO|S_PRGWARN,m_null,G_X,G_Y+ 15*8, {"gl_texture_internal_hires"}, 0, 0, M_ChangeTextureUseHires},
+  {"Allow External Hi-Res"     ,S_YESNO|S_PRGWARN,m_null,G_X,G_Y+ 16*8, {"gl_texture_external_hires"}, 0, 0, M_ChangeTextureUseHires},
   {"Override PWAD's graphics with Hi-Res" ,S_YESNO|S_PRGWARN,m_null,G_X,G_Y+ 17*8, {"gl_hires_override_pwads"}},
   {"Sector Light Mode"         ,S_CHOICE,m_null,G_X,G_Y+18*8, {"gl_lightmode"}, 0, 0, M_ChangeLightMode, gl_lightmodes},
 #endif

@@ -642,21 +642,11 @@ void gld_Init(int width, int height)
   gld_InitLightTable();
   M_ChangeLightMode();
 
+  gld_InitHiRes();
+
   // Vortex: Create FBO object and associated render targets
 #ifdef USE_FBO_TECHNIQUE
-
-  gl_use_motionblur = gl_ext_framebuffer_object && gl_motionblur && gl_ext_blend_color;
-
-  gl_use_FBO = gl_ext_framebuffer_object && (gl_use_motionblur || !gl_boom_colormaps);
-
-  if (gl_use_FBO)
-  {
-    if (gld_CreateScreenSizeFBO())
-    {
-      // motion blur setup
-      gld_InitMotionBlur();
-    }
-  }
+  gld_InitFBO();
 #endif
 
   atexit(gld_CleanMemory); //e6y
@@ -741,7 +731,7 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
   width=SCALE_X(gltexture->realtexwidth);
   height=SCALE_Y(gltexture->realtexheight);
 
-  bFakeColormap = (gl_patch_usehires) && 
+  bFakeColormap =
     (gltexture->flags & GLTEXTURE_HIRES) && 
     (lumpinfo[lump].flags & LUMP_CM2RGB);
   if (bFakeColormap)
@@ -3553,6 +3543,25 @@ void gld_PreprocessLevel(void)
 
 // Vortex: some FBO stuff
 #ifdef USE_FBO_TECHNIQUE
+
+void gld_InitFBO(void)
+{
+  gld_FreeScreenSizeFBO();
+
+  gl_use_motionblur = gl_ext_framebuffer_object && gl_motionblur && gl_ext_blend_color;
+
+  gl_use_FBO = gl_ext_framebuffer_object && (gl_use_motionblur || !gl_boom_colormaps);
+
+  if (gl_use_FBO)
+  {
+    if (gld_CreateScreenSizeFBO())
+    {
+      // motion blur setup
+      gld_InitMotionBlur();
+    }
+  }
+}
+
 boolean gld_CreateScreenSizeFBO(void)
 {
   int status = 0;
@@ -3611,8 +3620,13 @@ void gld_FreeScreenSizeFBO(void)
     return;
 
   GLEXT_glDeleteFramebuffersEXT(1, &glSceneImageFBOTexID);
+  glSceneImageFBOTexID = 0;
+
   GLEXT_glDeleteRenderbuffersEXT(1, &glDepthBufferFBOTexID);
+  glDepthBufferFBOTexID = 0;
+
   glDeleteTextures(1, &glSceneImageTextureFBOTexID);
+  glSceneImageTextureFBOTexID = 0;
 }
 
 void gld_InitMotionBlur(void)
