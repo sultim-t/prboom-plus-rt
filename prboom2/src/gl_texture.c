@@ -670,7 +670,7 @@ int gld_BuildTexture(GLTexture *gltexture,
     //e6y: development aid to see texture mip usage
     if (gl_color_mip_levels)
     {
-      int w, h, miplevel;
+      int miplevel = 0;
       static unsigned char *buf = NULL;
 
       if (!buf)
@@ -678,12 +678,17 @@ int gld_BuildTexture(GLTexture *gltexture,
         buf = malloc(gld_max_texturesize * gld_max_texturesize * 4);
       }
 
-      w = width;
-      h = height;
-
-      for (miplevel = 0; miplevel < 16 && w > 0 && h > 0; miplevel++, w >>= 1, h >>= 1)
+      for (miplevel = 0; miplevel < 16; miplevel++)
       {
+        int w, h;
+
         glGetTexImage(GL_TEXTURE_2D, miplevel, gl_tex_format, GL_UNSIGNED_BYTE, buf);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_WIDTH, &w);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_HEIGHT, &h);
+        
+        if (w <= 0 || h <= 0)
+          break;
+
         R_BlendOverTexture((byte *)buf, w * h, mipBlendColors[miplevel]);
         glTexImage2D( GL_TEXTURE_2D, miplevel, gl_tex_format, w, h,
           0, GL_RGBA, GL_UNSIGNED_BYTE, buf);
