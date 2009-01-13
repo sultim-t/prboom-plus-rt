@@ -2975,6 +2975,7 @@ static const char *videomodes[] = {"8bit","15bit","16bit",
                                    "32bit","OpenGL", NULL};
 
 static const char *gltexfilters[] = {"GL_NEAREST","GL_LINEAR",
+                                     "GL_NEAREST_MIPMAP_LINEAR",
                                      "GL_LINEAR_MIPMAP_LINEAR",
                                      NULL};
 
