@@ -863,6 +863,11 @@ void gld_BindTexture(GLTexture *gltexture)
     glGenTextures(1,glTexID);
   glBindTexture(GL_TEXTURE_2D, *glTexID);
   gld_GammaCorrect(buffer, gltexture->buffer_size);
+  
+  if (gltexture->flags & GLTEXTURE_HASHOLES)
+  {
+    SmoothEdges(buffer, gltexture->buffer_width, gltexture->buffer_height);
+  }
 
   gld_BuildTexture(gltexture, buffer,
     gltexture->buffer_width, gltexture->buffer_width, gltexture->buffer_height,
@@ -994,10 +999,9 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   // It is necessary for textures that are not power of two
   // to avoid the lines (boxes) around the elements that change
   // on the intermission screens in Doom1 (E2, E3)
-  if (gltexture->tex_width != gltexture->realtexwidth || 
-      gltexture->tex_height != gltexture->realtexheight)
+  if (gltexture->flags & GLTEXTURE_HASHOLES)
   {
-    SmoothEdges(buffer, gltexture->tex_width, gltexture->tex_height);
+    SmoothEdges(buffer, gltexture->buffer_width, gltexture->buffer_height);
   }
 
   if (*glTexID==0)
