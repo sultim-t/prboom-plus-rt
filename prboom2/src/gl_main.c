@@ -87,13 +87,10 @@ void gld_FreeScreenSizeFBO(void);
 void gld_InitMotionBlur(void);
 #endif
 
-#define INVUL_CM         0x00000001
-#define INVUL_INV        0x00000002
-#define INVUL_BW         0x00000004
-static unsigned int invul_method;
-static float bw_red = 0.3f;
-static float bw_green = 0.59f;
-static float bw_blue = 0.11f;
+unsigned int invul_method;
+float bw_red = 0.3f;
+float bw_green = 0.59f;
+float bw_blue = 0.11f;
 
 //e6y
 int SceneInTexture = false;
@@ -185,104 +182,6 @@ static float extra_blue=0.0f;
 static float extra_alpha=0.0f;
 
 GLfloat gl_whitecolor[4]={1.0f,1.0f,1.0f,1.0f};
-
-/*
- * lookuptable for lightvalues
- * calculated as follow:
- * floatlight=(1.0-exp((light^3)*gamma)) / (1.0-exp(1.0*gamma));
- * gamma=-0,2;-2,0;-4,0;-6,0;-8,0
- * light=0,0 .. 1,0
- */
-float lighttable[5][256]; //e6y: now it calculates at startup
-
-static void gld_InitLightTable(void)
-{
-  int i, g;
-  float gamma[5] = {-0.2f, -2.0f, -4.0f, -6.0f, -8.0f};
-
-  for (g = 0; g < 5; g++)
-  {
-    for (i = 0; i < 256; i++)
-    {
-      lighttable[g][i] = (float)((1.0f - exp(pow(i / 255.0f, 3) * gamma[g])) / (1.0f - exp(1.0f * gamma[g])));
-    }
-  }
-}
-
-typedef float (*gld_CalcLightLevel_f)(int lightlevel);
-
-static float gld_CalcLightLevel_glboom(int lightlevel)
-{
-  return (lighttable[usegamma][BETWEEN(0, 255, lightlevel)]);
-}
-
-static float gld_CalcLightLevel_gzdoom(int lightlevel)
-{
-  float light;
-
-  if (lightlevel < 192) 
-    light = (192.0f - (192 - lightlevel) * 1.95f);
-  else
-    light = (float)lightlevel;
-
-  if (light < gl_light_ambient)
-    light = (float)gl_light_ambient;
-
-  return light / 255.0f;
-}
-static float gld_CalcLightLevel_mixed(int lightlevel)
-{
-  if (lightlevel < gl_light_ambient)
-    return (float)gl_light_ambient / 255.0f;
-  else
-    return (float)lightlevel / 255.0f;
-}
-
-static gld_CalcLightLevel_f gld_CalcLightLevelFuncs[gl_lightmode_last] =
-{
-  gld_CalcLightLevel_glboom,
-  gld_CalcLightLevel_gzdoom,
-  gld_CalcLightLevel_mixed,
-};
-
-float gld_CalcLightLevel(int lightlevel)
-{
-  return gld_CalcLightLevelFuncs[gl_lightmode](lightlevel);
-}
-
-void gld_StaticLightAlpha(float light, float alpha)
-{
-  player_t *player;
-  player = &players[displayplayer];
-
-  if (!player->fixedcolormap)
-  {
-    glColor4f(light, light, light, alpha);
-  }
-  else
-  {
-    if (!(invul_method & INVUL_BW))
-    {
-      glColor4f(1.0f, 1.0f, 1.0f, alpha);
-    }
-    else
-    {
-#ifdef USE_FBO_TECHNIQUE
-      if (SceneInTexture)
-      {
-        if (gl_invul_bw_method == 0)
-          glColor4f(0.5f, 0.5f, 0.5f, alpha);
-        else
-          glColor4f(1.0f, 1.0f, 1.0f, alpha);
-      }
-      else
-#endif
-      {
-        glColor4f(bw_red, bw_green, bw_blue, alpha);
-      }
-    }
-  }
-}
 
 static void gld_InitExtensions(const char *_extensions)
 {
@@ -562,7 +461,6 @@ void gld_InitTextureParams(void)
 void gld_Init(int width, int height)
 {
   GLfloat params[4]={0.0f,0.0f,1.0f,0.0f};
-  GLfloat BlackFogColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
   lprintf(LO_INFO,"GL_VENDOR: %s\n",glGetString(GL_VENDOR));
   lprintf(LO_INFO,"GL_RENDERER: %s\n",glGetString(GL_RENDERER));
@@ -621,12 +519,6 @@ void gld_Init(int width, int height)
   glTexGenf(GL_S,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
   glTexGenf(GL_T,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
   glTexGenf(GL_Q,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
-  glFogi (GL_FOG_MODE, GL_EXP);
-  glFogfv(GL_FOG_COLOR, BlackFogColor);
-  glFogf (GL_FOG_DENSITY, (float)fog_density/1000.0f);
-  glHint (GL_FOG_HINT, GL_NICEST);
-  glFogf (GL_FOG_START, 0.0f);
-  glFogf (GL_FOG_END, 1.0f);
 
   //e6y
   gld_InitGLVersion();
@@ -646,6 +538,7 @@ void gld_Init(int width, int height)
 
   gld_InitLightTable();
   M_ChangeLightMode();
+  M_ChangeAllowFog();
 
   gld_InitHiRes();
 
@@ -1997,6 +1890,9 @@ void gld_StartDrawScene(void)
   yaw=270.0f-(float)(viewangle>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
   inv_yaw=-90.0f+(float)(viewangle>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
 
+  //e6y: fog in frame
+  gl_use_fog = !gl_compatibility && gl_fog && !frame_fixedcolormap && !boom_cm;
+
 //e6y
 //  viewMaxY = viewz;
   mlook_or_fov = GetMouseLook() || (render_fov != FOV90);
@@ -2087,10 +1983,10 @@ void gld_StartDrawScene(void)
   glRotatef(yaw,   0.0f, 1.0f, 0.0f);
   glTranslatef(-xCamera, -zCamera, -yCamera);
 
-  if (use_fog)
-    glEnable(GL_FOG);
-  else
-    glDisable(GL_FOG);
+//  if (use_fog)
+//    glEnable(GL_FOG);
+//  else
+//    glDisable(GL_FOG);
   rendermarker++;
   gld_drawinfo.num_walls=0;
   gld_drawinfo.num_flats=0;
@@ -2627,6 +2523,7 @@ void gld_AddWall(seg_t *seg)
   else
     rellight = seg->linedef->dx==0? +(1<<LIGHTSEGSHIFT) : seg->linedef->dy==0 ? -(1<<LIGHTSEGSHIFT) : 0;
   wall.light=gld_CalcLightLevel(frontsector->lightlevel+rellight+(extralight<<5));
+  wall.fogdensity = gld_CalcFogDensity(frontsector, frontsector->lightlevel);
   wall.alpha=1.0f;
   wall.gltexture=NULL;
   wall.seg = seg; //e6y
@@ -3044,6 +2941,7 @@ static void gld_AddFlat(int sectornum, boolean ceiling, visplane_t *plane)
       return;
     // get the lightlevel from floorlightlevel
     flat.light=gld_CalcLightLevel(plane->lightlevel+(extralight<<5));
+    flat.fogdensity = gld_CalcFogDensity(sector, plane->lightlevel);
     // calculate texture offsets
     flat.uoffs=(float)sector->floor_xoffs/(float)FRACUNIT;
     flat.voffs=(float)sector->floor_yoffs/(float)FRACUNIT;
@@ -3059,6 +2957,7 @@ static void gld_AddFlat(int sectornum, boolean ceiling, visplane_t *plane)
       return;
     // get the lightlevel from ceilinglightlevel
     flat.light=gld_CalcLightLevel(plane->lightlevel+(extralight<<5));
+    flat.fogdensity = gld_CalcFogDensity(sector, plane->lightlevel);
     // calculate texture offsets
     flat.uoffs=(float)sector->ceiling_xoffs/(float)FRACUNIT;
     flat.voffs=(float)sector->ceiling_yoffs/(float)FRACUNIT;
@@ -3270,7 +3169,7 @@ static inline EnableAlphaBlend(boolean *gl_alpha_blended)
 }
 
 //e6y
-static void gld_ProcessWall(GLWall *wall, boolean *gl_alpha_blended, int from_index, int to_index)
+void gld_ProcessWall(GLWall *wall, boolean *gl_alpha_blended, int from_index, int to_index)
 {
   int k, count;
 
@@ -3349,6 +3248,7 @@ void gld_DrawScene(player_t *player)
   {
     if (!gld_drawinfo.flats[i].ceiling)
     {
+      gld_SetFog(gld_drawinfo.flats[i].fogdensity);
       gld_DrawFlat(&gld_drawinfo.flats[i]);
     }
   }
@@ -3359,6 +3259,7 @@ void gld_DrawScene(player_t *player)
   {
     if (gld_drawinfo.flats[i].ceiling)
     {
+      gld_SetFog(gld_drawinfo.flats[i].fogdensity);
       gld_DrawFlat(&gld_drawinfo.flats[i]);
     }
   }
@@ -3369,8 +3270,11 @@ void gld_DrawScene(player_t *player)
   // opaque walls
   for (i = gld_drawinfo.num_walls - 1; i >= 0; i--)
   {
+    gld_SetFog(gld_drawinfo.walls[i].fogdensity);
     gld_ProcessWall(&gld_drawinfo.walls[i], &gl_alpha_blended, GLDWF_TOP, GLDWF_SKY - 1);
   }
+
+  gl_EnableFog(false);
 
   // projected walls
   if (gl_use_stencil)

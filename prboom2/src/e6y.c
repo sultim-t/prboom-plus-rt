@@ -657,36 +657,36 @@ void M_ChangeSpriteClip(void)
 
 void M_ChangeAllowBoomColormaps(void)
 {
-  if (gl_boom_colormaps == -1)
-    gl_boom_colormaps = gl_boom_colormaps_default;
+  gld_FlushTextures();
+  gld_Precache();
 }
 
 void M_ChangeTextureUseHires(void)
 {
-  extern setup_menu_t gen_settings6[];
-
-  if (gl_texture_external_hires == -1)
-    gl_texture_external_hires = gl_texture_external_hires_default;
-
-  if (gl_texture_internal_hires == -1)
-    gl_texture_internal_hires = gl_texture_internal_hires_default;
+  gld_FlushTextures();
+  gld_Precache();
 }
 
 void M_ChangeLightMode(void)
 {
+  extern setup_menu_t gen_settings6[];
+
   if (gl_lightmode == gl_lightmode_glboom)
   {
+    gen_settings6[16].m_flags |= (S_SKIP|S_DISABLE);
     gld_SetGammaRamp(-1);
     gld_FlushTextures();
   }
 
   if (gl_lightmode == gl_lightmode_gzdoom)
   {
+    gen_settings6[16].m_flags &= ~(S_SKIP|S_DISABLE);
     gld_SetGammaRamp(useglgamma);
   }
 
   if (gl_lightmode == gl_lightmode_mixed)
   {
+    gen_settings6[16].m_flags &= ~(S_SKIP|S_DISABLE);
     gld_SetGammaRamp(-1);
     gld_FlushTextures();
   }

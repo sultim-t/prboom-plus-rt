@@ -84,7 +84,6 @@ int gl_tex_format=GL_RGB5_A1;
 int gl_color_mip_levels;
 
 int gl_boom_colormaps = -1;
-int gl_boom_colormaps_default;
 
 GLTexture *last_gltexture=NULL;
 int last_cm=-1;

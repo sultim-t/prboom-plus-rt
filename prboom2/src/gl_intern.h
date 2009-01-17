@@ -96,6 +96,7 @@ typedef struct
   float ytop,ybottom;
   float ul,ur,vt,vb;
   float light;
+  float fogdensity;
   float alpha;
   float skyymid;
   float skyyaw;
@@ -108,6 +109,7 @@ typedef struct
 {
   int sectornum;
   float light; // the lightlevel of the flat
+  float fogdensity;
   float uoffs,voffs; // the texture coordinates
   float z; // the z position of the flat (height)
   GLTexture *gltexture;
@@ -230,9 +232,6 @@ typedef struct
 void gld_DrawTriangleStrip(GLWall *wall, gl_strip_coords_t *c);
 void gld_DrawTriangleStripARB(GLWall *wall, gl_strip_coords_t *c1, gl_strip_coords_t *c2);
 
-void gld_StaticLightAlpha(float light, float alpha);
-#define gld_StaticLight(light) gld_StaticLightAlpha(light, 1.0f)
-
 extern int gl_preprocessed; //e6y
 
 extern GLDrawInfo gld_drawinfo;
@@ -328,6 +327,16 @@ int gld_ProgressStart(void);
 int gld_ProgressEnd(void);
 
 //FBO
+#define INVUL_CM         0x00000001
+#define INVUL_INV        0x00000002
+#define INVUL_BW         0x00000004
+
+extern unsigned int invul_method;
+extern float bw_red;
+extern float bw_green;
+extern float bw_blue;
+extern int SceneInTexture;
+extern int gl_invul_bw_method;
 void gld_InitFBO(void);
 
 //motion bloor
@@ -340,8 +349,6 @@ extern int imageformats[];
 
 //missing flats (fake floors and ceilings)
 
-float gld_CalcLightLevel(int lightlevel);
-
 void gld_PreprocessFakeSectors(void);
 
 void gld_SetupFloodStencil(GLWall *wall);
@@ -349,5 +356,18 @@ void gld_ClearFloodStencil(GLWall *wall);
 
 void gld_SetupFloodedPlaneCoords(GLWall *wall, gl_strip_coords_t *c);
 void gld_SetupFloodedPlaneLight(GLWall *wall);
+
+//light
+void gld_StaticLightAlpha(float light, float alpha);
+#define gld_StaticLight(light) gld_StaticLightAlpha(light, 1.0f)
+void gld_InitLightTable(void);
+float gld_CalcLightLevel(int lightlevel);
+
+//fog
+extern int gl_fog;
+extern int gl_use_fog;
+void gl_EnableFog(int on);
+float gld_CalcFogDensity(sector_t *sector, int lightlevel);
+void gld_SetFog(float fogdensity);
 
 #endif // _GL_INTERN_H

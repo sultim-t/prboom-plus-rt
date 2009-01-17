@@ -242,6 +242,7 @@ void M_ChangeSpriteClip(void);
 void M_ChangeAllowBoomColormaps(void);
 void M_ChangeTextureUseHires(void);
 void M_ChangeLightMode(void);
+void M_ChangeAllowFog(void);
 #endif
 void M_ChangeRenderPrecise(void);
 void M_ChangeSpeed(void);

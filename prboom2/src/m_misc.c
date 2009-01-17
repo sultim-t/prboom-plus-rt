@@ -189,6 +189,10 @@ extern char *gl_motionblur_att_a;
 extern char *gl_motionblur_att_b;
 extern char *gl_motionblur_att_c;
 
+//e6y: fog
+extern int gl_fog;
+extern int gl_fog_color;
+
 #endif
 
 extern int realtic_clock_rate;         // killough 4/13/98: adjustable timer
@@ -826,11 +830,11 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"test_voodoo", {&test_voodoo},  {0},0,1,
    def_bool,ss_stat},
-  {"gl_boom_colormaps", {&gl_boom_colormaps_default},  {1},0,1,
+  {"gl_boom_colormaps", {&gl_boom_colormaps},  {1},0,1,
    def_bool,ss_stat},
-  {"gl_texture_internal_hires", {&gl_texture_internal_hires_default},  {1},0,1,
+  {"gl_texture_internal_hires", {&gl_texture_internal_hires},  {1},0,1,
    def_bool,ss_stat},
-  {"gl_texture_external_hires", {&gl_texture_external_hires_default},  {0},0,1,
+  {"gl_texture_external_hires", {&gl_texture_external_hires},  {0},0,1,
    def_bool,ss_stat},
   {"gl_hires_override_pwads", {&gl_hires_override_pwads},  {0},0,1,
    def_bool,ss_stat},
@@ -851,6 +855,10 @@ default_t defaults[] =
   {"gl_lightmode",{(int*)&gl_lightmode},{gl_lightmode_glboom},
    gl_lightmode_glboom, gl_lightmode_last-1, def_int,ss_none},
   {"gl_light_ambient", {&gl_light_ambient},  {20},0,255,
+   def_int,ss_stat},
+  {"gl_fog", {&gl_fog},  {1},0,1,
+   def_bool,ss_stat},
+  {"gl_fog_color", {&gl_fog_color},  {0x0},0,16777215,
    def_int,ss_stat},
   {"useglgamma",{&useglgamma},{6},0,MAX_GLGAMMA,
    def_int,ss_none},

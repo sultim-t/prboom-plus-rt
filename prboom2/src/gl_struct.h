@@ -67,7 +67,6 @@ void gld_UpdateSplitData(sector_t *sector);
 extern int test_voodoo;
 
 extern int gl_boom_colormaps;
-extern int gl_boom_colormaps_default;
 
 void gld_Init(int width, int height);
 void gld_InitCommandLine(void);
@@ -105,9 +104,7 @@ int gld_wipe_EndScreen(void);
 
 // hires
 extern int gl_texture_external_hires;
-extern int gl_texture_external_hires_default;
 extern int gl_texture_internal_hires;
-extern int gl_texture_internal_hires_default;
 extern int gl_hires_override_pwads;
 extern char *gl_texture_hires_dir;
 int gld_PrecachePatches(void);
