@@ -770,6 +770,7 @@ int gld_BuildTexture(GLTexture *gltexture,
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
+    result = true;
   }
 
 l_exit:
@@ -1316,7 +1317,7 @@ void gld_Precache(void)
   for (i = numtextures; --i >= 0; )
     if (hitlist[i])
     {
-      GLTexture *gltexture = gld_RegisterTexture(i,true,false);
+      GLTexture *gltexture = gld_RegisterTexture(i, i != skytexture, false);
       if (gltexture)
       {
         gld_PrecacheGLTexture(gltexture);
