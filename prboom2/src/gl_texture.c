@@ -846,8 +846,10 @@ void gld_BindTexture(GLTexture *gltexture)
       return;
   }
 
+#ifdef HAVE_LIBSDL_IMAGE
   if (gld_LoadHiresTex(gltexture, glTexID, CR_DEFAULT))
     return;
+#endif
 
   buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
   if (!(gltexture->mipmap & use_mipmapping) & gl_paletted_texture)
@@ -977,8 +979,10 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
       return;
   }
 
+#ifdef HAVE_LIBSDL_IMAGE
   if (gld_LoadHiresTex(gltexture, glTexID, cm))
     return;
+#endif
 
   patch=R_CachePatchNum(gltexture->index);
   buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
@@ -1110,8 +1114,10 @@ void gld_BindFlat(GLTexture *gltexture)
       return;
   }
 
+#ifdef HAVE_LIBSDL_IMAGE
   if (gld_LoadHiresTex(gltexture, glTexID, CR_DEFAULT))
     return;
+#endif
 
   flat=W_CacheLumpNum(gltexture->index);
   buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
@@ -1155,7 +1161,10 @@ static void gld_CleanTexItems(int count, GLTexture ***items)
           {
             for (cm=0; cm<numcolormaps; cm++)
             {
-              glDeleteTextures(1,&((*items)[i]->glTexExID[j][n][cm]));
+              if ((*items) && (*items)[i]->glTexExID)
+              {
+                glDeleteTextures(1,&((*items)[i]->glTexExID[j][n][cm]));
+              }
             }
           }
         }
@@ -1185,7 +1194,10 @@ void gld_PrecacheGLTexture(GLTexture *gltexture)
   int *glTexID;
   glTexID = &gltexture->glTexID[CR_DEFAULT];
   glBindTexture(GL_TEXTURE_2D, *glTexID);
+
+#ifdef HAVE_LIBSDL_IMAGE
   gld_LoadHiresTex(gltexture, glTexID, CR_DEFAULT);
+#endif
 }
 
 void gld_Precache(void)

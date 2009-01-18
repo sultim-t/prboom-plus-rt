@@ -540,7 +540,9 @@ void gld_Init(int width, int height)
   M_ChangeLightMode();
   M_ChangeAllowFog();
 
+#ifdef HAVE_LIBSDL_IMAGE
   gld_InitHiRes();
+#endif
 
   // Vortex: Create FBO object and associated render targets
 #ifdef USE_FBO_TECHNIQUE
