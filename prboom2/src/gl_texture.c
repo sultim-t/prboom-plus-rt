@@ -84,6 +84,7 @@ int gl_tex_format=GL_RGB5_A1;
 int gl_color_mip_levels;
 
 int gl_boom_colormaps = -1;
+int gl_boom_colormaps_default;
 
 GLTexture *last_gltexture=NULL;
 int last_cm=-1;
@@ -1191,13 +1192,27 @@ void gld_FlushTextures(void)
 
 void gld_PrecacheGLTexture(GLTexture *gltexture)
 {
-  int *glTexID;
+  switch (gltexture->textype)
+  {
+  case GLDT_TEXTURE:
+    gld_BindTexture(gltexture);
+    break;
+  case GLDT_FLAT:
+    gld_BindFlat(gltexture);
+    break;
+  case GLDT_PATCH:
+    gld_BindPatch(gltexture, CR_DEFAULT);
+    break;
+  default:
+    break;
+  }
+/*  int *glTexID;
   glTexID = &gltexture->glTexID[CR_DEFAULT];
   glBindTexture(GL_TEXTURE_2D, *glTexID);
 
 #ifdef HAVE_LIBSDL_IMAGE
   gld_LoadHiresTex(gltexture, glTexID, CR_DEFAULT);
-#endif
+#endif*/
 }
 
 void gld_Precache(void)
@@ -1373,10 +1388,15 @@ void gld_Precache(void)
 
   if (gl_texture_external_hires)
   {
+    gld_PrecachePatches();
+  }
+
+  if (gl_texture_external_hires)
+  {
     gld_ProgressEnd();
   }
 
-  if (gl_usehires)
+  if (gl_have_hires_textures || gl_have_hires_flats)
   {
     gl_boom_colormaps = false;
     gld_InitFBO();

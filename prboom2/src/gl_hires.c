@@ -63,11 +63,11 @@
 char* strlwr(char* str);
 #endif
 
-int gl_usehires = 0;
+int gl_have_hires_textures = false;
+int gl_have_hires_flats = false;
+int gl_have_hires_patches = false;
 int gl_texture_external_hires = -1;
-int gl_texture_external_hires_default;
 int gl_texture_internal_hires = -1;
-int gl_texture_internal_hires_default;
 int gl_hires_override_pwads;
 char *gl_texture_hires_dir = NULL;
 
@@ -402,11 +402,7 @@ GLGenericImage * ReadDDSFile(const char *filename, int * bufsize, int * numMipma
   return genericImage;
 }
 
-#ifdef HAVE_LIBSDL_IMAGE
-
 static SDL_PixelFormat RGBAFormat;
-
-#endif // HAVE_LIBSDL_IMAGE
 
 static const char* gld_HiRes_GetInternalName(GLTexture *gltexture)
 {
@@ -591,11 +587,6 @@ static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char 
   img_path[0] = '\0';
   dds_path[0] = '\0';
 
-#ifndef HAVE_LIBSDL_IMAGE
-  if (!GLEXT_glCompressedTexImage2DARB)
-    return false;
-#endif // !HAVE_LIBSDL_IMAGE
-
   if (!supported)
     return false;
 
@@ -690,13 +681,9 @@ static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char 
         if (!access(checkName, F_OK))
         {
           strcpy(dds_path, checkName);
-#ifndef HAVE_LIBSDL_IMAGE
-          return true;
-#endif // !HAVE_LIBSDL_IMAGE
         }
       }
       
-#ifdef HAVE_LIBSDL_IMAGE
       {
         static const char * extensions[] =
         {"png", "jpg", "tga", "pcx", "gif", "bmp", NULL};
@@ -713,7 +700,6 @@ static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char 
           }
         }
       }
-#endif // HAVE_LIBSDL_IMAGE
     }
   } while ((++checklist)->path);
 
@@ -725,7 +711,18 @@ static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char 
 
 static void gld_HiRes_Bind(GLTexture *gltexture, int *glTexID)
 {
-  gl_usehires = true;
+  switch (gltexture->textype)
+  {
+  case GLDT_TEXTURE:
+    gl_have_hires_textures = true;
+    break;
+  case GLDT_FLAT:
+    gl_have_hires_flats = true;
+    break;
+  case GLDT_PATCH:
+    gl_have_hires_patches = true;
+    break;
+  }
 
   gltexture->flags |= GLTEXTURE_HIRES;
 
@@ -936,7 +933,6 @@ static int gld_HiRes_LoadExternal(GLTexture *gltexture, int *glTexID)
     }
   }
 
-#ifdef HAVE_LIBSDL_IMAGE
   if (!cache_read_ok)
   {
     surf_tmp = IMG_Load(img_path);
@@ -981,7 +977,6 @@ static int gld_HiRes_LoadExternal(GLTexture *gltexture, int *glTexID)
       }
     }
   }
-#endif // HAVE_LIBSDL_IMAGE
 
   result = true;
   goto l_exit;
@@ -1013,7 +1008,9 @@ void gld_InitHiRes(void)
   RGBAFormat.Amask = 0xFF000000; RGBAFormat.Ashift = 0; RGBAFormat.Aloss = 0;
 #endif
 
-  gl_usehires = false;
+  gl_have_hires_textures = false;
+  gl_have_hires_flats = false;
+  gl_have_hires_patches = false;
 
   gld_PrecachePatches();
 }

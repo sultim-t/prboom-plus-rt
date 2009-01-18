@@ -317,7 +317,9 @@ int gld_BuildTexture(GLTexture *gltexture,
                             int *out_width, int *out_height);
 
 //hires
-extern int gl_usehires;
+extern int gl_have_hires_textures;
+extern int gl_have_hires_flats;
+extern int gl_have_hires_patches;
 void gld_PrecacheGLTexture(GLTexture *gltexture);
 void gld_InitHiRes(void);
 int gld_LoadHiresTex(GLTexture *gltexture, int *glTexID, int cm);
