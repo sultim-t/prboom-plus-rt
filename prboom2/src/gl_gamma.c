@@ -242,3 +242,27 @@ void gld_ResetGammaRamp(void)
     }
   }
 }
+
+void gld_ApplyGammaRamp(byte *buf, int pitch, int width, int height)
+{
+  if (gl_lightmode != gl_lightmode_glboom)
+  {
+    int w, h;
+    byte *pixel;
+    Uint16 r[256], g[256], b[256];
+
+    SDL_GetGammaRamp(&r[0], &g[0], &b[0]);
+
+    for (h = 0; h < height; h++)
+    {
+      for (w = 0; w < width; w++)
+      {
+        pixel = buf + h * pitch + 3 * w;
+
+        *(pixel + 0) = (byte)(r[*(pixel + 0)] >> 8);
+        *(pixel + 1) = (byte)(g[*(pixel + 1)] >> 8);
+        *(pixel + 2) = (byte)(b[*(pixel + 2)] >> 8);
+      }
+    }
+  }
+}

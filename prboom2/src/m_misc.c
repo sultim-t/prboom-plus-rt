@@ -1658,6 +1658,8 @@ void M_DoScreenShot (const char* fname)
     // CPhipps - use a malloc()ed buffer instead of screens[2]
 #ifdef GL_DOOM
     gld_ReadScreen(screenshot.data);
+    gld_ApplyGammaRamp(screenshot.data, screenshot.byte_pitch, 
+      screenshot.width, screenshot.height);
 #endif
 
     // save the bmp file

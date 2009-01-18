@@ -52,6 +52,7 @@ extern int useglgamma;
 int gld_SetGammaRamp(int gamma);
 void gld_CheckHardwareGamma(void);
 void gld_FlushTextures(void);
+void gld_ApplyGammaRamp(byte *buf, int pitch, int width, int height);
 
 extern int gl_seamless;
 extern boolean gl_arb_multitexture;
