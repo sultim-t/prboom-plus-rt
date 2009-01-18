@@ -1388,18 +1388,18 @@ void gld_Precache(void)
 
   if (gl_texture_external_hires)
   {
+#ifdef HAVE_LIBSDL_IMAGE
     gld_PrecachePatches();
-  }
-
-  if (gl_texture_external_hires)
-  {
+#endif
     gld_ProgressEnd();
   }
 
   if (gl_have_hires_textures || gl_have_hires_flats)
   {
     gl_boom_colormaps = false;
+#ifdef USE_FBO_TECHNIQUE
     gld_InitFBO();
+#endif
   }
 
   // e6y: some statistics.  make sense for hires
