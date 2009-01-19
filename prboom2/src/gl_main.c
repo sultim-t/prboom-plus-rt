@@ -3161,18 +3161,32 @@ void gld_AddSprite(vissprite_t *vspr)
  *****************/
 
 //e6y
-static inline EnableAlphaBlend(boolean *gl_alpha_blended)
+static inline gl_SetAlphaBlend(boolean on)
 {
-  if (!(*gl_alpha_blended))
+  static boolean gl_alpha_blend_enabled;
+
+  if (on)
   {
-    glEnable(GL_ALPHA_TEST);
-    glEnable(GL_BLEND);
-    *gl_alpha_blended = true;
+    if (!gl_alpha_blend_enabled) 
+    {
+      glEnable(GL_ALPHA_TEST);
+      glEnable(GL_BLEND);
+    }
   }
+  else 
+  {
+    if (gl_alpha_blend_enabled) 
+    {
+      glDisable(GL_ALPHA_TEST);
+      glDisable(GL_BLEND);
+    }
+  }
+
+  gl_alpha_blend_enabled = on;
 }
 
 //e6y
-void gld_ProcessWall(GLWall *wall, boolean *gl_alpha_blended, int from_index, int to_index)
+void gld_ProcessWall(GLWall *wall, int from_index, int to_index)
 {
   int k, count;
 
@@ -3183,16 +3197,11 @@ void gld_ProcessWall(GLWall *wall, boolean *gl_alpha_blended, int from_index, in
     {
       if (!wall->seg->backsector && (wall->gltexture->flags&GLTEXTURE_HASHOLES))
       {
-        if (*gl_alpha_blended)
-        {
-          glDisable(GL_ALPHA_TEST);
-          glDisable(GL_BLEND);
-          *gl_alpha_blended = false;
-        }
+        gl_SetAlphaBlend(false);
       }
       else
       {
-        EnableAlphaBlend(gl_alpha_blended);
+        gl_SetAlphaBlend(true);
       }
         
       // e6y
@@ -3235,7 +3244,6 @@ void gld_DrawScene(player_t *player)
   fixed_t max_scale;
 
   //e6y
-  boolean gl_alpha_blended = true;
   SkyDrawed = false;
 
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -3274,7 +3282,7 @@ void gld_DrawScene(player_t *player)
   for (i = gld_drawinfo.num_walls - 1; i >= 0; i--)
   {
     gld_SetFog(gld_drawinfo.walls[i].fogdensity);
-    gld_ProcessWall(&gld_drawinfo.walls[i], &gl_alpha_blended, GLDWF_TOP, GLDWF_SKY - 1);
+    gld_ProcessWall(&gld_drawinfo.walls[i], GLDWF_TOP, GLDWF_SKY - 1);
   }
 
   gl_EnableFog(false);
@@ -3290,7 +3298,7 @@ void gld_DrawScene(player_t *player)
     glEnable(GL_STENCIL_TEST);
     for (i = gld_drawinfo.num_fwalls - 1; i >= 0; i--)
     {
-      gld_ProcessWall(&gld_drawinfo.fwalls[i], &gl_alpha_blended, GLDWF_TOP, GLDWF_SKY - 1);
+      gld_ProcessWall(&gld_drawinfo.fwalls[i], GLDWF_TOP, GLDWF_SKY - 1);
     }
     glDisable(GL_STENCIL_TEST);
 
@@ -3298,7 +3306,7 @@ void gld_DrawScene(player_t *player)
     glDisable(GL_POLYGON_OFFSET_FILL);
   }
 
-  EnableAlphaBlend(&gl_alpha_blended);
+  gl_SetAlphaBlend(true);
 
  if (gl_drawskys != 2) // skybox is already applied if gl_drawskys == 2
  {
@@ -3328,10 +3336,7 @@ void gld_DrawScene(player_t *player)
         gld_DrawWall(&gld_drawinfo.walls[i]);
       }
     }
-    //gld_ProcessWall(&gld_drawinfo.walls[i], &gl_alpha_blended, GLDWF_SKY, GLDWF_SKYFLIP);
   }
-
-  //EnableAlphaBlend(&gl_alpha_blended);
 
   if (gl_drawskys)
   {
@@ -3364,10 +3369,10 @@ void gld_DrawScene(player_t *player)
     // transparent walls
     for (i = gld_drawinfo.num_twalls - 1; i >= 0; i--)
     {
-      gld_ProcessWall(&gld_drawinfo.twalls[i], &gl_alpha_blended, GLDWF_TOP, GLDWF_SKYFLIP);
+      gld_ProcessWall(&gld_drawinfo.twalls[i], GLDWF_TOP, GLDWF_SKYFLIP);
     }
 
-    EnableAlphaBlend(&gl_alpha_blended);
+    gl_SetAlphaBlend(true);
 
     // transparent sprites
     for (i = gld_drawinfo.num_tsprites - 1; i >= 0; i--)
