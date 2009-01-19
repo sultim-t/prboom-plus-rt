@@ -3022,8 +3022,8 @@ static void gld_DrawSprite(GLSprite *sprite)
   offsety = (gl_spriteclip != spriteclip_const ? sprite->y : sprite->y + (.01f * (float)gl_sprite_offset));
   if (!render_paperitems && !(sprite->thing->flags & (MF_SOLID | MF_SPAWNCEILING)))
   {
-    float xcenter = (sprite->x1 + sprite->x2) * 0.5f;
-    float ycenter = (sprite->y1 + sprite->y2) * 0.5f;
+    float xcenter = (float)abs((sprite->x1 + sprite->x2) * 0.5f);
+    float ycenter = (float)abs((sprite->y1 + sprite->y2) * 0.5f);
     glTranslatef(sprite->x + xcenter, offsety + ycenter, sprite->z);
     glRotatef(inv_yaw, 0.0f, 1.0f, 0.0f);
     glRotatef(paperitems_pitch, 1.0f, 0.0f, 0.0f);
