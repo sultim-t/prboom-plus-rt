@@ -1891,7 +1891,7 @@ void gld_StartDrawScene(void)
   zCamera=(float)viewz/MAP_SCALE;
 
   yaw=270.0f-(float)(viewangle>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
-  inv_yaw=-90.0f+(float)(viewangle>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
+  inv_yaw=180.0f-yaw;
 
   //e6y: fog in frame
   gl_use_fog = !gl_compatibility && gl_fog && !frame_fixedcolormap && !boom_cm;
@@ -1903,6 +1903,8 @@ void gld_StartDrawScene(void)
   {
     pitch=0.0f;
     paperitems_pitch = 0.0f;
+    skyXShift = -2.0f*((yaw+90.0f)/90.0f);
+    skyYShift = 200.0f/319.5f*((100.0f)/100.0f);
   }
   else
   {
@@ -2474,16 +2476,8 @@ static void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2)
     wall->gltexture = gld_RegisterTexture(skytexture, false, true);
     if (wall->gltexture)
     {
-      if (!mlook_or_fov)
-      {
-        wall->skyyaw  = -2.0f*((yaw+90.0f)/90.0f);
-        wall->skyymid = 200.0f/319.5f*((100.0f)/100.0f);
-      }
-      else
-      {
-        wall->skyyaw  =-2.0f*(((270.0f-(float)((viewangle)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)+90.0f)/90.0f/fovscale);
-        wall->skyymid = skyYShift;
-      }
+      wall->skyyaw  = skyXShift;
+      wall->skyymid = skyYShift;
       wall->flag = GLDWF_SKY;
     }
   }
