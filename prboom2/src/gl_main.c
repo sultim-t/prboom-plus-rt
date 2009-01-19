@@ -3195,14 +3195,7 @@ void gld_ProcessWall(GLWall *wall, int from_index, int to_index)
   {
     if (wall->flag==k)
     {
-      if (!wall->seg->backsector && (wall->gltexture->flags&GLTEXTURE_HASHOLES))
-      {
-        gl_SetAlphaBlend(false);
-      }
-      else
-      {
-        gl_SetAlphaBlend(true);
-      }
+      gl_SetAlphaBlend(wall->seg->backsector || !(wall->gltexture->flags&GLTEXTURE_HASHOLES));
         
       // e6y
       // The ultimate 'ATI sucks' fix: Some of ATIs graphics cards are so unprecise when 
@@ -3245,6 +3238,10 @@ void gld_DrawScene(player_t *player)
 
   //e6y
   SkyDrawed = false;
+
+  //e6y: must call it twice for correct initialisation
+  gl_SetAlphaBlend(false);
+  gl_SetAlphaBlend(true);
 
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glEnableClientState(GL_VERTEX_ARRAY);
