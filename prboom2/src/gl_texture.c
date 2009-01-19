@@ -1149,33 +1149,32 @@ static void gld_CleanTexItems(int count, GLTexture ***items)
 
   if (!(*items))
     return;
+
   for (i=0; i<count; i++)
   {
     if ((*items)[i])
     {
-      if (gl_boom_colormaps)
+      int cm, n;
+      for (j=0; j<(CR_LIMIT+MAXPLAYERS); j++)
       {
-        int cm, n;
-        for (j=0; j<(CR_LIMIT+MAXPLAYERS); j++)
+        for (n=0; n<PLAYERCOLORMAP_COUNT; n++)
         {
-          for (n=0; n<PLAYERCOLORMAP_COUNT; n++)
+          for (cm=0; cm<numcolormaps; cm++)
           {
-            for (cm=0; cm<numcolormaps; cm++)
+            if ((*items) && (*items)[i]->glTexExID)
             {
-              if ((*items) && (*items)[i]->glTexExID)
-              {
-                glDeleteTextures(1,&((*items)[i]->glTexExID[j][n][cm]));
-              }
+              glDeleteTextures(1,&((*items)[i]->glTexExID[j][n][cm]));
             }
           }
         }
-        Z_Free((*items)[i]->glTexExID);
-        (*items)[i]->glTexExID = NULL;
       }
-      else
+      
+      Z_Free((*items)[i]->glTexExID);
+      (*items)[i]->glTexExID = NULL;
+
+      for (j=0; j<(CR_LIMIT+MAXPLAYERS); j++)
       {
-        for (j=0; j<(CR_LIMIT+MAXPLAYERS); j++)
-          glDeleteTextures(1,&((*items)[i]->glTexID[j]));
+        glDeleteTextures(1,&((*items)[i]->glTexID[j]));
       }
 
       Z_Free((*items)[i]);
