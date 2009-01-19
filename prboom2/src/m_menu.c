@@ -5950,7 +5950,6 @@ void M_Init(void)
   M_ChangeFOV();
   M_ChangeSpriteClip();
   M_ChangeAllowBoomColormaps();
-  M_ChangeTextureUseHires();
 #endif
   M_ChangeScreenMultipleFactor();
   M_ChangeInterlacedScanning();

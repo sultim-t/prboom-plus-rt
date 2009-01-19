@@ -658,10 +658,14 @@ void M_ChangeSpriteClip(void)
 void M_ChangeAllowBoomColormaps(void)
 {
   if (gl_boom_colormaps == -1)
+  {
     gl_boom_colormaps = gl_boom_colormaps_default;
-
-  gld_FlushTextures();
-  gld_Precache();
+  }
+  else
+  {
+    gld_FlushTextures();
+    gld_Precache();
+  }
 }
 
 void M_ChangeTextureUseHires(void)
