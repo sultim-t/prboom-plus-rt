@@ -549,7 +549,8 @@ void gld_Init(int width, int height)
   gld_InitFBO();
 #endif
 
-  atexit(gld_CleanMemory); //e6y
+  //e6y: is can be slow
+  //atexit(gld_CleanMemory); //e6y
 }
 
 void gld_InitCommandLine(void)
