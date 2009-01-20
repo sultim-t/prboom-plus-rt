@@ -222,13 +222,12 @@ static boolean P_CheckForZDoomNodes(int lumpnum, int gl_lumpnum)
 
 static void P_GetNodesVersion(int lumpnum, int gl_lumpnum)
 {
-  const void *data;
-
   int ver = -1;
   nodesVersion = 0;
 
-  data = W_CacheLumpNum(gl_lumpnum+ML_GL_VERTS);
-  if ( (gl_lumpnum > lumpnum) && (forceOldBsp == false) && (compatibility_level >= prboom_2_compatibility) ) {
+  if ( (gl_lumpnum > lumpnum) && (forceOldBsp == false) && (compatibility_level >= prboom_2_compatibility) )
+  {
+    const void *data = W_CacheLumpNum(gl_lumpnum+ML_GL_VERTS);
     if (*(const int *)data == gNd2) {
       data = W_CacheLumpNum(gl_lumpnum+ML_GL_SEGS);
       if (*(const int *)data == gNd3) {
@@ -1611,6 +1610,86 @@ static void P_RemoveSlimeTrails(void)         // killough 10/98
 }
 
 //
+// P_CheckLumpsForSameSource
+//
+// Are these lumps in the same wad file?
+//
+
+boolean P_CheckLumpsForSameSource(int lump1, int lump2)
+{
+  int wad1_index, wad2_index;
+  wadfile_info_t *wad1, *wad2;
+
+  if (((unsigned)lump1 >= (unsigned)numlumps) || ((unsigned)lump2 >= (unsigned)numlumps))
+    return false;
+  
+  wad1 = lumpinfo[lump1].wadfile;
+  wad2 = lumpinfo[lump2].wadfile;
+  
+  if (!wad1 || !wad2)
+    return false;
+
+  wad1_index = (int)(wad1 - wadfiles);
+  wad2_index = (int)(wad2 - wadfiles);
+
+  if (wad1_index != wad2_index)
+    return false;
+
+  if ((wad1_index < 0) || ((size_t)wad1_index >= numwadfiles))
+    return false;
+
+  if ((wad2_index < 0) || ((size_t)wad2_index >= numwadfiles))
+    return false;
+
+  return true;
+}
+
+//
+// P_CheckLevelFormat
+//
+// Checking for presence of necessary lumps
+//
+
+void P_CheckLevelWadStructure(const char *mapname)
+{
+  int i, lumpnum;
+
+  char *ml_labels[] = {
+    "ML_LABEL",             // A separator, name, ExMx or MAPxx
+    "ML_THINGS",            // Monsters, items..
+    "ML_LINEDEFS",          // LineDefs, from editing
+    "ML_SIDEDEFS",          // SideDefs, from editing
+    "ML_VERTEXES",          // Vertices, edited and BSP splits generated
+    "ML_SEGS",              // LineSegs, from LineDefs split by BSP
+    "ML_SSECTORS",          // SubSectors, list of LineSegs
+    "ML_NODES",             // BSP nodes
+    "ML_SECTORS",           // Sectors, from editing
+    "ML_REJECT",            // LUT, sector-sector visibility
+    "ML_BLOCKMAP",          // LUT, motion clipping, walls/grid element
+  };
+
+  if (!mapname)
+  {
+    I_Error("P_SetupLevel: Wrong map name");
+  }
+
+  lumpnum = W_CheckNumForName(mapname);
+
+  if (lumpnum < 0)
+  {
+    I_Error("P_SetupLevel: There is no %s map.", mapname);
+  }
+
+  for (i = ML_THINGS + 1; i <= ML_SECTORS; i++)
+  {
+    if (!P_CheckLumpsForSameSource(lumpnum, lumpnum + i))
+    {
+      I_Error("P_SetupLevel: Level wad structure is incomplete. There is no %s lump.", ml_labels[i]);
+    }
+  }
+}
+
+//
 // P_SetupLevel
 //
 // killough 5/3/98: reformatted, cleaned up
@@ -1634,10 +1713,10 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   wminfo.partime = 180;
 
   for (i=0; i<MAXPLAYERS; i++)
-  {//e6y
+  {
     players[i].killcount = players[i].secretcount = players[i].itemcount = 0;
     players[i].resurectedkillcount = 0;//e6y
-  }//e6y
+  }
 
   // Initial height of PointOfView will be set by player think.
   players[consoleplayer].viewz = 1;
@@ -1670,6 +1749,11 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 
   lumpnum = W_GetNumForName(lumpname);
   gl_lumpnum = W_CheckNumForName(gl_lumpname); // figgi
+
+  // e6y
+  // Refuse to load a map with incomplete pwad structure.
+  // Avoid segfaults on levels without nodes.
+  P_CheckLevelWadStructure(lumpname);
 
   leveltime = 0; totallive = 0;
 
