@@ -1799,22 +1799,12 @@ static void infinitePerspective(GLdouble fovy, GLdouble aspect, GLdouble znear)
 // Voodoo as example
 void gld_DrawSkyBox(void)
 {
-  int i;
-  GLWall *wall = NULL;
-
-  for (i = gld_drawinfo.num_items[GLDIT_WALL] - 1; i >= 0; i--)
-  {  
-    if (gld_drawinfo.items[GLDIT_WALL][i].item.wall->flag >= GLDWF_SKY)
-    {
-      wall = gld_drawinfo.items[GLDIT_WALL][i].item.wall;
-      break;
-    }
-  }
-
-  if (wall)
+  if (gld_drawinfo.num_items[GLDIT_SWALL] > 0)
   {
     float fU1,fU2,fV1,fV2;
     float k1, k2;
+
+    GLWall *wall = wall = gld_drawinfo.items[GLDIT_WALL][0].item.wall;
 
     glMatrixMode(GL_TEXTURE);
     glPushMatrix();
@@ -2221,8 +2211,8 @@ static void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata)
 
   static itemsizes[GLDIT_TYPES] = {
     0,
-    sizeof(GLWall), sizeof(GLWall), sizeof(GLWall),
-    sizeof(GLFlat),
+    sizeof(GLWall), sizeof(GLWall), sizeof(GLWall), sizeof(GLWall),
+    sizeof(GLFlat), sizeof(GLFlat),
     sizeof(GLSprite), sizeof(GLSprite),
   };
 
@@ -2532,7 +2522,7 @@ static void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2)
   if (wall->gltexture)
   {
     wall->gltexture->flags |= GLTEXTURE_SKY;
-    gld_AddDrawItem((wall->alpha == 1.0f ? GLDIT_WALL : GLDIT_TWALL), wall);
+    gld_AddDrawItem(GLDIT_SWALL, wall);
   }
 }
 
@@ -3010,7 +3000,7 @@ static void gld_AddFlat(int sectornum, boolean ceiling, visplane_t *plane)
   // get height from plane
   flat.z=(float)plane->height/MAP_SCALE;
 
-  gld_AddDrawItem(GLDIT_FLAT, &flat);
+  gld_AddDrawItem((flat.ceiling ? GLDIT_CEILING : GLDIT_FLOOR), &flat);
 }
 
 void gld_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling)
@@ -3166,15 +3156,8 @@ void gld_AddSprite(vissprite_t *vspr)
     }
   }
 
-  //e6y: transparent sprites
-  if (sprite.trans || sprite.shadow)
-  {
-    gld_AddDrawItem(GLDIT_TSPRITE, &sprite);
-  }
-  else
-  {
-    gld_AddDrawItem(GLDIT_SPRITE, &sprite);
-  }
+  //e6y: support for transparent sprites
+  gld_AddDrawItem((sprite.trans || sprite.shadow ? GLDIT_TSPRITE : GLDIT_SPRITE), &sprite);
 }
 
 /*****************
@@ -3209,49 +3192,39 @@ static inline gl_SetAlphaBlend(boolean on)
 }
 
 //e6y
-void gld_ProcessWall(GLWall *wall, int from_index, int to_index)
+void gld_ProcessWall(GLWall *wall)
 {
-  int k, count;
+  gl_SetAlphaBlend(wall->seg->backsector || !(wall->gltexture->flags&GLTEXTURE_HASHOLES));
 
-  count=0;
-  for (k=from_index; k<=to_index; k++)
+  // e6y
+  // The ultimate 'ATI sucks' fix: Some of ATIs graphics cards are so unprecise when 
+  // rendering geometry that each and every border between polygons must be seamless, 
+  // otherwise there are rendering artifacts worse than anything that could be seen 
+  // on Geforce 2's! Made this a menu option because the speed impact is quite severe
+  // and this special handling is not necessary on modern NVidia cards.
+  if (gl_seamless)
   {
-    if (wall->flag==k)
+    seg_t *seg = wall->seg;
+    vertex_t *v1, *v2;
+    if (seg->sidedef == &sides[seg->linedef->sidenum[0]])
     {
-      gl_SetAlphaBlend(wall->seg->backsector || !(wall->gltexture->flags&GLTEXTURE_HASHOLES));
-        
-      // e6y
-      // The ultimate 'ATI sucks' fix: Some of ATIs graphics cards are so unprecise when 
-      // rendering geometry that each and every border between polygons must be seamless, 
-      // otherwise there are rendering artifacts worse than anything that could be seen 
-      // on Geforce 2's! Made this a menu option because the speed impact is quite severe
-      // and this special handling is not necessary on modern NVidia cards.
-      if (gl_seamless)
-      {
-        seg_t *seg = wall->seg;
-        vertex_t *v1, *v2;
-        if (seg->sidedef == &sides[seg->linedef->sidenum[0]])
-        {
-          v1 = seg->linedef->v1;
-          v2 = seg->linedef->v2;
-        }
-        else
-        {
-          v1 = seg->linedef->v2;
-          v2 = seg->linedef->v1;
-        }
-
-        wall->glseg->fracleft  = (seg->v1->x != v1->x) || (seg->v1->y != v1->y);
-        wall->glseg->fracright = (seg->v2->x != v2->x) || (seg->v2->y != v2->y);
-
-        gld_RecalcVertexHeights(seg->v1);
-        gld_RecalcVertexHeights(seg->v2);
-      }
-
-      count++;
-      gld_DrawWall(wall);
+      v1 = seg->linedef->v1;
+      v2 = seg->linedef->v2;
     }
+    else
+    {
+      v1 = seg->linedef->v2;
+      v2 = seg->linedef->v1;
+    }
+
+    wall->glseg->fracleft  = (seg->v1->x != v1->x) || (seg->v1->y != v1->y);
+    wall->glseg->fracright = (seg->v2->x != v2->x) || (seg->v2->y != v2->y);
+
+    gld_RecalcVertexHeights(seg->v1);
+    gld_RecalcVertexHeights(seg->v2);
   }
+
+  gld_DrawWall(wall);
 }
 
 void gld_DrawScene(player_t *player)
@@ -3275,24 +3248,18 @@ void gld_DrawScene(player_t *player)
 
   // floors
   glCullFace(GL_FRONT);
-  for (i = gld_drawinfo.num_items[GLDIT_FLAT] - 1; i >= 0; i--)
+  for (i = gld_drawinfo.num_items[GLDIT_FLOOR] - 1; i >= 0; i--)
   {
-    if (!gld_drawinfo.items[GLDIT_FLAT][i].item.flat->ceiling)
-    {
-      gld_SetFog(gld_drawinfo.items[GLDIT_FLAT][i].item.flat->fogdensity);
-      gld_DrawFlat(gld_drawinfo.items[GLDIT_FLAT][i].item.flat);
-    }
+    gld_SetFog(gld_drawinfo.items[GLDIT_FLOOR][i].item.flat->fogdensity);
+    gld_DrawFlat(gld_drawinfo.items[GLDIT_FLOOR][i].item.flat);
   }
 
   // ceilings
   glCullFace(GL_BACK);
-  for (i = gld_drawinfo.num_items[GLDIT_FLAT] - 1; i >= 0; i--)
+  for (i = gld_drawinfo.num_items[GLDIT_CEILING] - 1; i >= 0; i--)
   {
-    if (gld_drawinfo.items[GLDIT_FLAT][i].item.flat->ceiling)
-    {
-      gld_SetFog(gld_drawinfo.items[GLDIT_FLAT][i].item.flat->fogdensity);
-      gld_DrawFlat(gld_drawinfo.items[GLDIT_FLAT][i].item.flat);
-    }
+    gld_SetFog(gld_drawinfo.items[GLDIT_CEILING][i].item.flat->fogdensity);
+    gld_DrawFlat(gld_drawinfo.items[GLDIT_CEILING][i].item.flat);
   }
 
   // disable backside removing
@@ -3302,7 +3269,7 @@ void gld_DrawScene(player_t *player)
   for (i = gld_drawinfo.num_items[GLDIT_WALL] - 1; i >= 0; i--)
   {
     gld_SetFog(gld_drawinfo.items[GLDIT_WALL][i].item.wall->fogdensity);
-    gld_ProcessWall(gld_drawinfo.items[GLDIT_WALL][i].item.wall, GLDWF_TOP, GLDWF_SKY - 1);
+    gld_ProcessWall(gld_drawinfo.items[GLDIT_WALL][i].item.wall);
   }
 
   gl_EnableFog(false);
@@ -3318,7 +3285,7 @@ void gld_DrawScene(player_t *player)
     glEnable(GL_STENCIL_TEST);
     for (i = gld_drawinfo.num_items[GLDIT_FWALL] - 1; i >= 0; i--)
     {
-      gld_ProcessWall(gld_drawinfo.items[GLDIT_FWALL][i].item.wall, GLDWF_TOP, GLDWF_SKY - 1);
+      gld_ProcessWall(gld_drawinfo.items[GLDIT_FWALL][i].item.wall);
     }
     glDisable(GL_STENCIL_TEST);
 
@@ -3328,49 +3295,42 @@ void gld_DrawScene(player_t *player)
 
   gl_SetAlphaBlend(true);
 
- if (gl_drawskys != 2) // skybox is already applied if gl_drawskys == 2
- {
-  if ( (gl_drawskys) )
+  if (gl_drawskys != 2) // skybox is already applied if gl_drawskys == 2
   {
-    if (comp[comp_skymap] && gl_shared_texture_palette)
-      glDisable(GL_SHARED_TEXTURE_PALETTE_EXT);
-    
-    if (comp[comp_skymap] && (invul_method & INVUL_BW))
-      glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-    
-    glEnable(GL_TEXTURE_GEN_S);
-    glEnable(GL_TEXTURE_GEN_T);
-    glEnable(GL_TEXTURE_GEN_Q);
-    if (comp[comp_skymap] || !(invul_method & INVUL_BW))
-      glColor4fv(gl_whitecolor);
-  }
-
-  // skies
-  for (i = gld_drawinfo.num_items[GLDIT_WALL] - 1; i >= 0; i--)
-  {
-    int k;
-    for (k=GLDWF_SKY; k<=GLDWF_SKYFLIP; k++)
+    if ( (gl_drawskys) )
     {
-      if (gld_drawinfo.items[GLDIT_WALL][i].item.wall->flag==k)
-      {
-        gld_DrawWall(gld_drawinfo.items[GLDIT_WALL][i].item.wall);
-      }
+      if (comp[comp_skymap] && gl_shared_texture_palette)
+        glDisable(GL_SHARED_TEXTURE_PALETTE_EXT);
+
+      if (comp[comp_skymap] && (invul_method & INVUL_BW))
+        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+
+      glEnable(GL_TEXTURE_GEN_S);
+      glEnable(GL_TEXTURE_GEN_T);
+      glEnable(GL_TEXTURE_GEN_Q);
+      if (comp[comp_skymap] || !(invul_method & INVUL_BW))
+        glColor4fv(gl_whitecolor);
+    }
+
+    // skies
+    for (i = gld_drawinfo.num_items[GLDIT_SWALL] - 1; i >= 0; i--)
+    {
+      gld_DrawWall(gld_drawinfo.items[GLDIT_SWALL][i].item.wall);
+    }
+
+    if (gl_drawskys)
+    {
+      glDisable(GL_TEXTURE_GEN_Q);
+      glDisable(GL_TEXTURE_GEN_T);
+      glDisable(GL_TEXTURE_GEN_S);
+
+      if (comp[comp_skymap] && (invul_method & INVUL_BW))
+        glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB,GL_COMBINE);
+
+      if (comp[comp_skymap] && gl_shared_texture_palette)
+        glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
     }
   }
-
-  if (gl_drawskys)
-  {
-    glDisable(GL_TEXTURE_GEN_Q);
-    glDisable(GL_TEXTURE_GEN_T);
-    glDisable(GL_TEXTURE_GEN_S);
-
-    if (comp[comp_skymap] && (invul_method & INVUL_BW))
-      glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB,GL_COMBINE);
-
-    if (comp[comp_skymap] && gl_shared_texture_palette)
-      glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
-  }
- }
 
   // opaque sprites
   for (i = gld_drawinfo.num_items[GLDIT_SPRITE] - 1; i >= 0; i--)
@@ -3389,7 +3349,7 @@ void gld_DrawScene(player_t *player)
     // transparent walls
     for (i = gld_drawinfo.num_items[GLDIT_TWALL] - 1; i >= 0; i--)
     {
-      gld_ProcessWall(gld_drawinfo.items[GLDIT_TWALL][i].item.wall, GLDWF_TOP, GLDWF_SKYFLIP);
+      gld_ProcessWall(gld_drawinfo.items[GLDIT_TWALL][i].item.wall);
     }
 
     gl_SetAlphaBlend(true);

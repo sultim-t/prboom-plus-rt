@@ -393,17 +393,15 @@ void gld_DrawDetail_NoARB(void)
       glEnable(GL_CULL_FACE);
       // floors
       glCullFace(GL_FRONT);
-      for (i = gld_drawinfo.num_items[GLDIT_FLAT] - 1; i >= 0; i--)
+      for (i = gld_drawinfo.num_items[GLDIT_FLOOR] - 1; i >= 0; i--)
       {
-        if (!gld_drawinfo.items[GLDIT_FLAT][i].item.flat->ceiling)
-          gld_DrawFlatDetail_NoARB(gld_drawinfo.items[GLDIT_FLAT][i].item.flat);
+        gld_DrawFlatDetail_NoARB(gld_drawinfo.items[GLDIT_FLOOR][i].item.flat);
       }
       // ceilings
       glCullFace(GL_BACK);
-      for (i = gld_drawinfo.num_items[GLDIT_FLAT] - 1; i >= 0; i--)
+      for (i = gld_drawinfo.num_items[GLDIT_CEILING] - 1; i >= 0; i--)
       {
-        if (gld_drawinfo.items[GLDIT_FLAT][i].item.flat->ceiling)
-          gld_DrawFlatDetail_NoARB(gld_drawinfo.items[GLDIT_FLAT][i].item.flat);
+        gld_DrawFlatDetail_NoARB(gld_drawinfo.items[GLDIT_CEILING][i].item.flat);
       }
       glDisable(GL_CULL_FACE);
     }

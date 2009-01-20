@@ -183,12 +183,18 @@ typedef struct
 typedef enum
 {
   GLDIT_NONE,
-  GLDIT_WALL,
-  GLDIT_FWALL, //e6y: projected wall
-  GLDIT_TWALL, //e6y: transparent walls
-  GLDIT_FLAT,
-  GLDIT_SPRITE,
-  GLDIT_TSPRITE, //e6y: transparent sprites
+
+  GLDIT_WALL,    // opaque wall
+  GLDIT_FWALL,   // projected wall
+  GLDIT_TWALL,   // transparent walls
+  GLDIT_SWALL,   // sky walls
+  
+  GLDIT_CEILING, // ceiling
+  GLDIT_FLOOR,   // floor
+
+  GLDIT_SPRITE,  // opaque sprite
+  GLDIT_TSPRITE, // transparent sprites
+
   GLDIT_TYPES
 } GLDrawItemType;
 
