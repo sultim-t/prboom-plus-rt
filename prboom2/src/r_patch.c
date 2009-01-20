@@ -28,6 +28,36 @@
  *
  *-----------------------------------------------------------------------------*/
 
+/*
+**---------------------------------------------------------------------------
+** Copyright 2004-2006 Randy Heit
+** All rights reserved.
+**
+** Redistribution and use in source and binary forms, with or without
+** modification, are permitted provided that the following conditions
+** are met:
+**
+** 1. Redistributions of source code must retain the above copyright
+**    notice, this list of conditions and the following disclaimer.
+** 2. Redistributions in binary form must reproduce the above copyright
+**    notice, this list of conditions and the following disclaimer in the
+**    documentation and/or other materials provided with the distribution.
+** 3. The name of the author may not be used to endorse or promote products
+**    derived from this software without specific prior written permission.
+**
+** THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+** IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+** OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+** IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+** INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+** NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+** THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+**---------------------------------------------------------------------------
+*/
+
 #include "z_zone.h"
 #include "doomstat.h"
 #include "w_wad.h"
@@ -184,11 +214,68 @@ static int getColumnEdgeSlope(const column_t *prevcolumn, const column_t *nextco
   return 0;
 }
 
+//==========================================================================
+//
+// Checks if the lump can be a Doom patch
+//
+//==========================================================================
+
+static boolean CheckIfPatch(int lump)
+{
+  int size;
+  int width, height;
+  const patch_t * patch;
+
+  size = W_LumpLength(lump);
+  
+  // minimum length of a valid Doom patch
+  if (size < 13)
+    return false;
+
+  patch = (const patch_t *)W_CacheLumpNum(lump);
+
+  width = SHORT(patch->width);
+  height = SHORT(patch->height);
+
+  if (height > 0 && height < 2048 && width > 0 && width <= 2048 && width < size / 4)
+  {
+    // The dimensions seem like they might be valid for a patch, so
+    // check the column directory for extra security. At least one
+    // column must begin exactly at the end of the column directory,
+    // and none of them must point past the end of the patch.
+    boolean gapAtStart = true;
+    int x;
+
+    for (x = 0; x < width; x++)
+    {
+      unsigned int ofs = LONG(patch->columnofs[x]);
+      if (ofs == (unsigned int)width * 4 + 8)
+      {
+        gapAtStart = false;
+      }
+      else
+      {
+        // Need one byte for an empty column (but there's patches that don't know that!)
+        if (ofs >= (unsigned int)size)
+        {
+          W_UnlockLumpNum(lump);
+          return false;
+        }
+      }
+    }
+    W_UnlockLumpNum(lump);
+    return !gapAtStart;
+  }
+
+  W_UnlockLumpNum(lump);
+  return false;
+}
+
 //---------------------------------------------------------------------------
 static void createPatch(int id) {
   rpatch_t *patch;
   const int patchNum = id;
-  const patch_t *oldPatch = (const patch_t*)W_CacheLumpNum(patchNum);
+  const patch_t *oldPatch;
   const column_t *oldColumn, *oldPrevColumn, *oldNextColumn;
   int x, y;
   int pixelDataSize;
@@ -205,6 +292,14 @@ static void createPatch(int id) {
   if (id >= numlumps)
     I_Error("createPatch: %i >= numlumps", id);
 #endif
+
+  if (!CheckIfPatch(patchNum))
+  {
+    I_Error("createPatch: Unknown patch format %s.",
+      (patchNum < numlumps ? lumpinfo[patchNum].name : NULL));
+  }
+
+  oldPatch = (const patch_t*)W_CacheLumpNum(patchNum);
 
   patch = &patches[id];
   // proff - 2003-02-16 What about endianess?
