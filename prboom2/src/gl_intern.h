@@ -188,45 +188,39 @@ typedef enum
   GLDIT_TWALL, //e6y: transparent walls
   GLDIT_FLAT,
   GLDIT_SPRITE,
-  GLDIT_TSPRITE //e6y: transparent sprites
+  GLDIT_TSPRITE, //e6y: transparent sprites
+  GLDIT_TYPES
 } GLDrawItemType;
 
-typedef struct
+typedef struct GLDrawItem_s;
+
+typedef struct GLDrawItem_s
 {
-  GLDrawItemType itemtype;
-  int itemcount;
-  int firstitemindex;
-  byte rendermarker;
+  union
+  {
+    void *item;
+    GLWall *wall;
+    GLFlat *flat;
+    GLSprite *sprite;
+  } item;
 } GLDrawItem;
 
+typedef struct GLDrawDataItem_s
+{
+  byte *data;
+  int maxsize;
+  int size;
+} GLDrawDataItem_t;
+
 typedef struct
 {
-  GLWall *walls;
-  int num_walls;
-  int max_walls;
-  GLFlat *flats;
-  int num_flats;
-  int max_flats;
-  GLSprite *sprites;
-  int num_sprites;
-  int max_sprites;
-  
-  //e6y: transparent walls
-  GLWall *twalls;
-  int num_twalls;
-  int max_twalls;
-  //e6y: projected walls
-  GLWall *fwalls;
-  int num_fwalls;
-  int max_fwalls;
-  //e6y: transparent sprites
-  GLSprite *tsprites;
-  int num_tsprites;
-  int max_tsprites;
+  GLDrawDataItem_t *data;
+  int maxsize;
+  int size;
 
-  GLDrawItem *drawitems;
-  int num_drawitems;
-  int max_drawitems;
+  GLDrawItem *items[GLDIT_TYPES];
+  int num_items[GLDIT_TYPES];
+  int max_items[GLDIT_TYPES];
 } GLDrawInfo;
 
 void gld_DrawTriangleStrip(GLWall *wall, gl_strip_coords_t *c);

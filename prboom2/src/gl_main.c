@@ -918,7 +918,14 @@ static void gld_AddGlobalVertexes(int count)
 
 GLSeg *gl_segs=NULL;
 
+// e6y
+// New memory manager for GL data.
+// It is more universal and much easier in use.
 GLDrawInfo gld_drawinfo;
+static void gld_FreeDrawInfo(void);
+static void gld_ResetDrawInfo(void);
+static void gld_AddDrawRange(int size);
+static void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata);
 
 // this is the list for all sectors to the loops
 GLSector *sectorloops;
@@ -1795,11 +1802,11 @@ void gld_DrawSkyBox(void)
   int i;
   GLWall *wall = NULL;
 
-  for (i = gld_drawinfo.num_walls - 1; i >= 0; i--)
+  for (i = gld_drawinfo.num_items[GLDIT_WALL] - 1; i >= 0; i--)
   {  
-    if (gld_drawinfo.walls[i].flag >= GLDWF_SKY)
+    if (gld_drawinfo.items[GLDIT_WALL][i].item.wall->flag >= GLDWF_SKY)
     {
-      wall = &gld_drawinfo.walls[i];
+      wall = gld_drawinfo.items[GLDIT_WALL][i].item.wall;
       break;
     }
   }
@@ -1866,8 +1873,6 @@ void gld_DrawSkyBox(void)
 
 void gld_StartDrawScene(void)
 {
-  //e6y float xCamera,yCamera;
-
   extern int screenblocks;
   int height;
 
@@ -1988,18 +1993,8 @@ void gld_StartDrawScene(void)
   glRotatef(yaw,   0.0f, 1.0f, 0.0f);
   glTranslatef(-xCamera, -zCamera, -yCamera);
 
-//  if (use_fog)
-//    glEnable(GL_FOG);
-//  else
-//    glDisable(GL_FOG);
   rendermarker++;
-  gld_drawinfo.num_walls=0;
-  gld_drawinfo.num_flats=0;
-  gld_drawinfo.num_sprites=0;
-  gld_drawinfo.num_fwalls=0;   //e6y: projected walls
-  gld_drawinfo.num_tsprites=0; //e6y: transparent sprites
-  gld_drawinfo.num_twalls=0;   //e6y: transparent walls
-  gld_drawinfo.num_drawitems=0;
+  gld_ResetDrawInfo();
 }
 
 //e6y
@@ -2150,40 +2145,127 @@ void gld_EndDrawScene(void)
     glDisable(GL_SHARED_TEXTURE_PALETTE_EXT);
 }
 
-static void gld_AddDrawItem(GLDrawItemType itemtype, int itemindex)
+//
+// gld_FreeDrawInfo
+//
+static void gld_FreeDrawInfo(void)
 {
-  if (gld_drawinfo.num_drawitems>=gld_drawinfo.max_drawitems)
+  int i;
+
+  for (i = 0; i < gld_drawinfo.maxsize; i++)
   {
-    gld_drawinfo.max_drawitems+=64;
-    gld_drawinfo.drawitems=Z_Realloc(gld_drawinfo.drawitems,gld_drawinfo.max_drawitems*sizeof(GLDrawItem),PU_LEVEL,0);
-    gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].itemtype=itemtype;
-    gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].itemcount=1;
-    gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].firstitemindex=itemindex;
-    gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].rendermarker=rendermarker;
-    return;
-  }
-  if (gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].rendermarker!=rendermarker)
-  {
-    gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].itemtype=GLDIT_NONE;
-    gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].rendermarker=rendermarker;
-  }
-  if (gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].itemtype!=itemtype)
-  {
-    if (gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].itemtype!=GLDIT_NONE)
-      gld_drawinfo.num_drawitems++;
-    if (gld_drawinfo.num_drawitems>=gld_drawinfo.max_drawitems)
+    if (gld_drawinfo.data[i].data)
     {
-      gld_drawinfo.max_drawitems+=64;
-      gld_drawinfo.drawitems=Z_Realloc(gld_drawinfo.drawitems,gld_drawinfo.max_drawitems*sizeof(GLDrawItem),PU_LEVEL,0);
+      free(gld_drawinfo.data[i].data);
+      gld_drawinfo.data[i].data = 0;
     }
-    gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].itemtype=itemtype;
-    gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].itemcount=1;
-    gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].firstitemindex=itemindex;
-    gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].rendermarker=rendermarker;
-    return;
   }
-  gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].itemcount++;
+  free(gld_drawinfo.data);
+  gld_drawinfo.data = 0;
+
+  for (i = 0; i < GLDIT_TYPES; i++)
+  {
+    if (gld_drawinfo.items[i])
+    {
+      free(gld_drawinfo.items[i]);
+      gld_drawinfo.items[i] = 0;
+    }
+  }
+
+  memset(&gld_drawinfo, 0, sizeof(GLDrawInfo));
 }
+
+//
+// gld_ResetDrawInfo
+//
+// Should be used between frames (in gld_StartDrawScene)
+//
+static void gld_ResetDrawInfo(void)
+{
+  int i;
+
+  for (i = 0; i < gld_drawinfo.maxsize; i++)
+  {
+    gld_drawinfo.data[i].size = 0;
+  }
+  gld_drawinfo.size = 0;
+
+  for (i = 0; i < GLDIT_TYPES; i++)
+  {
+    gld_drawinfo.num_items[i] = 0;
+  }
+}
+
+//
+// gld_AddDrawRange
+//
+static void gld_AddDrawRange(int size)
+{
+  gld_drawinfo.maxsize++;
+  gld_drawinfo.data = realloc(gld_drawinfo.data, 
+    gld_drawinfo.maxsize * sizeof(gld_drawinfo.data[0]));
+
+  gld_drawinfo.data[gld_drawinfo.size].maxsize = size;
+  gld_drawinfo.data[gld_drawinfo.size].data = malloc(size);
+  gld_drawinfo.data[gld_drawinfo.size].size = 0;
+}
+
+//
+// gld_AddDrawItem
+//
+#define NEWSIZE (MAX(64 * 1024, itemsize))
+static void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata)
+{
+  int itemsize = 0;
+  byte *item_p = NULL;
+
+  static itemsizes[GLDIT_TYPES] = {
+    0,
+    sizeof(GLWall), sizeof(GLWall), sizeof(GLWall),
+    sizeof(GLFlat),
+    sizeof(GLSprite), sizeof(GLSprite),
+  };
+
+  itemsize = itemsizes[itemtype];
+  if (itemsize == 0)
+  {
+    I_Error("gld_AddDrawItem: unknown GLDrawItemType %d", itemtype);
+  }
+
+  if (gld_drawinfo.maxsize == 0)
+  {
+    gld_AddDrawRange(NEWSIZE);
+  }
+
+  if (gld_drawinfo.data[gld_drawinfo.size].size + itemsize >=
+    gld_drawinfo.data[gld_drawinfo.size].maxsize)
+  {
+    gld_drawinfo.size++;
+    if (gld_drawinfo.size >= gld_drawinfo.maxsize)
+    {
+      gld_AddDrawRange(NEWSIZE);
+    }
+  }
+
+  item_p = gld_drawinfo.data[gld_drawinfo.size].data +
+    gld_drawinfo.data[gld_drawinfo.size].size;
+
+  memcpy(item_p, itemdata, itemsize);
+
+  gld_drawinfo.data[gld_drawinfo.size].size += itemsize;
+
+  if (gld_drawinfo.num_items[itemtype] >= gld_drawinfo.max_items[itemtype])
+  {
+    gld_drawinfo.max_items[itemtype] += 64;
+    gld_drawinfo.items[itemtype] = realloc(
+      gld_drawinfo.items[itemtype],
+      gld_drawinfo.max_items[itemtype] * sizeof(gld_drawinfo.items[0]));
+  }
+
+  gld_drawinfo.items[itemtype][gld_drawinfo.num_items[itemtype]].item.item = item_p;
+  gld_drawinfo.num_items[itemtype]++;
+}
+#undef NEWSIZE
 
 /*****************
  *               *
@@ -2396,41 +2478,6 @@ static void gld_DrawWall(GLWall *wall)
     (w).vb=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->buffer_height)\
   )
 
-#define ADDFWALL(wall)\
-{\
-  if (gld_drawinfo.num_fwalls>=gld_drawinfo.max_fwalls)\
-  {\
-    gld_drawinfo.max_fwalls+=128;\
-    gld_drawinfo.fwalls=Z_Realloc(gld_drawinfo.fwalls,gld_drawinfo.max_fwalls*sizeof(GLWall),PU_LEVEL,0);\
-  }\
-  gld_AddDrawItem(GLDIT_FWALL, gld_drawinfo.num_fwalls);\
-  gld_drawinfo.fwalls[gld_drawinfo.num_fwalls++]=*wall;\
-};
-
-#define ADDWALL(wall)\
-{\
-  if ((*wall).alpha!=1.0f)\
-  {\
-    if (gld_drawinfo.num_twalls>=gld_drawinfo.max_twalls)\
-    {\
-      gld_drawinfo.max_twalls+=128;\
-      gld_drawinfo.twalls=Z_Realloc(gld_drawinfo.twalls,gld_drawinfo.max_twalls*sizeof(GLWall),PU_LEVEL,0);\
-    }\
-    gld_AddDrawItem(GLDIT_TWALL, gld_drawinfo.num_twalls);\
-    gld_drawinfo.twalls[gld_drawinfo.num_twalls++]=*wall;\
-  }\
-  else\
-  {\
-    if (gld_drawinfo.num_walls>=gld_drawinfo.max_walls)\
-    {\
-      gld_drawinfo.max_walls+=128;\
-      gld_drawinfo.walls=Z_Realloc(gld_drawinfo.walls,gld_drawinfo.max_walls*sizeof(GLWall),PU_LEVEL,0);\
-    }\
-    gld_AddDrawItem(GLDIT_WALL, gld_drawinfo.num_walls);\
-    gld_drawinfo.walls[gld_drawinfo.num_walls++]=*wall;\
-  }\
-};
-
 // e6y
 // Sky textures with a zero index should be forced
 // See third episode of requiem.wad
@@ -2485,7 +2532,7 @@ static void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2)
   if (wall->gltexture)
   {
     wall->gltexture->flags |= GLTEXTURE_SKY;
-    ADDWALL(wall);
+    gld_AddDrawItem((wall->alpha == 1.0f ? GLDIT_WALL : GLDIT_TWALL), wall);
   }
 }
 
@@ -2548,7 +2595,7 @@ void gld_AddWall(seg_t *seg)
         wall, seg, (LINE->flags & ML_DONTPEGBOTTOM)>0,
         segs[seg->iSegID].length, lineheight
       );
-      ADDWALL(&wall);
+      gld_AddDrawItem((wall.alpha == 1.0f ? GLDIT_WALL : GLDIT_TWALL), &wall);
     }
   }
   else /* twosided */
@@ -2618,7 +2665,7 @@ void gld_AddWall(seg_t *seg)
             wall.flag=GLDWF_TOPFLUD;
             temptex=gld_RegisterFlat(flattranslation[seg->backsector->ceilingpic], true);
             wall.gltexture=temptex;
-            ADDFWALL(&wall);
+            gld_AddDrawItem(GLDIT_FWALL, &wall);
           }
         }
         else
@@ -2630,7 +2677,7 @@ void gld_AddWall(seg_t *seg)
             wall, seg, (LINE->flags & (/*e6y ML_DONTPEGBOTTOM | */ML_DONTPEGTOP))==0,
             segs[seg->iSegID].length, lineheight
           );
-          ADDWALL(&wall);
+          gld_AddDrawItem((wall.alpha == 1.0f ? GLDIT_WALL : GLDIT_TWALL), &wall);
         }
       }
     }
@@ -2712,7 +2759,7 @@ void gld_AddWall(seg_t *seg)
 
       if (seg->linedef->tranlump >= 0 && general_translucency)
         wall.alpha=(float)tran_filter_pct/100.0f;
-      ADDWALL(&wall);
+      gld_AddDrawItem((wall.alpha == 1.0f ? GLDIT_WALL : GLDIT_TWALL), &wall);
       wall.alpha=1.0f;
     }
 bottomtexture:
@@ -2760,7 +2807,7 @@ bottomtexture:
           wall.flag = GLDWF_BOTFLUD;
           temptex=gld_RegisterFlat(flattranslation[seg->backsector->floorpic], true);
           wall.gltexture=temptex;
-          ADDFWALL(&wall);
+          gld_AddDrawItem(GLDIT_FWALL, &wall);
         }
       }
       else
@@ -2773,7 +2820,7 @@ bottomtexture:
           segs[seg->iSegID].length, lineheight,
           floor_height-frontsector->ceilingheight
         );
-        ADDWALL(&wall);
+        gld_AddDrawItem((wall.alpha == 1.0f ? GLDIT_WALL : GLDIT_TWALL), &wall);
       }
     }
   }
@@ -2963,13 +3010,7 @@ static void gld_AddFlat(int sectornum, boolean ceiling, visplane_t *plane)
   // get height from plane
   flat.z=(float)plane->height/MAP_SCALE;
 
-  if (gld_drawinfo.num_flats>=gld_drawinfo.max_flats)
-  {
-    gld_drawinfo.max_flats+=128;
-    gld_drawinfo.flats=Z_Realloc(gld_drawinfo.flats,gld_drawinfo.max_flats*sizeof(GLFlat),PU_LEVEL,0);
-  }
-  gld_AddDrawItem(GLDIT_FLAT, gld_drawinfo.num_flats);
-  gld_drawinfo.flats[gld_drawinfo.num_flats++]=flat;
+  gld_AddDrawItem(GLDIT_FLAT, &flat);
 }
 
 void gld_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling)
@@ -3128,23 +3169,11 @@ void gld_AddSprite(vissprite_t *vspr)
   //e6y: transparent sprites
   if (sprite.trans || sprite.shadow)
   {
-    if (gld_drawinfo.num_tsprites>=gld_drawinfo.max_tsprites)
-    {
-      gld_drawinfo.max_tsprites+=128;
-      gld_drawinfo.tsprites=Z_Realloc(gld_drawinfo.tsprites,gld_drawinfo.max_tsprites*sizeof(GLSprite),PU_LEVEL,0);
-    }
-    gld_AddDrawItem(GLDIT_TSPRITE, gld_drawinfo.num_tsprites);
-    gld_drawinfo.tsprites[gld_drawinfo.num_tsprites++]=sprite;
+    gld_AddDrawItem(GLDIT_TSPRITE, &sprite);
   }
   else
   {
-    if (gld_drawinfo.num_sprites>=gld_drawinfo.max_sprites)
-    {
-      gld_drawinfo.max_sprites+=128;
-      gld_drawinfo.sprites=Z_Realloc(gld_drawinfo.sprites,gld_drawinfo.max_sprites*sizeof(GLSprite),PU_LEVEL,0);
-    }
-    gld_AddDrawItem(GLDIT_SPRITE, gld_drawinfo.num_sprites);
-    gld_drawinfo.sprites[gld_drawinfo.num_sprites++]=sprite;
+    gld_AddDrawItem(GLDIT_SPRITE, &sprite);
   }
 }
 
@@ -3246,23 +3275,23 @@ void gld_DrawScene(player_t *player)
 
   // floors
   glCullFace(GL_FRONT);
-  for (i = gld_drawinfo.num_flats - 1; i >= 0; i--)
+  for (i = gld_drawinfo.num_items[GLDIT_FLAT] - 1; i >= 0; i--)
   {
-    if (!gld_drawinfo.flats[i].ceiling)
+    if (!gld_drawinfo.items[GLDIT_FLAT][i].item.flat->ceiling)
     {
-      gld_SetFog(gld_drawinfo.flats[i].fogdensity);
-      gld_DrawFlat(&gld_drawinfo.flats[i]);
+      gld_SetFog(gld_drawinfo.items[GLDIT_FLAT][i].item.flat->fogdensity);
+      gld_DrawFlat(gld_drawinfo.items[GLDIT_FLAT][i].item.flat);
     }
   }
 
   // ceilings
   glCullFace(GL_BACK);
-  for (i = gld_drawinfo.num_flats - 1; i >= 0; i--)
+  for (i = gld_drawinfo.num_items[GLDIT_FLAT] - 1; i >= 0; i--)
   {
-    if (gld_drawinfo.flats[i].ceiling)
+    if (gld_drawinfo.items[GLDIT_FLAT][i].item.flat->ceiling)
     {
-      gld_SetFog(gld_drawinfo.flats[i].fogdensity);
-      gld_DrawFlat(&gld_drawinfo.flats[i]);
+      gld_SetFog(gld_drawinfo.items[GLDIT_FLAT][i].item.flat->fogdensity);
+      gld_DrawFlat(gld_drawinfo.items[GLDIT_FLAT][i].item.flat);
     }
   }
 
@@ -3270,10 +3299,10 @@ void gld_DrawScene(player_t *player)
   glDisable(GL_CULL_FACE);
 
   // opaque walls
-  for (i = gld_drawinfo.num_walls - 1; i >= 0; i--)
+  for (i = gld_drawinfo.num_items[GLDIT_WALL] - 1; i >= 0; i--)
   {
-    gld_SetFog(gld_drawinfo.walls[i].fogdensity);
-    gld_ProcessWall(&gld_drawinfo.walls[i], GLDWF_TOP, GLDWF_SKY - 1);
+    gld_SetFog(gld_drawinfo.items[GLDIT_WALL][i].item.wall->fogdensity);
+    gld_ProcessWall(gld_drawinfo.items[GLDIT_WALL][i].item.wall, GLDWF_TOP, GLDWF_SKY - 1);
   }
 
   gl_EnableFog(false);
@@ -3287,9 +3316,9 @@ void gld_DrawScene(player_t *player)
     glEnable(GL_POLYGON_OFFSET_FILL);
 
     glEnable(GL_STENCIL_TEST);
-    for (i = gld_drawinfo.num_fwalls - 1; i >= 0; i--)
+    for (i = gld_drawinfo.num_items[GLDIT_FWALL] - 1; i >= 0; i--)
     {
-      gld_ProcessWall(&gld_drawinfo.fwalls[i], GLDWF_TOP, GLDWF_SKY - 1);
+      gld_ProcessWall(gld_drawinfo.items[GLDIT_FWALL][i].item.wall, GLDWF_TOP, GLDWF_SKY - 1);
     }
     glDisable(GL_STENCIL_TEST);
 
@@ -3317,14 +3346,14 @@ void gld_DrawScene(player_t *player)
   }
 
   // skies
-  for (i = gld_drawinfo.num_walls - 1; i >= 0; i--)
+  for (i = gld_drawinfo.num_items[GLDIT_WALL] - 1; i >= 0; i--)
   {
     int k;
     for (k=GLDWF_SKY; k<=GLDWF_SKYFLIP; k++)
     {
-      if (gld_drawinfo.walls[i].flag==k)
+      if (gld_drawinfo.items[GLDIT_WALL][i].item.wall->flag==k)
       {
-        gld_DrawWall(&gld_drawinfo.walls[i]);
+        gld_DrawWall(gld_drawinfo.items[GLDIT_WALL][i].item.wall);
       }
     }
   }
@@ -3344,13 +3373,13 @@ void gld_DrawScene(player_t *player)
  }
 
   // opaque sprites
-  for (i = gld_drawinfo.num_sprites - 1; i >= 0; i--)
+  for (i = gld_drawinfo.num_items[GLDIT_SPRITE] - 1; i >= 0; i--)
   {
-    gld_DrawSprite(&gld_drawinfo.sprites[i]);
+    gld_DrawSprite(gld_drawinfo.items[GLDIT_SPRITE][i].item.sprite);
   }
 
   // transparent stuff
-  if (gld_drawinfo.num_twalls > 0 || gld_drawinfo.num_tsprites > 0)
+  if (gld_drawinfo.num_items[GLDIT_TWALL] > 0 || gld_drawinfo.num_items[GLDIT_TSPRITE] > 0)
   {
     // if translucency percentage is less than 50,
     // then all translucent textures and sprites disappear completely
@@ -3358,15 +3387,15 @@ void gld_DrawScene(player_t *player)
     glAlphaFunc(GL_GREATER, 0.0f);
 
     // transparent walls
-    for (i = gld_drawinfo.num_twalls - 1; i >= 0; i--)
+    for (i = gld_drawinfo.num_items[GLDIT_TWALL] - 1; i >= 0; i--)
     {
-      gld_ProcessWall(&gld_drawinfo.twalls[i], GLDWF_TOP, GLDWF_SKYFLIP);
+      gld_ProcessWall(gld_drawinfo.items[GLDIT_TWALL][i].item.wall, GLDWF_TOP, GLDWF_SKYFLIP);
     }
 
     gl_SetAlphaBlend(true);
 
     // transparent sprites
-    for (i = gld_drawinfo.num_tsprites - 1; i >= 0; i--)
+    for (i = gld_drawinfo.num_items[GLDIT_TSPRITE] - 1; i >= 0; i--)
     {
       // sorting is necessary only for transparent sprites.
       // from back to front
@@ -3374,16 +3403,16 @@ void gld_DrawScene(player_t *player)
       {
         max_scale = INT_MAX;
         k = -1;
-        for (j = gld_drawinfo.num_tsprites - 1; j >= 0; j--)
-          if (gld_drawinfo.tsprites[j].scale < max_scale)
+        for (j = gld_drawinfo.num_items[GLDIT_TSPRITE] - 1; j >= 0; j--)
+          if (gld_drawinfo.items[GLDIT_TSPRITE][j].item.sprite->scale < max_scale)
           {
-            max_scale = gld_drawinfo.tsprites[j].scale;
+            max_scale = gld_drawinfo.items[GLDIT_TSPRITE][j].item.sprite->scale;
             k = j;
           }
           if (k >= 0)
           {
-            gld_DrawSprite(&gld_drawinfo.tsprites[k]);
-            gld_drawinfo.tsprites[k].scale=INT_MAX;
+            gld_DrawSprite(gld_drawinfo.items[GLDIT_TSPRITE][k].item.sprite);
+            gld_drawinfo.items[GLDIT_TSPRITE][k].item.sprite->scale=INT_MAX;
           }
       } while (max_scale!=INT_MAX);
     }
@@ -3438,7 +3467,8 @@ void gld_PreprocessLevel(void)
     memset(segrendered, 0, numsegs*sizeof(segrendered[0]));
   }
 
-  memset(&gld_drawinfo,0,sizeof(GLDrawInfo));
+  gld_FreeDrawInfo();
+
   glTexCoordPointer(2,GL_FLOAT,0,gld_texcoords);
   glVertexPointer(3,GL_FLOAT,0,gld_vertexes);
 

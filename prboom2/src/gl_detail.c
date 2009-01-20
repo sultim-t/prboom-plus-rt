@@ -393,28 +393,28 @@ void gld_DrawDetail_NoARB(void)
       glEnable(GL_CULL_FACE);
       // floors
       glCullFace(GL_FRONT);
-      for (i=gld_drawinfo.num_flats-1; i>=0; i--)
+      for (i = gld_drawinfo.num_items[GLDIT_FLAT] - 1; i >= 0; i--)
       {
-        if (!gld_drawinfo.flats[i].ceiling)
-          gld_DrawFlatDetail_NoARB(&gld_drawinfo.flats[i]);
+        if (!gld_drawinfo.items[GLDIT_FLAT][i].item.flat->ceiling)
+          gld_DrawFlatDetail_NoARB(gld_drawinfo.items[GLDIT_FLAT][i].item.flat);
       }
       // ceilings
       glCullFace(GL_BACK);
-      for (i=gld_drawinfo.num_flats-1; i>=0; i--)
+      for (i = gld_drawinfo.num_items[GLDIT_FLAT] - 1; i >= 0; i--)
       {
-        if (gld_drawinfo.flats[i].ceiling)
-          gld_DrawFlatDetail_NoARB(&gld_drawinfo.flats[i]);
+        if (gld_drawinfo.items[GLDIT_FLAT][i].item.flat->ceiling)
+          gld_DrawFlatDetail_NoARB(gld_drawinfo.items[GLDIT_FLAT][i].item.flat);
       }
       glDisable(GL_CULL_FACE);
     }
 
     if (render_detailedwalls)
     {
-      for (i=gld_drawinfo.num_walls-1; i>=0; i--)
-        gld_DrawWallDetail_NoARB(&gld_drawinfo.walls[i], GLDWF_TOP, GLDWF_SKY-1);
+      for (i = gld_drawinfo.num_items[GLDIT_WALL] - 1; i >= 0; i--)
+        gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_WALL][i].item.wall, GLDWF_TOP, GLDWF_SKY-1);
 
-      for (i=gld_drawinfo.num_twalls-1; i>=0; i--)
-        gld_DrawWallDetail_NoARB(&gld_drawinfo.twalls[i], GLDWF_TOP, GLDWF_SKY-1);
+      for (i = gld_drawinfo.num_items[GLDIT_TWALL] - 1; i >= 0; i--)
+        gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_TWALL][i].item.wall, GLDWF_TOP, GLDWF_SKY-1);
     }
     glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
