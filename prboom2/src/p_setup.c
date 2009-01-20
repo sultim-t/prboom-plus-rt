@@ -1687,6 +1687,16 @@ void P_CheckLevelWadStructure(const char *mapname)
       I_Error("P_SetupLevel: Level wad structure is incomplete. There is no %s lump.", ml_labels[i]);
     }
   }
+
+  // refuse to load Hexen-format maps, avoid segfaults
+  i = lumpnum + ML_BLOCKMAP + 1;
+  if (P_CheckLumpsForSameSource(lumpnum, i))
+  {
+    if (!strncasecmp(lumpinfo[i].name, "BEHAVIOR", 8))
+    {
+      I_Error("P_SetupLevel: %s: Hexen format not supported", mapname);
+    }
+  }
 }
 
 //
@@ -1762,11 +1772,6 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   // killough 3/1/98: P_LoadBlockMap call moved down to below
   // killough 4/4/98: split load of sidedefs into two parts,
   // to allow texture names to be used in special linedefs
-
-  // refuse to load Hexen-format maps, avoid segfaults
-  if ((i = lumpnum + ML_BLOCKMAP + 1) < numlumps
-      && !strncasecmp(lumpinfo[i].name, "BEHAVIOR", 8))
-    I_Error("P_SetupLevel: %s: Hexen format not supported", lumpname);
 
   // figgi 10/19/00 -- check for gl lumps and load them
   P_GetNodesVersion(lumpnum,gl_lumpnum);
