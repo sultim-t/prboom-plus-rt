@@ -3275,7 +3275,7 @@ void gld_DrawScene(player_t *player)
   gl_EnableFog(false);
 
   // projected walls
-  if (gl_use_stencil)
+  if (gl_use_stencil && gld_drawinfo.num_items[GLDIT_FWALL] > 0)
   {
     // Push bleeding floor/ceiling textures back a little in the z-buffer
     // so they don't interfere with overlapping mid textures.
@@ -3285,7 +3285,20 @@ void gld_DrawScene(player_t *player)
     glEnable(GL_STENCIL_TEST);
     for (i = gld_drawinfo.num_items[GLDIT_FWALL] - 1; i >= 0; i--)
     {
-      gld_ProcessWall(gld_drawinfo.items[GLDIT_FWALL][i].item.wall);
+      GLWall *wall = gld_drawinfo.items[GLDIT_FWALL][i].item.wall;
+      
+      if (gl_use_fog)
+      {
+        // calculation of fog density for flooded walls
+        if (((wall->flag == GLDWF_TOPFLUD) || (wall->flag == GLDWF_BOTFLUD)) && (wall->seg->backsector))
+        {
+          wall->fogdensity = gld_CalcFogDensity(frontsector, wall->seg->backsector->lightlevel);
+        }
+
+        gld_SetFog(wall->fogdensity);
+      }
+
+      gld_ProcessWall(wall);
     }
     glDisable(GL_STENCIL_TEST);
 
@@ -3349,6 +3362,7 @@ void gld_DrawScene(player_t *player)
     // transparent walls
     for (i = gld_drawinfo.num_items[GLDIT_TWALL] - 1; i >= 0; i--)
     {
+      gld_SetFog(gld_drawinfo.items[GLDIT_TWALL][i].item.wall->fogdensity);
       gld_ProcessWall(gld_drawinfo.items[GLDIT_TWALL][i].item.wall);
     }
 
