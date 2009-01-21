@@ -1804,7 +1804,7 @@ void gld_DrawSkyBox(void)
     float fU1,fU2,fV1,fV2;
     float k1, k2;
 
-    GLWall *wall = wall = gld_drawinfo.items[GLDIT_WALL][0].item.wall;
+    GLWall *wall = wall = gld_drawinfo.items[GLDIT_SWALL][0].item.wall;
 
     glMatrixMode(GL_TEXTURE);
     glPushMatrix();
