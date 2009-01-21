@@ -566,6 +566,7 @@ GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap, boolean force)
     gltexture->textype=GLDT_BROKEN;
     gltexture->index=texture_num;
     gltexture->mipmap=mipmap;
+    gltexture->wrap_mode = GL_REPEAT; //e6y
     gltexture->realtexwidth=texture->width;
     gltexture->realtexheight=texture->height;
     gltexture->leftoffset=0;
@@ -695,8 +696,8 @@ int gld_BuildTexture(GLTexture *gltexture,
       }
     }
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, gltexture->wrap_mode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gltexture->wrap_mode);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_mipmap_filter);
     if (gl_use_texture_filter_anisotropic)
@@ -765,8 +766,8 @@ int gld_BuildTexture(GLTexture *gltexture,
       }
     }
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, gltexture->wrap_mode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gltexture->wrap_mode);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
@@ -897,8 +898,7 @@ GLTexture *gld_RegisterPatch(int lump, int cm)
     gltexture->mipmap=false;
     
     //e6y
-    gltexture->wrap_mode = (patch->flags&PATCH_REPEAT?
-      (GL_REPEAT) :
+    gltexture->wrap_mode = (patch->flags & PATCH_REPEAT ? (GL_REPEAT) :
       (glversion >= OPENGL_VERSION_1_2 ? GL_CLAMP_TO_EDGE : GL_CLAMP));
 
     gltexture->realtexwidth=patch->width;
@@ -1033,6 +1033,7 @@ GLTexture *gld_RegisterFlat(int lump, boolean mipmap)
     gltexture->textype=GLDT_BROKEN;
     gltexture->index=firstflat+lump;
     gltexture->mipmap=mipmap;
+    gltexture->wrap_mode = GL_REPEAT; //e6y
     gltexture->realtexwidth=64;
     gltexture->realtexheight=64;
     gltexture->leftoffset=0;
