@@ -621,7 +621,10 @@ int main(int argc, char **argv)
 
   atexit(I_Quit);
 #ifndef _DEBUG
-  signal(SIGSEGV, I_SignalHandler);
+  if (!M_CheckParm("-devparm"))
+  {
+    signal(SIGSEGV, I_SignalHandler);
+  }
   signal(SIGTERM, I_SignalHandler);
   signal(SIGFPE,  I_SignalHandler);
   signal(SIGILL,  I_SignalHandler);
