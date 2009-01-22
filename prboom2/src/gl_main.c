@@ -116,6 +116,7 @@ gl_lightmode_t gl_lightmode;
 const char *gl_lightmodes[] = {"glboom", "gzdoom", "mixed"};
 int gl_light_ambient;
 
+boolean gl_arb_texture_non_power_of_two = false;
 boolean gl_arb_multitexture = false;
 boolean gl_arb_texture_compression = false;
 boolean gl_ext_framebuffer_object = false;
@@ -246,6 +247,23 @@ void gld_InitExtensionsEx(void)
 
   const GLubyte *extensions = glGetString(GL_EXTENSIONS);
 
+  if (gl_compatibility)
+  {
+    lprintf(LO_INFO, "gld_InitExtensionsEx: Compatibility mode is used.\n");
+    gl_arb_texture_non_power_of_two = false;
+    gl_arb_multitexture = false;
+    gl_arb_texture_compression = false;
+    gl_ext_framebuffer_object = false;
+    gl_ext_blend_color = false;
+    gl_use_stencil = false;
+    glversion = OPENGL_VERSION_1_1;
+    return;
+  }
+
+  gl_arb_texture_non_power_of_two = isExtensionSupported("GL_ARB_texture_non_power_of_two") != NULL;
+  if (gl_arb_texture_non_power_of_two)
+    lprintf(LO_INFO,"using GL_ARB_texture_non_power_of_two\n");
+
   gl_arb_multitexture = isExtensionSupported("GL_ARB_multitexture") != NULL;
 
   if (gl_arb_multitexture)
@@ -326,16 +344,6 @@ void gld_InitExtensionsEx(void)
   }
 
   gl_use_stencil = true;
-
-  if (gl_compatibility)
-  {
-    gl_arb_multitexture = false;
-    gl_arb_texture_compression = false;
-    gl_ext_framebuffer_object = false;
-    gl_ext_blend_color = false;
-    gl_use_stencil = false;
-    glversion = OPENGL_VERSION_1_1;
-  }
 }
 
 //e6y

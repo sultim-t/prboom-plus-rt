@@ -129,11 +129,16 @@ int gld_GetTexDimension(int value)
 {
   int i;
 
-  i=1;
-  while (i<value)
-    i*=2;
-  if (i>gld_max_texturesize)
-    i=gld_max_texturesize;
+  if (value > gld_max_texturesize)
+    value = gld_max_texturesize;
+  
+  if (gl_arb_texture_non_power_of_two)
+    return value;
+  
+  i = 1;
+  while (i < value)
+    i += i;
+
   return i;
 }
 
@@ -610,7 +615,7 @@ GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap, boolean force)
 // e6y: from Quake3
 // R_BlendOverTexture
 // Apply a color blend over a set of pixels
-static void R_BlendOverTexture(byte *data, int pixelCount, byte blend[4])
+static void gld_BlendOverTexture(byte *data, int pixelCount, byte blend[4])
 {
   int i;
   int inverseAlpha;
@@ -649,6 +654,37 @@ byte	mipBlendColors[16][4] =
   {0,0,255,128},
 };
 
+static void gld_RecolorMipLevels(byte *data)
+{
+  //e6y: development aid to see texture mip usage
+  if (gl_color_mip_levels)
+  {
+    int miplevel = 0;
+    static unsigned char *buf = NULL;
+
+    if (!buf)
+    {
+      buf = malloc(gld_max_texturesize * gld_max_texturesize * 4);
+    }
+
+    for (miplevel = 1; miplevel < 16; miplevel++)
+    {
+      int w, h;
+
+      glGetTexImage(GL_TEXTURE_2D, miplevel, gl_tex_format, GL_UNSIGNED_BYTE, buf);
+      glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_WIDTH, &w);
+      glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_HEIGHT, &h);
+
+      if (w <= 0 || h <= 0)
+        break;
+
+      gld_BlendOverTexture((byte *)buf, w * h, mipBlendColors[miplevel]);
+      glTexImage2D( GL_TEXTURE_2D, miplevel, gl_tex_format, w, h,
+        0, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+    }
+  }
+}
+
 int gld_BuildTexture(GLTexture *gltexture, void *data, boolean readonly,
                      int pitch, int width, int height,
                      unsigned char **out_buf, int *out_bufsize,
@@ -663,39 +699,38 @@ int gld_BuildTexture(GLTexture *gltexture, void *data, boolean readonly,
   tex_height = gld_GetTexDimension(height);
   tex_buffer_size = tex_width * tex_height * 4;
 
+  //your video is modern
+  if (gl_arb_texture_non_power_of_two)
+  {
+    boolean mipmap = gltexture->mipmap & use_mipmapping;
+
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, mipmap);
+
+    glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
+      tex_width, tex_height,
+      0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+    gld_RecolorMipLevels(data);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, gltexture->wrap_mode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gltexture->wrap_mode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (mipmap ? gl_mipmap_filter : gl_tex_filter));
+
+    if (gl_use_texture_filter_anisotropic && mipmap)
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)(1<<gl_texture_filter_anisotropic));
+
+    result = true;
+    goto l_exit;
+  }
+
 #ifdef USE_GLU_MIPMAP
   if (gltexture->mipmap & use_mipmapping)
   {
     gluBuild2DMipmaps(GL_TEXTURE_2D, gl_tex_format,
       width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
-    //e6y: development aid to see texture mip usage
-    if (gl_color_mip_levels)
-    {
-      int miplevel = 0;
-      static unsigned char *buf = NULL;
-
-      if (!buf)
-      {
-        buf = malloc(gld_max_texturesize * gld_max_texturesize * 4);
-      }
-
-      for (miplevel = 0; miplevel < 16; miplevel++)
-      {
-        int w, h;
-
-        glGetTexImage(GL_TEXTURE_2D, miplevel, gl_tex_format, GL_UNSIGNED_BYTE, buf);
-        glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_WIDTH, &w);
-        glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_HEIGHT, &h);
-        
-        if (w <= 0 || h <= 0)
-          break;
-
-        R_BlendOverTexture((byte *)buf, w * h, mipBlendColors[miplevel]);
-        glTexImage2D( GL_TEXTURE_2D, miplevel, gl_tex_format, w, h,
-          0, GL_RGBA, GL_UNSIGNED_BYTE, buf);
-      }
-    }
+    gld_RecolorMipLevels(data);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, gltexture->wrap_mode);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gltexture->wrap_mode);

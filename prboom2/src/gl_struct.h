@@ -65,6 +65,7 @@ void gld_FlushTextures(void);
 void gld_ApplyGammaRamp(byte *buf, int pitch, int width, int height);
 
 extern int gl_seamless;
+extern boolean gl_arb_texture_non_power_of_two;
 extern boolean gl_arb_multitexture;
 extern boolean gl_arb_texture_compression;
 extern boolean gl_ext_framebuffer_object;
