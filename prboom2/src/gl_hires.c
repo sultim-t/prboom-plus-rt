@@ -63,7 +63,6 @@
 char* strlwr(char* str);
 #endif
 
-int r_have_internal_hires = false;
 int gl_have_hires_textures = false;
 int gl_have_hires_flats = false;
 int gl_have_hires_patches = false;

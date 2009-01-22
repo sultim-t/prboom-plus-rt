@@ -128,6 +128,8 @@ typedef enum { render_precise_speed, render_precise_quality } render_precise_t;
 extern render_precise_t render_precise;
 extern const char *render_precises[];
 
+extern int r_have_internal_hires;
+
 //
 // REFRESH - the actual rendering functions.
 //

@@ -49,6 +49,7 @@
 #include "d_net.h"
 #include "doomtype.h"
 #include "i_system.h"
+#include "r_main.h"
 
 #ifdef __GNUG__
 #pragma implementation "w_wad.h"

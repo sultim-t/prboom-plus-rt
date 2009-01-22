@@ -64,6 +64,8 @@
 render_precise_t render_precise;
 const char *render_precises[] = {"Speed","Quality"};
 
+int r_have_internal_hires = false;
+
 // Fineangles in the SCREENWIDTH wide window.
 #define FIELDOFVIEW 2048
 

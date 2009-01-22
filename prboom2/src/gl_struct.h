@@ -116,7 +116,6 @@ int gld_wipe_StartScreen(void);
 int gld_wipe_EndScreen(void);
 
 // hires
-extern int r_have_internal_hires;
 extern int gl_texture_external_hires;
 extern int gl_texture_internal_hires;
 extern int gl_hires_override_pwads;

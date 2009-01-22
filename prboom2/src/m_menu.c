@@ -3030,7 +3030,7 @@ static const char *renderfilters[] = {"none", "point", "linear", "rounded"};
 static const char *edgetypes[] = {"jagged", "sloped"};
 
 setup_menu_t gen_settings4[] = { // General Settings screen3
-  {"Renderer settings",          S_SKIP|S_TITLE, m_null, G_X, G_Y+ 1*8},
+  {"Display Options",          S_SKIP|S_TITLE, m_null, G_X, G_Y+ 1*8},
   {"Filter for walls",           S_CHOICE, m_null, G_X, G_Y+ 2*8, {"filter_wall"}, 0, 0, NULL, renderfilters},
   {"Filter for floors/ceilings", S_CHOICE, m_null, G_X, G_Y+ 3*8, {"filter_floor"}, 0, 0, NULL, renderfilters},
   {"Filter for sprites",         S_CHOICE, m_null, G_X, G_Y+ 4*8, {"filter_sprite"}, 0, 0, NULL, renderfilters},
@@ -3069,8 +3069,13 @@ setup_menu_t gen_settings5[] = { // General Settings screen3
   {"Adjust Sprite Clipping",    S_CHOICE, m_null, G_X, G_Y+13*8, {"gl_spriteclip"}, 0, 0, M_ChangeSpriteClip, gl_spriteclipmodes},
   {"Item out of Floor offset",  S_NUM,    m_null, G_X, G_Y+14*8, {"gl_sprite_offset"}},
 #endif
+
   {"<- PREV",S_SKIP|S_PREV, m_null,KB_PREV, KB_Y+20*8, {gen_settings4}},
+#ifdef GL_DOOM
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings6}},
+#else
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings7}},
+#endif
   {0,S_SKIP|S_END,m_null}
 };
 
@@ -3081,6 +3086,7 @@ static const char *gltexfilters_anisotropics[] =
   {"Off", "2x", "4x", "8x", "16x", NULL};
 
 setup_menu_t gen_settings6[] = { // General Settings screen4
+#ifdef GL_DOOM
   {"Texture Options",  S_SKIP|S_TITLE,m_null,G_X,G_Y+ 1*8},
   {"Texture Filter Mode",     S_CHOICE, m_null, G_X, G_Y+2 *8, {"gl_texture_filter"}, 0, 0, M_ChangeTextureParams, gltexfilters},
   {"Anisotropic filter", S_CHOICE, m_null, G_X, G_Y+3 *8, {"gl_texture_filter_anisotropic"}, 0, 0, M_ChangeTextureParams, gltexfilters_anisotropics},
@@ -3098,6 +3104,7 @@ setup_menu_t gen_settings6[] = { // General Settings screen4
 
   {"Detailed Walls",            S_YESNO,  m_null, G_X, G_Y+16*8, {"render_detailedwalls"}, 0, 0, M_ChangeUseDetail},
   {"Detailed Flats",            S_YESNO,  m_null, G_X, G_Y+17*8, {"render_detailedflats"}, 0, 0, M_ChangeUseDetail},
+#endif //GL_DOOM
 
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {gen_settings5}},
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings7}},
@@ -3122,7 +3129,11 @@ setup_menu_t gen_settings7[] =
   {"WALK UNDER SOLID HANGING BODIES"   ,S_YESNO     ,m_null,G_X2,G_Y+14*8, {"comperr_hangsolid"}},
 
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
+#ifdef GL_DOOM
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {gen_settings6}},
+#else
+  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {gen_settings5}},
+#endif
   {0,S_SKIP|S_END,m_null}
 };
 
@@ -3142,13 +3153,6 @@ void M_FullScreen(void) // To (un)set fullscreen video after menu changes
 
 void M_ChangeDemoSmoothTurns(void)
 {
-  extern setup_menu_t gen_settings4[];
-
-  if (demo_smoothturns)
-    gen_settings4[3].m_flags &= ~(S_SKIP|S_DISABLE);
-  else
-    gen_settings4[3].m_flags |= (S_SKIP|S_DISABLE);
-
   R_SmoothPlaying_Reset(NULL);
 }
 
