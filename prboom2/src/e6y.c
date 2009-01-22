@@ -481,17 +481,14 @@ void G_SkipDemoCheck(void)
 void M_ChangeSpeed(void)
 {
   extern int sidemove[2];
-  extern setup_menu_t gen_settings4[];
 
   if(movement_strafe50)
   {
-    gen_settings4[6].m_flags &= ~(S_SKIP|S_DISABLE);
     sidemove[0] = sidemove_strafe50[0];
     sidemove[1] = sidemove_strafe50[1];
   }
   else
   {
-    gen_settings4[6].m_flags |= (S_SKIP|S_DISABLE);
     movement_strafe50onturns = false;
     sidemove[0] = sidemove_normal[0];
     sidemove[1] = sidemove_normal[1];
@@ -501,18 +498,7 @@ void M_ChangeSpeed(void)
 #ifdef GL_DOOM
 void M_ChangeMouseLook(void)
 {
-  extern setup_menu_t gen_settings5[];
   viewpitch = 0;
-  if(movement_mouselook)
-  {
-    gen_settings5[4].m_flags &= ~(S_SKIP|S_DISABLE);
-    gen_settings5[5].m_flags &= ~(S_SKIP|S_DISABLE);
-  }
-  else
-  {
-    gen_settings5[4].m_flags |= (S_SKIP|S_DISABLE);
-    gen_settings5[5].m_flags |= (S_SKIP|S_DISABLE);
-  }
 }
 
 void M_ChangeMouseInvert(void)
@@ -553,15 +539,6 @@ void M_ChangeRenderPrecise(void)
 
 void M_ChangeScreenMultipleFactor(void)
 {
-  extern setup_menu_t gen_settings6[];
-  if(render_screen_multiply != 1)
-  {
-    gen_settings6[2].m_flags &= ~(S_SKIP|S_DISABLE);
-  }
-  else
-  {
-    gen_settings6[2].m_flags |= (S_SKIP|S_DISABLE);
-  }
 }
 
 void M_ChangeInterlacedScanning(void)
@@ -643,16 +620,6 @@ void M_ChangeUseDetail(void)
 
 void M_ChangeSpriteClip(void)
 {
-  extern setup_menu_t gen_settings6[];
-
-  if(gl_spriteclip == spriteclip_const)
-  {
-    gen_settings6[10].m_flags &= ~(S_SKIP|S_DISABLE);
-  }
-  else
-  {
-    gen_settings6[10].m_flags |= (S_SKIP|S_DISABLE);
-  }
 }
 
 void M_ChangeAllowBoomColormaps(void)
@@ -676,29 +643,29 @@ void M_ChangeTextureUseHires(void)
 
 void M_ChangeLightMode(void)
 {
-  extern setup_menu_t gen_settings6[];
-
   if (gl_lightmode == gl_lightmode_glboom)
   {
-    gen_settings6[16].m_flags |= (S_SKIP|S_DISABLE);
     gld_SetGammaRamp(-1);
     gld_FlushTextures();
   }
 
   if (gl_lightmode == gl_lightmode_gzdoom)
   {
-    gen_settings6[16].m_flags &= ~(S_SKIP|S_DISABLE);
     gld_SetGammaRamp(useglgamma);
   }
 
   if (gl_lightmode == gl_lightmode_mixed)
   {
-    gen_settings6[16].m_flags &= ~(S_SKIP|S_DISABLE);
     gld_SetGammaRamp(-1);
     gld_FlushTextures();
   }
 }
-#endif
+
+void M_ChangeTextureHQResize(void)
+{
+  gld_FlushTextures();
+}
+#endif //GL_DOOM
 
 void M_Mouse(int choice, int *sens);
 void M_MouseMLook(int choice)

@@ -595,13 +595,14 @@ GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap, boolean force)
     gltexture->scalexfac=(float)gltexture->width/(float)gltexture->tex_width;
     gltexture->scaleyfac=(float)gltexture->height/(float)gltexture->tex_height;
 
+    gltexture->flags = 0;//e6y
+
     gltexture->buffer_size=gltexture->buffer_width*gltexture->buffer_height*4;
     if (gltexture->realtexwidth>gltexture->buffer_width)
       return gltexture;
     if (gltexture->realtexheight>gltexture->buffer_height)
       return gltexture;
     gltexture->textype=GLDT_TEXTURE;
-    gltexture->flags = 0;//e6y
   }
   return gltexture;
 }
@@ -797,6 +798,12 @@ l_exit:
   if (out_height)
     *out_height = tex_height;
 
+  if (!out_buf)
+  {
+    free(data);
+    data = NULL;
+  }
+
   return result;
 }
 
@@ -806,6 +813,7 @@ void gld_BindTexture(GLTexture *gltexture)
   int i;
   unsigned char *buffer;
   int *glTexID;
+  int w, h;
 
   if (gltexture==last_gltexture && boom_cm==last_boom_cm && frame_fixedcolormap==last_fixedcolormap)
     return;
@@ -873,11 +881,9 @@ void gld_BindTexture(GLTexture *gltexture)
     SmoothEdges(buffer, gltexture->buffer_width, gltexture->buffer_height);
   }
 
-  gld_BuildTexture(gltexture, buffer,
-    gltexture->buffer_width, gltexture->buffer_width, gltexture->buffer_height,
-    NULL, NULL, NULL, NULL);
+  buffer = gld_HQResize(gltexture, buffer, gltexture->buffer_width, gltexture->buffer_height, &w, &h);
 
-  free(buffer);
+  gld_BuildTexture(gltexture, buffer, w, w, h, NULL, NULL, NULL, NULL);
 }
 
 GLTexture *gld_RegisterPatch(int lump, int cm)
@@ -922,6 +928,11 @@ GLTexture *gld_RegisterPatch(int lump, int cm)
     gltexture->scalexfac=(float)gltexture->width/(float)gltexture->tex_width;
     gltexture->scaleyfac=(float)gltexture->height/(float)gltexture->tex_height;
 
+    //e6y
+    gltexture->flags = 0;
+    if (lump >= firstspritelump && lump > (firstspritelump + numsprites))
+      gltexture->flags |= GLTEXTURE_SPRITE;
+
     gltexture->buffer_size=gltexture->buffer_width*gltexture->buffer_height*4;
     R_UnlockPatchNum(lump);
     if (gltexture->realtexwidth>gltexture->buffer_width)
@@ -939,6 +950,7 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   int i;
   unsigned char *buffer;
   int *glTexID;
+  int w, h;
 
   cm = ((gltexture->flags & GLTEXTURE_HIRES) ? CR_DEFAULT : cm);
 
@@ -1013,11 +1025,10 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
     glGenTextures(1,glTexID);
   glBindTexture(GL_TEXTURE_2D, *glTexID);
 
-  gld_BuildTexture(gltexture, buffer,
-    gltexture->buffer_width, gltexture->buffer_width, gltexture->buffer_height,
-    NULL, NULL, NULL, NULL);
+  buffer = gld_HQResize(gltexture, buffer, gltexture->buffer_width, gltexture->buffer_height, &w, &h);
 
-  free(buffer);
+  gld_BuildTexture(gltexture, buffer, w, w, h, NULL, NULL, NULL, NULL);
+
   R_UnlockPatchNum(gltexture->index);
 }
 
@@ -1062,6 +1073,8 @@ GLTexture *gld_RegisterFlat(int lump, boolean mipmap)
     gltexture->scalexfac=(float)gltexture->width/(float)gltexture->tex_width;
     gltexture->scaleyfac=(float)gltexture->height/(float)gltexture->tex_height;
 
+    gltexture->flags = 0;
+
     gltexture->buffer_size=gltexture->buffer_width*gltexture->buffer_height*4;
     if (gltexture->realtexwidth>gltexture->buffer_width)
       return gltexture;
@@ -1078,6 +1091,7 @@ void gld_BindFlat(GLTexture *gltexture)
   int i;
   unsigned char *buffer;
   int *glTexID;
+  int w, h;
 
   if (gltexture==last_gltexture && boom_cm==last_boom_cm && frame_fixedcolormap==last_fixedcolormap)
     return;
@@ -1133,11 +1147,10 @@ void gld_BindFlat(GLTexture *gltexture)
   glBindTexture(GL_TEXTURE_2D, *glTexID);
   gld_GammaCorrect(buffer, gltexture->buffer_size);
 
-  gld_BuildTexture(gltexture, buffer,
-    gltexture->buffer_width, gltexture->buffer_width, gltexture->buffer_height,
-    NULL, NULL, NULL, NULL);
+  buffer = gld_HQResize(gltexture, buffer, gltexture->buffer_width, gltexture->buffer_height, &w, &h);
 
-  free(buffer);
+  gld_BuildTexture(gltexture, buffer, w, w, h, NULL, NULL, NULL, NULL);
+
   W_UnlockLumpNum(gltexture->index);
 }
 

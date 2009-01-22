@@ -111,6 +111,13 @@ extern int gl_hires_override_pwads;
 extern char *gl_texture_hires_dir;
 int gld_PrecachePatches(void);
 
+//HQ resize
+extern const char *gl_hqresizemodes[];
+extern int gl_texture_hqresize;
+extern int gl_texture_hqresize_textures;
+extern int gl_texture_hqresize_sprites;
+extern int gl_texture_hqresize_patches;
+
 //clipper
 boolean gld_clipper_SafeCheckRange(angle_t startAngle, angle_t endAngle);
 void gld_clipper_SafeAddClipRange(angle_t startangle, angle_t endangle);

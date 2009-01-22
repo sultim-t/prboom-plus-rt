@@ -2927,8 +2927,6 @@ setup_menu_t* gen_settings[] =
   gen_settings1,
   gen_settings2,
   gen_settings3,
-
-  //e6y
   gen_settings4,
   gen_settings5,
   gen_settings6,
@@ -2936,40 +2934,10 @@ setup_menu_t* gen_settings[] =
   NULL
 };
 
-enum {
-  general_trans,
-  general_transpct,
-  general_fullscreen,
-  general_videomode,
-//  general_pcx,
-//  general_diskicon,
-  general_uncapped,
-};
-
-enum {
-  general_gl_vsync,
-  general_gl_texfilter,
-  general_gl_texfilter_anisotropic,
-  general_gl_texformat,
-  general_flooroffset,
-};
-
-enum {
-//  general_sndcard,
-//  general_muscard,
-//  general_detvoices,
-#ifdef HAVE_LIBSDL_MIXER
-  general_sndpcspeaker,
-#endif
-  general_sndchan,
-  general_pitch
-};
-
 #define G_X 250
-#define G_YA  44
-#define G_YA2 (G_YA+7*8)
-#define G_YA3 (G_YA2+7*8)
 #define GF_X 76
+#define G_Y 23
+#define G_X2 284
 
 static const char *videomodes[] = {"8bit","15bit","16bit",
                                    "32bit","OpenGL", NULL};
@@ -2988,105 +2956,29 @@ static const char *gltexformats[] = {"GL_RGBA","GL_RGB5_A1",
 
 setup_menu_t gen_settings1[] = { // General Settings screen1
 
-  {"Video"       ,S_SKIP|S_TITLE, m_null, G_X, G_YA - 12},
-
-  {"Enable Translucency", S_YESNO, m_null, G_X,
-   G_YA + general_trans*8, {"translucency"}, 0, 0, M_Trans},
-
-  {"Translucency filter percentage", S_NUM, m_null, G_X,
-   G_YA + general_transpct*8, {"tran_filter_pct"}, 0, 0, M_Trans},
-
-  {"Fullscreen Video mode", S_YESNO|S_PRGWARN, m_null, G_X,
-   G_YA + general_fullscreen*8, {"use_fullscreen"}, 0, 0, NULL},
-
-  {"Video mode", S_CHOICE|S_PRGWARN, m_null, G_X,
-   G_YA + general_videomode*8, {"videomode"}, 0, 0, NULL, videomodes},
-
-  {"Uncapped Framerate", S_YESNO, m_null, G_X,
-  G_YA + general_uncapped*8, {"uncapped_framerate"}},
-
+  {"Video",                          S_SKIP|S_TITLE,     m_null, G_X, G_Y+ 1*8},
+  {"Enable Translucency",            S_YESNO,            m_null, G_X, G_Y+ 2*8, {"translucency"}, 0, 0, M_Trans},
+  {"Translucency filter percentage", S_NUM,              m_null, G_X, G_Y+ 3*8, {"tran_filter_pct"}, 0, 0, M_Trans},
+  {"Fullscreen Video mode",          S_YESNO|S_PRGWARN,  m_null, G_X, G_Y+ 4*8, {"use_fullscreen"}, 0, 0, NULL},
+  {"Video mode",                     S_CHOICE|S_PRGWARN, m_null, G_X, G_Y+ 5*8, {"videomode"}, 0, 0, NULL, videomodes},
+  {"Uncapped Framerate",             S_YESNO,            m_null, G_X, G_Y+ 6*8, {"uncapped_framerate"}},
 #ifdef GL_DOOM
-  {"OpenGL", S_SKIP|S_TITLE, m_null, G_X, G_YA2 - 12},
-
-  {"Vertical Sync" ,S_YESNO|S_PRGWARN ,m_null,G_X,
-   G_YA2 + general_gl_vsync*8, {"gl_vsync"}},
-
-  {"Texture filter", S_CHOICE, m_null, G_X,
-   G_YA2 + general_gl_texfilter*8, {"gl_tex_filter_string"}, 0, 0, M_ChangeTextureParams, gltexfilters},
-
-  {"Anisotropic filter", S_CHOICE, m_null, G_X,
-   G_YA2 + general_gl_texfilter_anisotropic*8, {"gl_texture_filter_anisotropic"}, 0, 0, M_ChangeTextureParams, gltexfilters_anisotropics},
-
-  {"Texture format", S_CHOICE, m_null, G_X,
-   G_YA2 + general_gl_texformat*8, {"gl_tex_format_string"}, 0, 0, M_ChangeTextureParams, gltexformats},
-  {"Item out of Floor offset", S_NUM, m_null, G_X,
-  G_YA2 + general_flooroffset*8, {"gl_sprite_offset"}},
+  {"Vertical Sync",                  S_YESNO|S_PRGWARN,  m_null, G_X, G_Y+ 7*8, {"gl_vsync"}},
 #endif
 
-#if 0
-  {"PCX instead of BMP for screenshots", S_YESNO, m_null, G_X,
-   G_YA + general_pcx*8, {"screenshot_pcx"}},
-#endif
-
-#if 0 // MBF
-  {"Flash Icon During Disk IO", S_YESNO, m_null, G_X,
-   G_YA + general_diskicon*8, {"disk_icon"}},
-#endif
-
-  {"Sound & Music", S_SKIP|S_TITLE, m_null, G_X, G_YA3 - 12},
-#if 0 // MBF
-  {"Sound Card", S_NUM|S_PRGWARN, m_null, G_X,
-   G_YA2 + general_sndcard*8, {"sound_card"}},
-
-  {"Music Card", S_NUM|S_PRGWARN, m_null, G_X,
-   G_YA2 + general_muscard*8, {"music_card"}},
-
-  {"Autodetect Number of Voices", S_YESNO|S_PRGWARN, m_null, G_X,
-   G_YA2 + general_detvoices*8, {"detect_voices"}},
-#endif
-
+  {"Sound & Music",                  S_SKIP|S_TITLE,     m_null, G_X, G_Y+ 9*8},
+  {"Number of Sound Channels",       S_NUM|S_PRGWARN,    m_null, G_X, G_Y+10*8, {"snd_channels"}},
+  {"Enable v1.1 Pitch Effects",      S_YESNO,            m_null, G_X, G_Y+11*8, {"pitched_sounds"}},
 #ifdef HAVE_LIBSDL_MIXER
-  {"PC Speaker emulation",     S_YESNO|S_PRGWARN, m_null,G_X,
-   G_YA3 + general_sndpcspeaker*8, {"snd_pcspeaker"}},
+  {"PC Speaker emulation",           S_YESNO|S_PRGWARN,  m_null, G_X, G_Y+12*8, {"snd_pcspeaker"}},
 #endif
-
-  {"Number of Sound Channels", S_NUM|S_PRGWARN, m_null, G_X,
-   G_YA3 + general_sndchan*8, {"snd_channels"}},
-
-  {"Enable v1.1 Pitch Effects", S_YESNO, m_null, G_X,
-   G_YA3 + general_pitch*8, {"pitched_sounds"}},
 
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
 
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings2}},
-
-  // Final entry
   {0,S_SKIP|S_END,m_null}
 };
-
-enum {
-  general_mouse,
-  general_joy,
-  general_leds
-};
-
-enum {
-  general_wad1,
-  general_wad2,
-  general_deh1,
-  general_deh2
-};
-
-enum {
-  general_corpse,
-  general_realtic,
-  general_defskill,
-};
-
-#define G_YB  44
-#define G_YB1 (G_YB+44)
-#define G_YB2 (G_YB1+52)
 
 static const char *gen_skillstrings[] = {
   // Dummy first option because defaultskill is 1-based
@@ -3095,167 +2987,120 @@ static const char *gen_skillstrings[] = {
 
 setup_menu_t gen_settings2[] = { // General Settings screen2
 
-  {"Input Devices"     ,S_SKIP|S_TITLE, m_null, G_X, G_YB - 12},
+  {"Input Devices",                    S_SKIP|S_TITLE, m_null, G_X, G_Y+ 1*8},
+  {"Enable Mouse",                     S_YESNO, m_null, G_X, G_Y+ 2*8, {"use_mouse"}},
+  {"Enable Joystick",                  S_YESNO, m_null, G_X, G_Y+ 3*8, {"use_joystick"}},
 
-  {"Enable Mouse", S_YESNO, m_null, G_X,
-   G_YB + general_mouse*8, {"use_mouse"}},
+  {"Files Preloaded at Game Startup",  S_SKIP|S_TITLE, m_null, G_X, G_Y + 5*8},
+  {"WAD # 1",                          S_FILE, m_null, GF_X, G_Y+ 6*8, {"wadfile_1"}}, 
+  {"WAD #2",                           S_FILE, m_null, GF_X, G_Y+ 7*8, {"wadfile_2"}},
+  {"DEH/BEX # 1",                      S_FILE, m_null, GF_X, G_Y+ 8*8, {"dehfile_1"}},
+  {"DEH/BEX #2",                       S_FILE, m_null, GF_X, G_Y+ 9*8, {"dehfile_2"}},
 
-  {"Enable Joystick", S_YESNO, m_null, G_X,
-   G_YB + general_joy*8, {"use_joystick"}},
+  {"Miscellaneous",                    S_SKIP|S_TITLE,  m_null, G_X, G_Y+11*8},
+  {"Maximum number of player corpses", S_NUM|S_PRGWARN, m_null, G_X, G_Y+12*8, {"max_player_corpse"}},
+  {"Game speed, percentage of normal", S_NUM|S_PRGWARN, m_null, G_X, G_Y+13*8, {"realtic_clock_rate"}},
+  {"Default skill level",              S_CHOICE,        m_null, G_X, G_Y+14*8, {"default_skill"}, 0, 0, NULL, gen_skillstrings},
+  {"Fast Exit",                        S_YESNO,         m_null, G_X, G_Y+15*8, {"misc_fastexit"}},
+#ifdef USE_WINDOWS_LAUNCHER
+  {"Use In-Game Launcher",             S_CHOICE,        m_null, G_X, G_Y+ 16*8, {"launcher_enable"}, 0, 0, NULL, launcher_enable_states},
+#endif
 
-  {"Files Preloaded at Game Startup",S_SKIP|S_TITLE, m_null, G_X,
-   G_YB1 - 12},
-
-  {"WAD # 1", S_FILE, m_null, GF_X, G_YB1 + general_wad1*8, {"wadfile_1"}},
-
-  {"WAD #2", S_FILE, m_null, GF_X, G_YB1 + general_wad2*8, {"wadfile_2"}},
-
-  {"DEH/BEX # 1", S_FILE, m_null, GF_X, G_YB1 + general_deh1*8, {"dehfile_1"}},
-
-  {"DEH/BEX #2", S_FILE, m_null, GF_X, G_YB1 + general_deh2*8, {"dehfile_2"}},
-
-  {"Miscellaneous"  ,S_SKIP|S_TITLE, m_null, G_X, G_YB2 - 12},
-
-  {"Maximum number of player corpses", S_NUM|S_PRGWARN, m_null, G_X,
-   G_YB2 + general_corpse*8, {"max_player_corpse"}},
-
-  {"Game speed, percentage of normal", S_NUM|S_PRGWARN, m_null, G_X,
-   G_YB2 + general_realtic*8, {"realtic_clock_rate"}},
-
-/* e6y
-  {"Smooth Demo Playback", S_YESNO, m_null, G_X,
-   G_YB2 + general_smooth*8, {"demo_smoothturns"}, 0, 0, M_ChangeDemoSmoothTurns},
-
-  {"Smooth Demo Playback Factor", S_NUM, m_null, G_X,
-   G_YB2 + general_smoothfactor*8, {"demo_smoothturnsfactor"}, 0, 0, M_ChangeDemoSmoothTurns},
- */
-
-  {"Default skill level", S_CHOICE, m_null, G_X,
-    G_YB2 + general_defskill*8, {"default_skill"}, 0, 0, NULL, gen_skillstrings},
 
   {"<- PREV",S_SKIP|S_PREV, m_null, KB_PREV, KB_Y+20*8, {gen_settings1}},
-
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings3}},
-
-  // Final entry
-
   {0,S_SKIP|S_END,m_null}
 };
 
-enum {
-  general_filterwall,
-  general_filterfloor,
-  general_filtersprite,
-  general_filterpatch,
-  general_filterz,
-  general_filter_threshold,
-  general_spriteedges,
-  general_patchedges,
-  general_hom,
-};
+setup_menu_t gen_settings3[] = { // General Settings screen2
+  {"Demos",                       S_SKIP|S_TITLE, m_null, G_X, G_Y+ 1*8},
+  {"Overwrite Existing",          S_YESNO, m_null, G_X, G_Y+ 2*8, {"demo_overwriteexisting"}},
+  {"Smooth Demo Playback",        S_YESNO, m_null, G_X, G_Y+ 3*8, {"demo_smoothturns"}, 0, 0, M_ChangeDemoSmoothTurns},
+  {"Smooth Demo Playback Factor", S_NUM,   m_null, G_X, G_Y+ 4*8, {"demo_smoothturnsfactor"}, 0, 0, M_ChangeDemoSmoothTurns},
 
-#define G_YC  44
+  {"Movements",                   S_SKIP|S_TITLE,m_null,G_X, G_Y+6*8},
+  {"Permanent Strafe50",          S_YESNO, m_null, G_X, G_Y+ 7*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
+  {"Strafe50 On Turns",           S_YESNO, m_null, G_X, G_Y+ 8*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
+
+  {"Mouse",                       S_SKIP|S_TITLE,m_null, G_X, G_Y+10*8},
+  {"Dbl-Click As Use",            S_YESNO, m_null, G_X, G_Y+11*8, {"mouse_doubleclick_as_use"}},
+#ifdef GL_DOOM
+  {"Enable Mouselook",            S_YESNO, m_null, G_X, G_Y+12*8, {"movement_mouselook"}, 0, 0, M_ChangeMouseLook},
+  {"Invert Mouse",                S_YESNO, m_null, G_X, G_Y+13*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
+  {"Max View Pitch",              S_NUM,   m_null, G_X, G_Y+14*8, {"movement_maxviewpitch"}, 0, 0, M_ChangeMaxViewPitch},
+#endif
+
+  {"<- PREV",S_SKIP|S_PREV, m_null,KB_PREV, KB_Y+20*8, {gen_settings2}},
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings4}},
+  {0,S_SKIP|S_END,m_null}
+};
 
 static const char *renderfilters[] = {"none", "point", "linear", "rounded"};
 static const char *edgetypes[] = {"jagged", "sloped"};
 
-setup_menu_t gen_settings3[] = { // General Settings screen2
+setup_menu_t gen_settings4[] = { // General Settings screen3
+  {"Renderer settings",          S_SKIP|S_TITLE, m_null, G_X, G_Y+ 1*8},
+  {"Filter for walls",           S_CHOICE, m_null, G_X, G_Y+ 2*8, {"filter_wall"}, 0, 0, NULL, renderfilters},
+  {"Filter for floors/ceilings", S_CHOICE, m_null, G_X, G_Y+ 3*8, {"filter_floor"}, 0, 0, NULL, renderfilters},
+  {"Filter for sprites",         S_CHOICE, m_null, G_X, G_Y+ 4*8, {"filter_sprite"}, 0, 0, NULL, renderfilters},
+  {"Filter for patches",         S_CHOICE, m_null, G_X, G_Y+ 5*8, {"filter_patch"}, 0, 0, NULL, renderfilters},
+  {"Filter for lighting",        S_CHOICE, m_null, G_X, G_Y+ 6*8, {"filter_z"}, 0, 0, NULL, renderfilters},
 
-  {"Renderer settings"     ,S_SKIP|S_TITLE, m_null, G_X, G_YB - 12},
+  {"Drawing of sprite edges",    S_CHOICE, m_null, G_X, G_Y+ 8*8, {"sprite_edges"}, 0, 0, NULL, edgetypes},
+  {"Drawing of patch edges",     S_CHOICE, m_null, G_X, G_Y+ 9*8, {"patch_edges"}, 0, 0, NULL, edgetypes},
+  {"Flashing HOM indicator",     S_YESNO,  m_null, G_X, G_Y+10*8, {"flashing_hom"}},
 
-  {"Filter for walls", S_CHOICE, m_null, G_X,
-   G_YC + general_filterwall*8, {"filter_wall"}, 0, 0, NULL, renderfilters},
+  // prboom-plus 
+  {"Rendering quality",          S_CHOICE, m_null, G_X, G_Y+12*8, {"render_precise"}, 0, 0, M_ChangeRenderPrecise, render_precises},
+  {"Wipe Screen Effect",         S_YESNO,  m_null, G_X, G_Y+13*8, {"render_wipescreen"}},
+  {"Change Palette On Pain",     S_YESNO,  m_null, G_X, G_Y+15*8, {"palette_ondamage"}},
+  {"Change Palette On Bonus",    S_YESNO,  m_null, G_X, G_Y+16*8, {"palette_onbonus"}},
+  {"Change Palette On Powers",   S_YESNO,  m_null, G_X, G_Y+17*8, {"palette_onpowers"}},
 
-  {"Filter for floors/ceilings", S_CHOICE, m_null, G_X,
-   G_YC + general_filterfloor*8, {"filter_floor"}, 0, 0, NULL, renderfilters},
-
-  {"Filter for sprites", S_CHOICE, m_null, G_X,
-   G_YC + general_filtersprite*8, {"filter_sprite"}, 0, 0, NULL, renderfilters},
-
-  {"Filter for patches", S_CHOICE, m_null, G_X,
-   G_YC + general_filterpatch*8, {"filter_patch"}, 0, 0, NULL, renderfilters},
-
-  {"Filter for lighting", S_CHOICE, m_null, G_X,
-   G_YC + general_filterz*8, {"filter_z"}, 0, 0, NULL, renderfilters},
-
-  {"Drawing of sprite edges", S_CHOICE, m_null, G_X,
-   G_YC + general_spriteedges*8, {"sprite_edges"}, 0, 0, NULL, edgetypes},
-
-  {"Drawing of patch edges", S_CHOICE, m_null, G_X,
-   G_YC + general_patchedges*8, {"patch_edges"}, 0, 0, NULL, edgetypes},
-
-  {"Flashing HOM indicator", S_YESNO, m_null, G_X,
-   G_YC + general_hom*8, {"flashing_hom"}},
-
-  {"<- PREV",S_SKIP|S_PREV, m_null, KB_PREV, KB_Y+20*8, {gen_settings2}},
-
-  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings4}},//e6y
+  {"<- PREV",S_SKIP|S_PREV, m_null, KB_PREV, KB_Y+20*8, {gen_settings3}},
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings5}},//e6y
   // Final entry
 
   {0,S_SKIP|S_END,m_null}
 };
 
-//e6y
-#define G_Y 23
-#define G_X2 284
-setup_menu_t gen_settings4[] = { // General Settings screen3
-  {"Demos",                       S_SKIP|S_TITLE, m_null, G_X, G_Y+1*8},
-  {"Overwrite Existing",          S_YESNO, m_null,G_X,G_Y+ 2*8, {"demo_overwriteexisting"}},
-  {"Smooth Demo Playback",        S_YESNO, m_null,G_X,G_Y+ 3*8, {"demo_smoothturns"}, 0, 0, M_ChangeDemoSmoothTurns},
-  {"Smooth Demo Playback Factor", S_NUM,   m_null,G_X,G_Y+ 4*8, {"demo_smoothturnsfactor"}, 0, 0, M_ChangeDemoSmoothTurns},
-  {"Movements",                   S_SKIP|S_TITLE,m_null,G_X, G_Y+6*8},
-  {"Permanent Strafe50",          S_YESNO, m_null,G_X,G_Y+ 7*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
-  {"Strafe50 On Turns",           S_YESNO, m_null,G_X,G_Y+ 8*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
-  {"Misc",                        S_SKIP|S_TITLE, m_null, G_X, G_Y+10*8},
-  {"Fast Exit",                   S_YESNO, m_null,G_X,G_Y+ 11*8, {"misc_fastexit"}},
-#ifdef USE_WINDOWS_LAUNCHER
-  {"Use In-Game Launcher",        S_CHOICE, m_null,G_X,G_Y+ 12*8, {"launcher_enable"}, 0, 0, NULL, launcher_enable_states},
-#endif
-  {"<- PREV",S_SKIP|S_PREV, m_null,KB_PREV, KB_Y+20*8, {gen_settings3}},
-  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings5}},
-  {0,S_SKIP|S_END,m_null}
-};
-
 setup_menu_t gen_settings5[] = { // General Settings screen3
-  {"Mouse",                       S_SKIP|S_TITLE,m_null,G_X, G_Y+1*8},
-  {"Dbl-Click As Use",            S_YESNO, m_null,G_X,G_Y+2*8, {"mouse_doubleclick_as_use"}},
+  {"Soft Render",               S_SKIP|S_TITLE, m_null, G_X, G_Y+1*8},
+  {"Screen Multiple Factor (1-None)", S_NUM|S_PRGWARN,m_null,G_X,G_Y+2*8, {"render_screen_multiply"}, 0, 0, M_ChangeScreenMultipleFactor},
+  {"Interlaced Scanning",       S_YESNO,  m_null, G_X, G_Y+3*8, {"render_interlaced_scanning"}, 0, 0, M_ChangeInterlacedScanning},
 #ifdef GL_DOOM
-  {"Mouse / OpenGL",              S_SKIP|S_TITLE,m_null,G_X,G_Y+4*8},
-  {"Always Mouselook",            S_YESNO, m_null,G_X,G_Y+5*8, {"movement_mouselook"}, 0, 0, M_ChangeMouseLook},
-  {"Invert Mouse",                S_YESNO, m_null,G_X,G_Y+6*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
-  {"Max View Pitch",              S_NUM,   m_null,G_X,G_Y+7*8, {"movement_maxviewpitch"}, 0, 0, M_ChangeMaxViewPitch},
+  {"OpenGL Render",             S_SKIP|S_TITLE,m_null,G_X,G_Y+5*8},
+  {"Multisampling (0-None)",    S_NUM|S_PRGWARN|S_CANT_GL_ARB_MULTISAMPLEFACTOR,m_null,G_X,G_Y+6*8, {"render_multisampling"}, 0, 0, M_ChangeMultiSample},
+  {"Detailed Walls",            S_YESNO,  m_null, G_X, G_Y+ 7*8, {"render_detailedwalls"}, 0, 0, M_ChangeUseDetail},
+  {"Detailed Flats",            S_YESNO,  m_null, G_X, G_Y+ 8*8, {"render_detailedflats"}, 0, 0, M_ChangeUseDetail},
+  {"Field Of View",             S_NUM,    m_null, G_X, G_Y+ 9*8, {"render_fov"}, 0, 0, M_ChangeFOV},
+  {"Paper Items",               S_YESNO,  m_null, G_X, G_Y+10*8, {"render_paperitems"}},
+  {"Adjust Sprite Clipping",    S_CHOICE, m_null, G_X, G_Y+11*8, {"gl_spriteclip"}, 0, 0, M_ChangeSpriteClip, gl_spriteclipmodes},
+  {"Item out of Floor offset",  S_NUM,    m_null, G_X, G_Y+12*8, {"gl_sprite_offset"}},
+  {"Sector Light Mode",         S_CHOICE, m_null, G_X, G_Y+18*8, {"gl_lightmode"}, 0, 0, M_ChangeLightMode, gl_lightmodes},
+  {"Allow Fog",                 S_YESNO,  m_null, G_X, G_Y+19*8, {"gl_fog"}, 0, 0, M_ChangeAllowFog},
 #endif
-  {"Common Render",               S_SKIP|S_TITLE,m_null,G_X,G_Y+9*8},
-  {"Rendering quality",           S_CHOICE, m_null,G_X,G_Y+ 10*8, {"render_precise"}, 0, 0, M_ChangeRenderPrecise, render_precises},
-  {"Wipe Screen Effect",          S_YESNO,m_null,G_X,G_Y+ 11*8, {"render_wipescreen"}},
-  {"Change Palette On Pain",      S_YESNO,m_null,G_X,G_Y+ 13*8, {"palette_ondamage"}},
-  {"Change Palette On Bonus",     S_YESNO,m_null,G_X,G_Y+ 14*8, {"palette_onbonus"}},
-  {"Change Palette On Powers",    S_YESNO,m_null,G_X,G_Y+ 15*8, {"palette_onpowers"}},
   {"<- PREV",S_SKIP|S_PREV, m_null,KB_PREV, KB_Y+20*8, {gen_settings4}},
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings6}},
   {0,S_SKIP|S_END,m_null}
 };
 
 setup_menu_t gen_settings6[] = { // General Settings screen4
-  {"Soft Render"               ,S_SKIP|S_TITLE,m_null,G_X,G_Y+1*8},
-  {"Screen Multiple Factor (1-None)" ,S_NUM|S_PRGWARN,m_null,G_X,G_Y+2*8, {"render_screen_multiply"}, 0, 0, M_ChangeScreenMultipleFactor},
-  {"Interlaced Scanning"       ,S_YESNO,m_null,G_X,G_Y+3*8, {"render_interlaced_scanning"}, 0, 0, M_ChangeInterlacedScanning},
-#ifdef GL_DOOM
-  {"OpenGL Render"             ,S_SKIP|S_TITLE,m_null,G_X,G_Y+5*8},
-  {"Multisampling (0-None)"    ,S_NUM|S_PRGWARN|S_CANT_GL_ARB_MULTISAMPLEFACTOR,m_null,G_X,G_Y+6*8, {"render_multisampling"}, 0, 0, M_ChangeMultiSample},
-  {"Detailed Walls"            ,S_YESNO,m_null,G_X,G_Y+ 7*8, {"render_detailedwalls"}, 0, 0, M_ChangeUseDetail},
-  {"Detailed Flats"            ,S_YESNO,m_null,G_X,G_Y+ 8*8, {"render_detailedflats"}, 0, 0, M_ChangeUseDetail},
-  {"Field Of View"             ,S_NUM  ,m_null,G_X,G_Y+ 9*8, {"render_fov"}, 0, 0, M_ChangeFOV},
-  {"Paper Items"               ,S_YESNO,m_null,G_X,G_Y+10*8, {"render_paperitems"}},
-  {"Adjust Sprite Clipping"    ,S_CHOICE,m_null,G_X,G_Y+11*8, {"gl_spriteclip"}, 0, 0, M_ChangeSpriteClip, gl_spriteclipmodes},
-  {"Item out of Floor offset"  ,S_NUM  ,m_null,G_X,G_Y+12*8, {"gl_sprite_offset"}},
-  {"Allow Colormaps"           ,S_YESNO,m_null,G_X,G_Y+ 14*8, {"gl_boom_colormaps"}, 0, 0, M_ChangeAllowBoomColormaps},
-  {"Allow Internal Hi-Res"     ,S_YESNO,m_null,G_X,G_Y+ 15*8, {"gl_texture_internal_hires"}, 0, 0, M_ChangeTextureUseHires},
-  {"Allow External Hi-Res"     ,S_YESNO,m_null,G_X,G_Y+ 16*8, {"gl_texture_external_hires"}, 0, 0, M_ChangeTextureUseHires},
-  {"Override PWAD's graphics with Hi-Res" ,S_YESNO|S_PRGWARN,m_null,G_X,G_Y+ 17*8, {"gl_hires_override_pwads"}},
-  {"Sector Light Mode"         ,S_CHOICE,m_null,G_X,G_Y+18*8, {"gl_lightmode"}, 0, 0, M_ChangeLightMode, gl_lightmodes},
-  {"Allow Fog"                 ,S_YESNO,m_null,G_X,G_Y+19*8, {"gl_fog"}, 0, 0, M_ChangeAllowFog},
-#endif
+  {"Textures Settings",  S_SKIP|S_TITLE,m_null,G_X,G_Y+ 1*8},
+  {"Texture filter",     S_CHOICE, m_null, G_X, G_Y+2 *8, {"gl_tex_filter_string"}, 0, 0, M_ChangeTextureParams, gltexfilters},
+  {"Anisotropic filter", S_CHOICE, m_null, G_X, G_Y+3 *8, {"gl_texture_filter_anisotropic"}, 0, 0, M_ChangeTextureParams, gltexfilters_anisotropics},
+  {"Texture format",     S_CHOICE, m_null, G_X, G_Y+4 *8, {"gl_tex_format_string"}, 0, 0, M_ChangeTextureParams, gltexformats},
+
+  {"Enable Colormaps",           S_YESNO, m_null, G_X,G_Y+ 6*8, {"gl_boom_colormaps"}, 0, 0, M_ChangeAllowBoomColormaps},
+  {"Enable Internal Hi-Res",     S_YESNO, m_null, G_X,G_Y+ 7*8, {"gl_texture_internal_hires"}, 0, 0, M_ChangeTextureUseHires},
+  {"Enable External Hi-Res",     S_YESNO, m_null, G_X,G_Y+ 8*8, {"gl_texture_external_hires"}, 0, 0, M_ChangeTextureUseHires},
+  {"Override PWAD's graphics with Hi-Res" ,S_YESNO|S_PRGWARN,m_null,G_X,G_Y+ 9*8, {"gl_hires_override_pwads"}},
+
+  {"High Quality Resize mode", S_CHOICE, m_null, G_X, G_Y+11*8, {"gl_texture_hqresize"}, 0, 0, M_ChangeTextureHQResize, gl_hqresizemodes},
+  {"Resize textures",          S_YESNO, m_null, G_X, G_Y+12*8, {"gl_texture_hqresize_textures"}, 0, 0, M_ChangeTextureHQResize},
+  {"Resize sprites",           S_YESNO, m_null, G_X, G_Y+13*8, {"gl_texture_hqresize_sprites"}, 0, 0, M_ChangeTextureHQResize},
+  {"Resize patches",           S_YESNO, m_null, G_X, G_Y+14*8, {"gl_texture_hqresize_patches"}, 0, 0, M_ChangeTextureHQResize},
+
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {gen_settings5}},
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings7}},
   {0,S_SKIP|S_END,m_null}
@@ -3263,7 +3108,7 @@ setup_menu_t gen_settings6[] = { // General Settings screen4
 
 setup_menu_t gen_settings7[] =
 {
-  {"EMULATION"                         ,S_SKIP|S_TITLE,m_null,G_X2,G_Y+1*8},
+  {"EMULATION"                         ,S_SKIP|S_TITLE,m_null,G_X2,G_Y+ 1*8},
   {"WARN ON SPECHITS OVERFLOW"         ,S_YESNO     ,m_null,G_X2,G_Y+ 2*8, {"overrun_spechit_warn"}},
   {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,G_X2,G_Y+ 3*8, {"overrun_spechit_emulate"}},
   {"WARN ON REJECT OVERFLOW"           ,S_YESNO     ,m_null,G_X2,G_Y+ 4*8, {"overrun_reject_warn"}},
@@ -3879,13 +3724,20 @@ static void M_InitDefaults(void)
   default_t *dp;
   int i;
   for (i = 0; i < ss_max-1; i++)
+  {
     for (p = setup_screens[i]; *p; p++)
+    {
       for (t = *p; !(t->m_flags & S_END); t++)
-  if (t->m_flags & S_HASDEFPTR) {
-    if (!(dp = M_LookupDefault(t->var.name)))
-      I_Error("M_InitDefaults: Couldn't find config variable %s", t->var.name);
-    else
-      (t->var.def = dp)->setup_menu = t;
+      {
+        if (t->m_flags & S_HASDEFPTR)
+        {
+          if (!(dp = M_LookupDefault(t->var.name)))
+            I_Error("M_InitDefaults: Couldn't find config variable %s", t->var.name);
+          else
+            (t->var.def = dp)->setup_menu = t;
+        }
+      }
+    }
   }
 }
 

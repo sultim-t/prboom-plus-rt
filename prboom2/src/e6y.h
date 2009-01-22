@@ -60,13 +60,6 @@
 #define S_CANT_GL_ARB_MULTITEXTURE 0x10000000
 #define S_CANT_GL_ARB_MULTISAMPLEFACTOR  0x20000000
 
-#define E6Y_CALC_TEX_VALUES_MIDDLE2S(w, seg, peg, linelength, lineheight, deltaceiling, deltafloor)\
-  (w).flag=GLDWF_M2S;\
-  (w).ul=OU((w),(seg))+(0.0f);\
-  (w).ur=OU((w),(seg))+((linelength)/(float)(w).gltexture->buffer_width);\
-  (w).vt=deltaceiling/(w).gltexture->realtexheight;\
-  (w).vb=1.0f-deltafloor/(w).gltexture->realtexheight;
-
 #define GL_COMBINE_ARB                    0x8570
 #define GL_RGB_SCALE_ARB                  0x8573
 
@@ -243,6 +236,7 @@ void M_ChangeAllowBoomColormaps(void);
 void M_ChangeTextureUseHires(void);
 void M_ChangeLightMode(void);
 void M_ChangeAllowFog(void);
+void M_ChangeTextureHQResize(void);
 #endif
 void M_ChangeRenderPrecise(void);
 void M_ChangeSpeed(void);

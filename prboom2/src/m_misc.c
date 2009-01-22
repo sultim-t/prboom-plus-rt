@@ -840,6 +840,14 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"gl_texture_hires_dir", {NULL,&gl_texture_hires_dir}, {0,""},UL,UL,
    def_str,ss_none},
+  {"gl_texture_hqresize", {&gl_texture_hqresize},  {0},0,3,
+   def_int,ss_stat},
+  {"gl_texture_hqresize_textures", {&gl_texture_hqresize_textures},  {1},0,1,
+   def_bool,ss_stat},
+  {"gl_texture_hqresize_sprites", {&gl_texture_hqresize_sprites},  {1},0,1,
+   def_bool,ss_stat},
+  {"gl_texture_hqresize_patches", {&gl_texture_hqresize_patches},  {1},0,1,
+   def_bool,ss_stat},
   {"gl_motionblur", {&gl_motionblur},  {0},0,1,
    def_bool,ss_stat},
   {"gl_motionblur_minspeed", {NULL,&gl_motionblur_minspeed}, {0,"64.1"},UL,UL,
@@ -1161,8 +1169,11 @@ struct default_s *M_LookupDefault(const char *name)
 {
   int i;
   for (i = 0 ; i < numdefaults ; i++)
+  {
     if ((defaults[i].type != def_none) && !strcmp(name, defaults[i].name))
       return &defaults[i];
+  }
+
   I_Error("M_LookupDefault: %s not found",name);
   return NULL;
 }

@@ -50,6 +50,7 @@ typedef enum
 
 typedef enum
 {
+  GLTEXTURE_SPRITE    = 0x00000002,
   GLTEXTURE_HASHOLES  = 0x00000004,
   GLTEXTURE_SKY       = 0x00000008,
   GLTEXTURE_HIRES     = 0x00000010,
@@ -371,5 +372,8 @@ extern int gl_use_fog;
 void gl_EnableFog(int on);
 float gld_CalcFogDensity(sector_t *sector, int lightlevel);
 void gld_SetFog(float fogdensity);
+
+//HQ resize
+unsigned char* gld_HQResize(GLTexture *gltexture, unsigned char *inputBuffer, int inWidth, int inHeight, int *outWidth, int *outHeight);
 
 #endif // _GL_INTERN_H
