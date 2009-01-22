@@ -622,14 +622,44 @@ void M_ChangeSpriteClip(void)
 {
 }
 
+void ResolveColormapsHiresConflict(boolean prefer_colormap)
+{
+  if (prefer_colormap)
+  {
+    if (gl_boom_colormaps_default)
+    {
+      gl_texture_external_hires = false;
+    }
+    else if (gl_texture_external_hires)
+    {
+      gl_boom_colormaps = false;
+      gl_boom_colormaps_default = false;
+    }
+  }
+  else
+  {
+    if (gl_texture_external_hires)
+    {
+      gl_boom_colormaps = false;
+      gl_boom_colormaps_default = false;
+    }
+    else if (gl_boom_colormaps_default)
+    {
+      gl_texture_external_hires = false;
+    }
+  }
+}
+
 void M_ChangeAllowBoomColormaps(void)
 {
   if (gl_boom_colormaps == -1)
   {
     gl_boom_colormaps = gl_boom_colormaps_default;
+    ResolveColormapsHiresConflict(true);
   }
   else
   {
+    ResolveColormapsHiresConflict(true);
     gld_FlushTextures();
     gld_Precache();
   }
@@ -637,6 +667,8 @@ void M_ChangeAllowBoomColormaps(void)
 
 void M_ChangeTextureUseHires(void)
 {
+  ResolveColormapsHiresConflict(false);
+
   gld_FlushTextures();
   gld_Precache();
 }

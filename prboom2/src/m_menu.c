@@ -2939,20 +2939,11 @@ setup_menu_t* gen_settings[] =
 #define G_Y 23
 #define G_X2 284
 
-static const char *videomodes[] = {"8bit","15bit","16bit",
-                                   "32bit","OpenGL", NULL};
+static const char *videomodes[] = {
+  "8bit","15bit","16bit", "32bit","OpenGL", NULL};
 
-static const char *gltexfilters[] = {"GL_NEAREST","GL_LINEAR",
-                                     "GL_NEAREST_MIPMAP_LINEAR",
-                                     "GL_LINEAR_MIPMAP_LINEAR",
-                                     NULL};
-
-//e6y
-static const char *gltexfilters_anisotropics[] = 
-  {"Off", "2x", "4x", "8x", "16x", NULL};
-
-static const char *gltexformats[] = {"GL_RGBA","GL_RGB5_A1",
-                                     "GL_RGBA4", NULL};
+static const char *gltexformats[] = {
+  "GL_RGBA","GL_RGB5_A1", "GL_RGBA4", NULL};
 
 setup_menu_t gen_settings1[] = { // General Settings screen1
 
@@ -3065,29 +3056,33 @@ setup_menu_t gen_settings4[] = { // General Settings screen3
 };
 
 setup_menu_t gen_settings5[] = { // General Settings screen3
-  {"Soft Render",               S_SKIP|S_TITLE, m_null, G_X, G_Y+1*8},
+  {"Software Options",               S_SKIP|S_TITLE, m_null, G_X, G_Y+1*8},
   {"Screen Multiple Factor (1-None)", S_NUM|S_PRGWARN,m_null,G_X,G_Y+2*8, {"render_screen_multiply"}, 0, 0, M_ChangeScreenMultipleFactor},
   {"Interlaced Scanning",       S_YESNO,  m_null, G_X, G_Y+3*8, {"render_interlaced_scanning"}, 0, 0, M_ChangeInterlacedScanning},
 #ifdef GL_DOOM
-  {"OpenGL Render",             S_SKIP|S_TITLE,m_null,G_X,G_Y+5*8},
+  {"OpenGL Options",             S_SKIP|S_TITLE,m_null,G_X,G_Y+5*8},
   {"Multisampling (0-None)",    S_NUM|S_PRGWARN|S_CANT_GL_ARB_MULTISAMPLEFACTOR,m_null,G_X,G_Y+6*8, {"render_multisampling"}, 0, 0, M_ChangeMultiSample},
-  {"Detailed Walls",            S_YESNO,  m_null, G_X, G_Y+ 7*8, {"render_detailedwalls"}, 0, 0, M_ChangeUseDetail},
-  {"Detailed Flats",            S_YESNO,  m_null, G_X, G_Y+ 8*8, {"render_detailedflats"}, 0, 0, M_ChangeUseDetail},
-  {"Field Of View",             S_NUM,    m_null, G_X, G_Y+ 9*8, {"render_fov"}, 0, 0, M_ChangeFOV},
-  {"Paper Items",               S_YESNO,  m_null, G_X, G_Y+10*8, {"render_paperitems"}},
-  {"Adjust Sprite Clipping",    S_CHOICE, m_null, G_X, G_Y+11*8, {"gl_spriteclip"}, 0, 0, M_ChangeSpriteClip, gl_spriteclipmodes},
-  {"Item out of Floor offset",  S_NUM,    m_null, G_X, G_Y+12*8, {"gl_sprite_offset"}},
-  {"Sector Light Mode",         S_CHOICE, m_null, G_X, G_Y+18*8, {"gl_lightmode"}, 0, 0, M_ChangeLightMode, gl_lightmodes},
-  {"Allow Fog",                 S_YESNO,  m_null, G_X, G_Y+19*8, {"gl_fog"}, 0, 0, M_ChangeAllowFog},
+  {"Field Of View",             S_NUM,    m_null, G_X, G_Y+ 7*8, {"render_fov"}, 0, 0, M_ChangeFOV},
+  {"Sector Light Mode",         S_CHOICE, m_null, G_X, G_Y+ 9*8, {"gl_lightmode"}, 0, 0, M_ChangeLightMode, gl_lightmodes},
+  {"Allow Fog",                 S_YESNO,  m_null, G_X, G_Y+10*8, {"gl_fog"}, 0, 0, M_ChangeAllowFog},
+  {"Paper Items",               S_YESNO,  m_null, G_X, G_Y+12*8, {"render_paperitems"}},
+  {"Adjust Sprite Clipping",    S_CHOICE, m_null, G_X, G_Y+13*8, {"gl_spriteclip"}, 0, 0, M_ChangeSpriteClip, gl_spriteclipmodes},
+  {"Item out of Floor offset",  S_NUM,    m_null, G_X, G_Y+14*8, {"gl_sprite_offset"}},
 #endif
   {"<- PREV",S_SKIP|S_PREV, m_null,KB_PREV, KB_Y+20*8, {gen_settings4}},
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings6}},
   {0,S_SKIP|S_END,m_null}
 };
 
+static const char *gltexfilters[] = {
+  "None", "None+mip", "Linear", "Bilinear", "Trilinear", NULL};
+
+static const char *gltexfilters_anisotropics[] = 
+  {"Off", "2x", "4x", "8x", "16x", NULL};
+
 setup_menu_t gen_settings6[] = { // General Settings screen4
-  {"Textures Settings",  S_SKIP|S_TITLE,m_null,G_X,G_Y+ 1*8},
-  {"Texture filter",     S_CHOICE, m_null, G_X, G_Y+2 *8, {"gl_tex_filter_string"}, 0, 0, M_ChangeTextureParams, gltexfilters},
+  {"Texture Options",  S_SKIP|S_TITLE,m_null,G_X,G_Y+ 1*8},
+  {"Texture Filter Mode",     S_CHOICE, m_null, G_X, G_Y+2 *8, {"gl_texture_filter"}, 0, 0, M_ChangeTextureParams, gltexfilters},
   {"Anisotropic filter", S_CHOICE, m_null, G_X, G_Y+3 *8, {"gl_texture_filter_anisotropic"}, 0, 0, M_ChangeTextureParams, gltexfilters_anisotropics},
   {"Texture format",     S_CHOICE, m_null, G_X, G_Y+4 *8, {"gl_tex_format_string"}, 0, 0, M_ChangeTextureParams, gltexformats},
 
@@ -3100,6 +3095,9 @@ setup_menu_t gen_settings6[] = { // General Settings screen4
   {"Resize textures",          S_YESNO, m_null, G_X, G_Y+12*8, {"gl_texture_hqresize_textures"}, 0, 0, M_ChangeTextureHQResize},
   {"Resize sprites",           S_YESNO, m_null, G_X, G_Y+13*8, {"gl_texture_hqresize_sprites"}, 0, 0, M_ChangeTextureHQResize},
   {"Resize patches",           S_YESNO, m_null, G_X, G_Y+14*8, {"gl_texture_hqresize_patches"}, 0, 0, M_ChangeTextureHQResize},
+
+  {"Detailed Walls",            S_YESNO,  m_null, G_X, G_Y+16*8, {"render_detailedwalls"}, 0, 0, M_ChangeUseDetail},
+  {"Detailed Flats",            S_YESNO,  m_null, G_X, G_Y+17*8, {"render_detailedflats"}, 0, 0, M_ChangeUseDetail},
 
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {gen_settings5}},
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings7}},

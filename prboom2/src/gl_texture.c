@@ -649,8 +649,8 @@ byte	mipBlendColors[16][4] =
   {0,0,255,128},
 };
 
-int gld_BuildTexture(GLTexture *gltexture, 
-                     void *data, int pitch, int width, int height,
+int gld_BuildTexture(GLTexture *gltexture, void *data, boolean readonly,
+                     int pitch, int width, int height,
                      unsigned char **out_buf, int *out_bufsize,
                      int *out_width, int *out_height)
 {
@@ -798,7 +798,7 @@ l_exit:
   if (out_height)
     *out_height = tex_height;
 
-  if (!out_buf)
+  if (!readonly)
   {
     free(data);
     data = NULL;
@@ -883,7 +883,7 @@ void gld_BindTexture(GLTexture *gltexture)
 
   buffer = gld_HQResize(gltexture, buffer, gltexture->buffer_width, gltexture->buffer_height, &w, &h);
 
-  gld_BuildTexture(gltexture, buffer, w, w, h, NULL, NULL, NULL, NULL);
+  gld_BuildTexture(gltexture, buffer, false, w, w, h, NULL, NULL, NULL, NULL);
 }
 
 GLTexture *gld_RegisterPatch(int lump, int cm)
@@ -1027,7 +1027,7 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
 
   buffer = gld_HQResize(gltexture, buffer, gltexture->buffer_width, gltexture->buffer_height, &w, &h);
 
-  gld_BuildTexture(gltexture, buffer, w, w, h, NULL, NULL, NULL, NULL);
+  gld_BuildTexture(gltexture, buffer, false, w, w, h, NULL, NULL, NULL, NULL);
 
   R_UnlockPatchNum(gltexture->index);
 }
@@ -1149,7 +1149,7 @@ void gld_BindFlat(GLTexture *gltexture)
 
   buffer = gld_HQResize(gltexture, buffer, gltexture->buffer_width, gltexture->buffer_height, &w, &h);
 
-  gld_BuildTexture(gltexture, buffer, w, w, h, NULL, NULL, NULL, NULL);
+  gld_BuildTexture(gltexture, buffer, false, w, w, h, NULL, NULL, NULL, NULL);
 
   W_UnlockLumpNum(gltexture->index);
 }
@@ -1219,13 +1219,6 @@ void gld_PrecacheGLTexture(GLTexture *gltexture)
   default:
     break;
   }
-/*  int *glTexID;
-  glTexID = &gltexture->glTexID[CR_DEFAULT];
-  glBindTexture(GL_TEXTURE_2D, *glTexID);
-
-#ifdef HAVE_LIBSDL_IMAGE
-  gld_LoadHiresTex(gltexture, glTexID, CR_DEFAULT);
-#endif*/
 }
 
 void gld_Precache(void)
@@ -1247,6 +1240,12 @@ void gld_Precache(void)
 
     if (timingdemo)
       return;
+  }
+
+  // It's impossible to have hires textures and colormaps at the same time
+  if (r_have_internal_hires && gl_boom_colormaps)
+  {
+    gl_boom_colormaps = false;
   }
 
   if (gl_texture_external_hires)
@@ -1410,10 +1409,11 @@ void gld_Precache(void)
   if (gl_have_hires_textures || gl_have_hires_flats)
   {
     gl_boom_colormaps = false;
-#ifdef USE_FBO_TECHNIQUE
-    gld_InitFBO();
-#endif
   }
+
+#ifdef USE_FBO_TECHNIQUE
+  gld_InitFBO();
+#endif
 
   // e6y: some statistics.  make sense for hires
   {

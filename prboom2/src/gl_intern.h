@@ -312,10 +312,10 @@ void gld_ResetLastTexture(void);
 
 PFNGLCOLORTABLEEXTPROC gld_ColorTableEXT;
 
-int gld_BuildTexture(GLTexture *gltexture, 
-                            void *data, int pitch, int width, int height,
-                            unsigned char **out_buf, int *out_bufsize,
-                            int *out_width, int *out_height);
+int gld_BuildTexture(GLTexture *gltexture, void *data, boolean readonly,
+                     int pitch, int width, int height,
+                     unsigned char **out_buf, int *out_bufsize,
+                     int *out_width, int *out_height);
 
 //hires
 extern int gl_have_hires_textures;

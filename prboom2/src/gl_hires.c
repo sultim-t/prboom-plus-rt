@@ -63,6 +63,7 @@
 char* strlwr(char* str);
 #endif
 
+int r_have_internal_hires = false;
 int gl_have_hires_textures = false;
 int gl_have_hires_flats = false;
 int gl_have_hires_patches = false;
@@ -764,9 +765,8 @@ static int gld_HiRes_LoadInternal(GLTexture *gltexture, int *glTexID)
 
           gld_HiRes_Bind(gltexture, glTexID);
 
-          result = gld_BuildTexture(gltexture, 
-            surf->pixels, surf->pitch, surf->w, surf->h,
-            NULL, NULL, NULL, NULL);
+          result = gld_BuildTexture(gltexture, surf->pixels, true,
+            surf->pitch, surf->w, surf->h, NULL, NULL, NULL, NULL);
 
           SDL_FreeSurface(surf);
         }
@@ -955,8 +955,8 @@ static int gld_HiRes_LoadExternal(GLTexture *gltexture, int *glTexID)
 
     gld_HiRes_Bind(gltexture, glTexID);
 
-    result = gld_BuildTexture(gltexture, 
-      surf->pixels, surf->pitch, surf->w, surf->h,
+    result = gld_BuildTexture(gltexture, surf->pixels, true,
+      surf->pitch, surf->w, surf->h,
       &tex_buffer, &tex_buffer_size, &tex_width, &tex_height);
 
     if (tex_buffer && (cache_write || !cache_read_ok))

@@ -160,7 +160,7 @@ boolean use_fog=false;
 int gl_vsync = true;
 
 int gl_nearclip=5;
-char *gl_tex_filter_string;
+int gl_texture_filter;
 int gl_tex_filter;
 int gl_mipmap_filter;
 int gl_drawskys=true;
@@ -364,59 +364,32 @@ void gld_InitGLVersion(void)
 
 void gld_InitTextureParams(void)
 {
-  if (!strcasecmp(gl_tex_filter_string,"GL_NEAREST_MIPMAP_NEAREST"))
+  typedef struct tex_filter_s
   {
-    use_mipmapping=true;
+    boolean mipmap;
+    int tex_filter;
+    int mipmap_filter;
+    char *tex_filter_name;
+    char *mipmap_filter_name;
+  } tex_filter_t;
+
+  tex_filter_t params[filter_count] = {
+    {false, GL_NEAREST, GL_NEAREST,                "GL_NEAREST", "GL_NEAREST"},
+    {true,  GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST, "GL_NEAREST", "GL_NEAREST_MIPMAP_NEAREST"},
+    {true,  GL_LINEAR,  GL_LINEAR,                 "GL_LINEAR",  "GL_LINEAR"},
+    {true,  GL_LINEAR,  GL_LINEAR_MIPMAP_NEAREST,  "GL_LINEAR",  "GL_LINEAR_MIPMAP_NEAREST"},
+    {true,  GL_LINEAR,  GL_LINEAR_MIPMAP_LINEAR,   "GL_LINEAR",  "GL_LINEAR_MIPMAP_LINEAR"},
+  };
+
+  use_mipmapping   = params[gl_texture_filter].mipmap;
+  gl_tex_filter    = params[gl_texture_filter].tex_filter;
+  gl_mipmap_filter = params[gl_texture_filter].mipmap_filter;
+  lprintf(LO_INFO, "Using %s for normal textures.\n", params[gl_texture_filter].tex_filter_name);
+  lprintf(LO_INFO, "Using %s for mipmap textures.\n", params[gl_texture_filter].mipmap_filter_name);
+
+  if (use_mipmapping)
+  {
     gl_shared_texture_palette = false;
-    lprintf(LO_INFO,"Using GL_NEAREST for normal textures.\n");
-    lprintf(LO_INFO,"Using GL_NEAREST_MIPMAP_NEAREST for mipmap textures.\n");
-    gl_tex_filter=GL_NEAREST;
-    gl_mipmap_filter=GL_NEAREST_MIPMAP_NEAREST;
-  }
-  else
-  if (!strcasecmp(gl_tex_filter_string,"GL_LINEAR_MIPMAP_NEAREST"))
-  {
-    use_mipmapping=true;
-    gl_shared_texture_palette = false;
-    lprintf(LO_INFO,"Using GL_LINEAR for normal textures.\n");
-    lprintf(LO_INFO,"Using GL_LINEAR_MIPMAP_NEAREST for mipmap textures.\n");
-    gl_tex_filter=GL_LINEAR;
-    gl_mipmap_filter=GL_LINEAR_MIPMAP_NEAREST;
-  }
-  else
-  if (!strcasecmp(gl_tex_filter_string,"GL_NEAREST_MIPMAP_LINEAR"))
-  {
-    use_mipmapping=true;
-    gl_shared_texture_palette = false;
-    lprintf(LO_INFO,"Using GL_NEAREST for normal textures.\n");
-    lprintf(LO_INFO,"Using GL_NEAREST_MIPMAP_LINEAR for mipmap textures.\n");
-    gl_tex_filter=GL_NEAREST;
-    gl_mipmap_filter=GL_NEAREST_MIPMAP_LINEAR;
-  }
-  else
-  if (!strcasecmp(gl_tex_filter_string,"GL_LINEAR_MIPMAP_LINEAR"))
-  {
-    use_mipmapping=true;
-    gl_shared_texture_palette = false;
-    lprintf(LO_INFO,"Using GL_LINEAR for normal textures.\n");
-    lprintf(LO_INFO,"Using GL_LINEAR_MIPMAP_LINEAR for mipmap textures.\n");
-    gl_tex_filter=GL_LINEAR;
-    gl_mipmap_filter=GL_LINEAR_MIPMAP_LINEAR;
-  }
-  else
-  if (!strcasecmp(gl_tex_filter_string,"GL_NEAREST"))
-  {
-    use_mipmapping=false;
-    lprintf(LO_INFO,"Using GL_NEAREST for textures.\n");
-    gl_tex_filter=GL_NEAREST;
-    gl_mipmap_filter=GL_NEAREST;
-  }
-  else
-  {
-    use_mipmapping=false;
-    lprintf(LO_INFO,"Using GL_LINEAR for textures.\n");
-    gl_tex_filter=GL_LINEAR;
-    gl_mipmap_filter=GL_LINEAR;
   }
 
 #ifndef USE_GLU_MIPMAP
@@ -547,6 +520,7 @@ void gld_Init(int width, int height)
   // Vortex: Create FBO object and associated render targets
 #ifdef USE_FBO_TECHNIQUE
   gld_InitFBO();
+  atexit(gld_FreeScreenSizeFBO);
 #endif
 
   //e6y: is can be slow
@@ -3471,6 +3445,11 @@ void gld_InitFBO(void)
       // motion blur setup
       gld_InitMotionBlur();
     }
+    else
+    {
+      gl_use_FBO = false;
+      gl_ext_framebuffer_object = false;
+    }
   }
 }
 
@@ -3520,8 +3499,6 @@ boolean gld_CreateScreenSizeFBO(void)
     lprintf(LO_ERROR, "gld_CreateScreenSizeFBO: Cannot create framebuffer object (error code: %d)\n", status);
     gl_ext_framebuffer_object = false;
   }
-
-  atexit(gld_FreeScreenSizeFBO);
 
   return (status == GL_FRAMEBUFFER_COMPLETE_EXT);
 }

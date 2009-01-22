@@ -251,9 +251,10 @@ static int IsMarker(const char *marker, const char *name)
 
 // killough 4/17/98: add namespace tags
 
-static void W_CoalesceMarkedResource(const char *start_marker,
+static int W_CoalesceMarkedResource(const char *start_marker,
                                      const char *end_marker, int li_namespace)
 {
+  int result = 0;
   lumpinfo_t *marked = malloc(sizeof(*marked) * numlumps);
   size_t i, num_marked = 0, num_unmarked = 0;
   int is_marked = 0, mark_end = 0;
@@ -283,6 +284,7 @@ static void W_CoalesceMarkedResource(const char *start_marker,
           {                                       // move lump to marked list
             marked[num_marked] = *lump;
             marked[num_marked++].li_namespace = li_namespace;  // killough 4/17/98
+            result++;
           }
         else
           lumpinfo[num_unmarked++] = *lump;       // else move down THIS list
@@ -301,6 +303,8 @@ static void W_CoalesceMarkedResource(const char *start_marker,
       lumpinfo[numlumps].li_namespace = ns_global;   // killough 4/17/98
       strncpy(lumpinfo[numlumps++].name, end_marker, 8);
     }
+
+  return result;
 }
 
 // Hash function used for lump names.
@@ -460,6 +464,7 @@ void W_Init(void)
   W_CoalesceMarkedResource("C_START", "C_END", ns_colormaps);
   W_CoalesceMarkedResource("B_START", "B_END", ns_prboom);
   W_CoalesceMarkedResource("HI_START", "HI_END", ns_hires);
+  r_have_internal_hires = ( 0 < W_CoalesceMarkedResource("HI_START", "HI_END", ns_hires));
 
   // killough 1/31/98: initialize lump hash table
   W_HashLumps();

@@ -36,6 +36,16 @@
 
 extern int nodesVersion;
 
+typedef enum {
+  filter_nearest,
+  filter_nearest_mipmap_nearest,
+  filter_linear,
+  filter_linear_mipmap_nearest,
+  filter_linear_mipmap_linear,
+
+  filter_count
+} filter_texture_mode_t;
+
 #define MAX_GLGAMMA 32
 typedef enum
 {
@@ -105,6 +115,7 @@ int gld_wipe_StartScreen(void);
 int gld_wipe_EndScreen(void);
 
 // hires
+extern int r_have_internal_hires;
 extern int gl_texture_external_hires;
 extern int gl_texture_internal_hires;
 extern int gl_hires_override_pwads;

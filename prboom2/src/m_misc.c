@@ -168,7 +168,7 @@ extern int viewheight;
 extern int gl_nearclip;
 extern int gl_colorbuffer_bits;
 extern int gl_depthbuffer_bits;
-extern char *gl_tex_filter_string;
+extern int gl_texture_filter;
 extern int gl_texture_filter_anisotropic;
 extern char *gl_tex_format_string;
 extern int gl_drawskys;
@@ -408,10 +408,10 @@ default_t defaults[] =
    def_int,ss_none},
   {"gl_depthbuffer_bits",{&gl_depthbuffer_bits},{16},16,32,
    def_int,ss_none},
-  {"gl_tex_filter_string", {NULL,&gl_tex_filter_string}, {0,"GL_LINEAR_MIPMAP_LINEAR"},UL,UL,
-   def_str,ss_none},
+  {"gl_texture_filter",{(int*)&gl_texture_filter},
+   {filter_linear_mipmap_linear}, filter_nearest, filter_linear_mipmap_linear, def_int,ss_none},
   {"gl_texture_filter_anisotropic",{(int*)&gl_texture_filter_anisotropic},
-   {gl_anisotropic_2x}, gl_anisotropic_off, gl_anisotropic_16x, def_int,ss_none},
+   {gl_anisotropic_8x}, gl_anisotropic_off, gl_anisotropic_16x, def_int,ss_none},
   {"gl_tex_format_string", {NULL,&gl_tex_format_string}, {0,"GL_RGB5_A1"},UL,UL,
    def_str,ss_none},
   {"gl_drawskys",{&gl_drawskys},{1},0,2,
