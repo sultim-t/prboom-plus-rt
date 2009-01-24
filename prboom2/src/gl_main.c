@@ -3071,6 +3071,10 @@ void gld_DrawScene(player_t *player)
   gl_SetAlphaBlend(false);
   gl_SetAlphaBlend(true);
 
+  //e6y: the same with fog
+  gl_EnableFog(true);
+  gl_EnableFog(false);
+
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glEnableClientState(GL_VERTEX_ARRAY);
   rendered_visplanes = rendered_segs = rendered_vissprites = 0;
@@ -3138,6 +3142,7 @@ void gld_DrawScene(player_t *player)
     glDisable(GL_POLYGON_OFFSET_FILL);
   }
 
+  gl_EnableFog(false);
   gl_SetAlphaBlend(true);
 
   // normal sky (not a skybox)
@@ -3196,7 +3201,7 @@ void gld_DrawScene(player_t *player)
     // transparent walls
     for (i = gld_drawinfo.num_items[GLDIT_TWALL] - 1; i >= 0; i--)
     {
-      gld_SetFog(gld_drawinfo.items[GLDIT_TWALL][i].item.wall->fogdensity);
+      //gld_SetFog(gld_drawinfo.items[GLDIT_TWALL][i].item.wall->fogdensity);
       gld_ProcessWall(gld_drawinfo.items[GLDIT_TWALL][i].item.wall);
     }
 
