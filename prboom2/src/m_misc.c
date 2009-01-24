@@ -172,6 +172,7 @@ extern int gl_texture_filter;
 extern int gl_texture_filter_anisotropic;
 extern char *gl_tex_format_string;
 extern int gl_drawskys;
+extern int gl_sky_detail;
 extern int gl_sortsprites;
 extern int gl_use_paletted_texture;
 extern int gl_use_shared_texture_palette;
@@ -409,12 +410,14 @@ default_t defaults[] =
   {"gl_depthbuffer_bits",{&gl_depthbuffer_bits},{16},16,32,
    def_int,ss_none},
   {"gl_texture_filter",{(int*)&gl_texture_filter},
-   {filter_linear_mipmap_linear}, filter_nearest, filter_linear_mipmap_linear, def_int,ss_none},
+   {filter_linear_mipmap_linear}, filter_nearest, filter_count - 1, def_int,ss_none},
   {"gl_texture_filter_anisotropic",{(int*)&gl_texture_filter_anisotropic},
    {gl_anisotropic_8x}, gl_anisotropic_off, gl_anisotropic_16x, def_int,ss_none},
   {"gl_tex_format_string", {NULL,&gl_tex_format_string}, {0,"GL_RGB5_A1"},UL,UL,
    def_str,ss_none},
-  {"gl_drawskys",{&gl_drawskys},{1},0,5,
+  {"gl_drawskys",{(int*)&gl_drawskys},
+  {skytype_glboom}, skytype_none, skytype_count - 1, def_int,ss_none},
+  {"gl_sky_detail",{&gl_sky_detail},{16},1,32,
    def_int,ss_none},
   {"gl_sortsprites",{&gl_sortsprites},{1},0,1,
    def_bool,ss_none},

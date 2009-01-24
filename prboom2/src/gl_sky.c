@@ -47,13 +47,145 @@
 #include "doomstat.h"
 #include "v_video.h"
 #include "gl_intern.h"
+#include "r_plane.h"
+#include "r_sky.h"
 
 #include "e6y.h"
 
 int gl_drawskys = true;
 
-PalEntry_t FloorSkyColor;
-PalEntry_t CeilingSkyColor;
+static PalEntry_t *SkyColor;
+
+SkyBoxParams_t SkyBox;
+
+unsigned int gl_FrameSkies;
+
+void gld_InitFrameSky(void)
+{
+  gl_FrameSkies = 0;
+  SkyBox.wall = NULL;
+}
+
+void gld_SaveSkyCap(GLWall *wall, float sx, float sy)
+{
+  if (SkyBox.wall == NULL)
+  {
+    SkyBox.wall = wall;
+    SkyBox.sx = sx;
+    SkyBox.sy = sy;
+  }
+}
+
+void gld_DrawSkybox(void)
+{
+  if (gl_drawskys == 2)
+    gld_DrawScreenSkybox();
+
+  if (gl_drawskys == 3)
+    gld_DrawDomeSkyBox();
+}
+
+// Sky textures with a zero index should be forced
+// See third episode of requiem.wad
+void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, int skytype)
+{
+  line_t *l = NULL;
+  wall->gltexture = NULL;
+
+  if ((sky1) & PL_SKYFLAT)
+  {
+    l = &lines[sky1 & ~PL_SKYFLAT];
+  }
+  else
+  {
+    if ((sky2) & PL_SKYFLAT)
+    {
+      l = &lines[sky2 & ~PL_SKYFLAT];
+    }
+  }
+  
+  if (l)
+  {
+    side_t *s = *l->sidenum + sides;
+    wall->gltexture = gld_RegisterTexture(texturetranslation[s->toptexture], false,
+      texturetranslation[s->toptexture] == skytexture || l->special == 271 || l->special == 272);
+    if (wall->gltexture)
+    {
+      if (!mlook_or_fov)
+      {
+        wall->skyyaw  = -2.0f*((-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)/90.0f);
+        wall->skyymid = 200.0f/319.5f*(((float)s->rowoffset/(float)FRACUNIT - 28.0f)/100.0f);
+      }
+      else
+      {
+        wall->skyyaw  = -2.0f*(((270.0f-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)+90.0f)/90.0f/fovscale);
+        wall->skyymid = skyYShift+(((float)s->rowoffset/(float)FRACUNIT)/100.0f);
+      }
+      wall->flag = (l->special == 272 ? GLDWF_SKY : GLDWF_SKYFLIP);
+    }
+  }
+  else
+  {
+    gl_FrameSkies |= skytype;
+
+    wall->gltexture = gld_RegisterTexture(skytexture, false, true);
+    if (wall->gltexture)
+    {
+      wall->skyyaw  = skyXShift;
+      wall->skyymid = skyYShift;
+      wall->flag = GLDWF_SKY;
+    }
+  }
+
+  if (wall->gltexture)
+  {
+    wall->gltexture->flags |= GLTEXTURE_SKY;
+    gld_AddDrawItem(GLDIT_SWALL, wall);
+  }
+}
+
+void gld_DrawSkyCaps(void)
+{
+  if (gl_FrameSkies && SkyBox.wall)
+  {             
+    float maxcoord = 255.0f;
+    boolean mlook = GetMouseLook();
+
+    if (mlook)
+    {
+      gld_BindTexture(SkyBox.wall->gltexture);
+
+      glMatrixMode(GL_TEXTURE);
+      glPushMatrix();
+
+      glScalef(SkyBox.sx, SkyBox.sy, 1.0f);
+      glTranslatef(SkyBox.wall->skyyaw, SkyBox.wall->skyymid, 0.0f);
+
+      if (gl_FrameSkies & SKY_CEILING)
+      {
+        glBegin(GL_TRIANGLE_STRIP);
+        glVertex3f(-maxcoord,+maxcoord,+maxcoord);
+        glVertex3f(+maxcoord,+maxcoord,+maxcoord);
+        glVertex3f(-maxcoord,+maxcoord,-maxcoord);
+        glVertex3f(+maxcoord,+maxcoord,-maxcoord);
+        glEnd();
+      }
+
+      if (gl_FrameSkies & SKY_FLOOR)
+      {
+        glBegin(GL_TRIANGLE_STRIP);
+        glVertex3f(-maxcoord,-maxcoord,+maxcoord);
+        glVertex3f(+maxcoord,-maxcoord,+maxcoord);
+        glVertex3f(-maxcoord,-maxcoord,-maxcoord);
+        glVertex3f(+maxcoord,-maxcoord,-maxcoord);
+        glEnd();
+      }
+
+      glPopMatrix();
+      glMatrixMode(GL_MODELVIEW);
+    }
+  }
+}
 
 //===========================================================================
 //
@@ -90,9 +222,9 @@ void averageColor(PalEntry_t * PalEntry, const unsigned int *data, int size, fix
     b += RPART(data[i]);
   }
 
-  r = r/size;
-  g = g/size;
-  b = b/size;
+  r = r / size;
+  g = g / size;
+  b = b / size;
 
   maxv=MAX(MAX(r,g),b);
 
@@ -104,9 +236,9 @@ void averageColor(PalEntry_t * PalEntry, const unsigned int *data, int size, fix
     b = b * maxout_factor / maxv;
   }
 
-  PalEntry->r = r;
-  PalEntry->g = g;
-  PalEntry->b = b;
+  PalEntry->r = (float)r / 255.0f;
+  PalEntry->g = (float)g / 255.0f;
+  PalEntry->b = (float)b / 255.0f;
   return;
 }
 
@@ -192,8 +324,6 @@ static boolean yflip;
 static int texw;
 static float yMult, yAdd;
 static boolean foglayer;
-static boolean secondlayer;
-static float R,G,B;
 
 int gl_sky_detail = 16;
 
@@ -215,15 +345,15 @@ void gld_PrepareSkyTexture(GLTexture *gltexture, unsigned char *buffer)
     int w = gltexture->buffer_width;
     int h = gltexture->buffer_height;
 
-    averageColor(&CeilingSkyColor, (unsigned int*)buffer, w * MIN(30, h), 0);
+    averageColor(&SkyBox.CeilingSkyColor, (unsigned int*)buffer, w * MIN(30, h), 0);
 
     if (gltexture->buffer_height > 30)
     {
-      averageColor(&FloorSkyColor, ((unsigned int*)buffer)+(h-30)*w, w * 30, 0);
+      averageColor(&SkyBox.FloorSkyColor, ((unsigned int*)buffer)+(h-30)*w, w * 30, 0);
     }
     else
     {
-      FloorSkyColor = CeilingSkyColor;
+      SkyBox.FloorSkyColor = SkyBox.CeilingSkyColor;
     }
 }
 
@@ -243,12 +373,12 @@ static void SkyVertex(int r, int c)
   fixed_t y = (!yflip) ? FixedMul(scale, height) : FixedMul(scale, height) * -1;
   fixed_t z = FixedMul(realRadius, finesine[topAngle>>ANGLETOFINESHIFT]);
   float fx, fy, fz;
-  float color = r * 1.f / rows;
   float u, v;
   float timesRepeat;
 
-  timesRepeat = (short)(4 * (256.f / texw));
-  if (timesRepeat == 0.f) timesRepeat = 1.f;
+  timesRepeat = (short)(4 * (256.0f / texw));
+  if (timesRepeat == 0.0f)
+    timesRepeat = 1.0f;
 
   if (!foglayer)
   {
@@ -257,12 +387,12 @@ static void SkyVertex(int r, int c)
     // And the texture coordinates.
     if(!yflip)	// Flipped Y is for the lower hemisphere.
     {
-      u = (-timesRepeat * c / (float)columns) ;//* yMult;
+      u = (-timesRepeat * c / (float)columns) ;
       v = (r / (float)rows) * 1.f * yMult + yAdd;
     }
     else
     {
-      u = (-timesRepeat * c / (float)columns) ;//* yMult;
+      u = (-timesRepeat * c / (float)columns) ;
       v = ((rows-r)/(float)rows) * 1.f * yMult + yAdd;
     }
 
@@ -272,7 +402,7 @@ static void SkyVertex(int r, int c)
   fx =-TO_GL(x);	// Doom mirrors the sky vertically!
   fy = TO_GL(y);
   fz = TO_GL(z);
-  glVertex3f(fx, fy - 1.f/128.0f, fz);
+  glVertex3f(fx, fy - 1.0f / 128.0f, fz);
 }
 
 
@@ -287,14 +417,7 @@ static void RenderSkyHemisphere(int hemi)
 {
   int r, c;
 
-  if (hemi & SKYHEMI_LOWER)
-  {
-    yflip = true;
-  }
-  else
-  {
-    yflip = false;
-  }
+  yflip = (hemi & SKYHEMI_LOWER);
 
   // The top row (row 0) is the one that's faded out.
   // There must be at least 4 columns. The preferable number
@@ -310,27 +433,27 @@ static void RenderSkyHemisphere(int hemi)
   // Draw the cap as one solid color polygon
   if (!foglayer)
   {
-    columns = 4 * (gl_sky_detail > 0 ? gl_sky_detail : 1);
-    foglayer = true;
-    glDisable(GL_TEXTURE_2D);
-
-    if (!secondlayer)
+    columns = 4 * gl_sky_detail;
+    if (mlook_or_fov)
     {
-      glColor3f(R, G ,B);
+      foglayer = true;
+      glDisable(GL_TEXTURE_2D);
+
+      glColor3f(SkyColor->r, SkyColor->g ,SkyColor->b);
       glBegin(GL_TRIANGLE_FAN);
       for(c = 0; c < columns; c++)
       {
         SkyVertex(1, c);
       }
       glEnd();
-    }
 
-    glEnable(GL_TEXTURE_2D);
-    foglayer=false;
+      glEnable(GL_TEXTURE_2D);
+      foglayer = false;
+    }
   }
   else
   {
-    columns=4;	// no need to do more!
+    columns = 4;	// no need to do more!
     glBegin(GL_TRIANGLE_FAN);
     for(c = 0; c < columns; c++)
     {
@@ -377,92 +500,44 @@ static void RenderSkyHemisphere(int hemi)
 //
 //-----------------------------------------------------------------------------
 
-static void RenderDome(int texno, GLTexture * tex, float x_offset, float y_offset, int CM_Index)
+static void RenderDome(GLTexture * tex, float x_offset, float y_offset)
 {
 	int texh;
 
-  boolean skystretch = true;
+  if (!tex)
+    return;
 
-	if (tex)
-	{
-    gld_BindTexture(tex);
-    texw = tex->buffer_width;
-    texh = tex->buffer_height;
+  gld_BindTexture(tex);
 
-		if ((texh > 190) && skystretch)
-      texh = 190;
+  texw = tex->buffer_width;
+  texh = tex->buffer_height;
+  if (texh > 190)
+    texh = 190;
 
-		glRotatef(-180.0f + x_offset, 0.f, 1.f, 0.f);
+  glRotatef(-180.0f + x_offset, 0.f, 1.f, 0.f);
 
-		yAdd = y_offset / texh;
+  yAdd = y_offset / texh;
+  yMult = (texh <= 180 ? 1.0f : 180.0f / texh);
 
-		if (texh <= 180)
-		{
-			yMult = 1.0f;
-			if (!skystretch)
-				glScalef(1.f, texh/180.f, 1.f);
-		}
-		else
-		{
-			yMult= 180.0f / texh;
-		}
-	}
+  //if (gl_FrameSkies & SKY_CEILING)
+  {
+    SkyColor = &SkyBox.CeilingSkyColor;
+    RenderSkyHemisphere(SKYHEMI_UPPER);
+  }
 
-	if (tex && !secondlayer) 
-	{
-    PalEntry_t *pe = &CeilingSkyColor;
+  //if (gl_FrameSkies & SKY_FLOOR)
+  {
+    if (texh <= 180)
+      yMult = 1.0f;
+    else
+      yAdd += 180.0f/texh;
 
-		R = pe->r / 255.0f;
-		G = pe->g / 255.0f;
-		B = pe->b / 255.0f;
+    SkyColor = &SkyBox.FloorSkyColor;
+    RenderSkyHemisphere(SKYHEMI_LOWER);
+  }
 
-		/*if (fixedcolormap)
-		{
-			R *= 1.0f;
-			G *= 1.0f;
-			B *= 1.0f;
-		}*/
-	}
-
-	RenderSkyHemisphere(SKYHEMI_UPPER);
-
-	if(tex)
-	{
-		yAdd = y_offset / texh;
-
-		if (texh <= 180)
-		{
-			yMult = 1.0f;
-		}
-		else
-		{
-			yAdd += 180.0f/texh;
-		}
-	}
-
-	if (tex && !secondlayer) 
-	{
-    PalEntry_t *pe = &FloorSkyColor;
-
-		R = pe->r / 255.0f;
-		G = pe->g / 255.0f;
-		B = pe->b / 255.0f;
-
-		/*if (fixedcolormap)
-		{
-			R *= 1.0f;
-			G *= 1.0f;
-			B *= 1.0f;
-		}*/
-	}
-
-	RenderSkyHemisphere(SKYHEMI_LOWER);
-
-	if (tex)
-	{
-		glRotatef(180.0f - x_offset, 0, 1, 0);
-		glScalef(1.0f, 1.0f, 1.0f);
-	}
+  glRotatef(180.0f - x_offset, 0, 1, 0);
+  glScalef(1.0f, 1.0f, 1.0f);
 }
 
 void gld_DrawDomeSkyBox(void)
@@ -472,37 +547,22 @@ void gld_DrawDomeSkyBox(void)
     GLWall *wall = wall = gld_drawinfo.items[GLDIT_SWALL][0].item.wall;
 
     glDepthMask(false);
-    if (gl_drawskys == 4)
-      glDisable(GL_DEPTH_TEST);
 
     glDisable(GL_ALPHA_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glPushMatrix();
-
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
     glRotatef(roll,  0.0f, 0.0f, 1.0f);
     glRotatef(pitch, 1.0f, 0.0f, 0.0f);
     glRotatef(yaw,   0.0f, 1.0f, 0.0f);
-    glScalef(-1.0f, 1.0f, 1.0f);
+    glScalef(-2.0f, 2.0f, 2.0f);
     glTranslatef(0.f, -1000.0f/128.0f, 0.f);
+    //glTranslatef(xCamera, zCamera, -yCamera);
 
-    /*glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-    glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
-    glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_TEXTURE0);
-    glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_PRIMARY_COLOR);
-    glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
-    glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
-
-    glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE); 
-    glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_PRIMARY_COLOR);
-    glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);*/
-
-    RenderDome(0, wall->gltexture, 0, 0, 0);
-
-    //glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    RenderDome(wall->gltexture, 0, 0);
 
     glPopMatrix();
 

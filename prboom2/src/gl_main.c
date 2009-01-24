@@ -906,7 +906,6 @@ GLDrawInfo gld_drawinfo;
 static void gld_FreeDrawInfo(void);
 static void gld_ResetDrawInfo(void);
 static void gld_AddDrawRange(int size);
-static void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata);
 
 // this is the list for all sectors to the loops
 GLSector *sectorloops;
@@ -1822,6 +1821,8 @@ void gld_StartDrawScene(void)
     skyXShift = -2.0f*((yaw+90.0f)/90.0f/fovscale);
     skyYShift = viewPitch<skyUpAngle ? skyUpShift : (float)sin(viewPitch*__glPi/180.0f)-0.2f;
   }
+
+  gld_InitFrameSky();
   
   invul_method = 0;
   if (players[displayplayer].fixedcolormap == 32)
@@ -1877,9 +1878,6 @@ void gld_StartDrawScene(void)
 #else
   glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 #endif
-
-  if (gl_drawskys == 2)
-    gld_DrawScreenSkybox();
 
   glEnable(GL_DEPTH_TEST);
 
@@ -2117,7 +2115,7 @@ static void gld_AddDrawRange(int size)
 // gld_AddDrawItem
 //
 #define NEWSIZE (MAX(64 * 1024, itemsize))
-static void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata)
+void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata)
 {
   int itemsize = 0;
   byte *item_p = NULL;
@@ -2205,8 +2203,7 @@ static void gld_DrawWall(GLWall *wall)
         else
           sx = +128.0f / (float)wall->gltexture->buffer_width;
 
-        //sy = 200.0f / 320.0f * (256 / wall->gltexture->buffer_height);
-        sy = 160.0f / (float)wall->gltexture->buffer_height;
+        sy = 200.0f / 320.0f * (256 / wall->gltexture->buffer_height);
 
         glScalef(sx, sy, 1.0f);
         glTranslatef(wall->skyyaw, wall->skyymid, 0.0f);
@@ -2226,28 +2223,8 @@ static void gld_DrawWall(GLWall *wall)
         glTranslatef(wall->skyyaw, wall->skyymid, 0.0f);
       }
 
-      if (!SkyDrawed)
-      {             
-        float maxcoord = 255.0f;
-        boolean mlook = GetMouseLook();
-        SkyDrawed = true;
-        if (mlook)
-        {
-          glBegin(GL_TRIANGLE_STRIP);
-          glVertex3f(-maxcoord,+maxcoord,+maxcoord);
-          glVertex3f(+maxcoord,+maxcoord,+maxcoord);
-          glVertex3f(-maxcoord,+maxcoord,-maxcoord);
-          glVertex3f(+maxcoord,+maxcoord,-maxcoord);
-          glEnd();
-          
-          glBegin(GL_TRIANGLE_STRIP);
-          glVertex3f(-maxcoord,-maxcoord,+maxcoord);
-          glVertex3f(+maxcoord,-maxcoord,+maxcoord);
-          glVertex3f(-maxcoord,-maxcoord,-maxcoord);
-          glVertex3f(+maxcoord,-maxcoord,-maxcoord);
-          glEnd();
-        }
-      }
+      if ((!SkyBox.wall) && (wall->gltexture->index == skytexture) && (wall->flag & GLDWF_SKY))
+        gld_SaveSkyCap(wall, sx, sy);
 
     }
     glBegin(GL_TRIANGLE_STRIP);
@@ -2381,64 +2358,6 @@ static void gld_DrawWall(GLWall *wall)
     (w).vb=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->buffer_height)\
   )
 
-// e6y
-// Sky textures with a zero index should be forced
-// See third episode of requiem.wad
-static void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2)
-{
-  line_t *l = NULL;
-  wall->gltexture = NULL;
-
-  if ((sky1) & PL_SKYFLAT)
-  {
-    l = &lines[sky1 & ~PL_SKYFLAT];
-  }
-  else
-  {
-    if ((sky2) & PL_SKYFLAT)
-    {
-      l = &lines[sky2 & ~PL_SKYFLAT];
-    }
-  }
-  
-  if (l)
-  {
-    side_t *s = *l->sidenum + sides;
-    wall->gltexture = gld_RegisterTexture(texturetranslation[s->toptexture], false,
-      texturetranslation[s->toptexture] == skytexture || l->special == 271 || l->special == 272);
-    if (wall->gltexture)
-    {
-      if (!mlook_or_fov)
-      {
-        wall->skyyaw  = -2.0f*((-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)/90.0f);
-        wall->skyymid = 200.0f/319.5f*(((float)s->rowoffset/(float)FRACUNIT - 28.0f)/100.0f);
-      }
-      else
-      {
-        wall->skyyaw  = -2.0f*(((270.0f-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)+90.0f)/90.0f/fovscale);
-        wall->skyymid = skyYShift+(((float)s->rowoffset/(float)FRACUNIT)/100.0f);
-      }
-      wall->flag = (l->special == 272 ? GLDWF_SKY : GLDWF_SKYFLIP);
-    }
-  }
-  else
-  {
-    wall->gltexture = gld_RegisterTexture(skytexture, false, true);
-    if (wall->gltexture)
-    {
-      wall->skyyaw  = skyXShift;
-      wall->skyymid = skyYShift;
-      wall->flag = GLDWF_SKY;
-    }
-  }
-
-  if (wall->gltexture)
-  {
-    wall->gltexture->flags |= GLTEXTURE_SKY;
-    gld_AddDrawItem(GLDIT_SWALL, wall);
-  }
-}
-
 void gld_AddWall(seg_t *seg)
 {
   GLWall wall;
@@ -2481,13 +2400,13 @@ void gld_AddWall(seg_t *seg)
     {
       wall.ytop=255.0f;
       wall.ybottom=(float)frontsector->ceilingheight/MAP_SCALE;
-      gld_AddSkyTexture(&wall, frontsector->sky, frontsector->sky);
+      gld_AddSkyTexture(&wall, frontsector->sky, frontsector->sky, SKY_CEILING);
     }
     if (frontsector->floorpic==skyflatnum)
     {
       wall.ytop=(float)frontsector->floorheight/MAP_SCALE;
       wall.ybottom=-255.0f;
-      gld_AddSkyTexture(&wall, frontsector->sky, frontsector->sky);
+      gld_AddSkyTexture(&wall, frontsector->sky, frontsector->sky, SKY_FLOOR);
     }
     temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->midtexture], true, false);
     if (temptex)
@@ -2530,7 +2449,7 @@ void gld_AddWall(seg_t *seg)
         // Old code: wall.ybottom=(float)backsector->floorheight/MAP_SCALE;
         wall.ybottom=((float)(backsector->floorheight +
           (seg->sidedef->rowoffset > 0 ? seg->sidedef->rowoffset : 0)))/MAP_SCALE;
-        gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky);
+        gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky, SKY_CEILING);
       }
       else
       {
@@ -2541,14 +2460,14 @@ void gld_AddWall(seg_t *seg)
           // old code: wall.ybottom=(float)frontsector->ceilingheight/MAP_SCALE;
           wall.ybottom=(float)MAX(frontsector->ceilingheight,backsector->ceilingheight)/MAP_SCALE;
 
-          gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky);
+          gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky, SKY_CEILING);
         }
         else
           if ( (backsector->ceilingheight <= frontsector->floorheight) ||
                (backsector->ceilingpic != skyflatnum) )
           {
             wall.ybottom=(float)backsector->ceilingheight/MAP_SCALE;
-            gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky);
+            gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky, SKY_CEILING);
           }
       }
     }
@@ -2678,21 +2597,21 @@ bottomtexture:
          )
       {
         wall.ytop=(float)backsector->floorheight/MAP_SCALE;
-        gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky);
+        gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky, SKY_FLOOR);
       }
       else
       {
         if ( (texturetranslation[seg->sidedef->bottomtexture]!=NO_TEXTURE) )
         {
           wall.ytop=(float)frontsector->floorheight/MAP_SCALE;
-          gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky);
+          gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky, SKY_FLOOR);
         }
         else
           if ( (backsector->floorheight >= frontsector->ceilingheight) ||
                (backsector->floorpic != skyflatnum) )
           {
             wall.ytop=(float)backsector->floorheight/MAP_SCALE;
-            gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky);
+            gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky, SKY_FLOOR);
           }
       }
     }
@@ -3156,9 +3075,6 @@ void gld_DrawScene(player_t *player)
   glEnableClientState(GL_VERTEX_ARRAY);
   rendered_visplanes = rendered_segs = rendered_vissprites = 0;
 
-  if (gl_drawskys == 4)
-    gld_DrawDomeSkyBox();
-
   // enable backside removing
   glEnable(GL_CULL_FACE);
 
@@ -3224,7 +3140,8 @@ void gld_DrawScene(player_t *player)
 
   gl_SetAlphaBlend(true);
 
-  if (gl_drawskys == 1) // skybox is already applied if gl_drawskys == 2
+  // normal sky (not a skybox)
+  if (gl_drawskys == 1)
   {
     if ( (gl_drawskys) )
     {
@@ -3246,6 +3163,7 @@ void gld_DrawScene(player_t *player)
     {
       gld_DrawWall(gld_drawinfo.items[GLDIT_SWALL][i].item.wall);
     }
+    gld_DrawSkyCaps();
 
     if (gl_drawskys)
     {
@@ -3318,11 +3236,7 @@ void gld_DrawScene(player_t *player)
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   glDisableClientState(GL_VERTEX_ARRAY);
 
-  if (gl_drawskys == 3)
-    gld_DrawScreenSkybox();
-
-  if (gl_drawskys == 5)
-    gld_DrawDomeSkyBox();
+  gld_DrawSkybox();
 }
 
 void gld_PreprocessLevel(void)

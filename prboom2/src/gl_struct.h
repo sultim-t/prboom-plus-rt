@@ -46,6 +46,15 @@ typedef enum {
   filter_count
 } filter_texture_mode_t;
 
+typedef enum {
+  skytype_none,
+  skytype_glboom,
+  skytype_screen,
+  skytype_gzdoom,
+
+  skytype_count
+} skytype_t;
+
 #define MAX_GLGAMMA 32
 typedef enum
 {

@@ -230,6 +230,8 @@ typedef struct
   int max_items[GLDIT_TYPES];
 } GLDrawInfo;
 
+void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata);
+
 void gld_DrawTriangleStrip(GLWall *wall, gl_strip_coords_t *c);
 void gld_DrawTriangleStripARB(GLWall *wall, gl_strip_coords_t *c1, gl_strip_coords_t *c2);
 
@@ -382,15 +384,28 @@ void gld_SetFog(float fogdensity);
 unsigned char* gld_HQResize(GLTexture *gltexture, unsigned char *inputBuffer, int inWidth, int inHeight, int *outWidth, int *outHeight);
 
 // SkyBox
+#define SKY_CEILING 1
+#define SKY_FLOOR   2
 typedef struct PalEntry_s
 {
-  unsigned char r, g, b, a;
+  float r, g, b, a;
 } PalEntry_t;
+typedef struct SkyBoxParams_s
+{
+  GLWall *wall;
+  float sx, sy;
+  PalEntry_t FloorSkyColor;
+  PalEntry_t CeilingSkyColor;
+} SkyBoxParams_t;
 extern int gl_drawskys;
-extern PalEntry_t FloorSkyColor;
-extern PalEntry_t CeilingSkyColor;
+extern SkyBoxParams_t SkyBox;
+void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, int skytype);
 void gld_PrepareSkyTexture(GLTexture *gltexture, unsigned char *buffer);
+void gld_InitFrameSky(void);
+void gld_DrawSkybox(void);
 void gld_DrawScreenSkybox(void);
 void gld_DrawDomeSkyBox(void);
+void gld_SaveSkyCap(GLWall *wall, float sx, float sy);
+void gld_DrawSkyCaps(void);
 
 #endif // _GL_INTERN_H
