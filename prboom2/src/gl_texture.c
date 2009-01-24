@@ -911,6 +911,11 @@ void gld_BindTexture(GLTexture *gltexture)
   glBindTexture(GL_TEXTURE_2D, *glTexID);
   gld_GammaCorrect(buffer, gltexture->buffer_size);
   
+  if (gltexture->index == skytexture)
+  {
+    gld_PrepareSkyTexture(gltexture, buffer);
+  }
+
   if (gltexture->flags & GLTEXTURE_HASHOLES)
   {
     SmoothEdges(buffer, gltexture->buffer_width, gltexture->buffer_height);

@@ -233,6 +233,11 @@ typedef struct
 void gld_DrawTriangleStrip(GLWall *wall, gl_strip_coords_t *c);
 void gld_DrawTriangleStripARB(GLWall *wall, gl_strip_coords_t *c1, gl_strip_coords_t *c2);
 
+extern float roll;
+extern float yaw;
+extern float inv_yaw;
+extern float pitch;
+
 extern int gl_preprocessed; //e6y
 
 extern GLDrawInfo gld_drawinfo;
@@ -375,5 +380,17 @@ void gld_SetFog(float fogdensity);
 
 //HQ resize
 unsigned char* gld_HQResize(GLTexture *gltexture, unsigned char *inputBuffer, int inWidth, int inHeight, int *outWidth, int *outHeight);
+
+// SkyBox
+typedef struct PalEntry_s
+{
+  unsigned char r, g, b, a;
+} PalEntry_t;
+extern int gl_drawskys;
+extern PalEntry_t FloorSkyColor;
+extern PalEntry_t CeilingSkyColor;
+void gld_PrepareSkyTexture(GLTexture *gltexture, unsigned char *buffer);
+void gld_DrawScreenSkybox(void);
+void gld_DrawDomeSkyBox(void);
 
 #endif // _GL_INTERN_H

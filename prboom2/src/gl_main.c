@@ -164,7 +164,6 @@ int gl_nearclip=5;
 int gl_texture_filter;
 int gl_tex_filter;
 int gl_mipmap_filter;
-int gl_drawskys=true;
 int gl_sortsprites=true;
 int gl_texture_filter_anisotropic = 0;
 int gl_use_texture_filter_anisotropic = 0;
@@ -488,7 +487,7 @@ void gld_Init(int width, int height)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // proff_dis
-  glShadeModel(GL_FLAT);
+//  glShadeModel(GL_FLAT);
   glEnable(GL_TEXTURE_2D);
   glDepthFunc(GL_LEQUAL);
   glEnable(GL_ALPHA_TEST);
@@ -1731,10 +1730,10 @@ void gld_PreprocessSectors(void)
   if (levelinfo) fclose(levelinfo);
 }
 
-static float roll     = 0.0f;
-static float yaw      = 0.0f;
-static float inv_yaw  = 0.0f;
-static float pitch    = 0.0f;
+float roll     = 0.0f;
+float yaw      = 0.0f;
+float inv_yaw  = 0.0f;
+float pitch    = 0.0f;
 
 #define __glPi 3.14159265358979323846
 
@@ -1773,74 +1772,6 @@ static void infinitePerspective(GLdouble fovy, GLdouble aspect, GLdouble znear)
 	m[15] = 0;
 
 	glMultMatrixd(m);
-}
-
-// e6y
-// It is an alternative way of drawing the sky (gl_drawskys == 2)
-// This method make sense only for old hardware which have no support for GL_TEXTURE_GEN_*
-// Voodoo as example
-void gld_DrawSkyBox(void)
-{
-  if (gld_drawinfo.num_items[GLDIT_SWALL] > 0)
-  {
-    float fU1,fU2,fV1,fV2;
-    float k1, k2;
-
-    GLWall *wall = wall = gld_drawinfo.items[GLDIT_SWALL][0].item.wall;
-
-    glMatrixMode(GL_TEXTURE);
-    glPushMatrix();
-
-    gld_BindTexture(wall->gltexture);
-
-    if (!mlook_or_fov)
-    {
-      k1 = wall->gltexture->buffer_width / 128.0f;
-      k2 = 256.0f / wall->gltexture->buffer_width;
-
-      fV1 = 0.0f;
-      fV2 = 320.0f/200.0f;
-    }
-    else 
-    {
-      if (wall->gltexture->buffer_width <= 512)
-      {
-        k1 = wall->gltexture->buffer_width / 64.0f;
-        k2 = 128.0f / wall->gltexture->buffer_width;
-      }
-      else
-      {
-        k1 = wall->gltexture->buffer_width / 128.0f;
-        k2 = 256.0f / wall->gltexture->buffer_width;
-      }
-
-      skyYShift = viewPitch<skyUpAngle ? 0.0f : (float)(0.0f-0.6f)/(skyUpAngle-0.0f)*(viewPitch)+0.6f;
-
-      fV1 = skyYShift*fovscale;
-      fV2 = fV1 + 320.0f/200.0f/2.0f;
-    }
-
-    if ((wall->flag&GLDWF_SKYFLIP) == GLDWF_SKYFLIP)
-    {
-      fU1 = 0.5f - wall->skyyaw/(k1/fovscale);
-      fU2 = fU1 + (k2/fovscale);
-    }
-    else
-    {
-      fU2 = 0.5f + wall->skyyaw/(k1/fovscale);
-      fU1 = fU2 + (k2/fovscale);
-    }
-
-    glBegin(GL_TRIANGLE_STRIP);
-      glTexCoord2f(fU1, fV1); glVertex2f(0.0f, 0.0f);
-      glTexCoord2f(fU1, fV2); glVertex2f(0.0f, (float)SCREENHEIGHT);
-      glTexCoord2f(fU2, fV1); glVertex2f((float)SCREENWIDTH, 0.0f);
-      glTexCoord2f(fU2, fV2); glVertex2f((float)SCREENWIDTH, (float)SCREENHEIGHT);
-    glEnd();
-
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
-  }
 }
 
 void gld_StartDrawScene(void)
@@ -1948,7 +1879,7 @@ void gld_StartDrawScene(void)
 #endif
 
   if (gl_drawskys == 2)
-    gld_DrawSkyBox();
+    gld_DrawScreenSkybox();
 
   glEnable(GL_DEPTH_TEST);
 
@@ -3225,6 +3156,9 @@ void gld_DrawScene(player_t *player)
   glEnableClientState(GL_VERTEX_ARRAY);
   rendered_visplanes = rendered_segs = rendered_vissprites = 0;
 
+  if (gl_drawskys == 4)
+    gld_DrawDomeSkyBox();
+
   // enable backside removing
   glEnable(GL_CULL_FACE);
 
@@ -3290,7 +3224,7 @@ void gld_DrawScene(player_t *player)
 
   gl_SetAlphaBlend(true);
 
-  if (gl_drawskys != 2) // skybox is already applied if gl_drawskys == 2
+  if (gl_drawskys == 1) // skybox is already applied if gl_drawskys == 2
   {
     if ( (gl_drawskys) )
     {
@@ -3383,6 +3317,12 @@ void gld_DrawScene(player_t *player)
 
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   glDisableClientState(GL_VERTEX_ARRAY);
+
+  if (gl_drawskys == 3)
+    gld_DrawScreenSkybox();
+
+  if (gl_drawskys == 5)
+    gld_DrawDomeSkyBox();
 }
 
 void gld_PreprocessLevel(void)

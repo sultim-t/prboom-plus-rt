@@ -96,6 +96,7 @@ gl_hires.c
 gl_clipper.c
 gl_light.c
 gl_hqresize.c
+gl_sky.c
 hu_lib.c
 hu_stuff.c
 icon.c

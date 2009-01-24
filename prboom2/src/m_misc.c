@@ -414,7 +414,7 @@ default_t defaults[] =
    {gl_anisotropic_8x}, gl_anisotropic_off, gl_anisotropic_16x, def_int,ss_none},
   {"gl_tex_format_string", {NULL,&gl_tex_format_string}, {0,"GL_RGB5_A1"},UL,UL,
    def_str,ss_none},
-  {"gl_drawskys",{&gl_drawskys},{1},0,2,
+  {"gl_drawskys",{&gl_drawskys},{1},0,5,
    def_int,ss_none},
   {"gl_sortsprites",{&gl_sortsprites},{1},0,1,
    def_bool,ss_none},
