@@ -913,7 +913,7 @@ void gld_BindTexture(GLTexture *gltexture)
   
   if (gltexture->index == skytexture)
   {
-    gld_PrepareSkyTexture(gltexture, buffer);
+    gld_SetSkyCapColors(buffer, gltexture->buffer_width, gltexture->buffer_height);
   }
 
   if (gltexture->flags & GLTEXTURE_HASHOLES)

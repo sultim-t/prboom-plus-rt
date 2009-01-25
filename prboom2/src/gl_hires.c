@@ -57,6 +57,7 @@
 #include "i_video.h"
 #include "hu_lib.h"
 #include "hu_stuff.h"
+#include "r_sky.h"
 #include "e6y.h"
 
 #ifndef HAVE_STRLWR
@@ -762,6 +763,11 @@ static int gld_HiRes_LoadInternal(GLTexture *gltexture, int *glTexID)
         {
           gld_GammaCorrect(surf->pixels, surf->pitch * surf->h);
 
+          if (gltexture->index == skytexture)
+          {
+            gld_SetSkyCapColors(surf->pixels, surf->w, surf->h);
+          }
+
           gld_HiRes_Bind(gltexture, glTexID);
 
           result = gld_BuildTexture(gltexture, surf->pixels, true,
@@ -913,6 +919,11 @@ static int gld_HiRes_LoadExternal(GLTexture *gltexture, int *glTexID)
 
               gld_GammaCorrect(tex_buffer, gltexture->buffer_size);
 
+              if (gltexture->index == skytexture)
+              {
+                gld_SetSkyCapColors(tex_buffer, tex_width, tex_height);
+              }
+
               glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
                 tex_width, tex_height,
                 0, GL_RGBA, GL_UNSIGNED_BYTE, tex_buffer);
@@ -951,6 +962,11 @@ static int gld_HiRes_LoadExternal(GLTexture *gltexture, int *glTexID)
       return false;
 
     gld_GammaCorrect(surf->pixels, surf->pitch * surf->h);
+
+    if (gltexture->index == skytexture)
+    {
+      gld_SetSkyCapColors(surf->pixels, surf->w, surf->h);
+    }
 
     gld_HiRes_Bind(gltexture, glTexID);
 

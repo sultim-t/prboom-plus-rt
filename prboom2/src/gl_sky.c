@@ -340,16 +340,14 @@ int gl_sky_detail = 16;
 //
 //-----------------------------------------------------------------------------
 
-void gld_PrepareSkyTexture(GLTexture *gltexture, unsigned char *buffer)
+void gld_SetSkyCapColors(const unsigned char *buffer, int width, int height)
 {
-    int w = gltexture->buffer_width;
-    int h = gltexture->buffer_height;
+    averageColor(&SkyBox.CeilingSkyColor, (unsigned int*)buffer, width * MIN(30, height), 0);
 
-    averageColor(&SkyBox.CeilingSkyColor, (unsigned int*)buffer, w * MIN(30, h), 0);
-
-    if (gltexture->buffer_height > 30)
+    if (height > 30)
     {
-      averageColor(&SkyBox.FloorSkyColor, ((unsigned int*)buffer)+(h-30)*w, w * 30, 0);
+      averageColor(&SkyBox.FloorSkyColor, 
+        ((unsigned int*)buffer) + (height - 30) * width, width * 30, 0);
     }
     else
     {
