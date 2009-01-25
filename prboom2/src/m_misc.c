@@ -847,7 +847,7 @@ default_t defaults[] =
    def_int,ss_stat},
   {"gl_texture_hqresize_textures", {&gl_texture_hqresize_textures},  {1},0,1,
    def_bool,ss_stat},
-  {"gl_texture_hqresize_sprites", {&gl_texture_hqresize_sprites},  {1},0,1,
+  {"gl_texture_hqresize_sprites", {&gl_texture_hqresize_sprites},  {0},0,1,
    def_bool,ss_stat},
   {"gl_texture_hqresize_patches", {&gl_texture_hqresize_patches},  {1},0,1,
    def_bool,ss_stat},
