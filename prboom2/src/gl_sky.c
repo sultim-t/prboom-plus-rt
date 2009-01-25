@@ -63,7 +63,9 @@ unsigned int gl_FrameSkies;
 void gld_InitFrameSky(void)
 {
   gl_FrameSkies = 0;
-  memset(&SkyBox, 0, sizeof(SkyBox));
+  SkyBox.wall = NULL;
+  SkyBox.sx = 0;
+  SkyBox.sy = 0;
 }
 
 void gld_SaveSkyCap(GLWall *wall, float sx, float sy)
