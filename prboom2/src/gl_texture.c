@@ -1268,7 +1268,8 @@ void gld_Precache(void)
 
   unsigned int tics = SDL_GetTicks();
 
-  int usehires = gl_texture_external_hires || gl_texture_internal_hires;
+  int usehires = (gl_texture_external_hires) || 
+    (gl_texture_internal_hires && r_have_internal_hires);
 
   if (doSkip)
     return;
