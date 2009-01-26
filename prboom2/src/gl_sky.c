@@ -326,6 +326,7 @@ static boolean yflip;
 static int texw;
 static float yMult, yAdd;
 static boolean foglayer;
+static float delta = 0.0f;
 
 int gl_sky_detail = 16;
 
@@ -402,7 +403,7 @@ static void SkyVertex(int r, int c)
   fx =-TO_GL(x);	// Doom mirrors the sky vertically!
   fy = TO_GL(y);
   fz = TO_GL(z);
-  glVertex3f(fx, fy - 1.0f / 128.0f, fz);
+  glVertex3f(fx, fy + delta, fz);
 }
 
 
@@ -429,6 +430,8 @@ static void RenderSkyHemisphere(int hemi)
   {
     return;
   }
+
+  delta = 0.0f;
 
   // Draw the cap as one solid color polygon
   if (!foglayer)
@@ -460,6 +463,16 @@ static void RenderSkyHemisphere(int hemi)
       SkyVertex(0, c);
     }
     glEnd();
+  }
+
+  if (hemi & SKYHEMI_UPPER)
+  {
+      delta = -5.0f / 128.0f;
+  }
+
+  if (hemi & SKYHEMI_LOWER)
+  {
+      delta = 5.0f / 128.0f;
   }
 
   // The total number of triangles per hemisphere can be calculated

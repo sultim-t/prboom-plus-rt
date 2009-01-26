@@ -3190,6 +3190,9 @@ void gld_DrawScene(player_t *player)
     gld_DrawSprite(gld_drawinfo.items[GLDIT_SPRITE][i].item.sprite);
   }
 
+  //should be before transparent stuff
+  gld_DrawSkybox();
+
   // transparent stuff
   if (gld_drawinfo.num_items[GLDIT_TWALL] > 0 || gld_drawinfo.num_items[GLDIT_TSPRITE] > 0)
   {
@@ -3240,8 +3243,6 @@ void gld_DrawScene(player_t *player)
 
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   glDisableClientState(GL_VERTEX_ARRAY);
-
-  gld_DrawSkybox();
 }
 
 void gld_PreprocessLevel(void)
