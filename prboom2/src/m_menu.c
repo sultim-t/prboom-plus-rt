@@ -3056,7 +3056,7 @@ setup_menu_t gen_settings4[] = { // General Settings screen3
 };
 
 static const char *gl_skytypes[] = {
-  "None", "Standard", "Screen", "Skybox", NULL};
+  "None", "Standard"/*, "Screen"*/, "Skybox", NULL};
 
 setup_menu_t gen_settings5[] = { // General Settings screen3
   {"Software Options",               S_SKIP|S_TITLE, m_null, G_X, G_Y+1*8},

@@ -416,7 +416,7 @@ default_t defaults[] =
   {"gl_tex_format_string", {NULL,&gl_tex_format_string}, {0,"GL_RGB5_A1"},UL,UL,
    def_str,ss_none},
   {"gl_drawskys",{(int*)&gl_drawskys},
-  {skytype_glboom}, skytype_none, skytype_count - 1, def_int,ss_none},
+  {skytype_standard}, skytype_none, skytype_count - 1, def_int,ss_none},
   {"gl_sky_detail",{&gl_sky_detail},{16},1,32,
    def_int,ss_none},
   {"gl_sortsprites",{&gl_sortsprites},{1},0,1,

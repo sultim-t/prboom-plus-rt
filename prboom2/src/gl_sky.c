@@ -52,7 +52,7 @@
 
 #include "e6y.h"
 
-int gl_drawskys = true;
+int gl_drawskys;
 
 static PalEntry_t *SkyColor;
 
@@ -80,10 +80,10 @@ void gld_SaveSkyCap(GLWall *wall, float sx, float sy)
 
 void gld_DrawSkybox(void)
 {
-  if (gl_drawskys == 2)
-    gld_DrawScreenSkybox();
+  //if (gl_drawskys == skytype_screen)
+  //  gld_DrawScreenSkybox();
 
-  if (gl_drawskys == 3)
+  if (gl_drawskys == skytype_skydome)
     gld_DrawDomeSkyBox();
 }
 
@@ -244,7 +244,7 @@ void averageColor(PalEntry_t * PalEntry, const unsigned int *data, int size, fix
   return;
 }
 
-// It is an alternative way of drawing the sky (gl_drawskys == 2)
+// It is an alternative way of drawing the sky (gl_drawskys == skytype_screen)
 // This method make sense only for old hardware which have no support for GL_TEXTURE_GEN_*
 // Voodoo as example
 void gld_DrawScreenSkybox(void)
