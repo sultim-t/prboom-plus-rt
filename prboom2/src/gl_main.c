@@ -1793,7 +1793,7 @@ void gld_Clear(void)
 {
   int clearbits = 0;
 
-#ifdef _DEBUG
+#ifndef _DEBUG
   if (gl_clear)
 #endif
     clearbits |= GL_COLOR_BUFFER_BIT;
