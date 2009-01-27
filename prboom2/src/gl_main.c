@@ -77,6 +77,8 @@ int gl_preprocessed = false;
 //e6y: all OpenGL extentions will be disabled with TRUE
 int gl_compatibility = 0;
 
+int gl_clear;
+
 // Vortex: Frame buffer object related
 #ifdef USE_FBO_TECHNIQUE
 GLint glSceneImageFBOTexID = 0;
@@ -1876,7 +1878,10 @@ void gld_StartDrawScene(void)
 #ifdef _DEBUG
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 #else
-  glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  if (gl_clear)
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  else
+    glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 #endif
 
   glEnable(GL_DEPTH_TEST);

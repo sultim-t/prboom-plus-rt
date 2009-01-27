@@ -194,6 +194,8 @@ extern char *gl_motionblur_att_c;
 extern int gl_fog;
 extern int gl_fog_color;
 
+extern int gl_clear;
+
 #endif
 
 extern int realtic_clock_rate;         // killough 4/13/98: adjustable timer
@@ -402,6 +404,8 @@ default_t defaults[] =
 #ifdef GL_DOOM
   {"OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"gl_vsync",{&gl_vsync},{1},0,1,
+   def_bool,ss_none},
+  {"gl_clear",{&gl_clear},{0},0,1,
    def_bool,ss_none},
   {"gl_nearclip",{&gl_nearclip},{5},0,UL,
    def_int,ss_none}, /* near clipping plane pos */
