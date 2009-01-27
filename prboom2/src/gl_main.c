@@ -2181,6 +2181,25 @@ static void gld_DrawWall(GLWall *wall)
   if ( (!gl_drawskys) && (wall->flag>=GLDWF_SKY) )
     wall->gltexture=NULL;
   gld_BindTexture(wall->gltexture);
+
+  // e6y
+  // Do not repeat middle texture vertically
+  // to avoid visual glitches for textures with holes
+  {
+    boolean need_clamp_y = (wall->flag == GLDWF_M2S) && (wall->flag < GLDWF_SKY);
+    boolean has_clamp_y = (wall->gltexture->flags & GLTEXTURE_CLAMPY);
+    if (need_clamp_y && !has_clamp_y)
+    {
+      wall->gltexture->flags |= GLTEXTURE_CLAMPY;
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    }
+    if (!need_clamp_y && has_clamp_y)
+    {
+      wall->gltexture->flags &= ~GLTEXTURE_CLAMPY;
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wall->gltexture->wrap_mode);
+    }
+  }
+
   if (!wall->gltexture)
   {
 #ifdef _DEBUG
