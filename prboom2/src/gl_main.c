@@ -77,6 +77,8 @@ int gl_preprocessed = false;
 //e6y: all OpenGL extentions will be disabled with TRUE
 int gl_compatibility = 0;
 
+int GLEXT_CLAMP_TO_EDGE = GL_CLAMP;
+
 int gl_clear;
 
 // e6y
@@ -266,9 +268,12 @@ void gld_InitExtensionsEx(void)
     gl_ext_framebuffer_object = false;
     gl_ext_blend_color = false;
     gl_use_stencil = false;
+    GLEXT_CLAMP_TO_EDGE = GL_CLAMP;
     glversion = OPENGL_VERSION_1_1;
     return;
   }
+
+  GLEXT_CLAMP_TO_EDGE = (glversion >= OPENGL_VERSION_1_2 ? GL_CLAMP_TO_EDGE : GL_CLAMP);
 
   gl_arb_texture_non_power_of_two = isExtensionSupported("GL_ARB_texture_non_power_of_two") != NULL;
   if (gl_arb_texture_non_power_of_two)
@@ -2236,7 +2241,7 @@ static void gld_DrawWall(GLWall *wall)
     if (need_clamp_y && !has_clamp_y)
     {
       wall->gltexture->flags |= GLTEXTURE_CLAMPY;
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GLEXT_CLAMP_TO_EDGE);
     }
     if (!need_clamp_y && has_clamp_y)
     {

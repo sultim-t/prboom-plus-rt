@@ -944,8 +944,7 @@ GLTexture *gld_RegisterPatch(int lump, int cm)
     gltexture->mipmap=false;
     
     //e6y
-    gltexture->wrap_mode = (patch->flags & PATCH_REPEAT ? (GL_REPEAT) :
-      (glversion >= OPENGL_VERSION_1_2 ? GL_CLAMP_TO_EDGE : GL_CLAMP));
+    gltexture->wrap_mode = (patch->flags & PATCH_REPEAT ? GL_REPEAT : GLEXT_CLAMP_TO_EDGE);
 
     gltexture->realtexwidth=patch->width;
     gltexture->realtexheight=patch->height;

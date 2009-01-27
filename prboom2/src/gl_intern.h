@@ -409,4 +409,7 @@ void gld_DrawDomeSkyBox(void);
 void gld_SaveSkyCap(GLWall *wall, float sx, float sy);
 void gld_DrawSkyCaps(void);
 
+//clamp
+extern int GLEXT_CLAMP_TO_EDGE;
+
 #endif // _GL_INTERN_H
