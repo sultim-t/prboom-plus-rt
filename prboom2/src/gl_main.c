@@ -2222,13 +2222,14 @@ static void gld_DrawWall(GLWall *wall)
 {
   rendered_segs++;
 
-  if ( (!gl_drawskys) && (wall->flag>=GLDWF_SKY) )
+  if ((gl_drawskys == skytype_none) && (wall->flag >= GLDWF_SKY))
     wall->gltexture=NULL;
   gld_BindTexture(wall->gltexture);
 
   // e6y
   // Do not repeat middle texture vertically
   // to avoid visual glitches for textures with holes
+  if (wall->gltexture)
   {
     boolean need_clamp_y = (wall->flag == GLDWF_M2S) && (wall->flag < GLDWF_SKY);
     boolean has_clamp_y = (wall->gltexture->flags & GLTEXTURE_CLAMPY);
@@ -2246,9 +2247,7 @@ static void gld_DrawWall(GLWall *wall)
 
   if (!wall->gltexture)
   {
-#ifdef _DEBUG
     glColor4f(1.0f,0.0f,0.0f,1.0f);
-#endif
   }
   if (wall->flag>=GLDWF_SKY)
   {
@@ -3209,19 +3208,22 @@ void gld_DrawScene(player_t *player)
   gl_SetAlphaBlend(true);
 
   // normal sky (not a skybox)
-  if (gl_drawskys == skytype_standard)
+  if (gl_drawskys == skytype_none || gl_drawskys == skytype_standard)
   {
-    if (comp[comp_skymap] && gl_shared_texture_palette)
-      glDisable(GL_SHARED_TEXTURE_PALETTE_EXT);
+    if (gl_drawskys == skytype_standard)
+    {
+      if (comp[comp_skymap] && gl_shared_texture_palette)
+        glDisable(GL_SHARED_TEXTURE_PALETTE_EXT);
 
-    if (comp[comp_skymap] && (invul_method & INVUL_BW))
-      glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+      if (comp[comp_skymap] && (invul_method & INVUL_BW))
+        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
 
-    glEnable(GL_TEXTURE_GEN_S);
-    glEnable(GL_TEXTURE_GEN_T);
-    glEnable(GL_TEXTURE_GEN_Q);
-    if (comp[comp_skymap] || !(invul_method & INVUL_BW))
-      glColor4fv(gl_whitecolor);
+      glEnable(GL_TEXTURE_GEN_S);
+      glEnable(GL_TEXTURE_GEN_T);
+      glEnable(GL_TEXTURE_GEN_Q);
+      if (comp[comp_skymap] || !(invul_method & INVUL_BW))
+        glColor4fv(gl_whitecolor);
+    }
 
     // skies
     for (i = gld_drawinfo.num_items[GLDIT_SWALL] - 1; i >= 0; i--)
@@ -3230,15 +3232,18 @@ void gld_DrawScene(player_t *player)
     }
     gld_DrawSkyCaps();
 
-    glDisable(GL_TEXTURE_GEN_Q);
-    glDisable(GL_TEXTURE_GEN_T);
-    glDisable(GL_TEXTURE_GEN_S);
+    if (gl_drawskys == skytype_standard)
+    {
+      glDisable(GL_TEXTURE_GEN_Q);
+      glDisable(GL_TEXTURE_GEN_T);
+      glDisable(GL_TEXTURE_GEN_S);
 
-    if (comp[comp_skymap] && (invul_method & INVUL_BW))
-      glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB,GL_COMBINE);
+      if (comp[comp_skymap] && (invul_method & INVUL_BW))
+        glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB,GL_COMBINE);
 
-    if (comp[comp_skymap] && gl_shared_texture_palette)
-      glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
+      if (comp[comp_skymap] && gl_shared_texture_palette)
+        glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
+    }
   }
 
   // opaque sprites
