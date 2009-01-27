@@ -396,12 +396,27 @@ void gld_InitTextureParams(void)
     char *mipmap_filter_name;
   } tex_filter_t;
 
+  typedef struct tex_format_s
+  {
+    int tex_format;
+    char *tex_format_name;
+  } tex_format_t;
+
   tex_filter_t params[filter_count] = {
     {false, GL_NEAREST, GL_NEAREST,                "GL_NEAREST", "GL_NEAREST"},
     {true,  GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST, "GL_NEAREST", "GL_NEAREST_MIPMAP_NEAREST"},
     {true,  GL_LINEAR,  GL_LINEAR,                 "GL_LINEAR",  "GL_LINEAR"},
     {true,  GL_LINEAR,  GL_LINEAR_MIPMAP_NEAREST,  "GL_LINEAR",  "GL_LINEAR_MIPMAP_NEAREST"},
     {true,  GL_LINEAR,  GL_LINEAR_MIPMAP_LINEAR,   "GL_LINEAR",  "GL_LINEAR_MIPMAP_LINEAR"},
+  };
+
+  tex_format_t tex_formats[] = {
+    {GL_RGBA2,   "GL_RGBA2"},
+    {GL_RGBA4,   "GL_RGBA4"},
+    {GL_RGB5_A1, "GL_RGB5_A1"},
+    {GL_RGBA8,   "GL_RGBA8"},
+    {GL_RGBA,    "GL_RGBA"},
+    {0, NULL}
   };
 
   use_mipmapping   = params[gl_texture_filter].mipmap;
@@ -424,33 +439,18 @@ void gld_InitTextureParams(void)
     gl_tex_format=GL_RGBA;
   }
   else
-  if (!strcasecmp(gl_tex_format_string,"GL_RGBA8"))
   {
-    gl_tex_format=GL_RGBA8;
-    lprintf(LO_INFO,"Using texture format GL_RGBA8.\n");
-  }
-  else
-  if (!strcasecmp(gl_tex_format_string,"GL_RGB5_A1"))
-  {
-    gl_tex_format=GL_RGB5_A1;
-    lprintf(LO_INFO,"Using texture format GL_RGB5_A1.\n");
-  }
-  else
-  if (!strcasecmp(gl_tex_format_string,"GL_RGBA4"))
-  {
-    gl_tex_format=GL_RGBA4;
-    lprintf(LO_INFO,"Using texture format GL_RGBA4.\n");
-  }
-  else
-  if (!strcasecmp(gl_tex_format_string,"GL_RGBA2"))
-  {
-    gl_tex_format=GL_RGBA2;
-    lprintf(LO_INFO,"Using texture format GL_RGBA2.\n");
-  }
-  else
-  {
-    gl_tex_format=GL_RGBA;
-    lprintf(LO_INFO,"Using texture format GL_RGBA.\n");
+    int i = 0;
+    while (tex_formats[i].tex_format_name)
+    {
+      if (!strcasecmp(gl_tex_format_string, tex_formats[i].tex_format_name))
+      {
+        gl_tex_format = tex_formats[i].tex_format;
+        lprintf(LO_INFO,"Using texture format %s.\n", tex_formats[i].tex_format_name);
+        break;
+      }
+      i++;
+    }
   }
 }
 
