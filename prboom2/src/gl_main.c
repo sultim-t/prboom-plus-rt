@@ -79,6 +79,15 @@ int gl_compatibility = 0;
 
 int gl_clear;
 
+// e6y
+// This variables toggles the use of a trick to prevent the clearning of the 
+// z-buffer between frames. When this variable is set to "1", the game will not 
+// clear the z-buffer between frames. This will result in increased performance
+// only on very old hardware and might cause problems for some display hardware.
+int gl_ztrick;
+int gl_ztrickframe = 0;
+float gldepthmin, gldepthmax;
+
 // Vortex: Frame buffer object related
 #ifdef USE_FBO_TECHNIQUE
 GLint glSceneImageFBOTexID = 0;
@@ -248,7 +257,7 @@ void gld_InitExtensionsEx(void)
 
   const GLubyte *extensions = glGetString(GL_EXTENSIONS);
 
-  if (gl_compatibility)
+  if ((gl_compatibility) || (glversion <= OPENGL_VERSION_1_1))
   {
     lprintf(LO_INFO, "gld_InitExtensionsEx: Compatibility mode is used.\n");
     gl_arb_texture_non_power_of_two = false;
@@ -1775,6 +1784,43 @@ static void infinitePerspective(GLdouble fovy, GLdouble aspect, GLdouble znear)
 	glMultMatrixd(m);
 }
 
+void gld_Clear(void)
+{
+  int clearbits = 0;
+
+#ifdef _DEBUG
+  if (gl_clear)
+#endif
+    clearbits |= GL_COLOR_BUFFER_BIT;
+
+  if (gl_use_stencil)
+    clearbits |= GL_STENCIL_BUFFER_BIT;
+
+  if (!gl_ztrick)
+    clearbits |= GL_DEPTH_BUFFER_BIT;
+
+  if (clearbits)
+    glClear(clearbits);
+
+  if (gl_ztrick)
+  {
+    gl_ztrickframe = !gl_ztrickframe;
+    if (gl_ztrickframe)
+    {
+      gldepthmin = 0.0f;
+      gldepthmax = 0.49999f;
+      glDepthFunc(GL_LEQUAL);
+    }
+    else
+    {
+      gldepthmin = 1.0f;
+      gldepthmax = 0.5f;
+      glDepthFunc(GL_GEQUAL);
+    }
+    glDepthRange(gldepthmin, gldepthmax);
+  }
+}
+
 void gld_StartDrawScene(void)
 {
   extern int screenblocks;
@@ -1875,14 +1921,7 @@ void gld_StartDrawScene(void)
     glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB,GL_SRC_COLOR);
   }
 
-#ifdef _DEBUG
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-#else
-  if (gl_clear)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  else
-    glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-#endif
+  gld_Clear();
 
   glEnable(GL_DEPTH_TEST);
 

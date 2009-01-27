@@ -195,6 +195,7 @@ extern int gl_fog;
 extern int gl_fog_color;
 
 extern int gl_clear;
+extern int gl_ztrick;
 
 #endif
 
@@ -403,9 +404,13 @@ default_t defaults[] =
 
 #ifdef GL_DOOM
   {"OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
+  {"gl_compatibility", {&gl_compatibility},  {0},0,1,
+   def_bool,ss_stat},
   {"gl_vsync",{&gl_vsync},{1},0,1,
    def_bool,ss_none},
   {"gl_clear",{&gl_clear},{0},0,1,
+   def_bool,ss_none},
+  {"gl_ztrick",{&gl_ztrick},{0},0,1,
    def_bool,ss_none},
   {"gl_nearclip",{&gl_nearclip},{5},0,UL,
    def_int,ss_none}, /* near clipping plane pos */
@@ -816,8 +821,6 @@ default_t defaults[] =
 
 #ifdef GL_DOOM
   {"Prboom-plus OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
-  {"gl_compatibility", {&gl_compatibility},  {0},0,1,
-   def_bool,ss_stat},
   {"render_detailedwalls", {&render_detailedwalls},  {0},0,1,
    def_bool,ss_stat},
   {"render_detailedflats", {&render_detailedflats},  {0},0,1,
