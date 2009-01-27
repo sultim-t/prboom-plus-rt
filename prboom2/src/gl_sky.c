@@ -557,7 +557,13 @@ void gld_DrawDomeSkyBox(void)
 {
   if (gld_drawinfo.num_items[GLDIT_SWALL] > 0)
   {
-    GLWall *wall = wall = gld_drawinfo.items[GLDIT_SWALL][0].item.wall;
+    GLWall *wall;
+    GLint shading_mode = GL_FLAT;
+    
+    glGetIntegerv(GL_SHADE_MODEL, &shading_mode);
+    glShadeModel(GL_SMOOTH);
+
+    wall = wall = gld_drawinfo.items[GLDIT_SWALL][0].item.wall;
 
     glDepthMask(false);
 
@@ -582,5 +588,7 @@ void gld_DrawDomeSkyBox(void)
     glEnable(GL_ALPHA_TEST);
     glEnable(GL_DEPTH_TEST);
     glDepthMask(true);
+
+    glShadeModel(shading_mode);
   }
 }

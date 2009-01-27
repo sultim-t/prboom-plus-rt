@@ -503,7 +503,7 @@ void gld_Init(int width, int height)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // proff_dis
-//  glShadeModel(GL_FLAT);
+  glShadeModel(GL_FLAT);
   glEnable(GL_TEXTURE_2D);
   glDepthFunc(GL_LEQUAL);
   glEnable(GL_ALPHA_TEST);
