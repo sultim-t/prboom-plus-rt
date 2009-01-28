@@ -42,8 +42,6 @@
 #include "p_spec.h"
 #include "e6y.h"
 
-int glversion;
-
 unsigned int idDetail;
 int render_canusedetail;
 
@@ -116,7 +114,7 @@ void gld_InitDetail(void)
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);	
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-      if (gl_use_texture_filter_anisotropic)
+      if (gl_ext_texture_filter_anisotropic)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)(1<<gl_texture_filter_anisotropic));
       
       if (gl_arb_multitexture)

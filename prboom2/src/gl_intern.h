@@ -34,6 +34,9 @@
 #ifndef _GL_INTERN_H
 #define _GL_INTERN_H
 
+#include "v_video.h"
+#include "gl_opengl.h"
+
 #define MAP_COEFF 128.0f
 #define MAP_SCALE (MAP_COEFF*(float)FRACUNIT)
 
@@ -249,15 +252,11 @@ extern GLSector *sectorloops;
 extern GLVertex *gld_vertexes;
 extern GLTexcoord *gld_texcoords;
 
-extern int gld_max_texturesize;
 extern char *gl_tex_format_string;
 extern int gl_tex_format;
 extern int gl_tex_filter;
 extern int gl_mipmap_filter;
 extern int gl_texture_filter_anisotropic;
-extern int gl_use_texture_filter_anisotropic;
-extern int gl_paletted_texture;
-extern int gl_shared_texture_palette;
 extern boolean use_mipmapping;
 extern int transparent_pal_index;
 extern unsigned char gld_palmap[256];
@@ -269,26 +268,6 @@ extern int last_cm;
 extern float xCamera,yCamera,zCamera;
 float distance2piece(float x0, float y0, float x1, float y1, float x2, float y2);
 void gld_InitDetail(void);
-
-//e6y: OpenGL version
-typedef enum {
-  OPENGL_VERSION_1_0,
-  OPENGL_VERSION_1_1,
-  OPENGL_VERSION_1_2,
-  OPENGL_VERSION_1_3,
-  OPENGL_VERSION_1_4,
-  OPENGL_VERSION_1_5,
-  OPENGL_VERSION_2_0,
-  OPENGL_VERSION_2_1,
-} glversion_t;
-extern int glversion;
-
-//e6y
-extern PFNGLACTIVETEXTUREARBPROC        GLEXT_glActiveTextureARB;
-extern PFNGLCLIENTACTIVETEXTUREARBPROC  GLEXT_glClientActiveTextureARB;
-extern PFNGLMULTITEXCOORD2FARBPROC      GLEXT_glMultiTexCoord2fARB;
-extern PFNGLMULTITEXCOORD2FVARBPROC     GLEXT_glMultiTexCoord2fvARB;
-extern PFNGLCOMPRESSEDTEXIMAGE2DARBPROC GLEXT_glCompressedTexImage2DARB;
 
 //e6y: in some cases textures with a zero index (NO_TEXTURE) should be registered
 GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap, boolean force);
@@ -315,13 +294,10 @@ void gld_RecalcVertexHeights(const vertex_t *v);
 
 //e6y
 void gld_InitGLVersion(void);
-void gld_InitExtensionsEx(void);
 void gld_PreprocessDetail(void);
 void gld_DrawDetail_NoARB(void);
 void gld_DrawWallWithDetail(GLWall *wall);
 void gld_ResetLastTexture(void);
-
-PFNGLCOLORTABLEEXTPROC gld_ColorTableEXT;
 
 int gld_BuildTexture(GLTexture *gltexture, void *data, boolean readonly,
                      int pitch, int width, int height,
@@ -344,6 +320,8 @@ int gld_ProgressEnd(void);
 #define INVUL_CM         0x00000001
 #define INVUL_INV        0x00000002
 #define INVUL_BW         0x00000004
+extern GLint glSceneImageFBOTexID;
+extern GLuint glSceneImageTextureFBOTexID;
 
 extern unsigned int invul_method;
 extern float bw_red;
@@ -352,12 +330,19 @@ extern float bw_blue;
 extern int SceneInTexture;
 extern int gl_invul_bw_method;
 void gld_InitFBO(void);
+void gld_FreeScreenSizeFBO(void);
 
 //motion bloor
 extern int gl_motionblur;
+extern int gl_use_motionblur;
 extern char *gl_motionblur_minspeed;
 extern char *gl_motionblur_linear_k;
 extern char *gl_motionblur_linear_b;
+extern int MotionBlurOn;
+extern int gl_motionblur_minspeed_pow2;
+extern float gl_motionblur_a;
+extern float gl_motionblur_b;
+extern float gl_motionblur_c;
 
 extern int imageformats[];
 
@@ -411,8 +396,5 @@ void gld_DrawScreenSkybox(void);
 void gld_DrawDomeSkyBox(void);
 void gld_SaveSkyCap(GLWall *wall, float sx, float sy);
 void gld_DrawSkyCaps(void);
-
-//clamp
-extern int GLEXT_CLAMP_TO_EDGE;
 
 #endif // _GL_INTERN_H

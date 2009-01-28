@@ -47,6 +47,10 @@
 
 float lighttable[5][256];
 
+gl_lightmode_t gl_lightmode;
+const char *gl_lightmodes[] = {"glboom", "gzdoom", "mixed"};
+int gl_light_ambient;
+
 int gl_fog;
 int gl_use_fog;
 int gl_fog_color;

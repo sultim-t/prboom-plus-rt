@@ -72,14 +72,13 @@
 #include "i_main.h"
 #include "e6y.h"//e6y
 
-int gl_preprocessed = false;
-
-//e6y: all OpenGL extentions will be disabled with TRUE
+// All OpenGL extentions will be disabled in gl_compatibility mode
 int gl_compatibility = 0;
 
-int GLEXT_CLAMP_TO_EDGE = GL_CLAMP;
-
+int gl_vsync = true;
 int gl_clear;
+
+int gl_preprocessed = false;
 
 // e6y
 // This variables toggles the use of a trick to prevent the clearning of the 
@@ -90,80 +89,10 @@ int gl_ztrick;
 int gl_ztrickframe = 0;
 float gldepthmin, gldepthmax;
 
-// Vortex: Frame buffer object related
-#ifdef USE_FBO_TECHNIQUE
-GLint glSceneImageFBOTexID = 0;
-GLuint glDepthBufferFBOTexID = 0;
-GLuint glSceneImageTextureFBOTexID = 0;
-boolean gld_CreateScreenSizeFBO(void);
-void gld_FreeScreenSizeFBO(void);
-void gld_InitMotionBlur(void);
-#endif
-
 unsigned int invul_method;
 float bw_red = 0.3f;
 float bw_green = 0.59f;
 float bw_blue = 0.11f;
-
-//e6y
-int SceneInTexture = false;
-
-//e6y: motion bloor
-int gl_motionblur;
-int gl_use_motionblur = false;
-char *gl_motionblur_minspeed;
-char *gl_motionblur_att_a;
-char *gl_motionblur_att_b;
-char *gl_motionblur_att_c;
-int MotionBlurOn;
-int gl_motionblur_minspeed_pow2 = 0x32 * 0x32 + 0x28 * 0x28;
-float gl_motionblur_a = 55.0f;
-float gl_motionblur_b = 1.8f;
-float gl_motionblur_c = 0.9f;
-
-//e6y
-int gl_invul_bw_method;
-static boolean SkyDrawed;
-
-gl_lightmode_t gl_lightmode;
-const char *gl_lightmodes[] = {"glboom", "gzdoom", "mixed"};
-int gl_light_ambient;
-
-boolean gl_arb_texture_non_power_of_two = false;
-boolean gl_arb_multitexture = false;
-boolean gl_arb_texture_compression = false;
-boolean gl_ext_framebuffer_object = false;
-boolean gl_ext_blend_color = false;
-
-boolean gl_use_stencil = false;
-boolean gl_use_FBO = false;
-
-/* ARB_multitexture command function pointers */
-PFNGLACTIVETEXTUREARBPROC        GLEXT_glActiveTextureARB        = NULL;
-PFNGLCLIENTACTIVETEXTUREARBPROC  GLEXT_glClientActiveTextureARB  = NULL;
-PFNGLMULTITEXCOORD2FARBPROC      GLEXT_glMultiTexCoord2fARB      = NULL;
-PFNGLMULTITEXCOORD2FVARBPROC     GLEXT_glMultiTexCoord2fvARB     = NULL;
-
-/* EXT_framebuffer_object */
-#ifdef USE_FBO_TECHNIQUE
-PFNGLBINDFRAMEBUFFEREXTPROC         GLEXT_glBindFramebufferEXT         = NULL;
-PFNGLGENFRAMEBUFFERSEXTPROC         GLEXT_glGenFramebuffersEXT         = NULL;
-PFNGLGENRENDERBUFFERSEXTPROC        GLEXT_glGenRenderbuffersEXT        = NULL;
-PFNGLBINDRENDERBUFFEREXTPROC        GLEXT_glBindRenderbufferEXT        = NULL;
-PFNGLRENDERBUFFERSTORAGEEXTPROC     GLEXT_glRenderbufferStorageEXT     = NULL;
-PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC GLEXT_glFramebufferRenderbufferEXT = NULL;
-PFNGLFRAMEBUFFERTEXTURE2DEXTPROC    GLEXT_glFramebufferTexture2DEXT    = NULL;
-PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC  GLEXT_glCheckFramebufferStatusEXT  = NULL;
-PFNGLDELETEFRAMEBUFFERSEXTPROC      GLEXT_glDeleteFramebuffersEXT      = NULL;
-PFNGLDELETERENDERBUFFERSEXTPROC     GLEXT_glDeleteRenderbuffersEXT     = NULL;
-#endif
-
-PFNGLBLENDCOLOREXTPROC              GLEXT_glBlendColorEXT = NULL;
-
-/* ARB_texture_compression */
-PFNGLCOMPRESSEDTEXIMAGE2DARBPROC GLEXT_glCompressedTexImage2DARB = NULL;
-
-int imageformats[5] = {0, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_RGB, GL_RGBA};
 
 extern int tran_filter_pct;
 
@@ -171,19 +100,12 @@ extern int tran_filter_pct;
 
 boolean use_fog=false;
 
-int gl_vsync = true;
-
 int gl_nearclip=5;
 int gl_texture_filter;
 int gl_tex_filter;
 int gl_mipmap_filter;
 int gl_sortsprites=true;
 int gl_texture_filter_anisotropic = 0;
-int gl_use_texture_filter_anisotropic = 0;
-int gl_use_paletted_texture = 0;
-int gl_use_shared_texture_palette = 0;
-int gl_paletted_texture = 0;
-int gl_shared_texture_palette = 0;
 //e6y: moved to globals
 //int gl_sprite_offset;	// item out of floor offset Mead 8/13/03
 
@@ -195,195 +117,6 @@ static float extra_blue=0.0f;
 static float extra_alpha=0.0f;
 
 GLfloat gl_whitecolor[4]={1.0f,1.0f,1.0f,1.0f};
-
-static void gld_InitExtensions(const char *_extensions)
-{
-  char *extensions;
-  char *extension;
-  char *p;
-
-  if (!_extensions)
-    return;
-
-  extensions = malloc(strlen(_extensions) + 1);
-  if (!extensions)
-    return;
-  memcpy(extensions, _extensions, strlen(_extensions) + 1);
-
-  p = extensions;
-  extension = p;
-
-  do {
-    while ((*p != ' ') && (*p != '\0'))
-      p++;
-    if (*p != '\0')
-      *p++ = '\0';
-    while (*p == ' ')
-      p++;
-
-    if (strcasecmp(extension, "GL_EXT_texture_filter_anisotropic") == 0)
-      gl_use_texture_filter_anisotropic = true;
-    else if (strcasecmp(extension, "GL_EXT_paletted_texture") == 0) {
-      if (gl_use_paletted_texture) {
-        gl_paletted_texture = true;
-        gld_ColorTableEXT = SDL_GL_GetProcAddress("glColorTableEXT");
-	if (gld_ColorTableEXT == NULL)
-	  gl_paletted_texture = false;
-	else
-          lprintf(LO_INFO,"using GL_EXT_paletted_texture\n");
-      }
-    }
-    else if (strcasecmp(extension, "GL_EXT_shared_texture_palette") == 0)
-      if (gl_use_shared_texture_palette) {
-        gl_shared_texture_palette = true;
-        gld_ColorTableEXT = SDL_GL_GetProcAddress("glColorTableEXT");
-	if (gld_ColorTableEXT == NULL)
-	  gl_shared_texture_palette = false;
-	else
-          lprintf(LO_INFO,"using GL_EXT_shared_texture_palette\n");
-      }
-
-    extension = p;
-  } while (*extension != '\0');
-
-  free(extensions);
-}
-
-void gld_InitExtensionsEx(void)
-{
-#define isExtensionSupported(ext) strstr(extensions, ext)
-
-  extern int gl_tex_filter;
-  extern int gl_mipmap_filter;
-  extern int gl_tex_format;
-
-  const GLubyte *extensions = glGetString(GL_EXTENSIONS);
-
-  if ((gl_compatibility) || (glversion <= OPENGL_VERSION_1_1))
-  {
-    lprintf(LO_INFO, "gld_InitExtensionsEx: Compatibility mode is used.\n");
-    gl_arb_texture_non_power_of_two = false;
-    gl_arb_multitexture = false;
-    gl_arb_texture_compression = false;
-    gl_ext_framebuffer_object = false;
-    gl_ext_blend_color = false;
-    gl_use_stencil = false;
-    GLEXT_CLAMP_TO_EDGE = GL_CLAMP;
-    glversion = OPENGL_VERSION_1_1;
-    return;
-  }
-
-  GLEXT_CLAMP_TO_EDGE = (glversion >= OPENGL_VERSION_1_2 ? GL_CLAMP_TO_EDGE : GL_CLAMP);
-
-  gl_arb_texture_non_power_of_two = isExtensionSupported("GL_ARB_texture_non_power_of_two") != NULL;
-  if (gl_arb_texture_non_power_of_two)
-    lprintf(LO_INFO,"using GL_ARB_texture_non_power_of_two\n");
-
-  gl_arb_multitexture = isExtensionSupported("GL_ARB_multitexture") != NULL;
-
-  if (gl_arb_multitexture)
-  {
-    GLEXT_glActiveTextureARB        = SDL_GL_GetProcAddress("glActiveTextureARB");
-    GLEXT_glClientActiveTextureARB  = SDL_GL_GetProcAddress("glClientActiveTextureARB");
-    GLEXT_glMultiTexCoord2fARB      = SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
-    GLEXT_glMultiTexCoord2fvARB     = SDL_GL_GetProcAddress("glMultiTexCoord2fvARB");
-
-    if (!GLEXT_glActiveTextureARB   || !GLEXT_glClientActiveTextureARB ||
-        !GLEXT_glMultiTexCoord2fARB || !GLEXT_glMultiTexCoord2fvARB)
-      gl_arb_multitexture = false;
-  }
-
-  if (gl_arb_multitexture)
-    lprintf(LO_INFO,"using GL_ARB_multitexture\n");
-
-  gld_InitDetail();
-
-  gl_arb_texture_compression = isExtensionSupported("GL_ARB_texture_compression") != NULL;
-
-  if (gl_arb_texture_compression)
-  {
-    GLEXT_glCompressedTexImage2DARB = SDL_GL_GetProcAddress("glCompressedTexImage2DARB");
-
-    if (!GLEXT_glCompressedTexImage2DARB)
-      gl_arb_texture_compression = false;
-  }
-
-  if (gl_arb_texture_compression)
-    lprintf(LO_INFO,"using GL_ARB_texture_compression\n");
-
-#ifdef USE_FBO_TECHNIQUE
-  gl_ext_framebuffer_object = isExtensionSupported("GL_EXT_framebuffer_object") != NULL;
-
-  if (gl_ext_framebuffer_object)
-  {
-    GLEXT_glGenFramebuffersEXT         = SDL_GL_GetProcAddress("glGenFramebuffersEXT");
-    GLEXT_glBindFramebufferEXT         = SDL_GL_GetProcAddress("glBindFramebufferEXT");
-    GLEXT_glGenRenderbuffersEXT        = SDL_GL_GetProcAddress("glGenRenderbuffersEXT");
-    GLEXT_glBindRenderbufferEXT        = SDL_GL_GetProcAddress("glBindRenderbufferEXT");
-    GLEXT_glRenderbufferStorageEXT     = SDL_GL_GetProcAddress("glRenderbufferStorageEXT");
-    GLEXT_glFramebufferRenderbufferEXT = SDL_GL_GetProcAddress("glFramebufferRenderbufferEXT");
-    GLEXT_glFramebufferTexture2DEXT    = SDL_GL_GetProcAddress("glFramebufferTexture2DEXT");
-    GLEXT_glCheckFramebufferStatusEXT  = SDL_GL_GetProcAddress("glCheckFramebufferStatusEXT");
-    GLEXT_glDeleteFramebuffersEXT      = SDL_GL_GetProcAddress("glDeleteFramebuffersEXT");
-    GLEXT_glDeleteRenderbuffersEXT     = SDL_GL_GetProcAddress("glDeleteRenderbuffersEXT");
-
-    if (!GLEXT_glGenFramebuffersEXT || !GLEXT_glBindFramebufferEXT ||
-        !GLEXT_glGenRenderbuffersEXT || !GLEXT_glBindRenderbufferEXT ||
-        !GLEXT_glRenderbufferStorageEXT || !GLEXT_glFramebufferRenderbufferEXT ||
-        !GLEXT_glFramebufferTexture2DEXT || !GLEXT_glCheckFramebufferStatusEXT ||
-        !GLEXT_glDeleteFramebuffersEXT || !GLEXT_glDeleteRenderbuffersEXT)
-      gl_ext_framebuffer_object = false;
-  }
-
-  if (gl_ext_framebuffer_object)
-    lprintf(LO_INFO,"using GL_EXT_framebuffer_object\n");
-#endif
-
-  gl_ext_blend_color = isExtensionSupported("GL_EXT_blend_color") != NULL;
-
-  if (gl_ext_blend_color)
-  {
-    GLEXT_glBlendColorEXT = SDL_GL_GetProcAddress("glBlendColorEXT");
-
-    if (!GLEXT_glBlendColorEXT)
-      gl_ext_blend_color = false;
-  }
-
-  if (gl_ext_blend_color)
-    lprintf(LO_INFO,"using GL_EXT_blend_color\n");
-
-  if (glversion < OPENGL_VERSION_1_3)
-  {
-    gl_ext_framebuffer_object = false;
-    gl_ext_blend_color = false;
-  }
-
-  gl_use_stencil = true;
-}
-
-//e6y
-void gld_InitGLVersion(void)
-{
-  int MajorVersion, MinorVersion;
-  glversion = OPENGL_VERSION_1_0;
-  if (sscanf(glGetString(GL_VERSION), "%d.%d", &MajorVersion, &MinorVersion) == 2)
-  {
-    if (MajorVersion > 1)
-    {
-      glversion = OPENGL_VERSION_2_0;
-      if (MinorVersion > 0) glversion = OPENGL_VERSION_2_1;
-    }
-    else
-    {
-      glversion = OPENGL_VERSION_1_0;
-      if (MinorVersion > 0) glversion = OPENGL_VERSION_1_1;
-      if (MinorVersion > 1) glversion = OPENGL_VERSION_1_2;
-      if (MinorVersion > 2) glversion = OPENGL_VERSION_1_3;
-      if (MinorVersion > 3) glversion = OPENGL_VERSION_1_4;
-      if (MinorVersion > 4) glversion = OPENGL_VERSION_1_5;
-    }
-  }
-}
 
 void gld_InitTextureParams(void)
 {
@@ -486,18 +219,14 @@ void gld_Init(int width, int height)
     }
   }
 
-  gld_InitExtensions(glGetString(GL_EXTENSIONS));
-  //gl_shared_texture_palette = false;
+  gld_InitOpenGL(gl_compatibility);
   gld_InitPalettedTextures();
+  gld_InitTextureParams();
 
   glViewport(0, 0, SCREENWIDTH, SCREENHEIGHT);
 
   glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
   glClearDepth(1.0f);
-
-  glGetIntegerv(GL_MAX_TEXTURE_SIZE,&gld_max_texturesize);
-  //gld_max_texturesize=16;
-  lprintf(LO_INFO,"GL_MAX_TEXTURE_SIZE=%i\n",gld_max_texturesize);
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -517,9 +246,6 @@ void gld_Init(int width, int height)
   glTexGenf(GL_Q,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
 
   //e6y
-  gld_InitGLVersion();
-  gld_InitExtensionsEx();
-  gld_InitTextureParams();
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   gld_Finish();
@@ -536,11 +262,13 @@ void gld_Init(int width, int height)
   M_ChangeLightMode();
   M_ChangeAllowFog();
 
+  gld_InitDetail();
+
 #ifdef HAVE_LIBSDL_IMAGE
   gld_InitHiRes();
 #endif
 
-  // Vortex: Create FBO object and associated render targets
+  // Create FBO object and associated render targets
 #ifdef USE_FBO_TECHNIQUE
   gld_InitFBO();
   atexit(gld_FreeScreenSizeFBO);
@@ -824,7 +552,7 @@ void gld_SetPalette(int palette)
     pal[transparent_pal_index*4+1]=0;
     pal[transparent_pal_index*4+2]=0;
     pal[transparent_pal_index*4+3]=0;
-    gld_ColorTableEXT(GL_SHARED_TEXTURE_PALETTE_EXT, GL_RGBA, 256, GL_RGBA, GL_UNSIGNED_BYTE, pal);
+    GLEXT_glColorTableEXT(GL_SHARED_TEXTURE_PALETTE_EXT, GL_RGBA, 256, GL_RGBA, GL_UNSIGNED_BYTE, pal);
     W_UnlockLumpName("PLAYPAL");
   } else {
     if (palette>0)
@@ -1893,7 +1621,7 @@ void gld_StartDrawScene(void)
     }
     else
     {
-      if (glversion >= OPENGL_VERSION_1_3)
+      if (gl_version >= OPENGL_VERSION_1_3)
       {
         invul_method = INVUL_BW;
       }
@@ -3170,9 +2898,6 @@ void gld_DrawScene(player_t *player)
   int i,j,k;
   fixed_t max_scale;
 
-  //e6y
-  SkyDrawed = false;
-
   //e6y: must call it twice for correct initialisation
   gl_SetAlphaBlend(false);
   gl_SetAlphaBlend(true);
@@ -3401,110 +3126,3 @@ void gld_PreprocessLevel(void)
 
   gl_preprocessed = true;
 }
-
-// Vortex: some FBO stuff
-#ifdef USE_FBO_TECHNIQUE
-
-void gld_InitFBO(void)
-{
-  gld_FreeScreenSizeFBO();
-
-  gl_use_motionblur = gl_ext_framebuffer_object && gl_motionblur && gl_ext_blend_color;
-
-  gl_use_FBO = gl_ext_framebuffer_object && (gl_use_motionblur || !gl_boom_colormaps);
-
-  if (gl_use_FBO)
-  {
-    if (gld_CreateScreenSizeFBO())
-    {
-      // motion blur setup
-      gld_InitMotionBlur();
-    }
-    else
-    {
-      gl_use_FBO = false;
-      gl_ext_framebuffer_object = false;
-    }
-  }
-}
-
-boolean gld_CreateScreenSizeFBO(void)
-{
-  int status = 0;
-
-  if (!gl_ext_framebuffer_object)
-    return false;
-
-  GLEXT_glGenFramebuffersEXT(1, &glSceneImageFBOTexID);
-  GLEXT_glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, glSceneImageFBOTexID);
-
-  GLEXT_glGenRenderbuffersEXT(1, &glDepthBufferFBOTexID);
-  GLEXT_glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, glDepthBufferFBOTexID);
-
-  GLEXT_glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, SCREENWIDTH, SCREENHEIGHT);
-  GLEXT_glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, glDepthBufferFBOTexID);
-  
-  glGenTextures(1, &glSceneImageTextureFBOTexID);
-  glBindTexture(GL_TEXTURE_2D, glSceneImageTextureFBOTexID);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, SCREENWIDTH, SCREENHEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  
-  // e6y
-  // Some ATI’s drivers have a bug whereby adding the depth renderbuffer
-  // and then a texture causes the application to crash.
-  // This should be kept in mind when doing any FBO related work and
-  // tested for as it is possible it could be fixed in a future driver revision
-  // thus rendering the problem non-existent.
-  PRBOOM_TRY(EXEPTION_glFramebufferTexture2DEXT)
-  {
-    GLEXT_glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, glSceneImageTextureFBOTexID, 0);
-    status = GLEXT_glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-  }
-  PRBOOM_EXCEPT(EXEPTION_glFramebufferTexture2DEXT)
-
-  if (status == GL_FRAMEBUFFER_COMPLETE_EXT)
-  {
-    GLEXT_glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-  }
-  else
-  {
-    lprintf(LO_ERROR, "gld_CreateScreenSizeFBO: Cannot create framebuffer object (error code: %d)\n", status);
-    gl_ext_framebuffer_object = false;
-  }
-
-  return (status == GL_FRAMEBUFFER_COMPLETE_EXT);
-}
-
-void gld_FreeScreenSizeFBO(void)
-{
-  if (!gl_ext_framebuffer_object)
-    return;
-
-  GLEXT_glDeleteFramebuffersEXT(1, &glSceneImageFBOTexID);
-  glSceneImageFBOTexID = 0;
-
-  GLEXT_glDeleteRenderbuffersEXT(1, &glDepthBufferFBOTexID);
-  glDepthBufferFBOTexID = 0;
-
-  glDeleteTextures(1, &glSceneImageTextureFBOTexID);
-  glSceneImageTextureFBOTexID = 0;
-}
-
-void gld_InitMotionBlur(void)
-{
-  if (gl_use_motionblur)
-  {
-    float f;
-
-    sscanf(gl_motionblur_minspeed, "%f", &f);
-    sscanf(gl_motionblur_att_a, "%f", &gl_motionblur_a);
-    sscanf(gl_motionblur_att_b, "%f", &gl_motionblur_b);
-    sscanf(gl_motionblur_att_c, "%f", &gl_motionblur_c);
-
-    gl_motionblur_minspeed_pow2 = (int)(f * f);
-  }
-}
-#endif

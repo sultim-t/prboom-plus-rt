@@ -65,6 +65,8 @@
 #include "p_spec.h"
 #include "e6y.h"
 
+int imageformats[5] = {0, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_RGB, GL_RGBA};
+
 /* TEXTURES */
 static GLTexture **gld_GLTextures=NULL;
 /* PATCHES FLATS SPRITES */
@@ -73,7 +75,6 @@ static GLTexture **gld_GLStaticPatchTextures=NULL;
 
 boolean use_mipmapping=false;
 
-int gld_max_texturesize=0;
 char *gl_tex_format_string;
 //int gl_tex_format=GL_RGBA8;
 int gl_tex_format=GL_RGB5_A1;
@@ -129,8 +130,8 @@ int gld_GetTexDimension(int value)
 {
   int i;
 
-  if (value > gld_max_texturesize)
-    value = gld_max_texturesize;
+  if (value > gl_max_texture_size)
+    value = gl_max_texture_size;
   
   if (gl_arb_texture_non_power_of_two)
     return value;
@@ -275,7 +276,7 @@ void gld_SetTexturePalette(GLenum target)
   pal[transparent_pal_index*4+1]=0;
   pal[transparent_pal_index*4+2]=0;
   pal[transparent_pal_index*4+3]=0;
-  gld_ColorTableEXT(target, GL_RGBA, 256, GL_RGBA, GL_UNSIGNED_BYTE, pal);
+  GLEXT_glColorTableEXT(target, GL_RGBA, 256, GL_RGBA, GL_UNSIGNED_BYTE, pal);
   W_UnlockLumpName("PLAYPAL");
 }
 
@@ -664,7 +665,7 @@ static void gld_RecolorMipLevels(byte *data)
 
     if (!buf)
     {
-      buf = malloc(gld_max_texturesize * gld_max_texturesize * 4);
+      buf = malloc(gl_max_texture_size * gl_max_texture_size * 4);
     }
 
     for (miplevel = 1; miplevel < 16; miplevel++)
@@ -717,7 +718,7 @@ int gld_BuildTexture(GLTexture *gltexture, void *data, boolean readonly,
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (mipmap ? gl_mipmap_filter : gl_tex_filter));
 
-    if (gl_use_texture_filter_anisotropic && mipmap)
+    if (gl_ext_texture_filter_anisotropic && mipmap)
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)(1<<gl_texture_filter_anisotropic));
 
     result = true;
@@ -736,7 +737,7 @@ int gld_BuildTexture(GLTexture *gltexture, void *data, boolean readonly,
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gltexture->wrap_mode);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_mipmap_filter);
-    if (gl_use_texture_filter_anisotropic)
+    if (gl_ext_texture_filter_anisotropic)
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)(1<<gl_texture_filter_anisotropic));
 
     result = true;

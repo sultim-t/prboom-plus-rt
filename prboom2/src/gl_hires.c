@@ -860,7 +860,7 @@ static int gld_HiRes_LoadExternal(GLTexture *gltexture, int *glTexID)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
           (numMipmaps ? gl_mipmap_filter : gl_tex_filter));
-        if (gl_use_texture_filter_anisotropic && numMipmaps)
+        if (gl_ext_texture_filter_anisotropic && numMipmaps)
           glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)(1<<gl_texture_filter_anisotropic));
         
         free(ddsimage->pixels);
