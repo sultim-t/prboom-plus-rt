@@ -307,7 +307,8 @@ void gld_ResetGammaRamp(void);
 void gld_GammaCorrect(unsigned char *buffer, int bufSize);
 
 //e6y: from gl_vertex
-extern int render_segs;
+//extern int render_segs;
+#define render_segs 0
 void gld_SplitLeftEdge(const GLWall *wall, boolean detail, float detail_w, float detail_h);
 void gld_SplitRightEdge(const GLWall *wall, boolean detail, float detail_w, float detail_h);
 void gld_RecalcVertexHeights(const vertex_t *v);

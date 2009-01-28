@@ -87,7 +87,7 @@ typedef struct vertexsplit_info_s
 } vertexsplit_info_t;
 
 int gl_seamless = false;
-int render_segs = false;
+//int render_segs = false; // currently it is define
 
 static vertexsplit_info_t * gl_vertexsplit = NULL;
 
@@ -105,12 +105,22 @@ static splitsbysector_t * gl_splitsbysector = NULL;
 //==========================================================================
 void gld_SplitLeftEdge(const GLWall *wall, boolean detail, float detail_w, float detail_h)
 {
+  vertex_t *v;
   vertexsplit_info_t *vi;
 
-  if (wall->seg->v1 == NULL)
+  if (render_segs)
+  {
+    v = wall->seg->v1;
+  }
+  else
+  {
+    v = wall->seg->linedef->v1;
+  }
+
+  if (v == NULL)
     return;
 
-  vi = &gl_vertexsplit[wall->seg->v1 - vertexes];
+  vi = &gl_vertexsplit[v - vertexes];
 
   if (vi->numheights)
   {
@@ -149,12 +159,22 @@ void gld_SplitLeftEdge(const GLWall *wall, boolean detail, float detail_w, float
 //==========================================================================
 void gld_SplitRightEdge(const GLWall *wall, boolean detail, float detail_w, float detail_h)
 {
+  vertex_t *v;
   vertexsplit_info_t * vi;
 
-  if (wall->seg->v2 == NULL)
+  if (render_segs)
+  {
+    v = wall->seg->v2;
+  }
+  else
+  {
+    v = wall->seg->linedef->v2;
+  }
+
+  if (v == NULL)
     return;
 
-  vi = &gl_vertexsplit[wall->seg->v2 - vertexes];
+  vi = &gl_vertexsplit[v - vertexes];
 
   if (vi->numheights)
   {

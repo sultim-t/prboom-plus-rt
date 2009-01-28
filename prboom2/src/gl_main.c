@@ -3132,32 +3132,34 @@ void gld_ProcessWall(GLWall *wall)
   {
     seg_t *seg = wall->seg;
     vertex_t *v1, *v2;
-    if (seg->sidedef == &sides[seg->linedef->sidenum[0]])
-    {
-      v1 = seg->linedef->v1;
-      v2 = seg->linedef->v2;
-    }
-    else
-    {
-      v1 = seg->linedef->v2;
-      v2 = seg->linedef->v1;
-    }
 
     if (render_segs)
     {
+      if (seg->sidedef == &sides[seg->linedef->sidenum[0]])
+      {
+        v1 = seg->linedef->v1;
+        v2 = seg->linedef->v2;
+      }
+      else
+      {
+        v1 = seg->linedef->v2;
+        v2 = seg->linedef->v1;
+      }
+
       wall->glseg->fracleft  = (seg->v1->x != v1->x) || (seg->v1->y != v1->y);
       wall->glseg->fracright = (seg->v2->x != v2->x) || (seg->v2->y != v2->y);
-      v1 = seg->v1;
-      v2 = seg->v2;
+
+      gld_RecalcVertexHeights(seg->v1);
+      gld_RecalcVertexHeights(seg->v2);
     }
     else
     {
       wall->glseg->fracleft  = 0;
-      wall->glseg->fracright = 1;
-    }
+      wall->glseg->fracright = 0;
 
-    gld_RecalcVertexHeights(v1);
-    gld_RecalcVertexHeights(v2);
+      gld_RecalcVertexHeights(seg->linedef->v1);
+      gld_RecalcVertexHeights(seg->linedef->v2);
+    }
   }
 
   gld_DrawWall(wall);
