@@ -2449,6 +2449,7 @@ void gld_AddWall(seg_t *seg)
       return;
     segrendered[seg->iSegID] = rendermarker;
     linelength = segs[seg->iSegID].length;
+    wall.glseg=&gl_segs[seg->iSegID];
   }
   else
   {
@@ -2456,6 +2457,7 @@ void gld_AddWall(seg_t *seg)
       return;
     linerendered[seg->linedef->iLineID] = rendermarker;
     linelength = lines[seg->linedef->iLineID].length;
+    wall.glseg=&gl_lines[seg->linedef->iLineID];
   }
 
   if (!seg->frontsector)
@@ -2463,7 +2465,6 @@ void gld_AddWall(seg_t *seg)
   frontsector=R_FakeFlat(seg->frontsector, &ftempsec, NULL, NULL, false); // for boom effects
   if (!frontsector)
     return;
-  wall.glseg=&gl_lines[seg->linedef->iLineID];
 
   // e6y: fake contrast stuff
   // Original doom added/removed one light level ((1<<LIGHTSEGSHIFT) == 16) 
