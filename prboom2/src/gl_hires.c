@@ -890,7 +890,9 @@ static int gld_HiRes_LoadExternal(GLTexture *gltexture, int *glTexID)
   }
   else
   {
-    cache_write = true;
+    cache_write = 
+      ((gltexture->realtexwidth != gltexture->tex_width) ||
+      (gltexture->realtexheight != gltexture->tex_height));
   }
 
   if (cache_read)
