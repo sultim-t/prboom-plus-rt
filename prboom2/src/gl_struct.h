@@ -132,6 +132,15 @@ extern char *gl_texture_hires_dir;
 int gld_PrecachePatches(void);
 
 //HQ resize
+typedef enum
+{
+  hq_scale_none,
+  hq_scale_2x,
+  hq_scale_3x,
+  hq_scale_4x,
+  
+  hq_scale_max
+} gl_hqresizemode_t;
 extern const char *gl_hqresizemodes[];
 extern int gl_texture_hqresize;
 extern int gl_texture_hqresize_textures;

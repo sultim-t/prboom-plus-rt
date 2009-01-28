@@ -3103,10 +3103,10 @@ setup_menu_t gen_settings6[] = { // General Settings screen4
   {"Enable External Hi-Res",     S_YESNO, m_null, G_X,G_Y+ 8*8, {"gl_texture_external_hires"}, 0, 0, M_ChangeTextureUseHires},
   {"Override PWAD's graphics with Hi-Res" ,S_YESNO|S_PRGWARN,m_null,G_X,G_Y+ 9*8, {"gl_hires_override_pwads"}},
 
-  {"High Quality Resize mode", S_CHOICE, m_null, G_X, G_Y+11*8, {"gl_texture_hqresize"}, 0, 0, M_ChangeTextureHQResize, gl_hqresizemodes},
-  {"Resize textures",          S_YESNO, m_null, G_X, G_Y+12*8, {"gl_texture_hqresize_textures"}, 0, 0, M_ChangeTextureHQResize},
-  {"Resize sprites",           S_YESNO, m_null, G_X, G_Y+13*8, {"gl_texture_hqresize_sprites"}, 0, 0, M_ChangeTextureHQResize},
-  {"Resize patches",           S_YESNO, m_null, G_X, G_Y+14*8, {"gl_texture_hqresize_patches"}, 0, 0, M_ChangeTextureHQResize},
+  {"Enable High Quality Resize",S_YESNO, m_null, G_X, G_Y+11*8, {"gl_texture_hqresize"}, 0, 0, M_ChangeTextureHQResize},
+  {"Resize textures",          S_CHOICE, m_null, G_X, G_Y+12*8, {"gl_texture_hqresize_textures"}, 0, 0, M_ChangeTextureHQResize, gl_hqresizemodes},
+  {"Resize sprites",           S_CHOICE, m_null, G_X, G_Y+13*8, {"gl_texture_hqresize_sprites"}, 0, 0, M_ChangeTextureHQResize, gl_hqresizemodes},
+  {"Resize patches",           S_CHOICE, m_null, G_X, G_Y+14*8, {"gl_texture_hqresize_patches"}, 0, 0, M_ChangeTextureHQResize, gl_hqresizemodes},
 
   {"Detailed Walls",            S_YESNO,  m_null, G_X, G_Y+16*8, {"render_detailedwalls"}, 0, 0, M_ChangeUseDetail},
   {"Detailed Flats",            S_YESNO,  m_null, G_X, G_Y+17*8, {"render_detailedflats"}, 0, 0, M_ChangeUseDetail},

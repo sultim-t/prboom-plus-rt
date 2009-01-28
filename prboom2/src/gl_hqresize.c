@@ -46,7 +46,8 @@
 #include "gl_intern.h"
 
 int gl_texture_hqresize;
-const char *gl_hqresizemodes[] = {"Off","Scale2x", "Scale3x","Scale4x"};
+const char *gl_hqresizemodes[hq_scale_max] = {
+  "Off", "Scale2x", "Scale3x", "Scale4x"};
 
 int gl_texture_hqresize;
 int gl_texture_hqresize_maxinputsize = 512;
@@ -182,72 +183,61 @@ static unsigned char *scaleNxHelper( void (*scaleNxFunction) ( unsigned int* , u
 //===========================================================================
 unsigned char* gld_HQResize(GLTexture *gltexture, unsigned char *inputBuffer, int inWidth, int inHeight, int *outWidth, int *outHeight)
 {
+  int w = inWidth;
+  int h = inHeight;
   unsigned char *result = inputBuffer;
+  gl_hqresizemode_t scale_mode = hq_scale_none;
 
-  *outWidth = inWidth;
-  *outHeight = inHeight;
+  if (outWidth) *outWidth = inWidth;
+  if (outHeight) *outHeight = inHeight;
+
+  if (!gl_texture_hqresize || !gltexture || !inputBuffer)
+    return result;
 
   // [BB] Don't resample if the width or height of the input texture is bigger than gl_texture_hqresize_maxinputsize.
-  if ( ( inWidth > gl_texture_hqresize_maxinputsize ) || ( inHeight > gl_texture_hqresize_maxinputsize ) )
+  if ((inWidth > gl_texture_hqresize_maxinputsize) ||
+      (inHeight > gl_texture_hqresize_maxinputsize))
     return result;
 
   // [BB] The hqnx upsampling (not the scaleN one) destroys partial transparency, don't upsamle textures using it.
-  //if ( gltexture->bIsTransparent == 1 )
-//    return inputBuffer;
+  //if (gltexture->bIsTransparent == 1)
+  //  return inputBuffer;
 
   switch (gltexture->textype)
   {
   case GLDT_PATCH:
     if (gltexture->flags & GLTEXTURE_SPRITE)
-    {
-      if (!gl_texture_hqresize_sprites)
-        return result;
-    }
+      scale_mode = gl_texture_hqresize_sprites;
     else
-    {
-      if (!gl_texture_hqresize_patches)
-        return result;
-    }
+      scale_mode = gl_texture_hqresize_patches;
     break;
 
   case GLDT_TEXTURE:
   case GLDT_FLAT:
-    if (!gl_texture_hqresize_textures)
-      return result;
-    break;
-
-  default:
-    return result;
+    scale_mode = gl_texture_hqresize_textures;
     break;
   }
 
-  if (inputBuffer)
+  switch (scale_mode)
   {
-    int type = gl_texture_hqresize;
-    *outWidth = inWidth;
-    *outHeight = inHeight;
-    switch (type)
-    {
-    case 1:
-      result = scaleNxHelper( &scale2x, 2, inputBuffer, inWidth, inHeight, outWidth, outHeight );
-      break;
-    case 2:
-      result = scaleNxHelper( &scale3x, 3, inputBuffer, inWidth, inHeight, outWidth, outHeight );
-      break;
-    case 3:
-      result = scaleNxHelper( &scale4x, 4, inputBuffer, inWidth, inHeight, outWidth, outHeight );
-      break;
-    }
+  case hq_scale_2x:
+    result = scaleNxHelper(&scale2x, 2, inputBuffer, inWidth, inHeight, &w, &h);
+    break;
+  case hq_scale_3x:
+    result = scaleNxHelper(&scale3x, 3, inputBuffer, inWidth, inHeight, &w, &h);
+    break;
+  case hq_scale_4x:
+    result = scaleNxHelper(&scale4x, 4, inputBuffer, inWidth, inHeight, &w, &h);
+    break;
   }
 
-  if (inWidth != *outWidth)
+  if (result != inputBuffer)
   {
-    gltexture->tex_width = *outWidth;
-    gltexture->tex_height = *outHeight;
+    gltexture->tex_width = w;
+    gltexture->tex_height = h;
 
-    //gltexture->buffer_width = outWidth;
-    //gltexture->buffer_height = outHeight;
-    //gltexture->buffer_size = outWidth * outHeight * 4;
+    if (outWidth) *outWidth = w;
+    if (outHeight) *outHeight = h;
   }
 
   return result;
