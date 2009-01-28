@@ -528,14 +528,15 @@ void M_ChangeRenderPrecise(void)
   {
     if (render_precise)
     {
+      gl_seamless = true;
       gld_InitVertexData();
     }
     else
     {
+      gl_seamless = false;
       gld_CleanVertexData();
     }
 
-    gl_seamless = render_precise;
     //render_segs = false;
   }
 #endif // GL_DOOM
