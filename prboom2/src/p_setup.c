@@ -783,6 +783,9 @@ static void P_LoadLineDefs (int lump)
       v2 = ld->v2 = &vertexes[(unsigned short)SHORT(mld->v2)];
       ld->dx = v2->x - v1->x;
       ld->dy = v2->y - v1->y;
+#ifdef GL_DOOM
+      ld->length  = GetDistance(ld->dx, ld->dy);
+#endif
 
       ld->tranlump = -1;   // killough 4/11/98: no translucency by default
 

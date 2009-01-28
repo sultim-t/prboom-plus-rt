@@ -521,17 +521,20 @@ void M_ChangeRenderPrecise(void)
   if (V_GetMode() != VID_MODEGL)
   {
     gl_seamless = false;
+    render_segs = false;
     return;
   }
 
   if (render_precise)
   {
     gl_seamless = true;
+    render_segs = true;
     gld_InitVertexData();
   }
   else
   {
     gl_seamless = false;
+    render_segs = false;
     gld_CleanVertexData();
   }
 #endif // GL_DOOM

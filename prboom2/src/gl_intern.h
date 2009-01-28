@@ -156,6 +156,7 @@ typedef struct
 } GLSubSector;
 
 extern GLSeg *gl_segs;
+extern GLSeg *gl_lines;
 
 #define GLDWF_TOP 1
 #define GLDWF_M1S 2
@@ -306,6 +307,7 @@ void gld_ResetGammaRamp(void);
 void gld_GammaCorrect(unsigned char *buffer, int bufSize);
 
 //e6y: from gl_vertex
+extern int render_segs;
 void gld_SplitLeftEdge(const GLWall *wall, boolean detail, float detail_w, float detail_h);
 void gld_SplitRightEdge(const GLWall *wall, boolean detail, float detail_w, float detail_h);
 void gld_RecalcVertexHeights(const vertex_t *v);

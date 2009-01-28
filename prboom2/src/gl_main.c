@@ -914,6 +914,7 @@ static void gld_AddGlobalVertexes(int count)
 }
 
 GLSeg *gl_segs=NULL;
+GLSeg *gl_lines=NULL;
 
 // e6y
 // New memory manager for GL data.
@@ -929,6 +930,7 @@ GLSector *sectorloops;
 byte rendermarker=0;
 static byte *sectorrendered; // true if sector rendered (only here for malloc)
 static byte *segrendered; // true if sector rendered (only here for malloc)
+static byte *linerendered; // true if linedef rendered (only here for malloc)
 
 static FILE *levelinfo;
 
@@ -1647,6 +1649,11 @@ void gld_PreprocessSectors(void)
   if (!segrendered)
     I_Error("gld_PreprocessSectors: Not enough memory for array segrendered");
   memset(segrendered, 0, numsegs*sizeof(byte));
+
+  linerendered=Z_Malloc(numlines*sizeof(byte),PU_STATIC,0);
+  if (!linerendered)
+    I_Error("gld_PreprocessSectors: Not enough memory for array linerendered");
+  memset(linerendered, 0, numlines*sizeof(byte));
 
   gld_vertexes=NULL;
   gld_texcoords=NULL;
@@ -2369,7 +2376,7 @@ static void gld_DrawWall(GLWall *wall)
   (w).ybottom=((float)(floor_height)/(float)MAP_SCALE)-SMALLDELTA;\
   lineheight=((float)fabs(((ceiling_height)/(float)FRACUNIT)-((floor_height)/(float)FRACUNIT)))
 
-#define OU(w,seg) (((float)((seg)->sidedef->textureoffset+(seg)->offset)/(float)FRACUNIT)/(float)(w).gltexture->buffer_width)
+#define OU(w,seg) (((float)((seg)->sidedef->textureoffset+(render_segs ? (seg)->offset : 0))/(float)FRACUNIT)/(float)(w).gltexture->buffer_width)
 #define OV(w,seg) (((float)((seg)->sidedef->rowoffset)/(float)FRACUNIT)/(float)(w).gltexture->buffer_height)
 #define OV_PEG(w,seg,v_offset) (OV((w),(seg))-(((float)(v_offset)/(float)FRACUNIT)/(float)(w).gltexture->buffer_height))
 
@@ -2433,20 +2440,30 @@ void gld_AddWall(seg_t *seg)
   sector_t *backsector;
   sector_t ftempsec; // needed for R_FakeFlat
   sector_t btempsec; // needed for R_FakeFlat
-  float lineheight;
+  float lineheight, linelength;
   int rellight = 0;
 
-  if (!segrendered)
-    return;
-  if (segrendered[seg->iSegID]==rendermarker)
-    return;
-  segrendered[seg->iSegID]=rendermarker;
+  if (render_segs)
+  {
+    if (!segrendered || segrendered[seg->iSegID] == rendermarker)
+      return;
+    segrendered[seg->iSegID] = rendermarker;
+    linelength = segs[seg->iSegID].length;
+  }
+  else
+  {
+    if (!linerendered || linerendered[seg->linedef->iLineID] == rendermarker)
+      return;
+    linerendered[seg->linedef->iLineID] = rendermarker;
+    linelength = lines[seg->linedef->iLineID].length;
+  }
+
   if (!seg->frontsector)
     return;
   frontsector=R_FakeFlat(seg->frontsector, &ftempsec, NULL, NULL, false); // for boom effects
   if (!frontsector)
     return;
-  wall.glseg=&gl_segs[seg->iSegID];
+  wall.glseg=&gl_lines[seg->linedef->iLineID];
 
   // e6y: fake contrast stuff
   // Original doom added/removed one light level ((1<<LIGHTSEGSHIFT) == 16) 
@@ -2482,7 +2499,7 @@ void gld_AddWall(seg_t *seg)
       CALC_Y_VALUES(wall, lineheight, frontsector->floorheight, frontsector->ceilingheight);
       CALC_TEX_VALUES_MIDDLE1S(
         wall, seg, (LINE->flags & ML_DONTPEGBOTTOM)>0,
-        segs[seg->iSegID].length, lineheight
+        linelength, lineheight
       );
       gld_AddDrawItem((wall.alpha == 1.0f ? GLDIT_WALL : GLDIT_TWALL), &wall);
     }
@@ -2564,7 +2581,7 @@ void gld_AddWall(seg_t *seg)
           CALC_Y_VALUES(wall, lineheight, floor_height, ceiling_height);
           CALC_TEX_VALUES_TOP(
             wall, seg, (LINE->flags & (/*e6y ML_DONTPEGBOTTOM | */ML_DONTPEGTOP))==0,
-            segs[seg->iSegID].length, lineheight
+            linelength, lineheight
           );
           gld_AddDrawItem((wall.alpha == 1.0f ? GLDIT_WALL : GLDIT_TWALL), &wall);
         }
@@ -2631,7 +2648,7 @@ void gld_AddWall(seg_t *seg)
 
         wall.flag=GLDWF_M2S;
         wall.ul=OU((wall),(seg))+(0.0f);
-        wall.ur=OU(wall,(seg))+((segs[seg->iSegID].length)/(float)wall.gltexture->buffer_width);
+        wall.ur=OU(wall,(seg))+(linelength/(float)wall.gltexture->buffer_width);
         if (floormax<=floor_height)
 #ifdef USE_GLU_IMAGESCALE
           wall.vb=1.0f;
@@ -2706,7 +2723,7 @@ bottomtexture:
         CALC_Y_VALUES(wall, lineheight, floor_height, ceiling_height);
         CALC_TEX_VALUES_BOTTOM(
           wall, seg, (LINE->flags & ML_DONTPEGBOTTOM)>0,
-          segs[seg->iSegID].length, lineheight,
+          linelength, lineheight,
           floor_height-frontsector->ceilingheight
         );
         gld_AddDrawItem((wall.alpha == 1.0f ? GLDIT_WALL : GLDIT_TWALL), &wall);
@@ -2737,6 +2754,15 @@ static void gld_PreprocessSegs(void)
     gl_segs[i].z1= (float)segs[i].v1->y/(float)MAP_SCALE;
     gl_segs[i].x2=-(float)segs[i].v2->x/(float)MAP_SCALE;
     gl_segs[i].z2= (float)segs[i].v2->y/(float)MAP_SCALE;
+  }
+
+  gl_lines=Z_Malloc(numlines*sizeof(GLSeg),PU_STATIC,0);
+  for (i=0; i<numlines; i++)
+  {
+    gl_lines[i].x1=-(float)lines[i].v1->x/(float)MAP_SCALE;
+    gl_lines[i].z1= (float)lines[i].v1->y/(float)MAP_SCALE;
+    gl_lines[i].x2=-(float)lines[i].v2->x/(float)MAP_SCALE;
+    gl_lines[i].z2= (float)lines[i].v2->y/(float)MAP_SCALE;
   }
 }
 
@@ -3116,11 +3142,21 @@ void gld_ProcessWall(GLWall *wall)
       v2 = seg->linedef->v1;
     }
 
-    wall->glseg->fracleft  = (seg->v1->x != v1->x) || (seg->v1->y != v1->y);
-    wall->glseg->fracright = (seg->v2->x != v2->x) || (seg->v2->y != v2->y);
+    if (render_segs)
+    {
+      wall->glseg->fracleft  = (seg->v1->x != v1->x) || (seg->v1->y != v1->y);
+      wall->glseg->fracright = (seg->v2->x != v2->x) || (seg->v2->y != v2->y);
+      v1 = seg->v1;
+      v2 = seg->v2;
+    }
+    else
+    {
+      wall->glseg->fracleft  = 0;
+      wall->glseg->fracright = 1;
+    }
 
-    gld_RecalcVertexHeights(seg->v1);
-    gld_RecalcVertexHeights(seg->v2);
+    gld_RecalcVertexHeights(v1);
+    gld_RecalcVertexHeights(v2);
   }
 
   gld_DrawWall(wall);
@@ -3322,6 +3358,7 @@ void gld_PreprocessLevel(void)
     static int numsectors_prev = 0;
 
     free(gl_segs);
+    free(gl_lines);
 
     free(gld_texcoords);
     free(gld_vertexes);

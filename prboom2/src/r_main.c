@@ -262,7 +262,7 @@ angle_t R_PointToAngleEx(fixed_t x, fixed_t y)
     old_y_viewy = y_viewy;
     old_x_viewx = x_viewx;
 
-    old_result = (int)(atan2(y_viewy, x_viewx) * ANG180/M_PI);
+    old_result = (int)((float)atan2(y_viewy, x_viewx) * (ANG180/M_PI));
   }
   return old_result;
 }

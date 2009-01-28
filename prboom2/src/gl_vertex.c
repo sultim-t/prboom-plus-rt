@@ -87,6 +87,7 @@ typedef struct vertexsplit_info_s
 } vertexsplit_info_t;
 
 int gl_seamless = false;
+int render_segs = false;
 
 static vertexsplit_info_t * gl_vertexsplit = NULL;
 
