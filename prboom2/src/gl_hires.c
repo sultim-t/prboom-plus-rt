@@ -725,6 +725,10 @@ static void gld_HiRes_Bind(GLTexture *gltexture, int *glTexID)
     break;
   }
 
+  gltexture->mipmap = 
+    ((gltexture->textype == GLDT_TEXTURE) || 
+    (gltexture->textype == GLDT_FLAT));
+
   gltexture->flags |= GLTEXTURE_HIRES;
 
   if (gltexture->textype == GLDT_PATCH)
@@ -924,14 +928,9 @@ static int gld_HiRes_LoadExternal(GLTexture *gltexture, int *glTexID)
                 gld_SetSkyCapColors(tex_buffer, tex_width, tex_height);
               }
 
-              glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
-                tex_width, tex_height,
-                0, GL_RGBA, GL_UNSIGNED_BYTE, tex_buffer);
-
-              glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, gltexture->wrap_mode);
-              glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gltexture->wrap_mode);
-              glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
-              glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
+              gld_BuildTexture(gltexture, tex_buffer, true,
+                tex_width, tex_width, tex_height,
+                NULL, NULL, NULL, NULL);
 
               cache_read_ok = true;
             }
