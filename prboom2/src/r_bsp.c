@@ -381,6 +381,14 @@ static void R_AddLine (seg_t *line)
     }
     else
     {
+      if (line->frontsector == line->backsector)
+      {
+        if (texturetranslation[line->sidedef->midtexture] == NO_TEXTURE)
+        {
+          //e6y: nothing to do here!
+          return;
+        }
+      }
       if (CheckClip(line, line->frontsector, line->backsector))
       {
         gld_clipper_SafeAddClipRange(angle2, angle1);
