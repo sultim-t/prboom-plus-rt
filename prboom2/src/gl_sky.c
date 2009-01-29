@@ -58,24 +58,20 @@ static PalEntry_t *SkyColor;
 
 SkyBoxParams_t SkyBox;
 
-unsigned int gl_FrameSkies;
+void gld_InitSky(void)
+{
+  memset(&SkyBox, 0, sizeof(SkyBox));
+  SkyBox.index = -1;
+}
 
 void gld_InitFrameSky(void)
 {
-  gl_FrameSkies = 0;
-  SkyBox.wall = NULL;
-  SkyBox.sx = 0;
-  SkyBox.sy = 0;
-}
-
-void gld_SaveSkyCap(GLWall *wall, float sx, float sy)
-{
-  if (SkyBox.wall == NULL)
-  {
-    SkyBox.wall = wall;
-    SkyBox.sx = sx;
-    SkyBox.sy = sy;
-  }
+  SkyBox.type = SKY_NONE;
+  SkyBox.wall.gltexture = NULL;
+  SkyBox.x_scale = 0;
+  SkyBox.y_scale = 0;
+  SkyBox.x_offset = 0;
+  SkyBox.y_offset = 0;
 }
 
 void gld_DrawSkybox(void)
@@ -87,10 +83,40 @@ void gld_DrawSkybox(void)
     gld_DrawDomeSkyBox();
 }
 
+void gld_GetScreenSkyScale(GLWall *wall, float *scale_x, float *scale_y)
+{
+  float sx, sy;
+
+  if (!mlook_or_fov)
+  {
+    if ((wall->flag & GLDWF_SKYFLIP) == GLDWF_SKYFLIP)
+      sx = -128.0f / (float)wall->gltexture->buffer_width;
+    else
+      sx = +128.0f / (float)wall->gltexture->buffer_width;
+
+    sy = 200.0f / 320.0f * (256 / wall->gltexture->buffer_height);
+  }
+  else 
+  {
+    if ((wall->flag & GLDWF_SKYFLIP) == GLDWF_SKYFLIP)
+      sx = (wall->gltexture->buffer_width == 256 ? -64.0f : -128.0f) *
+      fovscale / (float)wall->gltexture->buffer_width;
+    else
+      sx = (wall->gltexture->buffer_width == 256 ? 64.0f : 128.0f) *
+      fovscale / (float)wall->gltexture->buffer_width;
+
+    sy = 200.0f / 320.0f * fovscale;
+  }
+
+  *scale_x = sx;
+  *scale_y = sy;
+}
+
 // Sky textures with a zero index should be forced
 // See third episode of requiem.wad
 void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, int skytype)
 {
+  side_t *s = NULL;
   line_t *l = NULL;
   wall->gltexture = NULL;
 
@@ -108,7 +134,7 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, int skytype)
   
   if (l)
   {
-    side_t *s = *l->sidenum + sides;
+    s = *l->sidenum + sides;
     wall->gltexture = gld_RegisterTexture(texturetranslation[s->toptexture], false,
       texturetranslation[s->toptexture] == skytexture || l->special == 271 || l->special == 272);
     if (wall->gltexture)
@@ -128,8 +154,6 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, int skytype)
   }
   else
   {
-    gl_FrameSkies |= skytype;
-
     wall->gltexture = gld_RegisterTexture(skytexture, false, true);
     if (wall->gltexture)
     {
@@ -141,29 +165,51 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, int skytype)
 
   if (wall->gltexture)
   {
+    SkyBox.type |= skytype;
+
     wall->gltexture->flags |= GLTEXTURE_SKY;
     gld_AddDrawItem(GLDIT_SWALL, wall);
+
+    if (!SkyBox.wall.gltexture)
+    {
+      SkyBox.wall = *wall;
+
+      switch (gl_drawskys)
+      {
+      case skytype_standard:
+        gld_GetScreenSkyScale(wall, &SkyBox.x_scale, &SkyBox.y_scale);
+        break;
+
+      case skytype_skydome:
+        if (s)
+        {
+          SkyBox.x_offset = (float)s->textureoffset * 180.0f / (float)ANG180;
+          SkyBox.y_offset = (float)s->rowoffset / MAP_SCALE;
+        }
+        break;
+      }
+    }
   }
 }
 
 void gld_DrawSkyCaps(void)
 {
-  if (gl_FrameSkies && SkyBox.wall)
+  if (SkyBox.type && SkyBox.wall.gltexture)
   {             
     float maxcoord = 255.0f;
     boolean mlook = GetMouseLook();
 
     if (mlook)
     {
-      gld_BindTexture(SkyBox.wall->gltexture);
+      gld_BindTexture(SkyBox.wall.gltexture);
 
       glMatrixMode(GL_TEXTURE);
       glPushMatrix();
 
-      glScalef(SkyBox.sx, SkyBox.sy, 1.0f);
-      glTranslatef(SkyBox.wall->skyyaw, SkyBox.wall->skyymid, 0.0f);
+      glScalef(SkyBox.x_scale, SkyBox.y_scale, 1.0f);
+      glTranslatef(SkyBox.wall.skyyaw, SkyBox.wall.skyymid, 0.0f);
 
-      if (gl_FrameSkies & SKY_CEILING)
+      if (SkyBox.type & SKY_CEILING)
       {
         glBegin(GL_TRIANGLE_STRIP);
         glVertex3f(-maxcoord,+maxcoord,+maxcoord);
@@ -173,7 +219,7 @@ void gld_DrawSkyCaps(void)
         glEnd();
       }
 
-      if (gl_FrameSkies & SKY_FLOOR)
+      if (SkyBox.type & SKY_FLOOR)
       {
         glBegin(GL_TRIANGLE_STRIP);
         glVertex3f(-maxcoord,-maxcoord,+maxcoord);
@@ -343,19 +389,30 @@ int gl_sky_detail = 16;
 //
 //-----------------------------------------------------------------------------
 
-void gld_SetSkyCapColors(const unsigned char *buffer, int width, int height)
+void gld_GetSkyCapColors(void)
 {
-    averageColor(&SkyBox.CeilingSkyColor, (unsigned int*)buffer, width * MIN(30, height), 0);
+  int width, height;
+  unsigned char *buffer = NULL;
 
-    if (height > 30)
-    {
-      averageColor(&SkyBox.FloorSkyColor, 
-        ((unsigned int*)buffer) + (height - 30) * width, width * 30, 0);
-    }
-    else
-    {
-      SkyBox.FloorSkyColor = SkyBox.CeilingSkyColor;
-    }
+  glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+  glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
+
+  buffer = malloc(width * height * 4);
+  glGetTexImage(GL_TEXTURE_2D, 0, gl_tex_format, GL_UNSIGNED_BYTE, buffer);
+
+  averageColor(&SkyBox.CeilingSkyColor, (unsigned int*)buffer, width * MIN(30, height), 0);
+
+  if (height > 30)
+  {
+    averageColor(&SkyBox.FloorSkyColor, 
+      ((unsigned int*)buffer) + (height - 30) * width, width * 30, 0);
+  }
+  else
+  {
+    SkyBox.FloorSkyColor = SkyBox.CeilingSkyColor;
+  }
+
+  free(buffer);
 }
 
 //-----------------------------------------------------------------------------
@@ -513,28 +570,36 @@ static void RenderSkyHemisphere(int hemi)
 //
 //-----------------------------------------------------------------------------
 
-static void RenderDome(GLTexture * tex, float x_offset, float y_offset)
+static void RenderDome(SkyBoxParams_t *sky)
 {
 	int texh;
 
-  if (!tex)
+  if (!sky || !sky->wall.gltexture)
     return;
 
-  gld_BindTexture(tex);
+  yflip = (sky->wall.flag & GLDWF_SKYFLIP);
 
-  texw = tex->buffer_width;
-  texh = tex->buffer_height;
+  gld_BindTexture(sky->wall.gltexture);
+
+  if (sky->wall.gltexture->index != sky->index)
+  {
+    sky->index = sky->wall.gltexture->index;
+    gld_GetSkyCapColors();
+  }
+
+  texw = sky->wall.gltexture->buffer_width;
+  texh = sky->wall.gltexture->buffer_height;
   if (texh > 190)
     texh = 190;
 
-  glRotatef(-180.0f + x_offset, 0.f, 1.f, 0.f);
+  glRotatef(-180.0f + sky->x_offset, 0.f, 1.f, 0.f);
 
-  yAdd = y_offset / texh;
+  yAdd = sky->y_offset / texh;
   yMult = (texh <= 180 ? 1.0f : 180.0f / texh);
 
   //if (gl_FrameSkies & SKY_CEILING)
   {
-    SkyColor = &SkyBox.CeilingSkyColor;
+    SkyColor = &sky->CeilingSkyColor;
     RenderSkyHemisphere(SKYHEMI_UPPER);
   }
 
@@ -545,25 +610,22 @@ static void RenderDome(GLTexture * tex, float x_offset, float y_offset)
     else
       yAdd += 180.0f/texh;
 
-    SkyColor = &SkyBox.FloorSkyColor;
+    SkyColor = &sky->FloorSkyColor;
     RenderSkyHemisphere(SKYHEMI_LOWER);
   }
 
-  glRotatef(180.0f - x_offset, 0, 1, 0);
+  glRotatef(180.0f - sky->x_offset, 0, 1, 0);
   glScalef(1.0f, 1.0f, 1.0f);
 }
 
 void gld_DrawDomeSkyBox(void)
 {
-  if (gld_drawinfo.num_items[GLDIT_SWALL] > 0)
+  if (SkyBox.wall.gltexture)
   {
-    GLWall *wall;
     GLint shading_mode = GL_FLAT;
     
     glGetIntegerv(GL_SHADE_MODEL, &shading_mode);
     glShadeModel(GL_SMOOTH);
-
-    wall = wall = gld_drawinfo.items[GLDIT_SWALL][0].item.wall;
 
     glDepthMask(false);
 
@@ -581,7 +643,7 @@ void gld_DrawDomeSkyBox(void)
     glTranslatef(0.f, -1000.0f/128.0f, 0.f);
     //glTranslatef(xCamera, zCamera, -yCamera);
 
-    RenderDome(wall->gltexture, 0, 0);
+    RenderDome(&SkyBox);
 
     glPopMatrix();
 

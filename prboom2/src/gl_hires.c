@@ -767,11 +767,6 @@ static int gld_HiRes_LoadInternal(GLTexture *gltexture, int *glTexID)
         {
           gld_GammaCorrect(surf->pixels, surf->pitch * surf->h);
 
-          if (gltexture->index == skytexture)
-          {
-            gld_SetSkyCapColors(surf->pixels, surf->w, surf->h);
-          }
-
           gld_HiRes_Bind(gltexture, glTexID);
 
           result = gld_BuildTexture(gltexture, surf->pixels, true,
@@ -925,11 +920,6 @@ static int gld_HiRes_LoadExternal(GLTexture *gltexture, int *glTexID)
 
               gld_GammaCorrect(tex_buffer, gltexture->buffer_size);
 
-              if (gltexture->index == skytexture)
-              {
-                gld_SetSkyCapColors(tex_buffer, tex_width, tex_height);
-              }
-
               gld_BuildTexture(gltexture, tex_buffer, true,
                 tex_width, tex_width, tex_height,
                 NULL, NULL, NULL, NULL);
@@ -963,11 +953,6 @@ static int gld_HiRes_LoadExternal(GLTexture *gltexture, int *glTexID)
       return false;
 
     gld_GammaCorrect(surf->pixels, surf->pitch * surf->h);
-
-    if (gltexture->index == skytexture)
-    {
-      gld_SetSkyCapColors(surf->pixels, surf->w, surf->h);
-    }
 
     gld_HiRes_Bind(gltexture, glTexID);
 

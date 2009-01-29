@@ -259,6 +259,7 @@ void gld_Init(int width, int height)
   gld_ResetGammaRamp();
 
   gld_InitLightTable();
+  gld_InitSky();
   M_ChangeLightMode();
   M_ChangeAllowFog();
 
@@ -1996,37 +1997,10 @@ static void gld_DrawWall(GLWall *wall)
 
       glMatrixMode(GL_TEXTURE);
       glPushMatrix();
-      
-      if (!mlook_or_fov)
-      {
-        if ((wall->flag & GLDWF_SKYFLIP) == GLDWF_SKYFLIP)
-          sx = -128.0f / (float)wall->gltexture->buffer_width;
-        else
-          sx = +128.0f / (float)wall->gltexture->buffer_width;
 
-        sy = 200.0f / 320.0f * (256 / wall->gltexture->buffer_height);
-
-        glScalef(sx, sy, 1.0f);
-        glTranslatef(wall->skyyaw, wall->skyymid, 0.0f);
-      }
-      else 
-      {
-        if ((wall->flag & GLDWF_SKYFLIP) == GLDWF_SKYFLIP)
-          sx = (wall->gltexture->buffer_width == 256 ? -64.0f : -128.0f) *
-            fovscale / (float)wall->gltexture->buffer_width;
-        else
-          sx = (wall->gltexture->buffer_width == 256 ? 64.0f : 128.0f) *
-            fovscale / (float)wall->gltexture->buffer_width;
-
-        sy = 200.0f / 320.0f * fovscale;
-
-        glScalef(sx, sy, 1.0f);
-        glTranslatef(wall->skyyaw, wall->skyymid, 0.0f);
-      }
-
-      if ((!SkyBox.wall) && (wall->gltexture->index == skytexture) && (wall->flag & GLDWF_SKY))
-        gld_SaveSkyCap(wall, sx, sy);
-
+      gld_GetScreenSkyScale(wall, &sx, &sy);
+      glScalef(sx, sy, 1.0f);
+      glTranslatef(wall->skyyaw, wall->skyymid, 0.0f);
     }
     glBegin(GL_TRIANGLE_STRIP);
       glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);

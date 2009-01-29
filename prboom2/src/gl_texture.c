@@ -921,11 +921,6 @@ void gld_BindTexture(GLTexture *gltexture)
   glBindTexture(GL_TEXTURE_2D, *glTexID);
   gld_GammaCorrect(buffer, gltexture->buffer_size);
   
-  if (gltexture->index == skytexture)
-  {
-    gld_SetSkyCapColors(buffer, gltexture->buffer_width, gltexture->buffer_height);
-  }
-
   if (gltexture->flags & GLTEXTURE_HASHOLES)
   {
     SmoothEdges(buffer, gltexture->buffer_width, gltexture->buffer_height);
@@ -1250,6 +1245,8 @@ void gld_FlushTextures(void)
 {
   gld_CleanTexItems(numtextures, &gld_GLTextures);
   gld_CleanTexItems(numlumps, &gld_GLPatchTextures);
+
+  gld_InitSky();
 }
 
 void gld_PrecacheGLTexture(GLTexture *gltexture)

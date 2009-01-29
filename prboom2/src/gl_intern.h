@@ -373,6 +373,7 @@ void gld_SetFog(float fogdensity);
 unsigned char* gld_HQResize(GLTexture *gltexture, unsigned char *inputBuffer, int inWidth, int inHeight, int *outWidth, int *outHeight);
 
 // SkyBox
+#define SKY_NONE    0
 #define SKY_CEILING 1
 #define SKY_FLOOR   2
 typedef struct PalEntry_s
@@ -381,20 +382,24 @@ typedef struct PalEntry_s
 } PalEntry_t;
 typedef struct SkyBoxParams_s
 {
-  GLWall *wall;
-  float sx, sy;
+  int index;
+  unsigned int type;
+  GLWall wall;
+  float x_scale, y_scale;
+  float x_offset, y_offset;
   PalEntry_t FloorSkyColor;
   PalEntry_t CeilingSkyColor;
 } SkyBoxParams_t;
 extern int gl_drawskys;
 extern SkyBoxParams_t SkyBox;
+void gld_InitSky(void);
 void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, int skytype);
-void gld_SetSkyCapColors(const unsigned char *buffer, int width, int height);
+void gld_GetSkyCapColors(void);
 void gld_InitFrameSky(void);
 void gld_DrawSkybox(void);
 void gld_DrawScreenSkybox(void);
+void gld_GetScreenSkyScale(GLWall *wall, float *scale_x, float *scale_y);
 void gld_DrawDomeSkyBox(void);
-void gld_SaveSkyCap(GLWall *wall, float sx, float sy);
 void gld_DrawSkyCaps(void);
 
 #endif // _GL_INTERN_H
