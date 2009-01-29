@@ -2233,7 +2233,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\SDL\i_sshot.c"
+				RelativePath="..\src\i_pngshot.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\SDL\i_pngshot.c"
 				>
 				<FileConfiguration
 					Name="Debug OpenGL NOASM|Win32"
