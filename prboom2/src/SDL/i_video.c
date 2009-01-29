@@ -60,6 +60,7 @@
 #include "w_wad.h"
 #include "st_stuff.h"
 #include "lprintf.h"
+#include "i_pngshot.h"
 
 int gl_colorbuffer_bits=16;
 int gl_depthbuffer_bits=16;
@@ -411,8 +412,42 @@ void I_FinishUpdate (void)
 }
 
 //
-// I_ScreenShot - moved to i_sshot.c
+// I_ScreenShot
 //
+
+#ifdef HAVE_LIBPNG
+#define SAVE_PNG_OR_BMP I_SavePNG
+#else
+#define SAVE_PNG_OR_BMP SDL_SaveBMP
+#endif
+
+int I_ScreenShot (const char *fname)
+{
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL)
+  {
+    int result = -1;
+    unsigned char *pixel_data = gld_ReadScreen();
+
+    if (pixel_data)
+    {
+      SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(
+          pixel_data, SCREENWIDTH, SCREENHEIGHT, 24, SCREENWIDTH*3,
+          0x000000ff, 0x0000ff00, 0x00ff0000, 0);
+
+      if (surface)
+      {
+        result = SAVE_PNG_OR_BMP(surface, fname);
+        SDL_FreeSurface(surface);
+      }
+      free(pixel_data);
+    }
+    return result;
+  }
+  else
+#endif
+  return SAVE_PNG_OR_BMP(SDL_GetVideoSurface(), fname);
+}
 
 //
 // I_SetPalette
