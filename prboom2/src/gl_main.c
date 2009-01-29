@@ -274,8 +274,7 @@ void gld_Init(int width, int height)
   atexit(gld_FreeScreenSizeFBO);
 #endif
 
-  //e6y: is can be slow
-  //atexit(gld_CleanMemory); //e6y
+  atexit(gld_CleanMemory); //e6y
 }
 
 void gld_InitCommandLine(void)

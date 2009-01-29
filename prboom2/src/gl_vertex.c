@@ -311,6 +311,7 @@ static void AddToSplitBySector(vertexsplit_info_t *vi, splitsbysector_t *splitsb
 void gld_InitVertexData()
 {
   int i, j, k;
+  int vertexes_count, gl_vertexsplit_size, pos;
   int ** vt_sectorlists;
   int * vt_sectorlists_size;
 
@@ -346,9 +347,24 @@ void gld_InitVertexData()
     }
   }
 
-  gl_vertexsplit = malloc(sizeof(vertexsplit_info_t) * numvertexes);
-  memset(gl_vertexsplit, 0, sizeof(vertexsplit_info_t) * numvertexes);
+  vertexes_count = 0;
+  for(i = 0; i < numvertexes; i++)
+  {
+    if (vt_sectorlists_size[i] > 1)
+    {
+      vertexes_count += vt_sectorlists_size[i];
+    }
+  }
 
+  gl_vertexsplit_size =
+    numvertexes * sizeof(vertexsplit_info_t) +
+    vertexes_count * sizeof(gl_vertexsplit->sectors[0]) +
+    2 * vertexes_count * sizeof(gl_vertexsplit->heightlist[0]);
+
+  gl_vertexsplit = malloc(gl_vertexsplit_size);
+  memset(gl_vertexsplit, 0, gl_vertexsplit_size);
+
+  pos = numvertexes * sizeof(vertexsplit_info_t);
   for(i = 0; i < numvertexes; i++)
   {
     int cnt = vt_sectorlists_size[i];
@@ -360,8 +376,12 @@ void gld_InitVertexData()
     {
       vi->changed = true;
       vi->numsectors = cnt;
-      vi->sectors = malloc(sizeof(vi->sectors[0]) * cnt);
-      vi->heightlist = malloc(sizeof(vi->heightlist[0]) * cnt * 2);
+
+      vi->sectors = (sector_t **)((unsigned char*)gl_vertexsplit + pos);
+      pos += sizeof(vi->sectors[0]) * cnt;
+      vi->heightlist = (float *)((unsigned char*)gl_vertexsplit + pos);
+      pos += sizeof(vi->heightlist[0]) * cnt * 2;
+
       for(j = 0; j < cnt; j++)
       {
         vi->sectors[j] = &sectors[vt_sectorlists[i][j]];
@@ -421,15 +441,6 @@ void gld_CleanVertexData()
 {
   if (gl_vertexsplit)
   {
-    int i;
-    for(i = 0; i < numvertexes; i++)
-    {
-      if (gl_vertexsplit[i].numsectors > 0)
-      {
-        free(gl_vertexsplit[i].sectors);
-        free(gl_vertexsplit[i].heightlist);
-      }
-    }
     free(gl_vertexsplit);
     gl_vertexsplit = NULL;
   }
