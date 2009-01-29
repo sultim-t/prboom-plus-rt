@@ -662,19 +662,28 @@ static void gld_RecolorMipLevels(byte *data)
   {
     int miplevel = 0;
     static unsigned char *buf = NULL;
+    static int buf_size = 512 * 256 * 4;
 
     if (!buf)
     {
-      buf = malloc(gl_max_texture_size * gl_max_texture_size * 4);
+      buf = malloc(buf_size);
     }
 
     for (miplevel = 1; miplevel < 16; miplevel++)
     {
       int w, h;
 
-      glGetTexImage(GL_TEXTURE_2D, miplevel, gl_tex_format, GL_UNSIGNED_BYTE, buf);
       glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_WIDTH, &w);
       glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_HEIGHT, &h);
+
+      if (w * h * 4 > buf_size)
+      {
+        free(buf);
+        buf_size = w * h * 4;
+        buf = malloc(buf_size);
+      }
+
+      glGetTexImage(GL_TEXTURE_2D, miplevel, gl_tex_format, GL_UNSIGNED_BYTE, buf);
 
       if (w <= 0 || h <= 0)
         break;
