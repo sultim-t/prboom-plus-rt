@@ -192,7 +192,7 @@ AC_ARG_WITH(net,
   ])
 
 dnl - Other libs
-AC_CHECK_LIB(png,png_create_info_struct)
+AC_ARG_WITH([png], AC_HELP_STRING([--without-png], [Do not use libpng even if available]),,AC_CHECK_LIB(png,png_create_info_struct))
 AC_EGREP_HEADER(sockaddr_in6,netinet/in.h,AC_DEFINE(HAVE_IPv6,1,[Define if you have struct sockaddr_in6]))
 
 dnl --- Options
