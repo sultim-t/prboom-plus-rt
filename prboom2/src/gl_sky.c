@@ -184,7 +184,7 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, int skytype)
         if (s)
         {
           SkyBox.x_offset = (float)s->textureoffset * 180.0f / (float)ANG180;
-          SkyBox.y_offset = (float)s->rowoffset / MAP_SCALE;
+          SkyBox.y_offset = (float)s->rowoffset / (float)FRACUNIT;
         }
         break;
       }
