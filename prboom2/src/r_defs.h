@@ -201,7 +201,7 @@ typedef struct line_s
   vertex_t *v1, *v2;     // Vertices, from v1 to v2.
   fixed_t dx, dy;        // Precalculated v2 - v1 for side checking.
 #ifdef GL_DOOM
-  float length;
+  float texel_length;
 #endif
   unsigned short flags;           // Animation related.
   short special;

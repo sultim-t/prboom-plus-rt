@@ -378,6 +378,12 @@ static float GetDistance(int dx, int dy)
   return (float)sqrt(fx*fx + fy*fy);
 }
 
+static float GetTexelDistance(int dx, int dy)
+{
+  //return (float)((int)(GetDistance(dx, dy) + 0.5f));
+  float fx = (float)(dx)/FRACUNIT, fy = (float)(dy)/FRACUNIT;
+  return (float)((int)(0.5f + (float)sqrt(fx*fx + fy*fy)));
+}
 
 static int GetOffset(vertex_t *v1, vertex_t *v2)
 {
@@ -784,7 +790,11 @@ static void P_LoadLineDefs (int lump)
       ld->dx = v2->x - v1->x;
       ld->dy = v2->y - v1->y;
 #ifdef GL_DOOM
-      ld->length  = GetDistance(ld->dx, ld->dy);
+      // e6y
+      // Rounding the wall length to the nearest integer
+      // when determining length instead of always rounding down
+      // There is no more glitches on seams between identical textures.
+      ld->texel_length = GetTexelDistance(ld->dx, ld->dy);
 #endif
 
       ld->tranlump = -1;   // killough 4/11/98: no translucency by default

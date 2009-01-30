@@ -2157,7 +2157,7 @@ void gld_AddWall(seg_t *seg)
     if (!linerendered || linerendered[seg->linedef->iLineID] == rendermarker)
       return;
     linerendered[seg->linedef->iLineID] = rendermarker;
-    linelength = lines[seg->linedef->iLineID].length;
+    linelength = lines[seg->linedef->iLineID].texel_length;
     wall.glseg=&gl_lines[seg->linedef->iLineID];
   }
 
