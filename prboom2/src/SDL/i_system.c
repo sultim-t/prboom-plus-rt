@@ -33,6 +33,11 @@
  *-----------------------------------------------------------------------------
  */
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 #include <stdio.h>
 
 #include <stdarg.h>
@@ -87,6 +92,8 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#include "z_zone.h"
 
 void I_uSleep(unsigned long usecs)
 {
@@ -213,6 +220,51 @@ const char* I_SigString(char* buf, size_t sz, int signum)
   return buf;
 }
 
+#ifndef PRBOOM_SERVER
+boolean I_FileToBuffer(const char *filename, byte **data, int *size)
+{
+  int hfile;
+
+  boolean result = false;
+  byte *buffer = NULL;
+  size_t filesize = 0;
+
+  hfile = open(filename, O_RDONLY | O_BINARY);
+  if (hfile != -1)
+  {
+    filesize = I_Filelength(hfile);
+
+    buffer = malloc(filesize);
+    if (buffer)
+    {
+      if (read(hfile, buffer, filesize) == filesize)
+      {
+        result = true;
+
+        if (data)
+        {
+          *data = buffer;
+        }
+
+        if (size)
+        {
+          *size = filesize;
+        }
+      }
+    }
+
+    close(hfile);
+  }
+
+  if (!result)
+  {
+    free(buffer);
+    buffer = NULL;
+  }
+
+  return result;
+}
+#endif // PRBOOM_SERVER
 
 /* 
  * I_Read
@@ -276,9 +328,26 @@ const char *I_DoomExeDir(void)
   return base;
 }
 
+const char* I_GetTempDir(void)
+{
+  static char tmp_path[PATH_MAX] = {0};
+
+  if (tmp_path[0] == 0)
+  {
+    GetTempPath(sizeof(tmp_path), tmp_path);
+  }
+
+  return tmp_path;
+}
+
 #elif defined(AMIGA)
 
 const char *I_DoomExeDir(void)
+{
+  return "PROGDIR:";
+}
+
+const char* I_GetTempDir(void)
 {
   return "PROGDIR:";
 }
@@ -310,6 +379,12 @@ const char *I_DoomExeDir(void)
     }
   return base;
 }
+
+const char *I_GetTempDir(void)
+{
+  return "/tmp"
+}
+
 #endif
 
 /*

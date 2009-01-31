@@ -61,6 +61,7 @@
 #include "doomstat.h"
 #include "d_main.h"
 #include "s_sound.h"
+#include "i_system.h"
 #include "i_main.h"
 #include "m_menu.h"
 #include "lprintf.h"
@@ -79,25 +80,9 @@
 #include "gl_intern.h"
 #endif
 #include "g_game.h"
+#include "r_demo.h"
 #include "e6y.h"
 #include "./../ICONS/resource.h"
-
-#ifndef _MSC_VER
-#ifdef HAVE_LIBPCREPOSIX
-#include "pcreposix.h"
-#endif
-#else // _MSC_VER
-#define HAVE_LIBPCREPOSIX 1
-#define PCRE_STATIC 1
-#include "pcreposix.h"
-#ifdef _DEBUG
-#pragma comment( lib, "pcred.lib" )
-#pragma comment( lib, "pcreposixd.lib" )
-#else
-#pragma comment( lib, "pcre.lib" )
-#pragma comment( lib, "pcreposix.lib" )
-#endif
-#endif
 
 spriteclipmode_t gl_spriteclip;
 const char *gl_spriteclipmodes[] = {"constant","always", "smart"};
@@ -243,8 +228,8 @@ char* WINError(void)
 
 //--------------------------------------------------
 #ifdef _WIN32
-static HWND WIN32_GetHWND(void);
-static void SwitchToWindow(HWND hwnd);
+HWND WIN32_GetHWND(void);
+void SwitchToWindow(HWND hwnd);
 //static void I_CenterMouse(void);
 #endif
 //--------------------------------------------------
@@ -400,6 +385,50 @@ void e6y_InitCommandLine(void)
       game_exe = EXE_CHEX;
     }
   }
+
+  // demoex
+  if ((p = M_CheckParm("-addlump")) && (p < myargc - 3))
+  {
+    char *demoname = NULL;
+    char *filename = NULL;
+    const char *lumpname;
+    int result = 0;
+
+    demoname = I_FindFile(myargv[p + 1], ".lmp");
+    filename = I_FindFile(myargv[p + 2], ".txt");
+    lumpname = myargv[p + 3];
+    if (demoname && filename && lumpname && strlen(lumpname) <= 8)
+    {
+      byte *buffer = NULL;
+      byte *demoex_p = NULL;
+      size_t size;
+
+      buffer = G_GetDemoFooter(demoname, &demoex_p, &size);
+      if (buffer && demoex_p)
+      {
+        wadtbl_t* demoex;
+        size_t lump_size = 0;
+        byte *lump_buffer = NULL;
+
+        demoex = W_CreatePWADTable(demoex_p, size);
+        if (demoex)
+        {
+          if (I_FileToBuffer(filename, &lump_buffer, &lump_size))
+          {
+            W_AddLump(demoex, lumpname, lump_buffer, lump_size);
+            G_SetDemoFooter(demoname, demoex);
+
+            free(lump_buffer);
+          }
+          W_FreePWADTable(demoex);
+        }
+
+        free(buffer);
+      }
+    }
+    free(demoname);
+    free(filename);
+  }
 }
 
 static boolean saved_fastdemo;
@@ -554,15 +583,7 @@ void M_ChangeInterlacedScanning(void)
 
 boolean GetMouseLook(void)
 {
-  if (V_GetMode() == VID_MODEGL)
-  {
-    boolean ret = (demoplayback)&&walkcamera.type==0?false:movement_mouselook;
-    if (!ret) 
-      viewpitch = 0;
-    return ret;
-  }
-  else
-    return false;
+  return movement_mouselook;
 }
 
 void CheckPitch(signed int *pitch)
@@ -835,6 +856,17 @@ void I_Warning(const char *message, ...)
   va_start(argptr,message);
   I_vWarning(message, argptr);
   va_end(argptr);
+}
+
+int I_MessageBox(const char* text, unsigned int type)
+{
+#ifdef _WIN32
+  extern HWND con_hWnd;
+  return MessageBox(con_hWnd, text, "PrBoom-Plus", type|MB_TASKMODAL|MB_TOPMOST);
+#else
+  lprintf(LO_CONFIRM, "%s\n", text);
+  return PRB_IDOK;
+#endif
 }
 
 void ShowOverflowWarning(int emulate, int *promted, boolean fatal, const char *name, const char *params, ...)
@@ -1270,7 +1302,7 @@ void AbbreviateName(char* lpszCanon, int cchMax, int bAtLeastName)
 void SwitchToWindow(HWND hwnd)
 {
   typedef BOOL (WINAPI *TSwitchToThisWindow) (HWND wnd, BOOL restore);
-  TSwitchToThisWindow SwitchToThisWindow = NULL;
+  static TSwitchToThisWindow SwitchToThisWindow = NULL;
 
   if (!SwitchToThisWindow)
     SwitchToThisWindow = (TSwitchToThisWindow)GetProcAddress(GetModuleHandle("user32.dll"), "SwitchToThisWindow");
@@ -1395,11 +1427,6 @@ float paperitems_pitch;
 
 int levelstarttic;
 
-int demo_patterns_count;
-char *demo_patterns_mask;
-char **demo_patterns_list;
-char *demo_patterns_list_def[9];
-
 void I_AfterUpdateVideoMode(void)
 {
 #ifdef _WIN32
@@ -1431,6 +1458,8 @@ void I_AfterUpdateVideoMode(void)
       }
     }
   }
+
+  SwitchToWindow(WIN32_GetHWND());
 #endif
 
 #ifdef GL_DOOM
@@ -1443,340 +1472,6 @@ void I_AfterUpdateVideoMode(void)
 }
 
 int force_singletics_to = 0;
-
-void WadDataFree(waddata_t *waddata)
-{
-  if (waddata)
-  {
-    if (waddata->wadfiles)
-    {
-      int i;
-      for (i = 0; i < (int)waddata->numwadfiles; i++)
-      {
-        if (waddata->wadfiles[i].name)
-        {
-          free((char*)waddata->wadfiles[i].name);
-          waddata->wadfiles[i].name = NULL;
-        }
-      }
-      free(waddata->wadfiles);
-      waddata->wadfiles = NULL;
-    }
-  }
-}
-
-int ParseDemoPattern(const char *str, waddata_t* waddata, char **missed)
-{
-  int processed = 0;
-  wadfile_info_t *wadfiles = NULL;
-  size_t numwadfiles = 0;
-  char *pStr = strdup(str);
-  char *pToken = pStr;
-  
-  if (missed)
-  {
-    *missed = NULL;
-  }
-
-  for (;(pToken = strtok(pToken,"|"));pToken = NULL)
-  {
-    char *token = NULL;
-    processed++;
-#ifdef _MSC_VER
-    token = malloc(PATH_MAX);
-    if (GetFullPath(pToken, ".wad", token, PATH_MAX))
-#else
-    if ((token = I_FindFile(pToken, ".wad")))
-#endif
-    {
-      wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
-      wadfiles[numwadfiles].name = token;
-      
-      if (pToken == pStr)
-      {
-        wadfiles[numwadfiles].src = source_iwad;
-      }
-      else
-      {
-        char *p = (char*)wadfiles[numwadfiles].name;
-        int len = strlen(p);
-        if (!strcasecmp(&p[len-4],".wad"))
-          wadfiles[numwadfiles].src = source_pwad;
-        if (!strcasecmp(&p[len-4],".deh") || !strcasecmp(&p[len-4],".bex"))
-          wadfiles[numwadfiles].src = source_deh;
-      }
-      numwadfiles++;
-    }
-    else
-    {
-      if (missed)
-      {
-        int len = (*missed ? strlen(*missed) : 0);
-        *missed = realloc(*missed, len + strlen(pToken) + 100);
-        sprintf(*missed + len, " %s not found\n", pToken);
-      }
-    }
-  }
-
-  WadDataFree(waddata);
-
-  waddata->wadfiles = wadfiles;
-  waddata->numwadfiles = numwadfiles;
-
-  free(pStr);
-
-  return processed;
-}
-
-#ifdef HAVE_LIBPCREPOSIX
-int DemoNameToWadData(const char * demoname, waddata_t *waddata, patterndata_t *patterndata)
-{
-  int numwadfiles_required = 0;
-  int i;
-  size_t maxlen = 0;
-  char *pattern;
-
-  char *demofilename = PathFindFileName(demoname);
-  
-  memset(waddata, 0, sizeof(*waddata));
-
-  for (i = 0; i < demo_patterns_count; i++)
-  {
-    if (strlen(demo_patterns_list[i]) > maxlen)
-      maxlen = strlen(demo_patterns_list[i]);
-  }
-
-  pattern = malloc(maxlen + sizeof(char));
-  for (i = 0; i < demo_patterns_count; i++)
-  {
-    int result;
-    regex_t preg;
-    regmatch_t pmatch[4];
-    char errbuf[256];
-    char *buf = demo_patterns_list[i];
-
-    regcomp(&preg, "(.*?)\\/(.*)\\/(.+)", REG_ICASE);
-    result = regexec(&preg, buf, 4, &pmatch[0], REG_NOTBOL);
-    regerror(result, &preg, errbuf, sizeof(errbuf));
-    regfree(&preg);
-
-    if (result != 0)
-    {
-      lprintf(LO_WARN, "Incorrect format of the <%s%d = \"%s\"> config entry\n", demo_patterns_mask, i, buf);
-    }
-    else
-    {
-      regmatch_t demo_match[2];
-      int len = pmatch[2].rm_eo - pmatch[2].rm_so;
-
-      strncpy(pattern, buf + pmatch[2].rm_so, len);
-      pattern[len] = '\0';
-      result = regcomp(&preg, pattern, REG_ICASE);
-      if (result != 0)
-      {
-        regerror(result, &preg, errbuf, sizeof(errbuf));
-        lprintf(LO_WARN, "Incorrect regular expressions in the <%s%d = \"%s\"> config entry - %s\n", demo_patterns_mask, i, buf, errbuf);
-      }
-      else
-      {
-        result = regexec(&preg, demofilename, 1, &demo_match[0], 0);
-        if (result == 0 && demo_match[0].rm_so == 0 && demo_match[0].rm_eo == (int)strlen(demofilename))
-        {
-          numwadfiles_required = ParseDemoPattern(buf + pmatch[3].rm_so, waddata,
-            (patterndata ? &patterndata->missed : NULL));
-
-          waddata->wadfiles = realloc(waddata->wadfiles, sizeof(*wadfiles)*(waddata->numwadfiles+1));
-          waddata->wadfiles[waddata->numwadfiles].name = strdup(demoname);
-          waddata->wadfiles[waddata->numwadfiles].src = source_lmp;
-          waddata->numwadfiles++;
-
-          if (patterndata)
-          {
-            len = MIN(pmatch[1].rm_eo - pmatch[1].rm_so, sizeof(patterndata->pattern_name) - 1);
-            strncpy(patterndata->pattern_name, buf, len);
-            patterndata->pattern_name[len] = '\0';
-
-            patterndata->pattern_num = i;
-          }
-
-          break;
-        }
-      }
-      regfree(&preg);
-    }
-  }
-  free(pattern);
-
-  return numwadfiles_required;
-}
-#endif // HAVE_LIBPCREPOSIX
-
-void WadDataToWadFiles(waddata_t *waddata)
-{
-  void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum);
-  const char *D_dehout(void);
-
-  int i, iwadindex = -1;
-
-  wadfile_info_t *old_wadfiles=NULL;
-  size_t old_numwadfiles = numwadfiles;
-
-  old_numwadfiles = numwadfiles;
-  old_wadfiles = malloc(sizeof(*(wadfiles)) * numwadfiles);
-  memcpy(old_wadfiles, wadfiles, sizeof(*(wadfiles)) * numwadfiles);
-
-  free(wadfiles);
-  wadfiles = NULL;
-  numwadfiles = 0;
-
-  for (i = 0; (size_t)i < waddata->numwadfiles; i++)
-  {
-    if (waddata->wadfiles[i].src == source_iwad)
-    {
-      ProcessNewIWAD(waddata->wadfiles[i].name);
-      iwadindex = i;
-      break;
-    }
-  }
-
-  if (iwadindex == -1)
-  {
-    I_Error("IdentifyVersion: IWAD not found\n");
-  }
-
-  for (i = 0; (size_t)i < old_numwadfiles; i++)
-  {
-    if (old_wadfiles[i].src == source_auto_load || old_wadfiles[i].src == source_pre)
-    {
-      wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
-      wadfiles[numwadfiles].name = strdup(old_wadfiles[i].name);
-      wadfiles[numwadfiles].src = old_wadfiles[i].src;
-      wadfiles[numwadfiles].handle = old_wadfiles[i].handle;
-      numwadfiles++;
-    }
-  }
-
-  for (i = 0; (size_t)i < waddata->numwadfiles; i++)
-  {
-    if (waddata->wadfiles[i].src == source_auto_load)
-    {
-      wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
-      wadfiles[numwadfiles].name = strdup(waddata->wadfiles[i].name);
-      wadfiles[numwadfiles].src = waddata->wadfiles[i].src;
-      wadfiles[numwadfiles].handle = waddata->wadfiles[i].handle;
-      numwadfiles++;
-    }
-  }
-
-  for (i = 0; (size_t)i < waddata->numwadfiles; i++)
-  {
-    if (waddata->wadfiles[i].src == source_iwad && i != iwadindex)
-    {
-      D_AddFile(waddata->wadfiles[i].name, source_pwad);
-      modifiedgame = true;
-    }
-    if (waddata->wadfiles[i].src == source_pwad)
-    {
-      D_AddFile(waddata->wadfiles[i].name, source_pwad);
-      modifiedgame = true;
-    }
-    if (waddata->wadfiles[i].src == source_deh)
-      ProcessDehFile(waddata->wadfiles[i].name, D_dehout(), 0);
-  }
-
-  for (i = 0; (size_t)i < waddata->numwadfiles; i++)
-  {
-    if (waddata->wadfiles[i].src == source_lmp || waddata->wadfiles[i].src == source_net)
-      D_AddFile(waddata->wadfiles[i].name, waddata->wadfiles[i].src);
-  }
-
-  free(old_wadfiles);
-}
-
-void CheckAutoDemo(void)
-{
-  if (M_CheckParm("-auto"))
-#ifndef HAVE_LIBPCREPOSIX
-    I_Error("Cannot process -auto - "
-        PACKAGE " was compiled without LIBPCRE support");
-#else
-  {
-    int i;
-    waddata_t waddata;
-
-    for (i = 0; (size_t)i < numwadfiles; i++)
-    {
-      if (wadfiles[i].src == source_lmp)
-      {
-        int numwadfiles_required;
-        
-        patterndata_t patterndata;
-        memset(&patterndata, 0, sizeof(patterndata));
-
-        numwadfiles_required = DemoNameToWadData(wadfiles[i].name, &waddata, &patterndata);
-        
-        if (waddata.numwadfiles)
-        {
-          if ((size_t)numwadfiles_required + 1 != waddata.numwadfiles && patterndata.missed)
-          {
-            I_Warning(
-              "DataAutoload: pattern #%i is used\n"
-              "%s not all required files are found, may not work\n",
-              patterndata.pattern_num, patterndata.missed);
-          }
-          else
-          {
-            lprintf(LO_WARN,"DataAutoload: pattern #%i is used\n", patterndata.pattern_num);
-          }
-          WadDataToWadFiles(&waddata);
-        }
-        free(patterndata.missed);
-        WadDataFree(&waddata);
-        break;
-      }
-    }
-  }
-#endif // HAVE_LIBPCREPOSIX
-}
-
-void ProcessNewIWAD(const char *iwad)
-{
-  extern boolean haswolflevels;
-  void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec);
-
-  int i;
-
-  if (iwad && *iwad)
-  {
-    CheckIWAD(iwad,&gamemode,&haswolflevels);
-    
-    switch(gamemode)
-    {
-    case retail:
-    case registered:
-    case shareware:
-      gamemission = doom;
-      break;
-    case commercial:
-      i = strlen(iwad);
-      gamemission = doom2;
-      if (i>=10 && !strnicmp(iwad+i-10,"doom2f.wad",10))
-        language=french;
-      else if (i>=7 && !strnicmp(iwad+i-7,"tnt.wad",7))
-        gamemission = pack_tnt;
-      else if (i>=12 && !strnicmp(iwad+i-12,"plutonia.wad",12))
-        gamemission = pack_plut;
-      break;
-    default:
-      gamemission = none;
-      break;
-    }
-    if (gamemode == indetermined)
-      lprintf(LO_WARN,"Unknown Game Version, may not work\n");
-
-    D_AddFile(iwad,source_iwad);
-  }
-}
 
 boolean HU_DrawDemoProgress(void)
 {

@@ -340,6 +340,7 @@ boolean P_TeleportMove (mobj_t* thing,fixed_t x,fixed_t y, boolean boss)
 
 // e6y: Spechits overrun emulation code
 static void SpechitOverrun(line_t *ld);
+unsigned int spechit_baseaddr = 0;
 
 //                                                                  // phares
 // PIT_CrossLine                                                    //   |
@@ -2317,9 +2318,6 @@ void P_MapEnd(void) {
 // See more information on:
 // doomworld.com/vb/doom-speed-demos/35214-spechits-reject-and-intercepts-overflow-lists
 
-// Spechit overrun magic value.
-#define DEFAULT_SPECHIT_MAGIC 0x01C09C98
-
 static void SpechitOverrun(line_t *ld)
 {
   if (demo_compatibility && numspechit > 8)
@@ -2337,10 +2335,9 @@ static void SpechitOverrun(line_t *ld)
 
     if (overrun_spechit_emulate)
     {
-      static unsigned int baseaddr = 0;
       unsigned int addr;
 
-      if (baseaddr == 0)
+      if (spechit_baseaddr == 0)
       {
         int p;
 
@@ -2357,17 +2354,17 @@ static void SpechitOverrun(line_t *ld)
         if (p > 0)
         {
           //baseaddr = atoi(myargv[p+1]);
-          StrToInt(myargv[p+1], (long*)&baseaddr);
+          StrToInt(myargv[p+1], (long*)&spechit_baseaddr);
         }
         else
         {
-          baseaddr = DEFAULT_SPECHIT_MAGIC;
+          spechit_baseaddr = DEFAULT_SPECHIT_MAGIC;
         }
       }
 
       // Calculate address used in doom2.exe
 
-      addr = baseaddr + (ld - lines) * 0x3E;
+      addr = spechit_baseaddr + (ld - lines) * 0x3E;
 
       if (compatibility_level == dosdoom_compatibility || compatibility_level == tasdoom_compatibility)
       {

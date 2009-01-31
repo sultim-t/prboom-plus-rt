@@ -102,6 +102,18 @@ const char *I_DoomExeDir(void)
   return macExeDir;
 }
 
+const char* I_GetTempDir(void)
+{
+  if(macExeDir)
+    return macExeDir;
+
+  NSString *exeDir = libraryDir();
+  [[NSFileManager defaultManager] createDirectoryAtPath:exeDir attributes:nil];
+
+  macExeDir = NSStringToCString(exeDir);
+  return macExeDir;
+}
+
 char *I_FindFileInternal(const char *wf_name, const char *ext, bool isStatic)
 {
   NSArray *paths = [NSArray arrayWithObject:libraryDir()];

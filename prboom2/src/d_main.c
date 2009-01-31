@@ -81,6 +81,7 @@
 #include "am_map.h"
 
 //e6y
+#include "r_demo.h"
 #include "e6y.h"
 #ifdef USE_WINDOWS_LAUNCHER
 #include "e6y_launcher.h"
@@ -629,6 +630,7 @@ void D_AddFile (const char *file, wad_source_t source)
   wadfiles[numwadfiles].name =
     AddDefaultExtension(strcpy(malloc(strlen(file)+5), file), ".wad");
   wadfiles[numwadfiles].src = source; // Ty 08/29/98
+  wadfiles[numwadfiles].handle = 0;
   numwadfiles++;
   // proff: automatically try to add the gwa files
   // proff - moved from w_wad.c
@@ -642,6 +644,7 @@ void D_AddFile (const char *file, wad_source_t source)
       wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
       wadfiles[numwadfiles].name = gwa_filename;
       wadfiles[numwadfiles].src = source; // Ty 08/29/98
+      wadfiles[numwadfiles].handle = 0;
       numwadfiles++;
     }
 }
@@ -756,7 +759,49 @@ void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
     I_Error("CheckIWAD: IWAD %s not readable", iwadname);
 }
 
+//
+// AddIWAD
+//
+void AddIWAD(const char *iwad)
+{
+  int i;
 
+  if (!(iwad && *iwad))
+    return;
+
+  //jff 9/3/98 use logical output routine
+  lprintf(LO_CONFIRM,"IWAD found: %s\n",iwad); //jff 4/20/98 print only if found
+  CheckIWAD(iwad,&gamemode,&haswolflevels);
+
+  /* jff 8/23/98 set gamemission global appropriately in all cases
+  * cphipps 12/1999 - no version output here, leave that to the caller
+  */
+  switch(gamemode)
+  {
+  case retail:
+  case registered:
+  case shareware:
+    gamemission = doom;
+    break;
+  case commercial:
+    i = strlen(iwad);
+    gamemission = doom2;
+    if (i>=10 && !strnicmp(iwad+i-10,"doom2f.wad",10))
+      language=french;
+    else if (i>=7 && !strnicmp(iwad+i-7,"tnt.wad",7))
+      gamemission = pack_tnt;
+    else if (i>=12 && !strnicmp(iwad+i-12,"plutonia.wad",12))
+      gamemission = pack_plut;
+    break;
+  default:
+    gamemission = none;
+    break;
+  }
+  if (gamemode == indetermined)
+    //jff 9/3/98 use logical output routine
+    lprintf(LO_WARN,"Unknown Game Version, may not work\n");
+  D_AddFile(iwad,source_iwad);
+}
 
 // NormalizeSlashes
 //
@@ -873,38 +918,7 @@ static void IdentifyVersion (void)
 
   if (iwad && *iwad)
   {
-    //jff 9/3/98 use logical output routine
-    lprintf(LO_CONFIRM,"IWAD found: %s\n",iwad); //jff 4/20/98 print only if found
-    CheckIWAD(iwad,&gamemode,&haswolflevels);
-
-    /* jff 8/23/98 set gamemission global appropriately in all cases
-     * cphipps 12/1999 - no version output here, leave that to the caller
-     */
-    switch(gamemode)
-    {
-      case retail:
-      case registered:
-      case shareware:
-        gamemission = doom;
-        break;
-      case commercial:
-        i = strlen(iwad);
-        gamemission = doom2;
-        if (i>=10 && !strnicmp(iwad+i-10,"doom2f.wad",10))
-          language=french;
-        else if (i>=7 && !strnicmp(iwad+i-7,"tnt.wad",7))
-          gamemission = pack_tnt;
-        else if (i>=12 && !strnicmp(iwad+i-12,"plutonia.wad",12))
-          gamemission = pack_plut;
-        break;
-      default:
-        gamemission = none;
-        break;
-    }
-    if (gamemode == indetermined)
-      //jff 9/3/98 use logical output routine
-      lprintf(LO_WARN,"Unknown Game Version, may not work\n");
-    D_AddFile(iwad,source_iwad);
+    AddIWAD(iwad);
     free(iwad);
   }
   else
@@ -1549,6 +1563,10 @@ static void D_DoomMainSetup(void)
         // reorganization of the code for looking for wads
         // in all standard dirs (%DOOMWADDIR%, etc)
         char *file = I_FindFile(myargv[p], ".wad");
+        if (!file && D_TryGetWad(myargv[p]))
+        {
+          file = I_FindFile(myargv[p], ".wad");
+        }
         if (file)
         {
           D_AddFile(file,source_pwad);
@@ -1590,7 +1608,9 @@ static void D_DoomMainSetup(void)
 
   //e6y
 #ifdef USE_WINDOWS_LAUNCHER
-  LauncherShow();
+  LauncherShow(CheckDemoExDemo());
+#else
+  CheckDemoExDemo()
 #endif
   CheckAutoDemo();
 

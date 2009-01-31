@@ -57,7 +57,9 @@
 #include "w_wad.h"
 #include "lprintf.h"
 
-#include "e6y.h" //e6y
+//e6y
+#include "r_demo.h"
+#include "e6y.h"
 
 //
 // GLOBALS
@@ -156,7 +158,16 @@ static void W_AddFile(wadfile_info_t *wadfile)
   if (wadfile->handle == -1 && D_NetGetWad(wadfile->name)) // CPhipps
     wadfile->handle = open(wadfile->name,O_RDONLY | O_BINARY);
 #endif
-    
+
+  if (wadfile->handle == -1 &&
+    strlen(wadfile->name) > 4 &&
+    wadfile->src == source_pwad && 
+    !strcasecmp(wadfile->name + strlen(wadfile->name) - 4 , ".wad") &&
+    D_TryGetWad(wadfile->name))
+  {
+    wadfile->handle = open(wadfile->name, O_RDONLY | O_BINARY);
+  }
+
   if (wadfile->handle == -1) 
     {
       if (  strlen(wadfile->name)<=4 ||      // add error check -- killough
@@ -477,13 +488,25 @@ void W_Init(void)
 
 void W_ReleaseAllWads(void)
 {
-	W_DoneCache();
-	numwadfiles = 0;
-	free(wadfiles);
-	wadfiles = NULL;
-	numlumps = 0;
-	free(lumpinfo);
-	lumpinfo = NULL;
+  size_t i;
+
+  W_DoneCache();
+
+  for (i = 0; i < numwadfiles; i++)
+  {
+    if (wadfiles[i].handle > 0)
+    {
+      close(wadfiles[i].handle);
+      wadfiles[i].handle = 0;
+    }
+  }
+
+  numwadfiles = 0;
+  free(wadfiles);
+  wadfiles = NULL;
+  numlumps = 0;
+  free(lumpinfo);
+  lumpinfo = NULL;
 }
 
 //

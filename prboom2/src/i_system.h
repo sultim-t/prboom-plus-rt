@@ -67,11 +67,17 @@ const char* I_GetVersionString(char* buf, size_t sz);
  */
 const char* I_SigString(char* buf, size_t sz, int signum);
 
+// e6y
+const char* I_GetTempDir(void);
+
 const char *I_DoomExeDir(void); // killough 2/16/98: path to executable's dir
 
 boolean HasTrailingSlash(const char* dn);
 char* I_FindFile(const char* wfname, const char* ext);
+char* I_FindFileEx(const char* wfname, const char* ext);
 const char* I_FindFile2(const char* wfname, const char* ext);
+
+boolean I_FileToBuffer(const char *filename, byte **data, int *size);
 
 /* cph 2001/11/18 - wrapper for read(2) which deals with partial reads */
 void I_Read(int fd, void* buf, size_t sz);

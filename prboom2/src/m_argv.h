@@ -44,4 +44,10 @@ extern const char * const * myargv; /* CPhipps - const * const * */
 /* Returns the position of the given parameter in the arg list (0 if not found). */
 int M_CheckParm(const char *check);
 
+/* Returns the position of the given parameter in the params list (-1 if not found). */
+int M_CheckParmEx(const char *check, char **params, int paramscount);
+
+/* Parses the command line and sets up the argv[] array */
+void M_ParseCmdLine(char *cmdstart, char **argv, char *args, unsigned int *numargs, unsigned int *numchars);
+
 #endif

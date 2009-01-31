@@ -409,19 +409,6 @@ typedef struct
   char prefix[32];
 } traceslist_t;
 
-typedef struct
-{
-  wadfile_info_t *wadfiles;
-  size_t numwadfiles;
-} waddata_t;
-
-typedef struct
-{
-  int pattern_num;
-  char pattern_name[80];
-  char *missed;
-} patterndata_t;
-
 extern trace_t things_health;
 extern trace_t things_pickup;
 extern trace_t lines_cross;
@@ -449,21 +436,9 @@ void D_AddDehFile (const char *file, wad_source_t source);
 
 extern int levelstarttic;
 
-extern int demo_patterns_count;
-extern char *demo_patterns_mask;
-extern char **demo_patterns_list;
-extern char *demo_patterns_list_def[];
-
 void I_AfterUpdateVideoMode(void);
 
 extern int force_singletics_to;
-
-void WadDataFree(waddata_t *wadfiles);
-int ParseDemoPattern(const char *str, waddata_t* waddata, char **notfounded);
-int DemoNameToWadData(const char * demoname, waddata_t *waddata, patterndata_t *patterndata);
-void WadDataToWadFiles(waddata_t *waddata);
-void CheckAutoDemo(void);
-void ProcessNewIWAD(const char *iwad);
 
 boolean HU_DrawDemoProgress(void);
 
@@ -477,6 +452,24 @@ int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t Buff
 
 void I_vWarning(const char *message, va_list argList);
 void I_Warning(const char *message, ...);
+
+#define PRB_MB_OK                       0x00000000
+#define PRB_MB_OKCANCEL                 0x00000001
+#define PRB_MB_ABORTRETRYIGNORE         0x00000002
+#define PRB_MB_YESNOCANCEL              0x00000003
+#define PRB_MB_YESNO                    0x00000004
+#define PRB_MB_RETRYCANCEL              0x00000005
+#define PRB_MB_DEFBUTTON1               0x00000000
+#define PRB_MB_DEFBUTTON2               0x00000100
+#define PRB_MB_DEFBUTTON3               0x00000200
+#define PRB_IDOK                1
+#define PRB_IDCANCEL            2
+#define PRB_IDABORT             3
+#define PRB_IDRETRY             4
+#define PRB_IDIGNORE            5
+#define PRB_IDYES               6
+#define PRB_IDNO                7
+int I_MessageBox(const char* text, unsigned int type);
 
 int IsDemoPlayback();
 

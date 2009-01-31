@@ -40,6 +40,8 @@
 // GAME
 //
 
+#define DEMOMARKER    0x80
+
 // killough 5/2/98: number of bytes reserved for saving options
 #define GAME_OPTION_SIZE 64
 
@@ -86,6 +88,13 @@ void G_MakeSpecialEvent(buttoncode_t bc, ...); /* cph - new event stuff */
 extern int democontinue;
 extern char democontinuename[];
 void G_CheckDemoContinue(void);
+
+//e6y
+#define RDH_SAFE 0x00000001
+#define RDH_SKIP_HEADER 0x00000002
+const byte* G_ReadDemoHeaderEx(const byte* demo_p, size_t size, unsigned int params);
+const byte* G_ReadDemoHeader(const byte* demo_p, size_t size);
+void G_CalculateDemoParams(const byte *demo_p);
 
 // killough 1/18/98: Doom-style printf;   killough 4/25/98: add gcc attributes
 // CPhipps - renames to doom_printf to avoid name collision with glibc
@@ -188,5 +197,9 @@ extern const char * comp_lev_str[];
 // with the same mouse behaviour as when recording,
 // but without having to be recording every time.
 extern int shorttics;
+
+//e6y: for r_demo.c
+extern int longtics;
+extern int bytes_per_tic;
 
 #endif

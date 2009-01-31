@@ -140,6 +140,7 @@ static byte     *savebuffer;          // CPhipps - static
 int             autorun = false;      // always running?          // phares
 int             totalleveltimes;      // CPhipps - total time for all completed levels
 int             longtics;
+int             bytes_per_tic;
 
 // e6y
 // There is a new command-line switch "-shorttics".
@@ -278,7 +279,6 @@ int    bodyqueslot, bodyquesize;        // killough 2/8/98
 mobj_t **bodyque = 0;                   // phares 8/10/98
 
 static void G_DoSaveGame (boolean menu);
-static const byte* G_ReadDemoHeader(const byte* demo_p, size_t size, boolean failonerror);
 
 //e6y: save/restore all data which could be changed by G_ReadDemoHeader
 static void G_SaveRestoreGameOptions(int save);
@@ -917,6 +917,9 @@ void G_Ticker (void)
   else {
     // get commands, check consistancy, and build new consistancy check
     int buf = (gametic/ticdup)%BACKUPTICS;
+
+    //e6y
+    R_DemoEx_ProcessGameTic();
 
     for (i=0 ; i<MAXPLAYERS ; i++) {
       if (playeringame[i])
@@ -2379,8 +2382,6 @@ void G_InitNew(skill_t skill, int episode, int map)
 // DEMO RECORDING
 //
 
-#define DEMOMARKER    0x80
-
 void G_ReadDemoTiccmd (ticcmd_t* cmd)
 {
   unsigned char at; // e6y: tasdoom stuff
@@ -2483,7 +2484,7 @@ void G_RecordDemo (const char* name)
       { /* Read the demo header for options etc */
         byte buf[200];
         size_t len = fread(buf, 1, sizeof(buf), demofp);
-        pos = G_ReadDemoHeader(buf, len, false);
+        pos = G_ReadDemoHeader(buf, len);
         if (pos)
         {
           fseek(demofp, pos - buf, SEEK_SET);
@@ -2993,7 +2994,12 @@ void G_SaveRestoreGameOptions(int save)
   }
 }
 
-static const byte* G_ReadDemoHeader(const byte *demo_p, size_t size, boolean failonerror)
+const byte* G_ReadDemoHeader(const byte *demo_p, size_t size)
+{
+  return G_ReadDemoHeaderEx(demo_p, size, 0);
+}
+
+const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int params)
 {
   skill_t skill;
   int i, episode, map;
@@ -3004,6 +3010,8 @@ static const byte* G_ReadDemoHeader(const byte *demo_p, size_t size, boolean fai
   const byte *header_p = demo_p;
 
   const byte *option_p = NULL;      /* killough 11/98 */
+
+  boolean failonerror = (params&RDH_SAFE);
 
   basetic = gametic;  // killough 9/29/98
 
@@ -3238,12 +3246,17 @@ static const byte* G_ReadDemoHeader(const byte *demo_p, size_t size, boolean fai
       netdemo = true;
     }
 
-  if (gameaction != ga_loadgame) { /* killough 12/98: support -loadgame */
-    G_InitNew(skill, episode, map);
+  if (!(params&RDH_SKIP_HEADER))
+  {
+    if (gameaction != ga_loadgame) { /* killough 12/98: support -loadgame */
+      G_InitNew(skill, episode, map);
+    }
   }
 
   for (i=0; i<MAXPLAYERS;i++)         // killough 4/24/98
     players[i].cheats = 0;
+
+  bytes_per_tic = (longtics ? 5 : 4); //e6y
   
   return demo_p;
 }
@@ -3275,31 +3288,42 @@ void G_DoPlayDemo(void)
   demobuffer = W_CacheLumpNum(demolumpnum);
   demolength = W_LumpLength(demolumpnum);
 
-  demo_p = G_ReadDemoHeader(demobuffer, demolength, true);
+  demo_p = G_ReadDemoHeaderEx(demobuffer, demolength, RDH_SAFE);
 
-  //e6y
+  // e6y
+  // additional params
   {
     int i;
+    const byte *p = demo_p;
+
     demo_playerscount = 0;
-    for (i=0; i<MAXPLAYERS; i++)
+    demo_tics_count = 0;
+    demo_curr_tic = 0;
+    strcpy(demo_len_st, "-");
+
+    for (i = 0; i < MAXPLAYERS; i++)
     {
       if (playeringame[i])
+      {
         demo_playerscount++;
+      }
     }
+
     if (demo_playerscount > 0 && demolength > 0)
     {
-      demo_tics_count = (demolength - (demo_p - demobuffer + 1)) / 
-        (longtics ? 5 : 4) / demo_playerscount;
-      demo_curr_tic = 0;
+      do        
+      {
+        demo_tics_count++;
+        p += bytes_per_tic;
+      }
+      while ((p < demobuffer + demolength) && (*((byte*)p) != DEMOMARKER));
+
+      demo_tics_count /= demo_playerscount;
+
       sprintf(demo_len_st, "\x1b\x35/%d:%02d", 
         demo_tics_count/TICRATE/60, 
         (demo_tics_count%(60*TICRATE))/TICRATE);
     }
-    else
-    {
-      sprintf(demo_len_st, "-");
-    }
-
   }
 
   gameaction = ga_nothing;
@@ -3324,7 +3348,11 @@ boolean G_CheckDemoStatus (void)
     {
       demorecording = false;
       fputc(DEMOMARKER, demofp);
-//e6y      I_Error("G_CheckDemoStatus: Demo recorded");
+      
+      //e6y
+      G_WriteDemoFooter(demofp);
+
+      lprintf(LO_INFO, "G_CheckDemoStatus: Demo recorded\n");
       return false;  // killough
     }
 
@@ -3543,7 +3571,7 @@ void G_CheckDemoContinue(void)
   {
     byte buf[512];
     size_t len = fread(buf, 1, sizeof(buf), _demofp);
-    len = G_ReadDemoHeader(buf, len, true) - buf;
+    len = G_ReadDemoHeaderEx(buf, len, RDH_SAFE) - buf;
     fseek(_demofp, len, SEEK_SET);
 
     singledemo = true;

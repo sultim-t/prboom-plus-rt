@@ -32,7 +32,18 @@
  *---------------------------------------------------------------------
  */
 
-#include "doomstat.h"
+#ifndef __R_DEMO__
+#define __R_DEMO__
+
+#include "doomdef.h"
+#include "doomtype.h"
+#include "tables.h"
+#include "d_player.h"
+#include "w_wad.h"
+
+//
+// Smooth playing stuff
+//
 
 #define SMOOTH_PLAYING_MAXFACTOR 16 
 
@@ -43,3 +54,67 @@ void R_SmoothPlaying_Reset(player_t *player);
 void R_SmoothPlaying_Add(int delta);
 angle_t R_SmoothPlaying_Get(angle_t defangle);
 void R_ResetAfterTeleport(player_t *player);
+
+//
+// DemoEx stuff
+//
+
+typedef struct
+{
+  wadinfo_t header;
+  filelump_t *lumps;
+  char* data;
+  int datasize;
+} wadtbl_t;
+
+typedef struct
+{
+  wadfile_info_t *wadfiles;
+  size_t numwadfiles;
+} waddata_t;
+
+typedef struct
+{
+  int pattern_num;
+  char pattern_name[80];
+  char *missed;
+} patterndata_t;
+
+extern int demo_extendedformat;
+extern int demo_extendedformat_default;
+extern char *demo_demoex_filename;
+
+extern int demo_patterns_count;
+extern char *demo_patterns_mask;
+extern char **demo_patterns_list;
+extern char *demo_patterns_list_def[];
+
+extern char *getwad_cmdline;
+
+int WadDataInit(waddata_t *waddata);
+int WadDataAddItem(waddata_t *waddata, const byte *filename, wad_source_t source, int handle);
+void WadDataFree(waddata_t *wadfiles);
+
+int CheckDemoExDemo(void);
+void CheckAutoDemo(void);
+int ParseDemoPattern(const char *str, waddata_t* waddata, char **missed, boolean trytodownload);
+int DemoNameToWadData(const char * demoname, waddata_t *waddata, patterndata_t *patterndata);
+void WadDataToWadFiles(waddata_t *waddata);
+void WadFilesToWadData(waddata_t *waddata);
+
+void M_ChangeDemoExtendedFormat(void);
+
+byte* G_GetDemoFooter(const char *filename, byte** footer, size_t *size);
+void G_SetDemoFooter(const char *filename, wadtbl_t *wadtbl);
+void G_WriteDemoFooter(FILE *file);
+
+void W_InitPWADTable(wadtbl_t *wadtbl);
+void W_FreePWADTable(wadtbl_t *wadtbl);
+wadtbl_t* W_CreatePWADTable(const byte* buffer, size_t size);
+void W_AddLump(wadtbl_t *wadtbl, const char *name, const byte* data, size_t size);
+
+void R_DemoEx_ProcessGameTic(void);
+
+boolean D_TryGetWad(const char* name);
+
+#endif // __R_DEMO__

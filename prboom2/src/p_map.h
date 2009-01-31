@@ -89,4 +89,8 @@ extern msecnode_t *sector_list;                             // phares 3/16/98
 extern fixed_t tmbbox[4];         // phares 3/20/98
 extern line_t *blockline;   // killough 8/11/98
 
+// Spechit overrun magic value.
+#define DEFAULT_SPECHIT_MAGIC 0x01C09C98
+extern unsigned int spechit_baseaddr;
+
 #endif // __P_MAP__

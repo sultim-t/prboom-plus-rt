@@ -48,6 +48,7 @@
 #include "i_main.h"
 #include ".\..\ICONS\resource.h"
 #include "pcreposix.h"
+#include "r_demo.h"
 #include "e6y.h"
 #include "e6y_launcher.h"
 
@@ -99,6 +100,8 @@ const char *launcher_enable_states[] = {"never", "smart", "always"};
 char *launcher_history[LAUNCHER_HISTORY_SIZE];
 
 static char launchercachefile[PATH_MAX];
+
+unsigned int launcher_params;
 
 //global
 void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec);
@@ -597,7 +600,7 @@ static boolean L_PrepareToLaunch(void)
       char *iwadname = PathFindFileName(launcher.files[index].name);
       history = malloc(strlen(iwadname) + 8);
       strcpy(history, iwadname);
-      ProcessNewIWAD(launcher.files[index].name);
+      AddIWAD(launcher.files[index].name);
     }
   }
 
@@ -1031,7 +1034,7 @@ static void L_FillHistoryList(void)
       waddata_t *waddata = malloc(sizeof(*waddata));
       memset(waddata, 0, sizeof(*waddata));
 
-      ParseDemoPattern(str, waddata, NULL);
+      ParseDemoPattern(str, waddata, NULL, false);
       p = L_HistoryGetStr(waddata);
 
       if (p)
@@ -1101,21 +1104,30 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
       L_FillGameList();
       L_FillHistoryList();
 
-      for (i = 0; (size_t)i < numwadfiles; i++)
+      if (launcher_params)
       {
-        if (wadfiles[i].src == source_lmp)
+        WadDataInit(&data);
+        WadFilesToWadData(&data);
+        L_GUISelect(&data);
+      }
+      else
+      {
+        for (i = 0; (size_t)i < numwadfiles; i++)
         {
-          patterndata_t patterndata;
-          memset(&patterndata, 0, sizeof(patterndata));
-
-          if (DemoNameToWadData(wadfiles[i].name, &data, &patterndata))
+          if (wadfiles[i].src == source_lmp)
           {
-            L_GUISelect(&data);
-            SendMessage(launcher.staticFileName, WM_SETTEXT, 0, (LPARAM)patterndata.pattern_name);
-            WadDataFree(&data);
-            break;
+            patterndata_t patterndata;
+            memset(&patterndata, 0, sizeof(patterndata));
+
+            if (DemoNameToWadData(wadfiles[i].name, &data, &patterndata))
+            {
+              L_GUISelect(&data);
+              SendMessage(launcher.staticFileName, WM_SETTEXT, 0, (LPARAM)patterndata.pattern_name);
+              WadDataFree(&data);
+              break;
+            }
+            free(patterndata.missed);
           }
-          free(patterndata.missed);
         }
       }
       
@@ -1392,12 +1404,14 @@ static boolean L_LauncherIsNeeded(void)
   return (!iwad && !pwad && !M_CheckParm("-auto"));
 }
 
-void LauncherShow(void)
+void LauncherShow(unsigned int params)
 {
   int result;
 
   if (!L_LauncherIsNeeded())
     return;
+
+  launcher_params = params;
 
   InitCommonControls();
   sprintf(launchercachefile,"%s/"PACKAGE".cache", I_DoomExeDir());

@@ -126,7 +126,7 @@ void R_InterpolateView (player_t *player, fixed_t frac)
     else
     {
       viewangle = original_view_vars.viewangle + FixedMul (frac, R_SmoothPlaying_Get(player->mo->angle) + viewangleoffset - original_view_vars.viewangle);
-      viewpitch = original_view_vars.viewpitch + FixedMul (frac, R_SmoothPlaying_Get(player->mo->pitch) - original_view_vars.viewpitch);
+      viewpitch = original_view_vars.viewpitch + FixedMul (frac, player->mo->pitch - original_view_vars.viewpitch);
     }
   }
   else
