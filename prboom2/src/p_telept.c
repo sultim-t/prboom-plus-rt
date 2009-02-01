@@ -217,7 +217,7 @@ int EV_SilentTeleport(line_t *line, int side, mobj_t *thing)
 #define FUDGEFACTOR 10
 
 int EV_SilentLineTeleport(line_t *line, int side, mobj_t *thing,
-                          boolean reverse)
+                          DOOM_BOOL reverse)
 {
   int i;
   line_t *l;

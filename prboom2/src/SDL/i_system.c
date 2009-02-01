@@ -122,11 +122,11 @@ int I_GetTime_RealTime (void)
 #ifndef PRBOOM_SERVER
 static unsigned int start_displaytime;
 static unsigned int displaytime;
-static boolean InDisplay = false;
+static DOOM_BOOL InDisplay = false;
 static int saved_gametic = -1;
-boolean realframe = false;
+DOOM_BOOL realframe = false;
 
-boolean I_StartDisplay(void)
+DOOM_BOOL I_StartDisplay(void)
 {
   if (InDisplay)
     return false;
@@ -221,11 +221,11 @@ const char* I_SigString(char* buf, size_t sz, int signum)
 }
 
 #ifndef PRBOOM_SERVER
-boolean I_FileToBuffer(const char *filename, byte **data, int *size)
+DOOM_BOOL I_FileToBuffer(const char *filename, byte **data, int *size)
 {
   int hfile;
 
-  boolean result = false;
+  DOOM_BOOL result = false;
   byte *buffer = NULL;
   size_t filesize = 0;
 
@@ -415,7 +415,7 @@ const char *I_GetTempDir(void)
  * cphipps - simple test for trailing slash on dir names
  */
 
-boolean HasTrailingSlash(const char* dn)
+DOOM_BOOL HasTrailingSlash(const char* dn)
 {
   return ( (dn[strlen(dn)-1] == '/')
 #if defined(AMIGA)
@@ -437,7 +437,7 @@ boolean HasTrailingSlash(const char* dn)
 
 #ifndef MACOSX /* OSX defines its search paths elsewhere. */
 
-char* I_FindFileInternal(const char* wfname, const char* ext, boolean isStatic)
+char* I_FindFileInternal(const char* wfname, const char* ext, DOOM_BOOL isStatic)
 {
   // lookup table of directories to search
   static const struct {

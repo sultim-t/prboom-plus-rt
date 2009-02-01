@@ -93,7 +93,7 @@ side_t   *sides;
 
 int     firstglvertex = 0;
 int     nodesVersion  = 0;
-boolean forceOldBsp   = false;
+DOOM_BOOL forceOldBsp   = false;
 
 // figgi 08/21/00 -- glSegs
 typedef struct
@@ -201,7 +201,7 @@ static void *calloc_IfSameLevel(void* p, size_t n1, size_t n2)
 // P_CheckForZDoomNodes
 //
 
-static boolean P_CheckForZDoomNodes(int lumpnum, int gl_lumpnum)
+static DOOM_BOOL P_CheckForZDoomNodes(int lumpnum, int gl_lumpnum)
 {
   const void *data;
 
@@ -1628,7 +1628,7 @@ static void P_RemoveSlimeTrails(void)         // killough 10/98
 // Are these lumps in the same wad file?
 //
 
-boolean P_CheckLumpsForSameSource(int lump1, int lump2)
+DOOM_BOOL P_CheckLumpsForSameSource(int lump1, int lump2)
 {
   int wad1_index, wad2_index;
   wadfile_info_t *wad1, *wad2;

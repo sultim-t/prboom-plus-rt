@@ -111,7 +111,7 @@ void R_InitSpritesRes(void)
 //
 
 static void R_InstallSpriteLump(int lump, unsigned frame,
-                                unsigned rotation, boolean flipped)
+                                unsigned rotation, DOOM_BOOL flipped)
 {
   if (frame >= MAX_SPRITE_FRAMES || rotation > 8)
     I_Error("R_InstallSpriteLump: Bad frame characters in lump %i", lump);
@@ -481,7 +481,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   spritedef_t   *sprdef;
   spriteframe_t *sprframe;
   int       lump;
-  boolean   flip;
+  DOOM_BOOL   flip;
   vissprite_t *vis;
   fixed_t   iscale;
   int heightsec;      // killough 3/27/98
@@ -493,7 +493,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   fixed_t gxt, gyt;
   fixed_t tz;
   int width;
-  boolean mlook = GetMouseLook() || (render_fov > FOV90);
+  DOOM_BOOL mlook = GetMouseLook() || (render_fov > FOV90);
 
   if (movement_smooth)
   {
@@ -569,13 +569,13 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
       angle_t ang = R_PointToAngle(fx, fy);
       unsigned rot = (ang-thing->angle+(unsigned)(ANG45/2)*9)>>29;
       lump = sprframe->lump[rot];
-      flip = (boolean) sprframe->flip[rot];
+      flip = (DOOM_BOOL) sprframe->flip[rot];
     }
   else
     {
       // use single rotation for all views
       lump = sprframe->lump[0];
-      flip = (boolean) sprframe->flip[0];
+      flip = (DOOM_BOOL) sprframe->flip[0];
     }
 
   {
@@ -737,7 +737,7 @@ static void R_DrawPSprite (pspdef_t *psp, int lightlevel)
   spritedef_t   *sprdef;
   spriteframe_t *sprframe;
   int           lump;
-  boolean       flip;
+  DOOM_BOOL       flip;
   vissprite_t   *vis;
   vissprite_t   avis;
   int           width;
@@ -763,7 +763,7 @@ static void R_DrawPSprite (pspdef_t *psp, int lightlevel)
   sprframe = &sprdef->spriteframes[psp->state->frame & FF_FRAMEMASK];
 
   lump = sprframe->lump[0];
-  flip = (boolean) sprframe->flip[0];
+  flip = (DOOM_BOOL) sprframe->flip[0];
 
   {
     const rpatch_t* patch = R_CachePatchNum(lump+firstspritelump);

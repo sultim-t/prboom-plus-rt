@@ -191,7 +191,7 @@ void gld_DrawWallWithDetail(GLWall *wall)
 {
   float w, h, s;
   TAnimItemParam *animitem;
-  boolean fake = (wall->flag == GLDWF_TOPFLUD) || (wall->flag == GLDWF_BOTFLUD);
+  DOOM_BOOL fake = (wall->flag == GLDWF_TOPFLUD) || (wall->flag == GLDWF_BOTFLUD);
   
   if (fake)
   {

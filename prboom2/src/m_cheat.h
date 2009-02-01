@@ -53,6 +53,6 @@ extern struct cheat_s {
   uint_64_t code, mask;
 } cheat[];
 
-boolean M_FindCheats(int key);
+DOOM_BOOL M_FindCheats(int key);
 
 #endif

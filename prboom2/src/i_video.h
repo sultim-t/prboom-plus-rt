@@ -86,7 +86,7 @@ extern int process_affinity_mask;
 extern int try_to_reduce_cpu_cache_misses;
 
 //e6y
-extern boolean window_focused;
+extern DOOM_BOOL window_focused;
 void UpdateGrab(void);
 
 #endif

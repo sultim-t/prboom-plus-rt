@@ -582,7 +582,7 @@ static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char 
   hires_path_item_t *checklist = NULL;
   GLTexType useType = gltexture->textype;
 
-  boolean supported = (gl_texture_external_hires && 
+  DOOM_BOOL supported = (gl_texture_external_hires && 
     ((useType == GLDT_TEXTURE) || (useType == GLDT_FLAT) || (useType == GLDT_PATCH)));
 
   img_path[0] = '\0';
@@ -792,7 +792,7 @@ static int gld_HiRes_LoadExternal(GLTexture *gltexture, int *glTexID)
 
   char img_path[PATH_MAX];
   char dds_path[PATH_MAX];
-  boolean img_present, dds_present;
+  DOOM_BOOL img_present, dds_present;
   
   char cache_filename[PATH_MAX];
   FILE *cachefp = NULL;

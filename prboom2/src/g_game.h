@@ -45,13 +45,13 @@
 // killough 5/2/98: number of bytes reserved for saving options
 #define GAME_OPTION_SIZE 64
 
-boolean G_Responder(event_t *ev);
-boolean G_CheckDemoStatus(void);
+DOOM_BOOL G_Responder(event_t *ev);
+DOOM_BOOL G_CheckDemoStatus(void);
 void G_DeathMatchSpawnPlayer(int playernum);
 void G_InitNew(skill_t skill, int episode, int map);
 void G_DeferedInitNew(skill_t skill, int episode, int map);
 void G_DeferedPlayDemo(const char *demo); // CPhipps - const
-void G_LoadGame(int slot, boolean is_command); // killough 5/15/98
+void G_LoadGame(int slot, DOOM_BOOL is_command); // killough 5/15/98
 void G_ForcedLoadGame(void);           // killough 5/15/98: forced loadgames
 void G_DoLoadGame(void);
 void G_SaveGame(int slot, char *description); // Called by M_Responder.
@@ -64,7 +64,7 @@ void G_WorldDone(void);
 void G_EndGame(void); /* cph - make m_menu.c call a G_* function for this */
 void G_Ticker(void);
 void G_ReloadDefaults(void);     // killough 3/1/98: loads game defaults
-void G_SaveGameName(char *, size_t, int, boolean); /* killough 3/22/98: sets savegame filename */
+void G_SaveGameName(char *, size_t, int, DOOM_BOOL); /* killough 3/22/98: sets savegame filename */
 void G_SetFastParms(int);        // killough 4/10/98: sets -fast parameters
 void G_DoNewGame(void);
 void G_DoReborn(int playernum);
@@ -175,7 +175,7 @@ extern int  key_screenshot;    // killough 2/22/98 -- add key for screenshot
 extern int  autorun;           // always running?                   // phares
 
 extern int  defaultskill;      //jff 3/24/98 default skill
-extern boolean haswolflevels;  //jff 4/18/98 wolf levels present
+extern DOOM_BOOL haswolflevels;  //jff 4/18/98 wolf levels present
 
 extern int  bodyquesize;       // killough 2/8/98: adustable corpse limit
 

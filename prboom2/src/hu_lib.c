@@ -40,7 +40,7 @@
 #include "r_main.h"
 #include "r_draw.h"
 
-// boolean : whether the screen is always erased
+// DOOM_BOOL : whether the screen is always erased
 #define noterased viewwindowx
 
 extern int  key_backspace;                                          // phares
@@ -104,7 +104,7 @@ void HUlib_initTextLine(hu_textline_t* t, int x, int y,
 // Passed the hu_textline_t and the char to add
 // Returns false if already at length limit, true if the character added
 //
-boolean HUlib_addCharToTextLine
+DOOM_BOOL HUlib_addCharToTextLine
 ( hu_textline_t*  t,
   char      ch )
 {
@@ -133,7 +133,7 @@ boolean HUlib_addCharToTextLine
 // Passed the hu_textline_t
 // Returns false if already empty, true if the character deleted
 //
-static boolean HUlib_delCharFromTextLine(hu_textline_t* t)
+static DOOM_BOOL HUlib_delCharFromTextLine(hu_textline_t* t)
 {
   if (!t->len) return false;
   else
@@ -154,7 +154,7 @@ static boolean HUlib_delCharFromTextLine(hu_textline_t* t)
 //
 void HUlib_drawTextLine
 ( hu_textline_t* l,
-  boolean drawcursor )
+  DOOM_BOOL drawcursor )
 {
 
   int     i;
@@ -269,7 +269,7 @@ void HUlib_initSText
   const patchnum_t* font,
   int   startchar,
   int cm,       //jff 2/16/98 add color range parameter
-  boolean*  on )
+  DOOM_BOOL*  on )
 {
 
   int i;
@@ -404,7 +404,7 @@ void HUlib_eraseSText(hu_stext_t* s)
 //
 void HUlib_initMText(hu_mtext_t *m, int x, int y, int w, int h,
          const patchnum_t* font, int startchar, int cm,
-         const patchnum_t* bgfont, boolean *on)
+         const patchnum_t* bgfont, DOOM_BOOL *on)
 {
   int i;
 
@@ -639,7 +639,7 @@ void HUlib_initIText
   const patchnum_t* font,
   int   startchar,
   int cm,   //jff 2/16/98 add color range parameter
-  boolean*  on )
+  DOOM_BOOL*  on )
 {
   it->lm = 0; // default left margin is start of text
   it->on = on;
@@ -718,7 +718,7 @@ void HUlib_addPrefixToIText
 // Passed the hu_itext_t and the char input
 // Returns true if it ate the key
 //
-boolean HUlib_keyInIText
+DOOM_BOOL HUlib_keyInIText
 ( hu_itext_t* it,
   unsigned char ch )
 {

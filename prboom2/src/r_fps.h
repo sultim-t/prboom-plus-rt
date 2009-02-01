@@ -62,7 +62,7 @@ extern tic_vars_t tic_vars;
 void R_InitInterpolation(void);
 void R_InterpolateView (player_t *player, fixed_t frac);
 
-extern boolean WasRenderedInTryRunTics;
+extern DOOM_BOOL WasRenderedInTryRunTics;
 
 void R_ResetViewInterpolation ();
 void R_UpdateInterpolations();

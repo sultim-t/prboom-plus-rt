@@ -68,12 +68,12 @@ extern int gl_use_shared_texture_palette;
 extern int gl_paletted_texture;
 extern int gl_shared_texture_palette;
 
-extern boolean gl_ext_texture_filter_anisotropic;
-extern boolean gl_arb_texture_non_power_of_two;
-extern boolean gl_arb_multitexture;
-extern boolean gl_arb_texture_compression;
-extern boolean gl_ext_framebuffer_object;
-extern boolean gl_ext_blend_color;
+extern DOOM_BOOL gl_ext_texture_filter_anisotropic;
+extern DOOM_BOOL gl_arb_texture_non_power_of_two;
+extern DOOM_BOOL gl_arb_multitexture;
+extern DOOM_BOOL gl_arb_texture_compression;
+extern DOOM_BOOL gl_ext_framebuffer_object;
+extern DOOM_BOOL gl_ext_blend_color;
 
 // obsolete?
 extern PFNGLCOLORTABLEEXTPROC              GLEXT_glColorTableEXT;
@@ -100,6 +100,6 @@ extern PFNGLBLENDCOLOREXTPROC              GLEXT_glBlendColorEXT;
 /* ARB_texture_compression */
 extern PFNGLCOMPRESSEDTEXIMAGE2DARBPROC    GLEXT_glCompressedTexImage2DARB;
 
-void gld_InitOpenGL(boolean compatibility_mode);
+void gld_InitOpenGL(DOOM_BOOL compatibility_mode);
 
 #endif // _GL_OPENGL_H

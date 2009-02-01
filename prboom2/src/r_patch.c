@@ -220,7 +220,7 @@ static int getColumnEdgeSlope(const column_t *prevcolumn, const column_t *nextco
 //
 //==========================================================================
 
-static boolean CheckIfPatch(int lump)
+static DOOM_BOOL CheckIfPatch(int lump)
 {
   int size;
   int width, height;
@@ -243,7 +243,7 @@ static boolean CheckIfPatch(int lump)
     // check the column directory for extra security. At least one
     // column must begin exactly at the end of the column directory,
     // and none of them must point past the end of the patch.
-    boolean gapAtStart = true;
+    DOOM_BOOL gapAtStart = true;
     int x;
 
     for (x = 0; x < width; x++)

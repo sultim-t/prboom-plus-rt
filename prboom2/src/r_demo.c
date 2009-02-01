@@ -160,11 +160,11 @@ char *demo_patterns_list_def[9];
 // demo ex
 int demo_extendedformat = -1;
 int demo_extendedformat_default;
-boolean use_demoex_info = false;
+DOOM_BOOL use_demoex_info = false;
 
 char demoex_filename[PATH_MAX];
 char *demo_demoex_filename;
-boolean IsDemoEx = false;
+DOOM_BOOL IsDemoEx = false;
 //wadtbl_t demoex;
 
 typedef struct
@@ -932,7 +932,7 @@ int WadDataAddItem(waddata_t *waddata, const byte *filename, wad_source_t source
   return true;
 }
 
-int ParseDemoPattern(const char *str, waddata_t* waddata, char **missed, boolean trytodownload)
+int ParseDemoPattern(const char *str, waddata_t* waddata, char **missed, DOOM_BOOL trytodownload)
 {
   int processed = 0;
   wadfile_info_t *wadfiles = NULL;
@@ -1256,9 +1256,9 @@ void CheckAutoDemo(void)
 
 char *getwad_cmdline = NULL;
 
-boolean D_TryGetWad(const char* name)
+DOOM_BOOL D_TryGetWad(const char* name)
 {
-  boolean result = false;
+  DOOM_BOOL result = false;
 
   char wadname[PATH_MAX];
   char* cmdline = NULL;

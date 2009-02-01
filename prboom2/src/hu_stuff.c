@@ -185,17 +185,17 @@ static hu_textline_t  w_gkeys;  //jff 3/7/98 graphic keys widget for hud
 static hu_textline_t  w_monsec; //jff 2/16/98 new kill/secret widget for hud
 static hu_mtext_t     w_rtext;  //jff 2/26/98 text message refresh widget
 
-static boolean    always_off = false;
+static DOOM_BOOL    always_off = false;
 static char       chat_dest[MAXPLAYERS];
-boolean           chat_on;
-static boolean    message_on;
-static boolean    message_list; //2/26/98 enable showing list of messages
-boolean           message_dontfuckwithme;
-static boolean    message_nottobefuckedwith;
+DOOM_BOOL           chat_on;
+static DOOM_BOOL    message_on;
+static DOOM_BOOL    message_list; //2/26/98 enable showing list of messages
+DOOM_BOOL           message_dontfuckwithme;
+static DOOM_BOOL    message_nottobefuckedwith;
 static int        message_counter;
 extern int        showMessages;
-extern boolean    automapactive;
-static boolean    headsupactive = false;
+extern DOOM_BOOL    automapactive;
+static DOOM_BOOL    headsupactive = false;
 
 //jff 2/16/98 hud supported automap colors added
 int hudcolor_titl;  // color range of automap level title
@@ -818,7 +818,7 @@ void HU_Drawer(void)
   int color, killcolor, itemcolor, secretcolor;
   //jff 3/4/98 speed update up for slow systems
   //e6y: speed update for uncapped framerate
-  static boolean needupdate = false;
+  static DOOM_BOOL needupdate = false;
   if (realframe) needupdate = !needupdate;
   doit = needupdate;
 
@@ -1535,7 +1535,7 @@ void HU_Erase(void)
 //
 // Passed nothing, returns nothing
 //
-static boolean bsdown; // Is backspace down?
+static DOOM_BOOL bsdown; // Is backspace down?
 static int bscounter;
 
 void HU_Ticker(void)
@@ -1695,14 +1695,14 @@ char HU_dequeueChatChar(void)
 //
 // Passed the event to respond to, returns true if the event was handled
 //
-boolean HU_Responder(event_t *ev)
+DOOM_BOOL HU_Responder(event_t *ev)
 {
 
   static char   lastmessage[HU_MAXLINELENGTH+1];
   const char*   macromessage; // CPhipps - const char*
-  boolean   eatkey = false;
-  static boolean  shiftdown = false;
-  static boolean  altdown = false;
+  DOOM_BOOL   eatkey = false;
+  static DOOM_BOOL  shiftdown = false;
+  static DOOM_BOOL  altdown = false;
   unsigned char   c;
   int     i;
   int     numplayers;

@@ -59,10 +59,10 @@ typedef struct
 
 //   float       xscalef, yscalef;
 //   float       xstepf, ystepf;
-//   boolean     scaled; // SoM: should be set when the scale values are
+//   DOOM_BOOL     scaled; // SoM: should be set when the scale values are
 
    // SoM: if set to true, screens[0] is the SDL_Screen surface
-//   boolean     usescreen;
+//   DOOM_BOOL     usescreen;
 //   byte        *screens[5];
 
    // SoM 1-31-04: This will insure that scaled patches and such are put in the right places
@@ -104,7 +104,7 @@ typedef enum
 
 typedef struct {
   byte *data;          // pointer to the screen content
-  boolean not_on_heap; // if set, no malloc or free is preformed and
+  DOOM_BOOL not_on_heap; // if set, no malloc or free is preformed and
                        // data never set to NULL. Used i.e. with SDL doublebuffer.
   int width;           // the width of the surface
   int height;          // the height of the surface, used when mallocing

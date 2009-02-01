@@ -105,7 +105,7 @@ static byte mus2midi_translation[] =
 
 // Write timestamp to a MIDI file.
 
-static boolean midi_writetime(unsigned int time, MEMFILE *midioutput)
+static DOOM_BOOL midi_writetime(unsigned int time, MEMFILE *midioutput)
 {
   unsigned int buffer = time & 0x7F;
   byte writeval;
@@ -141,7 +141,7 @@ static boolean midi_writetime(unsigned int time, MEMFILE *midioutput)
 
 
 // Write the end of track marker
-static boolean midi_writeendtrack(MEMFILE *midioutput)
+static DOOM_BOOL midi_writeendtrack(MEMFILE *midioutput)
 {
   byte endtrack[] = {0xFF, 0x2F, 0x00};
 
@@ -160,7 +160,7 @@ static boolean midi_writeendtrack(MEMFILE *midioutput)
 }
 
 // Write a key press event
-static boolean midi_writepresskey(byte channel, byte key,
+static DOOM_BOOL midi_writepresskey(byte channel, byte key,
                                   byte velocity, MEMFILE *midioutput)
 {
   byte working = midi_presskey | channel;
@@ -195,7 +195,7 @@ static boolean midi_writepresskey(byte channel, byte key,
 }
 
 // Write a key release event
-static boolean midi_writereleasekey(byte channel, byte key,
+static DOOM_BOOL midi_writereleasekey(byte channel, byte key,
                                     MEMFILE *midioutput)
 {
   byte working = midi_releasekey | channel;
@@ -230,7 +230,7 @@ static boolean midi_writereleasekey(byte channel, byte key,
 }
 
 // Write a pitch wheel/bend event
-static boolean midi_writepitchwheel(byte channel, short wheel,
+static DOOM_BOOL midi_writepitchwheel(byte channel, short wheel,
                                     MEMFILE *midioutput)
 {
   byte working = midi_pitchwheel | channel;
@@ -264,7 +264,7 @@ static boolean midi_writepitchwheel(byte channel, short wheel,
 }
 
 // Write a patch change event
-static boolean midi_writechangepatch(byte channel, byte patch,
+static DOOM_BOOL midi_writechangepatch(byte channel, byte patch,
                                      MEMFILE *midioutput)
 {
   byte working = midi_changepatch | channel;
@@ -294,7 +294,7 @@ static boolean midi_writechangepatch(byte channel, byte patch,
 
 
 // Write a valued controller change event
-static boolean midi_writechangecontroller_valued(byte channel,
+static DOOM_BOOL midi_writechangecontroller_valued(byte channel,
                                                  byte control,
                                                  byte value,
                                                  MEMFILE *midioutput)
@@ -341,7 +341,7 @@ static boolean midi_writechangecontroller_valued(byte channel,
 }
 
 // Write a valueless controller change event
-static boolean midi_writechangecontroller_valueless(byte channel,
+static DOOM_BOOL midi_writechangecontroller_valueless(byte channel,
                                                     byte control,
                                                     MEMFILE *midioutput)
 {
@@ -349,9 +349,9 @@ static boolean midi_writechangecontroller_valueless(byte channel,
               midioutput);
 }
 
-static boolean read_musheader(MEMFILE *file, musheader *header)
+static DOOM_BOOL read_musheader(MEMFILE *file, musheader *header)
 {
-  boolean result;
+  DOOM_BOOL result;
 
   result = (mem_fread(&header->id, sizeof(byte), 4, file) == 4)
               && (mem_fread(&header->scorelength, sizeof(short), 1, file) == 1)
@@ -378,7 +378,7 @@ static boolean read_musheader(MEMFILE *file, musheader *header)
 //
 // Returns 0 on success or 1 on failure.
 
-boolean mus2mid(MEMFILE *musinput, MEMFILE *midioutput)
+DOOM_BOOL mus2mid(MEMFILE *musinput, MEMFILE *midioutput)
 {
   // Header for the MUS file
   musheader musfileheader;

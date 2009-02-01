@@ -93,9 +93,9 @@ typedef struct
   int     h;                    // height in lines
   int     cl;                   // current line number
 
-  // pointer to boolean stating whether to update window
-  boolean*    on;
-  boolean   laston;             // last value of *->on.
+  // pointer to DOOM_BOOL stating whether to update window
+  DOOM_BOOL*    on;
+  DOOM_BOOL   laston;             // last value of *->on.
 
 } hu_stext_t;
 
@@ -111,9 +111,9 @@ typedef struct
   int x,y,w,h;                         // window position and size
   const patchnum_t *bg;                  // patches for background
 
-  // pointer to boolean stating whether to update window
-  boolean*    on;
-  boolean   laston;             // last value of *->on.
+  // pointer to DOOM_BOOL stating whether to update window
+  DOOM_BOOL*    on;
+  DOOM_BOOL   laston;             // last value of *->on.
 
 } hu_mtext_t;
 
@@ -128,9 +128,9 @@ typedef struct
   // left margin past which I am not to delete characters
   int     lm;
 
-  // pointer to boolean stating whether to update window
-  boolean*    on;
-  boolean   laston;   // last value of *->on;
+  // pointer to DOOM_BOOL stating whether to update window
+  DOOM_BOOL*    on;
+  DOOM_BOOL   laston;   // last value of *->on;
 
 } hu_itext_t;
 
@@ -157,10 +157,10 @@ void HUlib_initTextLine
 );
 
 // returns success
-boolean HUlib_addCharToTextLine(hu_textline_t *t, char ch);
+DOOM_BOOL HUlib_addCharToTextLine(hu_textline_t *t, char ch);
 
 // draws tline
-void HUlib_drawTextLine(hu_textline_t *l, boolean drawcursor);
+void HUlib_drawTextLine(hu_textline_t *l, DOOM_BOOL drawcursor);
 
 // erases text line
 void HUlib_eraseTextLine(hu_textline_t *l);
@@ -179,7 +179,7 @@ void HUlib_initSText
   const patchnum_t* font,
   int   startchar,
   int cm,   //jff 2/16/98 add color range parameter
-  boolean*  on );
+  DOOM_BOOL*  on );
 
 // add a text message to an stext widget
 void HUlib_addMessageToSText(hu_stext_t* s, const char* prefix, const char* msg);
@@ -193,7 +193,7 @@ void HUlib_eraseSText(hu_stext_t* s);
 //jff 2/26/98 message refresh widget
 // initialize refresh text widget
 void HUlib_initMText(hu_mtext_t *m, int x, int y, int w, int h, const patchnum_t* font,
-         int startchar, int cm, const patchnum_t* bgfont, boolean *on);
+         int startchar, int cm, const patchnum_t* bgfont, DOOM_BOOL *on);
 
 //jff 2/26/98 message refresh widget
 // add a text message to refresh text widget
@@ -224,7 +224,7 @@ void HUlib_initIText
   const patchnum_t* font,
   int   startchar,
   int cm,   //jff 2/16/98 add color range parameter
-  boolean*  on );
+  DOOM_BOOL*  on );
 
 // resets line and left margin
 void HUlib_resetIText(hu_itext_t* it);
@@ -235,7 +235,7 @@ void HUlib_addPrefixToIText
   char*   str );
 
 // whether eaten
-boolean HUlib_keyInIText
+DOOM_BOOL HUlib_keyInIText
 ( hu_itext_t* it,
   unsigned char ch );
 

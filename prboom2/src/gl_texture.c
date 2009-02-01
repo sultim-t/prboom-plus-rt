@@ -73,7 +73,7 @@ static GLTexture **gld_GLTextures=NULL;
 static GLTexture **gld_GLPatchTextures=NULL;
 static GLTexture **gld_GLStaticPatchTextures=NULL;
 
-boolean use_mipmapping=false;
+DOOM_BOOL use_mipmapping=false;
 
 char *gl_tex_format_string;
 //int gl_tex_format=GL_RGBA8;
@@ -551,7 +551,7 @@ static void gld_AddFlatToTexture(GLTexture *gltexture, unsigned char *buffer, co
 }
 
 //e6y: "force" flag for loading texture with zero index
-GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap, boolean force)
+GLTexture *gld_RegisterTexture(int texture_num, DOOM_BOOL mipmap, DOOM_BOOL force)
 {
   GLTexture *gltexture;
 
@@ -695,7 +695,7 @@ static void gld_RecolorMipLevels(byte *data)
   }
 }
 
-int gld_BuildTexture(GLTexture *gltexture, void *data, boolean readonly,
+int gld_BuildTexture(GLTexture *gltexture, void *data, DOOM_BOOL readonly,
                      int pitch, int width, int height,
                      unsigned char **out_buf, int *out_bufsize,
                      int *out_width, int *out_height)
@@ -712,7 +712,7 @@ int gld_BuildTexture(GLTexture *gltexture, void *data, boolean readonly,
   //your video is modern
   if (gl_arb_texture_non_power_of_two)
   {
-    boolean mipmap = gltexture->mipmap & use_mipmapping;
+    DOOM_BOOL mipmap = gltexture->mipmap & use_mipmapping;
 
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, mipmap);
 
@@ -1076,7 +1076,7 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   R_UnlockPatchNum(gltexture->index);
 }
 
-GLTexture *gld_RegisterFlat(int lump, boolean mipmap)
+GLTexture *gld_RegisterFlat(int lump, DOOM_BOOL mipmap)
 {
   GLTexture *gltexture;
 

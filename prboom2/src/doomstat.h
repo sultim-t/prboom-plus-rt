@@ -50,10 +50,10 @@
 // Command line parameters.
 //
 
-extern  boolean nomonsters; // checkparm of -nomonsters
-extern  boolean respawnparm;  // checkparm of -respawn
-extern  boolean fastparm; // checkparm of -fast
-extern  boolean devparm;  // DEBUG: launched with -devparm
+extern  DOOM_BOOL nomonsters; // checkparm of -nomonsters
+extern  DOOM_BOOL respawnparm;  // checkparm of -respawn
+extern  DOOM_BOOL fastparm; // checkparm of -fast
+extern  DOOM_BOOL devparm;  // DEBUG: launched with -devparm
 
 // -----------------------------------------------------
 // Game Mode - identify IWAD as shareware, retail etc.
@@ -63,7 +63,7 @@ extern GameMode_t gamemode;
 extern GameMission_t  gamemission;
 
 // Set if homebrew PWAD stuff has been added.
-extern  boolean modifiedgame;
+extern  DOOM_BOOL modifiedgame;
 
 // CPhipps - new compatibility handling
 extern complevel_t compatibility_level, default_compatibility_level;
@@ -82,7 +82,7 @@ extern int demover; //e6y
 extern int pitched_sounds;        // killough
 
 extern int     default_translucency; // config file says           // phares
-extern boolean general_translucency; // true if translucency is ok // phares
+extern DOOM_BOOL general_translucency; // true if translucency is ok // phares
 
 extern int demo_insurance, default_demo_insurance;      // killough 4/5/98
 
@@ -140,7 +140,7 @@ extern  skill_t   startskill;
 extern  int             startepisode;
 extern  int   startmap;
 
-extern  boolean   autostart;
+extern  DOOM_BOOL   autostart;
 
 // Selected by user.
 extern  skill_t         gameskill;
@@ -148,14 +148,14 @@ extern  int   gameepisode;
 extern  int   gamemap;
 
 // Nightmare mode flag, single player.
-extern  boolean         respawnmonsters;
+extern  DOOM_BOOL         respawnmonsters;
 
 // Netgame? Only true if >1 player.
-extern  boolean netgame;
+extern  DOOM_BOOL netgame;
 
 // Flag: true only if started as net deathmatch.
 // An enum might handle altdeath/cooperative better.
-extern  boolean deathmatch;
+extern  DOOM_BOOL deathmatch;
 
 // ------------------------------------------
 // Internal parameters for sound rendering.
@@ -187,10 +187,10 @@ enum automapmode_e {
 };
 extern enum automapmode_e automapmode; // Mode that the automap is in
 
-extern  boolean menuactive;    // Menu overlayed?
-extern  boolean paused;        // Game Pause?
-extern  boolean nodrawers;
-extern  boolean noblit;
+extern  DOOM_BOOL menuactive;    // Menu overlayed?
+extern  DOOM_BOOL paused;        // Game Pause?
+extern  DOOM_BOOL nodrawers;
+extern  DOOM_BOOL noblit;
 
 // This one is related to the 3-screen display mode.
 // ANG90 = left side, ANG270 = right
@@ -215,17 +215,17 @@ extern  int leveltime;  // tics in game play for par
 // --------------------------------------
 // DEMO playback/recording related stuff.
 
-extern  boolean usergame;
-extern  boolean demoplayback;
-extern  boolean demorecording;
+extern  DOOM_BOOL usergame;
+extern  DOOM_BOOL demoplayback;
+extern  DOOM_BOOL demorecording;
 extern  int demover;
 
 // Quit after playing a demo from cmdline.
-extern  boolean   singledemo;
+extern  DOOM_BOOL   singledemo;
 // Print timing information after quitting.  killough
-extern  boolean   timingdemo;
+extern  DOOM_BOOL   timingdemo;
 // Run tick clock at fastest speed possible while playing demo.  killough
-extern  boolean   fastdemo;
+extern  DOOM_BOOL   fastdemo;
 
 extern  gamestate_t  gamestate;
 
@@ -238,14 +238,14 @@ extern  gamestate_t  gamestate;
 extern  int   gametic;
 
 //e6y
-extern  boolean realframe;
+extern  DOOM_BOOL realframe;
 
 // Bookkeeping on players - state.
 extern  player_t  players[MAXPLAYERS];
 
 // Alive? Disconnected?
-extern  boolean   playeringame[MAXPLAYERS];
-extern  boolean   realplayeringame[MAXPLAYERS];
+extern  DOOM_BOOL   playeringame[MAXPLAYERS];
+extern  DOOM_BOOL   realplayeringame[MAXPLAYERS];
 
 extern  mapthing_t *deathmatchstarts;     // killough
 extern  size_t     num_deathmatchstarts; // killough
@@ -267,7 +267,7 @@ extern wbstartstruct_t wminfo;
 extern  FILE   *debugfile;
 
 // if true, load all graphics at level load
-extern  boolean precache;
+extern  DOOM_BOOL precache;
 
 // wipegamestate can be set to -1
 //  to force a wipe on the next draw
@@ -277,7 +277,7 @@ extern  int             mouseSensitivity_horiz; // killough
 extern  int             mouseSensitivity_vert;
 
 // debug flag to cancel adaptiveness
-extern  boolean         singletics;
+extern  DOOM_BOOL         singletics;
 
 extern  int             bodyqueslot;
 

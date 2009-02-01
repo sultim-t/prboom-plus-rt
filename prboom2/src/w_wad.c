@@ -146,7 +146,7 @@ static void W_AddFile(wadfile_info_t *wadfile)
 //e6y
 #ifdef ALL_IN_ONE
   unsigned char *handle;
-  boolean predefined_lump = (wadfile->src == source_pre);
+  DOOM_BOOL predefined_lump = (wadfile->src == source_pre);
   if(predefined_lump)
     handle = GetAllInOneLumpHandle();
   else {

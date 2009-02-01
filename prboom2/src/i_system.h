@@ -52,7 +52,7 @@
 #endif
 
 extern int ms_to_next_tick;
-boolean I_StartDisplay(void);
+DOOM_BOOL I_StartDisplay(void);
 void I_EndDisplay(void);
 int I_GetTime_RealTime(void);     /* killough */
 #ifndef PRBOOM_SERVER
@@ -83,12 +83,12 @@ const char* I_GetTempDir(void);
 
 const char *I_DoomExeDir(void); // killough 2/16/98: path to executable's dir
 
-boolean HasTrailingSlash(const char* dn);
+DOOM_BOOL HasTrailingSlash(const char* dn);
 char* I_FindFile(const char* wfname, const char* ext);
 char* I_FindFileEx(const char* wfname, const char* ext);
 const char* I_FindFile2(const char* wfname, const char* ext);
 
-boolean I_FileToBuffer(const char *filename, byte **data, int *size);
+DOOM_BOOL I_FileToBuffer(const char *filename, byte **data, int *size);
 
 /* cph 2001/11/18 - wrapper for read(2) which deals with partial reads */
 void I_Read(int fd, void* buf, size_t sz);

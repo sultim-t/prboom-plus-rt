@@ -94,7 +94,7 @@ int clipammo[NUMAMMO] = { 10,  4,  20,  1};
 // Returns false if the ammo can't be picked up at all
 //
 
-static boolean P_GiveAmmo(player_t *player, ammotype_t ammo, int num)
+static DOOM_BOOL P_GiveAmmo(player_t *player, ammotype_t ammo, int num)
 {
   int oldammo;
 
@@ -169,10 +169,10 @@ static boolean P_GiveAmmo(player_t *player, ammotype_t ammo, int num)
 // The weapon name may have a MF_DROPPED flag ored in.
 //
 
-static boolean P_GiveWeapon(player_t *player, weapontype_t weapon, boolean dropped)
+static DOOM_BOOL P_GiveWeapon(player_t *player, weapontype_t weapon, DOOM_BOOL dropped)
 {
-  boolean gaveammo;
-  boolean gaveweapon;
+  DOOM_BOOL gaveammo;
+  DOOM_BOOL gaveweapon;
 
   if (netgame && deathmatch!=2 && !dropped)
     {
@@ -219,7 +219,7 @@ static boolean P_GiveWeapon(player_t *player, weapontype_t weapon, boolean dropp
 // Returns false if the body isn't needed at all
 //
 
-static boolean P_GiveBody(player_t *player, int num)
+static DOOM_BOOL P_GiveBody(player_t *player, int num)
 {
   if (player->health >= maxhealth)
     return false; // Ty 03/09/98 externalized MAXHEALTH to maxhealth
@@ -236,7 +236,7 @@ static boolean P_GiveBody(player_t *player, int num)
 // than the current armor.
 //
 
-static boolean P_GiveArmor(player_t *player, int armortype)
+static DOOM_BOOL P_GiveArmor(player_t *player, int armortype)
 {
   int hits = armortype*100;
   if (player->armorpoints >= hits)
@@ -264,7 +264,7 @@ static void P_GiveCard(player_t *player, card_t card)
 // Rewritten by Lee Killough
 //
 
-boolean P_GivePower(player_t *player, int power)
+DOOM_BOOL P_GivePower(player_t *player, int power)
 {
   static const int tics[NUMPOWERS] = {
     INVULNTICS, 1 /* strength */, INVISTICS,
@@ -818,7 +818,7 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
 void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
 {
   player_t *player;
-  boolean justhit = false;          /* killough 11/98 */
+  DOOM_BOOL justhit = false;          /* killough 11/98 */
 
   /* killough 8/31/98: allow bouncers to take damage */
   if (!(target->flags & (MF_SHOOTABLE | MF_BOUNCES)))

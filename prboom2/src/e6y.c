@@ -92,7 +92,7 @@ int REAL_SCREENWIDTH;
 int REAL_SCREENHEIGHT;
 int REAL_SCREENPITCH;
 
-boolean wasWiped = false;
+DOOM_BOOL wasWiped = false;
 
 int secretfound;
 int messagecenter_counter;
@@ -108,10 +108,10 @@ const char *avi_shot_fname;
 char avi_shot_curr_fname[PATH_MAX];
 
 FILE    *_demofp;
-boolean doSkip;
-boolean demo_stoponnext;
-boolean demo_stoponend;
-boolean demo_warp;
+DOOM_BOOL doSkip;
+DOOM_BOOL demo_stoponnext;
+DOOM_BOOL demo_stoponend;
+DOOM_BOOL demo_warp;
 
 int key_speed_up;
 int key_speed_down;
@@ -158,7 +158,7 @@ int overrun_reject_promted = false;
 int overrun_intercept_promted = false;
 int overrun_playeringame_promted = false;
 
-boolean was_aspected;
+DOOM_BOOL was_aspected;
 int render_aspect_width;
 int render_aspect_height;
 float render_aspect_ratio;
@@ -191,7 +191,7 @@ float skyUpAngle;
 float skyUpShift;
 float skyXShift;
 float skyYShift;
-boolean mlook_or_fov;
+DOOM_BOOL mlook_or_fov;
 
 float internal_render_fov = FOV90;
 
@@ -252,12 +252,12 @@ void e6y_assert(const char *format, ...)
  */
 void ParamsMatchingCheck()
 {
-  boolean recording_attempt = 
+  DOOM_BOOL recording_attempt = 
     M_CheckParm("-record") || 
     M_CheckParm("-recordfrom") ||
     M_CheckParm("-recordfromto");
   
-  boolean playbacking_attempt = 
+  DOOM_BOOL playbacking_attempt = 
     M_CheckParm("-playdemo") || 
     M_CheckParm("-timedemo") ||
     M_CheckParm("-fastdemo");
@@ -293,7 +293,7 @@ void e6y_InitCommandLine(void)
   //-recordfromto x y
   {
     char demoname[PATH_MAX];
-    boolean bDemoContinue = false;
+    DOOM_BOOL bDemoContinue = false;
     democontinue = false;
 
     if ((p = M_CheckParm("-recordfromto")) && (p < myargc - 2))
@@ -430,10 +430,10 @@ void e6y_InitCommandLine(void)
   }
 }
 
-static boolean saved_fastdemo;
-static boolean saved_nodrawers;
-static boolean saved_nosfxparm;
-static boolean saved_nomusicparm;
+static DOOM_BOOL saved_fastdemo;
+static DOOM_BOOL saved_nodrawers;
+static DOOM_BOOL saved_nosfxparm;
+static DOOM_BOOL saved_nomusicparm;
 static int saved_render_precise;
 
 void G_SkipDemoStart(void)
@@ -458,7 +458,7 @@ void G_SkipDemoStart(void)
   I_Init2();
 }
 
-boolean sound_inited_once = false;
+DOOM_BOOL sound_inited_once = false;
 
 void G_SkipDemoStop(void)
 {
@@ -580,7 +580,7 @@ void M_ChangeInterlacedScanning(void)
     interlaced_scanning_requires_clearing = 1;
 }
 
-boolean GetMouseLook(void)
+DOOM_BOOL GetMouseLook(void)
 {
   return movement_mouselook;
 }
@@ -647,7 +647,7 @@ void M_ChangeSpriteClip(void)
 {
 }
 
-void ResolveColormapsHiresConflict(boolean prefer_colormap)
+void ResolveColormapsHiresConflict(DOOM_BOOL prefer_colormap)
 {
   if (prefer_colormap)
   {
@@ -746,7 +746,7 @@ void M_DemosBrowse(void)
 }
 
 float viewPitch;
-boolean transparentpresent;
+DOOM_BOOL transparentpresent;
 
 void e6y_MultisamplingCheck(void)
 {
@@ -930,7 +930,7 @@ int I_MessageBox(const char* text, unsigned int type)
 #endif // RjY
 }
 
-void ShowOverflowWarning(int emulate, int *promted, boolean fatal, const char *name, const char *params, ...)
+void ShowOverflowWarning(int emulate, int *promted, DOOM_BOOL fatal, const char *name, const char *params, ...)
 {
   if (!(*promted))
   {
@@ -1159,10 +1159,10 @@ int AccelerateMouse(int val)
 
 int mlooky;
 
-boolean IsDehMaxHealth = false;
-boolean IsDehMaxSoul = false;
-boolean IsDehMegaHealth = false;
-boolean DEH_mobjinfo_bits[NUMMOBJTYPES] = {0};
+DOOM_BOOL IsDehMaxHealth = false;
+DOOM_BOOL IsDehMaxSoul = false;
+DOOM_BOOL IsDehMegaHealth = false;
+DOOM_BOOL DEH_mobjinfo_bits[NUMMOBJTYPES] = {0};
 
 int deh_maxhealth;
 int deh_max_soul;
@@ -1236,17 +1236,17 @@ void e6y_G_Compatibility(void)
   M_ChangeCompTranslucency();
 }
 
-boolean zerotag_manual;
+DOOM_BOOL zerotag_manual;
 int comperr_zerotag;
 int comperr_passuse;
 int comperr_hangsolid;
 
-boolean compbad_get(int *compbad)
+DOOM_BOOL compbad_get(int *compbad)
 {
   return !demo_compatibility && (*compbad) && !demorecording && !demoplayback;
 }
 
-boolean ProcessNoTagLines(line_t* line, sector_t **sec, int *secnum)
+DOOM_BOOL ProcessNoTagLines(line_t* line, sector_t **sec, int *secnum)
 {
   zerotag_manual = false;
   if (line->tag == 0 && compbad_get(&comperr_zerotag))
@@ -1359,7 +1359,7 @@ void AbbreviateName(char* lpszCanon, int cchMax, int bAtLeastName)
   strcat(lpszCanon, lpszCur);
 }
 
-boolean PlayeringameOverrun(const mapthing_t* mthing)
+DOOM_BOOL PlayeringameOverrun(const mapthing_t* mthing)
 {
   if (mthing->type==0
     && (overrun_playeringame_warn || overrun_playeringame_emulate))
@@ -1391,7 +1391,7 @@ char hud_trace_things_health[80];
 char hud_trace_things_pickup[80];
 char hud_trace_lines_cross[80];
 
-boolean traces_present;
+DOOM_BOOL traces_present;
 traceslist_t traces[3] = {
   {&things_health, hud_trace_things_health, "-trace_thingshealth", "\x1b\x31health "},
   {&things_pickup, hud_trace_things_pickup, "-trace_thingspickup", "\x1b\x31pickup "},
@@ -1511,7 +1511,7 @@ void I_AfterUpdateVideoMode(void)
 
 int force_singletics_to = 0;
 
-boolean HU_DrawDemoProgress(void)
+DOOM_BOOL HU_DrawDemoProgress(void)
 {
   int len;
   
@@ -1640,10 +1640,10 @@ int IsDemoPlayback()
 
 #define CHKPIX(ofs) (l1[(ofs)*4+MSB]==255 ? (( ((long*)l1)[0] = ((long*)l1)[ofs]&SOME_MASK), trans=true ) : false)
 
-boolean SmoothEdges(unsigned char * buffer,int w, int h)
+DOOM_BOOL SmoothEdges(unsigned char * buffer,int w, int h)
 {
   int x,y;
-  boolean trans=buffer[MSB]==0; // If I set this to false here the code won't detect textures 
+  DOOM_BOOL trans=buffer[MSB]==0; // If I set this to false here the code won't detect textures 
                                 // that only contain transparent pixels.
   unsigned char * l1;
 

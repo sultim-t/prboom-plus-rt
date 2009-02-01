@@ -57,13 +57,13 @@ int gl_use_shared_texture_palette = 0;
 int gl_paletted_texture = 0;
 int gl_shared_texture_palette = 0;
 
-boolean gl_ext_texture_filter_anisotropic = false;
-boolean gl_arb_texture_non_power_of_two = false;
-boolean gl_arb_multitexture = false;
-boolean gl_arb_texture_compression = false;
-boolean gl_ext_framebuffer_object = false;
-boolean gl_ext_blend_color = false;
-boolean gl_use_stencil = false;
+DOOM_BOOL gl_ext_texture_filter_anisotropic = false;
+DOOM_BOOL gl_arb_texture_non_power_of_two = false;
+DOOM_BOOL gl_arb_multitexture = false;
+DOOM_BOOL gl_arb_texture_compression = false;
+DOOM_BOOL gl_ext_framebuffer_object = false;
+DOOM_BOOL gl_ext_blend_color = false;
+DOOM_BOOL gl_use_stencil = false;
 
 // obsolete?
 PFNGLCOLORTABLEEXTPROC              GLEXT_glColorTableEXT              = NULL;
@@ -114,7 +114,7 @@ void gld_InitOpenGLVersion(void)
   }
 }
 
-void gld_InitOpenGL(boolean compatibility_mode)
+void gld_InitOpenGL(DOOM_BOOL compatibility_mode)
 {
   const GLubyte *extensions = glGetString(GL_EXTENSIONS);
 

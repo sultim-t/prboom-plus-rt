@@ -98,7 +98,7 @@ extern int tran_filter_pct;
 
 #define USE_VERTEX_ARRAYS
 
-boolean use_fog=false;
+DOOM_BOOL use_fog=false;
 
 int gl_nearclip=5;
 int gl_texture_filter;
@@ -122,7 +122,7 @@ void gld_InitTextureParams(void)
 {
   typedef struct tex_filter_s
   {
-    boolean mipmap;
+    DOOM_BOOL mipmap;
     int tex_filter;
     int mipmap_filter;
     char *tex_filter_name;
@@ -312,7 +312,7 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
   float xpos, ypos;
 
   //e6y
-  boolean bFakeColormap;
+  DOOM_BOOL bFakeColormap;
   static float cm2RGB[CR_LIMIT + 1][4] = {
     {0.50f ,0.00f, 0.00f, 1.00f}, //CR_BRICK
     {1.00f ,1.00f, 1.00f, 1.00f}, //CR_TAN
@@ -676,7 +676,7 @@ static FILE *levelinfo;
 #define FIX2DBL(x)    ((double)(x))
 #define MAX_CC_SIDES  64
 
-static boolean gld_PointOnSide(vertex_t *p, divline_t *d)
+static DOOM_BOOL gld_PointOnSide(vertex_t *p, divline_t *d)
 {
   // We'll return false if the point c is on the left side.
   return ((FIX2DBL(d->y)-FIX2DBL(p->y))*FIX2DBL(d->dx)-(FIX2DBL(d->x)-FIX2DBL(p->x))*FIX2DBL(d->dy) >= 0);
@@ -1029,7 +1029,7 @@ static void CALLBACK ntessEnd( void )
 static void gld_PrecalculateSector(int num)
 {
   int i;
-  boolean *lineadded=NULL;
+  DOOM_BOOL *lineadded=NULL;
   int linecount;
   int currentline;
   int oldline;
@@ -1048,7 +1048,7 @@ static void gld_PrecalculateSector(int num)
   int vertexnum;
 
   currentsector=num;
-  lineadded=Z_Malloc(sectors[num].linecount*sizeof(boolean),PU_LEVEL,0);
+  lineadded=Z_Malloc(sectors[num].linecount*sizeof(DOOM_BOOL),PU_LEVEL,0);
   if (!lineadded)
   {
     if (levelinfo) fclose(levelinfo);
@@ -1971,8 +1971,8 @@ static void gld_DrawWall(GLWall *wall)
   // to avoid visual glitches for textures with holes
   if (wall->gltexture)
   {
-    boolean need_clamp_y = (wall->flag == GLDWF_M2S) && (wall->flag < GLDWF_SKY);
-    boolean has_clamp_y = (wall->gltexture->flags & GLTEXTURE_CLAMPY);
+    DOOM_BOOL need_clamp_y = (wall->flag == GLDWF_M2S) && (wall->flag < GLDWF_SKY);
+    DOOM_BOOL has_clamp_y = (wall->gltexture->flags & GLTEXTURE_CLAMPY);
     if (need_clamp_y && !has_clamp_y)
     {
       wall->gltexture->flags |= GLTEXTURE_CLAMPY;
@@ -2577,7 +2577,7 @@ static void gld_DrawFlat(GLFlat *flat)
 // This draws on flat for the sector "num"
 // The ceiling boolean indicates if the flat is a floor(false) or a ceiling(true)
 
-static void gld_AddFlat(int sectornum, boolean ceiling, visplane_t *plane)
+static void gld_AddFlat(int sectornum, DOOM_BOOL ceiling, visplane_t *plane)
 {
   sector_t *sector; // the sector we want to draw
   sector_t tempsec; // needed for R_FakeFlat
@@ -2794,9 +2794,9 @@ void gld_AddSprite(vissprite_t *vspr)
  *****************/
 
 //e6y
-static inline gl_SetAlphaBlend(boolean on)
+static inline gl_SetAlphaBlend(DOOM_BOOL on)
 {
-  static boolean gl_alpha_blend_enabled;
+  static DOOM_BOOL gl_alpha_blend_enabled;
 
   if (on)
   {

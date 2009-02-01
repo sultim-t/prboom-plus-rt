@@ -128,7 +128,7 @@ const lighttable_t **colormaps;
 // killough 3/20/98, 4/4/98: end dynamic colormaps
 
 //e6y: for Boom colormaps in OpenGL mode
-boolean use_boom_cm;
+DOOM_BOOL use_boom_cm;
 int boom_cm;         // current colormap
 int last_boom_cm=-1; // previous colormap
 int last_fixedcolormap=-1;
@@ -375,7 +375,7 @@ static void R_InitLightTables (void)
 // The change will take effect next refresh.
 //
 
-boolean setsizeneeded;
+DOOM_BOOL setsizeneeded;
 int     setblocks;
 
 void R_SetViewSize(int blocks)
@@ -586,7 +586,7 @@ subsector_t *R_PointInSubsector(fixed_t x, fixed_t y)
 static void R_SetupFrame (player_t *player)
 {
   int cm;
-  boolean NoInterpolate = paused || (menuactive && !demoplayback);
+  DOOM_BOOL NoInterpolate = paused || (menuactive && !demoplayback);
 
   viewplayer = player;
 
@@ -649,7 +649,7 @@ static void R_SetupFrame (player_t *player)
 // R_ShowStats
 //
 int rendered_visplanes, rendered_segs, rendered_vissprites;
-boolean rendering_stats;
+DOOM_BOOL rendering_stats;
 int renderer_fps = 0;
 
 static void R_ShowStats(void)

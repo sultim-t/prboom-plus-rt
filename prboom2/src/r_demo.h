@@ -97,7 +97,7 @@ void WadDataFree(waddata_t *wadfiles);
 
 int CheckDemoExDemo(void);
 void CheckAutoDemo(void);
-int ParseDemoPattern(const char *str, waddata_t* waddata, char **missed, boolean trytodownload);
+int ParseDemoPattern(const char *str, waddata_t* waddata, char **missed, DOOM_BOOL trytodownload);
 int DemoNameToWadData(const char * demoname, waddata_t *waddata, patterndata_t *patterndata);
 void WadDataToWadFiles(waddata_t *waddata);
 void WadFilesToWadData(waddata_t *waddata);
@@ -115,6 +115,6 @@ void W_AddLump(wadtbl_t *wadtbl, const char *name, const byte* data, size_t size
 
 void R_DemoEx_ProcessGameTic(void);
 
-boolean D_TryGetWad(const char* name);
+DOOM_BOOL D_TryGetWad(const char* name);
 
 #endif // __R_DEMO__

@@ -43,14 +43,14 @@
 #include "i_main.h"
 #include "lprintf.h"
 
-boolean gl_use_FBO = false;
+DOOM_BOOL gl_use_FBO = false;
 
 #ifdef USE_FBO_TECHNIQUE
 GLint glSceneImageFBOTexID = 0;
 GLuint glDepthBufferFBOTexID = 0;
 GLuint glSceneImageTextureFBOTexID = 0;
 int SceneInTexture = false;
-static boolean gld_CreateScreenSizeFBO(void);
+static DOOM_BOOL gld_CreateScreenSizeFBO(void);
 #endif
 
 //e6y: motion bloor
@@ -96,7 +96,7 @@ void gld_InitFBO(void)
   }
 }
 
-static boolean gld_CreateScreenSizeFBO(void)
+static DOOM_BOOL gld_CreateScreenSizeFBO(void)
 {
   int status = 0;
 

@@ -96,7 +96,7 @@
 #define NEWFORMATSIG "\xff\xff\xff\xff"
 
 static size_t   savegamesize = SAVEGAMESIZE; // killough
-static boolean  netdemo;
+static DOOM_BOOL  netdemo;
 static const byte *demobuffer;   /* cph - only used for playback */
 static int demolength; // check for overrun (missing DEMOMARKER)
 static FILE    *demofp; /* cph - record straight to file */
@@ -107,35 +107,35 @@ static short    consistancy[MAXPLAYERS][BACKUPTICS];
 gameaction_t    gameaction;
 gamestate_t     gamestate;
 skill_t         gameskill;
-boolean         respawnmonsters;
+DOOM_BOOL         respawnmonsters;
 int             gameepisode;
 int             gamemap;
-boolean         paused;
+DOOM_BOOL         paused;
 // CPhipps - moved *_loadgame vars here
-static boolean forced_loadgame = false;
-static boolean command_loadgame = false;
+static DOOM_BOOL forced_loadgame = false;
+static DOOM_BOOL command_loadgame = false;
 
-boolean         usergame;      // ok to save / end game
-boolean         timingdemo;    // if true, exit with report on completion
-boolean         fastdemo;      // if true, run at full speed -- killough
-boolean         nodrawers;     // for comparative timing purposes
-boolean         noblit;        // for comparative timing purposes
+DOOM_BOOL         usergame;      // ok to save / end game
+DOOM_BOOL         timingdemo;    // if true, exit with report on completion
+DOOM_BOOL         fastdemo;      // if true, run at full speed -- killough
+DOOM_BOOL         nodrawers;     // for comparative timing purposes
+DOOM_BOOL         noblit;        // for comparative timing purposes
 int             starttime;     // for comparative timing purposes
-boolean         deathmatch;    // only if started as net death
-boolean         netgame;       // only true if packets are broadcast
-boolean         playeringame[MAXPLAYERS];
+DOOM_BOOL         deathmatch;    // only if started as net death
+DOOM_BOOL         netgame;       // only true if packets are broadcast
+DOOM_BOOL         playeringame[MAXPLAYERS];
 player_t        players[MAXPLAYERS];
 int             consoleplayer; // player taking events and displaying
 int             displayplayer; // view being displayed
 int             gametic;
 int             basetic;       /* killough 9/29/98: for demo sync */
 int             totalkills, totallive, totalitems, totalsecret;    // for intermission
-boolean         demorecording;
-boolean         demoplayback;
+DOOM_BOOL         demorecording;
+DOOM_BOOL         demoplayback;
 int             demover;
-boolean         singledemo;           // quit after playing a demo from cmdline
+DOOM_BOOL         singledemo;           // quit after playing a demo from cmdline
 wbstartstruct_t wminfo;               // parms for world map / intermission
-boolean         haswolflevels = false;// jff 4/18/98 wolf levels present
+DOOM_BOOL         haswolflevels = false;// jff 4/18/98 wolf levels present
 static byte     *savebuffer;          // CPhipps - static
 int             autorun = false;      // always running?          // phares
 int             totalleveltimes;      // CPhipps - total time for all completed levels
@@ -244,11 +244,11 @@ fixed_t angleturn[3]   = {640, 1280, 320};  // + slow turn
 
 // CPhipps - made lots of key/button state vars static
 //e6y static
-boolean gamekeydown[NUMKEYS];
+DOOM_BOOL gamekeydown[NUMKEYS];
 static int     turnheld;       // for accelerative turning
 
-static boolean mousearray[4];
-static boolean *mousebuttons = &mousearray[1];    // allow [-1]
+static DOOM_BOOL mousearray[4];
+static DOOM_BOOL *mousebuttons = &mousearray[1];    // allow [-1]
 
 // mouse values are used once
 static int   mousex;
@@ -263,8 +263,8 @@ static int   dclicks2;
 // joystick values are repeated
 static int   joyxmove;
 static int   joyymove;
-static boolean joyarray[5];
-static boolean *joybuttons = &joyarray[1];    // allow [-1]
+static DOOM_BOOL joyarray[5];
+static DOOM_BOOL *joybuttons = &joyarray[1];    // allow [-1]
 
 // Game events info
 static buttoncode_t special_event; // Event triggered by local player, to send
@@ -278,7 +278,7 @@ int defaultskill;               //note 1-based
 int    bodyqueslot, bodyquesize;        // killough 2/8/98
 mobj_t **bodyque = 0;                   // phares 8/10/98
 
-static void G_DoSaveGame (boolean menu);
+static void G_DoSaveGame (DOOM_BOOL menu);
 
 //e6y: save/restore all data which could be changed by G_ReadDemoHeader
 static void G_SaveRestoreGameOptions(int save);
@@ -323,8 +323,8 @@ static inline signed short fudgea(signed short b)
 
 void G_BuildTiccmd(ticcmd_t* cmd)
 {
-  boolean strafe;
-  boolean bstrafe;
+  DOOM_BOOL strafe;
+  DOOM_BOOL bstrafe;
   int speed;
   int tspeed;
   int forward;
@@ -724,7 +724,7 @@ static void G_DoLoadLevel (void)
 // Get info needed to make ticcmd_ts for the players.
 //
 
-boolean G_Responder (event_t* ev)
+DOOM_BOOL G_Responder (event_t* ev)
 {
   // allow spy mode changes even during the demo
   // killough 2/22/98: even during DM demo
@@ -1164,7 +1164,7 @@ void G_PlayerReborn (int player)
 // because something is occupying it
 //
 
-static boolean G_CheckSpot(int playernum, mapthing_t *mthing)
+static DOOM_BOOL G_CheckSpot(int playernum, mapthing_t *mthing)
 {
   fixed_t     x,y;
   subsector_t *ss;
@@ -1349,7 +1349,7 @@ int cpars[32] = {
   120,30          // 31-32
 };
 
-static boolean secretexit;
+static DOOM_BOOL secretexit;
 
 void G_ExitLevel (void)
 {
@@ -1545,7 +1545,7 @@ void G_DoWorldDone (void)
 
 #define MIN_MAXPLAYERS 32
 
-extern boolean setsizeneeded;
+extern DOOM_BOOL setsizeneeded;
 
 //CPhipps - savename variable redundant
 
@@ -1574,7 +1574,7 @@ static uint_64_t G_UpdateSignature(uint_64_t s, const char *name)
 static uint_64_t G_Signature(void)
 {
   static uint_64_t s = 0;
-  static boolean computed = false;
+  static DOOM_BOOL computed = false;
   char name[9];
   int episode, map;
 
@@ -1606,7 +1606,7 @@ void G_ForcedLoadGame(void)
 
 // killough 3/16/98: add slot info
 // killough 5/15/98: add command-line
-void G_LoadGame(int slot, boolean command)
+void G_LoadGame(int slot, DOOM_BOOL command)
 {
   if (!demoplayback && !command) {
     // CPhipps - handle savegame filename in G_DoLoadGame
@@ -1916,13 +1916,13 @@ void (CheckSaveGame)(size_t size, const char* file, int line)
  * cph - Avoid possible buffer overflow problems by passing
  * size to this function and using snprintf */
 
-void G_SaveGameName(char *name, size_t size, int slot, boolean demoplayback)
+void G_SaveGameName(char *name, size_t size, int slot, DOOM_BOOL demoplayback)
 {
   const char* sgn = demoplayback ? "demosav" : savegamename;
   SNPRINTF(name, size, "%s/%s%d.dsg", basesavegame, sgn, slot);
 }
 
-static void G_DoSaveGame (boolean menu)
+static void G_DoSaveGame (DOOM_BOOL menu)
 {
   char name[PATH_MAX+1];
   char name2[VERSIONSIZE];
@@ -2855,7 +2855,7 @@ static int G_GetOriginalDoomCompatLevel(int ver)
 }
 
 //e6y: Check for overrun
-static boolean CheckForOverrun(const byte *start_p, const byte *current_p, size_t maxsize, size_t size, boolean failonerror)
+static DOOM_BOOL CheckForOverrun(const byte *start_p, const byte *current_p, size_t maxsize, size_t size, DOOM_BOOL failonerror)
 {
   size_t pos = current_p - start_p;
   if (pos + size > maxsize)
@@ -2923,10 +2923,10 @@ void G_SaveRestoreGameOptions(int save)
     {-1, -1, NULL}
   };
 
-  static boolean was_saved_once = false;
+  static DOOM_BOOL was_saved_once = false;
 
-  static boolean playeringame_o[MAXPLAYERS];
-  static boolean playerscheats_o[MAXPLAYERS];
+  static DOOM_BOOL playeringame_o[MAXPLAYERS];
+  static DOOM_BOOL playerscheats_o[MAXPLAYERS];
   static int comp_o[COMP_TOTAL];
 
   int i = 0;
@@ -2948,7 +2948,7 @@ void G_SaveRestoreGameOptions(int save)
     switch (gameoptions[i].type)
     {
     case 1: //int
-    case 2: //boolean
+    case 2: //DOOM_BOOL
     case 3: //unsigned long
       if (save)
       {
@@ -3011,7 +3011,7 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
 
   const byte *option_p = NULL;      /* killough 11/98 */
 
-  boolean failonerror = (params&RDH_SAFE);
+  DOOM_BOOL failonerror = (params&RDH_SAFE);
 
   basetic = gametic;  // killough 9/29/98
 
@@ -3338,7 +3338,7 @@ void G_DoPlayDemo(void)
  * Called after a death or level completion to allow demos to be cleaned up
  * Returns true if a new demo loop action will take place
  */
-boolean G_CheckDemoStatus (void)
+DOOM_BOOL G_CheckDemoStatus (void)
 {
   e6y_G_CheckDemoStatus();//e6y
 
@@ -3520,7 +3520,7 @@ void P_WalkTicker()
   mousex = mousey = 0;
 }
 
-void P_ResetWalkcam(boolean ResetCoord, boolean ResetSight)
+void P_ResetWalkcam(DOOM_BOOL ResetCoord, DOOM_BOOL ResetSight)
 {
   if (!walkcamera.type)
     return;

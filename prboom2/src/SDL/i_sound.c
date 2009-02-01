@@ -86,8 +86,8 @@ int snd_card = 1;
 int mus_card = 1;
 int detect_voices = 0; // God knows
 
-static boolean sound_inited = false;
-static boolean first_sound_init = true;
+static DOOM_BOOL sound_inited = false;
+static DOOM_BOOL first_sound_init = true;
 
 // Needed for calling the actual sound output.
 static int SAMPLECOUNT=   512;
@@ -371,7 +371,7 @@ void I_StopSound (int handle)
 }
 
 
-boolean I_SoundIsPlaying(int handle)
+DOOM_BOOL I_SoundIsPlaying(int handle)
 {
 #ifdef RANGECHECK
   if ((handle < 0) || (handle >= MAX_CHANNELS))
@@ -387,9 +387,9 @@ boolean I_SoundIsPlaying(int handle)
 }
 
 
-boolean I_AnySoundStillPlaying(void)
+DOOM_BOOL I_AnySoundStillPlaying(void)
 {
-  boolean result = false;
+  DOOM_BOOL result = false;
   int i;
 
   if (snd_pcspeaker)
@@ -760,7 +760,7 @@ int I_RegisterSong(const void *data, size_t len)
 #ifdef HAVE_MIXER
   int i;
   char *name;
-  boolean io_errors = false;
+  DOOM_BOOL io_errors = false;
 
   if (music_tmp == NULL)
     return 0;

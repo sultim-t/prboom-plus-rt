@@ -68,7 +68,7 @@ extern float viewfocratio;
 //
 
 extern int rendered_visplanes, rendered_segs, rendered_vissprites;
-extern boolean rendering_stats;
+extern DOOM_BOOL rendering_stats;
 
 //
 // Lighting LUT.
@@ -96,7 +96,7 @@ extern const lighttable_t **colormaps;
 extern int scalelight_offset[LIGHTLEVELS][MAXLIGHTSCALE];
 
 //e6y: for Boom colormaps in OpenGL mode
-extern boolean use_boom_cm;
+extern DOOM_BOOL use_boom_cm;
 extern int boom_cm;         // current colormap
 extern int last_boom_cm;    // previous colormap
 extern int last_fixedcolormap;

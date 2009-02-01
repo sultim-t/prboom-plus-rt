@@ -45,7 +45,7 @@
 #include "r_draw.h"
 
 // Ty 03/17/98: flag that new par times have been loaded in d_deh
-extern boolean deh_pars;
+extern DOOM_BOOL deh_pars;
 
 //
 // Data needed to add patches to full screen intermission pics.
@@ -431,7 +431,7 @@ static void WI_slamBackground(void)
 //
 // The ticker is used to detect keys
 //  because of timing issues in netgames.
-boolean WI_Responder(event_t* ev)
+DOOM_BOOL WI_Responder(event_t* ev)
 {
   return false;
 }
@@ -505,7 +505,7 @@ WI_drawOnLnode  // draw stuff at a location by episode/map#
   const char* const c[] )
 {
   int   i;
-  boolean fits = false;
+  DOOM_BOOL fits = false;
 
   i = 0;
   do
@@ -866,7 +866,7 @@ void WI_updateNoState(void)
     G_WorldDone();
 }
 
-static boolean    snl_pointeron = false;
+static DOOM_BOOL    snl_pointeron = false;
 
 
 // ====================================================================
@@ -1072,7 +1072,7 @@ void WI_updateDeathmatchStats(void)
   int   i;
   int   j;
 
-  boolean stillticking;
+  DOOM_BOOL stillticking;
 
   WI_updateAnimatedBack();
 
@@ -1338,7 +1338,7 @@ void WI_updateNetgameStats(void)
   int   i;
   int   fsum;
 
-  boolean stillticking;
+  DOOM_BOOL stillticking;
 
   WI_updateAnimatedBack();
 
@@ -1602,7 +1602,7 @@ void WI_initStats(void)
 void WI_updateStats(void)
 {
   //e6y
-  static boolean play_early_explosion = true;
+  static DOOM_BOOL play_early_explosion = true;
 
   WI_updateAnimatedBack();
 

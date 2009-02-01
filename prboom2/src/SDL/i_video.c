@@ -80,14 +80,14 @@
 //e6y: new mouse code
 static SDL_Cursor* cursors[2] = {NULL, NULL};
 
-boolean window_focused;
+DOOM_BOOL window_focused;
 
 static void ActivateMouse(void);
 static void DeactivateMouse(void);
 //static int AccelerateMouse(int val);
 static void CenterMouse(void);
 static void I_ReadMouse(void);
-static boolean MouseShouldBeGrabbed();
+static DOOM_BOOL MouseShouldBeGrabbed();
 static void UpdateFocus(void);
 
 int gl_colorbuffer_bits=16;
@@ -109,7 +109,7 @@ int             leds_always_off = 0; // Expected by m_misc, not relevant
 
 // Mouse handling
 extern int     usemouse;        // config file var
-static boolean mouse_enabled; // usemouse, but can be overriden by -nomouse
+static DOOM_BOOL mouse_enabled; // usemouse, but can be overriden by -nomouse
 
 int I_GetModeFromString(const char *modestr);
 
@@ -308,7 +308,7 @@ static void I_InitInputs(void)
 //
 // Returns true if it thinks we can afford to skip this frame
 
-inline static boolean I_SkipFrame(void)
+inline static DOOM_BOOL I_SkipFrame(void)
 {
   static int frameno;
 
@@ -468,7 +468,7 @@ void I_FinishUpdate (void)
 void I_ReadScreen (screeninfo_t *dest)
 {
   int h;
-  boolean locked = false;
+  DOOM_BOOL locked = false;
   byte *srcofs;
   byte *dstofs;
   int width, height;
@@ -1126,7 +1126,7 @@ static void I_ReadMouse(void)
   CenterMouse();
 }
 
-static boolean MouseShouldBeGrabbed()
+static DOOM_BOOL MouseShouldBeGrabbed()
 {
   // never grab the mouse when in screensaver mode
 
@@ -1206,8 +1206,8 @@ static void UpdateFocus(void)
 
 void UpdateGrab(void)
 {
-  static boolean currently_grabbed = false;
-  boolean grab;
+  static DOOM_BOOL currently_grabbed = false;
+  DOOM_BOOL grab;
 
   grab = MouseShouldBeGrabbed();
 

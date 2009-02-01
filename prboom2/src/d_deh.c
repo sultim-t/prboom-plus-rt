@@ -114,7 +114,7 @@ static int dehfgetc(DEHFILE *fp)
 int HelperThing = -1;     // in P_SpawnMapThing to substitute helper thing
 
 // variables used in other routines
-boolean deh_pars = FALSE; // in wi_stuff to allow pars in modified games
+DOOM_BOOL deh_pars = FALSE; // in wi_stuff to allow pars in modified games
 
 // #include "d_deh.h" -- we don't do that here but we declare the
 // variables.  This externalizes everything that there is a string
@@ -965,8 +965,8 @@ const char **const mapnamest[] = // TNT WAD map names.
 void    lfstrip(char *);     // strip the \r and/or \n off of a line
 void    rstrip(char *);      // strip trailing whitespace
 char *  ptr_lstrip(char *);  // point past leading whitespace
-boolean deh_GetData(char *, char *, uint_64_t *, char **, FILE *);
-boolean deh_procStringSub(char *, char *, char *, FILE *);
+DOOM_BOOL deh_GetData(char *, char *, uint_64_t *, char **, FILE *);
+DOOM_BOOL deh_procStringSub(char *, char *, char *, FILE *);
 char *  dehReformatStr(char *);
 
 // Prototypes for block processing functions
@@ -1034,7 +1034,7 @@ static const deh_block deh_blocks[] = { // CPhipps - static const
 };
 
 // flag to skip included deh-style text, used with INCLUDE NOTEXT directive
-static boolean includenotext = false;
+static DOOM_BOOL includenotext = false;
 
 // MOBJINFO - Dehacked block name = "Thing"
 // Usage: Thing nn (name)
@@ -1400,7 +1400,7 @@ void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum)
   // Open output file if we're writing output
   if (outfilename && *outfilename && !fileout)
     {
-      static boolean firstfile = true; // to allow append to output log
+      static DOOM_BOOL firstfile = true; // to allow append to output log
       if (!strcmp(outfilename, "-"))
         fileout = stdout;
       else
@@ -1459,7 +1459,7 @@ void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum)
           // killough 10/98: moved to here
 
           char *nextfile;
-          boolean oldnotext = includenotext;       // killough 10/98
+          DOOM_BOOL oldnotext = includenotext;       // killough 10/98
 
           // killough 10/98: exclude if inside wads (only to discourage
           // the practice, since the code could otherwise handle it)
@@ -1530,7 +1530,7 @@ static void deh_procBexCodePointers(DEHFILE *fpin, FILE* fpout, char *line)
   int indexnum;
   char mnemonic[DEH_MAXKEYLEN];  // to hold the codepointer mnemonic
   int i; // looper
-  boolean found; // know if we found this one during lookup or not
+  DOOM_BOOL found; // know if we found this one during lookup or not
 
   // Ty 05/16/98 - initialize it to something, dummy!
   strncpy(inbuffer,line,DEH_BUFFERMAX);
@@ -2458,7 +2458,7 @@ static void deh_procText(DEHFILE *fpin, FILE* fpout, char *line)
   int i; // loop variable
   int fromlen, tolen;  // as specified on the text block line
   int usedlen;  // shorter of fromlen and tolen if not matched
-  boolean found = FALSE;  // to allow early exit once found
+  DOOM_BOOL found = FALSE;  // to allow early exit once found
   char* line2 = NULL;   // duplicate line for rerouting
 
   // e6y
@@ -2467,9 +2467,9 @@ static void deh_procText(DEHFILE *fpin, FILE* fpout, char *line)
   // BOSSBOS2  BOS2BOSS;   RUNNINSTALKS  STALKSRUNNIN
   // It corrects buggy behaviour on "All Hell is Breaking Loose" TC
   // http://www.doomworld.com/idgames/index.php?id=6480 
-  static boolean sprnames_state[NUMSPRITES+1];
-  static boolean S_sfx_state[NUMSFX];
-  static boolean S_music_state[NUMMUSIC];
+  static DOOM_BOOL sprnames_state[NUMSPRITES+1];
+  static DOOM_BOOL S_sfx_state[NUMSFX];
+  static DOOM_BOOL S_music_state[NUMMUSIC];
 
   // Ty 04/11/98 - Included file may have NOTEXT skip flag set
   if (includenotext) // flag to skip included deh-style text
@@ -2627,7 +2627,7 @@ static void deh_procStrings(DEHFILE *fpin, FILE* fpout, char *line)
   // a time as needed
   // holds the final result of the string after concatenation
   static char *holdstring = NULL;
-  boolean found = false;  // looking for string continuation
+  DOOM_BOOL found = false;  // looking for string continuation
 
   if (fpout) fprintf(fpout,"Processing extended string substitution\n");
 
@@ -2695,11 +2695,11 @@ static void deh_procStrings(DEHFILE *fpin, FILE* fpout, char *line)
 //          lookfor   -- original value string to look for
 //          newstring -- string to put in its place if found
 //          fpout     -- file stream pointer for log file (DEHOUT.TXT)
-// Returns: boolean: True if string found, false if not
+// Returns: DOOM_BOOL: True if string found, false if not
 //
-boolean deh_procStringSub(char *key, char *lookfor, char *newstring, FILE *fpout)
+DOOM_BOOL deh_procStringSub(char *key, char *lookfor, char *newstring, FILE *fpout)
 {
-  boolean found; // loop exit flag
+  DOOM_BOOL found; // loop exit flag
   int i;  // looper
 
   found = false;
@@ -3052,7 +3052,7 @@ char *ptr_lstrip(char *p)  // point past leading whitespace
 // e6y: Correction of wrong processing of Bits parameter if its value is equal to zero
 // No more desync on HACX demos.
 // FIXME!!! (lame)
-boolean StrToInt(const char *s, long *l)
+DOOM_BOOL StrToInt(const char *s, long *l)
 {      
   return (
     (sscanf(s, " 0x%lx", l) == 1) ||
@@ -3076,14 +3076,14 @@ boolean StrToInt(const char *s, long *l)
 //          as a long just in case.  The passed pointer to hold
 //          the key must be DEH_MAXKEYLEN in size.
 
-boolean deh_GetData(char *s, char *k, uint_64_t *l, char **strval, FILE *fpout)
+DOOM_BOOL deh_GetData(char *s, char *k, uint_64_t *l, char **strval, FILE *fpout)
 {
   char *t;  // current char
   long val; // to hold value of pair
   char buffer[DEH_MAXKEYLEN];  // to hold key in progress
   // e6y: Correction of wrong processing of Bits parameter if its value is equal to zero
   // No more desync on HACX demos.
-  boolean okrc = 1;  // assume good unless we have problems
+  DOOM_BOOL okrc = 1;  // assume good unless we have problems
   int i;  // iterator
 
   *buffer = '\0';

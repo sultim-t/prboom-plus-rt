@@ -672,7 +672,7 @@ static void cheat_pitch()
 
 #define CHEAT_ARGS_MAX 8  /* Maximum number of args at end of cheats */
 
-boolean M_FindCheats(int key)
+DOOM_BOOL M_FindCheats(int key)
 {
   static uint_64_t sr;
   static char argbuf[CHEAT_ARGS_MAX+1], *arg;

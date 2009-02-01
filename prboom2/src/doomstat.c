@@ -45,7 +45,7 @@ GameMission_t   gamemission = doom;
 Language_t   language = english;
 
 // Set if homebrew PWAD stuff has been added.
-boolean modifiedgame;
+DOOM_BOOL modifiedgame;
 
 //-----------------------------------------------------------------------------
 
@@ -65,7 +65,7 @@ int comp[COMP_TOTAL], default_comp[COMP_TOTAL];    // killough 10/98
 int pitched_sounds;        // killough
 
 int     default_translucency; // config file says           // phares
-boolean general_translucency; // true if translucency is ok // phares
+DOOM_BOOL general_translucency; // true if translucency is ok // phares
 
 int demo_insurance, default_demo_insurance;        // killough 1/16/98
 
