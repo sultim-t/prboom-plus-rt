@@ -36,10 +36,6 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
 #ifdef _MSC_VER
 #include <io.h>
 #endif
@@ -52,8 +48,9 @@
 #include "doomtype.h"
 #include "lprintf.h"
 #include "i_main.h"
-#include "e6y.h"//e6y
+#include "i_system.h"
 #include "m_argv.h"
+#include "e6y.h"//e6y
 
 int cons_error_mask = -1-LO_INFO; /* all but LO_INFO when redir'd */
 int cons_output_mask = -1;        /* all output enabled */
@@ -67,7 +64,7 @@ int cons_output_mask = -1;        /* all output enabled */
 // Variables for the console
 HWND con_hWnd=0;
 HFONT OemFont;
-LONG OemWidth, OemHeight;
+int OemWidth, OemHeight;
 int ConWidth,ConHeight;
 char szConName[] = "PrBoomConWinClass";
 char Lines[(80+2)*25+1];
@@ -375,8 +372,7 @@ void I_Error(const char *error, ...)
   lprintf(LO_ERROR, "%s\n", errmsg);
 #ifdef _MSC_VER
   if (!M_CheckParm ("-nodraw")) {
-    //Init_ConsoleWin();
-    MessageBox(con_hWnd,errmsg,PACKAGE_TITLE,MB_OK | MB_TASKMODAL | MB_TOPMOST);
+    I_MessageBox(errmsg, PRB_MB_OK);
   }
 #endif
   I_SafeExit(-1);

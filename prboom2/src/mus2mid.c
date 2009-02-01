@@ -362,11 +362,11 @@ static boolean read_musheader(MEMFILE *file, musheader *header)
 
   if (result)
   {
-    header->scorelength = SHORT(header->scorelength);
-    header->scorestart = SHORT(header->scorestart);
-    header->primarychannels = SHORT(header->primarychannels);
-    header->secondarychannels = SHORT(header->secondarychannels);
-    header->instrumentcount = SHORT(header->instrumentcount);
+    header->scorelength = DOOM_SHORT(header->scorelength);
+    header->scorestart = DOOM_SHORT(header->scorestart);
+    header->primarychannels = DOOM_SHORT(header->primarychannels);
+    header->secondarychannels = DOOM_SHORT(header->secondarychannels);
+    header->instrumentcount = DOOM_SHORT(header->instrumentcount);
   }
 
   return result;

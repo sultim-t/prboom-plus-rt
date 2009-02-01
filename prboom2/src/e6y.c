@@ -229,7 +229,6 @@ char* WINError(void)
 //--------------------------------------------------
 #ifdef _WIN32
 HWND WIN32_GetHWND(void);
-void SwitchToWindow(HWND hwnd);
 //static void I_CenterMouse(void);
 #endif
 //--------------------------------------------------
@@ -839,14 +838,8 @@ void I_vWarning(const char *message, va_list argList)
 #endif
   lprintf(LO_ERROR, "%s\n", msg);
 #ifdef _MSC_VER
-  {
-    extern HWND con_hWnd;
-    SwitchToWindow(GetDesktopWindow());
-    Init_ConsoleWin();
-    if (con_hWnd) SwitchToWindow(con_hWnd);
-    MessageBox(con_hWnd,msg,PACKAGE_TITLE,MB_OK | MB_TASKMODAL | MB_TOPMOST);
-    SwitchToWindow(WIN32_GetHWND());
-  }
+  I_MessageBox(msg, PRB_MB_OK);
+  //I_SwitchToWindow(WIN32_GetHWND());
 #endif
 }
 
@@ -860,8 +853,16 @@ void I_Warning(const char *message, ...)
 
 int I_MessageBox(const char* text, unsigned int type)
 {
+  int result = PRB_IDCANCEL;
+
 #ifdef _WIN32
-  return MessageBox(GetDesktopWindow(), text, "PrBoom-Plus", type|MB_TASKMODAL|MB_TOPMOST);
+  {
+    HWND current_hwnd = GetForegroundWindow();
+    //I_SwitchToWindow(GetDesktopWindow());
+    result = MessageBox(GetDesktopWindow(), text, PACKAGE_TITLE, type|MB_TASKMODAL|MB_TOPMOST);
+    I_SwitchToWindow(current_hwnd);
+    return result;
+  }
 #endif
 
 #ifdef RjY
@@ -882,7 +883,7 @@ int I_MessageBox(const char* text, unsigned int type)
       {0, NULL}
     };
 
-    int i, c, result = PRB_IDCANCEL;
+    int i, c;
     char* hotkeys_str = NULL;
     
     type &= 0x000000ff;
@@ -1358,29 +1359,6 @@ void AbbreviateName(char* lpszCanon, int cchMax, int bAtLeastName)
   strcat(lpszCanon, lpszCur);
 }
 
-#ifdef _WIN32
-void SwitchToWindow(HWND hwnd)
-{
-  typedef BOOL (WINAPI *TSwitchToThisWindow) (HWND wnd, BOOL restore);
-  static TSwitchToThisWindow SwitchToThisWindow = NULL;
-
-  if (!SwitchToThisWindow)
-    SwitchToThisWindow = (TSwitchToThisWindow)GetProcAddress(GetModuleHandle("user32.dll"), "SwitchToThisWindow");
-  
-  if (SwitchToThisWindow)
-  {
-    HWND hwndLastActive = GetLastActivePopup(hwnd);
-
-    if (IsWindowVisible(hwndLastActive))
-      hwnd = hwndLastActive;
-
-    SetForegroundWindow(hwnd);
-    Sleep(100);
-    SwitchToThisWindow(hwnd, TRUE);
-  }
-}
-#endif
-
 boolean PlayeringameOverrun(const mapthing_t* mthing)
 {
   if (mthing->type==0
@@ -1519,7 +1497,7 @@ void I_AfterUpdateVideoMode(void)
     }
   }
 
-  SwitchToWindow(WIN32_GetHWND());
+  I_SwitchToWindow(WIN32_GetHWND());
 #endif
 
 #ifdef GL_DOOM

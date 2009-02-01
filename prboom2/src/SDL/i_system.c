@@ -304,6 +304,28 @@ int I_Filelength(int handle)
 // Return the path where the executable lies -- Lee Killough
 // proff_fs 2002-07-04 - moved to i_system
 #ifdef _WIN32
+
+void I_SwitchToWindow(HWND hwnd)
+{
+  typedef BOOL (WINAPI *TSwitchToThisWindow) (HWND wnd, BOOL restore);
+  static TSwitchToThisWindow SwitchToThisWindow = NULL;
+
+  if (!SwitchToThisWindow)
+    SwitchToThisWindow = (TSwitchToThisWindow)GetProcAddress(GetModuleHandle("user32.dll"), "SwitchToThisWindow");
+  
+  if (SwitchToThisWindow)
+  {
+    HWND hwndLastActive = GetLastActivePopup(hwnd);
+
+    if (IsWindowVisible(hwndLastActive))
+      hwnd = hwndLastActive;
+
+    SetForegroundWindow(hwnd);
+    Sleep(100);
+    SwitchToThisWindow(hwnd, TRUE);
+  }
+}
+
 const char *I_DoomExeDir(void)
 {
   static const char current_dir_dummy[] = {"."}; // proff - rem extra slash 8/21/03

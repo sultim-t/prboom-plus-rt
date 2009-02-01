@@ -862,7 +862,7 @@ void G_Ticker (void)
   // CPhipps - player colour changing
   if (!demoplayback && mapcolor_plyr[consoleplayer] != mapcolor_me) {
     // Changed my multiplayer colour - Inform the whole game
-    int net_cl = LONG(mapcolor_me);
+    int net_cl = DOOM_LONG(mapcolor_me);
 #ifdef HAVE_NET
     D_NetSendMisc(nm_plcolour, sizeof(net_cl), &net_cl);
 #endif

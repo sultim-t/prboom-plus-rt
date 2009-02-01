@@ -200,7 +200,7 @@ void P_InitPicAnims (void)
                   animdefs[i].startname,
                   animdefs[i].endname);
 
-    lastanim->speed = LONG(animdefs[i].speed); // killough 5/5/98: add LONG()
+    lastanim->speed = DOOM_LONG(animdefs[i].speed); // killough 5/5/98: add LONG()
     lastanim++;
   }
   W_UnlockLumpNum(lump);

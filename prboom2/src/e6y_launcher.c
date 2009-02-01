@@ -443,8 +443,8 @@ static boolean L_GetFileType(const char *filename, fileitem_t *item)
     }
     if (item->source != source_err)
     {
-      header.numlumps = LONG(header.numlumps);
-      if (0 == fseek(f, LONG(header.infotableofs), SEEK_SET))
+      header.numlumps = DOOM_LONG(header.numlumps);
+      if (0 == fseek(f, DOOM_LONG(header.infotableofs), SEEK_SET))
       {
         for (i = 0; !item->doom1 && !item->doom2 && i < (size_t)header.numlumps; i++)
         {

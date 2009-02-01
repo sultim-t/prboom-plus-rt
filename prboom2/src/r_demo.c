@@ -264,8 +264,8 @@ wadtbl_t* W_CreatePWADTable(const byte* buffer, size_t size)
   if (strncmp(header_p->identification, PWAD_SIGNATURE, 4))
     I_Error("W_CreatePWADTable: Wad buffer doesn't have PWAD id");
 
-  header_p->numlumps = LONG(header_p->numlumps);
-  header_p->infotableofs = LONG(header_p->infotableofs);
+  header_p->numlumps = DOOM_LONG(header_p->numlumps);
+  header_p->infotableofs = DOOM_LONG(header_p->infotableofs);
 
   filelump_p = (filelump_t*)((char*)buffer + header_p->infotableofs);
   for (i = 0; i < header_p->numlumps ; i++, filelump_p++)

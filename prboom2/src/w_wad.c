@@ -197,7 +197,7 @@ static void W_AddFile(wadfile_info_t *wadfile)
       // single lump file
       fileinfo = &singleinfo;
       singleinfo.filepos = 0;
-      singleinfo.size = LONG(I_Filelength(wadfile->handle));
+      singleinfo.size = DOOM_LONG(I_Filelength(wadfile->handle));
       ExtractFileBase(wadfile->name, singleinfo.name);
       numlumps++;
     }
@@ -214,8 +214,8 @@ static void W_AddFile(wadfile_info_t *wadfile)
       if (strncmp(header.identification,"IWAD",4) &&
           strncmp(header.identification,"PWAD",4))
         I_Error("W_AddFile: Wad file %s doesn't have IWAD or PWAD id", wadfile->name);
-      header.numlumps = LONG(header.numlumps);
-      header.infotableofs = LONG(header.infotableofs);
+      header.numlumps = DOOM_LONG(header.numlumps);
+      header.infotableofs = DOOM_LONG(header.infotableofs);
       length = header.numlumps*sizeof(filelump_t);
       fileinfo2free = fileinfo = malloc(length);    // killough
 //e6y
@@ -238,8 +238,8 @@ static void W_AddFile(wadfile_info_t *wadfile)
       {
         lump_p->flags = 0; //e6y
         lump_p->wadfile = wadfile;                    //  killough 4/25/98
-        lump_p->position = LONG(fileinfo->filepos);
-        lump_p->size = LONG(fileinfo->size);
+        lump_p->position = DOOM_LONG(fileinfo->filepos);
+        lump_p->size = DOOM_LONG(fileinfo->size);
         lump_p->li_namespace = ns_global;              // killough 4/17/98
         strncpy (lump_p->name, fileinfo->name, 8);
 	lump_p->source = wadfile->src;                    // Ty 08/29/98

@@ -1463,6 +1463,7 @@ typedef unsigned char ubyte_t;
 #pragma options align=packed
 #endif
 
+#if !defined(PACKEDATTR)
 typedef struct tagBITMAPFILEHEADER
   {
   unsigned short  bfType;
@@ -1471,7 +1472,9 @@ typedef struct tagBITMAPFILEHEADER
   unsigned short  bfReserved2;
   dword_t bfOffBits;
   } PACKEDATTR BITMAPFILEHEADER;
+#endif
 
+#if !defined(PACKEDATTR)
 typedef struct tagBITMAPINFOHEADER
   {
   dword_t biSize;
@@ -1486,6 +1489,7 @@ typedef struct tagBITMAPINFOHEADER
   dword_t biClrUsed;
   dword_t biClrImportant;
   } PACKEDATTR BITMAPINFOHEADER;
+#endif
 
 #if defined(__MWERKS__)
 #pragma options align=reset
@@ -1523,23 +1527,23 @@ static void WriteBMPfile(FILE* st, const byte* data,
   ihsiz = sizeof(BITMAPINFOHEADER);
   wid = 4*((width+3)/4);
   //jff 4/22/98 add endian macros
-  bmfh.bfType = SHORT(19778);
-  bmfh.bfSize = LONG(fhsiz+ihsiz+256L*4+width*height);
-  bmfh.bfReserved1 = SHORT(0);
-  bmfh.bfReserved2 = SHORT(0);
-  bmfh.bfOffBits = LONG(fhsiz+ihsiz+256L*4);
+  bmfh.bfType = DOOM_SHORT(19778);
+  bmfh.bfSize = DOOM_LONG(fhsiz+ihsiz+256L*4+width*height);
+  bmfh.bfReserved1 = DOOM_SHORT(0);
+  bmfh.bfReserved2 = DOOM_SHORT(0);
+  bmfh.bfOffBits = DOOM_LONG(fhsiz+ihsiz+256L*4);
 
-  bmih.biSize = LONG(ihsiz);
-  bmih.biWidth = LONG(width);
-  bmih.biHeight = LONG(height);
-  bmih.biPlanes = SHORT(1);
-  bmih.biBitCount = SHORT(8);
-  bmih.biCompression = LONG(BI_RGB);
-  bmih.biSizeImage = LONG(wid*height);
-  bmih.biXPelsPerMeter = LONG(0);
-  bmih.biYPelsPerMeter = LONG(0);
-  bmih.biClrUsed = LONG(256);
-  bmih.biClrImportant = LONG(256);
+  bmih.biSize = DOOM_LONG(ihsiz);
+  bmih.biWidth = DOOM_LONG(width);
+  bmih.biHeight = DOOM_LONG(height);
+  bmih.biPlanes = DOOM_SHORT(1);
+  bmih.biBitCount = DOOM_SHORT(8);
+  bmih.biCompression = DOOM_LONG(BI_RGB);
+  bmih.biSizeImage = DOOM_LONG(wid*height);
+  bmih.biXPelsPerMeter = DOOM_LONG(0);
+  bmih.biYPelsPerMeter = DOOM_LONG(0);
+  bmih.biClrUsed = DOOM_LONG(256);
+  bmih.biClrImportant = DOOM_LONG(256);
 
   {
     int gtlump = (W_CheckNumForName)("GAMMATBL",ns_prboom);
@@ -1614,9 +1618,9 @@ static void WriteTGAfile(FILE* st, const byte* data,
     // y_origin
     s=0; SafeWrite(&s,sizeof(s),1,st);
     // width
-    s=SHORT(width); SafeWrite(&s,sizeof(s),1,st);
+    s=DOOM_SHORT(width); SafeWrite(&s,sizeof(s),1,st);
     // height
-    s=SHORT(height); SafeWrite(&s,sizeof(s),1,st);
+    s=DOOM_SHORT(height); SafeWrite(&s,sizeof(s),1,st);
     // bits_per_pixel
     c=24; SafeWrite(&c,sizeof(c),1,st);
     // attributes

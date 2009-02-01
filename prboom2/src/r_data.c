@@ -140,7 +140,7 @@ static void R_InitTextures (void)
   // Load the patch names from pnames.lmp.
   name[8] = 0;
   names = W_CacheLumpNum(names_lump = W_GetNumForName("PNAMES"));
-  nummappatches = LONG(*((const int *)names));
+  nummappatches = DOOM_LONG(*((const int *)names));
   name_p = names+4;
   patchlookup = malloc(nummappatches*sizeof(*patchlookup));  // killough
 
@@ -172,14 +172,14 @@ static void R_InitTextures (void)
   //  TEXTURE1 for shareware, plus TEXTURE2 for commercial.
 
   maptex = maptex1 = W_CacheLumpNum(maptex_lump[0] = W_GetNumForName("TEXTURE1"));
-  numtextures1 = LONG(*maptex);
+  numtextures1 = DOOM_LONG(*maptex);
   maxoff = W_LumpLength(maptex_lump[0]);
   directory = maptex+1;
 
   if (W_CheckNumForName("TEXTURE2") != -1)
     {
       maptex2 = W_CacheLumpNum(maptex_lump[1] = W_GetNumForName("TEXTURE2"));
-      numtextures2 = LONG(*maptex2);
+      numtextures2 = DOOM_LONG(*maptex2);
       maxoff2 = W_LumpLength(maptex_lump[1]);
     }
   else
@@ -208,7 +208,7 @@ static void R_InitTextures (void)
           directory = maptex+1;
         }
 
-      offset = LONG(*directory);
+      offset = DOOM_LONG(*directory);
 
       if (offset > maxoff)
         I_Error("R_InitTextures: Bad texture directory");
@@ -217,12 +217,12 @@ static void R_InitTextures (void)
 
       texture = textures[i] =
         Z_Malloc(sizeof(texture_t) +
-                 sizeof(texpatch_t)*(SHORT(mtexture->patchcount)-1),
+                 sizeof(texpatch_t)*(DOOM_SHORT(mtexture->patchcount)-1),
                  PU_STATIC, 0);
 
-      texture->width = SHORT(mtexture->width);
-      texture->height = SHORT(mtexture->height);
-      texture->patchcount = SHORT(mtexture->patchcount);
+      texture->width = DOOM_SHORT(mtexture->width);
+      texture->height = DOOM_SHORT(mtexture->height);
+      texture->patchcount = DOOM_SHORT(mtexture->patchcount);
 
         /* Mattias Engdegård emailed me of the following explenation of
          * why memcpy doesnt work on some systems:
@@ -266,14 +266,14 @@ static void R_InitTextures (void)
 
       for (j=0 ; j<texture->patchcount ; j++, mpatch++, patch++)
         {
-          patch->originx = SHORT(mpatch->originx);
-          patch->originy = SHORT(mpatch->originy);
-          patch->patch = patchlookup[SHORT(mpatch->patch)];
+          patch->originx = DOOM_SHORT(mpatch->originx);
+          patch->originy = DOOM_SHORT(mpatch->originy);
+          patch->patch = patchlookup[DOOM_SHORT(mpatch->patch)];
           if (patch->patch == -1)
             {
               //jff 8/3/98 use logical output routine
               lprintf(LO_ERROR,"\nR_InitTextures: Missing patch %d in texture %.8s",
-                     SHORT(mpatch->patch), texture->name); // killough 4/17/98
+                     DOOM_SHORT(mpatch->patch), texture->name); // killough 4/17/98
               ++errors;
             }
         }

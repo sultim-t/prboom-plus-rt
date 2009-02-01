@@ -693,8 +693,8 @@ void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
         filelump_t *fileinfo;
 
         // read IWAD directory
-        header.numlumps = LONG(header.numlumps);
-        header.infotableofs = LONG(header.infotableofs);
+        header.numlumps = DOOM_LONG(header.numlumps);
+        header.infotableofs = DOOM_LONG(header.infotableofs);
         length = header.numlumps;
         fileinfo = malloc(length*sizeof(filelump_t));
         if (fseek (fp, header.infotableofs, SEEK_SET) ||

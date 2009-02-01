@@ -34,6 +34,13 @@
 #ifndef __I_SYSTEM__
 #define __I_SYSTEM__
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
+#include "m_fixed.h"
+
 #ifdef __GNUG__
 #pragma interface
 #endif
@@ -66,6 +73,10 @@ const char* I_GetVersionString(char* buf, size_t sz);
  * Returns a string describing a signal number
  */
 const char* I_SigString(char* buf, size_t sz, int signum);
+
+#ifdef _WIN32
+void I_SwitchToWindow(HWND hwnd);
+#endif
 
 // e6y
 const char* I_GetTempDir(void);

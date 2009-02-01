@@ -84,11 +84,11 @@ void P_InitSwitchList(void)
     if (index+1 >= max_numswitches)
       switchlist = realloc(switchlist, sizeof *switchlist *
           (max_numswitches = max_numswitches ? max_numswitches*2 : 8));
-    if (SHORT(alphSwitchList[i].episode) <= episode) //jff 5/11/98 endianess
+    if (DOOM_SHORT(alphSwitchList[i].episode) <= episode) //jff 5/11/98 endianess
     {
       int texture1, texture2;
 
-      if (!SHORT(alphSwitchList[i].episode))
+      if (!DOOM_SHORT(alphSwitchList[i].episode))
         break;
 
       // Ignore switches referencing unknown texture names, instead of exiting.
