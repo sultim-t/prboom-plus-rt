@@ -66,9 +66,9 @@ typedef struct
   // pointer to current value
   int*  num;
 
-  // pointer to DOOM_BOOL stating
+  // pointer to dboolean stating
   //  whether to update number
-  DOOM_BOOL*  on;
+  dboolean*  on;
 
   // list of patches for 0-9
   const patchnum_t* p;
@@ -101,9 +101,9 @@ typedef struct
   // pointer to current icon
   int*    inum;
 
-  // pointer to DOOM_BOOL stating
+  // pointer to dboolean stating
   //  whether to update icon
-  DOOM_BOOL*    on;
+  dboolean*    on;
 
   // list of icons
   const patchnum_t*   p;
@@ -122,14 +122,14 @@ typedef struct
   int     y;
 
   // last icon value
-  DOOM_BOOL oldval;
+  dboolean oldval;
 
   // pointer to current icon status
-  DOOM_BOOL*    val;
+  dboolean*    val;
 
-  // pointer to DOOM_BOOL
+  // pointer to dboolean
   //  stating whether to update icon
-  DOOM_BOOL*    on;
+  dboolean*    on;
 
   const patchnum_t*    p;  // icon
   int     data;   // user data
@@ -152,13 +152,13 @@ void STlib_initNum
   int y,
   const patchnum_t* pl,
   int* num,
-  DOOM_BOOL* on,
+  dboolean* on,
   int width );
 
 void STlib_updateNum
 ( st_number_t* n,
   int cm,
-  DOOM_BOOL refresh );
+  dboolean refresh );
 
 
 // Percent widget routines
@@ -168,7 +168,7 @@ void STlib_initPercent
   int y,
   const patchnum_t* pl,
   int* num,
-  DOOM_BOOL* on,
+  dboolean* on,
   const patchnum_t* percent );
 
 
@@ -185,12 +185,12 @@ void STlib_initMultIcon
   int y,
   const patchnum_t*   il,
   int* inum,
-  DOOM_BOOL* on );
+  dboolean* on );
 
 
 void STlib_updateMultIcon
 ( st_multicon_t* mi,
-  DOOM_BOOL refresh );
+  dboolean refresh );
 
 // Binary Icon widget routines
 
@@ -199,11 +199,11 @@ void STlib_initBinIcon
   int x,
   int y,
   const patchnum_t* i,
-  DOOM_BOOL* val,
-  DOOM_BOOL* on );
+  dboolean* val,
+  dboolean* on );
 
 void STlib_updateBinIcon
 ( st_binicon_t* bi,
-  DOOM_BOOL refresh );
+  dboolean refresh );
 
 #endif

@@ -70,9 +70,9 @@
 #endif
 
 extern patchnum_t hu_font[HU_FONTSIZE];
-extern DOOM_BOOL  message_dontfuckwithme;
+extern dboolean  message_dontfuckwithme;
 
-extern DOOM_BOOL chat_on;          // in heads-up code
+extern dboolean chat_on;          // in heads-up code
 
 //
 // defaulted values
@@ -103,7 +103,7 @@ int     messx;
 int     messy;
 int     messageLastMenuActive;
 
-DOOM_BOOL messageNeedsInput; // timed message = no input from user
+dboolean messageNeedsInput; // timed message = no input from user
 
 void (*messageRoutine)(int response);
 
@@ -139,9 +139,9 @@ int saveCharIndex;   // which char we're editing
 // old save description before edit
 char saveOldString[SAVESTRINGSIZE];
 
-DOOM_BOOL inhelpscreens; // indicates we are in or just left a help screen
+dboolean inhelpscreens; // indicates we are in or just left a help screen
 
-DOOM_BOOL menuactive;    // The menus are up
+dboolean menuactive;    // The menus are up
 
 #define SKULLXOFF  -32
 #define LINEHEIGHT  16
@@ -264,7 +264,7 @@ void M_DrawSelCell(menu_t *menu,int item);
 void M_WriteText(int x, int y, const char *string);
 int  M_StringWidth(const char *string);
 int  M_StringHeight(const char *string);
-void M_StartMessage(const char *string,void *routine,DOOM_BOOL input);
+void M_StartMessage(const char *string,void *routine,dboolean input);
 void M_StopMessage(void);
 void M_ClearMenus (void);
 
@@ -1474,20 +1474,20 @@ void M_SizeDisplay(int choice)
 // the overlay screens (automap colors, reset button message) should be
 // displayed
 
-DOOM_BOOL setup_active      = false; // in one of the setup screens
-DOOM_BOOL set_keybnd_active = false; // in key binding setup screens
-DOOM_BOOL set_weapon_active = false; // in weapons setup screen
-DOOM_BOOL set_status_active = false; // in status bar/hud setup screen
-DOOM_BOOL set_auto_active   = false; // in automap setup screen
-DOOM_BOOL set_enemy_active  = false; // in enemies setup screen
-DOOM_BOOL set_mess_active   = false; // in messages setup screen
-DOOM_BOOL set_chat_active   = false; // in chat string setup screen
-DOOM_BOOL setup_select      = false; // changing an item
-DOOM_BOOL setup_gather      = false; // gathering keys for value
-DOOM_BOOL colorbox_active   = false; // color palette being shown
-DOOM_BOOL default_verify    = false; // verify reset defaults decision
-DOOM_BOOL set_general_active = false;
-DOOM_BOOL set_compat_active = false;
+dboolean setup_active      = false; // in one of the setup screens
+dboolean set_keybnd_active = false; // in key binding setup screens
+dboolean set_weapon_active = false; // in weapons setup screen
+dboolean set_status_active = false; // in status bar/hud setup screen
+dboolean set_auto_active   = false; // in automap setup screen
+dboolean set_enemy_active  = false; // in enemies setup screen
+dboolean set_mess_active   = false; // in messages setup screen
+dboolean set_chat_active   = false; // in chat string setup screen
+dboolean setup_select      = false; // changing an item
+dboolean setup_gather      = false; // gathering keys for value
+dboolean colorbox_active   = false; // color palette being shown
+dboolean default_verify    = false; // verify reset defaults decision
+dboolean set_general_active = false;
+dboolean set_compat_active = false;
 
 /////////////////////////////
 //
@@ -3618,7 +3618,7 @@ void M_DrawChatStrings(void)
 // General routines used by the Setup screens.
 //
 
-static DOOM_BOOL shiftdown = false; // phares 4/10/98: SHIFT key down or not
+static dboolean shiftdown = false; // phares 4/10/98: SHIFT key down or not
 
 // phares 4/17/98:
 // M_SelectDone() gets called when you have finished entering your
@@ -4188,7 +4188,7 @@ static int M_IndexInChoices(const char *str, const char **choices) {
 // action based on the state of the system.
 //
 
-DOOM_BOOL M_Responder (event_t* ev) {
+dboolean M_Responder (event_t* ev) {
   int    ch;
   int    i;
   static int joywait   = 0;
@@ -4321,7 +4321,7 @@ DOOM_BOOL M_Responder (event_t* ev) {
       else if (ev->type == ev_keyup)  // etc. keys. Keydowns are allowed
         if (ev->data1 == KEYD_RSHIFT) // past this point, but keyups aren't
           shiftdown = false;          // so we need to note the difference
-    }                                 // here using the 'shiftdown' DOOM_BOOL.
+    }                                 // here using the 'shiftdown' dboolean.
 
   if (ch == -1)
     return false; // we can't use the event here
@@ -4676,7 +4676,7 @@ DOOM_BOOL M_Responder (event_t* ev) {
       //e6y
 #ifdef GL_DOOM
       {
-        extern DOOM_BOOL gl_arb_multitexture;
+        extern dboolean gl_arb_multitexture;
         if ((ptr1->m_flags&S_CANT_GL_ARB_MULTITEXTURE) && !gl_arb_multitexture)
           warn_about_changes(ptr1->m_flags & S_CANT_GL_ARB_MULTITEXTURE);
       }
@@ -4853,7 +4853,7 @@ DOOM_BOOL M_Responder (event_t* ev) {
       if (ev->type == ev_joystick)
         {
     int oldbutton,group;
-    DOOM_BOOL search = true;
+    dboolean search = true;
 
     if (!ptr1->m_joy)
       return true; // not a legal action here (yet)
@@ -4892,7 +4892,7 @@ DOOM_BOOL M_Responder (event_t* ev) {
       else if (ev->type == ev_mouse)
         {
     int i,oldbutton,group;
-    DOOM_BOOL search = true;
+    dboolean search = true;
 
     if (!ptr1->m_mouse)
       return true; // not a legal action here (yet)
@@ -4929,7 +4929,7 @@ DOOM_BOOL M_Responder (event_t* ev) {
       else  // keyboard key
         {
     int i,oldkey,group;
-    DOOM_BOOL search = true;
+    dboolean search = true;
 
     // see if 'ch' is already bound elsewhere. if so, you have
     // to swap bindings so the action where it's currently
@@ -5570,7 +5570,7 @@ void M_Ticker (void)
 // Message Routines
 //
 
-void M_StartMessage (const char* string,void* routine,DOOM_BOOL input)
+void M_StartMessage (const char* string,void* routine,dboolean input)
 {
   messageLastMenuActive = menuactive;
   messageToPrint = 1;

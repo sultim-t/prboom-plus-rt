@@ -285,7 +285,7 @@ void R_ProcessScreenMultiply(byte* pixels_src, byte* pixels_dest,
   default:
     {
       // the following code works correctly even if pixels_src == pixels_dest
-      DOOM_BOOL same = (pixels_src == pixels_dest);
+      dboolean same = (pixels_src == pixels_dest);
       R_ProcessScreenMultiplyBlock(pixels_src, pixels_dest, pixel_depth,
         pitch_src, pitch_dest, (same ? 1 : 0), SCREENHEIGHT - 1, render_interlaced_scanning);
       if (same)

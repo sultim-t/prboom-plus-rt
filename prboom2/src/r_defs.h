@@ -252,7 +252,7 @@ typedef struct msecnode_s
   struct msecnode_s *m_tnext;  // next msecnode_t for this thing
   struct msecnode_s *m_sprev;  // prev msecnode_t for this sector
   struct msecnode_s *m_snext;  // next msecnode_t for this sector
-  DOOM_BOOL visited; // killough 4/4/98, 4/7/98: used in search algorithms
+  dboolean visited; // killough 4/4/98, 4/7/98: used in search algorithms
 } msecnode_t;
 
 //
@@ -269,7 +269,7 @@ typedef struct
   int iSegID; // proff 11/05/2000: needed for OpenGL
   // figgi -- needed for glnodes
   float     length;
-  DOOM_BOOL   miniseg;
+  dboolean   miniseg;
 
 
   // Sector references.
@@ -356,7 +356,7 @@ typedef struct
 typedef struct vissprite_s
 {
   mobj_t *thing;
-  DOOM_BOOL flip;
+  dboolean flip;
   int x1, x2;
   fixed_t gx, gy;              // for line side calculation
   fixed_t gz, gzt;             // global bottom / top for silhouette clipping
@@ -373,7 +373,7 @@ typedef struct vissprite_s
   // killough 3/27/98: height sector for underwater/fake ceiling support
   int heightsec;
 
-  DOOM_BOOL isplayersprite;
+  dboolean isplayersprite;
 } vissprite_t;
 
 //
@@ -397,7 +397,7 @@ typedef struct
   // If false use 0 for any position.
   // Note: as eight entries are available,
   //  we might as well insert the same name eight times.
-  DOOM_BOOL rotate;
+  dboolean rotate;
 
   // Lump to use for view angles 0-7.
   short lump[8];

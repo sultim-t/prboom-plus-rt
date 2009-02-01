@@ -78,7 +78,7 @@ byte *solidcol;
 // Replaces the old R_Clip*WallSegment functions. It draws bits of walls in those
 // columns which aren't solid, and updates the solidcol[] array appropriately
 
-static void R_ClipWallSegment(int first, int last, DOOM_BOOL solid)
+static void R_ClipWallSegment(int first, int last, dboolean solid)
 {
   byte *p;
   while (first < last) {
@@ -199,7 +199,7 @@ static void R_RecalcLineFlags(void)
 
 sector_t *R_FakeFlat(sector_t *sec, sector_t *tempsec,
                      int *floorlightlevel, int *ceilinglightlevel,
-                     DOOM_BOOL back)
+                     dboolean back)
 {
   if (floorlightlevel)
     *floorlightlevel = sec->floorlightsec == -1 ?
@@ -291,7 +291,7 @@ sector_t *R_FakeFlat(sector_t *sec, sector_t *tempsec,
 // e6y: Check whether the player can look beyond this line
 //
 
-static DOOM_BOOL CheckClip(seg_t * seg, sector_t * frontsector, sector_t * backsector)
+static dboolean CheckClip(seg_t * seg, sector_t * frontsector, sector_t * backsector)
 {
   // check for closed sectors!
   if (backsector->ceilingheight <= frontsector->floorheight) 
@@ -506,7 +506,7 @@ static const int checkcoord[12][4] = // killough -- static const
 };
 
 // killough 1/28/98: static // CPhipps - const parameter, reformatted
-static DOOM_BOOL R_CheckBBox(const fixed_t *bspcoord)
+static dboolean R_CheckBBox(const fixed_t *bspcoord)
 {
   angle_t angle1, angle2;
 

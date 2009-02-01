@@ -89,7 +89,7 @@ static inline void I_EndRead(void) {}
  * killough 9/98: rewritten to use stdio and to flash disk icon
  */
 
-DOOM_BOOL M_WriteFile(char const *name, void *source, int length)
+dboolean M_WriteFile(char const *name, void *source, int length)
 {
   FILE *fp;
 
@@ -147,7 +147,7 @@ int M_ReadFile(char const *name, byte **buffer)
 //
 
 int usemouse;
-DOOM_BOOL    precache = true; /* if true, load all graphics at start */
+dboolean    precache = true; /* if true, load all graphics at start */
 
 extern int mousebfire;
 extern int mousebstrafe;
@@ -1209,7 +1209,7 @@ void M_LoadDefaults (void)
   char  strparm[32767];//e6y
   char* newstring = NULL;   // killough
   int   parm;
-  DOOM_BOOL isstring;
+  dboolean isstring;
   // e6y: arrays
   default_t *item = NULL;
 
@@ -1396,7 +1396,7 @@ void M_LoadDefaults (void)
 //
 
 // CPhipps - nasty but better than nothing
-static DOOM_BOOL screenshot_write_error;
+static dboolean screenshot_write_error;
 
 #ifdef HAVE_LIBPNG
 
@@ -1410,7 +1410,7 @@ static void WritePNGfile(FILE* fp, const byte* data,
 {
   png_structp png_ptr;
   png_infop info_ptr;
-  DOOM_BOOL gl = V_GetMode() == VID_MODEGL;
+  dboolean gl = V_GetMode() == VID_MODEGL;
 
   png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, png_error_ptr_NULL, error_fn, NULL);
   png_set_compression_level(png_ptr, 2);
@@ -1527,23 +1527,23 @@ static void WriteBMPfile(FILE* st, const byte* data,
   ihsiz = sizeof(BITMAPINFOHEADER);
   wid = 4*((width+3)/4);
   //jff 4/22/98 add endian macros
-  bmfh.bfType = DOOM_SHORT(19778);
-  bmfh.bfSize = DOOM_LONG(fhsiz+ihsiz+256L*4+width*height);
-  bmfh.bfReserved1 = DOOM_SHORT(0);
-  bmfh.bfReserved2 = DOOM_SHORT(0);
-  bmfh.bfOffBits = DOOM_LONG(fhsiz+ihsiz+256L*4);
+  bmfh.bfType = LittleShort(19778);
+  bmfh.bfSize = LittleLong(fhsiz+ihsiz+256L*4+width*height);
+  bmfh.bfReserved1 = LittleShort(0);
+  bmfh.bfReserved2 = LittleShort(0);
+  bmfh.bfOffBits = LittleLong(fhsiz+ihsiz+256L*4);
 
-  bmih.biSize = DOOM_LONG(ihsiz);
-  bmih.biWidth = DOOM_LONG(width);
-  bmih.biHeight = DOOM_LONG(height);
-  bmih.biPlanes = DOOM_SHORT(1);
-  bmih.biBitCount = DOOM_SHORT(8);
-  bmih.biCompression = DOOM_LONG(BI_RGB);
-  bmih.biSizeImage = DOOM_LONG(wid*height);
-  bmih.biXPelsPerMeter = DOOM_LONG(0);
-  bmih.biYPelsPerMeter = DOOM_LONG(0);
-  bmih.biClrUsed = DOOM_LONG(256);
-  bmih.biClrImportant = DOOM_LONG(256);
+  bmih.biSize = LittleLong(ihsiz);
+  bmih.biWidth = LittleLong(width);
+  bmih.biHeight = LittleLong(height);
+  bmih.biPlanes = LittleShort(1);
+  bmih.biBitCount = LittleShort(8);
+  bmih.biCompression = LittleLong(BI_RGB);
+  bmih.biSizeImage = LittleLong(wid*height);
+  bmih.biXPelsPerMeter = LittleLong(0);
+  bmih.biYPelsPerMeter = LittleLong(0);
+  bmih.biClrUsed = LittleLong(256);
+  bmih.biClrImportant = LittleLong(256);
 
   {
     int gtlump = (W_CheckNumForName)("GAMMATBL",ns_prboom);
@@ -1618,9 +1618,9 @@ static void WriteTGAfile(FILE* st, const byte* data,
     // y_origin
     s=0; SafeWrite(&s,sizeof(s),1,st);
     // width
-    s=DOOM_SHORT(width); SafeWrite(&s,sizeof(s),1,st);
+    s=LittleShort(width); SafeWrite(&s,sizeof(s),1,st);
     // height
-    s=DOOM_SHORT(height); SafeWrite(&s,sizeof(s),1,st);
+    s=LittleShort(height); SafeWrite(&s,sizeof(s),1,st);
     // bits_per_pixel
     c=24; SafeWrite(&c,sizeof(c),1,st);
     // attributes

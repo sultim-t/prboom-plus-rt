@@ -47,7 +47,7 @@
 /* follow a player exlusively for 3 seconds */
 #define BASETHRESHOLD   (100)
 
-DOOM_BOOL P_GivePower(player_t *, int);
+dboolean P_GivePower(player_t *, int);
 void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher);
 void P_DamageMobj(mobj_t *target,mobj_t *inflictor,mobj_t *source,int damage);
 

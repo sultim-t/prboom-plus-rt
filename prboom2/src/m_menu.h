@@ -45,7 +45,7 @@
 // this can resize the view and change game parameters.
 // Does all the real work of the menu interaction.
 
-DOOM_BOOL M_Responder (event_t *ev);
+dboolean M_Responder (event_t *ev);
 
 // Called by main loop,
 // only used for menu (skull cursor) animation.

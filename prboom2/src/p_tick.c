@@ -40,7 +40,7 @@
 
 int leveltime;
 
-static DOOM_BOOL newthinkerpresent;
+static dboolean newthinkerpresent;
 
 //
 // THINKERS

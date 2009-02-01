@@ -93,7 +93,7 @@ side_t   *sides;
 
 int     firstglvertex = 0;
 int     nodesVersion  = 0;
-DOOM_BOOL forceOldBsp   = false;
+dboolean forceOldBsp   = false;
 
 // figgi 08/21/00 -- glSegs
 typedef struct
@@ -201,7 +201,7 @@ static void *calloc_IfSameLevel(void* p, size_t n1, size_t n2)
 // P_CheckForZDoomNodes
 //
 
-static DOOM_BOOL P_CheckForZDoomNodes(int lumpnum, int gl_lumpnum)
+static dboolean P_CheckForZDoomNodes(int lumpnum, int gl_lumpnum)
 {
   const void *data;
 
@@ -282,8 +282,8 @@ static void P_LoadVertexes (int lump)
   // internal representation as fixed.
   for (i=0; i<numvertexes; i++)
     {
-      vertexes[i].x = DOOM_SHORT(data[i].x)<<FRACBITS;
-      vertexes[i].y = DOOM_SHORT(data[i].y)<<FRACBITS;
+      vertexes[i].x = LittleShort(data[i].x)<<FRACBITS;
+      vertexes[i].y = LittleShort(data[i].y)<<FRACBITS;
     }
 
   // Free buffer memory.
@@ -336,8 +336,8 @@ static void P_LoadVertexes2(int lump, int gllump)
 
       for (i = firstglvertex; i < numvertexes; i++)
       {
-        vertexes[i].x = DOOM_SHORT(ml->x)<<FRACBITS;
-        vertexes[i].y = DOOM_SHORT(ml->y)<<FRACBITS;
+        vertexes[i].x = LittleShort(ml->x)<<FRACBITS;
+        vertexes[i].y = LittleShort(ml->y)<<FRACBITS;
         ml++;
       }
     }
@@ -348,8 +348,8 @@ static void P_LoadVertexes2(int lump, int gllump)
 
   for (i=0; i < firstglvertex; i++)
   {
-    vertexes[i].x = DOOM_SHORT(ml->x)<<FRACBITS;
-    vertexes[i].y = DOOM_SHORT(ml->y)<<FRACBITS;
+    vertexes[i].x = LittleShort(ml->x)<<FRACBITS;
+    vertexes[i].y = LittleShort(ml->y)<<FRACBITS;
     ml++;
   }
   W_UnlockLumpNum(lump);
@@ -425,8 +425,8 @@ static void P_LoadSegs (int lump)
 
       li->iSegID = i; // proff 11/05/2000: needed for OpenGL
 
-      v1 = (unsigned short)DOOM_SHORT(ml->v1);
-      v2 = (unsigned short)DOOM_SHORT(ml->v2);
+      v1 = (unsigned short)LittleShort(ml->v1);
+      v2 = (unsigned short)LittleShort(ml->v2);
 
       // e6y
       // moved down for additional checks to avoid overflow
@@ -440,9 +440,9 @@ static void P_LoadSegs (int lump)
       // e6y: moved down, see below
       //li->length  = GetDistance(li->v2->x - li->v1->x, li->v2->y - li->v1->y);
 
-      li->angle = (DOOM_SHORT(ml->angle))<<16;
-      li->offset =(DOOM_SHORT(ml->offset))<<16;
-      linedef = (unsigned short)DOOM_SHORT(ml->linedef);
+      li->angle = (LittleShort(ml->angle))<<16;
+      li->offset =(LittleShort(ml->offset))<<16;
+      linedef = (unsigned short)LittleShort(ml->linedef);
 
       //e6y: check for wrong indexes
       if ((unsigned)linedef >= (unsigned)numlines)
@@ -453,7 +453,7 @@ static void P_LoadSegs (int lump)
 
       ldef = &lines[linedef];
       li->linedef = ldef;
-      side = DOOM_SHORT(ml->side);
+      side = LittleShort(ml->side);
 
       //e6y: check for wrong indexes
       if ((unsigned)ldef->sidenum[side] >= (unsigned)numsides)
@@ -548,8 +548,8 @@ static void P_LoadGLSegs(int lump)
 
   for(i = 0; i < numsegs; i++)
   {             // check for gl-vertices
-    segs[i].v1 = &vertexes[checkGLVertex(DOOM_SHORT(ml->v1))];
-    segs[i].v2 = &vertexes[checkGLVertex(DOOM_SHORT(ml->v2))];
+    segs[i].v1 = &vertexes[checkGLVertex(LittleShort(ml->v1))];
+    segs[i].v2 = &vertexes[checkGLVertex(LittleShort(ml->v2))];
     segs[i].iSegID  = i;
 
     if(ml->linedef != (unsigned short)-1) // skip minisegs
@@ -608,8 +608,8 @@ static void P_LoadSubsectors (int lump)
 
   for (i=0; i<numsubsectors; i++)
   {
-    subsectors[i].numlines  = (unsigned short)DOOM_SHORT(data[i].numsegs );
-    subsectors[i].firstline = (unsigned short)DOOM_SHORT(data[i].firstseg);
+    subsectors[i].numlines  = (unsigned short)LittleShort(data[i].numsegs );
+    subsectors[i].firstline = (unsigned short)LittleShort(data[i].firstseg);
   }
 
   W_UnlockLumpNum(lump); // cph - release the data
@@ -635,14 +635,14 @@ static void P_LoadSectors (int lump)
       const mapsector_t *ms = (const mapsector_t *) data + i;
 
       ss->iSectorID=i; // proff 04/05/2000: needed for OpenGL
-      ss->floorheight = DOOM_SHORT(ms->floorheight)<<FRACBITS;
-      ss->ceilingheight = DOOM_SHORT(ms->ceilingheight)<<FRACBITS;
+      ss->floorheight = LittleShort(ms->floorheight)<<FRACBITS;
+      ss->ceilingheight = LittleShort(ms->ceilingheight)<<FRACBITS;
       ss->floorpic = R_FlatNumForName(ms->floorpic);
       ss->ceilingpic = R_FlatNumForName(ms->ceilingpic);
-      ss->lightlevel = DOOM_SHORT(ms->lightlevel);
-      ss->special = DOOM_SHORT(ms->special);
-      ss->oldspecial = DOOM_SHORT(ms->special);
-      ss->tag = DOOM_SHORT(ms->tag);
+      ss->lightlevel = LittleShort(ms->lightlevel);
+      ss->special = LittleShort(ms->special);
+      ss->oldspecial = LittleShort(ms->special);
+      ss->tag = LittleShort(ms->tag);
       ss->thinglist = NULL;
       ss->touching_thinglist = NULL;            // phares 3/14/98
 
@@ -702,17 +702,17 @@ static void P_LoadNodes (int lump)
       const mapnode_t *mn = (const mapnode_t *) data + i;
       int j;
 
-      no->x = DOOM_SHORT(mn->x)<<FRACBITS;
-      no->y = DOOM_SHORT(mn->y)<<FRACBITS;
-      no->dx = DOOM_SHORT(mn->dx)<<FRACBITS;
-      no->dy = DOOM_SHORT(mn->dy)<<FRACBITS;
+      no->x = LittleShort(mn->x)<<FRACBITS;
+      no->y = LittleShort(mn->y)<<FRACBITS;
+      no->dx = LittleShort(mn->dx)<<FRACBITS;
+      no->dy = LittleShort(mn->dy)<<FRACBITS;
 
       for (j=0 ; j<2 ; j++)
         {
           int k;
-          no->children[j] = DOOM_SHORT(mn->children[j]);
+          no->children[j] = LittleShort(mn->children[j]);
           for (k=0 ; k<4 ; k++)
-            no->bbox[j][k] = DOOM_SHORT(mn->bbox[j][k])<<FRACBITS;
+            no->bbox[j][k] = LittleShort(mn->bbox[j][k])<<FRACBITS;
         }
     }
 
@@ -740,11 +740,11 @@ static void P_LoadThings (int lump)
     {
       mapthing_t mt = data[i];
 
-      mt.x = DOOM_SHORT(mt.x);
-      mt.y = DOOM_SHORT(mt.y);
-      mt.angle = DOOM_SHORT(mt.angle);
-      mt.type = DOOM_SHORT(mt.type);
-      mt.options = DOOM_SHORT(mt.options);
+      mt.x = LittleShort(mt.x);
+      mt.y = LittleShort(mt.y);
+      mt.angle = LittleShort(mt.angle);
+      mt.type = LittleShort(mt.type);
+      mt.options = LittleShort(mt.options);
 
       if (!P_IsDoomnumAllowed(mt.type))
         continue;
@@ -782,11 +782,11 @@ static void P_LoadLineDefs (int lump)
       line_t *ld = lines+i;
       vertex_t *v1, *v2;
 
-      ld->flags = (unsigned short)DOOM_SHORT(mld->flags);
-      ld->special = DOOM_SHORT(mld->special);
-      ld->tag = DOOM_SHORT(mld->tag);
-      v1 = ld->v1 = &vertexes[(unsigned short)DOOM_SHORT(mld->v1)];
-      v2 = ld->v2 = &vertexes[(unsigned short)DOOM_SHORT(mld->v2)];
+      ld->flags = (unsigned short)LittleShort(mld->flags);
+      ld->special = LittleShort(mld->special);
+      ld->tag = LittleShort(mld->tag);
+      v1 = ld->v1 = &vertexes[(unsigned short)LittleShort(mld->v1)];
+      v2 = ld->v2 = &vertexes[(unsigned short)LittleShort(mld->v2)];
       ld->dx = v2->x - v1->x;
       ld->dy = v2->y - v1->y;
 #ifdef GL_DOOM
@@ -830,8 +830,8 @@ static void P_LoadLineDefs (int lump)
       ld->soundorg.y = ld->bbox[BOXTOP] / 2 + ld->bbox[BOXBOTTOM] / 2;
 
       ld->iLineID=i; // proff 04/05/2000: needed for OpenGL
-      ld->sidenum[0] = DOOM_SHORT(mld->sidenum[0]);
-      ld->sidenum[1] = DOOM_SHORT(mld->sidenum[1]);
+      ld->sidenum[0] = LittleShort(mld->sidenum[0]);
+      ld->sidenum[1] = LittleShort(mld->sidenum[1]);
 
       { 
         /* cph 2006/09/30 - fix sidedef errors right away.
@@ -925,11 +925,11 @@ static void P_LoadSideDefs2(int lump)
       register side_t *sd = sides + i;
       register sector_t *sec;
 
-      sd->textureoffset = DOOM_SHORT(msd->textureoffset)<<FRACBITS;
-      sd->rowoffset = DOOM_SHORT(msd->rowoffset)<<FRACBITS;
+      sd->textureoffset = LittleShort(msd->textureoffset)<<FRACBITS;
+      sd->rowoffset = LittleShort(msd->rowoffset)<<FRACBITS;
 
       { /* cph 2006/09/30 - catch out-of-range sector numbers; use sector 0 instead */
-        unsigned short sector_num = DOOM_SHORT(msd->sector);
+        unsigned short sector_num = LittleShort(msd->sector);
         if (sector_num >= numsectors) {
           lprintf(LO_WARN,"P_LoadSideDefs2: sidedef %i has out-of-range sector num %u\n", i, sector_num);
           sector_num = 0;
@@ -1317,14 +1317,14 @@ static void P_LoadBlockMap (int lump)
       // them. This potentially doubles the size of blockmaps allowed,
       // because Doom originally considered the offsets as always signed.
 
-      blockmaplump[0] = DOOM_SHORT(wadblockmaplump[0]);
-      blockmaplump[1] = DOOM_SHORT(wadblockmaplump[1]);
-      blockmaplump[2] = (long)(DOOM_SHORT(wadblockmaplump[2])) & 0xffff;
-      blockmaplump[3] = (long)(DOOM_SHORT(wadblockmaplump[3])) & 0xffff;
+      blockmaplump[0] = LittleShort(wadblockmaplump[0]);
+      blockmaplump[1] = LittleShort(wadblockmaplump[1]);
+      blockmaplump[2] = (long)(LittleShort(wadblockmaplump[2])) & 0xffff;
+      blockmaplump[3] = (long)(LittleShort(wadblockmaplump[3])) & 0xffff;
 
       for (i=4 ; i<count ; i++)
         {
-          short t = DOOM_SHORT(wadblockmaplump[i]);          // killough 3/1/98
+          short t = LittleShort(wadblockmaplump[i]);          // killough 3/1/98
           blockmaplump[i] = t == -1 ? -1l : (long) t & 0xffff;
         }
 
@@ -1628,7 +1628,7 @@ static void P_RemoveSlimeTrails(void)         // killough 10/98
 // Are these lumps in the same wad file?
 //
 
-DOOM_BOOL P_CheckLumpsForSameSource(int lump1, int lump2)
+dboolean P_CheckLumpsForSameSource(int lump1, int lump2)
 {
   int wad1_index, wad2_index;
   wadfile_info_t *wad1, *wad2;

@@ -205,7 +205,7 @@ void D_CheckNetGame(void); // This waits for game start
 void D_NetSendMisc(netmisctype_t type, size_t len, void* data);
 
 // CPhipps - ask server for a wad file we need
-DOOM_BOOL D_NetGetWad(const char* name);
+dboolean D_NetGetWad(const char* name);
 
 // Netgame stuff (buffers and pointers, i.e. indices).
 extern  doomcom_t  *doomcom;

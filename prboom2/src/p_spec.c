@@ -200,7 +200,7 @@ void P_InitPicAnims (void)
                   animdefs[i].startname,
                   animdefs[i].endname);
 
-    lastanim->speed = DOOM_LONG(animdefs[i].speed); // killough 5/5/98: add LONG()
+    lastanim->speed = LittleLong(animdefs[i].speed); // killough 5/5/98: add LONG()
     lastanim++;
   }
   W_UnlockLumpNum(lump);
@@ -900,7 +900,7 @@ int P_FindMinSurroundingLight
 // jff 02/05/98 routine added to test for unlockability of
 //  generalized locked doors
 //
-DOOM_BOOL P_CanUnlockGenDoor
+dboolean P_CanUnlockGenDoor
 ( line_t* line,
   player_t* player)
 {
@@ -1057,7 +1057,7 @@ DOOM_BOOL P_CanUnlockGenDoor
 // jff 2/23/98 added to prevent old demos from
 //  succeeding in starting multiple specials on one sector
 //
-DOOM_BOOL PUREFUNC P_SectorActive(special_e t, const sector_t *sec)
+dboolean PUREFUNC P_SectorActive(special_e t, const sector_t *sec)
 {
   if (demo_compatibility)  // return whether any thinker is active
     return sec->floordata != NULL || sec->ceilingdata != NULL || sec->lightingdata != NULL;
@@ -1166,7 +1166,7 @@ int P_CheckTag(line_t *line)
 // jff 3/14/98 added to simplify checks for whether sector is secret
 //  in automap and other places
 //
-DOOM_BOOL PUREFUNC P_IsSecret(const sector_t *sec)
+dboolean PUREFUNC P_IsSecret(const sector_t *sec)
 {
   return (sec->special==9 || (sec->special&SECRET_MASK));
 }
@@ -1181,7 +1181,7 @@ DOOM_BOOL PUREFUNC P_IsSecret(const sector_t *sec)
 // jff 3/14/98 added to simplify checks for whether sector is secret
 //  in automap and other places
 //
-DOOM_BOOL PUREFUNC P_WasSecret(const sector_t *sec)
+dboolean PUREFUNC P_WasSecret(const sector_t *sec)
 {
   return (sec->oldspecial==9 || (sec->oldspecial&SECRET_MASK));
 }
@@ -2418,9 +2418,9 @@ void P_PlayerInSpecialSector (player_t* player)
 //  levelFragLimit, levelFragLimitCount
 //
 
-static DOOM_BOOL  levelTimer;
+static dboolean  levelTimer;
 static int      levelTimeCount;
-DOOM_BOOL         levelFragLimit;      // Ty 03/18/98 Added -frags support
+dboolean         levelFragLimit;      // Ty 03/18/98 Added -frags support
 int             levelFragLimitCount; // Ty 03/18/98 Added -frags support
 
 void P_UpdateSpecials (void)
@@ -3237,7 +3237,7 @@ static void Add_Pusher(int type, int x_mag, int y_mag, mobj_t* source, int affec
 
 pusher_t* tmpusher; // pusher structure for blockmap searches
 
-static DOOM_BOOL PIT_PushThing(mobj_t* thing)
+static dboolean PIT_PushThing(mobj_t* thing)
 {
   /* killough 10/98: made more general */
   if (!mbf_features ?

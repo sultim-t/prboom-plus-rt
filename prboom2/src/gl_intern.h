@@ -89,7 +89,7 @@ typedef struct
   int ***glTexExID;
 
   GLTexType textype;
-  DOOM_BOOL mipmap;
+  dboolean mipmap;
   GLint wrap_mode;//e6y
   unsigned int flags;//e6y
   float scalexfac, scaleyfac; //e6y: right/bottom UV coordinates for patch drawing
@@ -99,7 +99,7 @@ typedef struct
 {
   float x1,x2;
   float z1,z2;
-  DOOM_BOOL fracleft, fracright; //e6y
+  dboolean fracleft, fracright; //e6y
 } GLSeg;
 
 typedef struct
@@ -125,7 +125,7 @@ typedef struct
   float uoffs,voffs; // the texture coordinates
   float z; // the z position of the flat (height)
   GLTexture *gltexture;
-  DOOM_BOOL ceiling;
+  dboolean ceiling;
 } GLFlat;
 
 /* GLLoopDef is the struct for one loop. A loop is a list of vertexes
@@ -188,8 +188,8 @@ typedef struct
   float light;
   fixed_t scale;
   GLTexture *gltexture;
-  DOOM_BOOL shadow;
-  DOOM_BOOL trans;
+  dboolean shadow;
+  dboolean trans;
   mobj_t *thing;//e6y
 } GLSprite;
 
@@ -264,7 +264,7 @@ extern int gl_tex_format;
 extern int gl_tex_filter;
 extern int gl_mipmap_filter;
 extern int gl_texture_filter_anisotropic;
-extern DOOM_BOOL use_mipmapping;
+extern dboolean use_mipmapping;
 extern int transparent_pal_index;
 extern unsigned char gld_palmap[256];
 extern GLTexture *last_gltexture;
@@ -277,11 +277,11 @@ float distance2piece(float x0, float y0, float x1, float y1, float x2, float y2)
 void gld_InitDetail(void);
 
 //e6y: in some cases textures with a zero index (NO_TEXTURE) should be registered
-GLTexture *gld_RegisterTexture(int texture_num, DOOM_BOOL mipmap, DOOM_BOOL force);
+GLTexture *gld_RegisterTexture(int texture_num, dboolean mipmap, dboolean force);
 void gld_BindTexture(GLTexture *gltexture);
 GLTexture *gld_RegisterPatch(int lump, int cm);
 void gld_BindPatch(GLTexture *gltexture, int cm);
-GLTexture *gld_RegisterFlat(int lump, DOOM_BOOL mipmap);
+GLTexture *gld_RegisterFlat(int lump, dboolean mipmap);
 void gld_BindFlat(GLTexture *gltexture);
 void gld_InitPalettedTextures(void);
 int gld_GetTexDimension(int value);
@@ -295,8 +295,8 @@ void gld_GammaCorrect(unsigned char *buffer, int bufSize);
 //e6y: from gl_vertex
 //extern int render_segs;
 #define render_segs 0
-void gld_SplitLeftEdge(const GLWall *wall, DOOM_BOOL detail, float detail_w, float detail_h);
-void gld_SplitRightEdge(const GLWall *wall, DOOM_BOOL detail, float detail_w, float detail_h);
+void gld_SplitLeftEdge(const GLWall *wall, dboolean detail, float detail_w, float detail_h);
+void gld_SplitRightEdge(const GLWall *wall, dboolean detail, float detail_w, float detail_h);
 void gld_RecalcVertexHeights(const vertex_t *v);
 
 //e6y
@@ -306,7 +306,7 @@ void gld_DrawDetail_NoARB(void);
 void gld_DrawWallWithDetail(GLWall *wall);
 void gld_ResetLastTexture(void);
 
-int gld_BuildTexture(GLTexture *gltexture, void *data, DOOM_BOOL readonly,
+int gld_BuildTexture(GLTexture *gltexture, void *data, dboolean readonly,
                      int pitch, int width, int height,
                      unsigned char **out_buf, int *out_bufsize,
                      int *out_width, int *out_height);

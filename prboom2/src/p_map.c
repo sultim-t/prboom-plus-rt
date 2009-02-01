@@ -59,10 +59,10 @@ static int ls_y; // Lost Soul position for Lost Soul checks      // phares
 // If "floatok" true, move would be ok
 // if within "tmfloorz - tmceilingz".
 
-DOOM_BOOL   floatok;
+dboolean   floatok;
 
 /* killough 11/98: if "felldown" true, object was pushed down ledge */
-DOOM_BOOL   felldown;
+dboolean   felldown;
 
 // The tm* items are used to hold information globally, usually for
 // line or object intersection checking
@@ -100,9 +100,9 @@ msecnode_t* sector_list = NULL;                             // phares 3/16/98
 // PIT_StompThing
 //
 
-static DOOM_BOOL telefrag;   /* killough 8/9/98: whether to telefrag at exit */
+static dboolean telefrag;   /* killough 8/9/98: whether to telefrag at exit */
 
-DOOM_BOOL PIT_StompThing (mobj_t* thing)
+dboolean PIT_StompThing (mobj_t* thing)
   {
   fixed_t blockdist;
 
@@ -255,7 +255,7 @@ int P_GetMoveFactor(const mobj_t *mo, int *frictionp)
 // P_TeleportMove
 //
 
-DOOM_BOOL P_TeleportMove (mobj_t* thing,fixed_t x,fixed_t y, DOOM_BOOL boss)
+dboolean P_TeleportMove (mobj_t* thing,fixed_t x,fixed_t y, dboolean boss)
   {
   int     xl;
   int     xh;
@@ -360,7 +360,7 @@ unsigned int spechit_baseaddr = 0;
 //
 
 static // killough 3/26/98: make static
-DOOM_BOOL PIT_CrossLine (line_t* ld)
+dboolean PIT_CrossLine (line_t* ld)
   {
   if (!(ld->flags & ML_TWOSIDED) ||
       (ld->flags & (ML_BLOCKING|ML_BLOCKMONSTERS)))
@@ -395,7 +395,7 @@ static int untouched(line_t *ld)
 //
 
 static // killough 3/26/98: make static
-DOOM_BOOL PIT_CheckLine (line_t* ld)
+dboolean PIT_CheckLine (line_t* ld)
 {
   if (tmbbox[BOXRIGHT] <= ld->bbox[BOXLEFT]
    || tmbbox[BOXLEFT] >= ld->bbox[BOXRIGHT]
@@ -483,7 +483,7 @@ DOOM_BOOL PIT_CheckLine (line_t* ld)
 // PIT_CheckThing
 //
 
-static DOOM_BOOL PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
+static dboolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
 {
   fixed_t blockdist;
   int damage;
@@ -664,7 +664,7 @@ static DOOM_BOOL PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
 // sides of the blocking line. If so, return true, otherwise
 // false.
 
-DOOM_BOOL Check_Sides(mobj_t* actor, int x, int y)
+dboolean Check_Sides(mobj_t* actor, int x, int y)
   {
   int bx,by,xl,xh,yl,yh;
 
@@ -726,7 +726,7 @@ DOOM_BOOL Check_Sides(mobj_t* actor, int x, int y)
 //  numspeciallines
 //
 
-DOOM_BOOL P_CheckPosition (mobj_t* thing,fixed_t x,fixed_t y)
+dboolean P_CheckPosition (mobj_t* thing,fixed_t x,fixed_t y)
   {
   int     xl;
   int     xh;
@@ -806,8 +806,8 @@ DOOM_BOOL P_CheckPosition (mobj_t* thing,fixed_t x,fixed_t y)
 // Attempt to move to a new position,
 // crossing special lines unless MF_TELEPORT is set.
 //
-DOOM_BOOL P_TryMove(mobj_t* thing,fixed_t x,fixed_t y,
-                  DOOM_BOOL dropoff) // killough 3/15/98: allow dropoff as option
+dboolean P_TryMove(mobj_t* thing,fixed_t x,fixed_t y,
+                  dboolean dropoff) // killough 3/15/98: allow dropoff as option
   {
   fixed_t oldx;
   fixed_t oldy;
@@ -926,7 +926,7 @@ DOOM_BOOL P_TryMove(mobj_t* thing,fixed_t x,fixed_t y,
  * so balancing is possible.
  */
 
-static DOOM_BOOL PIT_ApplyTorque(line_t *ld)
+static dboolean PIT_ApplyTorque(line_t *ld)
 {
   if (ld->backsector &&       // If thing touches two-sided pivot linedef
       tmbbox[BOXRIGHT]  > ld->bbox[BOXLEFT]  &&
@@ -1053,9 +1053,9 @@ void P_ApplyTorque(mobj_t *mo)
 // and false will be returned.
 //
 
-DOOM_BOOL P_ThingHeightClip (mobj_t* thing)
+dboolean P_ThingHeightClip (mobj_t* thing)
 {
-  DOOM_BOOL   onfloor;
+  dboolean   onfloor;
 
   onfloor = (thing->z == thing->floorz);
 
@@ -1121,7 +1121,7 @@ void P_HitSlideLine (line_t* ld)
   angle_t deltaangle;
   fixed_t movelen;
   fixed_t newlen;
-  DOOM_BOOL icyfloor;  // is floor icy?                               // phares
+  dboolean icyfloor;  // is floor icy?                               // phares
                                                                     //   |
   // Under icy conditions, if the angle of approach to the wall     //   V
   // is more than 45 degrees, then you'll bounce and lose half
@@ -1144,7 +1144,7 @@ void P_HitSlideLine (line_t* ld)
   }
   else
   {
-    extern DOOM_BOOL onground;
+    extern dboolean onground;
     icyfloor = !compatibility &&
     variable_friction &&
     slidemo->player &&
@@ -1226,7 +1226,7 @@ void P_HitSlideLine (line_t* ld)
 // PTR_SlideTraverse
 //
 
-DOOM_BOOL PTR_SlideTraverse (intercept_t* in)
+dboolean PTR_SlideTraverse (intercept_t* in)
   {
   line_t* li;
 
@@ -1420,7 +1420,7 @@ static fixed_t  bottomslope;
 // PTR_AimTraverse
 // Sets linetaget and aimslope when a target is aimed at.
 //
-DOOM_BOOL PTR_AimTraverse (intercept_t* in)
+dboolean PTR_AimTraverse (intercept_t* in)
   {
   line_t* li;
   mobj_t* th;
@@ -1513,7 +1513,7 @@ DOOM_BOOL PTR_AimTraverse (intercept_t* in)
 //
 // PTR_ShootTraverse
 //
-DOOM_BOOL PTR_ShootTraverse (intercept_t* in)
+dboolean PTR_ShootTraverse (intercept_t* in)
   {
   fixed_t x;
   fixed_t y;
@@ -1699,7 +1699,7 @@ void P_LineAttack
 
 mobj_t*   usething;
 
-DOOM_BOOL PTR_UseTraverse (intercept_t* in)
+dboolean PTR_UseTraverse (intercept_t* in)
   {
   int side;
 
@@ -1744,7 +1744,7 @@ DOOM_BOOL PTR_UseTraverse (intercept_t* in)
 // by Lee Killough
 //
 
-DOOM_BOOL PTR_NoWayTraverse(intercept_t* in)
+dboolean PTR_NoWayTraverse(intercept_t* in)
   {
   line_t *ld = in->d.line;
                                            // This linedef
@@ -1807,7 +1807,7 @@ int bombdamage;
 // that caused the explosion at "bombspot".
 //
 
-DOOM_BOOL PIT_RadiusAttack (mobj_t* thing)
+dboolean PIT_RadiusAttack (mobj_t* thing)
   {
   fixed_t dx;
   fixed_t dy;
@@ -1899,13 +1899,13 @@ void P_RadiusAttack(mobj_t* spot,mobj_t* source,int damage)
 //  to undo the changes.
 //
 
-static DOOM_BOOL crushchange, nofit;
+static dboolean crushchange, nofit;
 
 //
 // PIT_ChangeSector
 //
 
-DOOM_BOOL PIT_ChangeSector (mobj_t* thing)
+dboolean PIT_ChangeSector (mobj_t* thing)
   {
   mobj_t* mo;
 
@@ -1974,7 +1974,7 @@ DOOM_BOOL PIT_ChangeSector (mobj_t* thing)
 //
 // P_ChangeSector
 //
-DOOM_BOOL P_ChangeSector(sector_t* sector,DOOM_BOOL crunch)
+dboolean P_ChangeSector(sector_t* sector,dboolean crunch)
   {
   int   x;
   int   y;
@@ -2002,7 +2002,7 @@ DOOM_BOOL P_ChangeSector(sector_t* sector,DOOM_BOOL crunch)
 // sector. Both more accurate and faster.
 //
 
-DOOM_BOOL P_CheckSector(sector_t* sector,DOOM_BOOL crunch)
+dboolean P_CheckSector(sector_t* sector,dboolean crunch)
   {
   msecnode_t *n;
 
@@ -2169,7 +2169,7 @@ void P_DelSeclist(msecnode_t* node)
 // at this location, so don't bother with checking impassable or
 // blocking lines.
 
-DOOM_BOOL PIT_GetSectors(line_t* ld)
+dboolean PIT_GetSectors(line_t* ld)
   {
   if (tmbbox[BOXRIGHT]  <= ld->bbox[BOXLEFT]   ||
       tmbbox[BOXLEFT]   >= ld->bbox[BOXRIGHT]  ||

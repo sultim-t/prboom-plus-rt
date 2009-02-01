@@ -71,11 +71,11 @@ result_e T_MovePlane
 ( sector_t*     sector,
   fixed_t       speed,
   fixed_t       dest,
-  DOOM_BOOL       crush,
+  dboolean       crush,
   int           floorOrCeiling,
   int           direction )
 {
-  DOOM_BOOL       flag;
+  dboolean       flag;
   fixed_t       lastpos;
   fixed_t       destheight; //jff 02/04/98 used to keep floors/ceilings
                             // from moving thru each other

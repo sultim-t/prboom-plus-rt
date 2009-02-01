@@ -55,7 +55,7 @@
 
 #define MAXBOB  0x100000
 
-DOOM_BOOL onground; // whether player is on ground or in air
+dboolean onground; // whether player is on ground or in air
 
 //
 // P_Thrust

@@ -197,7 +197,7 @@ void gld_DrawSkyCaps(void)
   if (SkyBox.type && SkyBox.wall.gltexture)
   {             
     float maxcoord = 255.0f;
-    DOOM_BOOL mlook = GetMouseLook();
+    dboolean mlook = GetMouseLook();
 
     if (mlook)
     {
@@ -368,10 +368,10 @@ void gld_DrawScreenSkybox(void)
 static angle_t maxSideAngle = ANG180 / 3;
 static int rows, columns;	
 static fixed_t scale = 10000 << FRACBITS;
-static DOOM_BOOL yflip;
+static dboolean yflip;
 static int texw;
 static float yMult, yAdd;
-static DOOM_BOOL foglayer;
+static dboolean foglayer;
 static float delta = 0.0f;
 
 int gl_sky_detail = 16;

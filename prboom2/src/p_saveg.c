@@ -322,7 +322,7 @@ void P_ArchiveThinkers (void)
         mobj = (mobj_t *)save_p;
 	/* cph 2006/07/30 - 
 	 * The end of mobj_t changed from
-	 *  DOOM_BOOL invisible;
+	 *  dboolean invisible;
 	 *  mobj_t* lastenemy;
 	 *  mobj_t* above_monster;
 	 *  mobj_t* below_monster;
@@ -494,7 +494,7 @@ void P_UnArchiveThinkers (void)
       PADSAVEP();
       /* cph 2006/07/30 - 
        * The end of mobj_t changed from
-       *  DOOM_BOOL invisible;
+       *  dboolean invisible;
        *  mobj_t* lastenemy;
        *  mobj_t* above_monster;
        *  mobj_t* below_monster;

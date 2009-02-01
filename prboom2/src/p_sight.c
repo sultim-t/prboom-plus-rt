@@ -80,7 +80,7 @@ inline static int P_DivlineSide(fixed_t x, fixed_t y, const divline_t *node)
 //
 // killough 4/19/98: made static and cleaned up
 
-static DOOM_BOOL P_CrossSubsector(int num)
+static dboolean P_CrossSubsector(int num)
 {
   seg_t *seg = segs + subsectors[num].firstline;
   int count;
@@ -204,7 +204,7 @@ static DOOM_BOOL P_CrossSubsector(int num)
 //  could return 2 which was ambigous, and the former is
 //  better optimised; also removes two casts :-)
 
-static DOOM_BOOL P_CrossBSPNode_LxDoom(int bspnum)
+static dboolean P_CrossBSPNode_LxDoom(int bspnum)
 {
   while (!(bspnum & NF_SUBSECTOR))
     {
@@ -223,7 +223,7 @@ static DOOM_BOOL P_CrossBSPNode_LxDoom(int bspnum)
   return P_CrossSubsector(bspnum == -1 ? 0 : bspnum & ~NF_SUBSECTOR);
 }
 
-static DOOM_BOOL P_CrossBSPNode_PrBoom(int bspnum)
+static dboolean P_CrossBSPNode_PrBoom(int bspnum)
 {
   while (!(bspnum & NF_SUBSECTOR))
     {
@@ -245,7 +245,7 @@ static DOOM_BOOL P_CrossBSPNode_PrBoom(int bspnum)
 /* proff - Moved the compatibility check outside the functions
  * this gives a slight speedup
  */
-static DOOM_BOOL P_CrossBSPNode(int bspnum)
+static dboolean P_CrossBSPNode(int bspnum)
 {
   /* cph - LxDoom used some R_* funcs here */
   if (compatibility_level == lxdoom_1_compatibility || prboom_comp[PC_FORCE_LXDOOM_DEMO_COMPATIBILITY].state)
@@ -262,7 +262,7 @@ static DOOM_BOOL P_CrossBSPNode(int bspnum)
 //
 // killough 4/20/98: cleaned up, made to use new LOS struct
 
-DOOM_BOOL P_CheckSight(mobj_t *t1, mobj_t *t2)
+dboolean P_CheckSight(mobj_t *t1, mobj_t *t2)
 {
   const sector_t *s1 = t1->subsector->sector;
   const sector_t *s2 = t2->subsector->sector;

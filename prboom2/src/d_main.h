@@ -46,20 +46,20 @@
 extern char basesavegame[];     // killough 2/16/98: savegame path
 
 //jff 1/24/98 make command line copies of play modes available
-extern DOOM_BOOL clnomonsters; // checkparm of -nomonsters
-extern DOOM_BOOL clrespawnparm;  // checkparm of -respawn
-extern DOOM_BOOL clfastparm; // checkparm of -fast
+extern dboolean clnomonsters; // checkparm of -nomonsters
+extern dboolean clrespawnparm;  // checkparm of -respawn
+extern dboolean clfastparm; // checkparm of -fast
 //jff end of external declaration of command line playmode
 
-extern DOOM_BOOL nosfxparm;
-extern DOOM_BOOL nomusicparm;
+extern dboolean nosfxparm;
+extern dboolean nomusicparm;
 extern int ffmap;
 
 // Called by IO functions when input is detected.
 void D_PostEvent(event_t* ev);
 
 // Demo stuff
-extern DOOM_BOOL advancedemo;
+extern dboolean advancedemo;
 void D_AdvanceDemo(void);
 void D_DoAdvanceDemo (void);
 

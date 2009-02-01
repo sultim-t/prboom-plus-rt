@@ -71,7 +71,7 @@
 #include "lprintf.h"
 #include "e6y.h"
 
-static DOOM_BOOL   server;
+static dboolean   server;
 static int       remotetic; // Tic expected from the remote
 static int       remotesend; // Tic expected by the remote
 ticcmd_t         netcmds[MAXPLAYERS][BACKUPTICS];
@@ -83,7 +83,7 @@ int ticdup = 1;
 static int xtratics = 0;
 int              wanted_player_number;
 
-static DOOM_BOOL isExtraDDisplay = false;
+static dboolean isExtraDDisplay = false;
 
 static void D_QuitNetGame (void);
 
@@ -202,12 +202,12 @@ void D_CheckNetGame(void)
   Z_Free(packet);
 }
 
-DOOM_BOOL D_NetGetWad(const char* name)
+dboolean D_NetGetWad(const char* name)
 {
 #if defined(HAVE_WAIT_H)
   size_t psize = sizeof(packet_header_t) + strlen(name) + 500;
   packet_header_t *packet;
-  DOOM_BOOL done = false;
+  dboolean done = false;
 
   if (!server || strchr(name, '/')) return false; // If it contains path info, reject
 
@@ -401,7 +401,7 @@ void D_NetSendMisc(netmisctype_t type, size_t len, void* data)
     int *p = (void*)(packet+1);
 
     packet_set(packet, PKT_EXTRA, gametic);
-    *p++ = DOOM_LONG(type); *p++ = DOOM_LONG(consoleplayer); *p++ = DOOM_LONG(len);
+    *p++ = LittleLong(type); *p++ = LittleLong(consoleplayer); *p++ = LittleLong(len);
     memcpy(p, data, len);
     I_SendPacket(packet, size);
 
@@ -425,10 +425,10 @@ static void CheckQueuedPackets(void)
       case PKT_EXTRA:
   {
     int *p = (int*)(queuedpacket[i]+1);
-    size_t len = DOOM_LONG(*(p+2));
-    switch (DOOM_LONG(*p)) {
+    size_t len = LittleLong(*(p+2));
+    switch (LittleLong(*p)) {
     case nm_plcolour:
-      G_ChangedPlayerColour(DOOM_LONG(*(p+1)), DOOM_LONG(*(p+3)));
+      G_ChangedPlayerColour(LittleLong(*(p+1)), LittleLong(*(p+3)));
       break;
     case nm_savegamename:
       if (len < SAVEDESCLEN) {

@@ -247,7 +247,7 @@
 static player_t *plyr;
 
 // ST_Start() has just been called
-static DOOM_BOOL st_firsttime;
+static dboolean st_firsttime;
 
 // used to execute ST_Init() only once
 static int veryfirsttime = 1;
@@ -267,25 +267,25 @@ static st_chatstateenum_t st_chatstate;
 static st_stateenum_t st_gamestate;
 
 // whether left-side main status bar is active
-static DOOM_BOOL st_statusbaron;
+static dboolean st_statusbaron;
 
 // whether status bar chat is active
-static DOOM_BOOL st_chat;
+static dboolean st_chat;
 
 // value of st_chat before message popped up
-static DOOM_BOOL st_oldchat;
+static dboolean st_oldchat;
 
 // whether chat window has the cursor on
-static DOOM_BOOL st_cursoron;
+static dboolean st_cursoron;
 
 // !deathmatch
-static DOOM_BOOL st_notdeathmatch;
+static dboolean st_notdeathmatch;
 
 // !deathmatch && st_statusbaron
-static DOOM_BOOL st_armson;
+static dboolean st_armson;
 
 // !deathmatch
-static DOOM_BOOL st_fragson;
+static dboolean st_fragson;
 
 // 0-9, tall numbers
 static patchnum_t tallnum[10];
@@ -362,7 +362,7 @@ static int      st_fragscount;
 static int      st_oldhealth = -1;
 
 // used for evil grin
-static DOOM_BOOL  oldweaponsowned[NUMWEAPONS];
+static dboolean  oldweaponsowned[NUMWEAPONS];
 
  // count until face changes
 static int      st_facecount = 0;
@@ -413,7 +413,7 @@ static void ST_refreshBackground(void)
 
 // Respond to keyboard input events,
 //  intercept cheats.
-DOOM_BOOL ST_Responder(event_t *ev)
+dboolean ST_Responder(event_t *ev)
 {
   // Filter automap on/off.
   if (ev->type == ev_keyup && (ev->data1 & 0xffff0000) == AM_MSGHEADER)
@@ -464,7 +464,7 @@ static void ST_updateFaceWidget(void)
   angle_t     diffang;
   static int  lastattackdown = -1;
   static int  priority = 0;
-  DOOM_BOOL     doevilgrin;
+  dboolean     doevilgrin;
 
   if (priority < 10)
     {
@@ -783,7 +783,7 @@ static void ST_doPaletteStuff(void)
   }
 }
 
-static void ST_drawWidgets(DOOM_BOOL refresh)
+static void ST_drawWidgets(dboolean refresh)
 {
   int i;
 
@@ -863,7 +863,7 @@ static void ST_diffDraw(void)
   ST_drawWidgets(false);
 }
 
-void ST_Drawer(DOOM_BOOL statusbaron, DOOM_BOOL refresh)
+void ST_Drawer(dboolean statusbaron, dboolean refresh)
 {
   /* cph - let status bar on be controlled
    * completely by the call from D_Display
@@ -889,7 +889,7 @@ void ST_Drawer(DOOM_BOOL statusbaron, DOOM_BOOL refresh)
 // CPhipps - Loads graphics needed for status bar if doload is true,
 //  unloads them otherwise
 //
-static void ST_loadGraphics(DOOM_BOOL doload)
+static void ST_loadGraphics(dboolean doload)
 {
   int  i, facenum;
   char namebuf[9];
@@ -1159,7 +1159,7 @@ static void ST_createWidgets(void)
                 ST_MAXAMMO3WIDTH);
 }
 
-static DOOM_BOOL st_stopped = true;
+static dboolean st_stopped = true;
 
 void ST_Start(void)
 {

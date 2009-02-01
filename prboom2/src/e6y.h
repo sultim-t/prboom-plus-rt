@@ -48,7 +48,7 @@
 #define HU_HUDADDX (HU_HUDX)
 #define HU_HUDADDY (HU_HUDY+(-1)*HU_GAPY)
 #define HU_CENTERMSGX (320/2)
-#define HU_CENTERMSGY ((200-ST_HEIGHT)/2 - 1 - DOOM_SHORT(hu_font[0].height))
+#define HU_CENTERMSGY ((200-ST_HEIGHT)/2 - 1 - LittleShort(hu_font[0].height))
 
 #define HU_HUDADDX_D (HU_HUDX_LL)
 #define HU_HUDADDY_D (HU_HUDY_LL+(-1)*HU_GAPY)
@@ -103,7 +103,7 @@ extern int REAL_SCREENWIDTH;
 extern int REAL_SCREENHEIGHT;
 extern int REAL_SCREENPITCH;
 
-extern DOOM_BOOL wasWiped;
+extern dboolean wasWiped;
 
 extern int totalleveltimes;
 
@@ -121,10 +121,10 @@ extern const char *avi_shot_fname;
 extern char avi_shot_curr_fname[PATH_MAX];
 
 extern FILE    *_demofp;
-extern DOOM_BOOL doSkip;
-extern DOOM_BOOL demo_stoponnext;
-extern DOOM_BOOL demo_stoponend;
-extern DOOM_BOOL demo_warp;
+extern dboolean doSkip;
+extern dboolean demo_stoponnext;
+extern dboolean demo_stoponend;
+extern dboolean demo_warp;
 
 extern int key_speed_up;
 extern int key_speed_down;
@@ -171,9 +171,9 @@ extern int overrun_reject_promted;
 extern int overrun_intercept_promted;
 extern int overrun_playeringame_promted;
 
-extern void ShowOverflowWarning(int emulate, int *promted, DOOM_BOOL fatal, const char *name, const char *params, ...);
+extern void ShowOverflowWarning(int emulate, int *promted, dboolean fatal, const char *name, const char *params, ...);
 
-extern DOOM_BOOL was_aspected;
+extern dboolean was_aspected;
 extern int render_aspect_width;
 extern int render_aspect_height;
 extern float render_aspect_ratio;
@@ -200,7 +200,7 @@ extern float skyUpAngle;
 extern float skyUpShift;
 extern float skyXShift;
 extern float skyYShift;
-extern DOOM_BOOL mlook_or_fov;
+extern dboolean mlook_or_fov;
 
 extern float internal_render_fov;
 
@@ -216,9 +216,9 @@ void ParamsMatchingCheck();
 void e6y_InitCommandLine(void);
 
 void P_WalkTicker ();
-void P_ResetWalkcam(DOOM_BOOL ResetCoord, DOOM_BOOL ResetSight);
+void P_ResetWalkcam(dboolean ResetCoord, dboolean ResetSight);
 
-extern DOOM_BOOL sound_inited_once;
+extern dboolean sound_inited_once;
 void e6y_I_uSleep(unsigned long usecs);
 void G_SkipDemoStart(void);
 void G_SkipDemoStop(void);
@@ -247,10 +247,10 @@ void M_MouseAccel(int choice);
 void M_ChangeCompTranslucency(void);
 void CheckPitch(signed int *pitch);
 void I_Init2(void);
-DOOM_BOOL GetMouseLook(void);
+dboolean GetMouseLook(void);
 
 extern float viewPitch;
-extern DOOM_BOOL transparentpresent;
+extern dboolean transparentpresent;
 
 #define MAPBITS 12
 #define FRACTOMAPBITS (FRACBITS-MAPBITS)
@@ -265,7 +265,7 @@ typedef struct prboom_comp_s
 {
   unsigned int minver;
   unsigned int maxver;
-  DOOM_BOOL state;
+  dboolean state;
   char *cmd;
 } prboom_comp_t;
 
@@ -340,10 +340,10 @@ void MouseAccelChanging(void);
 extern int mlooky;
 extern int realtic_clock_rate;
 
-extern DOOM_BOOL IsDehMaxHealth;
-extern DOOM_BOOL IsDehMaxSoul;
-extern DOOM_BOOL IsDehMegaHealth;
-extern DOOM_BOOL DEH_mobjinfo_bits[NUMMOBJTYPES];
+extern dboolean IsDehMaxHealth;
+extern dboolean IsDehMaxSoul;
+extern dboolean IsDehMegaHealth;
+extern dboolean DEH_mobjinfo_bits[NUMMOBJTYPES];
 
 extern int deh_maxhealth;
 extern int deh_max_soul;
@@ -353,14 +353,14 @@ extern int maxhealthbonus;
 
 void e6y_G_Compatibility(void);
 
-extern DOOM_BOOL zerotag_manual;
+extern dboolean zerotag_manual;
 extern int comperr_zerotag;
 extern int comperr_passuse;
 extern int comperr_hangsolid;
 
-DOOM_BOOL compbad_get(int *compbad);
+dboolean compbad_get(int *compbad);
 
-DOOM_BOOL ProcessNoTagLines(line_t* line, sector_t **sec, int *secnum);
+dboolean ProcessNoTagLines(line_t* line, sector_t **sec, int *secnum);
 
 #define I_FindName(a)	((a)->Name)
 #define I_FindAttr(a)	((a)->Attribs)
@@ -380,9 +380,9 @@ void NormalizeSlashes2(char *str);
 unsigned int AfxGetFileName(const char* lpszPathName, char* lpszTitle, unsigned int nMax);
 void AbbreviateName(char* lpszCanon, int cchMax, int bAtLeastName);
 
-DOOM_BOOL StrToInt(const char *s, long *l);
+dboolean StrToInt(const char *s, long *l);
 
-DOOM_BOOL PlayeringameOverrun(const mapthing_t* mthing);
+dboolean PlayeringameOverrun(const mapthing_t* mthing);
 
 //extern int viewMaxY;
 
@@ -414,7 +414,7 @@ extern trace_t things_pickup;
 extern trace_t lines_cross;
 
 extern traceslist_t traces[];
-extern DOOM_BOOL traces_present;
+extern dboolean traces_present;
 
 extern hu_textline_t  w_traces[];
 
@@ -430,7 +430,7 @@ void CheckLinesCrossTracer(line_t *line);
 void ClearLinesCrossTracer(void);
 
 extern float paperitems_pitch;
-extern DOOM_BOOL isskytexture;
+extern dboolean isskytexture;
 
 void D_AddDehFile (const char *file, wad_source_t source);
 
@@ -440,7 +440,7 @@ void I_AfterUpdateVideoMode(void);
 
 extern int force_singletics_to;
 
-DOOM_BOOL HU_DrawDemoProgress(void);
+dboolean HU_DrawDemoProgress(void);
 
 #ifdef ALL_IN_ONE
 unsigned char* GetAllInOneLumpHandle(void);
@@ -473,6 +473,6 @@ int I_MessageBox(const char* text, unsigned int type);
 
 int IsDemoPlayback();
 
-DOOM_BOOL SmoothEdges(unsigned char * buffer,int w, int h);
+dboolean SmoothEdges(unsigned char * buffer,int w, int h);
 
 #endif

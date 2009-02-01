@@ -228,7 +228,7 @@ UDP_CHANNEL remoteaddr[MAXPLAYERS];
 enum { pc_unused, pc_connected, pc_ready, pc_confirmedready, pc_playing, pc_quit } playerstate[MAXPLAYERS];
 int displaycounter;
 
-DOOM_BOOL n_players_in_state(int n, int ps) {
+dboolean n_players_in_state(int n, int ps) {
 	int i,j;
 	for (i=j=0;i<MAXPLAYERS;i++)
 		if (playerstate[i] == ps) j++;
@@ -471,7 +471,7 @@ int main(int argc, char** argv)
     int backoffcounter[MAXPLAYERS] = { 0, 0, 0, 0 };
     int curplayers = 0;
     int confirming = 0;
-    DOOM_BOOL ingame = false;
+    dboolean ingame = false;
     ticcmd_t netcmds[MAXPLAYERS][BACKUPTICS];
 
     while (1) {

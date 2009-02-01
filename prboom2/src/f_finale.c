@@ -62,7 +62,7 @@ static const char*   finaleflat; // made static const
 
 void    F_StartCast (void);
 void    F_CastTicker (void);
-DOOM_BOOL F_CastResponder (event_t *ev);
+dboolean F_CastResponder (event_t *ev);
 void    F_CastDrawer (void);
 
 void WI_checkForAccelerate(void);    // killough 3/28/98: used to
@@ -178,7 +178,7 @@ void F_StartFinale (void)
 
 
 
-DOOM_BOOL F_Responder (event_t *event)
+dboolean F_Responder (event_t *event)
 {
   if (finalestage == 2)
     return F_CastResponder (event);
@@ -346,10 +346,10 @@ static const castinfo_t castorder[] = { // CPhipps - static const, initialised h
 int             castnum;
 int             casttics;
 state_t*        caststate;
-DOOM_BOOL         castdeath;
+dboolean         castdeath;
 int             castframes;
 int             castonmelee;
-DOOM_BOOL         castattacking;
+dboolean         castattacking;
 
 
 //
@@ -481,7 +481,7 @@ void F_CastTicker (void)
 // F_CastResponder
 //
 
-DOOM_BOOL F_CastResponder (event_t* ev)
+dboolean F_CastResponder (event_t* ev)
 {
   if (ev->type != ev_keydown)
     return false;
@@ -562,7 +562,7 @@ void F_CastDrawer (void)
   spritedef_t*        sprdef;
   spriteframe_t*      sprframe;
   int                 lump;
-  DOOM_BOOL             flip;
+  dboolean             flip;
 
   // erase the entire screen to a background
   // CPhipps - patch drawing updated
@@ -574,7 +574,7 @@ void F_CastDrawer (void)
   sprdef = &sprites[caststate->sprite];
   sprframe = &sprdef->spriteframes[ caststate->frame & FF_FRAMEMASK];
   lump = sprframe->lump[0];
-  flip = (DOOM_BOOL)sprframe->flip[0];
+  flip = (dboolean)sprframe->flip[0];
 
   // CPhipps - patch drawing updated
   V_DrawNumPatch(160, 170, 0, lump+firstspritelump, CR_DEFAULT,

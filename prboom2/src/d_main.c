@@ -92,35 +92,35 @@ static void D_PageDrawer(void);
 
 // CPhipps - removed wadfiles[] stuff
 
-DOOM_BOOL devparm;        // started game with -devparm
+dboolean devparm;        // started game with -devparm
 
 // jff 1/24/98 add new versions of these variables to remember command line
-DOOM_BOOL clnomonsters;   // checkparm of -nomonsters
-DOOM_BOOL clrespawnparm;  // checkparm of -respawn
-DOOM_BOOL clfastparm;     // checkparm of -fast
+dboolean clnomonsters;   // checkparm of -nomonsters
+dboolean clrespawnparm;  // checkparm of -respawn
+dboolean clfastparm;     // checkparm of -fast
 // jff 1/24/98 end definition of command line version of play mode switches
 
-DOOM_BOOL nomonsters;     // working -nomonsters
-DOOM_BOOL respawnparm;    // working -respawn
-DOOM_BOOL fastparm;       // working -fast
+dboolean nomonsters;     // working -nomonsters
+dboolean respawnparm;    // working -respawn
+dboolean fastparm;       // working -fast
 
-DOOM_BOOL singletics = false; // debug flag to cancel adaptiveness
+dboolean singletics = false; // debug flag to cancel adaptiveness
 
 //jff 1/22/98 parms for disabling music and sound
-DOOM_BOOL nosfxparm;
-DOOM_BOOL nomusicparm;
+dboolean nosfxparm;
+dboolean nomusicparm;
 
 //jff 4/18/98
-extern DOOM_BOOL inhelpscreens;
+extern dboolean inhelpscreens;
 
 skill_t startskill;
 int     startepisode;
 int     startmap;
-DOOM_BOOL autostart;
+dboolean autostart;
 FILE    *debugfile;
 int ffmap;
 
-DOOM_BOOL advancedemo;
+dboolean advancedemo;
 
 char    wadfile[PATH_MAX+1];       // primary wad file
 char    mapdir[PATH_MAX+1];        // directory of development maps
@@ -180,7 +180,7 @@ void D_PostEvent(event_t *ev)
 
 static void D_Wipe(void)
 {
-  DOOM_BOOL done;
+  dboolean done;
   int wipestart = I_GetTime () - 1;
 
   if (!render_wipescreen) return;//e6y
@@ -210,20 +210,20 @@ static void D_Wipe(void)
 
 // wipegamestate can be set to -1 to force a wipe on the next draw
 gamestate_t    wipegamestate = GS_DEMOSCREEN;
-extern DOOM_BOOL setsizeneeded;
+extern dboolean setsizeneeded;
 extern int     showMessages;
 
 void D_Display (void)
 {
-  static DOOM_BOOL inhelpscreensstate   = false;
-  static DOOM_BOOL isborderstate        = false;
-  static DOOM_BOOL borderwillneedredraw = false;
+  static dboolean inhelpscreensstate   = false;
+  static dboolean isborderstate        = false;
+  static dboolean borderwillneedredraw = false;
   static gamestate_t oldgamestate = -1;
-  DOOM_BOOL wipe;
-  DOOM_BOOL viewactive = false, isborder = false;
+  dboolean wipe;
+  dboolean viewactive = false, isborder = false;
 
   // e6y
-  extern DOOM_BOOL gamekeydown[];
+  extern dboolean gamekeydown[];
   if (doSkip)
   {
     static unsigned int DemoProgressLastUpdate = 0;
@@ -284,7 +284,7 @@ void D_Display (void)
       break;
     }
   } else if (gametic != basetic) { // In a level
-    DOOM_BOOL redrawborderstuff;
+    dboolean redrawborderstuff;
 
     HU_Erase();
 
@@ -674,7 +674,7 @@ const char *D_dehout(void)
 // the gamemode from it. Also note if DOOM II, whether secret levels exist
 // CPhipps - const char* for iwadname, made static
 //e6y static 
-void CheckIWAD(const char *iwadname,GameMode_t *gmode,DOOM_BOOL *hassec)
+void CheckIWAD(const char *iwadname,GameMode_t *gmode,dboolean *hassec)
 {
   if ( !access (iwadname,R_OK) )
   {
@@ -693,8 +693,8 @@ void CheckIWAD(const char *iwadname,GameMode_t *gmode,DOOM_BOOL *hassec)
         filelump_t *fileinfo;
 
         // read IWAD directory
-        header.numlumps = DOOM_LONG(header.numlumps);
-        header.infotableofs = DOOM_LONG(header.infotableofs);
+        header.numlumps = LittleLong(header.numlumps);
+        header.infotableofs = LittleLong(header.infotableofs);
         length = header.numlumps;
         fileinfo = malloc(length*sizeof(filelump_t));
         if (fseek (fp, header.infotableofs, SEEK_SET) ||
@@ -1084,7 +1084,7 @@ static void DoLooseFiles(void)
   int i,k,n,p;
   const char **tmyargv;  // use these to recreate the argv array
   int tmyargc;
-  DOOM_BOOL *skip; // CPhipps - should these be skipped at the end
+  dboolean *skip; // CPhipps - should these be skipped at the end
 
   struct {
     char *ext;
@@ -1115,7 +1115,7 @@ static void DoLooseFiles(void)
   wads = malloc(myargc * sizeof(*wads));
   lmps = malloc(myargc * sizeof(*lmps));
   dehs = malloc(myargc * sizeof(*dehs));
-  skip = malloc(myargc * sizeof(DOOM_BOOL));
+  skip = malloc(myargc * sizeof(dboolean));
 
   for (i = 0; i < myargc; i++)
     skip[i] = false;
@@ -1260,7 +1260,7 @@ static void D_DoomMainSetup(void)
   // proff 04/05/2000: Added support for include response files
   /* proff 2001/7/1 - Moved up, so -config can be in response files */
   {
-    DOOM_BOOL rsp_found;
+    dboolean rsp_found;
     int i;
 
     do {
@@ -1281,7 +1281,7 @@ static void D_DoomMainSetup(void)
   // figgi 09/18/00-- added switch to force classic bsp nodes
   if (M_CheckParm ("-forceoldbsp"))
   {
-    extern DOOM_BOOL forceOldBsp;
+    extern dboolean forceOldBsp;
     forceOldBsp = true;
   }
 
@@ -1767,10 +1767,10 @@ void D_DoomMain(void)
 void GetFirstMap(int *ep, int *map)
 {
   int i,j; // used to generate map name
-  DOOM_BOOL done = false;  // Ty 09/13/98 - to exit inner loops
+  dboolean done = false;  // Ty 09/13/98 - to exit inner loops
   char test[6];  // MAPxx or ExMx plus terminator for testing
   char name[6];  // MAPxx or ExMx plus terminator for display
-  DOOM_BOOL newlevel = false;  // Ty 10/04/98 - to test for new level
+  dboolean newlevel = false;  // Ty 10/04/98 - to test for new level
   int ix;  // index for lookup
 
   strcpy(name,""); // initialize

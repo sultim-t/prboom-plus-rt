@@ -45,7 +45,7 @@
 #define AM_MSGEXITED (AM_MSGHEADER | ('x'<<8))
 
 // Called by main loop.
-DOOM_BOOL AM_Responder (event_t* ev);
+dboolean AM_Responder (event_t* ev);
 
 // Called by main loop.
 void AM_Ticker (void);

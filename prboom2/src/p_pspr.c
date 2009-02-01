@@ -234,7 +234,7 @@ int P_WeaponPreferred(int w1, int w2)
 // (only in demo_compatibility mode -- killough 3/22/98)
 //
 
-DOOM_BOOL P_CheckAmmo(player_t *player)
+dboolean P_CheckAmmo(player_t *player)
 {
   ammotype_t ammo = weaponinfo[player->readyweapon].ammo;
   int count = 1;  // Regular
@@ -629,7 +629,7 @@ static void P_BulletSlope(mobj_t *mo)
 // P_GunShot
 //
 
-static void P_GunShot(mobj_t *mo, DOOM_BOOL accurate)
+static void P_GunShot(mobj_t *mo, dboolean accurate)
 {
   int damage = 5*(P_Random(pr_gunshot)%3+1);
   angle_t angle = mo->angle;

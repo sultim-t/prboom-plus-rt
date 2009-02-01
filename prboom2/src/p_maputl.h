@@ -56,14 +56,14 @@ typedef struct {
 
 typedef struct {
   fixed_t     frac;           /* along trace line */
-  DOOM_BOOL     isaline;
+  dboolean     isaline;
   union {
     mobj_t* thing;
     line_t* line;
   } d;
 } intercept_t;
 
-typedef DOOM_BOOL (*traverser_t)(intercept_t *in);
+typedef dboolean (*traverser_t)(intercept_t *in);
 
 fixed_t CONSTFUNC P_AproxDistance (fixed_t dx, fixed_t dy);
 int     PUREFUNC  P_PointOnLineSide (fixed_t x, fixed_t y, const line_t *line);
@@ -75,10 +75,10 @@ fixed_t PUREFUNC  P_InterceptVector2(const divline_t *v2, const divline_t *v1);
 void    P_LineOpening (const line_t *linedef);
 void    P_UnsetThingPosition(mobj_t *thing);
 void    P_SetThingPosition(mobj_t *thing);
-DOOM_BOOL P_BlockLinesIterator (int x, int y, DOOM_BOOL func(line_t *));
-DOOM_BOOL P_BlockThingsIterator(int x, int y, DOOM_BOOL func(mobj_t *));
-DOOM_BOOL P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
-                       int flags, DOOM_BOOL trav(intercept_t *));
+dboolean P_BlockLinesIterator (int x, int y, dboolean func(line_t *));
+dboolean P_BlockThingsIterator(int x, int y, dboolean func(mobj_t *));
+dboolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
+                       int flags, dboolean trav(intercept_t *));
 
 extern fixed_t opentop;
 extern fixed_t openbottom;

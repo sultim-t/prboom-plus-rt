@@ -84,11 +84,11 @@ void P_InitSwitchList(void)
     if (index+1 >= max_numswitches)
       switchlist = realloc(switchlist, sizeof *switchlist *
           (max_numswitches = max_numswitches ? max_numswitches*2 : 8));
-    if (DOOM_SHORT(alphSwitchList[i].episode) <= episode) //jff 5/11/98 endianess
+    if (LittleShort(alphSwitchList[i].episode) <= episode) //jff 5/11/98 endianess
     {
       int texture1, texture2;
 
-      if (!DOOM_SHORT(alphSwitchList[i].episode))
+      if (!LittleShort(alphSwitchList[i].episode))
         break;
 
       // Ignore switches referencing unknown texture names, instead of exiting.
@@ -258,7 +258,7 @@ int GetPairForSwitchTexture(side_t *side)
 // Passed the thing using the line, the line being used, and the side used
 // Returns true if a thinker was created
 //
-DOOM_BOOL
+dboolean
 P_UseSpecialLine
 ( mobj_t*       thing,
   line_t*       line,

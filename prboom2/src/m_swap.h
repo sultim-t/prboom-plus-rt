@@ -128,7 +128,7 @@
 
 /* CPhipps - Boom's old LONG and SHORT endianness macros are for WAD stuff */
 
-#define DOOM_LONG(x) doom_wtohl(x)
-#define DOOM_SHORT(x) doom_htows(x)
+#define LittleLong(x) doom_wtohl(x)
+#define LittleShort(x) doom_htows(x)
 
 #endif

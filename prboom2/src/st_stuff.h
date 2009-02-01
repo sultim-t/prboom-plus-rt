@@ -55,13 +55,13 @@
 //
 
 // Called by main loop.
-DOOM_BOOL ST_Responder(event_t* ev);
+dboolean ST_Responder(event_t* ev);
 
 // Called by main loop.
 void ST_Ticker(void);
 
 // Called by main loop.
-void ST_Drawer(DOOM_BOOL st_statusbaron, DOOM_BOOL refresh);
+void ST_Drawer(dboolean st_statusbaron, dboolean refresh);
 
 // Called when the console player is spawned on each level.
 void ST_Start(void);

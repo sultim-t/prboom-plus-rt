@@ -358,7 +358,7 @@ void P_SetThingPosition(mobj_t *thing)
 //
 // killough 5/3/98: reformatted, cleaned up
 
-DOOM_BOOL P_BlockLinesIterator(int x, int y, DOOM_BOOL func(line_t*))
+dboolean P_BlockLinesIterator(int x, int y, dboolean func(line_t*))
 {
   int        offset;
   const long *list;   // killough 3/1/98: for removal of blockmap limit
@@ -393,7 +393,7 @@ DOOM_BOOL P_BlockLinesIterator(int x, int y, DOOM_BOOL func(line_t*))
 //
 // killough 5/3/98: reformatted, cleaned up
 
-DOOM_BOOL P_BlockThingsIterator(int x, int y, DOOM_BOOL func(mobj_t*))
+dboolean P_BlockThingsIterator(int x, int y, dboolean func(mobj_t*))
 {
   mobj_t *mobj;
   if (!(x<0 || y<0 || x>=bmapwidth || y>=bmapheight))
@@ -438,7 +438,7 @@ divline_t trace;
 //
 // killough 5/3/98: reformatted, cleaned up
 
-DOOM_BOOL PIT_AddLineIntercepts(line_t *ld)
+dboolean PIT_AddLineIntercepts(line_t *ld)
 {
   int       s1;
   int       s2;
@@ -484,7 +484,7 @@ DOOM_BOOL PIT_AddLineIntercepts(line_t *ld)
 //
 // killough 5/3/98: reformatted, cleaned up
 
-DOOM_BOOL PIT_AddThingIntercepts(mobj_t *thing)
+dboolean PIT_AddThingIntercepts(mobj_t *thing)
 {
   fixed_t   x1, y1;
   fixed_t   x2, y2;
@@ -542,7 +542,7 @@ DOOM_BOOL PIT_AddThingIntercepts(mobj_t *thing)
 //
 // killough 5/3/98: reformatted, cleaned up
 
-DOOM_BOOL P_TraverseIntercepts(traverser_t func, fixed_t maxfrac)
+dboolean P_TraverseIntercepts(traverser_t func, fixed_t maxfrac)
 {
   intercept_t *in = NULL;
   int count = intercept_p - intercepts;
@@ -571,8 +571,8 @@ DOOM_BOOL P_TraverseIntercepts(traverser_t func, fixed_t maxfrac)
 //
 // killough 5/3/98: reformatted, cleaned up
 
-DOOM_BOOL P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
-                       int flags, DOOM_BOOL trav(intercept_t *))
+dboolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
+                       int flags, dboolean trav(intercept_t *))
 {
   fixed_t xt1, yt1;
   fixed_t xt2, yt2;
@@ -704,7 +704,7 @@ typedef struct
 {
     int len;
     void *addr;
-    DOOM_BOOL int16_array;
+    dboolean int16_array;
 } intercepts_overrun_t;
 
 // Intercepts memory table.  This is where various variables are located

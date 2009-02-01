@@ -37,7 +37,7 @@
 
 #include "PCSOUND/pcsound.h"
 
-static DOOM_BOOL pcs_initialised = false;
+static dboolean pcs_initialised = false;
 
 static SDL_mutex *sound_lock;
 
@@ -104,7 +104,7 @@ void PCSCallbackFunc(int *duration, int *freq)
     SDL_UnlockMutex(sound_lock);
 }
 
-static DOOM_BOOL CachePCSLump(int sound_id)
+static dboolean CachePCSLump(int sound_id)
 {
     int lumplen;
     int headerlen;

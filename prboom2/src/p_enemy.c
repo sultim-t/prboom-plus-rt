@@ -134,7 +134,7 @@ void P_NoiseAlert(mobj_t *target, mobj_t *emitter)
 // P_CheckMeleeRange
 //
 
-static DOOM_BOOL P_CheckMeleeRange(mobj_t *actor)
+static dboolean P_CheckMeleeRange(mobj_t *actor)
 {
   mobj_t *pl = actor->target;
 
@@ -151,7 +151,7 @@ static DOOM_BOOL P_CheckMeleeRange(mobj_t *actor)
 // killough 12/98
 // This function tries to prevent shooting at friends
 
-static DOOM_BOOL P_HitFriend(mobj_t *actor)
+static dboolean P_HitFriend(mobj_t *actor)
 {
   return actor->flags & MF_FRIEND && actor->target &&
     (P_AimLineAttack(actor,
@@ -166,7 +166,7 @@ static DOOM_BOOL P_HitFriend(mobj_t *actor)
 //
 // P_CheckMissileRange
 //
-static DOOM_BOOL P_CheckMissileRange(mobj_t *actor)
+static dboolean P_CheckMissileRange(mobj_t *actor)
 {
   fixed_t dist;
 
@@ -251,7 +251,7 @@ static DOOM_BOOL P_CheckMissileRange(mobj_t *actor)
  * while it goes up or down.
  */
 
-static DOOM_BOOL P_IsOnLift(const mobj_t *actor)
+static dboolean P_IsOnLift(const mobj_t *actor)
 {
   const sector_t *sec = actor->subsector->sector;
   line_t line;
@@ -313,10 +313,10 @@ static fixed_t yspeed[8] = {0,47000,FRACUNIT,47000,0,-47000,-FRACUNIT,-47000};
 extern  line_t **spechit;          // New code -- killough
 extern  int    numspechit;
 
-static DOOM_BOOL P_Move(mobj_t *actor, DOOM_BOOL dropoff) /* killough 9/12/98 */
+static dboolean P_Move(mobj_t *actor, dboolean dropoff) /* killough 9/12/98 */
 {
   fixed_t tryx, tryy, deltax, deltay, origx, origy;
-  DOOM_BOOL try_ok;
+  dboolean try_ok;
   int movefactor = ORIG_FRICTION_FACTOR;    // killough 10/98
   int friction = ORIG_FRICTION;
   int speed;
@@ -428,7 +428,7 @@ static DOOM_BOOL P_Move(mobj_t *actor, DOOM_BOOL dropoff) /* killough 9/12/98 */
  * killough 9/12/98: Same as P_Move, except smarter
  */
 
-static DOOM_BOOL P_SmartMove(mobj_t *actor)
+static dboolean P_SmartMove(mobj_t *actor)
 {
   mobj_t *target = actor->target;
   int on_lift, dropoff = false, under_damage;
@@ -488,7 +488,7 @@ static DOOM_BOOL P_SmartMove(mobj_t *actor)
 // an OpenDoor call is made to start it opening.
 //
 
-static DOOM_BOOL P_TryWalk(mobj_t *actor)
+static dboolean P_TryWalk(mobj_t *actor)
 {
   if (!P_SmartMove(actor))
     return false;
@@ -573,7 +573,7 @@ static void P_DoNewChaseDir(mobj_t *actor, fixed_t deltax, fixed_t deltay)
 
 static fixed_t dropoff_deltax, dropoff_deltay, floorz;
 
-static DOOM_BOOL PIT_AvoidDropoff(line_t *line)
+static dboolean PIT_AvoidDropoff(line_t *line)
 {
   if (line->backsector                          && // Ignore one-sided linedefs
       tmbbox[BOXRIGHT]  > line->bbox[BOXLEFT]   &&
@@ -709,7 +709,7 @@ static void P_NewChaseDir(mobj_t *actor)
 // killough 9/9/98: whether a target is visible to a monster
 //
 
-static DOOM_BOOL P_IsVisible(mobj_t *actor, mobj_t *mo, DOOM_BOOL allaround)
+static dboolean P_IsVisible(mobj_t *actor, mobj_t *mo, dboolean allaround)
 {
   if (!allaround)
     {
@@ -732,7 +732,7 @@ static DOOM_BOOL P_IsVisible(mobj_t *actor, mobj_t *mo, DOOM_BOOL allaround)
 
 static int current_allaround;
 
-static DOOM_BOOL PIT_FindTarget(mobj_t *mo)
+static dboolean PIT_FindTarget(mobj_t *mo)
 {
   mobj_t *actor = current_actor;
 
@@ -777,7 +777,7 @@ static DOOM_BOOL PIT_FindTarget(mobj_t *mo)
 // Returns true if a player is targeted.
 //
 
-static DOOM_BOOL P_LookForPlayers(mobj_t *actor, DOOM_BOOL allaround)
+static dboolean P_LookForPlayers(mobj_t *actor, dboolean allaround)
 {
   player_t *player;
   int stop, stopc, c;
@@ -877,7 +877,7 @@ static DOOM_BOOL P_LookForPlayers(mobj_t *actor, DOOM_BOOL allaround)
 // A marine's best friend :)  killough 7/18/98, 9/98
 //
 
-static DOOM_BOOL P_LookForMonsters(mobj_t *actor, DOOM_BOOL allaround)
+static dboolean P_LookForMonsters(mobj_t *actor, dboolean allaround)
 {
   thinker_t *cap, *th;
 
@@ -959,7 +959,7 @@ static DOOM_BOOL P_LookForMonsters(mobj_t *actor, DOOM_BOOL allaround)
 // killough 9/5/98: look for targets to go after, depending on kind of monster
 //
 
-static DOOM_BOOL P_LookForTargets(mobj_t *actor, int allaround)
+static dboolean P_LookForTargets(mobj_t *actor, int allaround)
 {
   return actor->flags & MF_FRIEND ?
     P_LookForMonsters(actor, allaround) || P_LookForPlayers (actor, allaround):
@@ -972,7 +972,7 @@ static DOOM_BOOL P_LookForTargets(mobj_t *actor, int allaround)
 // killough 9/8/98: Help friends in danger of dying
 //
 
-static DOOM_BOOL P_HelpFriend(mobj_t *actor)
+static dboolean P_HelpFriend(mobj_t *actor)
 {
   thinker_t *cap, *th;
 
@@ -1571,10 +1571,10 @@ mobj_t* vileobj;
 fixed_t viletryx;
 fixed_t viletryy;
 
-static DOOM_BOOL PIT_VileCheck(mobj_t *thing)
+static dboolean PIT_VileCheck(mobj_t *thing)
 {
   int     maxdist;
-  DOOM_BOOL check;
+  dboolean check;
 
   if (!(thing->flags & MF_CORPSE) )
     return true;        // not a monster

@@ -160,11 +160,11 @@ char *demo_patterns_list_def[9];
 // demo ex
 int demo_extendedformat = -1;
 int demo_extendedformat_default;
-DOOM_BOOL use_demoex_info = false;
+dboolean use_demoex_info = false;
 
 char demoex_filename[PATH_MAX];
 char *demo_demoex_filename;
-DOOM_BOOL IsDemoEx = false;
+dboolean IsDemoEx = false;
 //wadtbl_t demoex;
 
 typedef struct
@@ -264,8 +264,8 @@ wadtbl_t* W_CreatePWADTable(const byte* buffer, size_t size)
   if (strncmp(header_p->identification, PWAD_SIGNATURE, 4))
     I_Error("W_CreatePWADTable: Wad buffer doesn't have PWAD id");
 
-  header_p->numlumps = DOOM_LONG(header_p->numlumps);
-  header_p->infotableofs = DOOM_LONG(header_p->infotableofs);
+  header_p->numlumps = LittleLong(header_p->numlumps);
+  header_p->infotableofs = LittleLong(header_p->infotableofs);
 
   filelump_p = (filelump_t*)((char*)buffer + header_p->infotableofs);
   for (i = 0; i < header_p->numlumps ; i++, filelump_p++)
@@ -932,7 +932,7 @@ int WadDataAddItem(waddata_t *waddata, const byte *filename, wad_source_t source
   return true;
 }
 
-int ParseDemoPattern(const char *str, waddata_t* waddata, char **missed, DOOM_BOOL trytodownload)
+int ParseDemoPattern(const char *str, waddata_t* waddata, char **missed, dboolean trytodownload)
 {
   int processed = 0;
   wadfile_info_t *wadfiles = NULL;
@@ -1256,9 +1256,9 @@ void CheckAutoDemo(void)
 
 char *getwad_cmdline = NULL;
 
-DOOM_BOOL D_TryGetWad(const char* name)
+dboolean D_TryGetWad(const char* name)
 {
-  DOOM_BOOL result = false;
+  dboolean result = false;
 
   char wadname[PATH_MAX];
   char* cmdline = NULL;

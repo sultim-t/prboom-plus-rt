@@ -77,9 +77,9 @@ static fixed2_t *oldipos;
 static fixed2_t *bakipos;
 static interpolation_t *curipos;
 
-static DOOM_BOOL NoInterpolateView;
-static DOOM_BOOL didInterp;
-DOOM_BOOL WasRenderedInTryRunTics;
+static dboolean NoInterpolateView;
+static dboolean didInterp;
+dboolean WasRenderedInTryRunTics;
 
 void R_InterpolateView (player_t *player, fixed_t frac)
 {
