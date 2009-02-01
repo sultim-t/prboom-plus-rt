@@ -1156,8 +1156,16 @@ void WadDataToWadFiles(waddata_t *waddata)
     }
     if (waddata->wadfiles[i].src == source_pwad)
     {
-      D_AddFile(waddata->wadfiles[i].name, source_pwad);
-      modifiedgame = true;
+      char *file = I_FindFile(waddata->wadfiles[i].name, ".wad");
+      if (!file && D_TryGetWad(waddata->wadfiles[i].name))
+      {
+        file = I_FindFile(waddata->wadfiles[i].name, ".wad");
+      }
+      if (file)
+      {
+        D_AddFile(waddata->wadfiles[i].name, source_pwad);
+        modifiedgame = true;
+      }
     }
     if (waddata->wadfiles[i].src == source_deh)
     {
