@@ -1292,7 +1292,7 @@ boolean D_TryGetWad(const char* name)
   msg = malloc(strlen(format) + strlen(wadname) + strlen(cmdline));
   sprintf(msg, format, wadname, cmdline);
 
-  if (PRB_IDOK == I_MessageBox(msg, PRB_MB_DEFBUTTON2 | PRB_MB_OKCANCEL))
+  if (PRB_IDYES == I_MessageBox(msg, PRB_MB_DEFBUTTON2 | PRB_MB_YESNO))
   {
     int ret;
 

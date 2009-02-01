@@ -861,12 +861,72 @@ void I_Warning(const char *message, ...)
 int I_MessageBox(const char* text, unsigned int type)
 {
 #ifdef _WIN32
-  extern HWND con_hWnd;
-  return MessageBox(con_hWnd, text, "PrBoom-Plus", type|MB_TASKMODAL|MB_TOPMOST);
-#else
-  lprintf(LO_CONFIRM, "%s\n", text);
-  return PRB_IDOK;
+  return MessageBox(GetDesktopWindow(), text, "PrBoom-Plus", type|MB_TASKMODAL|MB_TOPMOST);
 #endif
+
+#ifdef RjY
+  {
+    typedef struct mb_hotkeys_s
+    {
+      int type;
+      char *hotkeys_str;
+    } mb_hotkeys_t;
+
+    mb_hotkeys_t mb_hotkeys[] = {
+      {PRB_MB_OK               , "(press <enter> to continue)"},
+      {PRB_MB_OKCANCEL         , "(press <enter> to continue or <esc> to cancel)"},
+      {PRB_MB_ABORTRETRYIGNORE , "(a - abort, r - retry, i - ignore)"},
+      {PRB_MB_YESNOCANCEL      , "(y - yes, n - no, esc - cancel"},
+      {PRB_MB_YESNO            , "(y - yes, n - no)"},
+      {PRB_MB_RETRYCANCEL      , "(r - retry, <esc> - cancel)"},
+      {0, NULL}
+    };
+
+    int i, c, result = PRB_IDCANCEL;
+    char* hotkeys_str = NULL;
+    
+    type &= 0x000000ff;
+
+    i = 0;
+    while (mb_hotkeys[i].hotkeys_str)
+    {
+      if (mb_hotkeys[i].type == type)
+      {
+        hotkeys_str = mb_hotkeys[i].hotkeys_str;
+        break;
+      }
+      i++;
+    }
+
+    if (hotkeys_str)
+    {
+      lprintf(LO_CONFIRM, "%s\n%s\n", text, hotkeys_str);
+
+      result = -1;
+      do
+      {
+        I_uSleep(1000);
+
+        c = tolower(getchar());
+
+        if (c == 'y') result = PRB_IDYES;
+        else if (c == 'n') result = PRB_IDNO;
+        else if (c == 'a') result = PRB_IDABORT;
+        else if (c == 'r') result = PRB_IDRETRY;
+        else if (c == 'i') result = PRB_IDIGNORE;
+        else if (c == 'o' || c == 13) result = PRB_IDOK;
+        else if (c == 'c' || c == 27) result = PRB_IDCANCEL;
+      }
+      while (result == EOF);
+
+      return result;
+    }
+
+    return result;
+  }
+#else // RjY
+  return PRB_IDCANCEL;
+#endif // RjY
 }
 
 void ShowOverflowWarning(int emulate, int *promted, boolean fatal, const char *name, const char *params, ...)
