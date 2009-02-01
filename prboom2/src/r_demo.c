@@ -36,9 +36,14 @@
 #include "config.h"
 #endif
 
+#ifdef _WIN32
 #include <io.h>
-#include <errno.h>
 #include <process.h>
+#else
+#include <unistd.h>
+#endif
+
+#include <errno.h>
 #include <fcntl.h>
 
 #include "doomdef.h"
