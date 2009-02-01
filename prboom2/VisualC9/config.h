@@ -156,7 +156,7 @@
 
 //e6y
 /* Version number of package */
-#define VERSION "2.5.0.1"
+#define VERSION "2.5.0.2"
 
 /* Define if you have the SDL image library -lSDL_image */
 #define HAVE_LIBSDL_IMAGE

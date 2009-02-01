@@ -1,7 +1,7 @@
 /**/
 #define PACKAGE "prboom-plus"
 #define PACKAGE_TITLE "PrBoom-Plus"
-#define VERSION "2.5.0.1"
+#define VERSION "2.5.0.2"
 
 #ifdef DEBUG
 
