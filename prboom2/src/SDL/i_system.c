@@ -404,7 +404,7 @@ const char *I_DoomExeDir(void)
 
 const char *I_GetTempDir(void)
 {
-  return "/tmp"
+  return "/tmp";
 }
 
 #endif

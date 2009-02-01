@@ -1610,7 +1610,7 @@ static void D_DoomMainSetup(void)
 #ifdef USE_WINDOWS_LAUNCHER
   LauncherShow(CheckDemoExDemo());
 #else
-  CheckDemoExDemo()
+  CheckDemoExDemo();
 #endif
   CheckAutoDemo();
 
