@@ -865,7 +865,7 @@ int I_MessageBox(const char* text, unsigned int type)
   }
 #endif
 
-#ifdef RjY
+#if 0
   {
     typedef struct mb_hotkeys_s
     {
@@ -925,9 +925,9 @@ int I_MessageBox(const char* text, unsigned int type)
 
     return result;
   }
-#else // RjY
+#else
   return PRB_IDCANCEL;
-#endif // RjY
+#endif
 }
 
 void ShowOverflowWarning(int emulate, int *promted, dboolean fatal, const char *name, const char *params, ...)
