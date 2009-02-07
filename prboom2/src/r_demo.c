@@ -148,13 +148,11 @@ void R_ResetAfterTeleport(player_t *player)
 
 #define DEMOEX_VERSION_LUMPNAME "VERSION"
 #define DEMOEX_PORTNAME_LUMPNAME "PORTNAME"
-#define DEMOEX_PARAMS_LUMPNAME "PARAMS"
+#define DEMOEX_PARAMS_LUMPNAME "CMDLINE"
 #define DEMOEX_MLOOK_LUMPNAME "MLOOK"
 #define DEMOEX_COMMENT_LUMPNAME "COMMENT"
 
-#define DEMOEX_BEGIN_SEPARATOR "\n\n======== Extended Data ========\n"
 #define DEMOEX_SEPARATOR       "\n"
-#define DEMOEX_END_SEPARATOR     "\n======== PWAD Table ===========\n"
 
 // patterns
 int demo_patterns_count;
@@ -472,18 +470,31 @@ static void R_DemoEx_GetParams(const byte *pwad_p, waddata_t *waddata)
 
     M_ParseCmdLine(str, params, ((char*)params) + sizeof(char*) * paramscount, &paramscount, &i);
   
-    i = 0;
-    while (files[i].param)
+    if (!M_CheckParm("-iwad") && !M_CheckParm("-file"))
     {
-      p = M_CheckParmEx(files[i].param, params, paramscount);
-      if (p >= 0)
+      i = 0;
+      while (files[i].param)
       {
-        while (++p != paramscount && *params[p] != '-')
+        p = M_CheckParmEx(files[i].param, params, paramscount);
+        if (p >= 0)
         {
-          WadDataAddItem(waddata, params[p], files[i].source, 0);
+          while (++p != paramscount && *params[p] != '-')
+          {
+            WadDataAddItem(waddata, params[p], files[i].source, 0);
+          }
         }
+        i++;
       }
-      i++;
+    }
+
+    if (!M_CheckParm("-complevel"))
+    {
+      p = M_CheckParmEx("-complevel", params, paramscount);
+      if (p >= 0 && p < (int)paramscount - 1)
+      {
+        M_AddParam("-complevel");
+        M_AddParam(strdup(params[p + 1]));
+      }
     }
 
     p = M_CheckParmEx("-spechit", params, paramscount);
@@ -503,6 +514,8 @@ static void R_DemoEx_AddParams(wadtbl_t *wadtbl)
 {
   size_t i;
   int p;
+  char buf[200];
+
   byte* wadfiles_p = NULL;
   char* filename_p;
   char* fileext_p;
@@ -525,10 +538,10 @@ static void R_DemoEx_AddParams(wadtbl_t *wadtbl)
 
     item = NULL;
 
-    if (wadfiles[i].src == source_iwad && !iwad && !strcmp(fileext_p, "wad"))
+    if (wadfiles[i].src == source_iwad && !iwad && !strcasecmp(fileext_p, "wad"))
       item = &iwad;
 
-    if (wadfiles[i].src == source_pwad && !strcmp(fileext_p, "wad"))
+    if (wadfiles[i].src == source_pwad && !strcasecmp(fileext_p, "wad"))
       item = &pwads;
 
     if (item)
@@ -575,9 +588,17 @@ static void R_DemoEx_AddParams(wadtbl_t *wadtbl)
     AddString(&files, dehs);
   }
 
+  //complevel for 'm' demos
+  if (compatibility_level == doom2_19_compatibility ||
+      compatibility_level == ultdoom_compatibility ||
+      compatibility_level == finaldoom_compatibility)
+  {
+    sprintf(buf, "-complevel %d ", compatibility_level);
+    AddString(&files, buf);
+  }
+
   if (spechit_baseaddr != 0 && spechit_baseaddr != DEFAULT_SPECHIT_MAGIC)
   {
-    char buf[200];
     sprintf(buf, "-spechit %d ", spechit_baseaddr);
     AddString(&files, buf);
   }
@@ -591,14 +612,14 @@ static void R_DemoEx_AddParams(wadtbl_t *wadtbl)
 static void R_DemoEx_AddMouseLookData(wadtbl_t *wadtbl)
 {
   int i = 0;
-  int size = mlook_lump.tick * sizeof(mlook_lump.data[0]);
 
   // search for at least one tic with a nonzero pitch
-  while (i < size)
+  while (i < (int)mlook_lump.tick)
   {
     if (mlook_lump.data[i] != 0)
     {
-      W_AddLump(wadtbl, mlook_lump.name, (const byte*)mlook_lump.data, size);
+      W_AddLump(wadtbl, mlook_lump.name, 
+        (const byte*)mlook_lump.data, mlook_lump.tick * sizeof(mlook_lump.data[0]));
       break;
     }
     i++;
@@ -834,12 +855,12 @@ static int G_ReadDemoFooter(const char *filename)
             {
               W_ReleaseAllWads();
               WadDataToWadFiles(&waddata);
-              WadDataFree(&waddata);
               result = true;
               break;
             }
           }
         }
+        WadDataFree(&waddata);
       }
       free(buffer);
     }
@@ -858,10 +879,13 @@ void G_WriteDemoFooter(FILE *file)
   //init PWAD header
   W_InitPWADTable(&demoex);
 
+  //
   //write all the data
+  //
 
-  // this is a separator for more eye-friendly looking
-  W_AddLump(&demoex, NULL, DEMOEX_BEGIN_SEPARATOR, strlen(DEMOEX_BEGIN_SEPARATOR));
+  // separators for eye-friendly looking
+  W_AddLump(&demoex, NULL, DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
+  W_AddLump(&demoex, NULL, DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
 
   //process format version
   W_AddLump(&demoex, DEMOEX_VERSION_LUMPNAME, DEMOEX_VERSION, strlen(DEMOEX_VERSION));
@@ -878,8 +902,12 @@ void G_WriteDemoFooter(FILE *file)
 
   //process mlook
   R_DemoEx_AddMouseLookData(&demoex);
+  W_AddLump(&demoex, NULL, DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
 
-  W_AddLump(&demoex, NULL, DEMOEX_END_SEPARATOR, strlen(DEMOEX_END_SEPARATOR));
+  //separator
+  //while (ftell(file)%16) fputc(0, file);
+  //fputc(0, file);
+  //while (ftell(file)%16) fputc(0, file);
 
   //write pwad header, all data and lookup table to the end of a demo
   if (
@@ -1112,7 +1140,7 @@ void WadDataToWadFiles(waddata_t *waddata)
   {
     if (waddata->wadfiles[i].src == source_iwad)
     {
-      AddIWAD(waddata->wadfiles[i].name);
+      AddIWAD(I_FindFile(waddata->wadfiles[i].name, ".wad"));
       iwadindex = i;
       break;
     }

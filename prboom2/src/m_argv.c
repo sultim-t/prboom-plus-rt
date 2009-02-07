@@ -34,6 +34,7 @@
 #include <string.h>
 // CPhipps - include the correct header
 #include "doomtype.h"
+#include "z_zone.h"
 #include "m_argv.h"
 
 int    myargc;
@@ -77,6 +78,29 @@ int M_CheckParmEx(const char *check, char **params, int paramscount)
   }
 
   return -1;
+}
+
+//
+// Add one parameter to myargv list
+//
+
+void M_AddParam(const char *param)
+{
+  int i;
+  const char **tmyargv;  // use these to recreate the argv array
+
+  tmyargv = calloc(sizeof(char *), myargc + 1);
+
+  // copy everything that's there now
+  for (i = 0; i < myargc; i++)
+  {
+    tmyargv[i] = myargv[i];  // pointers are still valid
+  }
+  
+  tmyargv[myargc++] = param;
+
+  // now make the global variables point to our array
+  myargv = tmyargv;
 }
 
 //
