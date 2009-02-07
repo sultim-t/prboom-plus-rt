@@ -2080,58 +2080,47 @@ static void gld_DrawWall(GLWall *wall)
 #define OU(w,seg) (((float)((seg)->sidedef->textureoffset+(render_segs ? (seg)->offset : 0))/(float)FRACUNIT)/(float)(w).gltexture->buffer_width)
 #define OV(w,seg) (((float)((seg)->sidedef->rowoffset)/(float)FRACUNIT)/(float)(w).gltexture->buffer_height)
 #define OV_PEG(w,seg,v_offset) (OV((w),(seg))-(((float)(v_offset)/(float)FRACUNIT)/(float)(w).gltexture->buffer_height))
+#define URUL(w, seg, backseg, linelength)\
+  if (backseg){\
+    (w).ur=OU((w),(seg));\
+    (w).ul=(w).ur+((linelength)/(float)(w).gltexture->buffer_width);\
+  }else{\
+    (w).ul=OU((w),(seg));\
+    (w).ur=(w).ul+((linelength)/(float)(w).gltexture->buffer_width);\
+  }
 
-#define CALC_TEX_VALUES_TOP(w, seg, peg, linelength, lineheight)\
+#define CALC_TEX_VALUES_TOP(w, seg, backseg, peg, linelength, lineheight)\
   (w).flag=GLDWF_TOP;\
-  (w).ul=OU((w),(seg))+(0.0f);\
-  (w).ur=OU((w),(seg))+((linelength)/(float)(w).gltexture->buffer_width);\
-  (peg)?\
-  (\
-    (w).vb=OV((w),(seg))+((w).gltexture->scaleyfac),\
-    (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->buffer_height))\
-  ):(\
-    (w).vt=OV((w),(seg))+(0.0f),\
-    (w).vb=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->buffer_height)\
-  )
+  URUL(w, seg, backseg, linelength);\
+  if (peg){\
+    (w).vb=OV((w),(seg))+((w).gltexture->scaleyfac);\
+    (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->buffer_height));\
+  }else{\
+    (w).vt=OV((w),(seg));\
+    (w).vb=(w).vt+((float)(lineheight)/(float)(w).gltexture->buffer_height);\
+  }
 
-#define CALC_TEX_VALUES_MIDDLE1S(w, seg, peg, linelength, lineheight)\
+#define CALC_TEX_VALUES_MIDDLE1S(w, seg, backseg, peg, linelength, lineheight)\
   (w).flag=GLDWF_M1S;\
-  (w).ul=OU((w),(seg))+(0.0f);\
-  (w).ur=OU((w),(seg))+((linelength)/(float)(w).gltexture->buffer_width);\
-  (peg)?\
-  (\
-    (w).vb=OV((w),(seg))+((w).gltexture->scaleyfac),\
-    (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->buffer_height))\
-  ):(\
-    (w).vt=OV((w),(seg))+(0.0f),\
-    (w).vb=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->buffer_height)\
-  )
+  URUL(w, seg, backseg, linelength);\
+  if (peg){\
+    (w).vb=OV((w),(seg))+((w).gltexture->scaleyfac);\
+    (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->buffer_height));\
+  }else{\
+    (w).vt=OV((w),(seg));\
+    (w).vb=(w).vt+((float)(lineheight)/(float)(w).gltexture->buffer_height);\
+  }
 
-#define CALC_TEX_VALUES_MIDDLE2S(w, seg, peg, linelength, lineheight)\
-  (w).flag=GLDWF_M2S;\
-  (w).ul=OU((w),(seg))+(0.0f);\
-  (w).ur=OU((w),(seg))+((linelength)/(float)(w).gltexture->buffer_width);\
-  (peg)?\
-  (\
-    (w).vb=((w).gltexture->scaleyfac),\
-    (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->buffer_height))\
-  ):(\
-    (w).vt=(0.0f),\
-    (w).vb=((float)(lineheight)/(float)(w).gltexture->buffer_height)\
-  )
-
-#define CALC_TEX_VALUES_BOTTOM(w, seg, peg, linelength, lineheight, v_offset)\
+#define CALC_TEX_VALUES_BOTTOM(w, seg, backseg, peg, linelength, lineheight, v_offset)\
   (w).flag=GLDWF_BOT;\
-  (w).ul=OU((w),(seg))+(0.0f);\
-  (w).ur=OU((w),(seg))+((linelength)/(float)(w).gltexture->realtexwidth);\
-  (peg)?\
-  (\
-    (w).vb=OV_PEG((w),(seg),(v_offset))+((w).gltexture->scaleyfac),\
-    (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->buffer_height))\
-  ):(\
-    (w).vt=OV((w),(seg))+(0.0f),\
-    (w).vb=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->buffer_height)\
-  )
+  URUL(w, seg, backseg, linelength);\
+  if (peg){\
+    (w).vb=OV_PEG((w),(seg),(v_offset))+((w).gltexture->scaleyfac);\
+    (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->buffer_height));\
+  }else{\
+    (w).vt=OV((w),(seg));\
+    (w).vb=(w).vt+((float)(lineheight)/(float)(w).gltexture->buffer_height);\
+  }
 
 void gld_AddWall(seg_t *seg)
 {
@@ -2143,6 +2132,7 @@ void gld_AddWall(seg_t *seg)
   sector_t btempsec; // needed for R_FakeFlat
   float lineheight, linelength;
   int rellight = 0;
+  int backseg;
 
   if (render_segs)
   {
@@ -2160,6 +2150,7 @@ void gld_AddWall(seg_t *seg)
     linelength = lines[seg->linedef->iLineID].texel_length;
     wall.glseg=&gl_lines[seg->linedef->iLineID];
   }
+  backseg = !render_segs && seg->sidedef != &sides[seg->linedef->sidenum[0]];
 
   if (!seg->frontsector)
     return;
@@ -2200,7 +2191,7 @@ void gld_AddWall(seg_t *seg)
       wall.gltexture=temptex;
       CALC_Y_VALUES(wall, lineheight, frontsector->floorheight, frontsector->ceilingheight);
       CALC_TEX_VALUES_MIDDLE1S(
-        wall, seg, (LINE->flags & ML_DONTPEGBOTTOM)>0,
+        wall, seg, backseg, (LINE->flags & ML_DONTPEGBOTTOM)>0,
         linelength, lineheight
       );
       gld_AddDrawItem((wall.alpha == 1.0f ? GLDIT_WALL : GLDIT_TWALL), &wall);
@@ -2282,7 +2273,7 @@ void gld_AddWall(seg_t *seg)
           wall.gltexture=temptex;
           CALC_Y_VALUES(wall, lineheight, floor_height, ceiling_height);
           CALC_TEX_VALUES_TOP(
-            wall, seg, (LINE->flags & (/*e6y ML_DONTPEGBOTTOM | */ML_DONTPEGTOP))==0,
+            wall, seg, backseg, (LINE->flags & (/*e6y ML_DONTPEGBOTTOM | */ML_DONTPEGTOP))==0,
             linelength, lineheight
           );
           gld_AddDrawItem((wall.alpha == 1.0f ? GLDIT_WALL : GLDIT_TWALL), &wall);
@@ -2321,11 +2312,6 @@ void gld_AddWall(seg_t *seg)
       // The fix for wrong middle texture drawing
       // if it exceeds the boundaries of its floor and ceiling
       
-      /*CALC_Y_VALUES(wall, lineheight, floor_height, ceiling_height);
-      CALC_TEX_VALUES_MIDDLE2S(
-        wall, seg, (LINE->flags & ML_DONTPEGBOTTOM)>0,
-        segs[seg->iSegID].length, lineheight
-      );*/
       {
         int floormax, ceilingmin, linelen;
         float mip;
@@ -2349,8 +2335,7 @@ void gld_AddWall(seg_t *seg)
           goto bottomtexture;
 
         wall.flag=GLDWF_M2S;
-        wall.ul=OU((wall),(seg))+(0.0f);
-        wall.ur=OU(wall,(seg))+(linelength/(float)wall.gltexture->buffer_width);
+        URUL(wall, seg, backseg, linelength);
         if (floormax<=floor_height)
 #ifdef USE_GLU_IMAGESCALE
           wall.vb=1.0f;
@@ -2424,7 +2409,7 @@ bottomtexture:
         wall.gltexture=temptex;
         CALC_Y_VALUES(wall, lineheight, floor_height, ceiling_height);
         CALC_TEX_VALUES_BOTTOM(
-          wall, seg, (LINE->flags & ML_DONTPEGBOTTOM)>0,
+          wall, seg, backseg, (LINE->flags & ML_DONTPEGBOTTOM)>0,
           linelength, lineheight,
           floor_height-frontsector->ceilingheight
         );
@@ -2441,7 +2426,6 @@ bottomtexture:
 #undef OV_PEG
 #undef CALC_TEX_VALUES_TOP
 #undef CALC_TEX_VALUES_MIDDLE1S
-#undef CALC_TEX_VALUES_MIDDLE2S
 #undef CALC_TEX_VALUES_BOTTOM
 #undef ADDWALL
 
