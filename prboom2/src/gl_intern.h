@@ -83,7 +83,6 @@ typedef struct
   int realtexwidth, realtexheight;
   int buffer_width,buffer_height;
   int buffer_size;
-  int glTexID[CR_LIMIT+MAXPLAYERS];
   
   //e6y: support for Boom colormaps
   int ***glTexExID;
@@ -267,8 +266,6 @@ extern int gl_texture_filter_anisotropic;
 extern dboolean use_mipmapping;
 extern int transparent_pal_index;
 extern unsigned char gld_palmap[256];
-extern GLTexture *last_gltexture;
-extern int last_cm;
 
 //e6y
 #define DETAIL_DISTANCE 9
@@ -290,7 +287,6 @@ void gld_Precache(void);
 
 //gamma
 void gld_ResetGammaRamp(void);
-void gld_GammaCorrect(unsigned char *buffer, int bufSize);
 
 //e6y: from gl_vertex
 //extern int render_segs;
@@ -306,15 +302,15 @@ void gld_DrawDetail_NoARB(void);
 void gld_DrawWallWithDetail(GLWall *wall);
 void gld_ResetLastTexture(void);
 
-int gld_BuildTexture(GLTexture *gltexture, void *data, dboolean readonly,
-                     int pitch, int width, int height,
-                     unsigned char **out_buf, int *out_bufsize,
-                     int *out_width, int *out_height);
+unsigned char* gld_GetTextureBuffer(int texid, int miplevel, int *width, int *height);
+
+int gld_BuildTexture(GLTexture *gltexture, void *data, dboolean readonly, int width, int height);
 
 //hires
 extern int gl_have_hires_textures;
 extern int gl_have_hires_flats;
 extern int gl_have_hires_patches;
+int gld_HiRes_BuildTables(void);
 void gld_PrecacheGLTexture(GLTexture *gltexture);
 void gld_InitHiRes(void);
 int gld_LoadHiresTex(GLTexture *gltexture, int *glTexID, int cm);

@@ -4488,10 +4488,6 @@ dboolean M_Responder (event_t* ev) {
           {
             gld_SetGammaRamp(useglgamma);
           }
-          if (gl_lightmode == gl_lightmode_mixed)
-          {
-            gld_FlushTextures();
-          }
         }
         else
 #endif

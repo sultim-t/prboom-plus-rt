@@ -649,6 +649,7 @@ void M_ChangeSpriteClip(void)
 
 void ResolveColormapsHiresConflict(dboolean prefer_colormap)
 {
+  return;
   if (prefer_colormap)
   {
     if (gl_boom_colormaps_default)
@@ -684,6 +685,7 @@ void M_ChangeAllowBoomColormaps(void)
   }
   else
   {
+    gl_boom_colormaps = gl_boom_colormaps_default;
     ResolveColormapsHiresConflict(true);
     gld_FlushTextures();
     gld_Precache();
@@ -709,12 +711,6 @@ void M_ChangeLightMode(void)
   if (gl_lightmode == gl_lightmode_gzdoom)
   {
     gld_SetGammaRamp(useglgamma);
-  }
-
-  if (gl_lightmode == gl_lightmode_mixed)
-  {
-    gld_SetGammaRamp(-1);
-    gld_FlushTextures();
   }
 }
 

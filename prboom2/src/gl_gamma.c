@@ -147,35 +147,6 @@ void gld_CheckHardwareGamma(void)
   }
 }
 
-void gld_GammaCorrect(unsigned char *buffer, int bufSize)
-{
-  if (!gl_DeviceSupportsGamma)
-    return;
-
-  if (gl_lightmode == gl_lightmode_mixed)
-  {
-    int i;
-    static int prevgamma = -1;
-    static Uint16 s_gammatable[256];
-
-    if (useglgamma != prevgamma)
-    {
-      float g = (BETWEEN(0, MAX_GLGAMMA, useglgamma)) / 10.0f + 1.0f;
-
-      prevgamma = useglgamma;
-
-      CalculateGammaRamp(g, s_gammatable);
-    }
-
-    for (i = 0; i < bufSize-4; i+=4)
-    {
-      buffer[i+0] = s_gammatable[buffer[i+0]]/256;
-      buffer[i+1] = s_gammatable[buffer[i+1]]/256;
-      buffer[i+2] = s_gammatable[buffer[i+2]]/256;
-    }
-  }
-}
-
 //
 // gld_SetGammaRamp
 //

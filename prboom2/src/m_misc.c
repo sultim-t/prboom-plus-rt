@@ -844,8 +844,6 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"render_paperitems", {&render_paperitems},  {1},0,1,
    def_bool,ss_stat},
-  {"test_voodoo", {&test_voodoo},  {0},0,1,
-   def_bool,ss_stat},
   {"gl_boom_colormaps", {&gl_boom_colormaps_default},  {1},0,1,
    def_bool,ss_stat},
   {"gl_texture_internal_hires", {&gl_texture_internal_hires},  {1},0,1,

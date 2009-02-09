@@ -57,7 +57,9 @@
 #include "i_video.h"
 #include "hu_lib.h"
 #include "hu_stuff.h"
+#include "r_main.h"
 #include "r_sky.h"
+#include "m_argv.h"
 #include "e6y.h"
 
 #ifndef HAVE_STRLWR
@@ -184,8 +186,6 @@ void gld_ProgressUpdate(char * text, int progress, int total)
 static const char* gld_HiRes_GetInternalName(GLTexture *gltexture);
 static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char *dds_path);
 static void gld_HiRes_Bind(GLTexture *gltexture, int *glTexID);
-static int gld_HiRes_LoadInternal(GLTexture *gltexture, int *glTexID);
-static int gld_HiRes_LoadExternal(GLTexture *gltexture, int *glTexID);
 
 #define DDRAW_H_MAKEFOURCC(ch0, ch1, ch2, ch3) \
   ((unsigned long)(unsigned char)(ch0) | ((unsigned long)(unsigned char)(ch1) << 8) | \
@@ -404,6 +404,7 @@ GLGenericImage * ReadDDSFile(const char *filename, int * bufsize, int * numMipma
 }
 
 static SDL_PixelFormat RGBAFormat;
+static byte* RGB24to8_buf = NULL;
 
 static const char* gld_HiRes_GetInternalName(GLTexture *gltexture)
 {
@@ -676,6 +677,10 @@ static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char 
     
     if (checklist->exists == 1) //dir exists
     {
+      static const char * extensions[] =
+      {"png", "jpg", "tga", "pcx", "gif", "bmp", NULL};
+      const char ** extp;
+
       if (GLEXT_glCompressedTexImage2DARB && dds_path[0] == '\0')
       {
         SNPRINTF(checkName, sizeof(checkName), checklist->path, hiresdir, texname, "dds");
@@ -685,24 +690,19 @@ static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char 
         }
       }
       
+      for (extp = extensions; *extp; extp++)
       {
-        static const char * extensions[] =
-        {"png", "jpg", "tga", "pcx", "gif", "bmp", NULL};
-        const char ** extp;
-        
-        for (extp = extensions; *extp; extp++)
+        SNPRINTF(checkName, sizeof(checkName), checklist->path, hiresdir, texname, *extp);
+
+        if (!access(checkName, F_OK))
         {
-          SNPRINTF(checkName, sizeof(checkName), checklist->path, hiresdir, texname, *extp);
-          
-          if (!access(checkName, F_OK))
-          {
-            strcpy(img_path, checkName);
-            return true;
-          }
+          strcpy(img_path, checkName);
+          return true;
         }
       }
     }
-  } while ((++checklist)->path);
+  }
+  while ((++checklist)->path);
 
   if (dds_path[0])
     return true;
@@ -743,75 +743,181 @@ static void gld_HiRes_Bind(GLTexture *gltexture, int *glTexID)
   glBindTexture(GL_TEXTURE_2D, *glTexID);
 }
 
-static int gld_HiRes_LoadInternal(GLTexture *gltexture, int *glTexID)
+void gld_HiRes_ProcessColormap(unsigned char *buffer, int bufSize)
 {
-  int result = false;
-  const char *lumpname;
+  int pos;
+  const lighttable_t *colormap;
+  const unsigned char *playpal;
 
-  lumpname = gld_HiRes_GetInternalName(gltexture);
+  //patch if (gl_boom_colormaps && use_boom_cm)
+  //wall  if (gl_boom_colormaps && use_boom_cm && !(comp[comp_skymap] && (gltexture->flags&GLTEXTURE_SKY)))
+  if (!(gl_boom_colormaps && use_boom_cm && RGB24to8_buf))
+    return;
 
-  if (lumpname)
+  playpal = W_CacheLumpName("PLAYPAL");
+  colormap = (fixedcolormap ? fixedcolormap : fullcolormap);
+
+  for (pos = 0; pos < bufSize; pos += 4)
   {
-    int lump = (W_CheckNumForName)(lumpname, ns_hires);
-    if (lump != -1)
+    byte color = RGB24to8_buf[(buffer[pos+0]<<16) + (buffer[pos+1]<<8) + buffer[pos+2]];
+    buffer[pos+0] = playpal[colormap[color]*3+0];
+    buffer[pos+1] = playpal[colormap[color]*3+1];
+    buffer[pos+2] = playpal[colormap[color]*3+2];
+  }
+
+  W_UnlockLumpName("PLAYPAL");
+}
+
+int V_GetNearestPaletteIndex(const byte* palette, int r, int g, int b)
+{
+  int color;
+
+  int bestcolor = 1;
+  int bestdist = 3 * 257 * 257;
+
+  for (color = 0; color < 256; color++)
+  {
+    int x = r - palette[color * 3 + 0];
+    int y = g - palette[color * 3 + 1];
+    int z = b - palette[color * 3 + 2];
+    int dist = x * x + y * y + z * z;
+    
+    if (dist < bestdist)
     {
-      SDL_RWops *rw_data = SDL_RWFromMem((void*)W_CacheLumpNum(lump), W_LumpLength(lump));
-      SDL_Surface *surf_tmp = IMG_Load_RW(rw_data, true);
+      if (dist == 0)
+        return color;
 
-      if (surf_tmp)
-      {
-        SDL_Surface *surf = SDL_ConvertSurface(surf_tmp, &RGBAFormat, surf_tmp->flags);
-        SDL_FreeSurface(surf_tmp);
+      bestdist = dist;
+      bestcolor = color;
+    }
+  }
+  return bestcolor;
+}
 
-        if (surf)
-        {
-          gld_GammaCorrect(surf->pixels, surf->pitch * surf->h);
+int gld_HiRes_BuildTables(void)
+{
+  const int RGB24to8_size = 256 * 256 * 256;
+  unsigned char* RGB24to8_fname;
+  int lump, size;
 
-          gld_HiRes_Bind(gltexture, glTexID);
+  if ((!gl_boom_colormaps) || !(gl_texture_internal_hires || gl_texture_external_hires))
+    return false;
 
-          result = gld_BuildTexture(gltexture, surf->pixels, true,
-            surf->pitch, surf->w, surf->h, NULL, NULL, NULL, NULL);
+  if (RGB24to8_buf)
+    return true;
 
-          SDL_FreeSurface(surf);
-        }
-      }
+  lump = W_CheckNumForName("24TO8PAL");
+  if (lump != -1)
+  {
+    size = W_LumpLength(lump);
+    if (size == RGB24to8_size)
+    {
+      const byte* RGR24to8_lump;
+
+      RGR24to8_lump = W_CacheLumpNum(lump);
+      RGB24to8_buf = malloc(RGB24to8_size);
+      memcpy(RGB24to8_buf, RGR24to8_lump, RGB24to8_size);
+      W_UnlockLumpName("24TO8PAL");
+      return true;
     }
   }
 
-  return result;
+  RGB24to8_fname = I_FindFile("24to8pal.dat", ".dat");
+  if (RGB24to8_fname)
+  {
+    struct stat RGB24to8_stat;
+    memset(&RGB24to8_stat, 0, sizeof(RGB24to8_stat));
+    stat(RGB24to8_fname, &RGB24to8_stat);
+    if (RGB24to8_stat.st_size == RGB24to8_size)
+    {
+      I_FileToBuffer(RGB24to8_fname, &RGB24to8_buf, &size);
+    }
+    free(RGB24to8_fname);
+
+    if (size == RGB24to8_size)
+      return true;
+  }
+
+  if (1 || M_CheckParm("-24to8pal"))
+  {
+    FILE *RGB24to8_fp;
+    char fname[PATH_MAX+1];
+
+    SNPRINTF(fname, sizeof(fname), "%s/24to8pal.dat", I_DoomExeDir());
+
+    RGB24to8_fp = fopen(fname, "wb");
+    if (RGB24to8_fp)
+    {
+      int ok, r, g, b, k;
+      const byte* palette;
+
+      RGB24to8_buf = malloc(RGB24to8_size);
+      lump = W_GetNumForName("PLAYPAL");
+      palette = W_CacheLumpNum(lump);
+
+      // create the RGB24to8 lookup table
+      gld_ProgressStart();
+      k = 0;
+      for (r = 0; r < 256; r++)
+      {
+        gld_ProgressUpdate("Building 24TO8PAL.dat ...", r, 256);
+        for (g = 0; g < 256; g++)
+        {
+          for (b = 0; b < 256; b++)
+          {
+            RGB24to8_buf[k++] = V_GetNearestPaletteIndex(palette, r, g, b);
+          }
+        }
+      }
+      gld_ProgressEnd();
+
+      W_UnlockLumpName("PLAYPAL");
+
+      ok = fwrite(RGB24to8_buf, RGB24to8_size, 1, RGB24to8_fp) == 1;
+      return ((fclose(RGB24to8_fp) == 0) && ok);
+    }
+  }
+
+  gl_boom_colormaps_default = false;
+  M_ChangeAllowBoomColormaps();
+  return false;
 }
 
-static int gld_HiRes_LoadExternal(GLTexture *gltexture, int *glTexID)
+void gld_InitHiRes(void)
+{
+  //Init RGBAFormat
+  RGBAFormat.palette = 0;
+  RGBAFormat.colorkey = 0;
+  RGBAFormat.alpha = 0;
+  RGBAFormat.BitsPerPixel = 32;
+  RGBAFormat.BytesPerPixel = 4;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+  RGBAFormat.Rmask = 0xFF000000; RGBAFormat.Rshift = 0; RGBAFormat.Rloss = 0;
+  RGBAFormat.Gmask = 0x00FF0000; RGBAFormat.Gshift = 8; RGBAFormat.Gloss = 0;
+  RGBAFormat.Bmask = 0x0000FF00; RGBAFormat.Bshift = 16; RGBAFormat.Bloss = 0;
+  RGBAFormat.Amask = 0x000000FF; RGBAFormat.Ashift = 24; RGBAFormat.Aloss = 0;
+#else
+  RGBAFormat.Rmask = 0x000000FF; RGBAFormat.Rshift = 24; RGBAFormat.Rloss = 0;
+  RGBAFormat.Gmask = 0x0000FF00; RGBAFormat.Gshift = 16; RGBAFormat.Gloss = 0;
+  RGBAFormat.Bmask = 0x00FF0000; RGBAFormat.Bshift = 8; RGBAFormat.Bloss = 0;
+  RGBAFormat.Amask = 0xFF000000; RGBAFormat.Ashift = 0; RGBAFormat.Aloss = 0;
+#endif
+
+  gld_HiRes_BuildTables();
+
+  gl_have_hires_textures = false;
+  gl_have_hires_flats = false;
+  gl_have_hires_patches = false;
+
+  gld_PrecachePatches();
+}
+
+static int gld_HiRes_LoadDDSTexture(GLTexture* gltexture, int* texid, const char* dds_path)
 {
   int result = false;
+  int tex_width, tex_height;
 
-  SDL_Surface *surf = NULL;
-  SDL_Surface *surf_tmp = NULL;
-  int tex_width, tex_height, tex_buffer_size;
-  unsigned char *tex_buffer = NULL;
-
-  char img_path[PATH_MAX];
-  char dds_path[PATH_MAX];
-  dboolean img_present, dds_present;
-  
-  char cache_filename[PATH_MAX];
-  FILE *cachefp = NULL;
-  int cache_write = false;
-  int cache_read = false;
-  int cache_read_ok = false;
-
-  struct stat tex_stat;
-
-  if (!gld_HiRes_GetExternalName(gltexture, img_path, dds_path))
-    return false;
-
-  img_present = strlen(img_path) > 4;
-  dds_present = strlen(dds_path) > 4;
-
-  if (!img_present && !dds_present)
-    return false;
-
-  if (GLEXT_glCompressedTexImage2DARB && dds_present)
+  if (GLEXT_glCompressedTexImage2DARB)
   {
     int ddsbufsize, numMipmaps;
     GLGenericImage * ddsimage = ReadDDSFile(dds_path, &ddsbufsize, &numMipmaps);
@@ -825,7 +931,7 @@ static int gld_HiRes_LoadExternal(GLTexture *gltexture, int *glTexID)
       {
         int i, offset, size, blockSize;
 
-        gld_HiRes_Bind(gltexture, glTexID);
+        gld_HiRes_Bind(gltexture, texid);
 
         offset = 0;
         blockSize = (ddsimage->format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
@@ -862,172 +968,230 @@ static int gld_HiRes_LoadExternal(GLTexture *gltexture, int *glTexID)
         free(ddsimage);
 
         result = true;
-        goto l_exit;
       }
     }
   }
-
-  if (!img_present)
-  {
-    result = false;
-    goto l_exit;
-  }
-
-  memset(&tex_stat, 0, sizeof(tex_stat));
-  stat(img_path, &tex_stat);
-  
-  strcpy(cache_filename, img_path);
-  strcat(cache_filename, ".cache");
-
-  if (!access(cache_filename, F_OK))
-  {
-    cache_read = !access(cache_filename, R_OK);
-  }
-  else
-  {
-    cache_write = 
-      ((gltexture->realtexwidth != gltexture->tex_width) ||
-      (gltexture->realtexheight != gltexture->tex_height));
-  }
-
-  if (cache_read)
-  {
-    struct stat cache_stat;
-
-    cache_read_ok = false;
-
-    tex_width = 0;
-    tex_height = 0;
-
-    cachefp = fopen(cache_filename, "rb");
-
-    if (cachefp)
-    {
-      if (fread(&tex_width, sizeof(tex_width), 1, cachefp) == 1 &&
-        fread(&tex_height, sizeof(tex_height), 1, cachefp) == 1 &&
-        fread(&cache_stat.st_mtime, sizeof(cache_stat.st_mtime), 1, cachefp) == 1)
-      {
-        if (cache_stat.st_mtime == tex_stat.st_mtime)
-        {
-          tex_buffer_size = tex_width * tex_height * 4;
-
-          tex_buffer = malloc(tex_buffer_size);
-          if (tex_buffer)
-          {
-            if (fread(tex_buffer, tex_buffer_size, 1, cachefp) == 1)
-            {
-              gld_HiRes_Bind(gltexture, glTexID);
-
-              gld_GammaCorrect(tex_buffer, gltexture->buffer_size);
-
-              gld_BuildTexture(gltexture, tex_buffer, true,
-                tex_width, tex_width, tex_height,
-                NULL, NULL, NULL, NULL);
-
-              cache_read_ok = true;
-            }
-            free(tex_buffer);
-          }
-        }
-      }
-      fclose(cachefp);
-    }
-  }
-
-  if (!cache_read_ok)
-  {
-    surf_tmp = IMG_Load(img_path);
-
-    if (!surf_tmp)
-    {
-      lprintf(LO_ERROR, "gld_HiRes_LoadExternal: ");
-      lprintf(LO_ERROR, SDL_GetError());
-      lprintf(LO_ERROR, "\n");
-      return false;
-    }
-
-    surf = SDL_ConvertSurface(surf_tmp, &RGBAFormat, surf_tmp->flags);
-    SDL_FreeSurface(surf_tmp);
-
-    if (!surf)
-      return false;
-
-    gld_GammaCorrect(surf->pixels, surf->pitch * surf->h);
-
-    gld_HiRes_Bind(gltexture, glTexID);
-
-    result = gld_BuildTexture(gltexture, surf->pixels, true,
-      surf->pitch, surf->w, surf->h,
-      &tex_buffer, &tex_buffer_size, &tex_width, &tex_height);
-
-    if (tex_buffer && (cache_write || !cache_read_ok))
-    {
-      cachefp = fopen(cache_filename, "wb");
-      if (cachefp)
-      {
-        fwrite(&tex_width, sizeof(tex_width), 1, cachefp);
-        fwrite(&tex_height, sizeof(tex_height), 1, cachefp);
-        fwrite(&tex_stat.st_mtime, sizeof(tex_stat.st_mtime), 1, cachefp);
-        fwrite(tex_buffer, tex_buffer_size, 1, cachefp);
-        fclose(cachefp);
-      }
-
-      if (tex_buffer != surf->pixels)
-      {
-        free(tex_buffer);
-      }
-    }
-  }
-
-  result = true;
-  goto l_exit;
-
-l_exit:
-  if (surf)
-    SDL_FreeSurface(surf);
 
   return result;
 }
 
-void gld_InitHiRes(void)
+static int gld_HiRes_LoadFromCache(GLTexture* gltexture, int* texid, const char* img_path)
 {
-  //Init RGBAFormat
-  RGBAFormat.palette = 0;
-  RGBAFormat.colorkey = 0;
-  RGBAFormat.alpha = 0;
-  RGBAFormat.BitsPerPixel = 32;
-  RGBAFormat.BytesPerPixel = 4;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-  RGBAFormat.Rmask = 0xFF000000; RGBAFormat.Rshift = 0; RGBAFormat.Rloss = 0;
-  RGBAFormat.Gmask = 0x00FF0000; RGBAFormat.Gshift = 8; RGBAFormat.Gloss = 0;
-  RGBAFormat.Bmask = 0x0000FF00; RGBAFormat.Bshift = 16; RGBAFormat.Bloss = 0;
-  RGBAFormat.Amask = 0x000000FF; RGBAFormat.Ashift = 24; RGBAFormat.Aloss = 0;
-#else
-  RGBAFormat.Rmask = 0x000000FF; RGBAFormat.Rshift = 24; RGBAFormat.Rloss = 0;
-  RGBAFormat.Gmask = 0x0000FF00; RGBAFormat.Gshift = 16; RGBAFormat.Gloss = 0;
-  RGBAFormat.Bmask = 0x00FF0000; RGBAFormat.Bshift = 8; RGBAFormat.Bloss = 0;
-  RGBAFormat.Amask = 0xFF000000; RGBAFormat.Ashift = 0; RGBAFormat.Aloss = 0;
-#endif
+  int result = false;
+  int tex_width = 0;
+  int tex_height = 0;
+  int tex_buffer_size;
+  struct stat cache_stat;
+  struct stat tex_stat;
+  char* cache_filename;
+  FILE *cachefp;
+  unsigned char *tex_buffer;
 
-  gl_have_hires_textures = false;
-  gl_have_hires_flats = false;
-  gl_have_hires_patches = false;
+  memset(&tex_stat, 0, sizeof(tex_stat));
+  stat(img_path, &tex_stat);
+  
+  cache_filename = malloc(strlen(img_path) + 16);
+  sprintf(cache_filename, "%s.cache", img_path);
 
-  gld_PrecachePatches();
+  cachefp = fopen(cache_filename, "rb");
+  if (cachefp)
+  {
+    if (fread(&tex_width, sizeof(tex_width), 1, cachefp) == 1 &&
+      fread(&tex_height, sizeof(tex_height), 1, cachefp) == 1 &&
+      fread(&cache_stat.st_mtime, sizeof(cache_stat.st_mtime), 1, cachefp) == 1)
+    {
+      if (cache_stat.st_mtime == tex_stat.st_mtime)
+      {
+        tex_buffer_size = tex_width * tex_height * 4;
+
+        tex_buffer = malloc(tex_buffer_size);
+        if (tex_buffer)
+        {
+          if (fread(tex_buffer, tex_buffer_size, 1, cachefp) == 1)
+          {
+            gld_HiRes_Bind(gltexture, texid);
+            gld_BuildTexture(gltexture, tex_buffer, false, tex_width, tex_height);
+
+            result = true;
+          }
+        }
+      }
+    }
+    fclose(cachefp);
+  }
+
+  free(cache_filename);
+
+  return result;
+}
+
+static int gld_HiRes_WriteCache(GLTexture* gltexture, int* texid, const char* img_path)
+{
+  int result = false;
+  int w, h;
+  unsigned char *buf;
+  unsigned char cache_filename[PATH_MAX];
+  struct stat tex_stat;
+  FILE *cachefp;
+
+  SNPRINTF(cache_filename, sizeof(cache_filename), "%s.cache", img_path);
+  if (access(cache_filename, F_OK))
+  {
+    buf = gld_GetTextureBuffer(*texid, 0, &w, &h);
+    if (buf)
+    {
+      memset(&tex_stat, 0, sizeof(tex_stat));
+      stat(img_path, &tex_stat);
+      if (cache_filename)
+      {
+        cachefp = fopen(cache_filename, "wb");
+        if (cachefp)
+        {
+          fwrite(&w, sizeof(w), 1, cachefp);
+          fwrite(&h, sizeof(h), 1, cachefp);
+          fwrite(&tex_stat.st_mtime, sizeof(tex_stat.st_mtime), 1, cachefp);
+          fwrite(buf, w * h * 4, 1, cachefp);
+          fclose(cachefp);
+
+          result = true;
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
+static int gld_HiRes_LoadFromFile(GLTexture* gltexture, int* texid, const char* img_path)
+{
+  int result = false;
+  SDL_Surface *surf = NULL;
+  SDL_Surface *surf_tmp = NULL;
+
+  surf_tmp = IMG_Load(img_path);
+
+  if (!surf_tmp)
+  {
+    lprintf(LO_ERROR, "gld_HiRes_LoadExternal: ");
+    lprintf(LO_ERROR, SDL_GetError());
+    lprintf(LO_ERROR, "\n");
+  }
+  else
+  {
+    surf = SDL_ConvertSurface(surf_tmp, &RGBAFormat, surf_tmp->flags);
+    SDL_FreeSurface(surf_tmp);
+
+    if (surf)
+    {
+      gld_HiRes_Bind(gltexture, texid);
+      result = gld_BuildTexture(gltexture, surf->pixels, true, surf->w, surf->h);
+
+      SDL_FreeSurface(surf);
+    }
+  }
+
+  return result;
 }
 
 int gld_LoadHiresTex(GLTexture *gltexture, int *glTexID, int cm)
 {
+  int result = false;
+  int *texid;
+
+  // do not need it
   if (!gl_texture_external_hires && !gl_texture_internal_hires)
     return false;
 
-  if (gl_texture_internal_hires && gld_HiRes_LoadInternal(gltexture, glTexID))
-    return true;
+  // default buffer
+  texid = &gltexture->glTexExID[CR_DEFAULT][0][0];
 
-  if (gl_texture_external_hires && gld_HiRes_LoadExternal(gltexture, glTexID))
-    return true;
+  // already loaded and there is no corresponding hi-res
+  if ((*texid) && !(gltexture->flags & GLTEXTURE_HIRES))
+    return false;
 
-  return false;
+  // try to load in-wad texture
+  if (*texid == 0 && gl_texture_internal_hires)
+  {
+    const char *lumpname = gld_HiRes_GetInternalName(gltexture);
+
+    if (lumpname)
+    {
+      int lump = (W_CheckNumForName)(lumpname, ns_hires);
+      if (lump != -1)
+      {
+        SDL_RWops *rw_data = SDL_RWFromMem((void*)W_CacheLumpNum(lump), W_LumpLength(lump));
+        SDL_Surface *surf_tmp = IMG_Load_RW(rw_data, true);
+
+        if (surf_tmp)
+        {
+          SDL_Surface *surf = SDL_ConvertSurface(surf_tmp, &RGBAFormat, surf_tmp->flags);
+          SDL_FreeSurface(surf_tmp);
+
+          if (surf)
+          {
+            gld_HiRes_Bind(gltexture, texid);
+            gld_BuildTexture(gltexture, surf->pixels, true, surf->w, surf->h);
+
+            SDL_FreeSurface(surf);
+          }
+        }
+      }
+    }
+  }
+
+  // then external
+  if (*texid == 0 && gl_texture_external_hires)
+  {
+    char img_path[PATH_MAX];
+    char dds_path[PATH_MAX];
+    if (gld_HiRes_GetExternalName(gltexture, img_path, dds_path))
+    {
+      if (!gld_HiRes_LoadDDSTexture(gltexture, texid, dds_path))
+      {
+        if (!gld_HiRes_LoadFromCache(gltexture, texid, img_path))
+        {
+          if (gld_HiRes_LoadFromFile(gltexture, texid, img_path))
+          {
+            if ((gltexture->realtexwidth != gltexture->tex_width) ||
+              (gltexture->realtexheight != gltexture->tex_height))
+            {
+              gld_HiRes_WriteCache(gltexture, texid, img_path);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (*texid)
+  {
+    if (texid == glTexID)
+    {
+      result = true;
+    }
+    else
+    {
+      if (gl_boom_colormaps && use_boom_cm && 
+        !(comp[comp_skymap] && (gltexture->flags&GLTEXTURE_SKY)))
+      {
+        int w, h;
+        unsigned char *buf;
+
+        buf = gld_GetTextureBuffer(*texid, 0, &w, &h);
+        gld_HiRes_Bind(gltexture, glTexID);
+        gld_HiRes_ProcessColormap(buf, w * h * 4);
+        result = gld_BuildTexture(gltexture, buf, true, w, h);
+      }
+      else
+      {
+        glTexID = texid;
+        gld_HiRes_Bind(gltexture, glTexID);
+        result = true;
+      }
+    }
+  }
+
+  return result;
 }
 
 static void gld_Mark_CM2RGB_Lump(const char *name)

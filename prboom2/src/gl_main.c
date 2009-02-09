@@ -429,8 +429,7 @@ void gld_DrawLine(int x0, int y0, int x1, int y1, int BaseColor)
   const unsigned char *playpal=W_CacheLumpName("PLAYPAL");
 
   glBindTexture(GL_TEXTURE_2D, 0);
-  last_gltexture = NULL;
-  last_cm = -1;
+  gld_ResetLastTexture();
   glColor3f((float)playpal[3*BaseColor]/255.0f,
             (float)playpal[3*BaseColor+1]/255.0f,
             (float)playpal[3*BaseColor+2]/255.0f);
@@ -502,8 +501,7 @@ void gld_FillBlock(int x, int y, int width, int height, int col)
   const unsigned char *playpal=W_CacheLumpName("PLAYPAL");
 
   glBindTexture(GL_TEXTURE_2D, 0);
-  last_gltexture = NULL;
-  last_cm = -1;
+  gld_ResetLastTexture();
   glColor3f((float)playpal[3*col]/255.0f,
             (float)playpal[3*col+1]/255.0f,
             (float)playpal[3*col+2]/255.0f);
@@ -1690,8 +1688,7 @@ static void gld_ProcessExtraAlpha(void)
     glDisable(GL_ALPHA_TEST);
     glColor4f(extra_red, extra_green, extra_blue, extra_alpha);
     glBindTexture(GL_TEXTURE_2D, 0);
-    last_gltexture = NULL;
-    last_cm = -1;
+    gld_ResetLastTexture();
     glBegin(GL_TRIANGLE_STRIP);
       glVertex2f( 0.0f, 0.0f);
       glVertex2f( 0.0f, (float)SCREENHEIGHT);
@@ -1708,8 +1705,7 @@ static void gld_InvertScene(void)
   glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
   glColor4f(1,1,1,1);
   glBindTexture(GL_TEXTURE_2D, 0);
-  last_gltexture = NULL;
-  last_cm = -1;
+  gld_ResetLastTexture();
   glBegin(GL_TRIANGLE_STRIP);
     glVertex2f( 0.0f, 0.0f);
     glVertex2f( 0.0f, (float)SCREENHEIGHT);

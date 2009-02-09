@@ -60,7 +60,6 @@ typedef enum
 {
   gl_lightmode_glboom,
   gl_lightmode_gzdoom,
-  gl_lightmode_mixed,
 
   gl_lightmode_last
 } gl_lightmode_t;
@@ -78,9 +77,6 @@ extern int render_canusedetail;
 void gld_InitVertexData();
 void gld_CleanVertexData();
 void gld_UpdateSplitData(sector_t *sector);
-
-//hack
-extern int test_voodoo;
 
 extern int gl_boom_colormaps;
 extern int gl_boom_colormaps_default;

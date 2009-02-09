@@ -48,7 +48,7 @@
 float lighttable[5][256];
 
 gl_lightmode_t gl_lightmode;
-const char *gl_lightmodes[] = {"glboom", "gzdoom", "mixed"};
+const char *gl_lightmodes[] = {"glboom", "gzdoom"};
 int gl_light_ambient;
 
 int gl_fog;
@@ -104,19 +104,10 @@ static float gld_CalcLightLevel_gzdoom(int lightlevel)
   return light / 255.0f;
 }
 
-static float gld_CalcLightLevel_mixed(int lightlevel)
-{
-  if (lightlevel < gl_light_ambient)
-    return (float)gl_light_ambient / 255.0f;
-  else
-    return (float)lightlevel / 255.0f;
-}
-
 static gld_CalcLightLevel_f gld_CalcLightLevelFuncs[gl_lightmode_last] =
 {
   gld_CalcLightLevel_glboom,
   gld_CalcLightLevel_gzdoom,
-  gld_CalcLightLevel_mixed,
 };
 
 float gld_CalcLightLevel(int lightlevel)
@@ -224,23 +215,10 @@ static float gld_CalcFogDensity_gzdoom(sector_t *sector, int lightlevel)
   }
 }
 
-static float gld_CalcFogDensity_mixed(sector_t *sector, int lightlevel)
-{
-  if (sector && (sector->ceilingpic == skyflatnum || sector->floorpic == skyflatnum))
-  {
-    return 0;
-  }
-  else
-  {
-    return distfogtable[1][lightlevel];
-  }
-}
-
 static gld_CalcFogDensity_f gld_CalcFogDensityFuncs[gl_lightmode_last] =
 {
   gld_CalcFogDensity_glboom,
   gld_CalcFogDensity_gzdoom,
-  gld_CalcFogDensity_mixed,
 };
 
 float gld_CalcFogDensity(sector_t *sector, int lightlevel)
