@@ -40,14 +40,7 @@
 #define MAP_COEFF 128.0f
 #define MAP_SCALE (MAP_COEFF*(float)FRACUNIT)
 
-// e6y
-// Now, that the walls are drawn per linedef instead of per seg,
-// there is no necessity in old glboom hack, which increased ytop coordinate
-// (and decreased ybottom) of walls for a little bit (+0.001f). It was for
-// avoiding holes between flats and walls. Now it's always fine I hope and
-// there are no additional glitches (z-fighting) which were caused by the hack.
-//#define SMALLDELTA 0.001f
-#define SMALLDELTA 0.0f
+#define SMALLDELTA 0.001f
 
 typedef enum
 {
