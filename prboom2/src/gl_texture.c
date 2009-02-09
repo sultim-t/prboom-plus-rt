@@ -856,6 +856,13 @@ void gld_BindTexture(GLTexture *gltexture)
   int *glTexID;
   int w, h;
 
+  if (!gltexture || gltexture->textype != GLDT_TEXTURE)
+  {
+    glBindTexture(GL_TEXTURE_2D, 0);
+    last_glTexID = NULL;
+    return;
+  }
+
   if (gl_boom_colormaps)
     glTexID = &gltexture->glTexExID[CR_DEFAULT][gld_GetPlayerColormapIndex(frame_fixedcolormap)][boom_cm];
   else
@@ -865,13 +872,6 @@ void gld_BindTexture(GLTexture *gltexture)
     return;
 
   last_glTexID = glTexID;
-
-  if (!gltexture || gltexture->textype != GLDT_TEXTURE)
-  {
-    glBindTexture(GL_TEXTURE_2D, 0);
-    last_glTexID = NULL;
-    return;
-  }
 
   if (*glTexID != 0)
   {
@@ -975,6 +975,13 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   int *glTexID;
   int w, h;
 
+  if (!gltexture || gltexture->textype != GLDT_PATCH)
+  {
+    glBindTexture(GL_TEXTURE_2D, 0);
+    last_glTexID = NULL;
+    return;
+  }
+
   if (gl_boom_colormaps)
     glTexID = &gltexture->glTexExID[cm][gld_GetPlayerColormapIndex(frame_fixedcolormap)][boom_cm];
   else
@@ -984,13 +991,6 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
     return;
 
   last_glTexID = glTexID;
-
-  if (!gltexture || gltexture->textype != GLDT_PATCH)
-  {
-    glBindTexture(GL_TEXTURE_2D, 0);
-    last_glTexID = NULL;
-    return;
-  }
 
   if (*glTexID != 0)
   {
@@ -1097,6 +1097,13 @@ void gld_BindFlat(GLTexture *gltexture)
   int *glTexID;
   int w, h;
 
+  if (!gltexture || gltexture->textype != GLDT_FLAT)
+  {
+    glBindTexture(GL_TEXTURE_2D, 0);
+    last_glTexID = NULL;
+    return;
+  }
+
   if (gl_boom_colormaps)
     glTexID = &gltexture->glTexExID[CR_DEFAULT][gld_GetPlayerColormapIndex(frame_fixedcolormap)][boom_cm];
   else
@@ -1106,13 +1113,6 @@ void gld_BindFlat(GLTexture *gltexture)
     return;
 
   last_glTexID = glTexID;
-
-  if (!gltexture || gltexture->textype != GLDT_FLAT)
-  {
-    glBindTexture(GL_TEXTURE_2D, 0);
-    last_glTexID = NULL;
-    return;
-  }
 
   if (*glTexID != 0)
   {
