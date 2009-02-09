@@ -952,7 +952,10 @@ GLTexture *gld_RegisterPatch(int lump, int cm)
     //e6y
     gltexture->flags = 0;
     if (lump >= firstspritelump && lump > (firstspritelump + numsprites))
+    {
       gltexture->flags |= GLTEXTURE_SPRITE;
+      gltexture->mipmap = true;
+    }
 
     gltexture->buffer_size=gltexture->buffer_width*gltexture->buffer_height*4;
     R_UnlockPatchNum(lump);
