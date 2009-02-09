@@ -53,6 +53,22 @@ typedef enum
 
 typedef enum
 {
+  MIP_TEXTURE,
+  MIP_SPRITE,
+  MIP_PATCH,
+
+  MIP_COUNT
+} GLMipType;
+
+typedef struct tex_filter_s
+{
+  int mipmap;
+  int mag_filter;
+  int min_filter;
+} tex_filter_t;
+
+typedef enum
+{
   GLTEXTURE_SPRITE    = 0x00000002,
   GLTEXTURE_HASHOLES  = 0x00000004,
   GLTEXTURE_SKY       = 0x00000008,
@@ -253,12 +269,11 @@ extern GLTexcoord *gld_texcoords;
 
 extern char *gl_tex_format_string;
 extern int gl_tex_format;
-extern int gl_tex_filter;
-extern int gl_mipmap_filter;
 extern int gl_texture_filter_anisotropic;
-extern dboolean use_mipmapping;
 extern int transparent_pal_index;
 extern unsigned char gld_palmap[256];
+extern tex_filter_t tex_filter[];
+void gld_SetTexFilters(GLTexture *gltexture);
 
 //e6y
 #define DETAIL_DISTANCE 9

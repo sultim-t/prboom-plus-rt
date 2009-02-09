@@ -933,6 +933,8 @@ static int gld_HiRes_LoadDDSTexture(GLTexture* gltexture, int* texid, const char
 
         gld_HiRes_Bind(gltexture, texid);
 
+        gltexture->mipmap = numMipmaps > 1; 
+
         offset = 0;
         blockSize = (ddsimage->format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
 
@@ -958,11 +960,7 @@ static int gld_HiRes_LoadDDSTexture(GLTexture* gltexture, int* texid, const char
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, gltexture->wrap_mode);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gltexture->wrap_mode);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-          (numMipmaps ? gl_mipmap_filter : gl_tex_filter));
-        if (gl_ext_texture_filter_anisotropic && numMipmaps)
-          glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)(1<<gl_texture_filter_anisotropic));
+        gld_SetTexFilters(gltexture);
         
         free(ddsimage->pixels);
         free(ddsimage);

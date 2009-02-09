@@ -38,8 +38,8 @@ extern int nodesVersion;
 
 typedef enum {
   filter_nearest,
-  filter_nearest_mipmap_nearest,
   filter_linear,
+  filter_nearest_mipmap_nearest,
   filter_linear_mipmap_nearest,
   filter_linear_mipmap_linear,
 

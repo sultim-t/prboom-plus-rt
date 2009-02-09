@@ -102,8 +102,8 @@ dboolean use_fog=false;
 
 int gl_nearclip=5;
 int gl_texture_filter;
-int gl_tex_filter;
-int gl_mipmap_filter;
+int gl_sprite_filter;
+int gl_patch_filter;
 int gl_sortsprites=true;
 int gl_texture_filter_anisotropic = 0;
 //e6y: moved to globals
@@ -137,8 +137,8 @@ void gld_InitTextureParams(void)
 
   tex_filter_t params[filter_count] = {
     {false, GL_NEAREST, GL_NEAREST,                "GL_NEAREST", "GL_NEAREST"},
-    {true,  GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST, "GL_NEAREST", "GL_NEAREST_MIPMAP_NEAREST"},
     {true,  GL_LINEAR,  GL_LINEAR,                 "GL_LINEAR",  "GL_LINEAR"},
+    {true,  GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST, "GL_NEAREST", "GL_NEAREST_MIPMAP_NEAREST"},
     {true,  GL_LINEAR,  GL_LINEAR_MIPMAP_NEAREST,  "GL_LINEAR",  "GL_LINEAR_MIPMAP_NEAREST"},
     {true,  GL_LINEAR,  GL_LINEAR_MIPMAP_LINEAR,   "GL_LINEAR",  "GL_LINEAR_MIPMAP_LINEAR"},
   };
@@ -152,20 +152,24 @@ void gld_InitTextureParams(void)
     {0, NULL}
   };
 
-  use_mipmapping   = params[gl_texture_filter].mipmap;
-  gl_tex_filter    = params[gl_texture_filter].tex_filter;
-  gl_mipmap_filter = params[gl_texture_filter].mipmap_filter;
-  lprintf(LO_INFO, "Using %s for normal textures.\n", params[gl_texture_filter].tex_filter_name);
-  lprintf(LO_INFO, "Using %s for mipmap textures.\n", params[gl_texture_filter].mipmap_filter_name);
+  int i;
+  int *var[MIP_COUNT] = {&gl_texture_filter, &gl_sprite_filter, &gl_patch_filter};
 
-  if (use_mipmapping)
+  for (i = 0; i < MIP_COUNT; i++)
+  {
+#ifdef USE_GLU_MIPMAP
+    tex_filter[i].mipmap     = params[*var[i]].mipmap;
+#else
+    tex_filter[i].mipmap     = false;
+#endif
+    tex_filter[i].mag_filter = params[*var[i]].tex_filter;
+    tex_filter[i].min_filter = params[*var[i]].mipmap_filter;
+  }
+
+  if (tex_filter[MIP_TEXTURE].mipmap)
   {
     gl_shared_texture_palette = false;
   }
-
-#ifndef USE_GLU_MIPMAP
-  use_mipmapping = false;
-#endif
 
   if (gl_color_mip_levels)
   {

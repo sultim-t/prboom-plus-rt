@@ -3087,7 +3087,7 @@ setup_menu_t gen_settings5[] = { // General Settings screen3
 };
 
 static const char *gltexfilters[] = {
-  "None", "None+mip", "Linear", "Bilinear", "Trilinear", NULL};
+  "None", "Linear", "Mipmap", "Bilinear", "Trilinear", NULL};
 
 static const char *gltexfilters_anisotropics[] = 
   {"Off", "2x", "4x", "8x", "16x", NULL};
@@ -3095,22 +3095,24 @@ static const char *gltexfilters_anisotropics[] =
 setup_menu_t gen_settings6[] = { // General Settings screen4
 #ifdef GL_DOOM
   {"Texture Options",  S_SKIP|S_TITLE,m_null,G_X,G_Y+ 1*8},
-  {"Texture Filter Mode",     S_CHOICE, m_null, G_X, G_Y+2 *8, {"gl_texture_filter"}, 0, 0, M_ChangeTextureParams, gltexfilters},
-  {"Anisotropic filter", S_CHOICE, m_null, G_X, G_Y+3 *8, {"gl_texture_filter_anisotropic"}, 0, 0, M_ChangeTextureParams, gltexfilters_anisotropics},
-  {"Texture format",     S_CHOICE, m_null, G_X, G_Y+4 *8, {"gl_tex_format_string"}, 0, 0, M_ChangeTextureParams, gltexformats},
+  {"Texture Filter Mode",        S_CHOICE, m_null, G_X, G_Y+2 *8, {"gl_texture_filter"}, 0, 0, M_ChangeTextureParams, gltexfilters},
+  {"Spritre Filter Mode",        S_CHOICE, m_null, G_X, G_Y+3 *8, {"gl_sprite_filter"}, 0, 0, M_ChangeTextureParams, gltexfilters},
+  {"Patch Filter Mode",          S_CHOICE, m_null, G_X, G_Y+4 *8, {"gl_patch_filter"}, 0, 0, M_ChangeTextureParams, gltexfilters},
+  {"Anisotropic filter",         S_CHOICE, m_null, G_X, G_Y+5 *8, {"gl_texture_filter_anisotropic"}, 0, 0, M_ChangeTextureParams, gltexfilters_anisotropics},
+  {"Texture format",             S_CHOICE, m_null, G_X, G_Y+6 *8, {"gl_tex_format_string"}, 0, 0, M_ChangeTextureParams, gltexformats},
 
-  {"Enable Colormaps",           S_YESNO, m_null, G_X,G_Y+ 6*8, {"gl_boom_colormaps"}, 0, 0, M_ChangeAllowBoomColormaps},
-  {"Enable Internal Hi-Res",     S_YESNO, m_null, G_X,G_Y+ 7*8, {"gl_texture_internal_hires"}, 0, 0, M_ChangeTextureUseHires},
-  {"Enable External Hi-Res",     S_YESNO, m_null, G_X,G_Y+ 8*8, {"gl_texture_external_hires"}, 0, 0, M_ChangeTextureUseHires},
-  {"Override PWAD's graphics with Hi-Res" ,S_YESNO|S_PRGWARN,m_null,G_X,G_Y+ 9*8, {"gl_hires_override_pwads"}},
+  {"Enable Colormaps",           S_YESNO, m_null, G_X,G_Y+ 8*8, {"gl_boom_colormaps"}, 0, 0, M_ChangeAllowBoomColormaps},
+  {"Enable Internal Hi-Res",     S_YESNO, m_null, G_X,G_Y+ 9*8, {"gl_texture_internal_hires"}, 0, 0, M_ChangeTextureUseHires},
+  {"Enable External Hi-Res",     S_YESNO, m_null, G_X,G_Y+10*8, {"gl_texture_external_hires"}, 0, 0, M_ChangeTextureUseHires},
+  {"Override PWAD's graphics with Hi-Res" ,S_YESNO|S_PRGWARN,m_null,G_X,G_Y+11*8, {"gl_hires_override_pwads"}},
 
-  {"Enable High Quality Resize",S_YESNO, m_null, G_X, G_Y+11*8, {"gl_texture_hqresize"}, 0, 0, M_ChangeTextureHQResize},
-  {"Resize textures",          S_CHOICE, m_null, G_X, G_Y+12*8, {"gl_texture_hqresize_textures"}, 0, 0, M_ChangeTextureHQResize, gl_hqresizemodes},
-  {"Resize sprites",           S_CHOICE, m_null, G_X, G_Y+13*8, {"gl_texture_hqresize_sprites"}, 0, 0, M_ChangeTextureHQResize, gl_hqresizemodes},
-  {"Resize patches",           S_CHOICE, m_null, G_X, G_Y+14*8, {"gl_texture_hqresize_patches"}, 0, 0, M_ChangeTextureHQResize, gl_hqresizemodes},
+  {"Enable High Quality Resize", S_YESNO,  m_null, G_X, G_Y+13*8, {"gl_texture_hqresize"}, 0, 0, M_ChangeTextureHQResize},
+  {"Resize textures",            S_CHOICE, m_null, G_X, G_Y+14*8, {"gl_texture_hqresize_textures"}, 0, 0, M_ChangeTextureHQResize, gl_hqresizemodes},
+  {"Resize sprites",             S_CHOICE, m_null, G_X, G_Y+15*8, {"gl_texture_hqresize_sprites"}, 0, 0, M_ChangeTextureHQResize, gl_hqresizemodes},
+  {"Resize patches",             S_CHOICE, m_null, G_X, G_Y+16*8, {"gl_texture_hqresize_patches"}, 0, 0, M_ChangeTextureHQResize, gl_hqresizemodes},
 
-  {"Detailed Walls",            S_YESNO,  m_null, G_X, G_Y+16*8, {"render_detailedwalls"}, 0, 0, M_ChangeUseDetail},
-  {"Detailed Flats",            S_YESNO,  m_null, G_X, G_Y+17*8, {"render_detailedflats"}, 0, 0, M_ChangeUseDetail},
+  {"Detailed Walls",             S_YESNO,  m_null, G_X, G_Y+18*8, {"render_detailedwalls"}, 0, 0, M_ChangeUseDetail},
+  {"Detailed Flats",             S_YESNO,  m_null, G_X, G_Y+19*8, {"render_detailedflats"}, 0, 0, M_ChangeUseDetail},
 #endif //GL_DOOM
 
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {gen_settings5}},

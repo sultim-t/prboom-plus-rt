@@ -169,6 +169,8 @@ extern int gl_nearclip;
 extern int gl_colorbuffer_bits;
 extern int gl_depthbuffer_bits;
 extern int gl_texture_filter;
+extern int gl_sprite_filter;
+extern int gl_patch_filter;
 extern int gl_texture_filter_anisotropic;
 extern char *gl_tex_format_string;
 extern int gl_drawskys;
@@ -420,6 +422,10 @@ default_t defaults[] =
    def_int,ss_none},
   {"gl_texture_filter",{(int*)&gl_texture_filter},
    {filter_linear_mipmap_linear}, filter_nearest, filter_count - 1, def_int,ss_none},
+  {"gl_sprite_filter",{(int*)&gl_sprite_filter},
+   {filter_linear_mipmap_nearest}, filter_nearest, filter_linear_mipmap_nearest, def_int,ss_none},
+  {"gl_patch_filter",{(int*)&gl_patch_filter},
+   {filter_linear}, filter_nearest, filter_linear, def_int,ss_none},
   {"gl_texture_filter_anisotropic",{(int*)&gl_texture_filter_anisotropic},
    {gl_anisotropic_8x}, gl_anisotropic_off, gl_anisotropic_16x, def_int,ss_none},
   {"gl_tex_format_string", {NULL,&gl_tex_format_string}, {0,"GL_RGBA"},UL,UL,
