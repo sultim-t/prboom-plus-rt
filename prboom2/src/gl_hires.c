@@ -768,32 +768,6 @@ void gld_HiRes_ProcessColormap(unsigned char *buffer, int bufSize)
   W_UnlockLumpName("PLAYPAL");
 }
 
-int V_GetNearestPaletteIndex(const byte* palette, int r, int g, int b)
-{
-  int color;
-
-  int bestcolor = 1;
-  int bestdist = 3 * 257 * 257;
-
-  for (color = 0; color < 256; color++)
-  {
-    int x = r - palette[color * 3 + 0];
-    int y = g - palette[color * 3 + 1];
-    int z = b - palette[color * 3 + 2];
-    int dist = x * x + y * y + z * z;
-    
-    if (dist < bestdist)
-    {
-      if (dist == 0)
-        return color;
-
-      bestdist = dist;
-      bestcolor = color;
-    }
-  }
-  return bestcolor;
-}
-
 int gld_HiRes_BuildTables(void)
 {
   const int RGB24to8_size = 256 * 256 * 256;
@@ -848,8 +822,15 @@ int gld_HiRes_BuildTables(void)
     RGB24to8_fp = fopen(fname, "wb");
     if (RGB24to8_fp)
     {
-      int ok, r, g, b, k;
+      void* NewIntDynArray(int dimCount, int *dims);
+
+      int ok, r, g, b, k, color;
       const byte* palette;
+      int **x, **y, **z;
+      int dims[2] = {256, 256};
+      x = NewIntDynArray(2, dims);
+      y = NewIntDynArray(2, dims);
+      z = NewIntDynArray(2, dims);
 
       RGB24to8_buf = malloc(RGB24to8_size);
       lump = W_GetNumForName("PLAYPAL");
@@ -857,21 +838,60 @@ int gld_HiRes_BuildTables(void)
 
       // create the RGB24to8 lookup table
       gld_ProgressStart();
+      gld_ProgressUpdate("Building 24TO8PAL.dat ...", 0, 256);
+      for (k = 0; k < 256; k++)
+      {
+        int color_p = 0;
+        for (color = 0; color < 256; color++)
+        {
+          x[k][color] = (k - palette[color_p++]);
+          x[k][color] *= x[k][color];
+          y[k][color] = (k - palette[color_p++]);
+          y[k][color] *= y[k][color];
+          z[k][color] = (k - palette[color_p++]);
+          z[k][color] *= z[k][color];
+        }
+      }
+
       k = 0;
       for (r = 0; r < 256; r++)
       {
         gld_ProgressUpdate("Building 24TO8PAL.dat ...", r, 256);
         for (g = 0; g < 256; g++)
         {
+          int xy[256];
+          for (color = 0; color < 256; color++)
+          {
+            xy[color] = x[r][color] + y[g][color];
+          }
           for (b = 0; b < 256; b++)
           {
-            RGB24to8_buf[k++] = V_GetNearestPaletteIndex(palette, r, g, b);
+            int dist;
+            int bestcolor = 0;
+            int bestdist = xy[0] + z[b][0];
+            #define CHECK_BEST dist = xy[color] + z[b][color];\
+              if (dist < bestdist) {bestdist = dist; bestcolor = color;}
+            for (color = 0; color < 256; color++)
+            {
+              CHECK_BEST;
+              color++;CHECK_BEST;
+              color++;CHECK_BEST;
+              color++;CHECK_BEST;
+              color++;CHECK_BEST;
+              color++;CHECK_BEST;
+              color++;CHECK_BEST;
+              color++;CHECK_BEST;
+            }
+            RGB24to8_buf[k++] = bestcolor;
           }
         }
       }
       gld_ProgressEnd();
 
       W_UnlockLumpName("PLAYPAL");
+      free(z);
+      free(y);
+      free(x);
 
       ok = fwrite(RGB24to8_buf, RGB24to8_size, 1, RGB24to8_fp) == 1;
       return ((fclose(RGB24to8_fp) == 0) && ok);
