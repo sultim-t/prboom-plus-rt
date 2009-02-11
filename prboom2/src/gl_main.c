@@ -2186,7 +2186,7 @@ void gld_AddWall(seg_t *seg)
       gld_AddSkyTexture(&wall, frontsector->sky, frontsector->sky, SKY_FLOOR);
     }
     temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->midtexture], true, false);
-    if (temptex)
+    if (temptex && frontsector->ceilingheight > frontsector->floorheight)
     {
       wall.gltexture=temptex;
       CALC_Y_VALUES(wall, lineheight, frontsector->floorheight, frontsector->ceilingheight);
@@ -2194,8 +2194,7 @@ void gld_AddWall(seg_t *seg)
         wall, seg, backseg, (LINE->flags & ML_DONTPEGBOTTOM)>0,
         linelength, lineheight
       );
-      if (wall.ytop - wall.ybottom > SMALLDELTA + SMALLDELTA + 0.0001f) //hack
-        gld_AddDrawItem((wall.alpha == 1.0f ? GLDIT_WALL : GLDIT_TWALL), &wall);
+      gld_AddDrawItem((wall.alpha == 1.0f ? GLDIT_WALL : GLDIT_TWALL), &wall);
     }
   }
   else /* twosided */
