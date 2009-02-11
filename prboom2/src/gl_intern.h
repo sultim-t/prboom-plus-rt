@@ -315,9 +315,7 @@ unsigned char* gld_GetTextureBuffer(int texid, int miplevel, int *width, int *he
 int gld_BuildTexture(GLTexture *gltexture, void *data, dboolean readonly, int width, int height);
 
 //hires
-extern int gl_have_hires_textures;
-extern int gl_have_hires_flats;
-extern int gl_have_hires_patches;
+extern unsigned int gl_has_hires;
 int gld_HiRes_BuildTables(void);
 void gld_PrecacheGLTexture(GLTexture *gltexture);
 void gld_InitHiRes(void);

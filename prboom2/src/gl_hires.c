@@ -66,9 +66,7 @@
 char* strlwr(char* str);
 #endif
 
-int gl_have_hires_textures = false;
-int gl_have_hires_flats = false;
-int gl_have_hires_patches = false;
+unsigned int gl_has_hires = 0;
 int gl_texture_external_hires = -1;
 int gl_texture_internal_hires = -1;
 int gl_hires_override_pwads;
@@ -404,7 +402,8 @@ GLGenericImage * ReadDDSFile(const char *filename, int * bufsize, int * numMipma
 }
 
 static SDL_PixelFormat RGBAFormat;
-static byte* RGB24to8_buf = NULL;
+static byte* RGB2PAL = NULL;
+int gl_hires_24bit_colormap = false;
 
 static const char* gld_HiRes_GetInternalName(GLTexture *gltexture)
 {
@@ -715,13 +714,13 @@ static void gld_HiRes_Bind(GLTexture *gltexture, int *glTexID)
   switch (gltexture->textype)
   {
   case GLDT_TEXTURE:
-    gl_have_hires_textures = true;
+    gl_has_hires |= 1;
     break;
   case GLDT_FLAT:
-    gl_have_hires_flats = true;
+    gl_has_hires |= 2;
     break;
   case GLDT_PATCH:
-    gl_have_hires_patches = true;
+    gl_has_hires |= 4;
     break;
   }
 
@@ -749,9 +748,7 @@ void gld_HiRes_ProcessColormap(unsigned char *buffer, int bufSize)
   const lighttable_t *colormap;
   const unsigned char *playpal;
 
-  //patch if (gl_boom_colormaps && use_boom_cm)
-  //wall  if (gl_boom_colormaps && use_boom_cm && !(comp[comp_skymap] && (gltexture->flags&GLTEXTURE_SKY)))
-  if (!(gl_boom_colormaps && use_boom_cm && RGB24to8_buf))
+  if (!RGB2PAL)
     return;
 
   playpal = W_CacheLumpName("PLAYPAL");
@@ -759,10 +756,88 @@ void gld_HiRes_ProcessColormap(unsigned char *buffer, int bufSize)
 
   for (pos = 0; pos < bufSize; pos += 4)
   {
-    byte color = RGB24to8_buf[(buffer[pos+0]<<16) + (buffer[pos+1]<<8) + buffer[pos+2]];
+#if 1
+    byte color;
+    
+    if (gl_hires_24bit_colormap)
+      color = RGB2PAL[(buffer[pos+0]<<16) + (buffer[pos+1]<<8) + buffer[pos+2]];
+    else
+      color = RGB2PAL[((buffer[pos+0]>>3)<<10) + ((buffer[pos+1]>>3)<<5) + (buffer[pos+2]>>3)];
+
     buffer[pos+0] = playpal[colormap[color]*3+0];
     buffer[pos+1] = playpal[colormap[color]*3+1];
     buffer[pos+2] = playpal[colormap[color]*3+2];
+#endif
+
+#if 0
+    float factor;
+    int c, r, g, b, m;
+    byte color;
+
+    color = RGB2PAL[(buffer[pos+0]<<16) + (buffer[pos+1]<<8) + buffer[pos+2]];
+
+    factor = 
+      0.30f * playpal[color*3+0] + 
+      0.59f * playpal[color*3+1] + 
+      0.11f * playpal[color*3+2];
+
+    if (fabs(factor) < 0.001f)
+      factor = 1;
+    else
+      factor = (0.3f * buffer[pos+0] + 0.59f * buffer[pos+1] + 0.11f * buffer[pos+2]) / factor;
+
+    r = (int)(playpal[colormap[color]*3+0] * factor);
+    g = (int)(playpal[colormap[color]*3+1] * factor);
+    b = (int)(playpal[colormap[color]*3+2] * factor);
+
+    m = 255;
+    if (r > m)
+    {
+      m = r;
+      factor = 255.0f / (float)playpal[colormap[color]*3+0];
+    }
+    if (g > m)
+    {
+      m = g;
+      factor = 255.0f / (float)playpal[colormap[color]*3+1];
+    }
+    if (b > m)
+    {
+      m = b;
+      factor = 255.0f / (float)playpal[colormap[color]*3+2];
+    }
+
+    c = (int)(playpal[colormap[color]*3+0] * factor);
+    buffer[pos+0] = BETWEEN(0, 255, c);
+    c = (int)(playpal[colormap[color]*3+1] * factor);
+    buffer[pos+1] = BETWEEN(0, 255, c);
+    c = (int)(playpal[colormap[color]*3+2] * factor);
+    buffer[pos+2] = BETWEEN(0, 255, c);
+#endif
+
+#if 0
+    float factor;
+    int c;
+
+    color = RGB2PAL[(buffer[pos+0]<<16) + (buffer[pos+1]<<8) + buffer[pos+2]];
+
+    factor = 
+      0.30f * playpal[color*3+0] + 
+      0.59f * playpal[color*3+1] + 
+      0.11f * playpal[color*3+2];
+
+    if (fabs(factor) < 0.001f)
+      factor = 1;
+    else
+      factor = (0.3f * buffer[pos+0] + 0.59f * buffer[pos+1] + 0.11f * buffer[pos+2]) / factor;
+
+    c = (int)(playpal[colormap[color]*3+0] * factor);
+    buffer[pos+0] = BETWEEN(0, 255, c);
+    c = (int)(playpal[colormap[color]*3+1] * factor);
+    buffer[pos+1] = BETWEEN(0, 255, c);
+    c = (int)(playpal[colormap[color]*3+2] * factor);
+    buffer[pos+2] = BETWEEN(0, 255, c);
+#endif
   }
 
   W_UnlockLumpName("PLAYPAL");
@@ -770,119 +845,131 @@ void gld_HiRes_ProcessColormap(unsigned char *buffer, int bufSize)
 
 int gld_HiRes_BuildTables(void)
 {
-  const int RGB24to8_size = 256 * 256 * 256;
-  unsigned char* RGB24to8_fname;
+#define RGB2PAL_NAME "RGB2PAL"
+  const int chanel_bits = (gl_hires_24bit_colormap ? 8 : 5);
+  const int numcolors_per_chanel = (1 << chanel_bits);
+  const int RGB2PAL_size = numcolors_per_chanel * numcolors_per_chanel * numcolors_per_chanel;
+  unsigned char* RGB2PAL_fname;
   int lump, size;
 
   if ((!gl_boom_colormaps) || !(gl_texture_internal_hires || gl_texture_external_hires))
     return false;
 
-  if (RGB24to8_buf)
+  if (RGB2PAL)
     return true;
 
-  lump = W_CheckNumForName("24TO8PAL");
-  if (lump != -1)
+  if (gl_hires_24bit_colormap)
   {
-    size = W_LumpLength(lump);
-    if (size == RGB24to8_size)
+    lump = W_CheckNumForName(RGB2PAL_NAME);
+    if (lump != -1)
     {
-      const byte* RGR24to8_lump;
+      size = W_LumpLength(lump);
+      if (size == RGB2PAL_size)
+      {
+        const byte* RGB2PAL_lump;
 
-      RGR24to8_lump = W_CacheLumpNum(lump);
-      RGB24to8_buf = malloc(RGB24to8_size);
-      memcpy(RGB24to8_buf, RGR24to8_lump, RGB24to8_size);
-      W_UnlockLumpName("24TO8PAL");
-      return true;
+        RGB2PAL_lump = W_CacheLumpNum(lump);
+        RGB2PAL = malloc(RGB2PAL_size);
+        memcpy(RGB2PAL, RGB2PAL_lump, RGB2PAL_size);
+        W_UnlockLumpName(RGB2PAL_NAME);
+        return true;
+      }
+    }
+
+    RGB2PAL_fname = I_FindFile(RGB2PAL_NAME".dat", ".dat");
+    if (RGB2PAL_fname)
+    {
+      struct stat RGB24to8_stat;
+      memset(&RGB24to8_stat, 0, sizeof(RGB24to8_stat));
+      stat(RGB2PAL_fname, &RGB24to8_stat);
+      if (RGB24to8_stat.st_size == RGB2PAL_size)
+      {
+        I_FileToBuffer(RGB2PAL_fname, &RGB2PAL, &size);
+      }
+      free(RGB2PAL_fname);
+
+      if (size == RGB2PAL_size)
+        return true;
     }
   }
 
-  RGB24to8_fname = I_FindFile("24to8pal.dat", ".dat");
-  if (RGB24to8_fname)
+  if (1 || M_CheckParm("-"RGB2PAL_NAME))
   {
-    struct stat RGB24to8_stat;
-    memset(&RGB24to8_stat, 0, sizeof(RGB24to8_stat));
-    stat(RGB24to8_fname, &RGB24to8_stat);
-    if (RGB24to8_stat.st_size == RGB24to8_size)
-    {
-      I_FileToBuffer(RGB24to8_fname, &RGB24to8_buf, &size);
-    }
-    free(RGB24to8_fname);
-
-    if (size == RGB24to8_size)
-      return true;
-  }
-
-  if (1 || M_CheckParm("-24to8pal"))
-  {
-    FILE *RGB24to8_fp;
+    int ok = true;
+    FILE *RGB2PAL_fp = NULL;
     char fname[PATH_MAX+1];
 
-    SNPRINTF(fname, sizeof(fname), "%s/24to8pal.dat", I_DoomExeDir());
+    if (gl_hires_24bit_colormap)
+    {
+      SNPRINTF(fname, sizeof(fname), "%s/"RGB2PAL_NAME".dat", I_DoomExeDir());
+      RGB2PAL_fp = fopen(fname, "wb");
+      ok = RGB2PAL_fp != NULL;
+    }
 
-    RGB24to8_fp = fopen(fname, "wb");
-    if (RGB24to8_fp)
+    if (ok)
     {
       void* NewIntDynArray(int dimCount, int *dims);
-
-      int ok, r, g, b, k, color;
       const byte* palette;
+      int r, g, b, k, color;
       int **x, **y, **z;
-      int dims[2] = {256, 256};
+      int dims[2] = {numcolors_per_chanel, 256};
+
       x = NewIntDynArray(2, dims);
       y = NewIntDynArray(2, dims);
       z = NewIntDynArray(2, dims);
 
-      RGB24to8_buf = malloc(RGB24to8_size);
+      RGB2PAL = malloc(RGB2PAL_size);
       lump = W_GetNumForName("PLAYPAL");
       palette = W_CacheLumpNum(lump);
 
       // create the RGB24to8 lookup table
       gld_ProgressStart();
-      gld_ProgressUpdate("Building 24TO8PAL.dat ...", 0, 256);
-      for (k = 0; k < 256; k++)
+      gld_ProgressUpdate(NULL, 0, numcolors_per_chanel);
+      for (k = 0; k < numcolors_per_chanel; k++)
       {
         int color_p = 0;
+        int kk = (k<<3)|(k>>2);
         for (color = 0; color < 256; color++)
         {
-          x[k][color] = (k - palette[color_p++]);
+          x[k][color] = (kk - palette[color_p++]);
           x[k][color] *= x[k][color];
-          y[k][color] = (k - palette[color_p++]);
+          y[k][color] = (kk - palette[color_p++]);
           y[k][color] *= y[k][color];
-          z[k][color] = (k - palette[color_p++]);
+          z[k][color] = (kk - palette[color_p++]);
           z[k][color] *= z[k][color];
         }
       }
 
       k = 0;
-      for (r = 0; r < 256; r++)
+      for (r = 0; r < numcolors_per_chanel; r++)
       {
-        gld_ProgressUpdate("Building 24TO8PAL.dat ...", r, 256);
-        for (g = 0; g < 256; g++)
+        gld_ProgressUpdate(NULL, r, numcolors_per_chanel);
+        for (g = 0; g < numcolors_per_chanel; g++)
         {
           int xy[256];
           for (color = 0; color < 256; color++)
           {
             xy[color] = x[r][color] + y[g][color];
           }
-          for (b = 0; b < 256; b++)
+          for (b = 0; b < numcolors_per_chanel; b++)
           {
             int dist;
             int bestcolor = 0;
             int bestdist = xy[0] + z[b][0];
             #define CHECK_BEST dist = xy[color] + z[b][color];\
-              if (dist < bestdist) {bestdist = dist; bestcolor = color;}
-            for (color = 0; color < 256; color++)
+              if (dist < bestdist) {bestdist = dist; bestcolor = color;} color++;
+            for (color = 0; color < 256;)
             {
               CHECK_BEST;
-              color++;CHECK_BEST;
-              color++;CHECK_BEST;
-              color++;CHECK_BEST;
-              color++;CHECK_BEST;
-              color++;CHECK_BEST;
-              color++;CHECK_BEST;
-              color++;CHECK_BEST;
+              CHECK_BEST;
+              CHECK_BEST;
+              CHECK_BEST;
+              CHECK_BEST;
+              CHECK_BEST;
+              CHECK_BEST;
+              CHECK_BEST;
             }
-            RGB24to8_buf[k++] = bestcolor;
+            RGB2PAL[k++] = bestcolor;
           }
         }
       }
@@ -893,8 +980,15 @@ int gld_HiRes_BuildTables(void)
       free(y);
       free(x);
 
-      ok = fwrite(RGB24to8_buf, RGB24to8_size, 1, RGB24to8_fp) == 1;
-      return ((fclose(RGB24to8_fp) == 0) && ok);
+      if (gl_hires_24bit_colormap)
+      {
+        ok = fwrite(RGB2PAL, RGB2PAL_size, 1, RGB2PAL_fp) == 1;
+        return ((fclose(RGB2PAL_fp) == 0) && ok);
+      }
+      else
+      {
+        return true;
+      }
     }
   }
 
@@ -925,9 +1019,7 @@ void gld_InitHiRes(void)
 
   gld_HiRes_BuildTables();
 
-  gl_have_hires_textures = false;
-  gl_have_hires_flats = false;
-  gl_have_hires_patches = false;
+  gl_has_hires = 0;
 
   gld_PrecachePatches();
 }
@@ -1189,8 +1281,9 @@ int gld_LoadHiresTex(GLTexture *gltexture, int *glTexID, int cm)
     }
     else
     {
-      if (gl_boom_colormaps && use_boom_cm && 
-        !(comp[comp_skymap] && (gltexture->flags&GLTEXTURE_SKY)))
+      //if (gl_boom_colormaps && use_boom_cm &&
+      //  !(comp[comp_skymap] && (gltexture->flags&GLTEXTURE_SKY)))
+      if (boom_cm && use_boom_cm && gl_boom_colormaps)
       {
         int w, h;
         unsigned char *buf;

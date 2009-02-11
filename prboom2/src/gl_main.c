@@ -1617,7 +1617,7 @@ void gld_StartDrawScene(void)
   invul_method = 0;
   if (players[displayplayer].fixedcolormap == 32)
   {
-    if (gl_boom_colormaps)
+    if (gl_boom_colormaps && !gl_has_hires)
     {
       invul_method = INVUL_CM;
     }

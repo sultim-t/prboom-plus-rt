@@ -79,7 +79,8 @@ void gld_InitFBO(void)
 
   gl_use_motionblur = gl_ext_framebuffer_object && gl_motionblur && gl_ext_blend_color;
 
-  gl_use_FBO = gl_ext_framebuffer_object && (gl_use_motionblur || !gl_boom_colormaps);
+  gl_use_FBO = (gl_ext_framebuffer_object) && (gl_version >= OPENGL_VERSION_1_3) &&
+    (gl_use_motionblur || !gl_boom_colormaps || gl_has_hires);
 
   if (gl_use_FBO)
   {

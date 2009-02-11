@@ -197,7 +197,7 @@ void* NewIntDynArray(int dimCount, int *dims)
 // There are three known values for player->fixedcolormap: 0, 1 and 32
 // 0 (normal) -> 0; 1 (pw_infrared) -> 1; 32 (pw_invulnerability) -> 2
 #define PLAYERCOLORMAP_COUNT (3)
-int gld_GetPlayerColormapIndex(int fixedcolormap)
+int* gld_GetTextureTexID(GLTexture *gltexture, int cm)
 {
   static int data[NUMCOLORMAPS+1] = {
      0,  1, -1, -1, -1, -1, -1, -1,
@@ -207,12 +207,26 @@ int gld_GetPlayerColormapIndex(int fixedcolormap)
      2
   };
 
-  if (data[fixedcolormap] == -1)
+  int player_cm;
+
+  if (!gl_boom_colormaps)
+    return &gltexture->glTexExID[cm][0][0];
+
+  if (gl_has_hires)
   {
-    I_Error("gld_GetFixedColormapIndex: Unknown player->fixedcolormap?");
+    player_cm = 0;
+  }
+  else
+  {
+    if (data[frame_fixedcolormap] == -1)
+    {
+      I_Error("gld_GetFixedColormapIndex: Unknown player->fixedcolormap?");
+    }
+
+    player_cm = data[frame_fixedcolormap];
   }
 
-  return data[fixedcolormap];
+  return &gltexture->glTexExID[cm][player_cm][(gl_boom_colormaps ? boom_cm : 0)];
 }
 
 // e6y
@@ -893,10 +907,7 @@ void gld_BindTexture(GLTexture *gltexture)
     return;
   }
 
-  if (gl_boom_colormaps)
-    glTexID = &gltexture->glTexExID[CR_DEFAULT][gld_GetPlayerColormapIndex(frame_fixedcolormap)][boom_cm];
-  else
-    glTexID = &gltexture->glTexExID[CR_DEFAULT][0][0];
+  glTexID = gld_GetTextureTexID(gltexture, CR_DEFAULT);
 
   if (last_glTexID == glTexID)
     return;
@@ -1019,10 +1030,7 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
     return;
   }
 
-  if (gl_boom_colormaps)
-    glTexID = &gltexture->glTexExID[cm][gld_GetPlayerColormapIndex(frame_fixedcolormap)][boom_cm];
-  else
-    glTexID = &gltexture->glTexExID[cm][0][0];
+  glTexID = gld_GetTextureTexID(gltexture, cm); 
 
   if (last_glTexID == glTexID)
     return;
@@ -1143,10 +1151,7 @@ void gld_BindFlat(GLTexture *gltexture)
     return;
   }
 
-  if (gl_boom_colormaps)
-    glTexID = &gltexture->glTexExID[CR_DEFAULT][gld_GetPlayerColormapIndex(frame_fixedcolormap)][boom_cm];
-  else
-    glTexID = &gltexture->glTexExID[CR_DEFAULT][0][0];
+  glTexID = gld_GetTextureTexID(gltexture, CR_DEFAULT); 
 
   if (last_glTexID == glTexID)
     return;
