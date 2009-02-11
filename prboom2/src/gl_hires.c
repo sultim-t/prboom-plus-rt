@@ -73,12 +73,14 @@ int gl_hires_override_pwads;
 char *gl_texture_hires_dir = NULL;
 
 static GLuint progress_texid = 0;
+static unsigned int lastupdate = 0;
 
 int gld_ProgressStart(void)
 {
   if (!progress_texid)
   {
     progress_texid = CaptureScreenAsTexID();
+    lastupdate = SDL_GetTicks() - 100;
     return true;
   }
 
@@ -139,7 +141,6 @@ void gld_ProgressUpdate(char * text, int progress, int total)
 {
   int len;
   static char last_text[32] = {0};
-  static unsigned int lastupdate = 0;
   unsigned int tic;
 
   if (!progress_texid)
