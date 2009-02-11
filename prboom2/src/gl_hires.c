@@ -928,7 +928,7 @@ int gld_HiRes_BuildTables(void)
       for (k = 0; k < numcolors_per_chanel; k++)
       {
         int color_p = 0;
-        int kk = (k<<3)|(k>>2);
+        int kk = (gl_hires_24bit_colormap ? k : (k<<3)|(k>>2));
         for (color = 0; color < 256; color++)
         {
           x[k][color] = (kk - palette[color_p++]);
