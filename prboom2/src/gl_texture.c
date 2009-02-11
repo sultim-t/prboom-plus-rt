@@ -1254,10 +1254,28 @@ void gld_PrecacheGLTexture(GLTexture *gltexture)
   }
 }
 
+static void CalcHitsCount(const byte *hitlist, int size, int *hit, int*hitcount)
+{
+  int i;
+
+  if (!hitlist || !hit || !hitcount)
+    return;
+
+  *hit = 0;
+  *hitcount = 0;
+  for (i = 0; i < size; i++)
+  {
+    if (hitlist[i])
+      (*hitcount)++;
+  }
+}
+
 void gld_Precache(void)
 {
-  register int i;
-  register byte *hitlist;
+  int i;
+  byte *hitlist;
+  int hit, hitcount;
+  GLTexture *gltexture;
 
   unsigned int tics = SDL_GetTicks();
 
@@ -1276,10 +1294,7 @@ void gld_Precache(void)
       return;
   }
 
-  if (gl_texture_external_hires)
-  {
-    gld_ProgressStart();
-  }
+  gld_ProgressStart();
 
   {
     size_t size = numflats > numsprites  ? numflats : numsprites;
@@ -1315,17 +1330,16 @@ void gld_Precache(void)
     }
   }
 
+  CalcHitsCount(hitlist, numflats, &hit, &hitcount);
+
   for (i = numflats; --i >= 0; )
     if (hitlist[i])
     {
-      GLTexture *gltexture = gld_RegisterFlat(i,true);
+      gld_ProgressUpdate("Loading Flats...", ++hit, hitcount);
+      gltexture = gld_RegisterFlat(i,true);
       if (gltexture)
       {
         gld_PrecacheGLTexture(gltexture);
-        if (gltexture && (gltexture->flags & GLTEXTURE_HIRES))
-        {
-          gld_ProgressUpdate("Loading Flats...", numflats - i, numflats);
-        }
       }
     }
 
@@ -1380,17 +1394,16 @@ void gld_Precache(void)
   if (hitlist)
     hitlist[skytexture] = usehires ? 1 : 0;
 
+  CalcHitsCount(hitlist, numtextures, &hit, &hitcount);
+
   for (i = numtextures; --i >= 0; )
     if (hitlist[i])
     {
-      GLTexture *gltexture = gld_RegisterTexture(i, i != skytexture, false);
+      gld_ProgressUpdate("Loading Textures...", ++hit, hitcount);
+      gltexture = gld_RegisterTexture(i, i != skytexture, false);
       if (gltexture)
       {
         gld_PrecacheGLTexture(gltexture);
-        if (gltexture && (gltexture->flags & GLTEXTURE_HIRES))
-        {
-          gld_ProgressUpdate("Loading Textures...", numtextures - i, numtextures);
-        }
       }
     }
 
@@ -1407,6 +1420,14 @@ void gld_Precache(void)
     }
   }
 
+  hit = 0;
+  hitcount = 0;
+  for (i = 0; i < numsprites; i++)
+  {
+    if (hitlist[i])
+      hitcount += 7 * sprites[i].numframes;
+  }
+
   for (i=numsprites; --i >= 0;)
     if (hitlist[i])
       {
@@ -1417,7 +1438,8 @@ void gld_Precache(void)
             int k = 7;
             do
             {
-              GLTexture *gltexture = gld_RegisterPatch(firstspritelump + sflump[k],CR_DEFAULT);
+              gld_ProgressUpdate("Loading Sprites...", ++hit, hitcount);
+              gltexture = gld_RegisterPatch(firstspritelump + sflump[k],CR_DEFAULT);
               if (gltexture)
               {
                 gld_PrecacheGLTexture(gltexture);
@@ -1433,8 +1455,9 @@ void gld_Precache(void)
 #ifdef HAVE_LIBSDL_IMAGE
     gld_PrecachePatches();
 #endif
-    gld_ProgressEnd();
   }
+
+  gld_ProgressEnd();
 
 #ifdef USE_FBO_TECHNIQUE
   gld_InitFBO();

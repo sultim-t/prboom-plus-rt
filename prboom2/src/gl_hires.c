@@ -139,7 +139,7 @@ void gld_ProgressUpdate(char * text, int progress, int total)
 {
   int len;
   static char last_text[32] = {0};
-  static unsigned int lastupdate = -1;
+  static unsigned int lastupdate = 0;
   unsigned int tic;
 
   if (!progress_texid)
@@ -147,7 +147,7 @@ void gld_ProgressUpdate(char * text, int progress, int total)
 
   // do not do it often
   tic = SDL_GetTicks();
-  if (tic - lastupdate < 35)
+  if (tic - lastupdate < 100)
     return;
   lastupdate = tic;
 
