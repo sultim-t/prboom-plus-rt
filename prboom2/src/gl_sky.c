@@ -622,6 +622,7 @@ void gld_DrawDomeSkyBox(void)
 {
   if (SkyBox.wall.gltexture)
   {
+    int i;
     GLint shading_mode = GL_FLAT;
     
     glGetIntegerv(GL_SHADE_MODEL, &shading_mode);
@@ -629,6 +630,7 @@ void gld_DrawDomeSkyBox(void)
 
     glDepthMask(false);
 
+    glDisable(GL_DEPTH_TEST);
     glDisable(GL_ALPHA_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -652,5 +654,30 @@ void gld_DrawDomeSkyBox(void)
     glDepthMask(true);
 
     glShadeModel(shading_mode);
+
+    // This draws a valid z-buffer into the stencil's contents to ensure it
+    // doesn't get overwritten by the level's geometry.
+
+    //glColor4f(1, 1, 1, 1);
+    //glDepthFunc(GL_LEQUAL);
+    //glDepthRange(0, 1);
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // no graphics
+    glDisable(GL_TEXTURE_2D);
+
+    for (i = gld_drawinfo.num_items[GLDIT_SWALL] - 1; i >= 0; i--)
+    {
+      GLWall* wall = gld_drawinfo.items[GLDIT_SWALL][i].item.wall;
+
+      glBegin(GL_TRIANGLE_STRIP);
+      glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
+      glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
+      glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
+      glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
+      glEnd();
+    }
+
+    glEnable(GL_TEXTURE_2D);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    //glDepthFunc(GL_LESS);
   }
 }

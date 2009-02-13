@@ -2863,6 +2863,11 @@ void gld_DrawScene(player_t *player)
   glEnableClientState(GL_VERTEX_ARRAY);
   rendered_visplanes = rendered_segs = rendered_vissprites = 0;
 
+  if (gl_drawskys == skytype_skydome)
+  {
+    gld_DrawDomeSkyBox();
+  }
+
   // enable backside removing
   glEnable(GL_CULL_FACE);
 
@@ -2975,7 +2980,7 @@ void gld_DrawScene(player_t *player)
   }
 
   //should be before transparent stuff
-  gld_DrawSkybox();
+  //gld_DrawSkybox();
 
   // transparent stuff
   if (gld_drawinfo.num_items[GLDIT_TWALL] > 0 || gld_drawinfo.num_items[GLDIT_TSPRITE] > 0)

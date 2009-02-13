@@ -312,12 +312,11 @@ void gld_SetupFloodStencil(GLWall *wall)
   int recursion = 0;
 
   // Create stencil 
-  glStencilFunc(GL_EQUAL,recursion,~0);		// create stencil
-  glStencilOp(GL_KEEP,GL_KEEP,GL_INCR);		// increment stencil of valid pixels
-  glColorMask(0,0,0,0);						// don't write to the graphics buffer
-  //gl_EnableTexture(false);
+  glStencilFunc(GL_EQUAL, recursion, ~0); // create stencil
+  glStencilOp(GL_KEEP, GL_KEEP, GL_INCR); // increment stencil of valid pixels
+  glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // don't write to the graphics buffer
   glDisable(GL_TEXTURE_2D);
-  glColor3f(1,1,1);
+  glColor3f(1, 1, 1);
   glEnable(GL_DEPTH_TEST);
   glDepthMask(true);
 
@@ -328,11 +327,10 @@ void gld_SetupFloodStencil(GLWall *wall)
   glVertex3f(wall->glseg->x2, wall->ytop, wall->glseg->z2);
   glEnd();
 
-  glStencilFunc(GL_EQUAL,recursion+1,~0);		// draw sky into stencil
-  glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);		// this stage doesn't modify the stencil
+  glStencilFunc(GL_EQUAL, recursion+1, ~0); // draw sky into stencil
+  glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);   // this stage doesn't modify the stencil
 
-  glColorMask(1,1,1,1);						// don't write to the graphics buffer
-  //glEnableTexture(true);
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); // don't write to the graphics buffer
   glEnable(GL_TEXTURE_2D);
   glDisable(GL_DEPTH_TEST);
   glDepthMask(false);
@@ -342,11 +340,10 @@ void gld_ClearFloodStencil(GLWall *wall)
 {
   int recursion = 0;
 
-  glStencilOp(GL_KEEP,GL_KEEP,GL_DECR);
-  //gl_EnableTexture(false);
+  glStencilOp(GL_KEEP, GL_KEEP, GL_DECR);
   glDisable(GL_TEXTURE_2D);
-  glColorMask(0,0,0,0);						// don't write to the graphics buffer
-  glColor3f(1,1,1);
+  glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // don't write to the graphics buffer
+  glColor3f(1, 1, 1);
 
   glBegin(GL_TRIANGLE_FAN);
   glVertex3f(wall->glseg->x1, wall->ytop, wall->glseg->z1);
@@ -356,11 +353,10 @@ void gld_ClearFloodStencil(GLWall *wall)
   glEnd();
 
   // restore old stencil op.
-  glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
-  glStencilFunc(GL_EQUAL,recursion,~0);
-  //gl_EnableTexture(true);
+  glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+  glStencilFunc(GL_EQUAL, recursion, ~0);
   glEnable(GL_TEXTURE_2D);
-  glColorMask(1,1,1,1);
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   glEnable(GL_DEPTH_TEST);
   glDepthMask(true);
 }
