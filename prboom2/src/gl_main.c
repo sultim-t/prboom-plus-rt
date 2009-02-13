@@ -137,7 +137,7 @@ void gld_InitTextureParams(void)
 
   tex_filter_t params[filter_count] = {
     {false, GL_NEAREST, GL_NEAREST,                "GL_NEAREST", "GL_NEAREST"},
-    {true,  GL_LINEAR,  GL_LINEAR,                 "GL_LINEAR",  "GL_LINEAR"},
+    {false, GL_LINEAR,  GL_LINEAR,                 "GL_LINEAR",  "GL_LINEAR"},
     {true,  GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST, "GL_NEAREST", "GL_NEAREST_MIPMAP_NEAREST"},
     {true,  GL_LINEAR,  GL_LINEAR_MIPMAP_NEAREST,  "GL_LINEAR",  "GL_LINEAR_MIPMAP_NEAREST"},
     {true,  GL_LINEAR,  GL_LINEAR_MIPMAP_LINEAR,   "GL_LINEAR",  "GL_LINEAR_MIPMAP_LINEAR"},
