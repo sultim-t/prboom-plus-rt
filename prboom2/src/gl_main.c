@@ -2317,11 +2317,11 @@ void gld_AddWall(seg_t *seg)
         float mip;
         mip = (float)wall.gltexture->realtexheight/(float)wall.gltexture->buffer_height;
 //        if ( (texturetranslation[seg->sidedef->bottomtexture]!=R_TextureNumForName("-")) )
-        if (seg->sidedef->bottomtexture)
+        if (seg->sidedef->bottomtexture || seg->frontsector == seg->backsector)
           floormax=MAX(seg->frontsector->floorheight,seg->backsector->floorheight);
         else
           floormax=floor_height;
-        if (seg->sidedef->toptexture)
+        if (seg->sidedef->toptexture || seg->frontsector == seg->backsector)
           ceilingmin=MIN(seg->frontsector->ceilingheight,seg->backsector->ceilingheight);
         else
           ceilingmin=ceiling_height;
