@@ -2291,64 +2291,60 @@ void gld_AddWall(seg_t *seg)
     // Animated middle textures with a zero index should be forced
     // See spacelab.wad (http://www.doomworld.com/idgames/index.php?id=6826)
     temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->midtexture], true, true);
-    if (temptex && seg->sidedef->midtexture != NO_TEXTURE)
+    if (temptex && seg->sidedef->midtexture != NO_TEXTURE && backsector->ceilingheight>frontsector->floorheight)
     {
+      int floor_max, ceiling_min, linelen;
+      float mip;
       wall.gltexture=temptex;
+
+      ceiling_min=MIN(seg->frontsector->ceilingheight,seg->backsector->ceilingheight);
+      floor_max=MAX(seg->frontsector->floorheight,seg->backsector->floorheight);
+
       if ( (LINE->flags & ML_DONTPEGBOTTOM) >0)
       {
-        if (backsector->ceilingheight<=frontsector->floorheight)
-          goto bottomtexture;
-        floor_height=MAX(seg->frontsector->floorheight,seg->backsector->floorheight)+(seg->sidedef->rowoffset);
+        floor_height=floor_max+(seg->sidedef->rowoffset);
         ceiling_height=floor_height+(wall.gltexture->realtexheight<<FRACBITS);
       }
       else
       {
-        if (backsector->ceilingheight<=frontsector->floorheight)
-          goto bottomtexture;
-        ceiling_height=MIN(seg->frontsector->ceilingheight,seg->backsector->ceilingheight)+(seg->sidedef->rowoffset);
+        ceiling_height=ceiling_min+(seg->sidedef->rowoffset);
         floor_height=ceiling_height-(wall.gltexture->realtexheight<<FRACBITS);
       }
       // e6y
       // The fix for wrong middle texture drawing
       // if it exceeds the boundaries of its floor and ceiling
       
+      linelen=abs(ceiling_height-floor_height);
+      mip = (float)wall.gltexture->realtexheight/(float)wall.gltexture->buffer_height;
+      if (seg->frontsector != seg->backsector)
       {
-        int floormax, ceilingmin, linelen;
-        float mip;
-        mip = (float)wall.gltexture->realtexheight/(float)wall.gltexture->buffer_height;
-//        if ( (texturetranslation[seg->sidedef->bottomtexture]!=R_TextureNumForName("-")) )
-        if (seg->sidedef->bottomtexture || seg->frontsector == seg->backsector)
-          floormax=MAX(seg->frontsector->floorheight,seg->backsector->floorheight);
-        else
-          floormax=floor_height;
-        if (seg->sidedef->toptexture || seg->frontsector == seg->backsector)
-          ceilingmin=MIN(seg->frontsector->ceilingheight,seg->backsector->ceilingheight);
-        else
-          ceilingmin=ceiling_height;
-        linelen=abs(ceiling_height-floor_height);
-        wall.ytop=((float)MIN(ceilingmin, ceiling_height)/(float)MAP_SCALE);
-        wall.ybottom=((float)MAX(floormax, floor_height)/(float)MAP_SCALE);
-
-        // e6y: z-fighting
-        // The supersecret "COOL!" area of Kama Sutra map15 as example
-        if (wall.ytop < wall.ybottom)
-          goto bottomtexture;
-
-        wall.flag=GLDWF_M2S;
-        URUL(wall, seg, backseg, linelength);
-        if (floormax<=floor_height)
-#ifdef USE_GLU_IMAGESCALE
-          wall.vb=1.0f;
-#else  // USE_GLU_IMAGESCALE
-          wall.vb=mip*1.0f;
-#endif // USE_GLU_IMAGESCALE
-        else
-          wall.vb=mip*((float)(ceiling_height - floormax))/linelen;
-        if (ceilingmin>=ceiling_height)
-          wall.vt=0.0f;
-        else
-          wall.vt=mip*((float)(ceiling_height - ceilingmin))/linelen;
+        if (!seg->sidedef->bottomtexture)
+          floor_max=floor_height;
+        if (!seg->sidedef->toptexture)
+          ceiling_min=ceiling_height;
       }
+      wall.ytop=((float)MIN(ceiling_min, ceiling_height)/(float)MAP_SCALE);
+      wall.ybottom=((float)MAX(floor_max, floor_height)/(float)MAP_SCALE);
+
+      // e6y: z-fighting
+      // The supersecret "COOL!" area of Kama Sutra map15 as example
+      if (wall.ytop <= wall.ybottom)
+        goto bottomtexture;
+
+      wall.flag=GLDWF_M2S;
+      URUL(wall, seg, backseg, linelength);
+      if (floor_max<=floor_height)
+#ifdef USE_GLU_IMAGESCALE
+        wall.vb=1.0f;
+#else  // USE_GLU_IMAGESCALE
+        wall.vb=mip*1.0f;
+#endif // USE_GLU_IMAGESCALE
+      else
+        wall.vb=mip*((float)(ceiling_height - floor_max))/linelen;
+      if (ceiling_min>=ceiling_height)
+        wall.vt=0.0f;
+      else
+        wall.vt=mip*((float)(ceiling_height - ceiling_min))/linelen;
 
       if (seg->linedef->tranlump >= 0 && general_translucency)
         wall.alpha=(float)tran_filter_pct/100.0f;
