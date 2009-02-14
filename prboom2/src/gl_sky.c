@@ -74,15 +74,6 @@ void gld_InitFrameSky(void)
   SkyBox.y_offset = 0;
 }
 
-void gld_DrawSkybox(void)
-{
-  //if (gl_drawskys == skytype_screen)
-  //  gld_DrawScreenSkybox();
-
-  if (gl_drawskys == skytype_skydome)
-    gld_DrawDomeSkyBox();
-}
-
 void gld_GetScreenSkyScale(GLWall *wall, float *scale_x, float *scale_y)
 {
   float sx, sy;
@@ -597,22 +588,16 @@ static void RenderDome(SkyBoxParams_t *sky)
   yAdd = sky->y_offset / texh;
   yMult = (texh <= 180 ? 1.0f : 180.0f / texh);
 
-  //if (gl_FrameSkies & SKY_CEILING)
-  {
-    SkyColor = &sky->CeilingSkyColor;
-    RenderSkyHemisphere(SKYHEMI_UPPER);
-  }
+  SkyColor = &sky->CeilingSkyColor;
+  RenderSkyHemisphere(SKYHEMI_UPPER);
 
-  //if (gl_FrameSkies & SKY_FLOOR)
-  {
-    if (texh <= 180)
-      yMult = 1.0f;
-    else
-      yAdd += 180.0f/texh;
+  if (texh <= 180)
+    yMult = 1.0f;
+  else
+    yAdd += 180.0f/texh;
 
-    SkyColor = &sky->FloorSkyColor;
-    RenderSkyHemisphere(SKYHEMI_LOWER);
-  }
+  SkyColor = &sky->FloorSkyColor;
+  RenderSkyHemisphere(SKYHEMI_LOWER);
 
   glRotatef(180.0f - sky->x_offset, 0, 1, 0);
   glScalef(1.0f, 1.0f, 1.0f);

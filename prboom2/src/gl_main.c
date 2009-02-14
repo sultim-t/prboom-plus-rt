@@ -2979,9 +2979,6 @@ void gld_DrawScene(player_t *player)
     gld_DrawSprite(gld_drawinfo.items[GLDIT_SPRITE][i].item.sprite);
   }
 
-  //should be before transparent stuff
-  //gld_DrawSkybox();
-
   // transparent stuff
   if (gld_drawinfo.num_items[GLDIT_TWALL] > 0 || gld_drawinfo.num_items[GLDIT_TSPRITE] > 0)
   {
