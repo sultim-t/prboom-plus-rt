@@ -1231,7 +1231,9 @@ void gld_FlushTextures(void)
   gld_CleanTexItems(numlumps, &gld_GLPatchTextures);
 
   gld_ResetLastTexture();
+#ifdef HAVE_LIBSDL_IMAGE
   gld_HiRes_BuildTables();
+#endif
 
   gld_InitSky();
 }

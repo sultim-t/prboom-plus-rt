@@ -71,6 +71,7 @@ int gl_texture_external_hires = -1;
 int gl_texture_internal_hires = -1;
 int gl_hires_override_pwads;
 char *gl_texture_hires_dir = NULL;
+int gl_hires_24bit_colormap = false;
 
 static GLuint progress_texid = 0;
 static unsigned int lastupdate = 0;
@@ -404,7 +405,6 @@ GLGenericImage * ReadDDSFile(const char *filename, int * bufsize, int * numMipma
 
 static SDL_PixelFormat RGBAFormat;
 static byte* RGB2PAL = NULL;
-int gl_hires_24bit_colormap = false;
 
 static const char* gld_HiRes_GetInternalName(GLTexture *gltexture)
 {
