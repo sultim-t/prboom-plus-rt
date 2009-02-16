@@ -423,7 +423,7 @@ default_t defaults[] =
   {"gl_texture_filter",{(int*)&gl_texture_filter},
    {filter_linear_mipmap_linear}, filter_nearest, filter_count - 1, def_int,ss_none},
   {"gl_sprite_filter",{(int*)&gl_sprite_filter},
-   {filter_linear_mipmap_nearest}, filter_nearest, filter_linear_mipmap_nearest, def_int,ss_none},
+   {filter_linear}, filter_nearest, filter_linear_mipmap_nearest, def_int,ss_none},
   {"gl_patch_filter",{(int*)&gl_patch_filter},
    {filter_linear}, filter_nearest, filter_linear, def_int,ss_none},
   {"gl_texture_filter_anisotropic",{(int*)&gl_texture_filter_anisotropic},
