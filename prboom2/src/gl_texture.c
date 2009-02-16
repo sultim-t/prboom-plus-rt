@@ -212,7 +212,7 @@ int* gld_GetTextureTexID(GLTexture *gltexture, int cm)
   if (!gl_boom_colormaps)
     return &gltexture->glTexExID[cm][0][0];
 
-  if (gl_has_hires)
+  if (gltexture->flags & GLTEXTURE_HIRES)
   {
     player_cm = 0;
   }
@@ -907,6 +907,11 @@ void gld_BindTexture(GLTexture *gltexture)
     return;
   }
 
+#ifdef HAVE_LIBSDL_IMAGE
+  if (gld_LoadHiresTex(gltexture, last_glTexID, CR_DEFAULT))
+    return;
+#endif
+
   glTexID = gld_GetTextureTexID(gltexture, CR_DEFAULT);
 
   if (last_glTexID == glTexID)
@@ -919,11 +924,6 @@ void gld_BindTexture(GLTexture *gltexture)
     glBindTexture(GL_TEXTURE_2D, *glTexID);
     return;
   }
-
-#ifdef HAVE_LIBSDL_IMAGE
-  if (gld_LoadHiresTex(gltexture, glTexID, CR_DEFAULT))
-    return;
-#endif
 
   buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
   if (!gltexture->mipmap && gl_paletted_texture)
@@ -1030,6 +1030,11 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
     return;
   }
 
+#ifdef HAVE_LIBSDL_IMAGE
+  if (gld_LoadHiresTex(gltexture, last_glTexID, cm))
+    return;
+#endif
+
   glTexID = gld_GetTextureTexID(gltexture, cm); 
 
   if (last_glTexID == glTexID)
@@ -1042,11 +1047,6 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
     glBindTexture(GL_TEXTURE_2D, *glTexID);
     return;
   }
-
-#ifdef HAVE_LIBSDL_IMAGE
-  if (gld_LoadHiresTex(gltexture, glTexID, cm))
-    return;
-#endif
 
   patch=R_CachePatchNum(gltexture->index);
   buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
@@ -1151,6 +1151,11 @@ void gld_BindFlat(GLTexture *gltexture)
     return;
   }
 
+#ifdef HAVE_LIBSDL_IMAGE
+  if (gld_LoadHiresTex(gltexture, last_glTexID, CR_DEFAULT))
+    return;
+#endif
+
   glTexID = gld_GetTextureTexID(gltexture, CR_DEFAULT); 
 
   if (last_glTexID == glTexID)
@@ -1163,11 +1168,6 @@ void gld_BindFlat(GLTexture *gltexture)
     glBindTexture(GL_TEXTURE_2D, *glTexID);
     return;
   }
-
-#ifdef HAVE_LIBSDL_IMAGE
-  if (gld_LoadHiresTex(gltexture, glTexID, CR_DEFAULT))
-    return;
-#endif
 
   flat=W_CacheLumpNum(gltexture->index);
   buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
@@ -1236,24 +1236,6 @@ void gld_FlushTextures(void)
 #endif
 
   gld_InitSky();
-}
-
-void gld_PrecacheGLTexture(GLTexture *gltexture)
-{
-  switch (gltexture->textype)
-  {
-  case GLDT_TEXTURE:
-    gld_BindTexture(gltexture);
-    break;
-  case GLDT_FLAT:
-    gld_BindFlat(gltexture);
-    break;
-  case GLDT_PATCH:
-    gld_BindPatch(gltexture, CR_DEFAULT);
-    break;
-  default:
-    break;
-  }
 }
 
 static void CalcHitsCount(const byte *hitlist, int size, int *hit, int*hitcount)
@@ -1341,7 +1323,7 @@ void gld_Precache(void)
       gltexture = gld_RegisterFlat(i,true);
       if (gltexture)
       {
-        gld_PrecacheGLTexture(gltexture);
+        gld_BindFlat(gltexture);
       }
     }
 
@@ -1405,7 +1387,7 @@ void gld_Precache(void)
       gltexture = gld_RegisterTexture(i, i != skytexture, false);
       if (gltexture)
       {
-        gld_PrecacheGLTexture(gltexture);
+        gld_BindTexture(gltexture);
       }
     }
 
@@ -1441,10 +1423,10 @@ void gld_Precache(void)
             do
             {
               gld_ProgressUpdate("Loading Sprites...", ++hit, hitcount);
-              gltexture = gld_RegisterPatch(firstspritelump + sflump[k],CR_DEFAULT);
+              gltexture = gld_RegisterPatch(firstspritelump + sflump[k], CR_LIMIT);
               if (gltexture)
               {
-                gld_PrecacheGLTexture(gltexture);
+                gld_BindPatch(gltexture, CR_LIMIT);
               }
             }
             while (--k >= 0);
@@ -1455,7 +1437,7 @@ void gld_Precache(void)
   if (gl_texture_external_hires)
   {
 #ifdef HAVE_LIBSDL_IMAGE
-    gld_PrecachePatches();
+    gld_PrecacheGUIPatches();
 #endif
   }
 

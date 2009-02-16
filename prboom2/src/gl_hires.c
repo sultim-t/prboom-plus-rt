@@ -1022,7 +1022,7 @@ void gld_InitHiRes(void)
 
   gl_has_hires = 0;
 
-  gld_PrecachePatches();
+  gld_PrecacheGUIPatches();
 }
 
 static int gld_HiRes_LoadDDSTexture(GLTexture* gltexture, int* texid, const char* dds_path)
@@ -1204,21 +1204,21 @@ static int gld_HiRes_LoadFromFile(GLTexture* gltexture, int* texid, const char* 
   return result;
 }
 
-int gld_LoadHiresTex(GLTexture *gltexture, int *glTexID, int cm)
+int* gld_LoadHiresTex(GLTexture *gltexture, int *last_glTexID, int cm)
 {
-  int result = false;
-  int *texid;
+  int *result = NULL;
+  int *texid, *glTexID;
 
   // do not need it
   if (!gl_texture_external_hires && !gl_texture_internal_hires)
-    return false;
+    return NULL;
 
   // default buffer
   texid = &gltexture->glTexExID[CR_DEFAULT][0][0];
 
   // already loaded and there is no corresponding hi-res
   if ((*texid) && !(gltexture->flags & GLTEXTURE_HIRES))
-    return false;
+    return NULL;
 
   // try to load in-wad texture
   if (*texid == 0 && gl_texture_internal_hires)
@@ -1276,31 +1276,49 @@ int gld_LoadHiresTex(GLTexture *gltexture, int *glTexID, int cm)
 
   if (*texid)
   {
-    if (texid == glTexID)
+    glTexID = gld_GetTextureTexID(gltexture, cm);
+
+    if (last_glTexID == glTexID)
     {
-      result = true;
+      result = glTexID;
     }
     else
     {
-      //if (gl_boom_colormaps && use_boom_cm &&
-      //  !(comp[comp_skymap] && (gltexture->flags&GLTEXTURE_SKY)))
-      if (boom_cm && use_boom_cm && gl_boom_colormaps)
+      if (texid == glTexID)
       {
-        int w, h;
-        unsigned char *buf;
-
-        buf = gld_GetTextureBuffer(*texid, 0, &w, &h);
-        gld_HiRes_Bind(gltexture, glTexID);
-        gld_HiRes_ProcessColormap(buf, w * h * 4);
-        result = gld_BuildTexture(gltexture, buf, true, w, h);
+        glBindTexture(GL_TEXTURE_2D, *glTexID);
+        result = glTexID;
       }
       else
       {
-        glTexID = texid;
-        gld_HiRes_Bind(gltexture, glTexID);
-        result = true;
+        //if (gl_boom_colormaps && use_boom_cm &&
+        //  !(comp[comp_skymap] && (gltexture->flags&GLTEXTURE_SKY)))
+        if (boom_cm && use_boom_cm && gl_boom_colormaps)
+        {
+          int w, h;
+          unsigned char *buf;
+
+          buf = gld_GetTextureBuffer(*texid, 0, &w, &h);
+          gld_HiRes_Bind(gltexture, glTexID);
+          gld_HiRes_ProcessColormap(buf, w * h * 4);
+          if (gld_BuildTexture(gltexture, buf, true, w, h))
+          {
+            result = glTexID;
+          }
+        }
+        else
+        {
+          glTexID = texid;
+          gld_HiRes_Bind(gltexture, glTexID);
+          result = glTexID;
+        }
       }
     }
+  }
+
+  if (result)
+  {
+    last_glTexID = result;
   }
 
   return result;
@@ -1315,7 +1333,7 @@ static void gld_Mark_CM2RGB_Lump(const char *name)
   }
 }
 
-int gld_PrecachePatches(void)
+int gld_PrecacheGUIPatches(void)
 {
   static const char * staticpatches[] = {
     "INTERPIC",// "TITLEPIC",
@@ -1373,10 +1391,10 @@ int gld_PrecachePatches(void)
       gltexture = gld_RegisterPatch(lump, CR_DEFAULT);
       if (gltexture)
       {
-        gld_PrecacheGLTexture(gltexture);
+        gld_BindPatch(gltexture, CR_DEFAULT);
         if (gltexture && (gltexture->flags & GLTEXTURE_HIRES))
         {
-          gld_ProgressUpdate("Loading Patches...", ++count, total);
+          gld_ProgressUpdate("Loading GUI Patches...", ++count, total);
         }
       }
     }

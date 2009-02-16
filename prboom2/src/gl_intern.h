@@ -317,9 +317,9 @@ int gld_BuildTexture(GLTexture *gltexture, void *data, dboolean readonly, int wi
 //hires
 extern unsigned int gl_has_hires;
 int gld_HiRes_BuildTables(void);
-void gld_PrecacheGLTexture(GLTexture *gltexture);
 void gld_InitHiRes(void);
-int gld_LoadHiresTex(GLTexture *gltexture, int *glTexID, int cm);
+int* gld_LoadHiresTex(GLTexture *gltexture, int *last_glTexID, int cm);
+int* gld_GetTextureTexID(GLTexture *gltexture, int cm);
 GLuint CaptureScreenAsTexID(void);
 void gld_ProgressUpdate(char * text, int progress, int total);
 int gld_ProgressStart(void);
