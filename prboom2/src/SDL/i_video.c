@@ -488,7 +488,7 @@ void I_ReadScreen (screeninfo_t *dest)
   height = MIN(screen->h, dest->height);
   for (h=height; h>0; h--) {
     memcpy(dstofs, srcofs, width);
-    srcofs += screens[0].byte_pitch;
+    srcofs += screen->pitch;
     dstofs += dest->byte_pitch;
   }
   if (locked)
