@@ -281,7 +281,7 @@ extern float xCamera,yCamera,zCamera;
 float distance2piece(float x0, float y0, float x1, float y1, float x2, float y2);
 void gld_InitDetail(void);
 
-//e6y: in some cases textures with a zero index (NO_TEXTURE) should be registered
+extern int* last_glTexID;
 GLTexture *gld_RegisterTexture(int texture_num, dboolean mipmap, dboolean force);
 void gld_BindTexture(GLTexture *gltexture);
 GLTexture *gld_RegisterPatch(int lump, int cm);
@@ -318,7 +318,7 @@ int gld_BuildTexture(GLTexture *gltexture, void *data, dboolean readonly, int wi
 extern unsigned int gl_has_hires;
 int gld_HiRes_BuildTables(void);
 void gld_InitHiRes(void);
-int* gld_LoadHiresTex(GLTexture *gltexture, int *last_glTexID, int cm);
+int* gld_LoadHiresTex(GLTexture *gltexture, int cm);
 int* gld_GetTextureTexID(GLTexture *gltexture, int cm);
 GLuint CaptureScreenAsTexID(void);
 void gld_ProgressUpdate(char * text, int progress, int total);

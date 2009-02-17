@@ -1204,7 +1204,7 @@ static int gld_HiRes_LoadFromFile(GLTexture* gltexture, int* texid, const char* 
   return result;
 }
 
-int* gld_LoadHiresTex(GLTexture *gltexture, int *last_glTexID, int cm)
+int* gld_LoadHiresTex(GLTexture *gltexture, int cm)
 {
   int *result = NULL;
   int *texid, *glTexID;
