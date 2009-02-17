@@ -48,8 +48,8 @@ typedef enum {
 
 typedef enum {
   skytype_none,
+  skytype_screen,
   skytype_standard,
-  //skytype_screen,
   skytype_skydome,
 
   skytype_count

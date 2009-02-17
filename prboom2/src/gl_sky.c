@@ -159,7 +159,11 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, int skytype)
     SkyBox.type |= skytype;
 
     wall->gltexture->flags |= GLTEXTURE_SKY;
-    gld_AddDrawItem(GLDIT_SWALL, wall);
+
+    if (gl_drawskys != skytype_screen)
+    {
+      gld_AddDrawItem(GLDIT_SWALL, wall);
+    }
 
     if (!SkyBox.wall.gltexture)
     {
@@ -171,6 +175,13 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, int skytype)
         gld_GetScreenSkyScale(wall, &SkyBox.x_scale, &SkyBox.y_scale);
         break;
 
+      case skytype_screen:
+        if (s)
+        {
+          SkyBox.x_offset = (float)s->textureoffset;
+          SkyBox.y_offset = (float)s->rowoffset / (float)FRACUNIT;
+        }
+        break;
       case skytype_skydome:
         if (s)
         {
@@ -286,73 +297,61 @@ void averageColor(PalEntry_t * PalEntry, const unsigned int *data, int size, fix
 // Voodoo as example
 void gld_DrawScreenSkybox(void)
 {
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glOrtho((GLdouble)0, (GLdouble)SCREENWIDTH, (GLdouble) SCREENHEIGHT,
-    (GLdouble) 0, (GLdouble) -1.0, (GLdouble) 1.0);
-
-  glDepthRange(1.0f, 1.0f);
-
-  glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-  if (gld_drawinfo.num_items[GLDIT_SWALL] > 0)
+  if (SkyBox.wall.gltexture)
   {
-    float fU1,fU2,fV1,fV2;
-    float k1, k2;
+    #define WRAPANGLE (ANGLE_MAX/4)
 
-    GLWall *wall = wall = gld_drawinfo.items[GLDIT_SWALL][0].item.wall;
-
-    gld_BindTexture(wall->gltexture);
+    float fU1, fU2, fV1, fV2;
+    GLWall *wall = &SkyBox.wall;
+    angle_t angle;
+    int k;
 
     if (!mlook_or_fov)
     {
-      k1 = wall->gltexture->buffer_width / 128.0f;
-      k2 = 256.0f / wall->gltexture->buffer_width;
-
-      fV1 = 0.0f;
-      fV2 = 320.0f/200.0f;
-    }
-    else 
-    {
-      if (wall->gltexture->buffer_width <= 512)
-      {
-        k1 = wall->gltexture->buffer_width / 64.0f;
-        k2 = 128.0f / wall->gltexture->buffer_width;
-      }
-      else
-      {
-        k1 = wall->gltexture->buffer_width / 128.0f;
-        k2 = 256.0f / wall->gltexture->buffer_width;
-      }
-
-      skyYShift = viewPitch<skyUpAngle ? 0.0f : (float)(0.0f-0.6f)/(skyUpAngle-0.0f)*(viewPitch)+0.6f;
-
-      fV1 = skyYShift*fovscale;
-      fV2 = fV1 + 320.0f/200.0f/2.0f;
-    }
-
-    if ((wall->flag&GLDWF_SKYFLIP) == GLDWF_SKYFLIP)
-    {
-      fU1 = 0.5f - wall->skyyaw/(k1/fovscale);
-      fU2 = fU1 + (k2/fovscale);
+      fV1 = SkyBox.y_offset / 127.0f;
+      fV2 = fV1 + 320.0f / 200.0f;
     }
     else
     {
-      fU2 = 0.5f + wall->skyyaw/(k1/fovscale);
-      fU1 = fU2 + (k2/fovscale);
+      fixed_t ang = finetangent[(2048 - ((-(int)viewpitch) >> (ANGLETOFINESHIFT + 1))) & FINEMASK];
+      float f = 40 + fovscale * 200 * (float)ang / 65536.0f;
+      f = BETWEEN(0, 127, f);
+
+      fV1 = (f + SkyBox.y_offset) / 127.0f;
+      fV2 = fV1 + 1.0f;
     }
 
+    k = MAX(wall->gltexture->buffer_width, 256) / 256;
+    angle = ((viewangle - ANG45) / k) % WRAPANGLE;
+
+    if ((wall->flag & GLDWF_SKYFLIP) == GLDWF_SKYFLIP)
+    {
+      fU1 = -((float)angle + SkyBox.x_offset) / (WRAPANGLE - 1);
+      fU2 = fU1 + 1.0f / k;
+    }
+    else
+    {
+      fU2 = ((float)angle + SkyBox.x_offset) / (WRAPANGLE - 1);
+      fU1 = fU2 + 1.0f / k;
+    }
+
+    glPushMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    gld_BindTexture(wall->gltexture);
     glBegin(GL_TRIANGLE_STRIP);
-      glTexCoord2f(fU1, fV1); glVertex2f(0.0f, 0.0f);
-      glTexCoord2f(fU1, fV2); glVertex2f(0.0f, (float)SCREENHEIGHT);
-      glTexCoord2f(fU2, fV1); glVertex2f((float)SCREENWIDTH, 0.0f);
-      glTexCoord2f(fU2, fV2); glVertex2f((float)SCREENWIDTH, (float)SCREENHEIGHT);
+      glTexCoord2f(fU1, fV1); glVertex3f(-160.0f, +100.0f, -screen_skybox_zplane);
+      glTexCoord2f(fU1, fV2); glVertex3f(-160.0f, -100.0f, -screen_skybox_zplane);
+      glTexCoord2f(fU2, fV1); glVertex3f(+160.0f, +100.0f, -screen_skybox_zplane);
+      glTexCoord2f(fU2, fV2); glVertex3f(+160.0f, -100.0f, -screen_skybox_zplane);
     glEnd();
+
+    glPopMatrix();
   }
 
-  glDepthRange(0.0f, 1.0f);
+//  glDepthRange(0.0f, 1.0f);
 }
 
 // The texture offset to be applied to the texture coordinates in SkyVertex().
@@ -371,7 +370,6 @@ int gl_sky_detail = 16;
 #define SKYHEMI_LOWER		0x2
 #define SKYHEMI_JUST_CAP	0x4	// Just draw the top or bottom cap.
 
-#define ANGLE_MAX		(0xffffffff)
 #define TO_GL(v) ((float)(v)/(float)MAP_SCALE)
 
 //-----------------------------------------------------------------------------

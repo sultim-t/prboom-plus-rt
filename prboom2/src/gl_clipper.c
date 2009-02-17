@@ -74,9 +74,6 @@
 #include "gl_intern.h"
 #include "e6y.h"
 
-#define ANGLE_MAX   (0xffffffff)
-#define ANG1        (ANG45/45)
-
 typedef struct clipnode_s
 {
   struct clipnode_s *prev, *next;

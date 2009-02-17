@@ -3057,7 +3057,7 @@ setup_menu_t gen_settings4[] = { // General Settings screen3
 };
 
 static const char *gl_skytypes[] = {
-  "None", "Standard"/*, "Screen"*/, "Skybox", NULL};
+  "None", "Screen", "Standard", "Skybox", NULL};
 
 setup_menu_t gen_settings5[] = { // General Settings screen3
   {"Software Options",               S_SKIP|S_TITLE, m_null, G_X, G_Y+1*8},
@@ -3204,7 +3204,7 @@ void M_DrawGeneral(void)
 {
   inhelpscreens = true;
 
-  M_DrawBackground("FLOOR4_6", 0); // Draw background
+  //M_DrawBackground("FLOOR4_6", 0); // Draw background
   // proff/nicolas 09/20/98 -- changed for hi-res
   V_DrawNamePatch(114, 2, 0, "M_GENERL", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
