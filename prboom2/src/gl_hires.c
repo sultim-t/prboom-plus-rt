@@ -1209,108 +1209,109 @@ int* gld_LoadHiresTex(GLTexture *gltexture, int cm)
   int *result = NULL;
   int *texid, *glTexID;
 
-  // do not need it
-  if (!gl_texture_external_hires && !gl_texture_internal_hires)
-    return NULL;
-
-  // default buffer
-  texid = &gltexture->glTexExID[CR_DEFAULT][0][0];
-
-  // already loaded and there is no corresponding hi-res
-  if ((*texid) && !(gltexture->flags & GLTEXTURE_HIRES))
-    return NULL;
-
-  // try to load in-wad texture
-  if (*texid == 0 && gl_texture_internal_hires)
+  // do we need it?
+  if ((gl_texture_external_hires || gl_texture_internal_hires) &&
+    !(gltexture->flags & GLTEXTURE_HASNOHIRES))
   {
-    const char *lumpname = gld_HiRes_GetInternalName(gltexture);
+    // default buffer
+    texid = &gltexture->glTexExID[CR_DEFAULT][0][0];
 
-    if (lumpname)
+    // do not try to load hires twice
+    if ((*texid == 0) || (gltexture->flags & GLTEXTURE_HIRES))
     {
-      int lump = (W_CheckNumForName)(lumpname, ns_hires);
-      if (lump != -1)
+      // try to load in-wad texture
+      if (*texid == 0 && gl_texture_internal_hires)
       {
-        SDL_RWops *rw_data = SDL_RWFromMem((void*)W_CacheLumpNum(lump), W_LumpLength(lump));
-        SDL_Surface *surf_tmp = IMG_Load_RW(rw_data, true);
+        const char *lumpname = gld_HiRes_GetInternalName(gltexture);
 
-        if (surf_tmp)
+        if (lumpname)
         {
-          SDL_Surface *surf = SDL_ConvertSurface(surf_tmp, &RGBAFormat, surf_tmp->flags);
-          SDL_FreeSurface(surf_tmp);
-
-          if (surf)
+          int lump = (W_CheckNumForName)(lumpname, ns_hires);
+          if (lump != -1)
           {
-            gld_HiRes_Bind(gltexture, texid);
-            gld_BuildTexture(gltexture, surf->pixels, true, surf->w, surf->h);
+            SDL_RWops *rw_data = SDL_RWFromMem((void*)W_CacheLumpNum(lump), W_LumpLength(lump));
+            SDL_Surface *surf_tmp = IMG_Load_RW(rw_data, true);
 
-            SDL_FreeSurface(surf);
-          }
-        }
-      }
-    }
-  }
-
-  // then external
-  if (*texid == 0 && gl_texture_external_hires)
-  {
-    char img_path[PATH_MAX];
-    char dds_path[PATH_MAX];
-    if (gld_HiRes_GetExternalName(gltexture, img_path, dds_path))
-    {
-      if (!gld_HiRes_LoadDDSTexture(gltexture, texid, dds_path))
-      {
-        if (!gld_HiRes_LoadFromCache(gltexture, texid, img_path))
-        {
-          if (gld_HiRes_LoadFromFile(gltexture, texid, img_path))
-          {
-            if ((gltexture->realtexwidth != gltexture->tex_width) ||
-              (gltexture->realtexheight != gltexture->tex_height))
+            if (surf_tmp)
             {
-              gld_HiRes_WriteCache(gltexture, texid, img_path);
+              SDL_Surface *surf = SDL_ConvertSurface(surf_tmp, &RGBAFormat, surf_tmp->flags);
+              SDL_FreeSurface(surf_tmp);
+
+              if (surf)
+              {
+                gld_HiRes_Bind(gltexture, texid);
+                gld_BuildTexture(gltexture, surf->pixels, true, surf->w, surf->h);
+
+                SDL_FreeSurface(surf);
+              }
             }
           }
         }
       }
-    }
-  }
 
-  if (*texid)
-  {
-    glTexID = gld_GetTextureTexID(gltexture, cm);
-
-    if (last_glTexID == glTexID)
-    {
-      result = glTexID;
-    }
-    else
-    {
-      if (texid == glTexID)
+      // then external
+      if (*texid == 0 && gl_texture_external_hires)
       {
-        glBindTexture(GL_TEXTURE_2D, *glTexID);
-        result = glTexID;
-      }
-      else
-      {
-        //if (gl_boom_colormaps && use_boom_cm &&
-        //  !(comp[comp_skymap] && (gltexture->flags&GLTEXTURE_SKY)))
-        if (boom_cm && use_boom_cm && gl_boom_colormaps)
+        char img_path[PATH_MAX];
+        char dds_path[PATH_MAX];
+        if (gld_HiRes_GetExternalName(gltexture, img_path, dds_path))
         {
-          int w, h;
-          unsigned char *buf;
-
-          buf = gld_GetTextureBuffer(*texid, 0, &w, &h);
-          gld_HiRes_Bind(gltexture, glTexID);
-          gld_HiRes_ProcessColormap(buf, w * h * 4);
-          if (gld_BuildTexture(gltexture, buf, true, w, h))
+          if (!gld_HiRes_LoadDDSTexture(gltexture, texid, dds_path))
           {
-            result = glTexID;
+            if (!gld_HiRes_LoadFromCache(gltexture, texid, img_path))
+            {
+              if (gld_HiRes_LoadFromFile(gltexture, texid, img_path))
+              {
+                if ((gltexture->realtexwidth != gltexture->tex_width) ||
+                  (gltexture->realtexheight != gltexture->tex_height))
+                {
+                  gld_HiRes_WriteCache(gltexture, texid, img_path);
+                }
+              }
+            }
           }
+        }
+      }
+
+      if (*texid)
+      {
+        glTexID = gld_GetTextureTexID(gltexture, cm);
+
+        if (last_glTexID == glTexID)
+        {
+          result = glTexID;
         }
         else
         {
-          glTexID = texid;
-          gld_HiRes_Bind(gltexture, glTexID);
-          result = glTexID;
+          if (texid == glTexID)
+          {
+            glBindTexture(GL_TEXTURE_2D, *glTexID);
+            result = glTexID;
+          }
+          else
+          {
+            //if (gl_boom_colormaps && use_boom_cm &&
+            //  !(comp[comp_skymap] && (gltexture->flags&GLTEXTURE_SKY)))
+            if (boom_cm && use_boom_cm && gl_boom_colormaps)
+            {
+              int w, h;
+              unsigned char *buf;
+
+              buf = gld_GetTextureBuffer(*texid, 0, &w, &h);
+              gld_HiRes_Bind(gltexture, glTexID);
+              gld_HiRes_ProcessColormap(buf, w * h * 4);
+              if (gld_BuildTexture(gltexture, buf, true, w, h))
+              {
+                result = glTexID;
+              }
+            }
+            else
+            {
+              glTexID = texid;
+              gld_HiRes_Bind(gltexture, glTexID);
+              result = glTexID;
+            }
+          }
         }
       }
     }
@@ -1319,6 +1320,11 @@ int* gld_LoadHiresTex(GLTexture *gltexture, int cm)
   if (result)
   {
     last_glTexID = result;
+  }
+  else
+  {
+    // there is no corresponding hires
+    gltexture->flags |= GLTEXTURE_HASNOHIRES;
   }
 
   return result;
