@@ -73,7 +73,8 @@ typedef enum
   GLTEXTURE_HASHOLES  = 0x00000004,
   GLTEXTURE_SKY       = 0x00000008,
   GLTEXTURE_HIRES     = 0x00000010,
-  GLTEXTURE_CLAMPY    = 0x00000020,
+  GLTEXTURE_HASNOHIRES= 0x00000020,
+  GLTEXTURE_CLAMPY    = 0x00000040,
 } GLTexture_flag_t;
 
 typedef struct gl_strip_coords_s
