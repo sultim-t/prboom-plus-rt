@@ -160,10 +160,7 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, int skytype)
 
     wall->gltexture->flags |= GLTEXTURE_SKY;
 
-    if (gl_drawskys != skytype_screen)
-    {
-      gld_AddDrawItem(GLDIT_SWALL, wall);
-    }
+    gld_AddDrawItem(GLDIT_SWALL, wall);
 
     if (!SkyBox.wall.gltexture)
     {
@@ -304,7 +301,35 @@ void gld_DrawScreenSkybox(void)
     float fU1, fU2, fV1, fV2;
     GLWall *wall = &SkyBox.wall;
     angle_t angle;
-    int k;
+    int i, k;
+
+    if (!gl_compatibility)
+    {
+      glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // no graphics
+    }
+    glDisable(GL_TEXTURE_2D);
+
+    for (i = gld_drawinfo.num_items[GLDIT_SWALL] - 1; i >= 0; i--)
+    {
+      GLWall* wall = gld_drawinfo.items[GLDIT_SWALL][i].item.wall;
+
+      glBegin(GL_TRIANGLE_STRIP);
+      glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
+      glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
+      glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
+      glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
+      glEnd();
+    }
+
+    glEnable(GL_TEXTURE_2D);
+    if (!gl_compatibility)
+    {
+      glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    }
+    else
+    {
+      glClear(GL_COLOR_BUFFER_BIT);
+    }
 
     if (!mlook_or_fov)
     {
@@ -335,6 +360,9 @@ void gld_DrawScreenSkybox(void)
       fU1 = fU2 + 1.0f / k;
     }
 
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_ALPHA_TEST);
+
     glPushMatrix();
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -349,9 +377,10 @@ void gld_DrawScreenSkybox(void)
     glEnd();
 
     glPopMatrix();
-  }
 
-//  glDepthRange(0.0f, 1.0f);
+    glEnable(GL_ALPHA_TEST);
+    glEnable(GL_DEPTH_TEST);
+  }
 }
 
 // The texture offset to be applied to the texture coordinates in SkyVertex().
@@ -608,6 +637,42 @@ void gld_DrawDomeSkyBox(void)
     int i;
     GLint shading_mode = GL_FLAT;
     
+    // This draws a valid z-buffer into the stencil's contents to ensure it
+    // doesn't get overwritten by the level's geometry.
+
+    // Because some of outdated hardware has no support for
+    // glColorMask(0, 0, 0, 0) or something, 
+    // I need to render fake strips of sky before dome with using
+    // full clearing of color buffer (only in compatibility mode)
+    
+    if (!gl_compatibility)
+    {
+      glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // no graphics
+    }
+    glDisable(GL_TEXTURE_2D);
+
+    for (i = gld_drawinfo.num_items[GLDIT_SWALL] - 1; i >= 0; i--)
+    {
+      GLWall* wall = gld_drawinfo.items[GLDIT_SWALL][i].item.wall;
+
+      glBegin(GL_TRIANGLE_STRIP);
+      glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
+      glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
+      glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
+      glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
+      glEnd();
+    }
+
+    glEnable(GL_TEXTURE_2D);
+    if (!gl_compatibility)
+    {
+      glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    }
+    else
+    {
+      glClear(GL_COLOR_BUFFER_BIT);
+    }
+
     glGetIntegerv(GL_SHADE_MODEL, &shading_mode);
     glShadeModel(GL_SMOOTH);
 
@@ -626,7 +691,6 @@ void gld_DrawDomeSkyBox(void)
     glRotatef(yaw,   0.0f, 1.0f, 0.0f);
     glScalef(-2.0f, 2.0f, 2.0f);
     glTranslatef(0.f, -1000.0f/128.0f, 0.f);
-    //glTranslatef(xCamera, zCamera, -yCamera);
 
     RenderDome(&SkyBox);
 
@@ -637,30 +701,5 @@ void gld_DrawDomeSkyBox(void)
     glDepthMask(true);
 
     glShadeModel(shading_mode);
-
-    // This draws a valid z-buffer into the stencil's contents to ensure it
-    // doesn't get overwritten by the level's geometry.
-
-    //glColor4f(1, 1, 1, 1);
-    //glDepthFunc(GL_LEQUAL);
-    //glDepthRange(0, 1);
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // no graphics
-    glDisable(GL_TEXTURE_2D);
-
-    for (i = gld_drawinfo.num_items[GLDIT_SWALL] - 1; i >= 0; i--)
-    {
-      GLWall* wall = gld_drawinfo.items[GLDIT_SWALL][i].item.wall;
-
-      glBegin(GL_TRIANGLE_STRIP);
-      glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
-      glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
-      glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
-      glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
-      glEnd();
-    }
-
-    glEnable(GL_TEXTURE_2D);
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    //glDepthFunc(GL_LESS);
   }
 }

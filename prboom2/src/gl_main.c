@@ -2863,9 +2863,16 @@ void gld_DrawScene(player_t *player)
   glEnableClientState(GL_VERTEX_ARRAY);
   rendered_visplanes = rendered_segs = rendered_vissprites = 0;
 
+  
+  //e6y: skybox
   if (gl_drawskys == skytype_skydome)
   {
     gld_DrawDomeSkyBox();
+  }
+  //e6y: 3d emulation of screen quad
+  if (gl_drawskys == skytype_screen)
+  {
+    gld_DrawScreenSkybox();
   }
 
   // enable backside removing
@@ -2952,7 +2959,7 @@ void gld_DrawScene(player_t *player)
         glColor4fv(gl_whitecolor);
     }
 
-    // skies
+    // fake strips of sky
     for (i = gld_drawinfo.num_items[GLDIT_SWALL] - 1; i >= 0; i--)
     {
       gld_DrawWall(gld_drawinfo.items[GLDIT_SWALL][i].item.wall);
@@ -2977,11 +2984,6 @@ void gld_DrawScene(player_t *player)
   for (i = gld_drawinfo.num_items[GLDIT_SPRITE] - 1; i >= 0; i--)
   {
     gld_DrawSprite(gld_drawinfo.items[GLDIT_SPRITE][i].item.sprite);
-  }
-
-  if (gl_drawskys == skytype_screen)
-  {
-    gld_DrawScreenSkybox();
   }
 
   // transparent stuff
