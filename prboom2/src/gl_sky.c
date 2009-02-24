@@ -416,7 +416,7 @@ void gld_GetSkyCapColors(void)
   glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
 
   buffer = malloc(width * height * 4);
-  glGetTexImage(GL_TEXTURE_2D, 0, gl_tex_format, GL_UNSIGNED_BYTE, buffer);
+  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 
   averageColor(&SkyBox.CeilingSkyColor, (unsigned int*)buffer, width * MIN(30, height), 0);
 
