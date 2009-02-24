@@ -650,7 +650,7 @@ unsigned char* gld_GetTextureBuffer(int texid, int miplevel, int *width, int *he
     buf_size = w * h * 4;
     buf = malloc(buf_size);
   }
-  glGetTexImage(GL_TEXTURE_2D, miplevel, gl_tex_format, GL_UNSIGNED_BYTE, buf);
+  glGetTexImage(GL_TEXTURE_2D, miplevel, GL_RGBA, GL_UNSIGNED_BYTE, buf);
 
   if (width)
     *width = w;

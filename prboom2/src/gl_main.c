@@ -171,23 +171,16 @@ void gld_InitTextureParams(void)
     gl_shared_texture_palette = false;
   }
 
-  if (gl_color_mip_levels)
+  i = 0;
+  while (tex_formats[i].tex_format_name)
   {
-    gl_tex_format=GL_RGBA;
-  }
-  else
-  {
-    int i = 0;
-    while (tex_formats[i].tex_format_name)
+    if (!strcasecmp(gl_tex_format_string, tex_formats[i].tex_format_name))
     {
-      if (!strcasecmp(gl_tex_format_string, tex_formats[i].tex_format_name))
-      {
-        gl_tex_format = tex_formats[i].tex_format;
-        lprintf(LO_INFO,"Using texture format %s.\n", tex_formats[i].tex_format_name);
-        break;
-      }
-      i++;
+      gl_tex_format = tex_formats[i].tex_format;
+      lprintf(LO_INFO,"Using texture format %s.\n", tex_formats[i].tex_format_name);
+      break;
     }
+    i++;
   }
 }
 
