@@ -435,7 +435,7 @@ static void R_DemoEx_GetParams(const byte *pwad_p, waddata_t *waddata)
   char *str;
   const char *data;
   char **params;
-  unsigned int paramscount;
+  int paramscount;
   int i, p;
   
   lump = W_CheckNumForName(DEMOEX_PARAMS_LUMPNAME);
@@ -644,22 +644,24 @@ byte* G_GetDemoFooter(const char *filename, byte** footer, size_t *size)
 {
   byte* result = NULL;
 
-  int hfile;
+  FILE *hfile;
   byte *buffer = NULL;
   byte* p;
   size_t file_size;
 
-  hfile = open(filename, O_RDONLY | O_BINARY);
+  hfile = fopen(filename, "rb");
 
-  if (hfile == -1)
+  if (!hfile)
     return result;
 
   //get demo size in bytes
-  file_size = I_Filelength(hfile);
+  fseek(hfile, 0, SEEK_END);
+  file_size = ftell(hfile);
+  fseek(hfile, 0, SEEK_SET);
 
   buffer = malloc(file_size);
 
-  if (read(hfile, buffer, file_size) == file_size)
+  if (fread(buffer, file_size, 1, hfile) == 1)
   {
     //skip demo header
     p = (char*)G_ReadDemoHeaderEx(buffer, file_size, RDH_SKIP_HEADER);
@@ -703,7 +705,7 @@ byte* G_GetDemoFooter(const char *filename, byte** footer, size_t *size)
     }
   }
 
-  close(hfile);
+  fclose(hfile);
 
   return result;
 }

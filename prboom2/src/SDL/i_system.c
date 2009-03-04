@@ -223,21 +223,23 @@ const char* I_SigString(char* buf, size_t sz, int signum)
 #ifndef PRBOOM_SERVER
 dboolean I_FileToBuffer(const char *filename, byte **data, int *size)
 {
-  int hfile;
+  FILE *hfile;
 
   dboolean result = false;
   byte *buffer = NULL;
   size_t filesize = 0;
 
-  hfile = open(filename, O_RDONLY | O_BINARY);
-  if (hfile != -1)
+  hfile = fopen(filename, "rb");
+  if (hfile)
   {
-    filesize = I_Filelength(hfile);
+    fseek(hfile, 0, SEEK_END);
+    filesize = ftell(hfile);
+    fseek(hfile, 0, SEEK_SET);
 
     buffer = malloc(filesize);
     if (buffer)
     {
-      if (read(hfile, buffer, filesize) == filesize)
+      if (fread(buffer, filesize, 1, hfile) == 1)
       {
         result = true;
 
@@ -253,7 +255,7 @@ dboolean I_FileToBuffer(const char *filename, byte **data, int *size)
       }
     }
 
-    close(hfile);
+    fclose(hfile);
   }
 
   if (!result)
