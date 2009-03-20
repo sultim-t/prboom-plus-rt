@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9,00"
 	Name="Doom"
-	ProjectGUID="{9C1F0DEB-1A67-402a-9F57-2AE663ABE99B}"
+	ProjectGUID="{9C1F0DEB-1A67-402A-9F57-2AE663ABE99B}"
 	RootNamespace="Doom"
 	TargetFrameworkVersion="131072"
 	>

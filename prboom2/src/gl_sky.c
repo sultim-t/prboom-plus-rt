@@ -140,7 +140,7 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, int skytype)
         wall->skyyaw  = -2.0f*(((270.0f-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)+90.0f)/90.0f/fovscale);
         wall->skyymid = skyYShift+(((float)s->rowoffset/(float)FRACUNIT)/100.0f);
       }
-      wall->flag = (l->special == 272 ? GLDWF_SKY : GLDWF_SKYFLIP);
+      wall->flag = (l->special == 272 ? GLDWF_SKYFLIP : GLDWF_SKY);
     }
   }
   else
