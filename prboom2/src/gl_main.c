@@ -2011,6 +2011,7 @@ static void gld_DrawWall(GLWall *wall)
   {
     //e6y
     if (gl_arb_multitexture && render_detailedwalls &&
+      !(wall->gltexture->flags & GLTEXTURE_HIRES) &&
       distance2piece(xCamera, yCamera, 
       wall->glseg->x1, wall->glseg->z1,
       wall->glseg->x2, wall->glseg->z2) < DETAIL_DISTANCE)
@@ -2451,6 +2452,7 @@ static void gld_DrawFlat(GLFlat *flat)
 {
   int loopnum; // current loop number
   GLLoopDef *currentloop; // the current loop
+  dboolean arb_detail;
 
   rendered_visplanes++;
 
@@ -2463,8 +2465,9 @@ static void gld_DrawFlat(GLFlat *flat)
   glPushMatrix();
   glTranslatef(flat->uoffs/64.0f,flat->voffs/64.0f,0.0f);
   
-//e6y
-  if (gl_arb_multitexture && render_detailedflats)
+  //e6y
+  arb_detail = gl_arb_multitexture && render_detailedflats && !(flat->gltexture->flags & GLTEXTURE_HIRES);
+  if (arb_detail)
   {
     float s;
     TAnimItemParam *animitem = &anim_flats[flat->gltexture->index - firstflat];
@@ -2486,7 +2489,6 @@ static void gld_DrawFlat(GLFlat *flat)
     glPushMatrix();
     glTranslatef(s + flat->uoffs/16.0f,flat->voffs/16.0f,0.0f);
     glScalef(4.0f, 4.0f, 1.0f);
-    //      glTranslatef(0.0f,flat->z,0.0f);
   }
 
   if (flat->sectornum>=0)
@@ -2532,9 +2534,8 @@ static void gld_DrawFlat(GLFlat *flat)
   }
 
   //e6y
-  if (gl_arb_multitexture && render_detailedflats)
+  if (arb_detail)
   {
-    //glMatrixMode(GL_TEXTURE);
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
     GLEXT_glActiveTextureARB(GL_TEXTURE0_ARB);
