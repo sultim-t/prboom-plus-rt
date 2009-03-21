@@ -33,6 +33,10 @@
  *---------------------------------------------------------------------
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "z_zone.h"
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -95,8 +99,6 @@ float bw_green = 0.59f;
 float bw_blue = 0.11f;
 
 extern int tran_filter_pct;
-
-#define USE_VERTEX_ARRAYS
 
 dboolean use_fog=false;
 
@@ -1336,6 +1338,69 @@ void gld_GetSubSectorVertices(void)
 */
 // so I credited DEU
 
+//
+// e6y
+// All sectors which are inside 64x64 square of map grid should be marked here.
+// GL_CLAMP instead of GL_REPEAT should be used for them for avoiding seams
+//
+
+static void gld_MarkSectorsForClamp(void)
+{
+  int i;
+
+  for (i = 0; i < numsectors; i++)
+  {
+    int loopnum; // current loop number
+    GLLoopDef *currentloop; // the current loop
+    GLfloat minu, maxu, minv, maxv;
+    dboolean fail;
+
+    minu = minv = 65535;
+    maxu = maxv = -65535;
+    fail = false;
+
+    for (loopnum = 0; !fail && loopnum < sectorloops[i].loopcount; loopnum++)
+    {
+      int vertexnum;
+      // set the current loop
+      currentloop = &sectorloops[i].loops[loopnum];
+      if (!currentloop)
+        continue;
+      for (vertexnum = currentloop->vertexindex; !fail && vertexnum<(currentloop->vertexindex+currentloop->vertexcount); vertexnum++)
+      {
+        GLTexcoord *coord;
+        coord = &gld_texcoords[vertexnum];
+
+        if (coord->u < minu) minu = (float)floor(coord->u);
+        if (coord->v < minv) minv = (float)floor(coord->v);
+        if (coord->u > maxu) maxu = coord->u;
+        if (coord->v > maxv) maxv = coord->v;
+        
+        fail = (maxu - minu > 1.0f || maxv - minv > 1.0f);
+      }
+    }
+
+    if (!fail)
+    {
+      sectorloops[i].flags = SECTOR_CLAMPXY;
+
+      for (loopnum=0; loopnum<sectorloops[i].loopcount; loopnum++)
+      {
+        int vertexnum;
+        // set the current loop
+        currentloop = &sectorloops[i].loops[loopnum];
+        if (!currentloop)
+          continue;
+        for (vertexnum = currentloop->vertexindex; vertexnum < (currentloop->vertexindex+currentloop->vertexcount); vertexnum++)
+        {
+          gld_texcoords[vertexnum].u = gld_texcoords[vertexnum].u - minu;
+          gld_texcoords[vertexnum].v = gld_texcoords[vertexnum].v - minv;
+        }
+      }
+    }
+  }
+}
+
 void gld_PreprocessSectors(void)
 {
   int i;
@@ -1473,6 +1538,9 @@ void gld_PreprocessSectors(void)
     gld_GetSubSectorVertices();
 
   if (levelinfo) fclose(levelinfo);
+
+  //e6y: for seamless rendering
+  gld_MarkSectorsForClamp();
 }
 
 float roll     = 0.0f;
@@ -2493,6 +2561,28 @@ static void gld_DrawFlat(GLFlat *flat)
 
   if (flat->sectornum>=0)
   {
+    dboolean need_clamp_y, has_clamp_y;
+    if (!arb_detail && 
+      (tex_filter[MIP_TEXTURE].mag_filter == GL_NEAREST ||
+      (flat->gltexture->flags & GLTEXTURE_HIRES)))
+    {
+      need_clamp_y = (sectorloops[flat->sectornum].flags & SECTOR_CLAMPXY);
+      has_clamp_y = (flat->gltexture->flags & GLTEXTURE_CLAMPXY);
+
+      if (need_clamp_y && !has_clamp_y)
+      {
+        flat->gltexture->flags |= GLTEXTURE_CLAMPXY;
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GLEXT_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GLEXT_CLAMP_TO_EDGE);
+      }
+      if (!need_clamp_y && has_clamp_y)
+      {
+        flat->gltexture->flags &= ~GLTEXTURE_CLAMPXY;
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, flat->gltexture->wrap_mode);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, flat->gltexture->wrap_mode);
+      }
+    }
+
     // go through all loops of this sector
 #ifndef USE_VERTEX_ARRAYS
     for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)

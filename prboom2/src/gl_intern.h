@@ -37,6 +37,8 @@
 #include "v_video.h"
 #include "gl_opengl.h"
 
+#define USE_VERTEX_ARRAYS
+
 #define MAP_COEFF 128.0f
 #define MAP_SCALE (MAP_COEFF*(float)FRACUNIT)
 
@@ -75,6 +77,7 @@ typedef enum
   GLTEXTURE_HIRES     = 0x00000010,
   GLTEXTURE_HASNOHIRES= 0x00000020,
   GLTEXTURE_CLAMPY    = 0x00000040,
+  GLTEXTURE_CLAMPXY   = 0x00000080,
 } GLTexture_flag_t;
 
 typedef struct gl_strip_coords_s
@@ -150,10 +153,12 @@ typedef struct
 
 // GLSector is the struct for a sector with a list of loops.
 
+#define SECTOR_CLAMPXY   0x00000001
 typedef struct
 {
   int loopcount; // number of loops for this sector
   GLLoopDef *loops; // the loops itself
+  unsigned int flags;
 } GLSector;
 
 typedef struct
