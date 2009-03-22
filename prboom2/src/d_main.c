@@ -1579,7 +1579,17 @@ static void D_DoomMainSetup(void)
     if ((p = M_CheckParm ("-fastdemo")) && p < myargc-1)    /* killough */
       fastdemo = true;             // run at fastest speed possible
     else
-      p = M_CheckParm ("-timedemo");
+    {
+      if ((p = M_CheckParm("-recordfromto")) && (p < myargc - 2))
+      {
+        democontinue = true;
+        AddDefaultExtension(strcpy(democontinuename, myargv[p + 2]), ".lmp");
+      }
+      else
+      {
+        p = M_CheckParm ("-timedemo");
+      }
+    }
   }
 
   if (p && p < myargc-1)
@@ -1726,8 +1736,13 @@ static void D_DoomMainSetup(void)
     G_DeferedPlayDemo(myargv[p]);
     singledemo = true;          // quit after one demo
   }
-
-  G_CheckDemoContinue(); //e6y
+  else
+    //e6y
+    if ((p = M_CheckParm("-recordfromto")) && (++p < myargc - 1))
+    {
+      G_DeferedPlayDemo(myargv[p]);
+      G_CheckDemoContinue();
+    }
 
   if (slot && ++slot < myargc)
     {

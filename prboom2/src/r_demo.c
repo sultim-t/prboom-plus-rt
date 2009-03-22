@@ -378,19 +378,23 @@ void R_DemoEx_ProcessGameTic(void)
   if (mlook_lump.lump == -1)
     return;
 
-  if (demoplayback)
+  // mlook data must be initialised here
+  if ((mlook_lump.lump == -2) && (demoplayback || democontinue))
   {
-    // mlook data must be initialised here
-    if (mlook_lump.lump == -2)
+    mlook_lump.lump = W_CheckNumForName(mlook_lump.name);
+    if (mlook_lump.lump != -1)
     {
-      mlook_lump.lump = W_CheckNumForName(mlook_lump.name);
-      if (mlook_lump.lump != -1)
-      {
-        mlook_lump.maxtick = W_LumpLength(mlook_lump.lump) / sizeof(mlook_lump.data[0]);
-        mlook_lump.data = (void*)W_CacheLumpName(mlook_lump.name);
-      }
-    }
+      const unsigned char *data = W_CacheLumpName(mlook_lump.name);
+      int size = W_LumpLength(mlook_lump.lump);
 
+      mlook_lump.maxtick = size / sizeof(mlook_lump.data[0]);
+      mlook_lump.data = malloc(size);
+      memcpy(mlook_lump.data, data, size);
+    }
+  }
+
+  if (demoplayback || democontinue)
+  {
     if (mlook_lump.tick > mlook_lump.maxtick)
     {
       //overflow
@@ -411,20 +415,18 @@ void R_DemoEx_ProcessGameTic(void)
 
     mlook_lump.tick++;
   }
-  else
+
+  if (demorecording && !democontinue)
   {
-    if (demorecording)
+    if (mlook_lump.tick >= mlook_lump.maxtick)
     {
-      if (mlook_lump.tick >= mlook_lump.maxtick)
-      {
-        mlook_lump.maxtick = (mlook_lump.maxtick ? mlook_lump.maxtick * 2 : 8192);
-        mlook_lump.data = realloc(mlook_lump.data, mlook_lump.maxtick * sizeof(mlook_lump.data[0]));
-      }
-
-      mlook_lump.data[mlook_lump.tick] = (short)mlooky;
-
-      mlook_lump.tick++;
+      mlook_lump.maxtick = (mlook_lump.maxtick ? mlook_lump.maxtick * 2 : 8192);
+      mlook_lump.data = realloc(mlook_lump.data, mlook_lump.maxtick * sizeof(mlook_lump.data[0]));
     }
+
+    mlook_lump.data[mlook_lump.tick] = (short)mlooky;
+
+    mlook_lump.tick++;
   }
 }
 
@@ -1232,15 +1234,15 @@ int CheckDemoExDemo(void)
 
   M_ChangeDemoExtendedFormat();
 
-  p = M_CheckParm("-playdemo");
-  if (!p)
-    p = M_CheckParm("-timedemo");
-  else if (!p)
-    p= M_CheckParm("-fastdemo");
-
-  if (p && ++p < myargc)
+  p = IsDemoPlayback();
+  if (!p && democontinue)
   {
-    char *demoname = I_FindFile(myargv[p], ".lmp");
+    p = M_CheckParm("-recordfromto");
+  }
+
+  if (p)
+  {
+    char *demoname = I_FindFile(myargv[p + 1], ".lmp");
     if (demoname)
     {
       result = G_ReadDemoFooter(demoname);

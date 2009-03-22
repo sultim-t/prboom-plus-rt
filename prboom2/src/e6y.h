@@ -120,7 +120,6 @@ extern int avi_shot_num;
 extern const char *avi_shot_fname;
 extern char avi_shot_curr_fname[PATH_MAX];
 
-extern FILE    *_demofp;
 extern dboolean doSkip;
 extern dboolean demo_stoponnext;
 extern dboolean demo_stoponend;
@@ -327,7 +326,6 @@ char* WINError(void);
 
 extern int stats_level;
 void e6y_G_DoCompleted(void);
-void e6y_G_CheckDemoStatus(void);
 void e6y_WriteStats(void);
 
 void e6y_G_DoWorldDone(void);

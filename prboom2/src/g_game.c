@@ -102,6 +102,7 @@ static int demolength; // check for overrun (missing DEMOMARKER)
 static FILE    *demofp; /* cph - record straight to file */
 //e6y static 
 const byte *demo_p;
+const byte *demo_continue_p = NULL;
 static short    consistancy[MAXPLAYERS][BACKUPTICS];
 
 gameaction_t    gameaction;
@@ -2382,40 +2383,52 @@ void G_InitNew(skill_t skill, int episode, int map)
 // DEMO RECORDING
 //
 
+void G_ReadOneTick(ticcmd_t* cmd, const byte **data_p)
+{
+  unsigned char at; // e6y: for tasdoom demo format
+  const byte *p = *data_p;
+
+  cmd->forwardmove = (signed char)(*(*data_p)++);
+  cmd->sidemove = (signed char)(*(*data_p)++);
+  if (!longtics)
+  {
+    cmd->angleturn = ((unsigned char)(at = *(*data_p)++))<<8;
+  }
+  else
+  {
+    unsigned int lowbyte = (unsigned char)(*(*data_p)++);
+    cmd->angleturn = (((signed int)(*(*data_p)++))<<8) + lowbyte;
+  }
+  cmd->buttons = (unsigned char)(*(*data_p)++);
+  
+  // e6y: ability to play tasdoom demos directly
+  if (compatibility_level == tasdoom_compatibility)
+  {
+    signed char tmp = cmd->forwardmove;
+    cmd->forwardmove = cmd->sidemove;
+    cmd->sidemove = (signed char)at;
+    cmd->angleturn = ((unsigned char)cmd->buttons)<<8;
+    cmd->buttons = (byte)tmp;
+  }
+}
+
 void G_ReadDemoTiccmd (ticcmd_t* cmd)
 {
-  unsigned char at; // e6y: tasdoom stuff
   demo_curr_tic++;
 
   if (*demo_p == DEMOMARKER)
+  {
     G_CheckDemoStatus();      // end of demo data stream
-  else if (demoplayback && demo_p + (longtics?5:4) > demobuffer + demolength)
+  }
+  else if (demoplayback && demo_p + bytes_per_tic > demobuffer + demolength)
   {
     lprintf(LO_WARN, "G_ReadDemoTiccmd: missing DEMOMARKER\n");
     G_CheckDemoStatus();
   }
-
   else
-    {
-      cmd->forwardmove = ((signed char)*demo_p++);
-      cmd->sidemove = ((signed char)*demo_p++);
-      if (!longtics) {
-        cmd->angleturn = ((unsigned char)(at = *demo_p++))<<8;
-      } else {
-	unsigned int lowbyte = (unsigned char)*demo_p++;
-        cmd->angleturn = (((signed int)(*demo_p++))<<8) + lowbyte;
-      }
-      cmd->buttons = (unsigned char)*demo_p++;
-      // e6y: ability to play tasdoom demos directly
-      if (compatibility_level == tasdoom_compatibility)
-      {
-        signed char k = cmd->forwardmove;
-        cmd->forwardmove = cmd->sidemove;
-        cmd->sidemove = (signed char)at;
-        cmd->angleturn = ((unsigned char)cmd->buttons)<<8;
-        cmd->buttons = (byte)k;
-      }
-    }
+  {
+    G_ReadOneTick(cmd, &demo_p);
+  }
 }
 
 /* Demo limits removed -- killough
@@ -3256,8 +3269,43 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
   for (i=0; i<MAXPLAYERS;i++)         // killough 4/24/98
     players[i].cheats = 0;
 
-  bytes_per_tic = (longtics ? 5 : 4); //e6y
-  
+  // e6y
+  // additional params
+  {
+    int i;
+    const byte *p = demo_p;
+
+    bytes_per_tic = (longtics ? 5 : 4);
+    demo_playerscount = 0;
+    demo_tics_count = 0;
+    demo_curr_tic = 0;
+    strcpy(demo_len_st, "-");
+
+    for (i = 0; i < MAXPLAYERS; i++)
+    {
+      if (playeringame[i])
+      {
+        demo_playerscount++;
+      }
+    }
+
+    if (demo_playerscount > 0 && demolength > 0)
+    {
+      do        
+      {
+        demo_tics_count++;
+        p += bytes_per_tic;
+      }
+      while ((p < demobuffer + demolength) && (*((byte*)p) != DEMOMARKER));
+
+      demo_tics_count /= demo_playerscount;
+
+      sprintf(demo_len_st, "\x1b\x35/%d:%02d", 
+        demo_tics_count/TICRATE/60, 
+        (demo_tics_count%(60*TICRATE))/TICRATE);
+    }
+  }
+
   return demo_p;
 }
 
@@ -3290,42 +3338,6 @@ void G_DoPlayDemo(void)
 
   demo_p = G_ReadDemoHeaderEx(demobuffer, demolength, RDH_SAFE);
 
-  // e6y
-  // additional params
-  {
-    int i;
-    const byte *p = demo_p;
-
-    demo_playerscount = 0;
-    demo_tics_count = 0;
-    demo_curr_tic = 0;
-    strcpy(demo_len_st, "-");
-
-    for (i = 0; i < MAXPLAYERS; i++)
-    {
-      if (playeringame[i])
-      {
-        demo_playerscount++;
-      }
-    }
-
-    if (demo_playerscount > 0 && demolength > 0)
-    {
-      do        
-      {
-        demo_tics_count++;
-        p += bytes_per_tic;
-      }
-      while ((p < demobuffer + demolength) && (*((byte*)p) != DEMOMARKER));
-
-      demo_tics_count /= demo_playerscount;
-
-      sprintf(demo_len_st, "\x1b\x35/%d:%02d", 
-        demo_tics_count/TICRATE/60, 
-        (demo_tics_count%(60*TICRATE))/TICRATE);
-    }
-  }
-
   gameaction = ga_nothing;
   usergame = false;
 
@@ -3340,7 +3352,9 @@ void G_DoPlayDemo(void)
  */
 dboolean G_CheckDemoStatus (void)
 {
-  e6y_G_CheckDemoStatus();//e6y
+  //e6y
+  if (doSkip && (demo_stoponend || demo_stoponnext))
+    G_SkipDemoStop();
 
   P_ChecksumFinal();
 
@@ -3543,24 +3557,22 @@ void P_ResetWalkcam(dboolean ResetCoord, dboolean ResetSight)
 
 void G_ReadDemoContinueTiccmd (ticcmd_t* cmd)
 {
-  if (_demofp && !feof(_demofp))
-  {
-    int count;
-    char buf[4];
-    count = fread(&buf[0], sizeof(char), sizeof(buf), _demofp);
-    if (count == sizeof(buf))
-    {
-      cmd->forwardmove = buf[0];
-      cmd->sidemove = buf[1];
-      cmd->angleturn = buf[2]<<8;
-      cmd->buttons = buf[3];
-    }
+  if (!demo_continue_p)
+    return;
 
-    if (count != sizeof(buf) || gamekeydown[key_demo_jointogame] || joybuttons[joybuse])
-    {
-      _demofp = 0;
-      democontinue = false;
-    }
+  if (gametic <= demo_tics_count && 
+    demo_continue_p + bytes_per_tic <= demobuffer + demolength &&
+    *demo_continue_p != DEMOMARKER)
+  {
+    G_ReadOneTick(cmd, &demo_continue_p);
+  }
+
+  if (gametic >= demo_tics_count ||
+    demo_continue_p > demobuffer + demolength ||
+    gamekeydown[key_demo_jointogame] || joybuttons[joybuse])
+  {
+    demo_continue_p = NULL;
+    democontinue = false;
   }
 }
 
@@ -3569,10 +3581,16 @@ void G_CheckDemoContinue(void)
 {
   if (democontinue)
   {
-    byte buf[512];
-    size_t len = fread(buf, 1, sizeof(buf), _demofp);
-    len = G_ReadDemoHeaderEx(buf, len, RDH_SAFE) - buf;
-    fseek(_demofp, len, SEEK_SET);
+    char basename[9];
+
+    ExtractFileBase(defdemoname,basename);           // killough
+    basename[8] = 0;
+
+    demolumpnum = W_GetNumForName(basename);
+    demobuffer = W_CacheLumpNum(demolumpnum);
+    demolength = W_LumpLength(demolumpnum);
+
+    demo_continue_p = G_ReadDemoHeaderEx(demobuffer, demolength, RDH_SAFE);
 
     singledemo = true;
     autostart = true;

@@ -107,7 +107,6 @@ int avi_shot_num;
 const char *avi_shot_fname;
 char avi_shot_curr_fname[PATH_MAX];
 
-FILE    *_demofp;
 dboolean doSkip;
 dboolean demo_stoponnext;
 dboolean demo_stoponend;
@@ -290,25 +289,6 @@ prboom_comp_t prboom_comp[PC_MAX] = {
 void e6y_InitCommandLine(void)
 {
   int i, p;
-
-  //-recordfromto x y
-  {
-    char demoname[PATH_MAX];
-    dboolean bDemoContinue = false;
-    democontinue = false;
-
-    if ((p = M_CheckParm("-recordfromto")) && (p < myargc - 2))
-    {
-      bDemoContinue = true;
-      AddDefaultExtension(strcpy(demoname, myargv[p + 1]), ".lmp");
-      AddDefaultExtension(strcpy(democontinuename, myargv[p + 2]), ".lmp");
-    }
-
-    if (bDemoContinue && (_demofp = fopen(demoname, "rb")))
-    {
-      democontinue = true;
-    }
-  }
 
   if ((p = M_CheckParm("-skipsec")) && (p < myargc-1))
     demo_skiptics = (int)(atof(myargv[p + 1]) * 35);
@@ -965,12 +945,6 @@ int numlevels = 0;
 int levels_max = 0;
 timetable_t *stats = NULL;
 
-void e6y_G_CheckDemoStatus(void)
-{
-  if (doSkip && (demo_stoponend || demo_stoponnext))
-    G_SkipDemoStop();
-}
-
 void e6y_G_DoCompleted(void)
 {
   int i;
@@ -1586,12 +1560,16 @@ int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t Buff
 
 int IsDemoPlayback()
 {
-  int p =
-    (((p = M_CheckParm("-fastdemo")) ||
-      (p = M_CheckParm("-timedemo")) ||
-      (p = M_CheckParm("-playdemo")))
-     && p < myargc - 1);
-  return p;
+  int p;
+
+  if ((p = M_CheckParm("-playdemo")) && (p < myargc - 1))
+    return p;
+  if ((p = M_CheckParm("-timedemo")) && (p < myargc - 1))
+    return p;
+  if ((p = M_CheckParm("-fastdemo")) && (p < myargc - 1))
+    return p;
+
+  return 0;
 }
 
 //Begin of GZDoom code
