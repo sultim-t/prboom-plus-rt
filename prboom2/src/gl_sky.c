@@ -74,29 +74,33 @@ void gld_InitFrameSky(void)
   SkyBox.y_offset = 0;
 }
 
+float gld_GetScreenSkyTop(void)
+{
+  fixed_t ang;
+  float f;
+  
+  ang = finetangent[(2048 - ((-(int)viewpitch) >> (ANGLETOFINESHIFT + 1))) & FINEMASK];
+  f = 40 + fovscale * 200 * (float)ang / 65536.0f;
+  f = BETWEEN(0, 127, f);
+
+  return f;
+}
+
 void gld_GetScreenSkyScale(GLWall *wall, float *scale_x, float *scale_y)
 {
   float sx, sy;
 
+  sx = ((wall->flag & GLDWF_SKYFLIP) == GLDWF_SKYFLIP ? -128.0f : 128.0f);
+
   if (!mlook_or_fov)
   {
-    if ((wall->flag & GLDWF_SKYFLIP) == GLDWF_SKYFLIP)
-      sx = -128.0f / (float)wall->gltexture->buffer_width;
-    else
-      sx = +128.0f / (float)wall->gltexture->buffer_width;
-
-    sy = 200.0f / 320.0f * (256 / wall->gltexture->buffer_height);
+    sx = sx / (float)wall->gltexture->buffer_width;
+    sy = 200.0f / 160.0f;//wall->gltexture->buffer_height;
   }
   else 
   {
-    if ((wall->flag & GLDWF_SKYFLIP) == GLDWF_SKYFLIP)
-      sx = (wall->gltexture->buffer_width == 256 ? -64.0f : -128.0f) *
-      fovscale / (float)wall->gltexture->buffer_width;
-    else
-      sx = (wall->gltexture->buffer_width == 256 ? 64.0f : 128.0f) *
-      fovscale / (float)wall->gltexture->buffer_width;
-
-    sy = 200.0f / 320.0f * fovscale;
+    sx = sx * fovscale / (float)wall->gltexture->buffer_width;
+    sy = 200.0f * fovscale / 256.0f;
   }
 
   *scale_x = sx;
@@ -338,11 +342,7 @@ void gld_DrawScreenSkybox(void)
     }
     else
     {
-      fixed_t ang = finetangent[(2048 - ((-(int)viewpitch) >> (ANGLETOFINESHIFT + 1))) & FINEMASK];
-      float f = 40 + fovscale * 200 * (float)ang / 65536.0f;
-      f = BETWEEN(0, 127, f);
-
-      fV1 = (f + SkyBox.y_offset) / 127.0f;
+      fV1 = (gld_GetScreenSkyTop() + SkyBox.y_offset) / 127.0f;
       fV2 = fV1 + 1.0f;
     }
 

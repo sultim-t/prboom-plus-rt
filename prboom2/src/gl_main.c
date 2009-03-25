@@ -1655,22 +1655,23 @@ void gld_StartDrawScene(void)
   gl_use_fog = !gl_compatibility && gl_fog && !frame_fixedcolormap && !boom_cm;
 
 //e6y
-//  viewMaxY = viewz;
   mlook_or_fov = GetMouseLook() || (render_fov != FOV90);
   if(!mlook_or_fov)
   {
-    pitch=0.0f;
+    pitch = 0.0f;
     paperitems_pitch = 0.0f;
-    skyXShift = -2.0f*((yaw+90.0f)/90.0f);
-    skyYShift = 200.0f/319.5f*((100.0f)/100.0f);
+
+    skyXShift = -2.0f * ((yaw + 90.0f) / 90.0f);
+    skyYShift = 200.0f / 319.5f;
   }
   else
   {
-    pitch=(float)(float)(viewpitch>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
+    skyXShift = -2.0f * ((yaw + 90.0f) / 90.0f / fovscale);
+    skyYShift = gld_GetScreenSkyTop() / 128.0f + 200.0f / 320.0f;
+
+    pitch = (float)(float)(viewpitch>>ANGLETOFINESHIFT) * 360.0f / FINEANGLES;
     paperitems_pitch = ((pitch > 87.0f && pitch <= 90.0f) ? 87.0f : pitch);
-    viewPitch = (pitch>180 ? pitch-360 : pitch);
-    skyXShift = -2.0f*((yaw+90.0f)/90.0f/fovscale);
-    skyYShift = viewPitch<skyUpAngle ? skyUpShift : (float)sin(viewPitch*__glPi/180.0f)-0.2f;
+    viewPitch = (pitch > 180 ? pitch - 360 : pitch);
   }
 
   gld_InitFrameSky();
