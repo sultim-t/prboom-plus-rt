@@ -193,6 +193,7 @@ extern int PitchSign;
 extern int mouseSensitivity_mlook;
 extern angle_t viewpitch;
 extern float fovscale;
+extern float skyscale;
 extern float screen_skybox_zplane;
 extern float maxNoPitch[];
 extern float tan_pitch;

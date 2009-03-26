@@ -185,6 +185,7 @@ fixed_t sidemove_strafe50[2]    = {0x19, 0x32};
 int mouseSensitivity_mlook;
 angle_t viewpitch;
 float fovscale;
+float skyscale;
 float screen_skybox_zplane;
 float tan_pitch;
 float skyUpAngle;
@@ -617,6 +618,8 @@ void M_ChangeFOV(void)
     skyUpAngle = -90.0f;
 
   skyUpShift = (float)tan(DEG2RAD(internal_render_fov)/2.0f);
+
+  skyscale = 1.0f / (float)tan(DEG2RAD(render_fov / 2));
 }
 
 void M_ChangeUseDetail(void)

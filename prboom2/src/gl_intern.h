@@ -410,7 +410,6 @@ typedef struct SkyBoxParams_s
 extern int gl_drawskys;
 extern SkyBoxParams_t SkyBox;
 void gld_InitSky(void);
-float gld_GetScreenSkyTop(void);
 void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, int skytype);
 void gld_GetSkyCapColors(void);
 void gld_InitFrameSky(void);

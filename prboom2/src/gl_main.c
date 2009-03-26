@@ -1666,8 +1666,10 @@ void gld_StartDrawScene(void)
   }
   else
   {
-    skyXShift = -2.0f * ((yaw + 90.0f) / 90.0f / fovscale);
-    skyYShift = gld_GetScreenSkyTop() / 128.0f + 200.0f / 320.0f;
+    float f = viewPitch * 2 + 50 / skyscale;
+    f = BETWEEN(0, 127, f);
+    skyXShift = -2.0f * ((yaw + 90.0f) / 90.0f / skyscale);
+    skyYShift = f / 128.0f + 200.0f / 320.0f / skyscale;
 
     pitch = (float)(float)(viewpitch>>ANGLETOFINESHIFT) * 360.0f / FINEANGLES;
     paperitems_pitch = ((pitch > 87.0f && pitch <= 90.0f) ? 87.0f : pitch);

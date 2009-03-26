@@ -74,18 +74,6 @@ void gld_InitFrameSky(void)
   SkyBox.y_offset = 0;
 }
 
-float gld_GetScreenSkyTop(void)
-{
-  fixed_t ang;
-  float f;
-  
-  ang = finetangent[(2048 - ((-(int)viewpitch) >> (ANGLETOFINESHIFT + 1))) & FINEMASK];
-  f = 40 + fovscale * 200 * (float)ang / 65536.0f;
-  f = BETWEEN(0, 127, f);
-
-  return f;
-}
-
 void gld_GetScreenSkyScale(GLWall *wall, float *scale_x, float *scale_y)
 {
   float sx, sy;
@@ -99,8 +87,8 @@ void gld_GetScreenSkyScale(GLWall *wall, float *scale_x, float *scale_y)
   }
   else 
   {
-    sx = sx * fovscale / (float)wall->gltexture->buffer_width;
-    sy = 200.0f * fovscale / 256.0f;
+    sx = sx * skyscale / (float)wall->gltexture->buffer_width;
+    sy = 127.0f * skyscale / 160.0f;
   }
 
   *scale_x = sx;
@@ -342,7 +330,9 @@ void gld_DrawScreenSkybox(void)
     }
     else
     {
-      fV1 = (gld_GetScreenSkyTop() + SkyBox.y_offset) / 127.0f;
+      float f = viewPitch * 2 + 40 / skyscale;
+      f = BETWEEN(0, 127, f);
+      fV1 = (f + SkyBox.y_offset) / 127.0f * skyscale;
       fV2 = fV1 + 1.0f;
     }
 
@@ -370,10 +360,10 @@ void gld_DrawScreenSkybox(void)
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     gld_BindTexture(wall->gltexture);
     glBegin(GL_TRIANGLE_STRIP);
-      glTexCoord2f(fU1, fV1); glVertex3f(-160.0f, +100.0f, -screen_skybox_zplane);
-      glTexCoord2f(fU1, fV2); glVertex3f(-160.0f, -100.0f, -screen_skybox_zplane);
-      glTexCoord2f(fU2, fV1); glVertex3f(+160.0f, +100.0f, -screen_skybox_zplane);
-      glTexCoord2f(fU2, fV2); glVertex3f(+160.0f, -100.0f, -screen_skybox_zplane);
+      glTexCoord2f(fU1, fV1); glVertex3f(-160.0f, +100.5f, -screen_skybox_zplane);
+      glTexCoord2f(fU1, fV2); glVertex3f(-160.0f, -100.5f, -screen_skybox_zplane);
+      glTexCoord2f(fU2, fV1); glVertex3f(+160.0f, +100.5f, -screen_skybox_zplane);
+      glTexCoord2f(fU2, fV2); glVertex3f(+160.0f, -100.5f, -screen_skybox_zplane);
     glEnd();
 
     glPopMatrix();
