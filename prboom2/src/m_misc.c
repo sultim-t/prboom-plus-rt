@@ -839,7 +839,7 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"render_multisampling", {&render_multisampling},  {0},0,8,
    def_int,ss_stat},
-  {"render_fov", {&render_fov},  {90},20,160,
+  {"render_fov", {&render_fov},  {90},20,130,
    def_int,ss_stat},
   {"gl_spriteclip",{(int*)&gl_spriteclip},{spriteclip_smart}, spriteclip_const, spriteclip_smart, def_int,ss_none},
   {"movement_mouselook", {&movement_mouselook},  {0},0,1,
