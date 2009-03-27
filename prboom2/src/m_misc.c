@@ -175,7 +175,7 @@ extern int gl_texture_filter_anisotropic;
 extern char *gl_tex_format_string;
 extern int gl_drawskys;
 extern int gl_sky_detail;
-extern int gl_sortsprites;
+extern int gl_sortbytexture;
 extern int gl_use_paletted_texture;
 extern int gl_use_shared_texture_palette;
 extern int gl_sprite_offset;
@@ -434,7 +434,7 @@ default_t defaults[] =
   {skytype_standard}, skytype_none, skytype_count - 1, def_int,ss_none},
   {"gl_sky_detail",{&gl_sky_detail},{16},1,32,
    def_int,ss_none},
-  {"gl_sortsprites",{&gl_sortsprites},{1},0,1,
+  {"gl_sortbytexture",{&gl_sortbytexture},{1},0,1,
    def_bool,ss_none},
   {"gl_use_paletted_texture",{&gl_use_paletted_texture},{0},0,1,
    def_bool,ss_none},

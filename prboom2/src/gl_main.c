@@ -106,7 +106,7 @@ int gl_nearclip=5;
 int gl_texture_filter;
 int gl_sprite_filter;
 int gl_patch_filter;
-int gl_sortsprites=true;
+int gl_sortbytexture=true;
 int gl_texture_filter_anisotropic = 0;
 //e6y: moved to globals
 //int gl_sprite_offset;	// item out of floor offset Mead 8/13/03
@@ -2962,8 +2962,11 @@ static gld_DrawItemsSortByTexture(GLDrawItemType itemtype)
     dicmp_sprite, dicmp_sprite,
   };
 
-  qsort(gld_drawinfo.items[itemtype], gld_drawinfo.num_items[itemtype],
-    sizeof(gld_drawinfo.items[itemtype]), itemfuncs[itemtype]);
+  if (gl_sortbytexture && gld_drawinfo.num_items[itemtype] > 2)
+  {
+    qsort(gld_drawinfo.items[itemtype], gld_drawinfo.num_items[itemtype],
+      sizeof(gld_drawinfo.items[itemtype]), itemfuncs[itemtype]);
+  }
 }
 
 void gld_DrawScene(player_t *player)
