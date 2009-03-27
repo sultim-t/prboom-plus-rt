@@ -1968,7 +1968,7 @@ void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata)
   int itemsize = 0;
   byte *item_p = NULL;
 
-  static itemsizes[GLDIT_TYPES] = {
+  static int itemsizes[GLDIT_TYPES] = {
     0,
     sizeof(GLWall), sizeof(GLWall), sizeof(GLWall), sizeof(GLWall),
     sizeof(GLFlat), sizeof(GLFlat),
@@ -2933,6 +2933,39 @@ void gld_ProcessWall(GLWall *wall)
   gld_DrawWall(wall);
 }
 
+static int C_DECL dicmp_wall (const void *a, const void *b)
+{
+  GLTexture *tx1 = ((const GLDrawItem *)a)->item.wall->gltexture;
+  GLTexture *tx2 = ((const GLDrawItem *)b)->item.wall->gltexture;
+  return (tx1 != tx2 ? tx1 - tx2 : 0);
+}
+static int C_DECL dicmp_flat (const void *a, const void *b)
+{
+  GLTexture *tx1 = ((const GLDrawItem *)a)->item.flat->gltexture;
+  GLTexture *tx2 = ((const GLDrawItem *)b)->item.flat->gltexture;
+  return (tx1 != tx2 ? tx1 - tx2 : 0);
+}
+static int C_DECL dicmp_sprite (const void *a, const void *b)
+{
+  GLTexture *tx1 = ((const GLDrawItem *)a)->item.sprite->gltexture;
+  GLTexture *tx2 = ((const GLDrawItem *)b)->item.sprite->gltexture;
+  return (tx1 != tx2 ? tx1 - tx2 : 0);
+}
+static gld_DrawItemsSortByTexture(GLDrawItemType itemtype)
+{
+  typedef int(C_DECL *DICMP_ITEM)(const void *a, const void *b);
+
+  static DICMP_ITEM itemfuncs[GLDIT_TYPES] = {
+    0,
+    dicmp_wall, dicmp_wall, dicmp_wall, dicmp_wall,
+    dicmp_flat, dicmp_flat,
+    dicmp_sprite, dicmp_sprite,
+  };
+
+  qsort(gld_drawinfo.items[itemtype], gld_drawinfo.num_items[itemtype],
+    sizeof(gld_drawinfo.items[itemtype]), itemfuncs[itemtype]);
+}
+
 void gld_DrawScene(player_t *player)
 {
   int i,j,k;
@@ -2967,6 +3000,7 @@ void gld_DrawScene(player_t *player)
 
   // floors
   glCullFace(GL_FRONT);
+  gld_DrawItemsSortByTexture(GLDIT_FLOOR);
   for (i = gld_drawinfo.num_items[GLDIT_FLOOR] - 1; i >= 0; i--)
   {
     gld_SetFog(gld_drawinfo.items[GLDIT_FLOOR][i].item.flat->fogdensity);
@@ -2975,6 +3009,7 @@ void gld_DrawScene(player_t *player)
 
   // ceilings
   glCullFace(GL_BACK);
+  gld_DrawItemsSortByTexture(GLDIT_CEILING);
   for (i = gld_drawinfo.num_items[GLDIT_CEILING] - 1; i >= 0; i--)
   {
     gld_SetFog(gld_drawinfo.items[GLDIT_CEILING][i].item.flat->fogdensity);
@@ -2985,6 +3020,7 @@ void gld_DrawScene(player_t *player)
   glDisable(GL_CULL_FACE);
 
   // opaque walls
+  gld_DrawItemsSortByTexture(GLDIT_WALL);
   for (i = gld_drawinfo.num_items[GLDIT_WALL] - 1; i >= 0; i--)
   {
     gld_SetFog(gld_drawinfo.items[GLDIT_WALL][i].item.wall->fogdensity);
@@ -3002,6 +3038,7 @@ void gld_DrawScene(player_t *player)
     glEnable(GL_POLYGON_OFFSET_FILL);
 
     glEnable(GL_STENCIL_TEST);
+    gld_DrawItemsSortByTexture(GLDIT_FWALL);
     for (i = gld_drawinfo.num_items[GLDIT_FWALL] - 1; i >= 0; i--)
     {
       GLWall *wall = gld_drawinfo.items[GLDIT_FWALL][i].item.wall;
@@ -3068,6 +3105,7 @@ void gld_DrawScene(player_t *player)
   }
 
   // opaque sprites
+  gld_DrawItemsSortByTexture(GLDIT_SPRITE);
   for (i = gld_drawinfo.num_items[GLDIT_SPRITE] - 1; i >= 0; i--)
   {
     gld_DrawSprite(gld_drawinfo.items[GLDIT_SPRITE][i].item.sprite);

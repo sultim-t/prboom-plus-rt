@@ -92,6 +92,12 @@ typedef unsigned __int64 uint_64_t;
 #define NORETURN
 #endif
 
+#ifdef WIN32
+#define C_DECL __cdecl
+#else
+#define C_DECL
+#endif
+
 /* CPhipps - use limits.h instead of depreciated values.h */
 #include <limits.h>
 
