@@ -2316,6 +2316,15 @@ void G_InitNew(skill_t skill, int episode, int map)
 {
   int i;
 
+  // e6y
+  // This variable is for correct checking for upper limit of episode.
+  // Ultimate Doom, Final Doom and Doom95 have
+  // "if (episode == 0) episode = 3/4" check instead of
+  // "if (episode > 3/4) episode = 3/4"
+  dboolean fake_episode_check =
+    compatibility_level == ultdoom_compatibility ||
+    compatibility_level == finaldoom_compatibility;
+
   if (paused)
     {
       paused = false;
@@ -2334,9 +2343,21 @@ void G_InitNew(skill_t skill, int episode, int map)
     episode = 3;
   }
 
+  //e6y: DosDoom has only this check
+  if (compatibility_level == dosdoom_compatibility)
+  {
+    if (gamemode == shareware)
+      episode = 1; // only start episode 1 on shareware
+  }
+  else
   if (gamemode == retail)
     {
-      if (episode > 4)
+      // e6y: Ability to play any episode with Ultimate Doom,
+      // Final Doom or Doom95 compatibility and -warp command line switch
+      // E5M1 from 2002ado.wad is an example.
+      // Now you can play it with "-warp 5 1 -complevel 3".
+      // 'Vanilla' Ultimate Doom executable also allows it.
+      if (fake_episode_check ? episode == 0 : episode > 4)
         episode = 4;
     }
   else
@@ -2346,7 +2367,9 @@ void G_InitNew(skill_t skill, int episode, int map)
           episode = 1; // only start episode 1 on shareware
       }
     else
-      if (episode > 3)
+      // e6y: Ability to play any episode with Ultimate Doom,
+      // Final Doom or Doom95 compatibility and -warp command line switch
+      if (fake_episode_check ? episode == 0 : episode > 3)
         episode = 3;
 
   if (map < 1)
