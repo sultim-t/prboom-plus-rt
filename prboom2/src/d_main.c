@@ -1719,7 +1719,7 @@ static void D_DoomMainSetup(void)
     {                                 // killough
       fastdemo = true;                // run at fastest speed possible
       timingdemo = true;              // show stats after quit
-      G_DeferedPlayDemo(myargv[p]);
+      G_SafeDeferedPlayDemo(myargv[p]);
       singledemo = true;              // quit after one demo
     }
   else
@@ -1727,20 +1727,20 @@ static void D_DoomMainSetup(void)
       {
   singletics = true;
   timingdemo = true;            // show stats after quit
-  G_DeferedPlayDemo(myargv[p]);
+  G_SafeDeferedPlayDemo(myargv[p]);
   singledemo = true;            // quit after one demo
       }
     else
       if ((p = M_CheckParm("-playdemo")) && ++p < myargc)
   {
-    G_DeferedPlayDemo(myargv[p]);
+    G_SafeDeferedPlayDemo(myargv[p]);
     singledemo = true;          // quit after one demo
   }
   else
     //e6y
     if ((p = M_CheckParm("-recordfromto")) && (++p < myargc - 1))
     {
-      G_DeferedPlayDemo(myargv[p]);
+      G_SafeDeferedPlayDemo(myargv[p]);
       G_CheckDemoContinue();
     }
 

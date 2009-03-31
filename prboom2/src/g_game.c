@@ -2869,6 +2869,18 @@ void G_DeferedPlayDemo (const char* name)
   gameaction = ga_playdemo;
 }
 
+void G_SafeDeferedPlayDemo (const char* name)
+{
+  if (!I_FindFile(name, ".lmp"))
+  {
+    I_Error("G_SafeDeferedPlayDemo: %s not found", name);
+  }
+  else
+  {
+    G_DeferedPlayDemo(name);
+  }
+}
+
 static int demolumpnum = -1;
 
 static int G_GetOriginalDoomCompatLevel(int ver)
