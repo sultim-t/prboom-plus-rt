@@ -3204,7 +3204,7 @@ void M_DrawGeneral(void)
 {
   inhelpscreens = true;
 
-  //M_DrawBackground("FLOOR4_6", 0); // Draw background
+  M_DrawBackground("FLOOR4_6", 0); // Draw background
   // proff/nicolas 09/20/98 -- changed for hi-res
   V_DrawNamePatch(114, 2, 0, "M_GENERL", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
