@@ -58,7 +58,8 @@ void I_ExeptionBegin(ExeptionsList_t exception_index);
 void I_ExeptionEnd(void);
 void I_ExeptionProcess(void);
 
-#if defined(_WIN32) && (defined(_MSC_VE6R) || defined(__INTEL_COMPILER))
+#if defined(_WIN32) && (defined(_MSC_VER) || defined(__INTEL_COMPILER))
+void I_Warning(const char *message, ...);
 #define PRBOOM_TRY(exception_index) __try
 #define PRBOOM_EXCEPT(exception_index) __except(EXCEPTION_EXECUTE_HANDLER) { I_Warning("%s", ExeptionsParams[exception_index]); }
 #else
