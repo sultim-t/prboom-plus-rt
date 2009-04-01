@@ -374,10 +374,6 @@ void R_DemoEx_ProcessGameTic(void)
   if (!use_demoex_info)
     return;
 
-  // there is no "MLOOK" lump in demo
-  if (mlook_lump.lump == -1)
-    return;
-
   // mlook data must be initialised here
   if ((mlook_lump.lump == -2) && (demoplayback || democontinue))
   {
@@ -395,38 +391,29 @@ void R_DemoEx_ProcessGameTic(void)
 
   if (demoplayback || democontinue)
   {
-    if (mlook_lump.tick > mlook_lump.maxtick)
+    mlooky = 0;
+    if (mlook_lump.data && mlook_lump.tick < mlook_lump.maxtick &&
+      consoleplayer == displayplayer && !walkcamera.type)
     {
-      //overflow
-      lprintf(LO_WARN, "R_DemoEx_ProcessGameTic: incomplete MLOOK lump is detected.\n");
-      mlook_lump.lump = -1;
+      mlooky = mlook_lump.data[mlook_lump.tick];
     }
-    else
-    {
-      if (mlook_lump.data && consoleplayer == displayplayer && !walkcamera.type)
-      {
-        mlooky = mlook_lump.data[mlook_lump.tick];
-      }
-      else
-      {
-        mlooky = 0;
-      }
-    }
-
     mlook_lump.tick++;
   }
-
-  if (demorecording && !democontinue)
+  else
   {
-    if (mlook_lump.tick >= mlook_lump.maxtick)
+    if (demorecording)
     {
-      mlook_lump.maxtick = (mlook_lump.maxtick ? mlook_lump.maxtick * 2 : 8192);
-      mlook_lump.data = realloc(mlook_lump.data, mlook_lump.maxtick * sizeof(mlook_lump.data[0]));
+      if (mlook_lump.tick >= mlook_lump.maxtick)
+      {
+        int ticks = mlook_lump.maxtick;
+        mlook_lump.maxtick = (mlook_lump.maxtick ? mlook_lump.maxtick * 2 : 8192);
+        mlook_lump.data = realloc(mlook_lump.data, mlook_lump.maxtick * sizeof(mlook_lump.data[0]));
+        memset(mlook_lump.data + ticks, 0, (mlook_lump.maxtick - ticks) * sizeof(mlook_lump.data[0]));
+      }
+
+      mlook_lump.data[mlook_lump.tick] = (short)mlooky;
+      mlook_lump.tick++;
     }
-
-    mlook_lump.data[mlook_lump.tick] = (short)mlooky;
-
-    mlook_lump.tick++;
   }
 }
 
@@ -615,6 +602,9 @@ static void R_DemoEx_AddMouseLookData(wadtbl_t *wadtbl)
 {
   int i = 0;
 
+  if (!mlook_lump.data)
+    return;
+
   // search for at least one tic with a nonzero pitch
   while (i < (int)mlook_lump.tick)
   {
@@ -628,7 +618,7 @@ static void R_DemoEx_AddMouseLookData(wadtbl_t *wadtbl)
   }
 }
 
-static void I_DemoExShutdown(void)
+void I_DemoExShutdown(void)
 {
   if (demoex_filename && !(demo_demoex_filename && *demo_demoex_filename))
   {
@@ -768,7 +758,6 @@ static int G_ReadDemoFooter(const char *filename)
   if (!use_demoex_info)
     return result;
 
-  atexit(I_DemoExShutdown);
   demoex_filename[0] = 0;
 
   if (demo_demoex_filename && *demo_demoex_filename)
@@ -1235,19 +1224,27 @@ int CheckDemoExDemo(void)
   M_ChangeDemoExtendedFormat();
 
   p = IsDemoPlayback();
-  if (!p && democontinue)
+  if (!p)
   {
-    p = M_CheckParm("-recordfromto");
+    p = IsDemoContinue();
   }
 
   if (p)
   {
-    char *demoname = I_FindFile(myargv[p + 1], ".lmp");
+    char *demoname, *filename;
+
+    filename = malloc(strlen(myargv[p + 1]) + 16);
+    strcpy(filename, myargv[p + 1]);
+    AddDefaultExtension(filename, ".lmp");
+
+    demoname = I_FindFile(filename, NULL);
     if (demoname)
     {
       result = G_ReadDemoFooter(demoname);
       free(demoname);
     }
+
+    free(filename);
   }
 
   return result;

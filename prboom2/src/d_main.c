@@ -1580,7 +1580,7 @@ static void D_DoomMainSetup(void)
       fastdemo = true;             // run at fastest speed possible
     else
     {
-      if ((p = M_CheckParm("-recordfromto")) && (p < myargc - 2))
+      if ((p = IsDemoContinue()))
       {
         democontinue = true;
         AddDefaultExtension(strcpy(democontinuename, myargv[p + 2]), ".lmp");
@@ -1738,9 +1738,9 @@ static void D_DoomMainSetup(void)
   }
   else
     //e6y
-    if ((p = M_CheckParm("-recordfromto")) && (++p < myargc - 1))
+    if ((p = IsDemoContinue()))
     {
-      G_SafeDeferedPlayDemo(myargv[p]);
+      G_SafeDeferedPlayDemo(myargv[p+1]);
       G_CheckDemoContinue();
     }
 

@@ -502,6 +502,7 @@ static void I_Quit (void)
     if (demorecording)
       G_CheckDemoStatus();
     M_SaveDefaults ();
+    I_DemoExShutdown();
   }
 }
 

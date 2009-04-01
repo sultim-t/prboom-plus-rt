@@ -293,7 +293,7 @@ void e6y_InitCommandLine(void)
 
   if ((p = M_CheckParm("-skipsec")) && (p < myargc-1))
     demo_skiptics = (int)(atof(myargv[p + 1]) * 35);
-  if ((IsDemoPlayback() || democontinue) && (startmap > 1 || demo_skiptics))
+  if ((IsDemoPlayback() || IsDemoContinue()) && (startmap > 1 || demo_skiptics))
     G_SkipDemoStart();
   if ((p = M_CheckParm("-avidemo")) && (p < myargc-1))
     avi_shot_fname = myargv[p + 1];
@@ -1132,7 +1132,7 @@ int AccelerateMouse(int val)
   return (int)(pow((double)val, (double)mouse_accelfactor));
 }
 
-int mlooky;
+int mlooky = 0;
 
 dboolean IsDehMaxHealth = false;
 dboolean IsDehMaxSoul = false;
@@ -1561,7 +1561,7 @@ int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t Buff
 }
 #endif
 
-int IsDemoPlayback()
+int IsDemoPlayback(void)
 {
   int p;
 
@@ -1571,6 +1571,19 @@ int IsDemoPlayback()
     return p;
   if ((p = M_CheckParm("-fastdemo")) && (p < myargc - 1))
     return p;
+
+  return 0;
+}
+
+int IsDemoContinue(void)
+{
+  int p;
+
+  if ((p = M_CheckParm("-recordfromto")) && (p < myargc - 2) &&
+    I_FindFile(myargv[p + 1], ".lmp"))
+  {
+    return p;
+  }
 
   return 0;
 }
