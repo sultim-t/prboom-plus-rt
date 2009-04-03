@@ -418,15 +418,24 @@ fixed_t P_FindNextHighestFloor(sector_t *sec, int currentheight)
       
       if (other->floorheight > height)
       {
-        if (compatibility_level < dosdoom_compatibility)
+        // e6y
+        // Emulation of stack overflow.
+        // 20: overflow affects nothing - just a luck;
+        // 21: can be emulated;
+        // 22..26: overflow affects saved registers - unpredictable behaviour, can crash;
+        // 27: overflow affects return address - crash with high probability;
+        if (compatibility_level < dosdoom_compatibility && h >= MAX_ADJOINING_SECTORS)
         {
-          // Emulation of memory (stack) overflow.
+          lprintf(LO_WARN, "P_FindNextHighestFloor: Overflow of heightlist[%d] array is detected.", MAX_ADJOINING_SECTORS);
+          lprintf(LO_WARN, " Sector %d, heightlist index %d: ", sec->iSectorID, h);
+
           if (h == MAX_ADJOINING_SECTORS + 1)
             height = other->floorheight;
-          // Check for fatal overflow. Warning.
-          if (h == MAX_ADJOINING_SECTORS + 2)
-            lprintf(LO_WARN, "Sector with more than 20+2 adjoining sectors. Vanilla will crash here");
 
+          if (h <= MAX_ADJOINING_SECTORS + 1)
+            lprintf(LO_WARN, " successfully emulated.\n");
+          else
+            lprintf(LO_WARN, " cannot be emulated.\n");
         }
         heightlist[h++] = other->floorheight;
       }
