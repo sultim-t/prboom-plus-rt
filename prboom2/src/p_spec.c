@@ -426,16 +426,18 @@ fixed_t P_FindNextHighestFloor(sector_t *sec, int currentheight)
         // 27: overflow affects return address - crash with high probability;
         if (compatibility_level < dosdoom_compatibility && h >= MAX_ADJOINING_SECTORS)
         {
-          lprintf(LO_WARN, "P_FindNextHighestFloor: Overflow of heightlist[%d] array is detected.", MAX_ADJOINING_SECTORS);
-          lprintf(LO_WARN, " Sector %d, heightlist index %d: ", sec->iSectorID, h);
+          lprintf(LO_WARN, "P_FindNextHighestFloor: Overflow of heightlist[%d] array is detected.\n", MAX_ADJOINING_SECTORS);
+          lprintf(LO_WARN, " Sector %d, line %d, heightlist index %d: ", sec->iSectorID, sec->lines[i]->iLineID, h);
 
           if (h == MAX_ADJOINING_SECTORS + 1)
             height = other->floorheight;
 
           if (h <= MAX_ADJOINING_SECTORS + 1)
-            lprintf(LO_WARN, " successfully emulated.\n");
+            lprintf(LO_WARN, "successfully emulated.\n");
+          else if (h <= MAX_ADJOINING_SECTORS + 6)
+            lprintf(LO_WARN, "cannot be emulated - unpredictable behaviour.\n");
           else
-            lprintf(LO_WARN, " cannot be emulated.\n");
+            lprintf(LO_WARN, "cannot be emulated - crash with high probability.\n");
         }
         heightlist[h++] = other->floorheight;
       }
