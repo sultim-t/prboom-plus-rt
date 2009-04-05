@@ -2381,7 +2381,7 @@ void gld_AddWall(seg_t *seg)
       
       linelen=abs(ceiling_height-floor_height);
       mip = (float)wall.gltexture->realtexheight/(float)wall.gltexture->buffer_height;
-      if (seg->frontsector != seg->backsector)
+      //if (seg->frontsector != seg->backsector)
       {
         if (!seg->sidedef->bottomtexture)
           floor_max=floor_height;
