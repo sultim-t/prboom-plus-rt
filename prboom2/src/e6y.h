@@ -235,7 +235,6 @@ void M_ChangeMultiSample(void);
 void M_ChangeSpriteClip(void);
 void M_ChangeAllowBoomColormaps(void);
 void M_ChangeTextureUseHires(void);
-void M_ChangeLightMode(void);
 void M_ChangeAllowFog(void);
 void M_ChangeTextureHQResize(void);
 #endif

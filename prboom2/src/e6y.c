@@ -685,20 +685,6 @@ void M_ChangeTextureUseHires(void)
   gld_Precache();
 }
 
-void M_ChangeLightMode(void)
-{
-  if (gl_lightmode == gl_lightmode_glboom)
-  {
-    gld_SetGammaRamp(-1);
-    gld_FlushTextures();
-  }
-
-  if (gl_lightmode == gl_lightmode_gzdoom)
-  {
-    gld_SetGammaRamp(useglgamma);
-  }
-}
-
 void M_ChangeTextureHQResize(void)
 {
   gld_FlushTextures();

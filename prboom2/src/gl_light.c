@@ -45,8 +45,6 @@
 #include "gl_intern.h"
 #include "e6y.h"
 
-float lighttable[5][256];
-
 gl_lightmode_t gl_lightmode;
 const char *gl_lightmodes[] = {"glboom", "gzdoom"};
 int gl_light_ambient;
@@ -60,8 +58,63 @@ int gl_distfog = 70;
 float gl_CurrentFogDensity = -1.0f;
 float distfogtable[2][256];
 
-typedef float (*gld_CalcLightLevel_f)(int lightlevel);
-typedef float (*gld_CalcFogDensity_f)(sector_t *sector, int lightlevel);
+typedef void (*gld_InitLightTable_f)(void);
+
+typedef struct
+{
+  gld_InitLightTable_f Init;
+  gld_CalcLightLevel_f GetLight;
+  gld_CalcFogDensity_f GetFog;
+} GLLight;
+
+static float lighttable_glboom[5][256];
+static float lighttable_gzdoom[256];
+
+static void gld_InitLightTable_glboom(void);
+static void gld_InitLightTable_gzdoom(void);
+
+static float gld_CalcLightLevel_glboom(int lightlevel);
+static float gld_CalcLightLevel_gzdoom(int lightlevel);
+
+static float gld_CalcFogDensity_glboom(sector_t *sector, int lightlevel);
+static float gld_CalcFogDensity_gzdoom(sector_t *sector, int lightlevel);
+
+static GLLight gld_light[gl_lightmode_last] = {
+  //gl_lightmode_glboom
+  {gld_InitLightTable_glboom, gld_CalcLightLevel_glboom, gld_CalcFogDensity_glboom},
+  //gl_lightmode_gzdoom
+  {gld_InitLightTable_gzdoom, gld_CalcLightLevel_gzdoom, gld_CalcFogDensity_gzdoom},
+};
+
+gld_CalcLightLevel_f gld_CalcLightLevel = gld_CalcLightLevel_glboom;
+gld_CalcFogDensity_f gld_CalcFogDensity = gld_CalcFogDensity_glboom;
+
+void M_ChangeLightMode(void)
+{
+  gld_CalcLightLevel = gld_light[gl_lightmode].GetLight;
+  gld_CalcFogDensity = gld_light[gl_lightmode].GetFog;
+
+  if (gl_lightmode == gl_lightmode_glboom)
+  {
+    gld_SetGammaRamp(-1);
+    gld_FlushTextures();
+  }
+
+  if (gl_lightmode == gl_lightmode_gzdoom)
+  {
+    gld_SetGammaRamp(useglgamma);
+  }
+}
+
+void gld_InitLightTable(void)
+{
+  int i;
+
+  for (i = 0; i < gl_lightmode_last; i++)
+  {
+    gld_light[i].Init();
+  }
+}
 
 /*
  * lookuptable for lightvalues
@@ -70,7 +123,7 @@ typedef float (*gld_CalcFogDensity_f)(sector_t *sector, int lightlevel);
  * gamma=-0,2;-2,0;-4,0;-6,0;-8,0
  * light=0,0 .. 1,0
  */
-void gld_InitLightTable(void)
+static void gld_InitLightTable_glboom(void)
 {
   int i, g;
   float gamma[5] = {-0.2f, -2.0f, -4.0f, -6.0f, -8.0f};
@@ -79,40 +132,38 @@ void gld_InitLightTable(void)
   {
     for (i = 0; i < 256; i++)
     {
-      lighttable[g][i] = (float)((1.0f - exp(pow(i / 255.0f, 3) * gamma[g])) / (1.0f - exp(1.0f * gamma[g])));
+      lighttable_glboom[g][i] = (float)((1.0f - exp(pow(i / 255.0f, 3) * gamma[g])) / (1.0f - exp(1.0f * gamma[g])));
     }
+  }
+}
+
+static void gld_InitLightTable_gzdoom(void)
+{
+  int i;
+  float light;
+
+  for (i = 0; i < 256; i++)
+  {
+    if (i < 192) 
+      light = (192.0f - (192 - i) * 1.95f);
+    else
+      light = (float)i;
+
+    if (light < gl_light_ambient)
+      light = (float)gl_light_ambient;
+
+    lighttable_gzdoom[i] = light / 255.0f;
   }
 }
 
 static float gld_CalcLightLevel_glboom(int lightlevel)
 {
-  return (lighttable[usegamma][BETWEEN(0, 255, lightlevel)]);
+  return lighttable_glboom[usegamma][BETWEEN(0, 255, lightlevel)];
 }
 
 static float gld_CalcLightLevel_gzdoom(int lightlevel)
 {
-  float light;
-
-  if (lightlevel < 192) 
-    light = (192.0f - (192 - lightlevel) * 1.95f);
-  else
-    light = (float)lightlevel;
-
-  if (light < gl_light_ambient)
-    light = (float)gl_light_ambient;
-
-  return light / 255.0f;
-}
-
-static gld_CalcLightLevel_f gld_CalcLightLevelFuncs[gl_lightmode_last] =
-{
-  gld_CalcLightLevel_glboom,
-  gld_CalcLightLevel_gzdoom,
-};
-
-float gld_CalcLightLevel(int lightlevel)
-{
-  return gld_CalcLightLevelFuncs[gl_lightmode](lightlevel);
+  return lighttable_gzdoom[BETWEEN(0, 255, lightlevel)];
 }
 
 void gld_StaticLightAlpha(float light, float alpha)
@@ -205,31 +256,14 @@ static float gld_CalcFogDensity_glboom(sector_t *sector, int lightlevel)
 
 static float gld_CalcFogDensity_gzdoom(sector_t *sector, int lightlevel)
 {
-  if (sector && (sector->ceilingpic == skyflatnum || sector->floorpic == skyflatnum))
+  if ((!gl_use_fog) ||
+    (sector && (sector->ceilingpic == skyflatnum || sector->floorpic == skyflatnum)))
   {
     return 0;
   }
   else
   {
     return distfogtable[1][lightlevel];
-  }
-}
-
-static gld_CalcFogDensity_f gld_CalcFogDensityFuncs[gl_lightmode_last] =
-{
-  gld_CalcFogDensity_glboom,
-  gld_CalcFogDensity_gzdoom,
-};
-
-float gld_CalcFogDensity(sector_t *sector, int lightlevel)
-{
-  if (gl_use_fog)
-  {
-    return gld_CalcFogDensityFuncs[gl_lightmode](sector, lightlevel);
-  }
-  else
-  {
-    return 0;
   }
 }
 

@@ -71,6 +71,7 @@ int gld_SetGammaRamp(int gamma);
 void gld_CheckHardwareGamma(void);
 void gld_FlushTextures(void);
 void gld_ApplyGammaRamp(byte *buf, int pitch, int width, int height);
+void M_ChangeLightMode(void);
 
 extern int gl_seamless;
 extern int render_canusedetail;

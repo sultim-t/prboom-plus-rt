@@ -377,14 +377,16 @@ void gld_SetupFloodedPlaneLight(GLWall *wall);
 void gld_StaticLightAlpha(float light, float alpha);
 #define gld_StaticLight(light) gld_StaticLightAlpha(light, 1.0f)
 void gld_InitLightTable(void);
-float gld_CalcLightLevel(int lightlevel);
+typedef float (*gld_CalcLightLevel_f)(int lightlevel);
+gld_CalcLightLevel_f gld_CalcLightLevel;
 
 //fog
 extern int gl_fog;
 extern int gl_use_fog;
 void gl_EnableFog(int on);
-float gld_CalcFogDensity(sector_t *sector, int lightlevel);
 void gld_SetFog(float fogdensity);
+typedef float (*gld_CalcFogDensity_f)(sector_t *sector, int lightlevel);
+gld_CalcFogDensity_f gld_CalcFogDensity;
 
 //HQ resize
 unsigned char* gld_HQResize(GLTexture *gltexture, unsigned char *inputBuffer, int inWidth, int inHeight, int *outWidth, int *outHeight);
