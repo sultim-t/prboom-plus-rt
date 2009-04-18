@@ -655,7 +655,7 @@ GLSector *sectorloops;
 byte rendermarker=0;
 static byte *sectorrendered; // true if sector rendered (only here for malloc)
 static byte *segrendered; // true if sector rendered (only here for malloc)
-static byte *linerendered; // true if linedef rendered (only here for malloc)
+static byte *linerendered[2]; // true if linedef rendered (only here for malloc)
 
 static FILE *levelinfo;
 
@@ -1433,15 +1433,14 @@ void gld_PreprocessSectors(void)
     I_Error("gld_PreprocessSectors: Not enough memory for array sectorrendered");
   memset(sectorrendered, 0, numsectors*sizeof(byte));
 
-  segrendered=Z_Malloc(numsegs*sizeof(byte),PU_STATIC,0);
+  segrendered=calloc(numsegs, sizeof(byte));
   if (!segrendered)
     I_Error("gld_PreprocessSectors: Not enough memory for array segrendered");
-  memset(segrendered, 0, numsegs*sizeof(byte));
 
-  linerendered=Z_Malloc(numlines*sizeof(byte),PU_STATIC,0);
-  if (!linerendered)
+  linerendered[0]=calloc(numlines, sizeof(byte));
+  linerendered[1]=calloc(numlines, sizeof(byte));
+  if (!linerendered[0] || !linerendered[1])
     I_Error("gld_PreprocessSectors: Not enough memory for array linerendered");
-  memset(linerendered, 0, numlines*sizeof(byte));
 
   gld_vertexes=NULL;
   gld_texcoords=NULL;
@@ -2201,7 +2200,7 @@ void gld_AddWall(seg_t *seg)
 
   if (render_segs)
   {
-    if (!segrendered || segrendered[seg->iSegID] == rendermarker)
+    if (segrendered[seg->iSegID] == rendermarker)
       return;
     segrendered[seg->iSegID] = rendermarker;
     linelength = segs[seg->iSegID].length;
@@ -2209,9 +2208,10 @@ void gld_AddWall(seg_t *seg)
   }
   else
   {
-    if (!linerendered || linerendered[seg->linedef->iLineID] == rendermarker)
+    int side = (seg->sidedef == &sides[seg->linedef->sidenum[0]] ? 0 : 1);
+    if (linerendered[side][seg->linedef->iLineID] == rendermarker)
       return;
-    linerendered[seg->linedef->iLineID] = rendermarker;
+    linerendered[side][seg->linedef->iLineID] = rendermarker;
     linelength = lines[seg->linedef->iLineID].texel_length;
     wall.glseg=&gl_lines[seg->linedef->iLineID];
   }
@@ -2282,8 +2282,8 @@ void gld_AddWall(seg_t *seg)
           // (backsector->ceilingheight==backsector->floorheight) &&
           // (backsector->ceilingpic==skyflatnum)
           (backsector->ceilingpic==skyflatnum) &&
-          ((backsector->ceilingheight<=backsector->floorheight)||
-           (backsector->ceilingheight<=frontsector->floorheight))
+          ((backsector->ceilingheight<=backsector->floorheight)/*||
+           (backsector->ceilingheight<=frontsector->floorheight)*/)
          )
       {
         // e6y
@@ -3182,6 +3182,8 @@ void gld_PreprocessLevel(void)
     free(gld_vertexes);
 
     free(segrendered);
+    free(linerendered[0]);
+    free(linerendered[1]);
     free(sectorrendered);
     
     for (i = 0; i < numsectors_prev; i++)
@@ -3203,6 +3205,8 @@ void gld_PreprocessLevel(void)
 
     memset(sectorrendered, 0, numsectors*sizeof(sectorrendered[0]));
     memset(segrendered, 0, numsegs*sizeof(segrendered[0]));
+    memset(linerendered[0], 0, numlines*sizeof(linerendered[0][0]));
+    memset(linerendered[1], 0, numlines*sizeof(linerendered[1][0]));
   }
 
   gld_FreeDrawInfo();
