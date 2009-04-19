@@ -212,6 +212,7 @@ typedef enum
   GLDIT_NONE,
 
   GLDIT_WALL,    // opaque wall
+  GLDIT_MWALL,   // opaque mid wall
   GLDIT_FWALL,   // projected wall
   GLDIT_TWALL,   // transparent walls
   GLDIT_SWALL,   // sky walls

@@ -1969,7 +1969,7 @@ void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata)
 
   static int itemsizes[GLDIT_TYPES] = {
     0,
-    sizeof(GLWall), sizeof(GLWall), sizeof(GLWall), sizeof(GLWall),
+    sizeof(GLWall), sizeof(GLWall), sizeof(GLWall), sizeof(GLWall), sizeof(GLWall),
     sizeof(GLFlat), sizeof(GLFlat),
     sizeof(GLSprite), sizeof(GLSprite),
   };
@@ -2259,7 +2259,7 @@ void gld_AddWall(seg_t *seg)
         wall, seg, backseg, (LINE->flags & ML_DONTPEGBOTTOM)>0,
         linelength, lineheight
       );
-      gld_AddDrawItem((wall.alpha == 1.0f ? GLDIT_WALL : GLDIT_TWALL), &wall);
+      gld_AddDrawItem(GLDIT_WALL, &wall);
     }
   }
   else /* twosided */
@@ -2341,7 +2341,7 @@ void gld_AddWall(seg_t *seg)
             wall, seg, backseg, (LINE->flags & (/*e6y ML_DONTPEGBOTTOM | */ML_DONTPEGTOP))==0,
             linelength, lineheight
           );
-          gld_AddDrawItem((wall.alpha == 1.0f ? GLDIT_WALL : GLDIT_TWALL), &wall);
+          gld_AddDrawItem(GLDIT_WALL, &wall);
         }
       }
     }
@@ -2413,7 +2413,7 @@ void gld_AddWall(seg_t *seg)
 
       if (seg->linedef->tranlump >= 0 && general_translucency)
         wall.alpha=(float)tran_filter_pct/100.0f;
-      gld_AddDrawItem((wall.alpha == 1.0f ? GLDIT_WALL : GLDIT_TWALL), &wall);
+      gld_AddDrawItem((wall.alpha == 1.0f ? GLDIT_MWALL : GLDIT_TWALL), &wall);
       wall.alpha=1.0f;
     }
 bottomtexture:
@@ -2474,7 +2474,7 @@ bottomtexture:
           linelength, lineheight,
           floor_height-frontsector->ceilingheight
         );
-        gld_AddDrawItem((wall.alpha == 1.0f ? GLDIT_WALL : GLDIT_TWALL), &wall);
+        gld_AddDrawItem(GLDIT_WALL, &wall);
       }
     }
   }
@@ -2730,6 +2730,7 @@ void gld_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling)
 static void gld_DrawSprite(GLSprite *sprite)
 {
   float offsety;
+  GLint blend_src, blend_dst;
 
   rendered_vissprites++;
 
@@ -2758,6 +2759,8 @@ static void gld_DrawSprite(GLSprite *sprite)
 
   if(sprite->shadow)
   {
+    glGetIntegerv(GL_BLEND_SRC, &blend_src);
+    glGetIntegerv(GL_BLEND_DST, &blend_dst);
     glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
     //glColor4f(0.2f,0.2f,0.2f,(float)tran_filter_pct/100.0f);
     glAlphaFunc(GL_GEQUAL,0.1f);
@@ -2781,7 +2784,7 @@ static void gld_DrawSprite(GLSprite *sprite)
 
   if(sprite->shadow)
   {
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(blend_src, blend_dst);
     glAlphaFunc(GL_GEQUAL,0.5f);
   }
 }
@@ -2861,35 +2864,8 @@ void gld_AddSprite(vissprite_t *vspr)
  *****************/
 
 //e6y
-static inline gl_SetAlphaBlend(dboolean on)
-{
-  static dboolean gl_alpha_blend_enabled;
-
-  if (on)
-  {
-    if (!gl_alpha_blend_enabled) 
-    {
-      glEnable(GL_ALPHA_TEST);
-      glEnable(GL_BLEND);
-    }
-  }
-  else 
-  {
-    if (gl_alpha_blend_enabled) 
-    {
-      glDisable(GL_ALPHA_TEST);
-      glDisable(GL_BLEND);
-    }
-  }
-
-  gl_alpha_blend_enabled = on;
-}
-
-//e6y
 void gld_ProcessWall(GLWall *wall)
 {
-  gl_SetAlphaBlend(wall->seg->backsector || !(wall->gltexture->flags&GLTEXTURE_HASHOLES));
-
   // e6y
   // The ultimate 'ATI sucks' fix: Some of ATIs graphics cards are so unprecise when 
   // rendering geometry that each and every border between polygons must be seamless, 
@@ -2957,7 +2933,7 @@ static gld_DrawItemsSortByTexture(GLDrawItemType itemtype)
 
   static DICMP_ITEM itemfuncs[GLDIT_TYPES] = {
     0,
-    dicmp_wall, dicmp_wall, dicmp_wall, dicmp_wall,
+    dicmp_wall, dicmp_wall, dicmp_wall, dicmp_wall, dicmp_wall,
     dicmp_flat, dicmp_flat,
     dicmp_sprite, dicmp_sprite,
   };
@@ -2975,8 +2951,7 @@ void gld_DrawScene(player_t *player)
   fixed_t max_scale;
 
   //e6y: must call it twice for correct initialisation
-  gl_SetAlphaBlend(false);
-  gl_SetAlphaBlend(true);
+  glEnable(GL_ALPHA_TEST);
 
   //e6y: the same with fog
   gl_EnableFog(true);
@@ -2986,7 +2961,6 @@ void gld_DrawScene(player_t *player)
   glEnableClientState(GL_VERTEX_ARRAY);
   rendered_visplanes = rendered_segs = rendered_vissprites = 0;
 
-  
   //e6y: skybox
   if (gl_drawskys == skytype_skydome)
   {
@@ -2997,6 +2971,15 @@ void gld_DrawScene(player_t *player)
   {
     gld_DrawScreenSkybox();
   }
+
+  //
+  // opaque stuff
+  //
+
+  glBlendFunc(GL_ONE, GL_ZERO);
+
+  // solid geometry
+  glDisable(GL_ALPHA_TEST);
 
   // enable backside removing
   glEnable(GL_CULL_FACE);
@@ -3022,12 +3005,23 @@ void gld_DrawScene(player_t *player)
   // disable backside removing
   glDisable(GL_CULL_FACE);
 
-  // opaque walls
+  // top, bottom, one-sided walls
   gld_DrawItemsSortByTexture(GLDIT_WALL);
   for (i = gld_drawinfo.num_items[GLDIT_WALL] - 1; i >= 0; i--)
   {
     gld_SetFog(gld_drawinfo.items[GLDIT_WALL][i].item.wall->fogdensity);
     gld_ProcessWall(gld_drawinfo.items[GLDIT_WALL][i].item.wall);
+  }
+
+  // masked geometry
+  glEnable(GL_ALPHA_TEST);
+
+  // opaque mid walls
+  gld_DrawItemsSortByTexture(GLDIT_MWALL);
+  for (i = gld_drawinfo.num_items[GLDIT_MWALL] - 1; i >= 0; i--)
+  {
+    gld_SetFog(gld_drawinfo.items[GLDIT_MWALL][i].item.wall->fogdensity);
+    gld_ProcessWall(gld_drawinfo.items[GLDIT_MWALL][i].item.wall);
   }
 
   gl_EnableFog(false);
@@ -3066,7 +3060,7 @@ void gld_DrawScene(player_t *player)
   }
 
   gl_EnableFog(false);
-  gl_SetAlphaBlend(true);
+  glEnable(GL_ALPHA_TEST);
 
   // normal sky (not a skybox)
   if (gl_drawskys == skytype_none || gl_drawskys == skytype_standard)
@@ -3114,7 +3108,12 @@ void gld_DrawScene(player_t *player)
     gld_DrawSprite(gld_drawinfo.items[GLDIT_SPRITE][i].item.sprite);
   }
 
+  //
   // transparent stuff
+  //
+
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
   if (gld_drawinfo.num_items[GLDIT_TWALL] > 0 || gld_drawinfo.num_items[GLDIT_TSPRITE] > 0)
   {
     // if translucency percentage is less than 50,
@@ -3129,7 +3128,7 @@ void gld_DrawScene(player_t *player)
       gld_ProcessWall(gld_drawinfo.items[GLDIT_TWALL][i].item.wall);
     }
 
-    gl_SetAlphaBlend(true);
+    glEnable(GL_ALPHA_TEST);
 
     // transparent sprites
     for (i = gld_drawinfo.num_items[GLDIT_TSPRITE] - 1; i >= 0; i--)
