@@ -60,6 +60,8 @@
 #include <math.h>
 #include "e6y.h"//e6y
 
+int r_frame_count;
+
 //e6y
 render_precise_t render_precise;
 const char *render_precises[] = {"Speed","Quality"};
@@ -266,6 +268,18 @@ angle_t R_PointToAngleEx(fixed_t x, fixed_t y)
   }
   return old_result;
 }
+
+// e6y: caching
+angle_t R_GetVertexViewAngle(vertex_t *v)
+{
+  if (v->angletime != r_frame_count)
+  {
+    v->angletime = r_frame_count;
+    v->viewangle = R_PointToAngleEx(v->x, v->y);
+  }
+  return v->viewangle;
+}
+
 
 //
 // R_InitTextureMapping
@@ -677,6 +691,8 @@ static void R_ShowStats(void)
 //
 void R_RenderPlayerView (player_t* player)
 {
+  r_frame_count++;
+
   R_SetupFrame (player);
 
   // Clear buffers.

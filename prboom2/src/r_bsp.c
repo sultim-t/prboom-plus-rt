@@ -365,8 +365,8 @@ static void R_AddLine (seg_t *line)
 
   curline = line;
 
-  angle1 = R_PointToAngleEx (line->v1->x, line->v1->y);
-  angle2 = R_PointToAngleEx (line->v2->x, line->v2->y);
+  angle1 = R_GetVertexViewAngle(line->v1);
+  angle2 = R_GetVertexViewAngle(line->v2);
 
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)

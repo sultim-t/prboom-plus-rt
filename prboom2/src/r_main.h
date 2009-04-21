@@ -41,6 +41,8 @@
 #pragma interface
 #endif
 
+extern int r_frame_count;
+
 //
 // POV related.
 //
@@ -122,6 +124,8 @@ subsector_t *R_PointInSubsector(fixed_t x, fixed_t y);
 
 //e6y: made more precise
 angle_t R_PointToAngleEx(fixed_t x, fixed_t y);
+//e6y: caching
+angle_t R_GetVertexViewAngle(vertex_t *v);
 
 //e6y
 typedef enum { render_precise_speed, render_precise_quality } render_precise_t;

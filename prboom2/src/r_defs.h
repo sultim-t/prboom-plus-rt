@@ -74,6 +74,8 @@
 typedef struct
 {
   fixed_t x, y;
+  angle_t viewangle;   // e6y: precalculated angle for clipping
+  int angletime;       // e6y: recalculation time for view angle 
 } vertex_t;
 
 // Each sector has a degenmobj_t in its center for sound origin purposes.

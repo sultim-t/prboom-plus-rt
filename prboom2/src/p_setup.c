@@ -272,7 +272,7 @@ static void P_LoadVertexes (int lump)
   numvertexes = W_LumpLength(lump) / sizeof(mapvertex_t);
 
   // Allocate zone memory for buffer.
-  vertexes = malloc_IfSameLevel(vertexes, numvertexes * sizeof(vertex_t));
+  vertexes = calloc_IfSameLevel(vertexes, numvertexes, sizeof(vertex_t));
 
   // Load data into cache.
   // cph 2006/07/29 - cast to mapvertex_t here, making the loop below much neater
