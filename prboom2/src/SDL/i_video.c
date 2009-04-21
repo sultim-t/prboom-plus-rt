@@ -521,7 +521,7 @@ void I_PreInitGraphics(void)
   unsigned int flags = 0;
   if (!(M_CheckParm("-nodraw") && M_CheckParm("-nosound")))
     flags = SDL_INIT_VIDEO;
-#ifdef _DEBUG
+#ifdef PRBOOM_DEBUG
   flags |= SDL_INIT_NOPARACHUTE;
 #endif
 
@@ -964,7 +964,7 @@ void I_UpdateVideoMode(void)
       init_flags = SDL_DOUBLEBUF;
     else
       init_flags = SDL_SWSURFACE;
-#ifndef _DEBUG
+#ifndef PRBOOM_DEBUG
     init_flags |= SDL_HWPALETTE;
 #endif
   }

@@ -621,7 +621,7 @@ int main(int argc, char **argv)
   Z_Init();                  /* 1/18/98 killough: start up memory stuff first */
 
   atexit(I_Quit);
-#ifndef _DEBUG
+#ifndef PRBOOM_DEBUG
   if (!M_CheckParm("-devparm"))
   {
     signal(SIGSEGV, I_SignalHandler);

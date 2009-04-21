@@ -35,6 +35,9 @@
  *-----------------------------------------------------------------------------
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #ifdef _MSC_VER
 #include <io.h>
@@ -903,7 +906,7 @@ static void IdentifyVersion (void)
 
   iwad = FindIWADFile();
 
-#if (defined(GL_DOOM) && defined(_DEBUG))
+#if (defined(GL_DOOM) && defined(PRBOOM_DEBUG))
   // proff 11/99: used for debugging
   {
     FILE *f;

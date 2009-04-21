@@ -102,7 +102,7 @@ static void gld_PrepareSectorSpecialEffects(void)
         sectors[num].flags &= ~NO_BOTTOMTEXTURES;
       }
     }
-#ifdef _DEBUG
+#ifdef PRBOOM_DEBUG
     if (sectors[num].flags & NO_TOPTEXTURES)
       lprintf(LO_INFO,"Sector %i has no toptextures\n",num);
     if (sectors[num].flags & NO_BOTTOMTEXTURES)

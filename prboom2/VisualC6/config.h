@@ -49,6 +49,10 @@
 /* #define I386_ASM 1 */
 
 #ifdef _DEBUG
+#define PRBOOM_DEBUG 1
+#endif // _DEBUG
+
+#ifdef PRBOOM_DEBUG
 
 /* Define to enable internal range checking */
 #define RANGECHECK 1
@@ -83,7 +87,7 @@
  *  lumps locked for long periods of time are reported */
 #define TIMEDIAG 1
 
-#endif // _DEBUG
+#endif // PRBOOM_DEBUG
 
 /* Define to be the path where Doom WADs are stored */
 #define DOOMWADDIR "/usr/local/share/games/doom"
