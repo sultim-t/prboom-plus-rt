@@ -45,6 +45,7 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+typedef BOOL (WINAPI *SetAffinityFunc)(HANDLE hProcess, DWORD_PTR mask);
 #else
 #include <sched.h>
 #endif
@@ -523,7 +524,29 @@ static void I_SetAffinityMask(void)
   {
     char *errbuf = NULL;
 #ifdef _WIN32
-    if (!SetProcessAffinityMask(GetCurrentProcess(), process_affinity_mask))
+    HMODULE kernel32_dll;
+    SetAffinityFunc SetAffinity = NULL;
+    int ok = false;
+
+    // Find the kernel interface DLL.
+    kernel32_dll = LoadLibrary("kernel32.dll");
+
+    if (kernel32_dll)
+    {
+      // Find the SetProcessAffinityMask function.
+      SetAffinity = (SetAffinityFunc)GetProcAddress(kernel32_dll, "SetProcessAffinityMask");
+
+      // If the function was not found, we are on an old (Win9x) system
+      // that doesn't have this function.  That's no problem, because
+      // those systems don't support SMP anyway.
+
+      if (SetAffinity)
+      {
+        ok = SetProcessAffinityMask(GetCurrentProcess(), process_affinity_mask);
+      }
+    }
+
+    if (!ok)
     {
       errbuf = WINError();
     }
