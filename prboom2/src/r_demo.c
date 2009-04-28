@@ -64,6 +64,33 @@
 #include "hu_stuff.h"
 #include "e6y.h"
 
+int IsDemoPlayback(void)
+{
+  int p;
+
+  if ((p = M_CheckParm("-playdemo")) && (p < myargc - 1))
+    return p;
+  if ((p = M_CheckParm("-timedemo")) && (p < myargc - 1))
+    return p;
+  if ((p = M_CheckParm("-fastdemo")) && (p < myargc - 1))
+    return p;
+
+  return 0;
+}
+
+int IsDemoContinue(void)
+{
+  int p;
+
+  if ((p = M_CheckParm("-recordfromto")) && (p < myargc - 2) &&
+    I_FindFile(myargv[p + 1], ".lmp"))
+  {
+    return p;
+  }
+
+  return 0;
+}
+
 //
 // Smooth playing stuff
 //
@@ -369,13 +396,15 @@ void R_DemoEx_ShowComment(void)
   W_UnlockLumpNum(lump);
 }
 
-void R_DemoEx_ProcessGameTic(void)
+angle_t R_DemoEx_ReadMLook(void)
 {
-  if (!use_demoex_info)
-    return;
+  angle_t pitch;
+
+  if (!use_demoex_info || !(demoplayback || democontinue))
+    return 0;
 
   // mlook data must be initialised here
-  if ((mlook_lump.lump == -2) && (demoplayback || democontinue))
+  if ((mlook_lump.lump == -2))
   {
     mlook_lump.lump = W_CheckNumForName(mlook_lump.name);
     if (mlook_lump.lump != -1)
@@ -389,32 +418,32 @@ void R_DemoEx_ProcessGameTic(void)
     }
   }
 
-  if (demoplayback || democontinue)
+  pitch = 0;
+  if (mlook_lump.data && mlook_lump.tick < mlook_lump.maxtick &&
+    consoleplayer == displayplayer && !walkcamera.type)
   {
-    mlooky = 0;
-    if (mlook_lump.data && mlook_lump.tick < mlook_lump.maxtick &&
-      consoleplayer == displayplayer && !walkcamera.type)
-    {
-      mlooky = mlook_lump.data[mlook_lump.tick];
-    }
-    mlook_lump.tick++;
+    pitch = mlook_lump.data[mlook_lump.tick];
   }
-  else
-  {
-    if (demorecording)
-    {
-      if (mlook_lump.tick >= mlook_lump.maxtick)
-      {
-        int ticks = mlook_lump.maxtick;
-        mlook_lump.maxtick = (mlook_lump.maxtick ? mlook_lump.maxtick * 2 : 8192);
-        mlook_lump.data = realloc(mlook_lump.data, mlook_lump.maxtick * sizeof(mlook_lump.data[0]));
-        memset(mlook_lump.data + ticks, 0, (mlook_lump.maxtick - ticks) * sizeof(mlook_lump.data[0]));
-      }
+  mlook_lump.tick++;
 
-      mlook_lump.data[mlook_lump.tick] = (short)mlooky;
-      mlook_lump.tick++;
-    }
+  return (pitch << 16);
+}
+
+void R_DemoEx_WriteMLook(angle_t pitch)
+{
+  if (!use_demoex_info || !demorecording)
+    return;
+
+  if (mlook_lump.tick >= mlook_lump.maxtick)
+  {
+    int ticks = mlook_lump.maxtick;
+    mlook_lump.maxtick = (mlook_lump.maxtick ? mlook_lump.maxtick * 2 : 8192);
+    mlook_lump.data = realloc(mlook_lump.data, mlook_lump.maxtick * sizeof(mlook_lump.data[0]));
+    memset(mlook_lump.data + ticks, 0, (mlook_lump.maxtick - ticks) * sizeof(mlook_lump.data[0]));
   }
+
+  mlook_lump.data[mlook_lump.tick] = (short)(pitch >> 16);
+  mlook_lump.tick++;
 }
 
 static void R_DemoEx_GetParams(const byte *pwad_p, waddata_t *waddata)

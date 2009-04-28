@@ -41,6 +41,7 @@
 #include "p_user.h"
 #include "r_demo.h"
 #include "r_fps.h"
+#include "g_game.h"
 #include "e6y.h"//e6y
 
 // Index of the special effects (INVUL inverse) map.
@@ -188,6 +189,49 @@ void P_CalcHeight (player_t* player)
 
 
 //
+// P_SetPitch
+// Mouse Look Stuff
+//
+void P_SetPitch(player_t *player)
+{
+  mobj_t *mo = player->mo;
+
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL && player == &players[consoleplayer])
+  {
+    if (!(demoplayback || democontinue))
+    {
+      if (GetMouseLook())
+      {
+        if (!mo->reactiontime && (!(automapmode & am_active) || (automapmode & am_overlay)))
+        {
+          mo->pitch += (mlooky << 16);
+          CheckPitch((signed int *)&mo->pitch);
+        }
+      }
+      else
+      {
+        mo->pitch = 0;
+      }
+
+      R_DemoEx_WriteMLook(mo->pitch);
+    }
+    else
+    {
+      mo->pitch = R_DemoEx_ReadMLook();
+      CheckPitch((signed int *)&mo->pitch);
+    }
+  }
+  else
+  {
+    mo->pitch = 0;
+  }
+#else // GL_DOOM
+  mo->pitch = 0;
+#endif // GL_DOOM
+}
+
+//
 // P_MovePlayer
 //
 // Adds momentum if the player is not in the air
@@ -201,18 +245,9 @@ void P_MovePlayer (player_t* player)
 
   mo->angle += cmd->angleturn << 16;
 
-  //e6y
   if (demo_smoothturns && player == &players[displayplayer])
+  {
     R_SmoothPlaying_Add(cmd->angleturn << 16);
-  if (GetMouseLook() && player == &players[displayplayer])
-  {
-    if(!(automapmode & am_active) || (automapmode & am_overlay))
-      mo->pitch += (mlooky << 16);
-    CheckPitch((signed int *) &mo->pitch);
-  }
-  else
-  {
-    mo->pitch = 0;
   }
 
   onground = mo->z <= mo->floorz;
@@ -374,6 +409,8 @@ void P_PlayerThink (player_t* player)
     player->mo->reactiontime--;
   else
     P_MovePlayer (player);
+
+  P_SetPitch(player);
 
   P_CalcHeight (player); // Determines view height and bobbing
 

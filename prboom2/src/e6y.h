@@ -470,9 +470,6 @@ void I_Warning(const char *message, ...);
 #define PRB_IDNO                7
 int I_MessageBox(const char* text, unsigned int type);
 
-int IsDemoPlayback(void);
-int IsDemoContinue(void);
-
 dboolean SmoothEdges(unsigned char * buffer,int w, int h);
 
 #endif

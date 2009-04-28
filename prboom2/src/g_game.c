@@ -133,6 +133,8 @@ int             basetic;       /* killough 9/29/98: for demo sync */
 int             totalkills, totallive, totalitems, totalsecret;    // for intermission
 dboolean         demorecording;
 dboolean         demoplayback;
+dboolean         democontinue = false;
+char             democontinuename[PATH_MAX];
 int             demover;
 dboolean         singledemo;           // quit after playing a demo from cmdline
 wbstartstruct_t wminfo;               // parms for world map / intermission
@@ -150,10 +152,6 @@ int             bytes_per_tic;
 // with the same mouse behaviour as when recording,
 // but without having to be recording every time.
 int shorttics;
-
-//e6y
-int democontinue = false;
-char democontinuename[PATH_MAX];
 
 //
 // controls (have defaults)
@@ -918,9 +916,6 @@ void G_Ticker (void)
   else {
     // get commands, check consistancy, and build new consistancy check
     int buf = (gametic/ticdup)%BACKUPTICS;
-
-    //e6y
-    R_DemoEx_ProcessGameTic();
 
     for (i=0 ; i<MAXPLAYERS ; i++) {
       if (playeringame[i])

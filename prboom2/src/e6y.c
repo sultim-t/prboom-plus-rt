@@ -575,6 +575,9 @@ void CheckPitch(signed int *pitch)
       *pitch = maxViewPitch;
     if(*pitch < minViewPitch)
       *pitch = minViewPitch;
+
+    (*pitch) >>= 16;
+    (*pitch) <<= 16;
   }
 }
 
@@ -1546,33 +1549,6 @@ int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t Buff
   return false;
 }
 #endif
-
-int IsDemoPlayback(void)
-{
-  int p;
-
-  if ((p = M_CheckParm("-playdemo")) && (p < myargc - 1))
-    return p;
-  if ((p = M_CheckParm("-timedemo")) && (p < myargc - 1))
-    return p;
-  if ((p = M_CheckParm("-fastdemo")) && (p < myargc - 1))
-    return p;
-
-  return 0;
-}
-
-int IsDemoContinue(void)
-{
-  int p;
-
-  if ((p = M_CheckParm("-recordfromto")) && (p < myargc - 2) &&
-    I_FindFile(myargv[p + 1], ".lmp"))
-  {
-    return p;
-  }
-
-  return 0;
-}
 
 //Begin of GZDoom code
 /*

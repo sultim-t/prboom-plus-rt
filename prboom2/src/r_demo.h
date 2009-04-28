@@ -114,8 +114,13 @@ void W_FreePWADTable(wadtbl_t *wadtbl);
 wadtbl_t* W_CreatePWADTable(const byte* buffer, size_t size);
 void W_AddLump(wadtbl_t *wadtbl, const char *name, const byte* data, size_t size);
 
-void R_DemoEx_ProcessGameTic(void);
+extern dboolean use_demoex_info;
+void R_DemoEx_WriteMLook(angle_t pitch);
+angle_t R_DemoEx_ReadMLook(void);
 
 dboolean D_TryGetWad(const char* name);
+
+int IsDemoPlayback(void);
+int IsDemoContinue(void);
 
 #endif // __R_DEMO__
