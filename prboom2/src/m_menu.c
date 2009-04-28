@@ -2948,20 +2948,22 @@ static const char *gltexformats[] = {
 setup_menu_t gen_settings1[] = { // General Settings screen1
 
   {"Video",                          S_SKIP|S_TITLE,     m_null, G_X, G_Y+ 1*8},
-  {"Enable Translucency",            S_YESNO,            m_null, G_X, G_Y+ 2*8, {"translucency"}, 0, 0, M_Trans},
-  {"Translucency filter percentage", S_NUM,              m_null, G_X, G_Y+ 3*8, {"tran_filter_pct"}, 0, 0, M_Trans},
+  {"Video mode",                     S_CHOICE|S_PRGWARN, m_null, G_X, G_Y+ 2*8, {"videomode"}, 0, 0, NULL, videomodes},
+  {"Screen Resolution",              S_CHOICE|S_PRGWARN, m_null, G_X, G_Y+ 3*8, {"screen_resolution"}, 0, 0, NULL, screen_resolutions_list},
   {"Fullscreen Video mode",          S_YESNO|S_PRGWARN,  m_null, G_X, G_Y+ 4*8, {"use_fullscreen"}, 0, 0, NULL},
-  {"Video mode",                     S_CHOICE|S_PRGWARN, m_null, G_X, G_Y+ 5*8, {"videomode"}, 0, 0, NULL, videomodes},
-  {"Uncapped Framerate",             S_YESNO,            m_null, G_X, G_Y+ 6*8, {"uncapped_framerate"}},
 #ifdef GL_DOOM
-  {"Vertical Sync",                  S_YESNO|S_PRGWARN,  m_null, G_X, G_Y+ 7*8, {"gl_vsync"}},
+  {"Vertical Sync",                  S_YESNO|S_PRGWARN,  m_null, G_X, G_Y+ 5*8, {"gl_vsync"}},
 #endif
+  
+  {"Enable Translucency",            S_YESNO,            m_null, G_X, G_Y+ 7*8, {"translucency"}, 0, 0, M_Trans},
+  {"Translucency filter percentage", S_NUM,              m_null, G_X, G_Y+ 8*8, {"tran_filter_pct"}, 0, 0, M_Trans},
+  {"Uncapped Framerate",             S_YESNO,            m_null, G_X, G_Y+ 9*8, {"uncapped_framerate"}},
 
-  {"Sound & Music",                  S_SKIP|S_TITLE,     m_null, G_X, G_Y+ 9*8},
-  {"Number of Sound Channels",       S_NUM|S_PRGWARN,    m_null, G_X, G_Y+10*8, {"snd_channels"}},
-  {"Enable v1.1 Pitch Effects",      S_YESNO,            m_null, G_X, G_Y+11*8, {"pitched_sounds"}},
+  {"Sound & Music",                  S_SKIP|S_TITLE,     m_null, G_X, G_Y+11*8},
+  {"Number of Sound Channels",       S_NUM|S_PRGWARN,    m_null, G_X, G_Y+12*8, {"snd_channels"}},
+  {"Enable v1.1 Pitch Effects",      S_YESNO,            m_null, G_X, G_Y+13*8, {"pitched_sounds"}},
 #ifdef HAVE_LIBSDL_MIXER
-  {"PC Speaker emulation",           S_YESNO|S_PRGWARN,  m_null, G_X, G_Y+12*8, {"snd_pcspeaker"}},
+  {"PC Speaker emulation",           S_YESNO|S_PRGWARN,  m_null, G_X, G_Y+14*8, {"snd_pcspeaker"}},
 #endif
 
   // Button for resetting to defaults

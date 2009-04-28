@@ -584,6 +584,130 @@ void I_InitBuffersRes(void)
   R_InitPlanesRes();
 }
 
+#define MAX_RESOLUTIONS_COUNT 128
+const char *screen_resolutions_list[MAX_RESOLUTIONS_COUNT] = {NULL};
+const char *screen_resolution = NULL;
+
+//
+// I_GetScreenResolution
+// Get current resolution from the config variable (WIDTHxHEIGHT format)
+// 640x480 if screen_resolution variable has wrong data
+//
+void I_GetScreenResolution(void)
+{
+  int width, height;
+
+  desired_screenwidth = 640;
+  desired_screenheight = 480;
+
+  if (screen_resolution)
+  {
+    if (sscanf(screen_resolution, "%dx%d", &width, &height) == 2)
+    {
+      desired_screenwidth = width;
+      desired_screenheight = height;
+    }
+  }
+}
+
+//
+// I_FillScreenResolutionsList
+// Get all the supported screen resolutions
+// and fill the list with them
+//
+static void I_FillScreenResolutionsList(void)
+{
+  SDL_Rect **modes;
+  int i, j, list_size, current_resolution_index, count;
+  unsigned char mode[256];
+  Uint32 flags;
+
+  // do it only once
+  if (screen_resolutions_list[0])
+  {
+    return;
+  }
+
+  if (desired_screenwidth == 0 || desired_screenheight == 0)
+  {
+    I_GetScreenResolution();
+  }
+
+  flags = SDL_FULLSCREEN;
+#ifdef GL_DOOM
+  flags |= SDL_OPENGL;
+#endif
+
+  modes = SDL_ListModes(NULL, flags);
+  list_size = 0;
+  current_resolution_index = -1;
+
+  if (modes)
+  {
+    count = 0;
+    for(i = 0; modes[i]; i++)
+    {
+      count++;
+    }
+    // (-2) is for NULL at the end of list and for custom resolution
+    count = MIN(count, MAX_RESOLUTIONS_COUNT - 2);
+
+    for(i = count - 1; i >= 0; i--)
+    {
+      int in_list = false;
+
+      SNPRINTF(mode, sizeof(mode), "%dx%d", modes[i]->w, modes[i]->h);
+      
+      for(j = 0; j < list_size; j++)
+      {
+        if (!strcmp(mode, screen_resolutions_list[j]))
+        {
+          in_list = true;
+          break;
+        }
+      }
+
+      if (!in_list)
+      {
+        screen_resolutions_list[list_size] = strdup(mode);
+
+        if (modes[i]->w == desired_screenwidth && modes[i]->h == desired_screenheight)
+        {
+          current_resolution_index = list_size;
+        }
+
+        list_size++;
+      }
+    }
+    screen_resolutions_list[list_size] = NULL;
+  }
+  
+  if (list_size == 0)
+  {
+    SNPRINTF(mode, sizeof(mode), "%dx%d", desired_screenwidth, desired_screenheight);
+    screen_resolutions_list[0] = strdup(mode);
+    current_resolution_index = 0;
+    list_size = 1;
+  }
+
+  if (current_resolution_index == -1)
+  {
+    SNPRINTF(mode, sizeof(mode), "%dx%d", desired_screenwidth, desired_screenheight);
+
+    // make it first
+    list_size++;
+    for(i = list_size - 1; i > 0; i--)
+    {
+      screen_resolutions_list[i] = screen_resolutions_list[i - 1];
+    }
+    screen_resolutions_list[0] = strdup(mode);
+    current_resolution_index = 0;
+  }
+
+  screen_resolutions_list[list_size] = NULL;
+  screen_resolution = screen_resolutions_list[current_resolution_index];
+}
+
 // e6y
 // GLBoom use this function for trying to set the closest supported resolution if the requested mode can't be set correctly.
 // For example glboom.exe -geom 1025x768 -nowindow will set 1024x768.
@@ -742,6 +866,10 @@ void I_InitScreenResolution(void)
   int i, p, w, h;
   char c;
   video_mode_t mode;
+
+  //e6y: ability to change screen resolution from GUI
+  I_GetScreenResolution();
+  I_FillScreenResolutionsList();
 
   // Video stuff
   if ((p = M_CheckParm("-width")))
