@@ -913,6 +913,10 @@ void G_WriteDemoFooter(FILE *file)
   W_AddLump(&demoex, DEMOEX_VERSION_LUMPNAME, DEMOEX_VERSION, strlen(DEMOEX_VERSION));
   W_AddLump(&demoex, NULL, DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
 
+  //process mlook
+  R_DemoEx_AddMouseLookData(&demoex);
+  W_AddLump(&demoex, NULL, DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
+
   //process port name
   W_AddLump(&demoex, DEMOEX_PORTNAME_LUMPNAME,
     PACKAGE_TITLE" "VERSION, strlen(PACKAGE_TITLE" "VERSION));
@@ -921,15 +925,6 @@ void G_WriteDemoFooter(FILE *file)
   //process iwad, pwads, dehs and critical for demos params like -spechit, etc
   R_DemoEx_AddParams(&demoex);
   W_AddLump(&demoex, NULL, DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
-
-  //process mlook
-  R_DemoEx_AddMouseLookData(&demoex);
-  W_AddLump(&demoex, NULL, DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
-
-  //separator
-  //while (ftell(file)%16) fputc(0, file);
-  //fputc(0, file);
-  //while (ftell(file)%16) fputc(0, file);
 
   //write pwad header, all data and lookup table to the end of a demo
   if (
