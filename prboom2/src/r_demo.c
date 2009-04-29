@@ -172,7 +172,7 @@ void R_ResetAfterTeleport(player_t *player)
 #endif
 
 #define PWAD_SIGNATURE "PWAD"
-#define DEMOEX_VERSION "1.0"
+#define DEMOEX_VERSION "2"
 
 #define DEMOEX_VERSION_LUMPNAME "VERSION"
 #define DEMOEX_PORTNAME_LUMPNAME "PORTNAME"
@@ -195,7 +195,6 @@ dboolean use_demoex_info = false;
 
 char demoex_filename[PATH_MAX];
 char *demo_demoex_filename;
-dboolean IsDemoEx = false;
 //wadtbl_t demoex;
 
 typedef struct
@@ -212,6 +211,7 @@ mlooklump_t mlook_lump = {DEMOEX_MLOOK_LUMPNAME, NULL, -2, 0, 0};
 int AddString(char **str, char *val);
 
 static void R_DemoEx_AddParams(wadtbl_t *wadtbl);
+static int R_DemoEx_GetVersion(void);
 static void R_DemoEx_GetParams(const byte *pwad_p, waddata_t *waddata);
 static void R_DemoEx_AddMouseLookData(wadtbl_t *wadtbl);
 
@@ -407,15 +407,23 @@ angle_t R_DemoEx_ReadMLook(void)
   // mlook data must be initialised here
   if ((mlook_lump.lump == -2))
   {
-    mlook_lump.lump = W_CheckNumForName(mlook_lump.name);
-    if (mlook_lump.lump != -1)
+    if (R_DemoEx_GetVersion() < 2)
     {
-      const unsigned char *data = W_CacheLumpName(mlook_lump.name);
-      int size = W_LumpLength(mlook_lump.lump);
+      // unsupported format
+      mlook_lump.lump = -1;
+    }
+    else
+    {
+      mlook_lump.lump = W_CheckNumForName(mlook_lump.name);
+      if (mlook_lump.lump != -1)
+      {
+        const unsigned char *data = W_CacheLumpName(mlook_lump.name);
+        int size = W_LumpLength(mlook_lump.lump);
 
-      mlook_lump.maxtick = size / sizeof(mlook_lump.data[0]);
-      mlook_lump.data = malloc(size);
-      memcpy(mlook_lump.data, data, size);
+        mlook_lump.maxtick = size / sizeof(mlook_lump.data[0]);
+        mlook_lump.data = malloc(size);
+        memcpy(mlook_lump.data, data, size);
+      }
     }
   }
 
@@ -445,6 +453,34 @@ void R_DemoEx_WriteMLook(angle_t pitch)
 
   mlook_lump.data[mlook_lump.tick] = (short)(pitch >> 16);
   mlook_lump.tick++;
+}
+
+static int R_DemoEx_GetVersion(void)
+{
+  int result = -1;
+
+  int lump, size, ver;
+  const char *data;
+  char str_ver[32];
+
+  lump = W_CheckNumForName(DEMOEX_VERSION_LUMPNAME);
+  if (lump != -1)
+  {
+    size = W_LumpLength(lump);
+    if (size > 0)
+    {
+      data = W_CacheLumpNum(lump);
+      strncpy(str_ver, data, MIN(size, sizeof(str_ver)));
+
+      if (sscanf(str_ver, "%d", &ver) == 1)
+      {
+        result = ver;
+      }
+    }
+    W_UnlockLumpNum(lump);
+  }
+
+  return result;
 }
 
 static void R_DemoEx_GetParams(const byte *pwad_p, waddata_t *waddata)
