@@ -46,6 +46,7 @@
 #include "m_bbox.h"
 #include "lprintf.h"
 #include "m_argv.h"
+#include "g_overflow.h"
 #include "e6y.h"//e6y
 
 static mobj_t    *tmthing;
@@ -55,6 +56,22 @@ static int pe_x; // Pain Elemental position for Lost Soul checks // phares
 static int pe_y; // Pain Elemental position for Lost Soul checks // phares
 static int ls_x; // Lost Soul position for Lost Soul checks      // phares
 static int ls_y; // Lost Soul position for Lost Soul checks      // phares
+
+//
+// SECTOR HEIGHT CHANGING
+// After modifying a sectors floor or ceiling height,
+// call this routine to adjust the positions
+// of all things that touch the sector.
+//
+// If anything doesn't fit anymore, true will be returned.
+// If crunch is true, they will take damage
+//  as they are being crushed.
+// If Crunch is false, you should set the sector height back
+//  the way it was and call P_ChangeSector again
+//  to undo the changes.
+//
+
+static dboolean crushchange, nofit;
 
 // If "floatok" true, move would be ok
 // if within "tmfloorz - tmceilingz".
@@ -338,10 +355,6 @@ dboolean P_TeleportMove (mobj_t* thing,fixed_t x,fixed_t y, dboolean boss)
 // MOVEMENT ITERATOR FUNCTIONS
 //
 
-// e6y: Spechits overrun emulation code
-static void SpechitOverrun(line_t *ld);
-unsigned int spechit_baseaddr = 0;
-
 //                                                                  // phares
 // PIT_CrossLine                                                    //   |
 // Checks to see if a PE->LS trajectory line crosses a blocking     //   V
@@ -473,7 +486,23 @@ dboolean PIT_CheckLine (line_t* ld)
       spechit[numspechit++] = ld;
       // e6y: Spechits overrun emulation code
       if (numspechit > 8 && demo_compatibility)
-        SpechitOverrun(ld);
+      {
+        static spechit_overrun_param_t spechit_overrun_param = {
+          NULL,          // line_t *line;
+
+          &spechit,      // line_t **spechit;
+          &numspechit,   // int *numspechit;
+
+          tmbbox,        // fixed_t *tmbbox[4];
+          &tmfloorz,     // fixed_t *tmfloorz;
+          &tmceilingz,   // fixed_t *tmceilingz;
+
+          &crushchange,  // dboolean *crushchange;
+          &nofit,        // dboolean *nofit;
+        };
+        spechit_overrun_param.line = ld;
+        SpechitOverrun(&spechit_overrun_param);
+      }
     }
 
   return true;
@@ -1884,23 +1913,6 @@ void P_RadiusAttack(mobj_t* spot,mobj_t* source,int damage)
   }
 
 
-
-//
-// SECTOR HEIGHT CHANGING
-// After modifying a sectors floor or ceiling height,
-// call this routine to adjust the positions
-// of all things that touch the sector.
-//
-// If anything doesn't fit anymore, true will be returned.
-// If crunch is true, they will take damage
-//  as they are being crushed.
-// If Crunch is false, you should set the sector height back
-//  the way it was and call P_ChangeSector again
-//  to undo the changes.
-//
-
-static dboolean crushchange, nofit;
-
 //
 // PIT_ChangeSector
 //
@@ -2308,112 +2320,4 @@ void P_MapStart(void) {
 }
 void P_MapEnd(void) {
 	tmthing = NULL;
-}
-
-// e6y
-// Code to emulate the behavior of Vanilla Doom when encountering an overrun
-// of the spechit array.
-// No more desyncs on compet-n\hr.wad\hr18*.lmp, all strain.wad\map07 demos etc.
-// http://www.doomworld.com/vb/showthread.php?s=&threadid=35214
-// See more information on:
-// doomworld.com/vb/doom-speed-demos/35214-spechits-reject-and-intercepts-overflow-lists
-
-static void SpechitOverrun(line_t *ld)
-{
-  if (demo_compatibility && numspechit > 8)
-  {
-    if (overrun_spechit_warn)
-      ShowOverflowWarning(overrun_spechit_emulate, &overrun_spechit_promted, 
-        numspechit > 
-          (compatibility_level == dosdoom_compatibility || 
-          compatibility_level == tasdoom_compatibility ? 10 : 14), 
-        "SPECHITS",
-        "\n\nThe list of LinesID leading to overrun:\n%d, %d, %d, %d, %d, %d, %d, %d, %d.",
-        spechit[0]->iLineID, spechit[1]->iLineID, spechit[2]->iLineID,
-        spechit[3]->iLineID, spechit[4]->iLineID, spechit[5]->iLineID,
-        spechit[6]->iLineID, spechit[7]->iLineID, spechit[8]->iLineID);
-
-    if (overrun_spechit_emulate)
-    {
-      unsigned int addr;
-
-      if (spechit_baseaddr == 0)
-      {
-        int p;
-
-        // This is the first time we have had an overrun.  Work out
-        // what base address we are going to use.
-        // Allow a spechit value to be specified on the command line.
-
-        //
-        // Use the specified magic value when emulating spechit overruns.
-        //
-
-        p = M_CheckParm("-spechit");
-        
-        if (p > 0)
-        {
-          //baseaddr = atoi(myargv[p+1]);
-          StrToInt(myargv[p+1], (long*)&spechit_baseaddr);
-        }
-        else
-        {
-          spechit_baseaddr = DEFAULT_SPECHIT_MAGIC;
-        }
-      }
-
-      // Calculate address used in doom2.exe
-
-      addr = spechit_baseaddr + (ld - lines) * 0x3E;
-
-      if (compatibility_level == dosdoom_compatibility || compatibility_level == tasdoom_compatibility)
-      {
-        // There are no more desyncs in the following dosdoom demos: 
-        // flsofdth.wad\fod3uv.lmp - http://www.doomworld.com/sda/flsofdth.htm
-        // hr.wad\hf181430.lmp - http://www.doomworld.com/tas/hf181430.zip
-        // hr.wad\hr181329.lmp - http://www.doomworld.com/tas/hr181329.zip
-        // icarus.wad\ic09uv.lmp - http://competn.doom2.net/pub/sda/i-o/icuvlmps.zip
-
-        switch(numspechit)
-        {
-        case 9: 
-          tmfloorz = addr;
-          break;
-        case 10:
-          tmceilingz = addr;
-          break;
-          
-        default:
-          fprintf(stderr, "SpechitOverrun: Warning: unable to emulate"
-                          "an overrun where numspechit=%i\n",
-                           numspechit);
-          break;
-        }
-      }
-      else
-      {
-        switch(numspechit)
-        {
-        case 9: 
-        case 10:
-        case 11:
-        case 12:
-          tmbbox[numspechit-9] = addr;
-          break;
-        case 13:
-          nofit = addr;
-          break;
-        case 14:
-          crushchange = addr;
-          break;
-
-        default:
-          lprintf(LO_ERROR, "SpechitOverrun: Warning: unable to emulate"
-                            " an overrun where numspechit=%i\n",
-                            numspechit);
-          break;
-        }
-      }
-    }
-  }
 }

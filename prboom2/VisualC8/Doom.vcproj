@@ -1796,6 +1796,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\g_overflow.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\g_overflow.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\hu_lib.c"
 				>
 				<FileConfiguration

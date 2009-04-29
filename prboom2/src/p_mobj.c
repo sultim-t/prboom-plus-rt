@@ -47,6 +47,7 @@
 #include "p_inter.h"
 #include "lprintf.h"
 #include "r_demo.h"
+#include "g_overflow.h"
 #include "e6y.h"//e6y
 
 //

@@ -62,6 +62,7 @@
 #include "g_game.h"
 #include "p_map.h"
 #include "hu_stuff.h"
+#include "g_overflow.h"
 #include "e6y.h"
 
 int IsDemoPlayback(void)

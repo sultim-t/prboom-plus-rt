@@ -156,21 +156,6 @@ extern int render_paperitems;
 extern int render_wipescreen;
 extern int mouse_acceleration;
 extern int demo_overwriteexisting;
-extern int overrun_spechit_warn;
-extern int overrun_reject_warn;
-extern int overrun_reject_emulate;
-extern int overrun_spechit_emulate;
-extern int overrun_intercept_warn;
-extern int overrun_intercept_emulate;
-extern int overrun_playeringame_warn;
-extern int overrun_playeringame_emulate;
-
-extern int overrun_spechit_promted;
-extern int overrun_reject_promted;
-extern int overrun_intercept_promted;
-extern int overrun_playeringame_promted;
-
-extern void ShowOverflowWarning(int emulate, int *promted, dboolean fatal, const char *name, const char *params, ...);
 
 extern dboolean was_aspected;
 extern int render_aspect_width;
@@ -380,8 +365,6 @@ unsigned int AfxGetFileName(const char* lpszPathName, char* lpszTitle, unsigned 
 void AbbreviateName(char* lpszCanon, int cchMax, int bAtLeastName);
 
 dboolean StrToInt(const char *s, long *l);
-
-dboolean PlayeringameOverrun(const mapthing_t* mthing);
 
 //extern int viewMaxY;
 

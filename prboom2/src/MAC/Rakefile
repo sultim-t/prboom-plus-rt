@@ -85,6 +85,7 @@ e6y.c
 f_finale.c
 f_wipe.c
 g_game.c
+g_overflow.c
 gl_opengl.c
 gl_detail.c
 gl_gamma.c

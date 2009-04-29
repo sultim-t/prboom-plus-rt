@@ -143,19 +143,6 @@ int render_paperitems;
 int render_wipescreen;
 int mouse_acceleration;
 int demo_overwriteexisting;
-int overrun_spechit_warn;
-int overrun_spechit_emulate;
-int overrun_reject_warn;
-int overrun_reject_emulate;
-int overrun_intercept_warn;
-int overrun_intercept_emulate;
-int overrun_playeringame_warn;
-int overrun_playeringame_emulate;
-
-int overrun_spechit_promted = false;
-int overrun_reject_promted = false;
-int overrun_intercept_promted = false;
-int overrun_playeringame_promted = false;
 
 dboolean was_aspected;
 int render_aspect_width;
@@ -900,38 +887,6 @@ int I_MessageBox(const char* text, unsigned int type)
 #endif
 }
 
-void ShowOverflowWarning(int emulate, int *promted, dboolean fatal, const char *name, const char *params, ...)
-{
-  if (!(*promted))
-  {
-    va_list argptr;
-    char buffer[1024];
-    
-    char str1[] =
-      "Too big or not supported %s overflow has been detected. "
-      "Desync or crash can occur soon "
-      "or during playback with the vanilla engine in case you're recording demo.%s%s";
-    
-    char str2[] = 
-      "%s overflow has been detected.%s%s";
-
-    char str3[] = 
-      "%s overflow has been detected. "
-      "The option responsible for emulation of this overflow is switched off "
-      "hence desync or crash can occur soon "
-      "or during playback with the vanilla engine in case you're recording demo.%s%s";
-
-    *promted = true;
-
-    sprintf(buffer, (fatal?str1:(emulate?str2:str3)), 
-      name, "\nYou can change PrBoom behaviour for this overflow through in-game menu.", params);
-    
-    va_start(argptr,params);
-    I_vWarning(buffer, argptr);
-    va_end(argptr);
-  }
-}
-
 int stats_level;
 int numlevels = 0;
 int levels_max = 0;
@@ -1321,22 +1276,6 @@ void AbbreviateName(char* lpszCanon, int cchMax, int bAtLeastName)
   lpszCanon[cchVolName] = '\0';
   strcat(lpszCanon, "\\...");
   strcat(lpszCanon, lpszCur);
-}
-
-dboolean PlayeringameOverrun(const mapthing_t* mthing)
-{
-  if (mthing->type==0
-    && (overrun_playeringame_warn || overrun_playeringame_emulate))
-  {
-    if (overrun_playeringame_warn)
-      ShowOverflowWarning(overrun_playeringame_emulate, &overrun_playeringame_promted, players[4].didsecret, "PLAYERINGAME", "");
-
-    if (overrun_playeringame_emulate)
-    {
-      return true;
-    }
-  }
-  return false;
 }
 
 trace_t things_health;

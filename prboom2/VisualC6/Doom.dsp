@@ -460,6 +460,14 @@ SOURCE=..\src\g_game.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\g_overflow.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\g_overflow.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\hu_lib.c
 # End Source File
 # Begin Source File

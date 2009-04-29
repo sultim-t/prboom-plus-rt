@@ -73,6 +73,7 @@
 #include "r_main.h"
 
 //e6y
+#include "g_overflow.h"
 #include "r_screenmultiply.h"
 #include "e6y.h"
 #ifdef USE_WINDOWS_LAUNCHER
@@ -893,21 +894,21 @@ default_t defaults[] =
    def_bool,ss_stat},
 #endif
   {"Prboom-plus emulation settings",{NULL},{0},UL,UL,def_none,ss_none},
-  {"overrun_spechit_warn", {&overrun_spechit_warn},  {0},0,1,
+  {"overrun_spechit_warn", {&overflows[OVERFLOW_SPECHIT].warn},  {0},0,1,
    def_bool,ss_stat},
-  {"overrun_spechit_emulate", {&overrun_spechit_emulate},  {1},0,1,
+  {"overrun_spechit_emulate", {&overflows[OVERFLOW_SPECHIT].emulate},  {1},0,1,
    def_bool,ss_stat},
-  {"overrun_reject_warn", {&overrun_reject_warn},  {0},0,1,
+  {"overrun_reject_warn", {&overflows[OVERFLOW_REJECT].warn},  {0},0,1,
    def_bool,ss_stat},
-  {"overrun_reject_emulate", {&overrun_reject_emulate},  {1},0,1,
+  {"overrun_reject_emulate", {&overflows[OVERFLOW_REJECT].emulate},  {1},0,1,
    def_bool,ss_stat},
-  {"overrun_intercept_warn", {&overrun_intercept_warn},  {0},0,1,
+  {"overrun_intercept_warn", {&overflows[OVERFLOW_INTERCEPT].warn},  {0},0,1,
    def_bool,ss_stat},
-  {"overrun_intercept_emulate", {&overrun_intercept_emulate},  {1},0,1,
+  {"overrun_intercept_emulate", {&overflows[OVERFLOW_INTERCEPT].emulate},  {1},0,1,
    def_bool,ss_stat},
-  {"overrun_playeringame_warn", {&overrun_playeringame_warn},  {0},0,1,
+  {"overrun_playeringame_warn", {&overflows[OVERFLOW_PLYERINGAME].warn},  {0},0,1,
    def_bool,ss_stat},
-  {"overrun_playeringame_emulate", {&overrun_playeringame_emulate},  {1},0,1,
+  {"overrun_playeringame_emulate", {&overflows[OVERFLOW_PLYERINGAME].emulate},  {1},0,1,
    def_bool,ss_stat},
 
   {"Prboom-plus 'bad' compatibility settings",{NULL},{0},UL,UL,def_none,ss_none},

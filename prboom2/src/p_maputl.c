@@ -40,6 +40,7 @@
 #include "p_maputl.h"
 #include "p_map.h"
 #include "p_setup.h"
+#include "g_overflow.h"
 #include "e6y.h"//e6y
 
 //
@@ -410,9 +411,6 @@ dboolean P_BlockThingsIterator(int x, int y, dboolean func(mobj_t*))
 // 1/11/98 killough: Intercept limit removed
 static intercept_t *intercepts, *intercept_p;
 
-// e6y: Intercepts Overrun emulation
-static void InterceptsOverrun(int num_intercepts, intercept_t *intercept);
-
 // Check for limit and double size if necessary -- killough
 static void check_intercept(void)
 {
@@ -690,23 +688,6 @@ dboolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
 
 // e6y
 //
-// Intercepts Overrun emulation
-// See more information on:
-// doomworld.com/vb/doom-speed-demos/35214-spechits-reject-and-intercepts-overflow-lists
-//
-// Thanks to Simon Howard (fraggle) for refactor the intercepts
-// overrun code so that it should work properly on big endian machines
-// as well as little endian machines.
-
-#define MAXINTERCEPTS_ORIGINAL 128
-
-typedef struct
-{
-    int len;
-    void *addr;
-    dboolean int16_array;
-} intercepts_overrun_t;
-
 // Intercepts memory table.  This is where various variables are located
 // in memory in Vanilla Doom.  When the intercepts table overflows, we
 // need to write to them.
@@ -717,7 +698,7 @@ typedef struct
 
 extern fixed_t bulletslope;
 
-static intercepts_overrun_t intercepts_overrun[] =
+intercepts_overrun_t intercepts_overrun[] =
 {
   {4,   NULL,                          false},
   {4,   NULL, /* &earlyout, */         false},
@@ -743,74 +724,3 @@ static intercepts_overrun_t intercepts_overrun[] =
   {4,   &bmapheight,                   false},
   {0,   NULL,                          false},
 };
-
-// Overwrite a specific memory location with a value.
-
-static void InterceptsMemoryOverrun(int location, int value)
-{
-  int i, offset;
-  int index;
-  void *addr;
-
-  i = 0;
-  offset = 0;
-
-  // Search down the array until we find the right entry
-
-  while (intercepts_overrun[i].len != 0)
-  {
-    if (offset + intercepts_overrun[i].len > location)
-    {
-      addr = intercepts_overrun[i].addr;
-
-      // Write the value to the memory location.
-      // 16-bit and 32-bit values are written differently.
-
-      if (addr != NULL)
-      {
-        if (intercepts_overrun[i].int16_array)
-        {
-          index = (location - offset) / 2;
-          ((short *) addr)[index] = value & 0xffff;
-          ((short *) addr)[index + 1] = (value >> 16) & 0xffff;
-        }
-        else
-        {
-          index = (location - offset) / 4;
-          ((int *) addr)[index] = value;
-        }
-      }
-
-      break;
-    }
-
-    offset += intercepts_overrun[i].len;
-    ++i;
-  }
-}
-
-void InterceptsOverrun(int num_intercepts, intercept_t *intercept)
-{
-  if (num_intercepts > MAXINTERCEPTS_ORIGINAL && demo_compatibility
-    && (overrun_intercept_warn || overrun_intercept_emulate))
-  {
-    if (overrun_intercept_warn)
-      ShowOverflowWarning(overrun_intercept_emulate, &overrun_intercept_promted, false, "INTERCEPTS", "");
-
-    if (overrun_intercept_emulate)
-    {
-      int location = (num_intercepts - MAXINTERCEPTS_ORIGINAL - 1) * 12;
-
-      // Overwrite memory that is overwritten in Vanilla Doom, using
-      // the values from the intercept structure.
-      //
-      // Note: the ->d.{thing,line} member should really have its
-      // address translated into the correct address value for 
-      // Vanilla Doom.
-
-      InterceptsMemoryOverrun(location, intercept->frac);
-      InterceptsMemoryOverrun(location + 4, intercept->isaline);
-      InterceptsMemoryOverrun(location + 8, (int) intercept->d.thing);
-    }
-  }
-}
