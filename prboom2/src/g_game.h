@@ -85,7 +85,7 @@ void G_ChangedPlayerColour(int pn, int cl); // CPhipps - On-the-fly player colou
 void G_MakeSpecialEvent(buttoncode_t bc, ...); /* cph - new event stuff */
 
 //e6y
-extern int democontinue;
+extern dboolean democontinue;
 extern char democontinuename[];
 void G_CheckDemoContinue(void);
 
