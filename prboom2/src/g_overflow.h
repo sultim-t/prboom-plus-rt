@@ -42,6 +42,7 @@ typedef struct overrun_param_s
 {
   int warn;
   int emulate;
+  int tmp_emulate;
   int promted;
   int shit_happens;
 } overrun_param_t;
@@ -57,6 +58,7 @@ typedef enum overrun_list_s
 } overrun_list_t;
 
 extern overrun_param_t overflows[];
+char *overflow_cfgname[];
 
 // e6y
 //

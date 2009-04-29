@@ -558,6 +558,33 @@ static void R_DemoEx_GetParams(const byte *pwad_p, waddata_t *waddata)
       spechit_baseaddr = atoi(params[p + 1]);
     }
 
+    //overflows
+    {
+      overrun_list_t overflow;
+      for (overflow = 0; overflow < OVERFLOW_MAX; overflow++)
+      {
+        int value;
+        char *pstr, *mask;
+
+        mask = malloc(strlen(overflow_cfgname[overflow]) + 16);
+        if (mask)
+        {
+          sprintf(mask, "-set %s", overflow_cfgname[overflow]);
+          pstr = strstr(str, mask);
+
+          if (pstr)
+          {
+            strcat(mask, " = %d");
+            if (sscanf(pstr, mask, &value) == 1)
+            {
+              overflows[overflow].tmp_emulate = value;
+            }
+          }
+          free(mask);
+        }
+      }
+    }
+
     free(params);
   }
 
@@ -657,7 +684,20 @@ static void R_DemoEx_AddParams(wadtbl_t *wadtbl)
     sprintf(buf, "-spechit %d ", spechit_baseaddr);
     AddString(&files, buf);
   }
-  
+
+  //overflows
+  {
+    overrun_list_t overflow;
+    for (overflow = 0; overflow < OVERFLOW_MAX; overflow++)
+    {
+      if (overflows[overflow].shit_happens)
+      {
+        sprintf(buf, "-set %s=%d ", overflow_cfgname[overflow], overflows[overflow].emulate);
+        AddString(&files, buf);
+      }
+    }
+  }
+
   if (files)
   {
     W_AddLump(wadtbl, DEMOEX_PARAMS_LUMPNAME, files, strlen(files));

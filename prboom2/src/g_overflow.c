@@ -45,9 +45,17 @@
 #include "m_argv.h"
 #include "e6y.h"
 
-#define WARN_OR_EMULATE(overflow) (overflows[overflow].warn || overflows[overflow].emulate)
+#define EMULATE(overflow) (overflows[overflow].emulate || overflows[overflow].tmp_emulate)
+#define PROCESS(overflow) (overflows[overflow].warn || EMULATE(overflow))
 
 overrun_param_t overflows[OVERFLOW_MAX];
+char *overflow_cfgname[OVERFLOW_MAX] =
+{
+  "overrun_spechit_emulate",
+  "overrun_reject_emulate",
+  "overrun_intercept_emulate",
+  "overrun_playeringame_emulate"
+};
 
 static void ShowOverflowWarning(overrun_list_t overflow, int fatal, const char *params, ...)
 {
@@ -76,10 +84,13 @@ static void ShowOverflowWarning(overrun_list_t overflow, int fatal, const char *
 
     overflows[overflow].promted = true;
 
-    sprintf(buffer, (fatal ? str1 : (overflows[overflow].emulate ? str2 : str3)), 
-      name, "\nYou can change PrBoom behaviour for this overflow through in-game menu.", params);
+    sprintf(buffer,
+      (fatal ? str1 : (EMULATE(overflow) ? str2 : str3)), 
+      name[overflow],
+      "\nYou can change PrBoom behaviour for this overflow through in-game menu.",
+      params);
     
-    va_start(argptr,params);
+    va_start(argptr, params);
     I_vWarning(buffer, argptr);
     va_end(argptr);
   }
@@ -141,11 +152,11 @@ static void InterceptsMemoryOverrun(int location, int value)
 
 void InterceptsOverrun(int num_intercepts, intercept_t *intercept)
 {
-  if (num_intercepts > MAXINTERCEPTS_ORIGINAL && demo_compatibility && WARN_OR_EMULATE(OVERFLOW_INTERCEPT))
+  if (num_intercepts > MAXINTERCEPTS_ORIGINAL && demo_compatibility && PROCESS(OVERFLOW_INTERCEPT))
   {
     ShowOverflowWarning(OVERFLOW_INTERCEPT, false, "");
 
-    if (overflows[OVERFLOW_INTERCEPT].emulate)
+    if (EMULATE(OVERFLOW_INTERCEPT))
     {
       int location = (num_intercepts - MAXINTERCEPTS_ORIGINAL - 1) * 12;
 
@@ -170,11 +181,11 @@ void InterceptsOverrun(int num_intercepts, intercept_t *intercept)
 
 int PlayeringameOverrun(const mapthing_t* mthing)
 {
-  if (mthing->type == 0 && WARN_OR_EMULATE(OVERFLOW_PLYERINGAME))
+  if (mthing->type == 0 && PROCESS(OVERFLOW_PLYERINGAME))
   {
     ShowOverflowWarning(OVERFLOW_PLYERINGAME, players[4].didsecret, "");
 
-    if (overflows[OVERFLOW_PLYERINGAME].emulate)
+    if (EMULATE(OVERFLOW_PLYERINGAME))
     {
       return true;
     }
@@ -212,7 +223,7 @@ void SpechitOverrun(spechit_overrun_param_t *params)
       spechit[3]->iLineID, spechit[4]->iLineID, spechit[5]->iLineID,
       spechit[6]->iLineID, spechit[7]->iLineID, spechit[8]->iLineID);
 
-    if (overflows[OVERFLOW_SPECHIT].emulate)
+    if (EMULATE(OVERFLOW_SPECHIT))
     {
       unsigned int addr;
 
@@ -339,11 +350,11 @@ void RejectOverrun(int rejectlump, const byte *rejectmatrix, int totallines)
     W_UnlockLumpNum(rejectlump);
     rejectlump = -1;
 
-    if (demo_compatibility && WARN_OR_EMULATE(OVERFLOW_REJECT))
+    if (demo_compatibility && PROCESS(OVERFLOW_REJECT))
     {
       ShowOverflowWarning(OVERFLOW_REJECT, (required - length > 16) || (length%4 != 0), "");
 
-      if (overflows[OVERFLOW_REJECT].emulate)
+      if (EMULATE(OVERFLOW_REJECT))
       {
         // merged in RejectOverrunAddInt(), and the 4 calls to it, here
         unsigned int rejectpad[4] = {
