@@ -58,6 +58,8 @@ typedef struct
   void *address;
 } interpolation_t;
 
+int interpolation_maxobjects;
+
 static int numinterpolations = 0;
 
 tic_vars_t tic_vars;
@@ -298,6 +300,9 @@ static void R_SetInterpolation(interpolation_type_e type, void *posptr)
     return;
   
   if (numinterpolations >= interpolations_max) {
+    if (numinterpolations > interpolation_maxobjects)
+      return;
+
     interpolations_max = interpolations_max ? interpolations_max * 2 : 256;
     
     oldipos = (fixed2_t*)realloc(oldipos, sizeof(*oldipos) * interpolations_max);

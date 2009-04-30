@@ -47,6 +47,8 @@ typedef struct {
   angle_t viewpitch;
 } view_vars_t;
 
+extern int interpolation_maxobjects;
+
 extern view_vars_t original_view_vars;
 
 typedef struct {

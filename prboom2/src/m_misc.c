@@ -806,6 +806,8 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"movement_strafe50onturns", {&movement_strafe50onturns},  {0},0,1,
    def_bool,ss_stat},
+  {"interpolation_maxobjects", {&interpolation_maxobjects},  {1024},0,UL,
+   def_int,ss_stat},
 
   {"Prboom-plus misc settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"misc_fastexit", {&misc_fastexit},  {0},0,1,
