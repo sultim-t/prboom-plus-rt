@@ -2953,9 +2953,16 @@ static void P_SpawnScrollers(void)
           // killough 3/1/98: scroll wall according to linedef
           // (same direction and speed as scrolling floors)
         case 254:
-          for (s=-1; (s = P_FindLineFromLineTag(l,s)) >= 0;)
-            if (s != i)
-              Add_WallScroller(dx, dy, lines+s, control, accel);
+          if (l->tag == 0 && compbad_get(&comperr_zerotag))
+          {
+            Add_WallScroller(dx, dy, l, control, accel);
+          }
+          else
+          {
+            for (s=-1; (s = P_FindLineFromLineTag(l,s)) >= 0;)
+              if (s != i)
+                Add_WallScroller(dx, dy, lines+s, control, accel);
+          }
           break;
 
         case 255:    // killough 3/2/98: scroll according to sidedef offsets
