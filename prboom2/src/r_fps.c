@@ -300,7 +300,7 @@ static void R_SetInterpolation(interpolation_type_e type, void *posptr)
     return;
   
   if (numinterpolations >= interpolations_max) {
-    if (numinterpolations > interpolation_maxobjects)
+    if (interpolation_maxobjects > 0 && numinterpolations > interpolation_maxobjects)
       return;
 
     interpolations_max = interpolations_max ? interpolations_max * 2 : 256;
