@@ -160,6 +160,10 @@ typedef struct
   short tag;
 
   //e6y
+  int INTERP_SectorFloor;
+  int INTERP_SectorCeiling;
+  int INTERP_FloorPanning;
+  int INTERP_CeilingPanning;
 #ifdef GL_DOOM
   int fakegroup[2];
 #endif
@@ -183,6 +187,8 @@ typedef struct
   // for other functions.
 
   int special;
+
+  int INTERP_WallPanning;
 
 } side_t;
 

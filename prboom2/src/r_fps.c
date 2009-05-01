@@ -295,7 +295,7 @@ int interpolations_max = 0;
 
 static void R_SetInterpolation(interpolation_type_e type, void *posptr)
 {
-  int i;
+  int *i;
   if (!movement_smooth)
     return;
   
@@ -310,35 +310,73 @@ static void R_SetInterpolation(interpolation_type_e type, void *posptr)
     curipos = (interpolation_t*)realloc(curipos, sizeof(*curipos) * interpolations_max);
   }
   
-  for(i = numinterpolations-1; i >= 0; i--)
-    if (curipos[i].address == posptr && curipos[i].type == type)
-      return;
+  i = NULL;
+  switch (type)
+  {
+  case INTERP_SectorFloor:
+    i = &(((sector_t*)posptr)->INTERP_SectorFloor);
+    break;
+  case INTERP_SectorCeiling:
+    i = &(((sector_t*)posptr)->INTERP_SectorCeiling);
+    break;
+  case INTERP_WallPanning:
+    i = &(((side_t*)posptr)->INTERP_WallPanning);
+    break;
+  case INTERP_FloorPanning:
+    i = &(((sector_t*)posptr)->INTERP_FloorPanning);
+    break;
+  case INTERP_CeilingPanning:
+    i = &(((sector_t*)posptr)->INTERP_CeilingPanning);
+    break;
+  }
 
-  curipos[numinterpolations].address = posptr;
-  curipos[numinterpolations].type = type;
-  R_CopyInterpToOld (numinterpolations);
-  numinterpolations++;
+  if (i != NULL && (*i) == 0)
+  {
+    curipos[numinterpolations].address = posptr;
+    curipos[numinterpolations].type = type;
+    R_CopyInterpToOld (numinterpolations);
+    numinterpolations++;
+    (*i) = numinterpolations;
+  }
 } 
 
 static void R_StopInterpolation(interpolation_type_e type, void *posptr)
 {
-  int i;
+  int *i;
 
   if (!movement_smooth)
     return;
 
-  for(i=numinterpolations-1; i>= 0; --i)
+  i = NULL;
+  switch (type)
   {
-    if (curipos[i].address == posptr && curipos[i].type == type)
-    {
-      numinterpolations--;
-      oldipos[i][0] = oldipos[numinterpolations][0];
-      oldipos[i][1] = oldipos[numinterpolations][1];
-      bakipos[i][0] = bakipos[numinterpolations][0];
-      bakipos[i][1] = bakipos[numinterpolations][1];
-      curipos[i] = curipos[numinterpolations];
-      break;
-    }
+  case INTERP_SectorFloor:
+    i = &(((sector_t*)posptr)->INTERP_SectorFloor);
+    break;
+  case INTERP_SectorCeiling:
+    i = &(((sector_t*)posptr)->INTERP_SectorCeiling);
+    break;
+  case INTERP_WallPanning:
+    i = &(((side_t*)posptr)->INTERP_WallPanning);
+    break;
+  case INTERP_FloorPanning:
+    i = &(((sector_t*)posptr)->INTERP_FloorPanning);
+    break;
+  case INTERP_CeilingPanning:
+    i = &(((sector_t*)posptr)->INTERP_CeilingPanning);
+    break;
+  }
+
+  if (i != NULL && (*i) != 0)
+  {
+    numinterpolations--;
+    (*i)--;
+    oldipos[*i][0] = oldipos[numinterpolations][0];
+    oldipos[*i][1] = oldipos[numinterpolations][1];
+    bakipos[*i][0] = bakipos[numinterpolations][0];
+    bakipos[*i][1] = bakipos[numinterpolations][1];
+    curipos[*i] = curipos[numinterpolations];
+    *i = 0;
   }
 }
 
@@ -357,6 +395,19 @@ void R_StopAllInterpolations(void)
     bakipos[i][0] = bakipos[numinterpolations][0];
     bakipos[i][1] = bakipos[numinterpolations][1];
     curipos[i] = curipos[numinterpolations];
+  }
+
+  for(i = 0; i < numsectors; i++)
+  {
+    sectors[i].INTERP_CeilingPanning = 0;
+    sectors[i].INTERP_FloorPanning = 0;
+    sectors[i].INTERP_SectorCeiling = 0;
+    sectors[i].INTERP_SectorFloor = 0;
+  }
+
+  for(i = 0; i < numsides; i++)
+  {
+    sides[i].INTERP_WallPanning = 0;
   }
 }
 
