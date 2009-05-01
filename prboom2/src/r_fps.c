@@ -301,7 +301,9 @@ static void R_SetInterpolation(interpolation_type_e type, void *posptr)
   
   if (numinterpolations >= interpolations_max) {
     if (interpolation_maxobjects > 0 && numinterpolations > interpolation_maxobjects)
+    {
       return;
+    }
 
     interpolations_max = interpolations_max ? interpolations_max * 2 : 256;
     
@@ -342,7 +344,8 @@ static void R_SetInterpolation(interpolation_type_e type, void *posptr)
 
 static void R_StopInterpolation(interpolation_type_e type, void *posptr)
 {
-  int *i;
+  int *i, *j;
+  void *posptr_last;
 
   if (!movement_smooth)
     return;
@@ -370,12 +373,43 @@ static void R_StopInterpolation(interpolation_type_e type, void *posptr)
   if (i != NULL && (*i) != 0)
   {
     numinterpolations--;
-    (*i)--;
-    oldipos[*i][0] = oldipos[numinterpolations][0];
-    oldipos[*i][1] = oldipos[numinterpolations][1];
-    bakipos[*i][0] = bakipos[numinterpolations][0];
-    bakipos[*i][1] = bakipos[numinterpolations][1];
-    curipos[*i] = curipos[numinterpolations];
+
+    // we have +1 in index field of interpolation's parent
+    oldipos[*i - 1][0] = oldipos[numinterpolations][0];
+    oldipos[*i - 1][1] = oldipos[numinterpolations][1];
+    bakipos[*i - 1][0] = bakipos[numinterpolations][0];
+    bakipos[*i - 1][1] = bakipos[numinterpolations][1];
+    curipos[*i - 1] = curipos[numinterpolations];
+
+    // swap indexes
+    posptr_last = curipos[numinterpolations].address;
+    j = NULL;
+    switch (curipos[numinterpolations].type)
+    {
+    case INTERP_SectorFloor:
+      j = &(((sector_t*)posptr_last)->INTERP_SectorFloor);
+      break;
+    case INTERP_SectorCeiling:
+      j = &(((sector_t*)posptr_last)->INTERP_SectorCeiling);
+      break;
+    case INTERP_WallPanning:
+      j = &(((side_t*)posptr_last)->INTERP_WallPanning);
+      break;
+    case INTERP_FloorPanning:
+      j = &(((sector_t*)posptr_last)->INTERP_FloorPanning);
+      break;
+    case INTERP_CeilingPanning:
+      j = &(((sector_t*)posptr_last)->INTERP_CeilingPanning);
+      break;
+    }
+
+    // swap
+    if (j != NULL)
+    {
+      *j = *i;
+    }
+
+    // reset
     *i = 0;
   }
 }
