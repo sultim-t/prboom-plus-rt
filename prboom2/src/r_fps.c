@@ -300,12 +300,19 @@ static void R_SetInterpolation(interpolation_type_e type, void *posptr)
     return;
   
   if (numinterpolations >= interpolations_max) {
-    if (interpolation_maxobjects > 0 && numinterpolations > interpolation_maxobjects)
+    int prevmax = interpolations_max;
+
+    interpolations_max = interpolations_max ? interpolations_max * 2 : 256;
+
+    if (interpolation_maxobjects > 0 && interpolations_max > interpolation_maxobjects)
+    {
+      interpolations_max = interpolation_maxobjects;
+    }
+
+    if (interpolations_max == prevmax)
     {
       return;
     }
-
-    interpolations_max = interpolations_max ? interpolations_max * 2 : 256;
     
     oldipos = (fixed2_t*)realloc(oldipos, sizeof(*oldipos) * interpolations_max);
     bakipos = (fixed2_t*)realloc(bakipos, sizeof(*bakipos) * interpolations_max);
