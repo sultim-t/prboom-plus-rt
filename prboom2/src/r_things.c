@@ -723,6 +723,7 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
 
   // Handle all things in sector.
 
+#ifdef GL_DOOM
   if (show_alive)
   {
     if (show_alive == 1)
@@ -735,6 +736,7 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
     }
   }
   else
+#endif
   {
     for (thing = sec->thinglist; thing; thing = thing->snext)
     {

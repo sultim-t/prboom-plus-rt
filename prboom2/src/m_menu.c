@@ -4580,12 +4580,17 @@ dboolean M_Responder (event_t* ev) {
       }
     }
 
-    if (ch == key_showalive)
+#ifdef GL_DOOM
+    if (V_GetMode() == VID_MODEGL)
     {
-      show_alive = (show_alive + 1) % 3;
-      doom_printf("Show Alive Monsters %s",
-        (show_alive ? (show_alive == 1 ? "(mode 1) on" : "(mode 2) on" ) : "off"));
+      if (ch == key_showalive)
+      {
+        show_alive = (show_alive + 1) % 3;
+        doom_printf("Show Alive Monsters %s",
+          (show_alive ? (show_alive == 1 ? "(mode 1) on" : "(mode 2) on" ) : "off"));
+      }
     }
+#endif
 
     if (ch == key_hud)   // heads-up mode
       {
