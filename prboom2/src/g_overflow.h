@@ -58,7 +58,7 @@ typedef enum overrun_list_s
 } overrun_list_t;
 
 extern overrun_param_t overflows[];
-char *overflow_cfgname[];
+char *overflow_cfgname[OVERFLOW_MAX];
 
 // e6y
 //
