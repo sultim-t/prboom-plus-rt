@@ -2361,6 +2361,10 @@ setup_menu_t keys_settings5[] =  // Key Binding screen strings
   {"END LEVEL"            ,S_KEY     ,m_scrn,KB_X,KB_Y+ 7*8,{&key_demo_endlevel}},
   {"CAMERA MODE"          ,S_KEY     ,m_scrn,KB_X,KB_Y+ 8*8,{&key_walkcamera}},
   {"JOIN"                 ,S_KEY     ,m_scrn,KB_X,KB_Y+ 9*8,{&key_demo_jointogame}},
+#ifdef GL_DOOM
+  {"MISC"                 ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y+10*8},
+  {"Show Alive Monsters"  ,S_KEY     ,m_scrn,KB_X,KB_Y+11*8,{&key_showalive}},
+#endif
 
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {keys_settings4}},
   // Final entry
@@ -4574,6 +4578,11 @@ dboolean M_Responder (event_t* ev) {
           R_SmoothPlaying_Reset(NULL);
         return true;
       }
+    }
+
+    if (ch == key_showalive)
+    {
+      show_alive = (show_alive + 1) % 3;
     }
 
     if (ch == key_hud)   // heads-up mode

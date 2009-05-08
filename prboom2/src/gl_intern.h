@@ -202,8 +202,7 @@ typedef struct
   float light;
   fixed_t scale;
   GLTexture *gltexture;
-  dboolean shadow;
-  dboolean trans;
+  uint_64_t flags;
   mobj_t *thing;//e6y
 } GLSprite;
 
@@ -222,6 +221,7 @@ typedef enum
 
   GLDIT_SPRITE,  // opaque sprite
   GLDIT_TSPRITE, // transparent sprites
+  GLDIT_ASPRITE,
 
   GLDIT_TYPES
 } GLDrawItemType;

@@ -767,6 +767,8 @@ default_t defaults[] =
    0,MAX_KEY,def_key,ss_keys},
   {"key_walkcamera", {&key_walkcamera}, {KEYD_KEYPAD0},
    0,MAX_KEY,def_key,ss_keys},
+  {"key_showalive", {&key_showalive}, {KEYD_KEYPADDIVIDE},
+   0,MAX_KEY,def_key,ss_keys},
 
   {"Prboom-plus heads-up display settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"hudadd_gamespeed", {&hudadd_gamespeed},  {0},0,1,

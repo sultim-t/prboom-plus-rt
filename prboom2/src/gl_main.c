@@ -1972,7 +1972,7 @@ void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata)
     0,
     sizeof(GLWall), sizeof(GLWall), sizeof(GLWall), sizeof(GLWall), sizeof(GLWall),
     sizeof(GLFlat), sizeof(GLFlat),
-    sizeof(GLSprite), sizeof(GLSprite),
+    sizeof(GLSprite), sizeof(GLSprite), sizeof(GLSprite),
   };
 
   itemsize = itemsizes[itemtype];
@@ -2758,22 +2758,26 @@ static void gld_DrawSprite(GLSprite *sprite)
     glRotatef(inv_yaw,0.0f,1.0f,0.0f);
   }
 
-  if(sprite->shadow)
+  if (!(sprite->flags & MF_NO_DEPTH_TEST))
   {
-    glGetIntegerv(GL_BLEND_SRC, &blend_src);
-    glGetIntegerv(GL_BLEND_DST, &blend_dst);
-    glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-    //glColor4f(0.2f,0.2f,0.2f,(float)tran_filter_pct/100.0f);
-    glAlphaFunc(GL_GEQUAL,0.1f);
-    glColor4f(0.2f,0.2f,0.2f,0.33f);
-  }
-  else
-  {
-    if(sprite->trans)
-      gld_StaticLightAlpha(sprite->light,(float)tran_filter_pct/100.0f);
+    if(sprite->flags & MF_SHADOW)
+    {
+      glGetIntegerv(GL_BLEND_SRC, &blend_src);
+      glGetIntegerv(GL_BLEND_DST, &blend_dst);
+      glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+      //glColor4f(0.2f,0.2f,0.2f,(float)tran_filter_pct/100.0f);
+      glAlphaFunc(GL_GEQUAL,0.1f);
+      glColor4f(0.2f,0.2f,0.2f,0.33f);
+    }
     else
-      gld_StaticLight(sprite->light);
+    {
+      if(sprite->flags & MF_TRANSLUCENT)
+        gld_StaticLightAlpha(sprite->light,(float)tran_filter_pct/100.0f);
+      else
+        gld_StaticLight(sprite->light);
+    }
   }
+
   glBegin(GL_TRIANGLE_STRIP);
     glTexCoord2f(sprite->ul, sprite->vt); glVertex3f(sprite->x1, sprite->y1, 0.0f);
     glTexCoord2f(sprite->ur, sprite->vt); glVertex3f(sprite->x2, sprite->y1, 0.0f);
@@ -2783,10 +2787,13 @@ static void gld_DrawSprite(GLSprite *sprite)
 
   glPopMatrix();
 
-  if(sprite->shadow)
+  if (!(sprite->flags & MF_NO_DEPTH_TEST))
   {
-    glBlendFunc(blend_src, blend_dst);
-    glAlphaFunc(GL_GEQUAL,0.5f);
+    if(sprite->flags & MF_SHADOW)
+    {
+      glBlendFunc(blend_src, blend_dst);
+      glAlphaFunc(GL_GEQUAL,0.5f);
+    }
   }
 }
 
@@ -2805,8 +2812,7 @@ void gld_AddSprite(vissprite_t *vspr)
   sprite.gltexture=gld_RegisterPatch(vspr->patch+firstspritelump,sprite.cm);
   if (!sprite.gltexture)
     return;
-  sprite.shadow = (pSpr->flags & MF_SHADOW) != 0;
-  sprite.trans  = (pSpr->flags & MF_TRANSLUCENT) != 0;
+  sprite.flags = pSpr->flags;
   sprite.thing = vspr->thing;//e6y
   if (movement_smooth)
   {
@@ -2855,7 +2861,14 @@ void gld_AddSprite(vissprite_t *vspr)
   }
 
   //e6y: support for transparent sprites
-  gld_AddDrawItem((sprite.trans || sprite.shadow ? GLDIT_TSPRITE : GLDIT_SPRITE), &sprite);
+  if (sprite.thing->flags & MF_NO_DEPTH_TEST)
+  {
+    gld_AddDrawItem(GLDIT_ASPRITE, &sprite);
+  }
+  else
+  {
+    gld_AddDrawItem(((sprite.flags&(MF_SHADOW|MF_TRANSLUCENT)) ? GLDIT_TSPRITE : GLDIT_SPRITE), &sprite);
+  }
 }
 
 /*****************
@@ -2936,7 +2949,7 @@ static gld_DrawItemsSortByTexture(GLDrawItemType itemtype)
     0,
     dicmp_wall, dicmp_wall, dicmp_wall, dicmp_wall, dicmp_wall,
     dicmp_flat, dicmp_flat,
-    dicmp_sprite, dicmp_sprite,
+    dicmp_sprite, dicmp_sprite, dicmp_sprite,
   };
 
   if (gl_sortbytexture && gld_drawinfo.num_items[itemtype] > 2)
@@ -3107,6 +3120,30 @@ void gld_DrawScene(player_t *player)
   for (i = gld_drawinfo.num_items[GLDIT_SPRITE] - 1; i >= 0; i--)
   {
     gld_DrawSprite(gld_drawinfo.items[GLDIT_SPRITE][i].item.sprite);
+  }
+
+  // mode for viewing all the alive monsters
+  if (show_alive)
+  {
+    const int period = 250;
+    float color;
+    int step = (SDL_GetTicks() % (period * 2)) + 1;
+    if (step > period)
+    {
+      step = period * 2 - step;
+    }
+    color = 0.1f + 0.9f * (float)step / (float)period;
+
+    R_AddAllAliveMonstersSprites();
+    glDisable(GL_DEPTH_TEST);
+    gld_DrawItemsSortByTexture(GLDIT_ASPRITE);
+    glColor4f(1.0f, color, color, 1.0f);
+    for (i = gld_drawinfo.num_items[GLDIT_ASPRITE] - 1; i >= 0; i--)
+    {
+      gld_DrawSprite(gld_drawinfo.items[GLDIT_ASPRITE][i].item.sprite);
+    }
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    glEnable(GL_DEPTH_TEST);
   }
 
   //

@@ -207,6 +207,7 @@ extern  int displayplayer;
 extern  int totalkills, totallive;
 extern  int totalitems;
 extern  int totalsecret;
+extern  int show_alive;
 
 // Timer, for scores.
 extern  int basetic;    /* killough 9/29/98: levelstarttic, adjusted */

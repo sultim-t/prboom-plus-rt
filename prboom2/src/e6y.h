@@ -43,8 +43,6 @@
 #include "w_wad.h"
 #include "r_demo.h"
 
-#define MF_RESSURECTED  (uint_64_t)(0x0000001000000000)
-
 #define HU_HUDADDX (HU_HUDX)
 #define HU_HUDADDY (HU_HUDY+(-1)*HU_GAPY)
 #define HU_CENTERMSGX (320/2)
@@ -133,6 +131,7 @@ extern int key_demo_nextlevel;
 extern int key_demo_endlevel;
 extern int speed_step;
 extern int key_walkcamera;
+extern int key_showalive;
 
 extern int hudadd_gamespeed;
 extern int hudadd_leveltime;

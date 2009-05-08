@@ -218,6 +218,11 @@
 #define MF_BOUNCES         LONGLONG(0x0000000200000000)
 #define MF_FRIEND          LONGLONG(0x0000000400000000)
 
+#define MF_RESSURECTED     LONGLONG(0x0000001000000000)
+#define MF_NO_DEPTH_TEST   LONGLONG(0x0000002000000000)
+
+#define ALIVE(thing) ((thing->health > 0) && ((thing->flags & (MF_COUNTKILL | MF_CORPSE | MF_RESSURECTED)) == MF_COUNTKILL))
+
 // killough 9/15/98: Same, but internal flags, not intended for .deh
 // (some degree of opaqueness is good, to avoid compatibility woes)
 

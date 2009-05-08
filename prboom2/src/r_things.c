@@ -723,8 +723,49 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
 
   // Handle all things in sector.
 
-  for (thing = sec->thinglist; thing; thing = thing->snext)
-    R_ProjectSprite(thing, lightlevel);
+  if (show_alive)
+  {
+    if (show_alive == 1)
+    {
+      for (thing = sec->thinglist; thing; thing = thing->snext)
+      {
+        if (!ALIVE(thing))
+          R_ProjectSprite(thing, lightlevel);
+      }
+    }
+  }
+  else
+  {
+    for (thing = sec->thinglist; thing; thing = thing->snext)
+    {
+      R_ProjectSprite(thing, lightlevel);
+    }
+  }
+}
+
+//
+// R_AddAllAliveMonstersSprites
+// Add all alive monsters.
+//
+void R_AddAllAliveMonstersSprites(void)
+{
+  int i;
+  sector_t* sec;
+  mobj_t *thing;
+
+  for (i = 0; i < numsectors; i++)
+  {
+    sec = &sectors[i];
+    for (thing = sec->thinglist; thing; thing = thing->snext)
+    {
+      if (ALIVE(thing))
+      {
+        thing->flags |= MF_NO_DEPTH_TEST;
+        R_ProjectSprite(thing, 255);
+        thing->flags &= ~MF_NO_DEPTH_TEST;
+      }
+    }
+  }
 }
 
 //

@@ -120,6 +120,7 @@ int key_demo_nextlevel;
 int key_demo_endlevel;
 int speed_step;
 int key_walkcamera;
+int key_showalive;
 
 int hudadd_gamespeed;
 int hudadd_leveltime;
