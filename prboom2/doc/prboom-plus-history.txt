@@ -1,42 +1,46 @@
 Change Log
 
 2.5.0.2 @ 2009.05.09
-[+] Support for DeePsea's true tall patches. Now it's possible to use patches with any height.
-[+] Support for inwad hi-res textures. You should put them between HI_START/HI_END markers.
+[+] Support for DeePsea's tall patch method: Now it's possible to use patches of any height.
+[+] Support for hi-res textures in wads. You should place them between HI_START/HI_END markers.
 [+] Fog in "gzdoom" lighting mode.
-[+] High Quality Resize modes. Scale2x/3x/4x are supported. Thanks Benjamin Berkels.
-[+] An alternative way of sky drawing was added. "Sky Mode: Skybox". It's slower than "Standard" method, but it looks better if you use mouse look. Also it is the only way you can see sky on old hardware like 3Dfx Voodoo Graphics, ATI 3D Rage Pro and other without support for "Environment Mapping".
-[+] Added "gl_clear" config variable for clearing the screen between frames. This is only necessary when developing a map to see HOMs.
-[+] Added "gl_ztrick" config variable for very old hardware like 3Dfx Voodoo, NVidia RIVA128, etc. If this toggle is enabled the game will not clear the z-buffer between frames. This will result in increased performance (~10%) but might cause problems for some display hardware. Makes sense with gl_compatibility 1 and gl_clear 0. Do not use it with TNT2 or better, because it will be slower.
-[+] Now PrBoom-Plus can save all information necessary for playback at end of a demo without loss of compatibility. With such demos you need just type "prboom-plus demoname" or click on a demo from your browser, archives manager or explorer and prboom will make all additional work by oneself without any assistance. PrBoom-Plus will check demo footer and if it is present, will read which IWAD / PWADs / DEHs files were used for recording, will try to download necessary PWADs from the Internet and will play this demo for you.
-    Currently PrBoom-Plus saves following lumps (with demo_extendedformat 1):
+[+] High Quality Resize modes. Scale2x/3x/4x are supported. Thanks to Benjamin Berkels.
+[+] An alternative way of sky drawing was added. "Sky Mode: Skybox". It's slower than the "Standard" method, but looks better if you use mouse look. Also, it's the only way to see skies properly on old hardware, like 3Dfx Voodoo Graphics, ATI 3D Rage Pro, and others which don't support "Environment Mapping".
+[+] Added a "gl_clear" config variable for clearing the screen between frames. This is only necessary when developing a map, to see HOMs.
+[+] Added a "gl_ztrick" config variable for very old hardware, like 3Dfx Voodoo, NVidia RIVA128, etc. If this toggle is enabled the game will not clear the z-buffer between frames. This will result in improved performance (~10%) but might cause problems for some display hardware. Makes sense with gl_compatibility 1 and gl_clear 0. Do not use it with TNT2 or better, as performance will be slower.
+[+] Now PrBoom-Plus can save all necessary playback information at the end of demos without loss of compatibility. With such demos you just need to type "prboom-plus demoname" or click on a demo from your browser, archives manager or explorer and prboom will make any additional work by itself without any assistance. PrBoom-Plus will check for a demo footer and if it is present, will read which IWAD, PWAD and DEH files were used for recording, will try to download necessary add-on files from the Internet and will play the demo for you.
+    Currently, PrBoom-Plus saves the following information (with demo_extendedformat 1):
     - VERSION - version of DemoEx format (1.0)
     - PORTNAME - port name and version (PrBoom-Plus 2.5.0.1)
     - PARAMS - iwad, pwads, dehs and critical for demos params like -spechit
     - MLOOK - mouse look data
-    For automatic downloading PWADs you should specify getwad_cmdline parameter in config. Examples:
+    For the automatic downloading of files, one must specify the getwad_cmdline parameter in the PrBoom-Plus config file. Examples:
     getwad_cmdline "D:\games\Doom2\getwad\getwad.exe"
-    getwad_cmdline "C:\my_cool_app -download_pwad_from_somewhere %wadname% -here c:\doom2\"
+    getwad_cmdline "C:\my_cool_app -download_pwad_from_somewhere %wadname% -here c:\doom2"
 
-[+] Abilty to use hires with Boom colormaps.
-[+] You can have independent filtrations methods (nearest, linear, etc) for textures, sprites and patches.
-[+] Ability to change screen resolution from GUI.
-[+] Ability to see all alive monsters through walls. By default assigned to "Numpad /". Has two modes: all sprites with alive monsters and only alive monsters. Works only in GL.
-[*] Attempt to playback in-wad DEMO4 immediately after DEMO3, but without exit with "W_GetNumForName: DEMO4 not found" error message like Plutonia and TNT executables do. Makes sense for Plutonia2, because it has DEMO4 lump and it is played in demo cycle by original Plutonia.
-[*] "PrBoom-Plus" title instead of "PrBoom" on CREDITS page.
-[*] Don't set default skill level from the new game menu. Add explicit default skill option. Shoehorned into the misc section of page 2 of the General menu.
-[*] Smoothing the edges for textures with holes. Not only for sprites as before.
+[+] PrBoom-Plus can now apply Boom colormaps to hires resources.
+[+] Supports independent OpenGL filtering methods (nearest, linear, etc) for textures, sprites and patches.
+[+] It's now possible to change screen resolution from the GUI.
+[+] An option to see any monsters that are still alive through walls. By default it's toggled with "Numpad /". It has two modes: All sprites with living monsters or living monsters only. Works only in GL mode.
+[*] PrBoom will attempt to play a DEMO4 lump present in a wad immediately after DEMO3, but without exiting with the "W_GetNumForName: DEMO4 not found" error that the Plutonia and TNT executables get. This makes sense for Plutonia 2, which includes a DEMO4 lump that is played back during the demo cycle by vanilla Plutonia.
+[*] "PrBoom-Plus" title instead of "PrBoom" on the CREDITS screen page.
+[*] Doesn't alter the default skill level when the difficulty skill is selected from the New game menu. An explicit default skill option was added instead, shoehorned into the misc section of page 2 of the General menu.
+[*] Smoothing for the edges of textures with holes. (And not only for sprites, as before.)
 [*] Screenshots in "gzdoom" lighting mode use current gamma.
 [*] Reconfiguration in menu.
 [*] Better and faster mipmapping for modern hardware. Support for GL_ARB_TEXTURE_NON_POWER_OF_TWO extention.
 [*] Two service variables for developers were added: gl_color_mip_levels and gl_fog_color.
-[*] Do not use detail texture over hires textures.
-[*] Reloading of textures after changing of "Override PWAD's graphics with Hi-Res" option.
-[*] Smart algo for more seamless drawing of flats. It removes seams in some situations for hires flats (between sectors 125 and 126 on map20 @ doom2.wad, etc).
-[*] Ability to play any episode with Ultimate Doom, Final Doom/Doom95 and DosDoom compatibilities and -warp command line switch. Now you can play E5M1 @ 2002ado.wad with "-warp 5 1 -complevel 3". 'Vanilla' Ultimate Doom executable also allows it.
-[*] Optimization of some interpolation code. Fixed slowdowns on beta of ndcp2.wad map02.
-[*] Speed improvement. Some timedemo examples for my hardware (Intel Core2Duo 3.0, NVidia GeForce 8800 GTS):
+[*] PrBoom-Plus doesn't use detail texture over hires textures.
+[*] Textures are reloaded after changing the "Override PWAD's graphics with Hi-Res" option.
+[*] Smart algorithm for more seamless flats drawing. In some situations this removes seams from hires flats (between sectors 125 and 126 on map20 @ doom2.wad, etc).
+[*] Speed improvement in OpenGL mode.
+[*] Can play any episode with The Ultimate Doom, Final Doom, Doom95 and DosDoom compatibilities and -warp command line switch. Now you can play E5M1 @ 2002ado.wad with "-warp 5 1 -complevel 3". The (vanilla) Ultimate Doom executable also allows this.
+[*] Some interpolation code was optimized. This fixes slowdowns on the beta of ndcp2.wad map02.
+[*] Speed improvements. Some timedemo examples for my hardware (Intel Core2Duo 3.0, NVidia GeForce 8800 GTS):
+
     Command line: [port] -geom 640x480 -window -nosound -file [pwad] -timedemo [demo]
+    Files: epic.wad, epic.lmp, nuts.wad, nuts.lmp, dv.wad
+
                               epic.wad   nuts.wad   dv.wad
     glboom  2.5.0             126        53         560
     glboom+ 2.5.0.1           234        130        640
@@ -47,14 +51,14 @@ Change Log
     prboom+ 2.5.0.1           158        114        382
     prboom+ 2.5.0.2           191        121        424
 
-[-] Fixed rare wrong rotation of a sprite if render_paperitems is 0.
-[-] Avoid segfaults on levels without nodes. Refuse to load a map with incomplete pwad structure.
-[-] Avoid segfaults with unknown patch formats. Checks if the patch lump can be a Doom patch.
-[-] There is no longer a line of graphics on some middle textures with holes. Sector #42 on gravity.wad as example.
-[-] There are no longer holes between flats and walls in some situations on some hardware. Sector #557 @ map21 @ pl2.wad. Now GLBoom-Plus renders per linedef instead of per seg. Performance has increased a little as a bonus. Also, some small glitches with texturing are gone. Linedef #361 @ bbb.wad as example.
-[-] There is no longer a half-pixel mismatch on seams between identical correctly aligned textures in GL. It is an old glboom bug and now it is fixed.
-[-] Fixed wrong flipping for "Transfer Sky Texture" actions (272 <-> 271) in OpenGL.
-[-] Fixed issue with near clip plane. Works only on NVIDIA.
+[-] Fixed a rare wrong sprite rotation glitch when render_paperitems is 0.
+[-] Avoids segfaults on levels without nodes, and refuses to load maps with an incomplete pwad structure.
+[-] Avoids segfaults with unknown patch formats, and checks if the patch lump can be a Doom patch.
+[-] Gets rid of a line of graphics on some middle textures with holes. Sector #42 on gravity.wad as an example.
+[-] Doesn't render holes between flats and walls in some situations, on some hardware. Sector #557 @ map21 @ pl2.wad. GLBoom-Plus now renders per linedef instead of per seg. Performance has increased a little as a bonus. Also, some small texturing glitches are gone. See linedef #361 @ bbb.wad, as an example.
+[-] Gets rid of a half-pixel mismatch on seams between identical and correctly aligned textures in GL. This was an old GLBoom bug which is now fixed.
+[-] Fixed incorrect flipping for "Transfer Sky Texture" actions (272 <-> 271) in OpenGL.
+[-] Fixed issue with near-clip plane. Works only on NVIDIA.
 
 From PrBoom
 - Don't set default skill level from the new game menu. Added explicit default skill option.
@@ -388,7 +392,7 @@ http://www.doomworld.com/vb/showthread.php?s=&postid=627257#post627257
 [!] PRBoom-Plus is now available on UNIX, Linux, and other POSIX systems and also on Mac.
 [+] Several predefined cfgs and batch launcher for them are included.
 [+] Simple aspect ratio adjustment made possible in OpenGL. It may be useful for people with unusually shaped monitors. Some usage examples:
-    glboom-plus.exe -aspect 320x240 
+    glboom-plus.exe -aspect 320x240
     glboom-plus.exe -aspect 2x1
 [*] Changes in processing of spechit overflow for correct playback of some Xit's demos on scythe2.wad\map02.
 [*] Roll back to old SDL library. Some people had some problems with new.
@@ -512,8 +516,8 @@ http://competn.doom2.net/pub/sda/i-o/icuvlmps.zip
 [-] "-warp" switch didn't work. (the bug was introduced in 2.2.6.22)
 
 2.2.6.22
-[+] PrBoom compatibility: two new options for spechit overflow detection. It detects desyncs like compet-n\hr.wad\hr18*.lmp, all strain.wad\map07 demos etc. 	
-[+] Added "-levelstat" switch for levelstat.txt output like this: 
+[+] PrBoom compatibility: two new options for spechit overflow detection. It detects desyncs like compet-n\hr.wad\hr18*.lmp, all strain.wad\map07 demos etc.
+[+] Added "-levelstat" switch for levelstat.txt output like this:
     E4M1 - 0:15.91 (0:15)  K:  8/63   I:  5/21  S: 0/2
     E4M2 - 0:10.97 (0:25)  K:  8/76   I:  6/22  S: 1/3
     E4M3 - 0:08.86 (0:33)  K:  1/140  I:  1/5   S: 0/22
@@ -522,13 +526,13 @@ http://competn.doom2.net/pub/sda/i-o/icuvlmps.zip
     E4M6 - 0:23.66 (1:50)  K: 21/97   I:  0/4   S: 0/3
     E4M7 - 0:09.94 (1:59)  K:  6/97   I:  1/18  S: 0/4
     E4M8 - 0:33.94 (2:32)  K: 39/106  I:  1/6   S: 0/1
-[+] New key binding for warp directly to the next stats screen. <End> by default. 	
-[!] Option "step of speed change" has been restored. Two modes are available: stepwise and automatic. 	
+[+] New key binding for warp directly to the next stats screen. <End> by default.
+[!] Option "step of speed change" has been restored. Two modes are available: stepwise and automatic.
 [-] PrBoom dehacked support: wrong processing of Bits parameter if its value is equal to zero. No more desync on HACX demos.
 [-] PrBoom compatibility: PRBoom doesn't spawn the boom-specific "specials" in demo_compatibility mode now (generalized scrollers, sector effects). No more desync on umbrella.wad\um3nm152.lmp.
 [-] PrBoom compatibility: MF_JUSTHIT fix. No more desync on Sam Woodman's HMP Max demos (HX17-459.LMP etc).
-[-] PrBoom: fix for turn-snapping bug on fullscreen in software mode. "..\Advanced HUD settings\Movements\Fix Turn-Snapping issue" 	
-[-] PrBoom: deathmatch starts as unknown things with a complevel of 0, 1, 2 or 3. 	
+[-] PrBoom: fix for turn-snapping bug on fullscreen in software mode. "..\Advanced HUD settings\Movements\Fix Turn-Snapping issue"
+[-] PrBoom: deathmatch starts as unknown things with a complevel of 0, 1, 2 or 3.
 [-] GlBoom: problems with transfering not flipped sky texture (line type 271) to tagged sectors. On war_3.wad\map14 for example.
 [-] PrBoom-Plus: mistake of processing of the "quick rewind" key if the player dies.
 
