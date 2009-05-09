@@ -733,7 +733,7 @@ void I_DemoExShutdown(void)
     lprintf(LO_DEBUG, "I_DemoExShutdown: removing %s\n", demoex_filename);
     if (unlink(demoex_filename) != 0)
     {
-      lprintf(LO_DEBUG, "I_DemoExShutdown: %s", strerror(errno));
+      lprintf(LO_DEBUG, "I_DemoExShutdown: %s\n", strerror(errno));
     }
   }
 }
