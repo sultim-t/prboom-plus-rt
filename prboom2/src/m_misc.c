@@ -1403,248 +1403,6 @@ void M_LoadDefaults (void)
 // SCREEN SHOTS
 //
 
-// CPhipps - nasty but better than nothing
-static dboolean screenshot_write_error;
-
-#ifdef HAVE_LIBPNG
-
-#include <png.h>
-
-static void error_fn(png_structp p, png_const_charp s)
-{ screenshot_write_error = true; lprintf(LO_ERROR, "%s\n", s); }
-
-static void WritePNGfile(FILE* fp, const byte* data,
-       const int width, const int height, const byte* palette)
-{
-  png_structp png_ptr;
-  png_infop info_ptr;
-  dboolean gl = V_GetMode() == VID_MODEGL;
-
-  png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, png_error_ptr_NULL, error_fn, NULL);
-  png_set_compression_level(png_ptr, 2);
-  if (png_ptr == NULL) { screenshot_write_error = true; return; }
-  info_ptr = png_create_info_struct(png_ptr);
-  if (info_ptr != NULL) {
-    png_init_io(png_ptr, fp);
-    png_set_IHDR(png_ptr, info_ptr, width, height, 8, !gl ? PNG_COLOR_TYPE_PALETTE : PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-
-    if (palette)
-      png_set_PLTE(png_ptr, info_ptr, (png_colorp)palette, PNG_MAX_PALETTE_LENGTH);
-    {
-      png_time t;
-      png_convert_from_time_t(&t, time(NULL));
-      png_set_tIME(png_ptr, info_ptr, &t);
-    }
-
-    { /* Now write the image header and data */
-      int y;
-
-      png_write_info(png_ptr, info_ptr);
-      for (y = 0; y < height; y++)
-        png_write_row(png_ptr, data + (gl ? height - y - 1 : y)*width*(gl ? 3 : 1));
-    }
-
-    png_write_end(png_ptr, info_ptr);
-  }
-  png_destroy_write_struct(&png_ptr,  png_infopp_NULL);
-}
-
-#else /* HAVE_LIBPNG */
-
-// jff 3/30/98 types and data structures for BMP output of screenshots
-//
-// killough 5/2/98:
-// Changed type names to avoid conflicts with endianess functions
-
-#define BI_RGB 0L
-
-typedef unsigned int dword_t;
-typedef signed int   long_t;
-typedef unsigned char ubyte_t;
-
-#ifdef _MSC_VER // proff: This is the same as __attribute__ ((packed)) in GNUC
-#pragma pack(push)
-#pragma pack(1)
-#endif //_MSC_VER
-
-#if defined(__MWERKS__)
-#pragma options align=packed
-#endif
-
-#if !defined(PACKEDATTR)
-typedef struct tagBITMAPFILEHEADER
-  {
-  unsigned short  bfType;
-  dword_t bfSize;
-  unsigned short  bfReserved1;
-  unsigned short  bfReserved2;
-  dword_t bfOffBits;
-  } PACKEDATTR BITMAPFILEHEADER;
-#endif
-
-#if !defined(PACKEDATTR)
-typedef struct tagBITMAPINFOHEADER
-  {
-  dword_t biSize;
-  long_t  biWidth;
-  long_t  biHeight;
-  unsigned short  biPlanes;
-  unsigned short  biBitCount;
-  dword_t biCompression;
-  dword_t biSizeImage;
-  long_t  biXPelsPerMeter;
-  long_t  biYPelsPerMeter;
-  dword_t biClrUsed;
-  dword_t biClrImportant;
-  } PACKEDATTR BITMAPINFOHEADER;
-#endif
-
-#if defined(__MWERKS__)
-#pragma options align=reset
-#endif
-
-#ifdef _MSC_VER
-#pragma pack(pop)
-#endif //_MSC_VER
-
-// jff 3/30/98 binary file write with error detection
-// CPhipps - static, const on parameter
-static void SafeWrite(const void *data, size_t size, size_t number, FILE *st)
-{
-  if (fwrite(data,size,number,st)<number)
-    screenshot_write_error = true; // CPhipps - made non-fatal
-}
-
-//
-// WriteBMPfile
-// jff 3/30/98 Add capability to write a .BMP file (256 color uncompressed)
-//
-
-// CPhipps - static, const on parameters
-static void WriteBMPfile(FILE* st, const byte* data,
-       const int width, const int height, const byte* palette)
-{
-  int i,wid;
-  BITMAPFILEHEADER bmfh;
-  BITMAPINFOHEADER bmih;
-  int fhsiz,ihsiz;
-  char zero=0;
-  ubyte_t c;
-
-  fhsiz = sizeof(BITMAPFILEHEADER);
-  ihsiz = sizeof(BITMAPINFOHEADER);
-  wid = 4*((width+3)/4);
-  //jff 4/22/98 add endian macros
-  bmfh.bfType = LittleShort(19778);
-  bmfh.bfSize = LittleLong(fhsiz+ihsiz+256L*4+width*height);
-  bmfh.bfReserved1 = LittleShort(0);
-  bmfh.bfReserved2 = LittleShort(0);
-  bmfh.bfOffBits = LittleLong(fhsiz+ihsiz+256L*4);
-
-  bmih.biSize = LittleLong(ihsiz);
-  bmih.biWidth = LittleLong(width);
-  bmih.biHeight = LittleLong(height);
-  bmih.biPlanes = LittleShort(1);
-  bmih.biBitCount = LittleShort(8);
-  bmih.biCompression = LittleLong(BI_RGB);
-  bmih.biSizeImage = LittleLong(wid*height);
-  bmih.biXPelsPerMeter = LittleLong(0);
-  bmih.biYPelsPerMeter = LittleLong(0);
-  bmih.biClrUsed = LittleLong(256);
-  bmih.biClrImportant = LittleLong(256);
-
-  {
-    int gtlump = (W_CheckNumForName)("GAMMATBL",ns_prboom);
-    register const byte * const gtable = (const byte *)W_CacheLumpNum(gtlump) + 256*usegamma;
-
-    // write the header
-    SafeWrite(&bmfh.bfType,sizeof(bmfh.bfType),1,st);
-    SafeWrite(&bmfh.bfSize,sizeof(bmfh.bfSize),1,st);
-    SafeWrite(&bmfh.bfReserved1,sizeof(bmfh.bfReserved1),1,st);
-    SafeWrite(&bmfh.bfReserved2,sizeof(bmfh.bfReserved2),1,st);
-    SafeWrite(&bmfh.bfOffBits,sizeof(bmfh.bfOffBits),1,st);
-
-    SafeWrite(&bmih.biSize,sizeof(bmih.biSize),1,st);
-    SafeWrite(&bmih.biWidth,sizeof(bmih.biWidth),1,st);
-    SafeWrite(&bmih.biHeight,sizeof(bmih.biHeight),1,st);
-    SafeWrite(&bmih.biPlanes,sizeof(bmih.biPlanes),1,st);
-    SafeWrite(&bmih.biBitCount,sizeof(bmih.biBitCount),1,st);
-    SafeWrite(&bmih.biCompression,sizeof(bmih.biCompression),1,st);
-    SafeWrite(&bmih.biSizeImage,sizeof(bmih.biSizeImage),1,st);
-    SafeWrite(&bmih.biXPelsPerMeter,sizeof(bmih.biXPelsPerMeter),1,st);
-    SafeWrite(&bmih.biYPelsPerMeter,sizeof(bmih.biYPelsPerMeter),1,st);
-    SafeWrite(&bmih.biClrUsed,sizeof(bmih.biClrUsed),1,st);
-    SafeWrite(&bmih.biClrImportant,sizeof(bmih.biClrImportant),1,st);
-
-    // write the palette, in blue-green-red order, gamma corrected
-    for (i=0;i<768;i+=3) {
-      c=gtable[palette[i+2]];
-      SafeWrite(&c,sizeof(char),1,st);
-      c=gtable[palette[i+1]];
-      SafeWrite(&c,sizeof(char),1,st);
-      c=gtable[palette[i+0]];
-      SafeWrite(&c,sizeof(char),1,st);
-      SafeWrite(&zero,sizeof(char),1,st);
-    }
-
-    for (i = 0 ; i < height ; i++)
-      SafeWrite(data+(height-1-i)*width,sizeof(byte),wid,st);
-
-    W_UnlockLumpNum(gtlump);
-  }
-}
-
-//
-// WriteTGAfile
-// proff 05/15/2000 Add capability to write a .TGA file (24bit color uncompressed)
-//
-
-// CPhipps - static, const on parameters
-static void WriteTGAfile(FILE* st, const byte* data,
-       const int width, const int height)
-{
-  unsigned char c;
-  unsigned short s;
-  int i;
-
-  {
-    // write the header
-    // id_length
-    c=0; SafeWrite(&c,sizeof(c),1,st);
-    // colormap_type
-    c=0; SafeWrite(&c,sizeof(c),1,st);
-    // image_type
-    c=2; SafeWrite(&c,sizeof(c),1,st);
-    // colormap_index
-    s=0; SafeWrite(&s,sizeof(s),1,st);
-    // colormap_length
-    s=0; SafeWrite(&s,sizeof(s),1,st);
-    // colormap_size
-    c=0; SafeWrite(&c,sizeof(c),1,st);
-    // x_origin
-    s=0; SafeWrite(&s,sizeof(s),1,st);
-    // y_origin
-    s=0; SafeWrite(&s,sizeof(s),1,st);
-    // width
-    s=LittleShort(width); SafeWrite(&s,sizeof(s),1,st);
-    // height
-    s=LittleShort(height); SafeWrite(&s,sizeof(s),1,st);
-    // bits_per_pixel
-    c=24; SafeWrite(&c,sizeof(c),1,st);
-    // attributes
-    c=0; SafeWrite(&c,sizeof(c),1,st);
-
-    for (i=0; i<width*height*3; i+=3)
-    {
-      SafeWrite(&data[i+2],sizeof(byte),1,st);
-      SafeWrite(&data[i+1],sizeof(byte),1,st);
-      SafeWrite(&data[i+0],sizeof(byte),1,st);
-    }
-  }
-}
-
-#endif /* !HAVE_LIBPNG */
-
 //
 // M_ScreenShot
 //
@@ -1662,90 +1420,18 @@ static void WriteTGAfile(FILE* st, const byte* data,
 
 void M_DoScreenShot (const char* fname)
 {
-  extern int st_palette;//e6y
-  screeninfo_t screenshot;
-  FILE	*fp;
-  const byte *pal;
-  int pplump;
-
-  //e6y: support for non 8-bit modes
-  if (V_GetMode() != VID_MODEGL && V_GetPixelDepth() != 1)
-  {
-    if (SDL_SaveBMP(SDL_GetVideoSurface(), fname) != 0)
-    {
-      doom_printf("M_DoScreenShot: Error writing screenshot");
-    }
-    return;
-  }
-
-  fp = fopen(fname,"wb");
-  pplump = W_GetNumForName("PLAYPAL");
-
-  if (!fp) {
-    doom_printf("Error opening %s", fname);
-    return;
-  }
-  screenshot_write_error = false;
-
-  if (V_GetMode() == VID_MODEGL) {
-    screenshot.width = screens[0].width;
-    screenshot.height = screens[0].height;
-    screenshot.byte_pitch = screens[0].width*3;
-    screenshot.not_on_heap = false;
-    V_AllocScreen(&screenshot);
-    // munge planar buffer to linear
-    // CPhipps - use a malloc()ed buffer instead of screens[2]
-#ifdef GL_DOOM
-    gld_ReadScreen(screenshot.data);
-    gld_ApplyGammaRamp(screenshot.data, screenshot.byte_pitch, 
-      screenshot.width, screenshot.height);
-#endif
-
-    // save the bmp file
-    // e6y: processing of screen_multiply
-
-  #ifdef HAVE_LIBPNG
-    WritePNGfile(fp, screenshot.data, REAL_SCREENWIDTH, REAL_SCREENHEIGHT, NULL);
-  #else
-    WriteTGAfile
-      (fp, screenshot.data, REAL_SCREENWIDTH, REAL_SCREENHEIGHT);
-  #endif
-  } else {
-    screenshot.width = screens[0].width;
-    screenshot.height = screens[0].height;
-    screenshot.byte_pitch = screens[0].width;
-    screenshot.not_on_heap = false;
-    V_AllocScreen(&screenshot);
-    // munge planar buffer to linear
-    // CPhipps - use a malloc()ed buffer instead of screens[2]
-    I_ReadScreen(&screenshot);
-
-    // killough 4/18/98: make palette stay around (PU_CACHE could cause crash)
-    pal = W_CacheLumpNum (pplump);
-
-    // save the bmp file
-    // e6y: processing of screen_multiply
-
-  #ifdef HAVE_LIBPNG
-    WritePNGfile(fp, screenshot.data, REAL_SCREENWIDTH, REAL_SCREENHEIGHT, pal + 3*256*st_palette);
-  #else
-    WriteBMPfile
-      (fp, screenshot.data, REAL_SCREENWIDTH, REAL_SCREENHEIGHT, pal + 3*256*st_palette);
-  #endif
-
-    // cph - free the palette
-    W_UnlockLumpNum(pplump);
-  }
-  V_FreeScreen(&screenshot);
-  // 1/18/98 killough: replace "SCREEN SHOT" acknowledgement with sfx
-
-  if (screenshot_write_error)
-    doom_printf("M_ScreenShot: Error writing screenshot");
-  fclose(fp);
+  if (I_ScreenShot(fname) != 0)
+    doom_printf("M_ScreenShot: Error writing screenshot\n");
 }
 
 #ifndef SCREENSHOT_DIR
 #define SCREENSHOT_DIR "."
+#endif
+
+#ifdef HAVE_LIBPNG
+#define SCREENSHOT_EXT ".png"
+#else
+#define SCREENSHOT_EXT ".bmp"
 #endif
 
 void M_ScreenShot(void)
@@ -1754,33 +1440,22 @@ void M_ScreenShot(void)
   char       lbmname[PATH_MAX + 1];
   int        startshot;
 
-  screenshot_write_error = false;
+  if (!access(SCREENSHOT_DIR,2))
+  {
+    startshot = shot; // CPhipps - prevent infinite loop
 
-  if (access(SCREENSHOT_DIR,2)) screenshot_write_error = true;
+    do {
+      sprintf(lbmname,"%s/doom%02d" SCREENSHOT_EXT, SCREENSHOT_DIR, shot++);
+    } while (!access(lbmname,0) && (shot != startshot) && (shot < 10000));
 
-  startshot = shot; // CPhipps - prevent infinite loop
-
-  do {
-#ifdef HAVE_LIBPNG
-    sprintf(lbmname,"%s/doom%02d.png", SCREENSHOT_DIR, shot++);
-#else
-    if (V_GetMode() == VID_MODEGL) {
-      sprintf(lbmname,"%s/doom%02d.tga", SCREENSHOT_DIR, shot++);
-    } else {
-      sprintf(lbmname,"%s/doom%02d.bmp", SCREENSHOT_DIR, shot++);
+    if (access(lbmname,0))
+    {
+      S_StartSound(NULL,gamemode==commercial ? sfx_radio : sfx_tink);
+      M_DoScreenShot(lbmname); // cph
+      return;
     }
-#endif
-  } while (!access(lbmname,0) && (shot != startshot) && (shot < 10000));
-
-  if (!access(lbmname,0)) screenshot_write_error = true;
-
-  if (screenshot_write_error) {
-    doom_printf ("M_ScreenShot: Couldn't create screenshot");
-    // killough 4/18/98
-    return;
   }
 
-  M_DoScreenShot(lbmname); // cph
-
-  S_StartSound(NULL,gamemode==commercial ? sfx_radio : sfx_tink);
+  doom_printf ("M_ScreenShot: Couldn't create screenshot");
+  return;
 }

@@ -591,9 +591,34 @@ void gld_SetPalette(int palette)
   }
 }
 
-void gld_ReadScreen (byte* scr)
+unsigned char *gld_ReadScreen(void)
 {
-  glReadPixels(0,0,SCREENWIDTH,SCREENHEIGHT,GL_RGB,GL_UNSIGNED_BYTE,scr);
+  unsigned char *scr = NULL;
+  unsigned char *buffer;
+  int i;
+
+  buffer = malloc(SCREENWIDTH * 3);
+  if (buffer)
+  {
+    scr = malloc(SCREENWIDTH * SCREENHEIGHT * 3);
+    if (scr)
+    {
+      glReadPixels(0, 0, SCREENWIDTH, SCREENHEIGHT, GL_RGB, GL_UNSIGNED_BYTE, scr);
+
+      gld_ApplyGammaRamp(scr, SCREENWIDTH * 3, SCREENWIDTH, SCREENHEIGHT);
+
+      for (i=0; i<SCREENHEIGHT/2; i++)
+      {
+        memcpy(buffer, &scr[i*SCREENWIDTH*3], SCREENWIDTH*3);
+        memcpy(&scr[i*SCREENWIDTH*3],
+          &scr[(SCREENHEIGHT-(i+1))*SCREENWIDTH*3], SCREENWIDTH*3);
+        memcpy(&scr[(SCREENHEIGHT-(i+1))*SCREENWIDTH*3], buffer, SCREENWIDTH*3);
+      }
+    }
+    free(buffer);
+  }
+
+  return scr;
 }
 
 GLvoid gld_Set2DMode(void)

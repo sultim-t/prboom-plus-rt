@@ -375,7 +375,7 @@ static void I_UploadNewPalette(int pal)
 
   // store the colors to the current display
   // SDL_SetColors(SDL_GetVideoSurface(), colours+256*pal, 0, 256);
-  SDL_SetPalette(SDL_GetVideoSurface(),SDL_PHYSPAL,colours+256*pal, 0, 256);
+  SDL_SetPalette(SDL_GetVideoSurface(),SDL_LOGPAL|SDL_PHYSPAL,colours+256*pal, 0, 256);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -463,39 +463,8 @@ void I_FinishUpdate (void)
 }
 
 //
-// I_ReadScreen
+// I_ScreenShot - moved to i_sshot.c
 //
-void I_ReadScreen (screeninfo_t *dest)
-{
-  int h;
-  dboolean locked = false;
-  byte *srcofs;
-  byte *dstofs;
-  int width, height;
-  if (SDL_MUSTLOCK(screen))
-  {
-    if (SDL_LockSurface(screen) < 0) {
-      lprintf(LO_INFO,"I_ReadScreen: %s\n", SDL_GetError());
-      return;
-    }
-    locked = true;
-  }
-  // e6y: processing of screen_multiply
-  // screen->pixels instead of screens[0].data should be used
-  srcofs = screen->pixels;
-  dstofs = dest->data;
-  width = MIN(screen->w, dest->width);
-  height = MIN(screen->h, dest->height);
-  for (h=height; h>0; h--) {
-    memcpy(dstofs, srcofs, width);
-    srcofs += screen->pitch;
-    dstofs += dest->byte_pitch;
-  }
-  if (locked)
-  {
-    SDL_UnlockSurface(screen);
-  }
-}
 
 //
 // I_SetPalette
