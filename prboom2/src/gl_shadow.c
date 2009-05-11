@@ -60,7 +60,7 @@ int gld_InitShadows(void)
   if(!shadow_id)
   {
     int i;
-    const unsigned char *data = W_CacheLumpName("DLIGHT");
+    const unsigned char *data = W_CacheLumpName("SHADOW");
     unsigned char *buffer, *pixel;
 
     glGenTextures(1, &shadow_id);
@@ -84,7 +84,7 @@ int gld_InitShadows(void)
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)(1<<gl_texture_filter_anisotropic));
 
     free(buffer);
-    W_UnlockLumpName("DLIGHT");
+    W_UnlockLumpName("SHADOW");
   }
 
   return shadow_id;
