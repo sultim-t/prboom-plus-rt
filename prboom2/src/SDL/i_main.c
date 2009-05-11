@@ -45,7 +45,7 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-typedef BOOL (WINAPI *SetAffinityFunc)(HANDLE hProcess, DWORD_PTR mask);
+typedef BOOL (WINAPI *SetAffinityFunc)(HANDLE hProcess, DWORD mask);
 #else
 #include <sched.h>
 #endif
