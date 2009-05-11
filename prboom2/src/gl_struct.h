@@ -153,4 +153,8 @@ sector_t* GetBestFake(sector_t *sector, int ceiling, int validcount);
 //vertical sync for GL
 extern int gl_vsync;
 
+//shadows
+extern int gl_shadows;
+extern int gl_shadow_max_radius;
+
 #endif // _GL_STRUCT_H

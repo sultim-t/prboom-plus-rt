@@ -359,6 +359,7 @@ typedef struct mobj_s
     //e6y
     angle_t             pitch;  // orientation
     int index;
+    short patch_width;
 
     fixed_t             pad; // cph - needed so I can get the size unambiguously on amd64
 

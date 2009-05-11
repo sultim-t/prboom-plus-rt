@@ -3075,12 +3075,13 @@ setup_menu_t gen_settings5[] = { // General Settings screen3
   {"Field Of View",             S_NUM,    m_null, G_X, G_Y+ 7*8, {"render_fov"}, 0, 0, M_ChangeFOV},
   {"Sector Light Mode",         S_CHOICE, m_null, G_X, G_Y+ 8*8, {"gl_lightmode"}, 0, 0, M_ChangeLightMode, gl_lightmodes},
   {"Allow Fog",                 S_YESNO,  m_null, G_X, G_Y+ 9*8, {"gl_fog"}, 0, 0, M_ChangeAllowFog},
+  {"Simple Shadows",            S_YESNO,  m_null, G_X, G_Y+10*8, {"gl_shadows"}},
 
-  {"Sky Mode",                  S_CHOICE, m_null, G_X, G_Y+11*8, {"gl_drawskys"}, 0, 0, NULL, gl_skytypes},
+  {"Sky Mode",                  S_CHOICE, m_null, G_X, G_Y+12*8, {"gl_drawskys"}, 0, 0, NULL, gl_skytypes},
 
-  {"Paper Items",               S_YESNO,  m_null, G_X, G_Y+13*8, {"render_paperitems"}},
-  {"Adjust Sprite Clipping",    S_CHOICE, m_null, G_X, G_Y+14*8, {"gl_spriteclip"}, 0, 0, M_ChangeSpriteClip, gl_spriteclipmodes},
-  {"Item out of Floor offset",  S_NUM,    m_null, G_X, G_Y+15*8, {"gl_sprite_offset"}},
+  {"Paper Items",               S_YESNO,  m_null, G_X, G_Y+14*8, {"render_paperitems"}},
+  {"Adjust Sprite Clipping",    S_CHOICE, m_null, G_X, G_Y+15*8, {"gl_spriteclip"}, 0, 0, M_ChangeSpriteClip, gl_spriteclipmodes},
+  {"Item out of Floor offset",  S_NUM,    m_null, G_X, G_Y+16*8, {"gl_sprite_offset"}},
 #endif
 
   {"<- PREV",S_SKIP|S_PREV, m_null,KB_PREV, KB_Y+20*8, {gen_settings4}},

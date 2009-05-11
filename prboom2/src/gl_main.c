@@ -264,6 +264,7 @@ void gld_Init(int width, int height)
   M_ChangeAllowFog();
 
   gld_InitDetail();
+  gld_InitShadows();
 
 #ifdef HAVE_LIBSDL_IMAGE
   gld_InitHiRes();
@@ -1998,6 +1999,7 @@ void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata)
     sizeof(GLWall), sizeof(GLWall), sizeof(GLWall), sizeof(GLWall), sizeof(GLWall),
     sizeof(GLFlat), sizeof(GLFlat),
     sizeof(GLSprite), sizeof(GLSprite), sizeof(GLSprite),
+    sizeof(GLShadow),
   };
 
   itemsize = itemsizes[itemtype];
@@ -2893,6 +2895,7 @@ void gld_AddSprite(vissprite_t *vspr)
   else
   {
     gld_AddDrawItem(((sprite.flags&(MF_SHADOW|MF_TRANSLUCENT)) ? GLDIT_TSPRITE : GLDIT_SPRITE), &sprite);
+    gld_ProcessThingShadow(pSpr);
   }
 }
 
@@ -2975,9 +2978,10 @@ static gld_DrawItemsSortByTexture(GLDrawItemType itemtype)
     dicmp_wall, dicmp_wall, dicmp_wall, dicmp_wall, dicmp_wall,
     dicmp_flat, dicmp_flat,
     dicmp_sprite, dicmp_sprite, dicmp_sprite,
+    0,
   };
 
-  if (gl_sortbytexture && gld_drawinfo.num_items[itemtype] > 2)
+  if (gl_sortbytexture && itemfuncs[itemtype] && gld_drawinfo.num_items[itemtype] > 2)
   {
     qsort(gld_drawinfo.items[itemtype], gld_drawinfo.num_items[itemtype],
       sizeof(gld_drawinfo.items[itemtype]), itemfuncs[itemtype]);
@@ -3170,6 +3174,8 @@ void gld_DrawScene(player_t *player)
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
   }
+
+  gld_RenderShadows();
 
   //
   // transparent stuff

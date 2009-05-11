@@ -75,6 +75,7 @@
 #include "i_simd.h"
 #include "r_screenmultiply.h"
 #include "r_main.h"
+#include "r_things.h"
 #ifdef GL_DOOM
 #include "gl_struct.h"
 #include "gl_intern.h"

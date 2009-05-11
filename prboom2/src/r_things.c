@@ -592,6 +592,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
 
   {
     const rpatch_t* patch = R_CachePatchNum(lump+firstspritelump);
+    thing->patch_width = patch->width;
 
     /* calculate edges of the shape
      * cph 2003/08/1 - fraggle points out that this offset must be flipped

@@ -179,6 +179,13 @@ typedef struct
   GLLoopDef loop; // the loops itself
 } GLSubSector;
 
+typedef struct
+{
+  float x, y, z;
+  float radius;
+  float light;
+} GLShadow;
+
 extern GLSeg *gl_segs;
 extern GLSeg *gl_lines;
 
@@ -223,6 +230,8 @@ typedef enum
   GLDIT_TSPRITE, // transparent sprites
   GLDIT_ASPRITE,
 
+  GLDIT_SHADOW,
+
   GLDIT_TYPES
 } GLDrawItemType;
 
@@ -236,6 +245,7 @@ typedef struct GLDrawItem_s
     GLWall *wall;
     GLFlat *flat;
     GLSprite *sprite;
+    GLShadow *shadow;
   } item;
 } GLDrawItem;
 
@@ -420,5 +430,10 @@ void gld_DrawScreenSkybox(void);
 void gld_GetScreenSkyScale(GLWall *wall, float *scale_x, float *scale_y);
 void gld_DrawDomeSkyBox(void);
 void gld_DrawSkyCaps(void);
+
+// shadows
+int gld_InitShadows(void);
+void gld_ProcessThingShadow(mobj_t *mo);
+void gld_RenderShadows(void);
 
 #endif // _GL_INTERN_H
