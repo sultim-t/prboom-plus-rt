@@ -78,4 +78,6 @@ void R_InitSprites(const char * const * namelist);
 void R_ClearSprites(void);
 void R_DrawMasked(void);
 
+void R_SetClipPlanes(void);
+
 #endif

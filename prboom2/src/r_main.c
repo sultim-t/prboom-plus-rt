@@ -656,6 +656,8 @@ static void R_SetupFrame (player_t *player)
   else
     fixedcolormap = 0;
 
+  R_SetClipPlanes();
+
   validcount++;
 }
 

@@ -466,6 +466,25 @@ static void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
   R_UnlockPatchNum(vis->patch+firstspritelump); // cph - release lump
 }
 
+int r_near_clip_plane = MINZ;
+
+void R_SetClipPlanes(void)
+{
+  // thing is behind view plane?
+#ifdef GL_DOOM
+  if ((V_GetMode() == VID_MODEGL) &&
+      (GetMouseLook() || (render_fov > FOV90)) &&
+      (!render_paperitems || gl_shadows))
+  {
+    r_near_clip_plane = -(FRACUNIT * MAX(64, gl_shadow_max_radius));
+  }
+  else
+#endif
+  {
+    r_near_clip_plane = MINZ;
+  }
+}
+
 //
 // R_ProjectSprite
 // Generates a vissprite for a thing if it might be visible.
@@ -515,15 +534,8 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
 
   tz = gxt-gyt;
 
-//e6y
-  if (V_GetMode() == VID_MODEGL && !render_paperitems && mlook)
-  {
-    if (tz < -(FRACUNIT*64))
-      return;
-  } else
-
-    // thing is behind view plane?
-  if (tz < MINZ)
+  // thing is behind view plane?
+  if (tz < r_near_clip_plane)
     return;
 
   xscale = FixedDiv(projection, tz);
