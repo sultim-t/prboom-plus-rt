@@ -4,12 +4,8 @@
  *
  *  PrBoom: a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
- *  Copyright (C) 1999 by
- *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
- *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  Copyright 2005, 2006 by
- *  Florian Schulze, Colin Phipps, Neil Stevens, Andrey Budko
+ *  Copyright 2006 - 2008 G Jackson, Jaakko Kerônen
+ *  Copyright 2009 - Andrey Budko
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -26,8 +22,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
- * DESCRIPTION:
- *
+ * DESCRIPTION: Shadow rendering
+*    Based on Risen3D implementation which is based on Doomsday v1.7.8.
  *---------------------------------------------------------------------
  */
 
