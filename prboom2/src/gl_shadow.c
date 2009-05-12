@@ -46,44 +46,53 @@ int gl_shadow_max_dist = 1000;
 float gl_shadow_factor = 0.5f;
 
 static int shadow_id = 0;
+static int use_shadows = false;
 
 //===========================================================================
 // GL_PrepareLightTexture
 //	The dynamic light map is a 64x64 grayscale 8-bit image.
 //===========================================================================
-int gld_InitShadows(void)
+void gld_InitShadows(void)
 {
-  if(!shadow_id)
+  int lump;
+  
+  use_shadows = false;
+  
+  lump = (W_CheckNumForName)("SHADOW", ns_prboom);
+  if (lump != -1)
   {
     int i;
-    const unsigned char *data = W_CacheLumpName("SHADOW");
     unsigned char *buffer, *pixel;
+    const unsigned char *data = W_CacheLumpNum(lump);
 
     glGenTextures(1, &shadow_id);
     glBindTexture(GL_TEXTURE_2D, shadow_id);
 
     // No mipmapping or resizing is needed, upload directly.
     buffer = calloc(64 * 64, 4);
-    pixel = buffer;
-    for(i = 0; i < 64 * 64; i++, pixel += 3)
+    if (buffer)
     {
-      pixel[0] = pixel[1] = pixel[2] = data[i];
+      pixel = buffer;
+      for(i = 0; i < 64 * 64; i++, pixel += 3)
+      {
+        pixel[0] = pixel[1] = pixel[2] = data[i];
+      }
+
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, 64, 64, 0, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+      if (gl_ext_texture_filter_anisotropic)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)(1<<gl_texture_filter_anisotropic));
+
+      use_shadows = true;
+
+      free(buffer);
     }
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, 64, 64, 0, GL_RGB, GL_UNSIGNED_BYTE, buffer);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    if (gl_ext_texture_filter_anisotropic)
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)(1<<gl_texture_filter_anisotropic));
-
-    free(buffer);
-    W_UnlockLumpName("SHADOW");
+    W_UnlockLumpNum(lump);
   }
-
-  return shadow_id;
 }
 
 static void gld_DrawShadow(GLShadow *shadow)
@@ -115,6 +124,9 @@ void gld_ProcessThingShadow(mobj_t *mo)
   sector_t *sec = mo->subsector->sector;
   int radius, z;
   GLShadow shadow;
+
+  if (!use_shadows)
+    return;
 
   if (mo->flags & (MF_SHADOW|MF_NOBLOCKMAP|MF_NOSECTOR))
     return;
@@ -185,7 +197,7 @@ void gld_RenderShadows(void)
 {
   int i;
 
-  if (!gl_shadows)
+  if (!gl_shadows || !use_shadows)
     return;
 
   if (gld_drawinfo.num_items[GLDIT_SHADOW] <= 0)

@@ -432,7 +432,7 @@ void gld_DrawDomeSkyBox(void);
 void gld_DrawSkyCaps(void);
 
 // shadows
-int gld_InitShadows(void);
+void gld_InitShadows(void);
 void gld_ProcessThingShadow(mobj_t *mo);
 void gld_RenderShadows(void);
 
