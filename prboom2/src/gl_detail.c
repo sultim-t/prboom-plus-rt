@@ -91,7 +91,7 @@ void gld_InitDetail(void)
     SDL_Surface *surf = NULL;
     
     surf = SDL_LoadBMP_RW(SDL_RWFromMem((unsigned char *)memDetail, W_LumpLength(gldetail_lumpnum)), 1);
-    W_UnlockLumpName("PLAYPAL");
+    W_UnlockLumpNum(gldetail_lumpnum);
     
     fmt = *surf->format;
     fmt.BitsPerPixel = 24;
