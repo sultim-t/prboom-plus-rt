@@ -23,7 +23,6 @@ CRBLUE
 CRBLUE2
 CRORANGE
 CRYELLOW
-SHADOW
 
 # PrBoom internal data lumps (large data lumps removed from the source code)
 B_START
@@ -32,6 +31,7 @@ TANGTABL
 TANTOANG
 GAMMATBL
 GLDETAIL
+GLSHADOW
 B_END
 
 # List of Sounds

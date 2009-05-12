@@ -58,7 +58,7 @@ void gld_InitShadows(void)
   
   use_shadows = false;
   
-  lump = (W_CheckNumForName)("SHADOW", ns_prboom);
+  lump = (W_CheckNumForName)("GLSHADOW", ns_prboom);
   if (lump != -1)
   {
     int i;
