@@ -36,6 +36,7 @@
 #include "p_maputl.h"
 #include "w_wad.h"
 #include "r_bsp.h"
+#include "lprintf.h"
 
 #define SHADOWBIAS 0.0044f
 
@@ -93,6 +94,11 @@ void gld_InitShadows(void)
     }
     W_UnlockLumpNum(lump);
   }
+
+  if (gl_shadows && !use_shadows)
+  {
+    lprintf(LO_INFO, "gld_InitShadows: failed to initialise shadow texture");
+  }
 }
 
 static void gld_DrawShadow(GLShadow *shadow)
@@ -125,7 +131,7 @@ void gld_ProcessThingShadow(mobj_t *mo)
   int radius, z;
   GLShadow shadow;
 
-  if (!use_shadows)
+  if (!gl_shadows || !use_shadows)
     return;
 
   if (mo->flags & (MF_SHADOW|MF_NOBLOCKMAP|MF_NOSECTOR))
