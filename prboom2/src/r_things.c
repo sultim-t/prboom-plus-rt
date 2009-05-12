@@ -474,9 +474,9 @@ void R_SetClipPlanes(void)
 #ifdef GL_DOOM
   if ((V_GetMode() == VID_MODEGL) &&
       (GetMouseLook() || (render_fov > FOV90)) &&
-      (!render_paperitems || gl_shadows))
+      (!render_paperitems || simple_shadows.loaded))
   {
-    r_near_clip_plane = -(FRACUNIT * MAX(64, gl_shadow_max_radius));
+    r_near_clip_plane = -(FRACUNIT * MAX(64, simple_shadows.max_radius));
   }
   else
 #endif

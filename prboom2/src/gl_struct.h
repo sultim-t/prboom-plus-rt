@@ -154,7 +154,21 @@ sector_t* GetBestFake(sector_t *sector, int ceiling, int validcount);
 extern int gl_vsync;
 
 //shadows
-extern int gl_shadows;
-extern int gl_shadow_max_radius;
+typedef struct shadow_params_s
+{
+  int enable;
+  int loaded;
+
+  int tex_id;
+  int width;
+  int height;
+
+  int max_radius;
+  int max_dist;
+  float factor;
+  float bias;
+} simple_shadow_params_t;
+
+extern simple_shadow_params_t simple_shadows;
 
 #endif // _GL_STRUCT_H

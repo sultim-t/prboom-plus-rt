@@ -38,16 +38,12 @@
 #include "r_bsp.h"
 #include "lprintf.h"
 
-#define SHADOWBIAS 0.0044f
-
-int gl_shadows;
-
-int gl_shadow_max_radius = 80;
-int gl_shadow_max_dist = 1000;
-float gl_shadow_factor = 0.5f;
-
-static int shadow_id = 0;
-static int use_shadows = false;
+simple_shadow_params_t simple_shadows =
+{
+  0, 0,
+  -1, 0, 0,
+  80, 1000, 0.5f, 0.0044f
+};
 
 //===========================================================================
 // GL_PrepareLightTexture
@@ -57,29 +53,37 @@ void gld_InitShadows(void)
 {
   int lump;
   
-  use_shadows = false;
+  simple_shadows.loaded = false;
+
+  simple_shadows.tex_id = -1;
+  simple_shadows.width = 0;
+  simple_shadows.height = 0;
+
+  simple_shadows.max_radius = 80;
+  simple_shadows.max_dist = 1000;
+  simple_shadows.factor = 0.5f;
+  simple_shadows.bias = 0.0044f;
   
   lump = (W_CheckNumForName)("GLSHADOW", ns_prboom);
   if (lump != -1)
   {
-    int i;
-    unsigned char *buffer, *pixel;
     const unsigned char *data = W_CacheLumpNum(lump);
+    SDL_PixelFormat fmt;
+    SDL_Surface *surf = NULL;
+    surf = SDL_LoadBMP_RW(SDL_RWFromMem((unsigned char *)data, W_LumpLength(lump)), 1);
+    W_UnlockLumpNum(lump);
 
-    glGenTextures(1, &shadow_id);
-    glBindTexture(GL_TEXTURE_2D, shadow_id);
+    fmt = *surf->format;
+    fmt.BitsPerPixel = 24;
+    fmt.BytesPerPixel = 3;
 
-    // No mipmapping or resizing is needed, upload directly.
-    buffer = calloc(64 * 64, 4);
-    if (buffer)
+    surf = SDL_ConvertSurface(surf, &fmt, surf->flags);
+    if (surf)
     {
-      pixel = buffer;
-      for(i = 0; i < 64 * 64; i++, pixel += 3)
-      {
-        pixel[0] = pixel[1] = pixel[2] = data[i];
-      }
+      glGenTextures(1, &simple_shadows.tex_id);
+      glBindTexture(GL_TEXTURE_2D, simple_shadows.tex_id);
 
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, 64, 64, 0, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, surf->w, surf->h, 0, GL_RGB, GL_UNSIGNED_BYTE, surf->pixels);
 
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -88,14 +92,15 @@ void gld_InitShadows(void)
       if (gl_ext_texture_filter_anisotropic)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)(1<<gl_texture_filter_anisotropic));
 
-      use_shadows = true;
+      simple_shadows.loaded = true;
+      simple_shadows.width = surf->w;
+      simple_shadows.height = surf->h;
 
-      free(buffer);
+      SDL_FreeSurface(surf);
     }
-    W_UnlockLumpNum(lump);
   }
 
-  if (gl_shadows && !use_shadows)
+  if (simple_shadows.enable && !simple_shadows.loaded)
   {
     lprintf(LO_INFO, "gld_InitShadows: failed to initialise shadow texture");
   }
@@ -131,7 +136,7 @@ void gld_ProcessThingShadow(mobj_t *mo)
   int radius, z;
   GLShadow shadow;
 
-  if (!gl_shadows || !use_shadows)
+  if (!simple_shadows.enable || !simple_shadows.loaded)
     return;
 
   if (mo->flags & (MF_SHADOW|MF_NOBLOCKMAP|MF_NOSECTOR))
@@ -142,7 +147,7 @@ void gld_ProcessThingShadow(mobj_t *mo)
 
   // Is this too far?
   dist = P_AproxDistance((mo->x >> 16) - (viewx >> 16), (mo->y >> 16) - (viewy >> 16));
-  if (dist > gl_shadow_max_dist)
+  if (dist > simple_shadows.max_dist)
     return;
 
   // Check the height.
@@ -166,7 +171,7 @@ void gld_ProcessThingShadow(mobj_t *mo)
 
   // Calculate the strength of the shadow.
 
-  shadow.light = gl_shadow_factor * sec->lightlevel / 255.0f;
+  shadow.light = simple_shadows.factor * sec->lightlevel / 255.0f;
   
   halfmoh = moh * 0.5f;
   if(height > halfmoh)
@@ -183,8 +188,8 @@ void gld_ProcessThingShadow(mobj_t *mo)
   radius = mo->info->radius >> 16;
   if (radius > mo->patch_width >> 1)
     radius = mo->patch_width >> 1;
-  if(radius > gl_shadow_max_radius)
-    radius = gl_shadow_max_radius;
+  if(radius > simple_shadows.max_radius)
+    radius = simple_shadows.max_radius;
   if(!radius)
     return;
 
@@ -203,7 +208,7 @@ void gld_RenderShadows(void)
 {
   int i;
 
-  if (!gl_shadows || !use_shadows)
+  if (!simple_shadows.enable || !simple_shadows.loaded)
     return;
 
   if (gld_drawinfo.num_items[GLDIT_SHADOW] <= 0)
@@ -211,12 +216,12 @@ void gld_RenderShadows(void)
 
   if (!gl_ztrick)
   {
-    glDepthRange(SHADOWBIAS, 1);
+    glDepthRange(simple_shadows.bias, 1);
   }
   glDepthMask(GL_FALSE);
   glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
 
-  glBindTexture(GL_TEXTURE_2D, shadow_id);
+  glBindTexture(GL_TEXTURE_2D, simple_shadows.tex_id);
   gld_ResetLastTexture();
 
   for (i = gld_drawinfo.num_items[GLDIT_SHADOW] - 1; i >= 0; i--)

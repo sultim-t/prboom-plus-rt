@@ -896,7 +896,7 @@ default_t defaults[] =
    def_int,ss_none},
   {"gl_color_mip_levels", {&gl_color_mip_levels},  {0},0,1,
    def_bool,ss_stat},
-  {"gl_shadows", {&gl_shadows},  {0},0,1,
+  {"gl_shadows", {&simple_shadows.enable},  {0},0,1,
    def_bool,ss_stat},
 #endif
   {"Prboom-plus emulation settings",{NULL},{0},UL,UL,def_none,ss_none},
