@@ -203,7 +203,10 @@ void gld_RenderShadows(void)
   if (gld_drawinfo.num_items[GLDIT_SHADOW] <= 0)
     return;
 
-  glDepthRange(SHADOWBIAS, 1);
+  if (!gl_ztrick)
+  {
+    glDepthRange(SHADOWBIAS, 1);
+  }
   glDepthMask(GL_FALSE);
   glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
 
@@ -215,7 +218,10 @@ void gld_RenderShadows(void)
     gld_DrawShadow(gld_drawinfo.items[GLDIT_SHADOW][i].item.shadow);
   }
 
-  glDepthRange(0, 1);
+  if (!gl_ztrick)
+  {
+    glDepthRange(0, 1);
+  }
   glDepthMask(GL_TRUE);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
