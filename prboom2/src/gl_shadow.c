@@ -36,6 +36,7 @@
 #include "p_maputl.h"
 #include "w_wad.h"
 #include "r_bsp.h"
+#include "r_sky.h"
 #include "lprintf.h"
 
 simple_shadow_params_t simple_shadows =
@@ -139,7 +140,15 @@ void gld_ProcessThingShadow(mobj_t *mo)
   if (!simple_shadows.enable || !simple_shadows.loaded)
     return;
 
+  // Should this mobj have a shadow?
   if (mo->flags & (MF_SHADOW|MF_NOBLOCKMAP|MF_NOSECTOR))
+    return;
+
+  if (mo->frame & FF_FULLBRIGHT)
+    return;
+  
+  // Don't render mobj shadows on sky floors.
+  if (mo->subsector->sector->floorpic == skyflatnum)
     return;
 
   if (sectorloops[sec->iSectorID].loopcount <= 0)
@@ -218,6 +227,7 @@ void gld_RenderShadows(void)
   {
     glDepthRange(simple_shadows.bias, 1);
   }
+
   glDepthMask(GL_FALSE);
   glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
 
@@ -233,6 +243,7 @@ void gld_RenderShadows(void)
   {
     glDepthRange(0, 1);
   }
+
   glDepthMask(GL_TRUE);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
