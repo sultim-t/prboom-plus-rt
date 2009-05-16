@@ -883,6 +883,7 @@ int gld_HiRes_BuildTables(void)
       struct stat RGB24to8_stat;
       memset(&RGB24to8_stat, 0, sizeof(RGB24to8_stat));
       stat(RGB2PAL_fname, &RGB24to8_stat);
+      size = 0;
       if (RGB24to8_stat.st_size == RGB2PAL_size)
       {
         I_FileToBuffer(RGB2PAL_fname, &RGB2PAL, &size);

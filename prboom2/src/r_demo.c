@@ -598,7 +598,6 @@ static void R_DemoEx_AddParams(wadtbl_t *wadtbl)
   int p;
   char buf[200];
 
-  byte* wadfiles_p = NULL;
   char* filename_p;
   char* fileext_p;
 
@@ -810,8 +809,6 @@ byte* G_GetDemoFooter(const char *filename, byte** footer, size_t *size)
 
 void G_SetDemoFooter(const char *filename, wadtbl_t *wadtbl)
 {
-  byte* result = NULL;
-
   int hfile;
   byte *buffer = NULL;
   byte *demoex_p = NULL;

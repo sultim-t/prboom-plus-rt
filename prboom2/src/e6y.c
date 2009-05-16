@@ -362,7 +362,6 @@ void e6y_InitCommandLine(void)
     char *demoname = NULL;
     char *filename = NULL;
     const char *lumpname;
-    int result = 0;
 
     demoname = I_FindFile(myargv[p + 1], ".lmp");
     filename = I_FindFile(myargv[p + 2], ".txt");

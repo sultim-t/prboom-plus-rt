@@ -1104,6 +1104,7 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
       L_FillGameList();
       L_FillHistoryList();
 
+      i = -1;
       if (launcher_params)
       {
         WadDataInit(&data);

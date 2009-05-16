@@ -92,7 +92,7 @@ static void scale2x ( unsigned int* inputBuffer, unsigned int* outputBuffer, int
 {
   int i, j;
   const int width = 2* inWidth;
-  const int height = 2 * inHeight;
+  //const int height = 2 * inHeight;
 
   for ( i = 0; i < inWidth; ++i )
   {
@@ -102,15 +102,15 @@ static void scale2x ( unsigned int* inputBuffer, unsigned int* outputBuffer, int
     {
       const int jMinus = (j > 0) ? (j-1) : 0;
       const int jPlus = (j < inHeight - 1 ) ? (j+1) : j;
-      const unsigned int A = inputBuffer[ iMinus +inWidth*jMinus];
+      //const unsigned int A = inputBuffer[ iMinus +inWidth*jMinus];
       const unsigned int B = inputBuffer[ iMinus +inWidth*j    ];
-      const unsigned int C = inputBuffer[ iMinus +inWidth*jPlus];
+      //const unsigned int C = inputBuffer[ iMinus +inWidth*jPlus];
       const unsigned int D = inputBuffer[ i     +inWidth*jMinus];
       const unsigned int E = inputBuffer[ i     +inWidth*j    ];
       const unsigned int F = inputBuffer[ i     +inWidth*jPlus];
-      const unsigned int G = inputBuffer[ iPlus +inWidth*jMinus];
+      //const unsigned int G = inputBuffer[ iPlus +inWidth*jMinus];
       const unsigned int H = inputBuffer[ iPlus +inWidth*j    ];
-      const unsigned int I = inputBuffer[ iPlus +inWidth*jPlus];
+      //const unsigned int I = inputBuffer[ iPlus +inWidth*jPlus];
       if (B != H && D != F) {
         outputBuffer[2*i   + width*2*j    ] = D == B ? D : E;
         outputBuffer[2*i   + width*(2*j+1)] = B == F ? F : E;
@@ -130,7 +130,7 @@ static void scale3x ( unsigned int* inputBuffer, unsigned int* outputBuffer, int
 {
   int i, j;
   const int width = 3* inWidth;
-  const int height = 3 * inHeight;
+  //const int height = 3 * inHeight;
 
   for ( i = 0; i < inWidth; ++i )
   {

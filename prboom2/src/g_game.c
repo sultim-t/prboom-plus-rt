@@ -1100,7 +1100,7 @@ void G_ChangedPlayerColour(int pn, int cl)
   for (i=0; i<MAXPLAYERS; i++) {
     if ((gamestate == GS_LEVEL) && playeringame[i] && (players[i].mo != NULL)) {
       players[i].mo->flags &= ~MF_TRANSLATION;
-      players[i].mo->flags |= playernumtotrans[i] << MF_TRANSSHIFT;
+      players[i].mo->flags |= ((uint_64_t)playernumtotrans[i]) << MF_TRANSSHIFT;
     }
   }
 }
@@ -2404,8 +2404,7 @@ void G_InitNew(skill_t skill, int episode, int map)
 
 void G_ReadOneTick(ticcmd_t* cmd, const byte **data_p)
 {
-  unsigned char at; // e6y: for tasdoom demo format
-  const byte *p = *data_p;
+  unsigned char at = 0; // e6y: for tasdoom demo format
 
   cmd->forwardmove = (signed char)(*(*data_p)++);
   cmd->sidemove = (signed char)(*(*data_p)++);
@@ -2493,69 +2492,99 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
 
 void G_RecordDemo (const char* name)
 {
-  char     demoname[PATH_MAX];
+  char demoname[PATH_MAX];
   usergame = false;
   AddDefaultExtension(strcpy(demoname, name), ".lmp");  // 1/18/98 killough
   demorecording = true;
+  
   /* cph - Record demos straight to file
-   * If file already exists, try to continue existing demo
-   */
-  if (access(demoname, F_OK)||democontinue||demo_compatibility) {//e6ye6y
+  * If file already exists, try to continue existing demo
+  */
+
+  demofp = NULL;
+  if (access(demoname, F_OK) || democontinue ||
+     (demo_compatibility && demo_overwriteexisting))
+  {
     demofp = fopen(demoname, "wb");
-  } else {
-    demofp = fopen(demoname, "rb+");//e6y
-    if (demofp) {
+  }
+  else
+  {
+    if (demo_compatibility && !demo_overwriteexisting)
+    {
+      I_Error("G_RecordDemo: file %s already exists", name);
+    }
+
+    demofp = fopen(demoname, "rb+");
+    if (demofp)
+    {
       int slot = -1;
-      int rc;
-      int bytes_per_tic;
       const byte* pos;
+      byte buf[200];
+      size_t len;
 
       //e6y: save all data which can be changed by G_ReadDemoHeader
       G_SaveRestoreGameOptions(true);
 
-      { /* Read the demo header for options etc */
-        byte buf[200];
-        size_t len = fread(buf, 1, sizeof(buf), demofp);
-        pos = G_ReadDemoHeader(buf, len);
-        if (pos)
+      /* Read the demo header for options etc */
+      len = fread(buf, 1, sizeof(buf), demofp);
+      pos = G_ReadDemoHeader(buf, len);
+      if (pos)
+      {
+        int rc;
+        int bytes_per_tic = longtics ? 5 : 4;
+
+        fseek(demofp, pos - buf, SEEK_SET);
+
+        /* Now read the demo to find the last save slot */
+        do
         {
-          fseek(demofp, pos - buf, SEEK_SET);
+          byte buf[5];
+
+          rc = fread(buf, 1, bytes_per_tic, demofp);
+          if (buf[0] == DEMOMARKER || rc < bytes_per_tic-1)
+          {
+            break;
+          }
+
+          if (buf[bytes_per_tic-1] & BT_SPECIAL)
+          {
+            if ((buf[bytes_per_tic-1] & BT_SPECIALMASK) == BTS_SAVEGAME)
+            {
+              slot = (buf[bytes_per_tic-1] & BTS_SAVEMASK)>>BTS_SAVESHIFT;
+            }
+          }
+        }
+        while (rc == bytes_per_tic);
+
+        if (slot != -1)
+        {
+          /* Return to the last save position, and load the relevant savegame */
+          fseek(demofp, -rc, SEEK_CUR);
+          G_LoadGame(slot, false);
+          autostart = false;
+          return;
         }
       }
-      bytes_per_tic = longtics ? 5 : 4;
-    if (pos)
-      /* Now read the demo to find the last save slot */
-      do {
-        byte buf[5];
-      
-        rc = fread(buf, 1, bytes_per_tic, demofp);
-        if (buf[0] == DEMOMARKER) break;
-        if (buf[bytes_per_tic-1] & BT_SPECIAL)
-          if ((buf[bytes_per_tic-1] & BT_SPECIALMASK) == BTS_SAVEGAME)
-            slot = (buf[bytes_per_tic-1] & BTS_SAVEMASK)>>BTS_SAVESHIFT;
-      } while (rc == bytes_per_tic);
 
-      //e6y
-      if (slot == -1 && demo_overwriteexisting)
+      //demo cannot be continued
+      fclose(demofp);
+      if (demo_overwriteexisting)
       {
         //restoration of all data which could be changed by G_ReadDemoHeader
         G_SaveRestoreGameOptions(false);
-
-        fclose(demofp);
         demofp = fopen(demoname, "wb");
-        goto l_end;
       }
-
-      if (slot == -1) I_Error("G_RecordDemo: No save in demo, can't continue");
-
-      /* Return to the last save position, and load the relevant savegame */
-      fseek(demofp, -rc, SEEK_CUR);
-      G_LoadGame(slot, false);
-      autostart = false;
+      else
+      {
+        I_Error("G_RecordDemo: No save in demo, can't continue");
+      }
     }
   }
-l_end: //e6y
-  if (!demofp) I_Error("G_RecordDemo: failed to open %s", name);
+
+  if (!demofp)
+  {
+    I_Error("G_RecordDemo: failed to open %s", name);
+  }
 }
 
 // These functions are used to read and write game-specific options in demos
@@ -2749,7 +2778,7 @@ void G_BeginRecording (void)
   /* cph - 3 demo record formats supported: MBF+, BOOM, and Doom v1.9 */
   if (mbf_features) {
     { /* Write version code into demo */
-      unsigned char v;
+      unsigned char v = 0;
       switch(compatibility_level) {
         case mbf_compatibility: v = 203; break; // e6y: Bug in MBF compatibility mode fixed
         case prboom_2_compatibility: v = 210; break;
@@ -2760,6 +2789,7 @@ void G_BeginRecording (void)
 				     v = 214; 
 				     longtics = 1;
 				     break;
+        default: I_Error("G_BeginRecording: PrBoom compatibility level unrecognised?");
       }
       *demo_p++ = v;
     }
@@ -2796,7 +2826,7 @@ void G_BeginRecording (void)
 
   // FIXME } else if (compatibility_level >= boom_compatibility_compatibility) { //e6y
   } else if (compatibility_level > boom_compatibility_compatibility) {
-    byte v, c; /* Nominally, version and compatibility bits */
+    byte v = 0, c = 0; /* Nominally, version and compatibility bits */
     switch (compatibility_level) {
     case boom_compatibility_compatibility: v = 202, c = 1; break;
     case boom_201_compatibility: v = 201; c = 0; break;
@@ -3291,7 +3321,6 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
   // e6y
   // additional params
   {
-    int i;
     const byte *p = demo_p;
 
     bytes_per_tic = (longtics ? 5 : 4);

@@ -1216,7 +1216,7 @@ void M_LoadDefaults (void)
   int   len;
   FILE* f;
   char  def[80];
-  char  strparm[32767];//e6y
+  char* strparm = malloc(32768);//e6y
   char* newstring = NULL;   // killough
   int   parm;
   dboolean isstring;
@@ -1294,6 +1294,7 @@ void M_LoadDefaults (void)
     while (!feof(f))
       {
       isstring = false;
+      parm = 0;
       if (fscanf (f, "%79s %[^\n]\n", def, strparm) == 2)
         {
 
@@ -1390,6 +1391,9 @@ void M_LoadDefaults (void)
 
     fclose (f);
     }
+
+  free(strparm);
+
   //jff 3/4/98 redundant range checks for hud deleted here
   /* proff 2001/7/1 - added prboom.wad as last entry so it's always loaded and
      doesn't overlap with the cfg settings */
