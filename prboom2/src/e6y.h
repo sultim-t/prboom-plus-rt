@@ -231,7 +231,12 @@ void M_MouseAccel(int choice);
 void M_ChangeCompTranslucency(void);
 void CheckPitch(signed int *pitch);
 void I_Init2(void);
+
+#ifdef GL_DOOM
 dboolean GetMouseLook(void);
+#else
+#define GetMouseLook() (0)
+#endif
 
 extern float viewPitch;
 extern dboolean transparentpresent;

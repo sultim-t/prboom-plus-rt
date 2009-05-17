@@ -550,10 +550,12 @@ void M_ChangeInterlacedScanning(void)
     interlaced_scanning_requires_clearing = 1;
 }
 
+#ifdef GL_DOOM
 dboolean GetMouseLook(void)
 {
   return movement_mouselook;
 }
+#endif
 
 void CheckPitch(signed int *pitch)
 {

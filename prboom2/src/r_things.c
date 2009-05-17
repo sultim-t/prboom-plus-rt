@@ -512,7 +512,9 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   fixed_t gxt, gyt;
   fixed_t tz;
   int width;
+#ifdef GL_DOOM
   dboolean mlook = GetMouseLook() || (render_fov > FOV90);
+#endif
 
   if (movement_smooth)
   {
@@ -545,11 +547,13 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   tx = -(gyt+gxt);
 
 //e6y
+#ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL && !render_paperitems && mlook)
   {
     if (tz >= MINZ && (D_abs(tx)>>5) > tz)
       return;
   } else
+#endif
 
   // too far off the side?
   if (D_abs(tx)>(tz<<2))
@@ -613,13 +617,16 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   }
 
   // off the side?
+#ifdef GL_DOOM
   if(!mlook)//e6y
+#endif
   if (x1 > viewwidth || x2 < 0)
     return;
 
   // killough 4/9/98: clip things which are out of view due to height
+#ifdef GL_DOOM
   if(!GetMouseLook() && render_fov <= FOV90)//e6y
-
+#endif
   // e6y: fix of hanging decoration disappearing in Batman Doom MAP02
   // centeryfrac -> viewheightfrac
   if (fz  > viewz + FixedDiv(viewheightfrac, xscale) ||

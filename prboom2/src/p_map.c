@@ -650,11 +650,11 @@ static dboolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
   // RjY
   // comperr_hangsolid, an attempt to handle blocking hanging bodies
   // A solid hanging body will allow sufficiently small things underneath it.
-  if (!((~thing->flags) & (MF_SOLID | MF_SPAWNCEILING)) // solid and hanging
+  if (compbad_get(&comperr_hangsolid) &&
+      !((~thing->flags) & (MF_SOLID | MF_SPAWNCEILING)) // solid and hanging
       // invert everything, then both bits should be clear
-      && tmthing->z + tmthing->height <= thing->z // head height <= base
+      && tmthing->z + tmthing->height <= thing->z) // head height <= base
       // top of thing trying to move under the body <= bottom of body
-      && compbad_get(&comperr_hangsolid))
   {
     tmceilingz = thing->z; // pretend ceiling height is at body's base
     return true;
