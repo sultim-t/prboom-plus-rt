@@ -247,8 +247,9 @@ extern dboolean transparentpresent;
 void R_ClearClipSegs (void);
 void R_RenderBSPNode(int bspnum);
 
-void e6y_MultisamplingCheck(void);
-void e6y_MultisamplingSet(void);
+void gld_MultisamplingSet(void);
+void gld_MultisamplingCheck(void);
+void gld_MultisamplingInit(void);
 
 typedef struct prboom_comp_s
 {

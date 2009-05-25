@@ -1090,7 +1090,7 @@ void I_UpdateVideoMode(void)
     SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, (gl_vsync ? 1 : 0));
 
     //e6y: anti-aliasing
-    e6y_MultisamplingSet();
+    gld_MultisamplingInit();
 
     screen = SDL_SetVideoMode(REAL_SCREENWIDTH, REAL_SCREENHEIGHT, gl_colorbuffer_bits, init_flags);
     gld_CheckHardwareGamma();
@@ -1106,7 +1106,7 @@ void I_UpdateVideoMode(void)
     I_Error("Couldn't set %dx%d video mode [%s]", REAL_SCREENWIDTH, REAL_SCREENHEIGHT, SDL_GetError());
   }
   if (V_GetMode() == VID_MODEGL)
-    e6y_MultisamplingCheck();//e6y
+    gld_MultisamplingCheck();//e6y
 
   lprintf(LO_INFO, "I_UpdateVideoMode: 0x%x, %s, %s\n", init_flags, screen->pixels ? "SDL buffer" : "own buffer", SDL_MUSTLOCK(screen) ? "lock-and-copy": "direct access");
 

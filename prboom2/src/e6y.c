@@ -708,7 +708,25 @@ void M_DemosBrowse(void)
 float viewPitch;
 dboolean transparentpresent;
 
-void e6y_MultisamplingCheck(void)
+void gld_MultisamplingSet(void)
+{
+#ifdef GL_DOOM
+  if (render_multisampling)
+  {
+    int viewactive = (!(automapmode & am_active) || (automapmode & am_overlay));
+
+    if (viewactive)
+    {
+      glEnable(GL_MULTISAMPLE_ARB);
+    }
+    else
+    {
+      glDisable(GL_MULTISAMPLE_ARB);
+    }
+  }
+#endif //GL_DOOM
+}
+void gld_MultisamplingCheck(void)
 {
 #ifdef GL_DOOM
   if (render_multisampling)
@@ -728,7 +746,7 @@ void e6y_MultisamplingCheck(void)
 #endif //GL_DOOM
 }
 
-void e6y_MultisamplingSet(void)
+void gld_MultisamplingInit(void)
 {
 #ifdef GL_DOOM
   if (render_multisampling)

@@ -1655,6 +1655,9 @@ void gld_StartDrawScene(void)
   extern int screenblocks;
   int height;
 
+  // do not use multisampling in automap mode
+  gld_MultisamplingSet();
+
   if (gl_shared_texture_palette)
     glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
   gld_SetPalette(-1);
