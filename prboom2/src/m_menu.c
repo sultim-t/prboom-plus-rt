@@ -4493,10 +4493,7 @@ dboolean M_Responder (event_t* ev) {
           sprintf(str, "Gamma correction level %d", useglgamma); 
           players[consoleplayer].message = str; 
 
-          if (gl_lightmode == gl_lightmode_gzdoom)
-          {
-            gld_SetGammaRamp(useglgamma);
-          }
+          gld_SetGammaRamp(useglgamma);
         }
         else
 #endif

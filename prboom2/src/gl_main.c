@@ -1681,7 +1681,9 @@ void gld_StartDrawScene(void)
   inv_yaw=180.0f-yaw;
 
   //e6y: fog in frame
-  gl_use_fog = !gl_compatibility && gl_fog && !frame_fixedcolormap && !boom_cm;
+  gl_use_fog = !gl_compatibility &&
+    (gl_fog || gl_lightmode == gl_lightmode_fogbased) &&
+    !frame_fixedcolormap && !boom_cm;
 
 //e6y
   mlook_or_fov = GetMouseLook() || (render_fov != FOV90);
@@ -2262,7 +2264,7 @@ void gld_AddWall(seg_t *seg)
   else
     rellight = seg->linedef->dx==0? +(1<<LIGHTSEGSHIFT) : seg->linedef->dy==0 ? -(1<<LIGHTSEGSHIFT) : 0;
   wall.light=gld_CalcLightLevel(frontsector->lightlevel+rellight+(extralight<<5));
-  wall.fogdensity = gld_CalcFogDensity(frontsector, frontsector->lightlevel);
+  wall.fogdensity = gld_CalcFogDensity(frontsector, frontsector->lightlevel+rellight);
   wall.alpha=1.0f;
   wall.gltexture=NULL;
   wall.seg = seg; //e6y
@@ -2834,10 +2836,16 @@ void gld_AddSprite(vissprite_t *vspr)
   float voff,hoff;
 
   sprite.scale=vspr->scale;
-  if (pSpr->frame & FF_FULLBRIGHT)
+  if ((pSpr->frame & FF_FULLBRIGHT) || show_alive)
+  {
+    sprite.fogdensity = 0.0f;
     sprite.light = 1.0f;
+  }
   else
+  {
+    sprite.fogdensity = gld_CalcFogDensity(pSpr->subsector->sector, pSpr->subsector->sector->lightlevel);
     sprite.light = gld_CalcLightLevel(pSpr->subsector->sector->lightlevel+(extralight<<5));
+  }
   sprite.cm=CR_LIMIT+(int)((pSpr->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
   sprite.gltexture=gld_RegisterPatch(vspr->patch+firstspritelump,sprite.cm);
   if (!sprite.gltexture)
@@ -3035,7 +3043,7 @@ void gld_DrawScene(player_t *player)
   gld_DrawItemsSortByTexture(GLDIT_FLOOR);
   for (i = gld_drawinfo.num_items[GLDIT_FLOOR] - 1; i >= 0; i--)
   {
-    gld_SetFog(gld_drawinfo.items[GLDIT_FLOOR][i].item.flat->fogdensity);
+    gld_SetFog(gld_drawinfo.items[GLDIT_FLOOR][i].item.flat->fogdensity * 2);
     gld_DrawFlat(gld_drawinfo.items[GLDIT_FLOOR][i].item.flat);
   }
 
@@ -3044,7 +3052,7 @@ void gld_DrawScene(player_t *player)
   gld_DrawItemsSortByTexture(GLDIT_CEILING);
   for (i = gld_drawinfo.num_items[GLDIT_CEILING] - 1; i >= 0; i--)
   {
-    gld_SetFog(gld_drawinfo.items[GLDIT_CEILING][i].item.flat->fogdensity);
+    gld_SetFog(gld_drawinfo.items[GLDIT_CEILING][i].item.flat->fogdensity * 2);
     gld_DrawFlat(gld_drawinfo.items[GLDIT_CEILING][i].item.flat);
   }
 
@@ -3151,6 +3159,7 @@ void gld_DrawScene(player_t *player)
   gld_DrawItemsSortByTexture(GLDIT_SPRITE);
   for (i = gld_drawinfo.num_items[GLDIT_SPRITE] - 1; i >= 0; i--)
   {
+    gld_SetFog(gld_drawinfo.items[GLDIT_SPRITE][i].item.sprite->fogdensity);
     gld_DrawSprite(gld_drawinfo.items[GLDIT_SPRITE][i].item.sprite);
   }
 

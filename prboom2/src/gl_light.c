@@ -41,12 +41,13 @@
 #include <math.h>
 
 #include "doomstat.h"
+#include "lprintf.h"
 #include "v_video.h"
 #include "gl_intern.h"
 #include "e6y.h"
 
 gl_lightmode_t gl_lightmode;
-const char *gl_lightmodes[] = {"glboom", "gzdoom"};
+const char *gl_lightmodes[] = {"glboom", "gzdoom", "fog based"};
 int gl_light_ambient;
 
 int gl_fog;
@@ -56,7 +57,7 @@ int gl_fog_color;
 int gl_fogenabled;
 int gl_distfog = 70;
 float gl_CurrentFogDensity = -1.0f;
-float distfogtable[2][256];
+float distfogtable[3][256];
 
 typedef void (*gld_InitLightTable_f)(void);
 
@@ -69,21 +70,27 @@ typedef struct
 
 static float lighttable_glboom[5][256];
 static float lighttable_gzdoom[256];
+static float lighttable_fogbased[256];
 
 static void gld_InitLightTable_glboom(void);
 static void gld_InitLightTable_gzdoom(void);
+static void gld_InitLightTable_fogbased(void);
 
 static float gld_CalcLightLevel_glboom(int lightlevel);
 static float gld_CalcLightLevel_gzdoom(int lightlevel);
+static float gld_CalcLightLevel_fogbased(int lightlevel);
 
 static float gld_CalcFogDensity_glboom(sector_t *sector, int lightlevel);
 static float gld_CalcFogDensity_gzdoom(sector_t *sector, int lightlevel);
+static float gld_CalcFogDensity_fogbased(sector_t *sector, int lightlevel);
 
 static GLLight gld_light[gl_lightmode_last] = {
   //gl_lightmode_glboom
   {gld_InitLightTable_glboom, gld_CalcLightLevel_glboom, gld_CalcFogDensity_glboom},
   //gl_lightmode_gzdoom
   {gld_InitLightTable_gzdoom, gld_CalcLightLevel_gzdoom, gld_CalcFogDensity_gzdoom},
+  //gl_lightmode_fogbased
+  {gld_InitLightTable_fogbased, gld_CalcLightLevel_fogbased, gld_CalcFogDensity_fogbased},
 };
 
 gld_CalcLightLevel_f gld_CalcLightLevel = gld_CalcLightLevel_glboom;
@@ -91,6 +98,13 @@ gld_CalcFogDensity_f gld_CalcFogDensity = gld_CalcFogDensity_glboom;
 
 void M_ChangeLightMode(void)
 {
+  if (gl_compatibility && gl_lightmode == gl_lightmode_fogbased)
+  {
+
+    gl_lightmode = gl_lightmode_glboom;
+    lprintf(LO_INFO, "M_ChangeLightMode: \"Fog Based\" sector light mode is not allowed in gl_compatibility mode\n");
+  }
+
   gld_CalcLightLevel = gld_light[gl_lightmode].GetLight;
   gld_CalcFogDensity = gld_light[gl_lightmode].GetFog;
 
@@ -101,6 +115,11 @@ void M_ChangeLightMode(void)
   }
 
   if (gl_lightmode == gl_lightmode_gzdoom)
+  {
+    gld_SetGammaRamp(useglgamma);
+  }
+
+  if (gl_lightmode == gl_lightmode_fogbased)
   {
     gld_SetGammaRamp(useglgamma);
   }
@@ -156,6 +175,22 @@ static void gld_InitLightTable_gzdoom(void)
   }
 }
 
+static void gld_InitLightTable_fogbased(void)
+{
+  int i;
+  float light;
+
+  for (i = 0; i < 256; i++)
+  {
+    if (i < 192) 
+      light = (float)255;
+    else
+      light = (float)i;
+
+    lighttable_fogbased[i] = light / 255.0f;
+  }
+}
+
 static float gld_CalcLightLevel_glboom(int lightlevel)
 {
   return lighttable_glboom[usegamma][BETWEEN(0, 255, lightlevel)];
@@ -164,6 +199,14 @@ static float gld_CalcLightLevel_glboom(int lightlevel)
 static float gld_CalcLightLevel_gzdoom(int lightlevel)
 {
   return lighttable_gzdoom[BETWEEN(0, 255, lightlevel)];
+}
+
+static float gld_CalcLightLevel_fogbased(int lightlevel)
+{
+  if (players[displayplayer].fixedcolormap)
+    return lighttable_gzdoom[BETWEEN(0, 255, lightlevel)];
+  else
+    return lighttable_fogbased[BETWEEN(0, 255, lightlevel)];
 }
 
 void gld_StaticLightAlpha(float light, float alpha)
@@ -212,7 +255,7 @@ void M_ChangeAllowFog(void)
 
   glFogi (GL_FOG_MODE, GL_EXP);
   glFogfv(GL_FOG_COLOR, FogColor);
-  glHint (GL_FOG_HINT, GL_FASTEST);
+  glHint (GL_FOG_HINT, GL_NICEST);
 
   gl_CurrentFogDensity = -1;
 
@@ -246,6 +289,25 @@ void M_ChangeAllowFog(void)
     {
       distfogtable[1][i] = 0.0f;
     }
+
+    if (i <= 128)
+    {
+      distfogtable[2][i] = (float)(1<<16) / (float)pow(1.46f, ((float)i / 8.0f));
+      if (distfogtable[2][i] > 2048)
+        distfogtable[2][i] = 2048;
+    }
+    else if (i < 192)
+    {											    
+      distfogtable[2][i] = (float)(1<<13) / (float)pow(1.30f, ((float)i / 8.0f));
+    }
+    else if (i < 216)
+    {											    
+      distfogtable[2][i] = (216.0f - i) / ((216.0f - 128.0f)) * gl_distfog / 10;
+    }
+    else
+    {
+      distfogtable[2][i] = 0.0f;
+    }
   }
 }
 
@@ -263,8 +325,16 @@ static float gld_CalcFogDensity_gzdoom(sector_t *sector, int lightlevel)
   }
   else
   {
-    return distfogtable[1][lightlevel];
+    return distfogtable[1][BETWEEN(0, 255, lightlevel)];
   }
+}
+
+static float gld_CalcFogDensity_fogbased(sector_t *sector, int lightlevel)
+{
+  if (players[displayplayer].fixedcolormap)
+    return 0;
+  else
+    return distfogtable[2][BETWEEN(0, 255, lightlevel)];
 }
 
 void gld_SetFog(float fogdensity)
@@ -274,7 +344,7 @@ void gld_SetFog(float fogdensity)
     gl_EnableFog(true);
     if (fogdensity != gl_CurrentFogDensity)
     {
-      glFogf(GL_FOG_DENSITY, fogdensity / 1024.0f);
+      glFogf(GL_FOG_DENSITY, fogdensity / 512.0f);
       gl_CurrentFogDensity = fogdensity;
     }
   }
