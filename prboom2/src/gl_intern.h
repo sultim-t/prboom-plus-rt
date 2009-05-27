@@ -398,7 +398,7 @@ extern int gl_fog;
 extern int gl_use_fog;
 void gl_EnableFog(int on);
 void gld_SetFog(float fogdensity);
-typedef float (*gld_CalcFogDensity_f)(sector_t *sector, int lightlevel);
+typedef float (*gld_CalcFogDensity_f)(sector_t *sector, int lightlevel, GLDrawItemType type);
 gld_CalcFogDensity_f gld_CalcFogDensity;
 
 //HQ resize

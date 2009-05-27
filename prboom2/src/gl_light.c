@@ -80,9 +80,9 @@ static float gld_CalcLightLevel_glboom(int lightlevel);
 static float gld_CalcLightLevel_gzdoom(int lightlevel);
 static float gld_CalcLightLevel_fogbased(int lightlevel);
 
-static float gld_CalcFogDensity_glboom(sector_t *sector, int lightlevel);
-static float gld_CalcFogDensity_gzdoom(sector_t *sector, int lightlevel);
-static float gld_CalcFogDensity_fogbased(sector_t *sector, int lightlevel);
+static float gld_CalcFogDensity_glboom(sector_t *sector, int lightlevel, GLDrawItemType type);
+static float gld_CalcFogDensity_gzdoom(sector_t *sector, int lightlevel, GLDrawItemType type);
+static float gld_CalcFogDensity_fogbased(sector_t *sector, int lightlevel, GLDrawItemType type);
 
 static GLLight gld_light[gl_lightmode_last] = {
   //gl_lightmode_glboom
@@ -311,12 +311,12 @@ void M_ChangeAllowFog(void)
   }
 }
 
-static float gld_CalcFogDensity_glboom(sector_t *sector, int lightlevel)
+static float gld_CalcFogDensity_glboom(sector_t *sector, int lightlevel, GLDrawItemType type)
 {
   return 0;
 }
 
-static float gld_CalcFogDensity_gzdoom(sector_t *sector, int lightlevel)
+static float gld_CalcFogDensity_gzdoom(sector_t *sector, int lightlevel, GLDrawItemType type)
 {
   if ((!gl_use_fog) ||
     (sector && (sector->ceilingpic == skyflatnum || sector->floorpic == skyflatnum)))
@@ -329,12 +329,23 @@ static float gld_CalcFogDensity_gzdoom(sector_t *sector, int lightlevel)
   }
 }
 
-static float gld_CalcFogDensity_fogbased(sector_t *sector, int lightlevel)
+static float gld_CalcFogDensity_fogbased(sector_t *sector, int lightlevel, GLDrawItemType type)
 {
   if (players[displayplayer].fixedcolormap)
+  {
     return 0;
+  }
   else
-    return distfogtable[2][BETWEEN(0, 255, lightlevel)];
+  {
+    if (type == GLDIT_CEILING || type == GLDIT_FLOOR || type == GLDIT_FWALL)
+    {
+      return distfogtable[2][BETWEEN(0, 255, lightlevel)] * 2;
+    }
+    else
+    {
+      return distfogtable[2][BETWEEN(0, 255, lightlevel)];
+    }
+  }
 }
 
 void gld_SetFog(float fogdensity)

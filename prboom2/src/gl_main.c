@@ -2264,7 +2264,7 @@ void gld_AddWall(seg_t *seg)
   else
     rellight = seg->linedef->dx==0? +(1<<LIGHTSEGSHIFT) : seg->linedef->dy==0 ? -(1<<LIGHTSEGSHIFT) : 0;
   wall.light=gld_CalcLightLevel(frontsector->lightlevel+rellight+(extralight<<5));
-  wall.fogdensity = gld_CalcFogDensity(frontsector, frontsector->lightlevel+rellight);
+  wall.fogdensity = gld_CalcFogDensity(frontsector, frontsector->lightlevel+rellight, GLDIT_WALL);
   wall.alpha=1.0f;
   wall.gltexture=NULL;
   wall.seg = seg; //e6y
@@ -2702,7 +2702,7 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
       return;
     // get the lightlevel from floorlightlevel
     flat.light=gld_CalcLightLevel(plane->lightlevel+(extralight<<5));
-    flat.fogdensity = gld_CalcFogDensity(sector, plane->lightlevel);
+    flat.fogdensity = gld_CalcFogDensity(sector, plane->lightlevel, GLDIT_FLOOR);
     // calculate texture offsets
     flat.uoffs=(float)sector->floor_xoffs/(float)FRACUNIT;
     flat.voffs=(float)sector->floor_yoffs/(float)FRACUNIT;
@@ -2718,7 +2718,7 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
       return;
     // get the lightlevel from ceilinglightlevel
     flat.light=gld_CalcLightLevel(plane->lightlevel+(extralight<<5));
-    flat.fogdensity = gld_CalcFogDensity(sector, plane->lightlevel);
+    flat.fogdensity = gld_CalcFogDensity(sector, plane->lightlevel, GLDIT_CEILING);
     // calculate texture offsets
     flat.uoffs=(float)sector->ceiling_xoffs/(float)FRACUNIT;
     flat.voffs=(float)sector->ceiling_yoffs/(float)FRACUNIT;
@@ -2843,7 +2843,7 @@ void gld_AddSprite(vissprite_t *vspr)
   }
   else
   {
-    sprite.fogdensity = gld_CalcFogDensity(pSpr->subsector->sector, pSpr->subsector->sector->lightlevel);
+    sprite.fogdensity = gld_CalcFogDensity(pSpr->subsector->sector, pSpr->subsector->sector->lightlevel, GLDIT_SPRITE);
     sprite.light = gld_CalcLightLevel(pSpr->subsector->sector->lightlevel+(extralight<<5));
   }
   sprite.cm=CR_LIMIT+(int)((pSpr->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
@@ -3043,7 +3043,7 @@ void gld_DrawScene(player_t *player)
   gld_DrawItemsSortByTexture(GLDIT_FLOOR);
   for (i = gld_drawinfo.num_items[GLDIT_FLOOR] - 1; i >= 0; i--)
   {
-    gld_SetFog(gld_drawinfo.items[GLDIT_FLOOR][i].item.flat->fogdensity * 2);
+    gld_SetFog(gld_drawinfo.items[GLDIT_FLOOR][i].item.flat->fogdensity);
     gld_DrawFlat(gld_drawinfo.items[GLDIT_FLOOR][i].item.flat);
   }
 
@@ -3052,7 +3052,7 @@ void gld_DrawScene(player_t *player)
   gld_DrawItemsSortByTexture(GLDIT_CEILING);
   for (i = gld_drawinfo.num_items[GLDIT_CEILING] - 1; i >= 0; i--)
   {
-    gld_SetFog(gld_drawinfo.items[GLDIT_CEILING][i].item.flat->fogdensity * 2);
+    gld_SetFog(gld_drawinfo.items[GLDIT_CEILING][i].item.flat->fogdensity);
     gld_DrawFlat(gld_drawinfo.items[GLDIT_CEILING][i].item.flat);
   }
 
@@ -3099,7 +3099,7 @@ void gld_DrawScene(player_t *player)
         // calculation of fog density for flooded walls
         if (((wall->flag == GLDWF_TOPFLUD) || (wall->flag == GLDWF_BOTFLUD)) && (wall->seg->backsector))
         {
-          wall->fogdensity = gld_CalcFogDensity(frontsector, wall->seg->backsector->lightlevel);
+          wall->fogdensity = gld_CalcFogDensity(frontsector, wall->seg->backsector->lightlevel, GLDIT_FWALL);
         }
 
         gld_SetFog(wall->fogdensity);
