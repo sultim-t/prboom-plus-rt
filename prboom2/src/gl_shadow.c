@@ -33,6 +33,7 @@
 
 #include "gl_opengl.h"
 #include "gl_intern.h"
+#include "doomstat.h"
 #include "p_maputl.h"
 #include "w_wad.h"
 #include "r_bsp.h"
@@ -217,7 +218,7 @@ void gld_RenderShadows(void)
 {
   int i;
 
-  if (!simple_shadows.enable || !simple_shadows.loaded)
+  if (!simple_shadows.enable || !simple_shadows.loaded || players[displayplayer].fixedcolormap)
     return;
 
   if (gld_drawinfo.num_items[GLDIT_SHADOW] <= 0)
