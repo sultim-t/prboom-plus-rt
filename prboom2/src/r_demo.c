@@ -299,9 +299,12 @@ wadtbl_t* W_CreatePWADTable(const byte* buffer, size_t size)
   header_p->infotableofs = LittleLong(header_p->infotableofs);
 
   filelump_p = (filelump_t*)((char*)buffer + header_p->infotableofs);
-  for (i = 0; i < header_p->numlumps ; i++, filelump_p++)
+  for (i = 0; i < header_p->numlumps; i++, filelump_p++)
   {
-    W_AddLump(wadtbl, filelump_p->name, pwad_p + filelump_p->filepos, filelump_p->size);
+    char lumpname[9];
+    strncpy(lumpname, filelump_p->name, 8);
+    lumpname[8] = 0;
+    W_AddLump(wadtbl, lumpname, pwad_p + filelump_p->filepos, filelump_p->size);
   }
 
   return wadtbl;
@@ -809,7 +812,7 @@ byte* G_GetDemoFooter(const char *filename, byte** footer, size_t *size)
 
 void G_SetDemoFooter(const char *filename, wadtbl_t *wadtbl)
 {
-  int hfile;
+  FILE *hfile;
   byte *buffer = NULL;
   byte *demoex_p = NULL;
   size_t size;
@@ -822,27 +825,27 @@ void G_SetDemoFooter(const char *filename, wadtbl_t *wadtbl)
     strncpy(newfilename, filename, sizeof(newfilename) - 5);
     strcat(newfilename, ".out");
 
-    hfile = open(newfilename, O_CREAT | O_WRONLY | O_BINARY);
-    if (hfile != -1)
+    hfile = fopen(newfilename, "wb");
+    if (hfile)
     {
       int demosize = (demoex_p - buffer);
       int headersize = sizeof(wadtbl->header);
       int datasize = wadtbl->datasize;
       int lumpssize = wadtbl->header.numlumps * sizeof(wadtbl->lumps[0]);
-
-      write(hfile, buffer, demosize);
+  
+      fwrite(buffer, demosize, 1, hfile);
 
       //write pwad header, all data and lookup table to the end of a demo
       if (
-        write(hfile, &wadtbl->header, headersize) != headersize ||
-        write(hfile, wadtbl->data, datasize) != datasize ||
-        write(hfile, wadtbl->lumps, lumpssize) != lumpssize ||
+        fwrite(&wadtbl->header, headersize, 1, hfile) != 1 ||
+        fwrite(wadtbl->data, datasize, 1, hfile) != 1 ||
+        fwrite(wadtbl->lumps, lumpssize, 1, hfile) != 1 ||
         false)
       {
         I_Error("G_SetDemoFooter: error writing");
       }
 
-      close(hfile);
+      fclose(hfile);
     }
     free(buffer);
   }
