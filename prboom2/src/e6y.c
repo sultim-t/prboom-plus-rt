@@ -1385,8 +1385,6 @@ void ClearLinesCrossTracer(void)
   }
 }
 
-float paperitems_pitch;
-
 int levelstarttic;
 
 void I_AfterUpdateVideoMode(void)

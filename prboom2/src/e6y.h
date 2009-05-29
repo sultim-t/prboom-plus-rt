@@ -416,7 +416,6 @@ void CheckThingsHealthTracer(mobj_t *mobj);
 void CheckLinesCrossTracer(line_t *line);
 void ClearLinesCrossTracer(void);
 
-extern float paperitems_pitch;
 extern dboolean isskytexture;
 
 void D_AddDehFile (const char *file, wad_source_t source);

@@ -1573,6 +1573,9 @@ float roll     = 0.0f;
 float yaw      = 0.0f;
 float inv_yaw  = 0.0f;
 float pitch    = 0.0f;
+float cos_inv_yaw, sin_inv_yaw;
+float paperitems_pitch;
+float cos_paperitems_pitch, sin_paperitems_pitch;
 
 #define __glPi 3.14159265358979323846
 
@@ -1679,6 +1682,8 @@ void gld_StartDrawScene(void)
 
   yaw=270.0f-(float)(viewangle>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
   inv_yaw=180.0f-yaw;
+  cos_inv_yaw = (float)cos(inv_yaw * M_PI / 180.f);
+  sin_inv_yaw = (float)sin(inv_yaw * M_PI / 180.f);
 
   //e6y: fog in frame
   gl_use_fog = !gl_compatibility &&
@@ -1706,6 +1711,8 @@ void gld_StartDrawScene(void)
     paperitems_pitch = ((pitch > 87.0f && pitch <= 90.0f) ? 87.0f : pitch);
     viewPitch = (pitch > 180 ? pitch - 360 : pitch);
   }
+  cos_paperitems_pitch = (float)cos(paperitems_pitch * M_PI / 180.f);
+  sin_paperitems_pitch = (float)sin(paperitems_pitch * M_PI / 180.f);
 
   gld_InitFrameSky();
   
@@ -2768,27 +2775,6 @@ static void gld_DrawSprite(GLSprite *sprite)
   rendered_vissprites++;
 
   gld_BindPatch(sprite->gltexture,sprite->cm);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-
-  // Bring items up out of floor by configurable amount times .01 Mead 8/13/03
-  // e6y: adjust sprite clipping
-  offsety = (gl_spriteclip != spriteclip_const ? sprite->y : sprite->y + (.01f * (float)gl_sprite_offset));
-  if (!render_paperitems && !(sprite->thing->flags & (MF_SOLID | MF_SPAWNCEILING)))
-  {
-    float xcenter = (float)fabs((sprite->x1 + sprite->x2) * 0.5f);
-    float ycenter = (float)fabs((sprite->y1 + sprite->y2) * 0.5f);
-    glTranslatef(sprite->x + xcenter, offsety + ycenter, sprite->z);
-    glRotatef(inv_yaw, 0.0f, 1.0f, 0.0f);
-    glRotatef(paperitems_pitch, 1.0f, 0.0f, 0.0f);
-    glTranslatef(-xcenter, -ycenter, 0);
-  }
-  else
-  {
-    glTranslatef(sprite->x, offsety, sprite->z);
-
-    glRotatef(inv_yaw,0.0f,1.0f,0.0f);
-  }
 
   if (!(sprite->flags & MF_NO_DEPTH_TEST))
   {
@@ -2810,14 +2796,55 @@ static void gld_DrawSprite(GLSprite *sprite)
     }
   }
 
-  glBegin(GL_TRIANGLE_STRIP);
+  // Bring items up out of floor by configurable amount times .01 Mead 8/13/03
+  // e6y: adjust sprite clipping
+  offsety = (gl_spriteclip != spriteclip_const ? sprite->y : sprite->y + (.01f * (float)gl_sprite_offset));
+  if (!render_paperitems && !(sprite->thing->flags & (MF_SOLID | MF_SPAWNCEILING)))
+  {
+    float xcenter = (float)fabs((sprite->x1 + sprite->x2) * 0.5f);
+    float ycenter = (float)fabs((sprite->y1 + sprite->y2) * 0.5f);
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+
+    glTranslatef(sprite->x + xcenter, offsety + ycenter, sprite->z);
+    glRotatef(inv_yaw, 0.0f, 1.0f, 0.0f);
+    glRotatef(paperitems_pitch, 1.0f, 0.0f, 0.0f);
+    glTranslatef(-xcenter, -ycenter, 0);
+
+    glBegin(GL_TRIANGLE_STRIP);
     glTexCoord2f(sprite->ul, sprite->vt); glVertex3f(sprite->x1, sprite->y1, 0.0f);
     glTexCoord2f(sprite->ur, sprite->vt); glVertex3f(sprite->x2, sprite->y1, 0.0f);
     glTexCoord2f(sprite->ul, sprite->vb); glVertex3f(sprite->x1, sprite->y2, 0.0f);
     glTexCoord2f(sprite->ur, sprite->vb); glVertex3f(sprite->x2, sprite->y2, 0.0f);
-  glEnd();
+    glEnd();
 
-  glPopMatrix();
+    glPopMatrix();
+  }
+  else
+  {
+    float x1, x2, y1, y2, z1, z2;
+    float cx, len;
+    //glTranslatef(sprite->x, offsety, sprite->z);
+    //glRotatef(inv_yaw,0.0f,1.0f,0.0f);
+    x1 = sprite->x + sprite->x1;
+    x2 = sprite->x + sprite->x2;
+    y1 = offsety + sprite->y1;
+    y2 = offsety + sprite->y2;
+    cx = (x1 + x2) / 2.0f;
+    len = (float)fabs(x1 - x2) / 2.0f;
+    x1 = -len * cos_inv_yaw + cx;
+    x2 = +len * cos_inv_yaw + cx;
+    z1 = -len * sin_inv_yaw + sprite->z;
+    z2 = +len * sin_inv_yaw + sprite->z;
+
+    glBegin(GL_TRIANGLE_STRIP);
+    glTexCoord2f(sprite->ul, sprite->vt); glVertex3f(x1, y1, z2);
+    glTexCoord2f(sprite->ur, sprite->vt); glVertex3f(x2, y1, z1);
+    glTexCoord2f(sprite->ul, sprite->vb); glVertex3f(x1, y2, z2);
+    glTexCoord2f(sprite->ur, sprite->vb); glVertex3f(x2, y2, z1);
+    glEnd();
+  }
 
   if (!(sprite->flags & MF_NO_DEPTH_TEST))
   {
