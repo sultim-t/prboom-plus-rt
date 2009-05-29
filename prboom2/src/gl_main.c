@@ -2801,42 +2801,52 @@ static void gld_DrawSprite(GLSprite *sprite)
   offsety = (gl_spriteclip != spriteclip_const ? sprite->y : sprite->y + (.01f * (float)gl_sprite_offset));
   if (!render_paperitems && !(sprite->thing->flags & (MF_SOLID | MF_SPAWNCEILING)))
   {
-    float xcenter = (float)fabs((sprite->x1 + sprite->x2) * 0.5f);
-    float ycenter = (float)fabs((sprite->y1 + sprite->y2) * 0.5f);
+    float x1, x2, x3, x4, z1, z2, z3, z4;
+    float y1, y2, cy, ycenter, y1c, y2c;
+    float y1z2_y, y2z2_y;
 
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
+    ycenter = (float)fabs(sprite->y1 - sprite->y2) * 0.5f;
+    y1c = sprite->y1 - ycenter;
+    y2c = sprite->y2 - ycenter;
+    cy = offsety + ycenter;
 
-    glTranslatef(sprite->x + xcenter, offsety + ycenter, sprite->z);
-    glRotatef(inv_yaw, 0.0f, 1.0f, 0.0f);
-    glRotatef(paperitems_pitch, 1.0f, 0.0f, 0.0f);
-    glTranslatef(-xcenter, -ycenter, 0);
+    y1z2_y = -(y1c * sin_paperitems_pitch);
+    y2z2_y = -(y2c * sin_paperitems_pitch);
+
+    x1 = +(sprite->x1 * cos_inv_yaw - y1z2_y * sin_inv_yaw) + sprite->x;
+    x2 = +(sprite->x2 * cos_inv_yaw - y1z2_y * sin_inv_yaw) + sprite->x;
+    x3 = +(sprite->x1 * cos_inv_yaw - y2z2_y * sin_inv_yaw) + sprite->x;
+    x4 = +(sprite->x2 * cos_inv_yaw - y2z2_y * sin_inv_yaw) + sprite->x;
+
+    y1 = +(y1c * cos_paperitems_pitch) + cy;
+    y2 = +(y2c * cos_paperitems_pitch) + cy;
+
+    z1 = -(sprite->x1 * sin_inv_yaw + y1z2_y * cos_inv_yaw) + sprite->z;
+    z2 = -(sprite->x2 * sin_inv_yaw + y1z2_y * cos_inv_yaw) + sprite->z;
+    z3 = -(sprite->x1 * sin_inv_yaw + y2z2_y * cos_inv_yaw) + sprite->z;
+    z4 = -(sprite->x2 * sin_inv_yaw + y2z2_y * cos_inv_yaw) + sprite->z;
 
     glBegin(GL_TRIANGLE_STRIP);
-    glTexCoord2f(sprite->ul, sprite->vt); glVertex3f(sprite->x1, sprite->y1, 0.0f);
-    glTexCoord2f(sprite->ur, sprite->vt); glVertex3f(sprite->x2, sprite->y1, 0.0f);
-    glTexCoord2f(sprite->ul, sprite->vb); glVertex3f(sprite->x1, sprite->y2, 0.0f);
-    glTexCoord2f(sprite->ur, sprite->vb); glVertex3f(sprite->x2, sprite->y2, 0.0f);
+    glTexCoord2f(sprite->ul, sprite->vt); glVertex3f(x1, y1, z1);
+    glTexCoord2f(sprite->ur, sprite->vt); glVertex3f(x2, y1, z2);
+    glTexCoord2f(sprite->ul, sprite->vb); glVertex3f(x3, y2, z3);
+    glTexCoord2f(sprite->ur, sprite->vb); glVertex3f(x4, y2, z4);
     glEnd();
-
-    glPopMatrix();
   }
   else
   {
-    float x1, x2, y1, y2, z1, z2;
-    float cx, len;
-    //glTranslatef(sprite->x, offsety, sprite->z);
-    //glRotatef(inv_yaw,0.0f,1.0f,0.0f);
-    x1 = sprite->x + sprite->x1;
-    x2 = sprite->x + sprite->x2;
+    float cx, x1, x2, y1, y2, z1, z2;
+
+    cx = (sprite->x + sprite->x1 + sprite->x + sprite->x2) / 2.0f;
+
+    x1 = +(sprite->x1 * cos_inv_yaw) + cx;
+    x2 = +(sprite->x2 * cos_inv_yaw) + cx;
+
     y1 = offsety + sprite->y1;
     y2 = offsety + sprite->y2;
-    cx = (x1 + x2) / 2.0f;
-    len = (float)fabs(x1 - x2) / 2.0f;
-    x1 = -len * cos_inv_yaw + cx;
-    x2 = +len * cos_inv_yaw + cx;
-    z1 = -len * sin_inv_yaw + sprite->z;
-    z2 = +len * sin_inv_yaw + sprite->z;
+
+    z2 = -(sprite->x1 * sin_inv_yaw) + sprite->z;
+    z1 = -(sprite->x2 * sin_inv_yaw) + sprite->z;
 
     glBegin(GL_TRIANGLE_STRIP);
     glTexCoord2f(sprite->ul, sprite->vt); glVertex3f(x1, y1, z2);
