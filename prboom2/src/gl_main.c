@@ -2459,8 +2459,8 @@ void gld_AddWall(seg_t *seg)
       wall.flag = GLDWF_M2S;
       URUL(wall, seg, backseg, linelength);
 
-      wall.vb = (float)((-top + ceiling_height) >> FRACBITS)/(float)wall.gltexture->realtexheight;
-      wall.vt = (float)((-bottom + ceiling_height) >> FRACBITS)/(float)wall.gltexture->realtexheight;
+      wall.vt = (float)((-top + ceiling_height) >> FRACBITS)/(float)wall.gltexture->realtexheight;
+      wall.vb = (float)((-bottom + ceiling_height) >> FRACBITS)/(float)wall.gltexture->realtexheight;
 
       if (seg->linedef->tranlump >= 0 && general_translucency)
         wall.alpha=(float)tran_filter_pct/100.0f;
