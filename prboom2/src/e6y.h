@@ -234,8 +234,10 @@ void I_Init2(void);
 
 #ifdef GL_DOOM
 dboolean GetMouseLook(void);
+dboolean HaveMouseLook(void);
 #else
 #define GetMouseLook() (0)
+#define HaveMouseLook() (0)
 #endif
 
 extern float viewPitch;

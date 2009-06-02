@@ -473,7 +473,7 @@ void R_SetClipPlanes(void)
   // thing is behind view plane?
 #ifdef GL_DOOM
   if ((V_GetMode() == VID_MODEGL) &&
-      (GetMouseLook() || (render_fov > FOV90)) &&
+      (HaveMouseLook() || (render_fov > FOV90)) &&
       (!render_paperitems || simple_shadows.loaded))
   {
     r_near_clip_plane = -(FRACUNIT * MAX(64, simple_shadows.max_radius));
@@ -513,7 +513,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   fixed_t tz;
   int width;
 #ifdef GL_DOOM
-  dboolean mlook = GetMouseLook() || (render_fov > FOV90);
+  dboolean mlook = HaveMouseLook() || (render_fov > FOV90);
 #endif
 
   if (movement_smooth)
@@ -625,7 +625,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
 
   // killough 4/9/98: clip things which are out of view due to height
 #ifdef GL_DOOM
-  if(!GetMouseLook() && render_fov <= FOV90)//e6y
+  if(!HaveMouseLook() && render_fov <= FOV90)//e6y
 #endif
   // e6y: fix of hanging decoration disappearing in Batman Doom MAP02
   // centeryfrac -> viewheightfrac

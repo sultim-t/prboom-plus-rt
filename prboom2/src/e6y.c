@@ -555,6 +555,10 @@ dboolean GetMouseLook(void)
 {
   return movement_mouselook;
 }
+dboolean HaveMouseLook(void)
+{
+  return (viewpitch != 0);
+}
 #endif
 
 void CheckPitch(signed int *pitch)
