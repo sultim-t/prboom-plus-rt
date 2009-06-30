@@ -190,6 +190,7 @@ AC_ARG_WITH(net,
       AC_MSG_WARN([*** SDL networking library not found. The game will not be compiled with network game support.])
     ],$SDL_LIBS)
   ])
+AM_CONDITIONAL(BUILD_SERVER, [test "$sdl_net" = "yes"])
 
 dnl - Other libs
 AC_ARG_WITH([png], AC_HELP_STRING([--without-png], [Do not use libpng even if available]),,AC_CHECK_LIB(png,png_create_info_struct))

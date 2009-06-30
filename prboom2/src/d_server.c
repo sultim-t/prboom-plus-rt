@@ -63,18 +63,6 @@
 #include "i_system.h"
 #include "m_swap.h"
 
-#ifndef HAVE_NET
-
-int main(void)
-{
-  fprintf(stderr,
-      PACKAGE "-server: You must compile with networking enabled!\n");
-  exit(1);
-  return 1;
-}
-
-#else
-
 #ifndef HAVE_GETOPT
 /* The following code for getopt is from the libc-source of FreeBSD,
  * it might be changed a little bit.
@@ -750,5 +738,3 @@ int main(int argc, char** argv)
     }
   }
 }
-
-#endif // HAVE_NET
