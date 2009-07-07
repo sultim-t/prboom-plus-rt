@@ -136,6 +136,14 @@ inline static CONSTFUNC fixed_t FixedMul(fixed_t a, fixed_t b)
  * Fixed Point Division
  */
 
+#if 1
+// e6y: do not use ASM version of FixedDiv at all, because it is unsafe.
+inline static CONSTFUNC fixed_t FixedDiv(fixed_t a, fixed_t b)
+{
+  return (D_abs(a)>>14) >= D_abs(b) ? ((a^b)>>31) ^ INT_MAX :
+    (fixed_t)(((int_64_t) a << FRACBITS) / b);
+}
+#else // code below is unsafe
 #ifdef I386_ASM
 
 # ifdef _MSC_VER
@@ -213,6 +221,8 @@ inline static CONSTFUNC fixed_t FixedDiv(fixed_t a, fixed_t b)
 }
 
 #endif /* I386_ASM */
+
+#endif
 
 /* CPhipps -
  * FixedMod - returns a % b, guaranteeing 0<=a<b
