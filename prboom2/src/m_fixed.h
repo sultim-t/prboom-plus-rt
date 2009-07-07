@@ -151,7 +151,10 @@ __inline static fixed_t FixedDiv(fixed_t a, fixed_t b)
     // Some other ports (Eternity, Chocolate) return wrong value instead of MAXINT.
     // For example FixedDiv(-2147483648,-30576) should return INT_MAX instead of 307907126
     // 307907126 is truncated correct int64 value: 4602874423 - 2^32 = 307907126
-    if ((unsigned)D_abs(a) >> 14 >= (unsigned)D_abs(b))
+    //
+    // rollback, because of desynch on longdays.wad
+    // if ((unsigned)D_abs(a) >> 14 >= (unsigned)D_abs(b))
+    if (D_abs(a) >> 14 >= D_abs(b))
         return (a^b)<0 ? INT_MIN : INT_MAX;
     __asm
     {
@@ -176,8 +179,11 @@ __inline static fixed_t FixedDiv(fixed_t a, fixed_t b)
 inline
 static CONSTFUNC fixed_t FixedDiv(fixed_t a, fixed_t b)
 {
-  //e6y: zg is a master of engineer science
-  if ((unsigned)D_abs(a) >> 14 < (unsigned)D_abs(b))
+  // e6y: zg is a master of engineer science
+  //
+  // rollback, because of desynch on longdays.wad
+  // if ((unsigned)D_abs(a) >> 14 < (unsigned)D_abs(b))
+  if (D_abs(a) >> 14 < D_abs(b))
     {
       fixed_t result;
       asm (
@@ -200,7 +206,9 @@ static CONSTFUNC fixed_t FixedDiv(fixed_t a, fixed_t b)
 
 inline static CONSTFUNC fixed_t FixedDiv(fixed_t a, fixed_t b)
 {
-  return ((unsigned)D_abs(a)>>14) >= (unsigned)D_abs(b) ? ((a^b)>>31) ^ INT_MAX :
+  // rollback, because of desynch on longdays.wad
+  // return ((unsigned)D_abs(a)>>14) >= (unsigned)D_abs(b) ? ((a^b)>>31) ^ INT_MAX :
+  return (D_abs(a)>>14) >= D_abs(b) ? ((a^b)>>31) ^ INT_MAX :
     (fixed_t)(((int_64_t) a << FRACBITS) / b);
 }
 
