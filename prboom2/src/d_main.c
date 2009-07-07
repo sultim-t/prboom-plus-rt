@@ -319,8 +319,10 @@ void D_Display (void)
     use_boom_cm=true;
 
     // Now do the drawing
-    //e6y if (viewactive)
-    R_RenderPlayerView (&players[displayplayer]);
+    if (viewactive || map_always_updates)
+    {
+      R_RenderPlayerView (&players[displayplayer]);
+    }
 
     // e6y
     // but should NOT be applied for automap, statusbar and HUD

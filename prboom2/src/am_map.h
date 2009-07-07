@@ -108,4 +108,6 @@ extern int mapcolor_me;       // consoleplayer's chosen colour
 //jff 3/9/98
 extern int map_secret_after;  // secrets do not appear til after bagged
 
+extern int map_always_updates;
+
 #endif

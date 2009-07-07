@@ -2639,7 +2639,7 @@ void M_DrawStatusHUD(void)
 //
 // The Automap tables.
 
-#define AU_X    250
+#define AU_X    280
 #define AU_Y     31
 #define AU_PREV KB_PREV
 #define AU_NEXT KB_NEXT
@@ -2675,6 +2675,7 @@ setup_menu_t auto_settings1[] =  // 1st AutoMap Settings screen
   {"Show Secrets only after entering",S_YESNO,m_null,AU_X,AU_Y+15*8, {"map_secret_after"}},
 
   {"Show coordinates of automap pointer",S_YESNO,m_null,AU_X,AU_Y+16*8, {"map_point_coord"}},  // killough 10/98
+  {"Update unexplored parts in automap mode",S_YESNO,m_null,AU_X,AU_Y+17*8, {"map_always_updates"}},
 
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},

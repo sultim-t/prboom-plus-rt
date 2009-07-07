@@ -703,6 +703,8 @@ default_t defaults[] =
   //jff 1/7/98 end additions for automap
   {"automapmode", {(int*)&automapmode}, {0}, 0, 31, // CPhipps - remember automap mode
    def_hex,ss_none}, // automap mode
+  {"map_always_updates", {&map_always_updates}, {0},0,1,
+   def_bool,ss_auto},
 
   {"Heads-up display settings",{NULL},{0},UL,UL,def_none,ss_none},
   //jff 2/16/98 defaults for color ranges in hud and status

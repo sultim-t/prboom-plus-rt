@@ -78,6 +78,9 @@ int mapcolor_plyr[4] = { 112, 88, 64, 32 }; // colors for player arrows in multi
 
 //jff 3/9/98 add option to not show secret sectors until entered
 int map_secret_after;
+
+int map_always_updates;
+
 //jff 4/3/98 add symbols for "no-color" for disable and "black color" for black
 #define NC 0
 #define BC 247
