@@ -103,7 +103,7 @@ void gld_InitPalettedTextures(void)
   int pal[256];
   int i,j;
 
-  playpal=W_CacheLumpName("PLAYPAL");
+  playpal = V_GetPlaypal();
   for (i=0; i<256; i++) {
     pal[i] = (playpal[i*3+0] << 16) | (playpal[i*3+1] << 8) | playpal[i*3+2];
     gld_palmap[i] = i;
@@ -120,7 +120,6 @@ void gld_InitPalettedTextures(void)
     if (transparent_pal_index >= 0)
       break;
   }
-  W_UnlockLumpName("PLAYPAL");
 }
 
 int gld_GetTexDimension(int value)
@@ -276,7 +275,7 @@ void gld_SetTexturePalette(GLenum target)
   unsigned char pal[1024];
   int i;
 
-  playpal=W_CacheLumpName("PLAYPAL");
+  playpal = V_GetPlaypal();
   for (i=0; i<256; i++) {
     pal[i*4+0] = playpal[i*3+0];
     pal[i*4+1] = playpal[i*3+1];
@@ -288,7 +287,6 @@ void gld_SetTexturePalette(GLenum target)
   pal[transparent_pal_index*4+2]=0;
   pal[transparent_pal_index*4+3]=0;
   GLEXT_glColorTableEXT(target, GL_RGBA, 256, GL_RGBA, GL_UNSIGNED_BYTE, pal);
-  W_UnlockLumpName("PLAYPAL");
 }
 
 static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned char *buffer, const rpatch_t *patch, int originx, int originy, int paletted)
@@ -305,7 +303,7 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
     return;
   if (!patch)
     return;
-  playpal=W_CacheLumpName("PLAYPAL");
+  playpal = V_GetPlaypal();
   xs=0;
   xe=patch->width;
   if ((xs+originx)>=gltexture->realtexwidth)
@@ -388,7 +386,6 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
       }
     }
   }
-  W_UnlockLumpName("PLAYPAL");
 }
 
 void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const rpatch_t *patch, int originx, int originy, int cm, int paletted)
@@ -415,7 +412,7 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const rp
     outr=colrngs[cm];
   else
     outr=translationtables + 256*((cm-CR_LIMIT)-1);
-  playpal=W_CacheLumpName("PLAYPAL");
+  playpal = V_GetPlaypal();
   xs=0;
   xe=patch->width;
   if ((xs+originx)>=gltexture->realtexwidth)
@@ -498,7 +495,6 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const rp
       }
     }
   }
-  W_UnlockLumpName("PLAYPAL");
 }
 
 static void gld_AddFlatToTexture(GLTexture *gltexture, unsigned char *buffer, const unsigned char *flat, int paletted)
@@ -527,7 +523,7 @@ static void gld_AddFlatToTexture(GLTexture *gltexture, unsigned char *buffer, co
       }
     }
   } else {
-    playpal=W_CacheLumpName("PLAYPAL");
+    playpal = V_GetPlaypal();
     for (y=0;y<gltexture->realtexheight;y++)
     {
       pos=4*(y*gltexture->buffer_width);
@@ -557,7 +553,6 @@ static void gld_AddFlatToTexture(GLTexture *gltexture, unsigned char *buffer, co
         buffer[pos+3]=255;
       }
     }
-    W_UnlockLumpName("PLAYPAL");
   }
 }
 

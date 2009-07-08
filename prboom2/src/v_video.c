@@ -1072,3 +1072,28 @@ static void WRAP_V_DrawLine(fline_t* fl, int color)
     }
   }
 }
+
+static unsigned char *playpal_data = NULL;
+const unsigned char* V_GetPlaypal(void)
+{
+  if (!playpal_data)
+  {
+    int lump = W_GetNumForName("PLAYPAL");
+    int len = W_LumpLength(lump);
+    const byte *data = W_CacheLumpNum(lump);
+    playpal_data = malloc(len);
+    memcpy(playpal_data, data, len);
+    W_UnlockLumpNum(lump);
+  }
+
+  return playpal_data;
+}
+
+void V_FreePlaypal(void)
+{
+  if (playpal_data)
+  {
+    free(playpal_data);
+    playpal_data = NULL;
+  }
+}

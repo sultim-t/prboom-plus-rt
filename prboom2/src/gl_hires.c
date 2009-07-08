@@ -752,7 +752,7 @@ void gld_HiRes_ProcessColormap(unsigned char *buffer, int bufSize)
   if (!RGB2PAL)
     return;
 
-  playpal = W_CacheLumpName("PLAYPAL");
+  playpal = V_GetPlaypal();
   colormap = (fixedcolormap ? fixedcolormap : fullcolormap);
 
   for (pos = 0; pos < bufSize; pos += 4)
@@ -840,8 +840,6 @@ void gld_HiRes_ProcessColormap(unsigned char *buffer, int bufSize)
     buffer[pos+2] = BETWEEN(0, 255, c);
 #endif
   }
-
-  W_UnlockLumpName("PLAYPAL");
 }
 
 int gld_HiRes_BuildTables(void)
@@ -921,8 +919,7 @@ int gld_HiRes_BuildTables(void)
       z = NewIntDynArray(2, dims);
 
       RGB2PAL = malloc(RGB2PAL_size);
-      lump = W_GetNumForName("PLAYPAL");
-      palette = W_CacheLumpNum(lump);
+      palette = V_GetPlaypal();
 
       // create the RGB24to8 lookup table
       gld_ProgressStart();
@@ -977,7 +974,6 @@ int gld_HiRes_BuildTables(void)
       }
       gld_ProgressEnd();
 
-      W_UnlockLumpName("PLAYPAL");
       free(z);
       free(y);
       free(x);

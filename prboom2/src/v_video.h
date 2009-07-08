@@ -229,6 +229,9 @@ void V_AllocScreens();
 void V_FreeScreen(screeninfo_t *scrn);
 void V_FreeScreens();
 
+const unsigned char* V_GetPlaypal(void);
+void V_FreePlaypal(void);
+
 #ifdef GL_DOOM
 #include "gl_struct.h"
 #endif

@@ -484,6 +484,8 @@ void W_Init(void)
   /* cph 2001/07/07 - separated cache setup */
   lprintf(LO_INFO,"W_InitCache\n");
   W_InitCache();
+
+  V_FreePlaypal();
 }
 
 void W_ReleaseAllWads(void)
@@ -507,6 +509,8 @@ void W_ReleaseAllWads(void)
   numlumps = 0;
   free(lumpinfo);
   lumpinfo = NULL;
+
+  V_FreePlaypal();
 }
 
 //

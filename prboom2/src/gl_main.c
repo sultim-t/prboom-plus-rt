@@ -427,7 +427,7 @@ void gld_DrawBackground(const char* name)
 
 void gld_DrawLine(int x0, int y0, int x1, int y1, int BaseColor)
 {
-  const unsigned char *playpal=W_CacheLumpName("PLAYPAL");
+  const unsigned char *playpal = V_GetPlaypal();
 
   glBindTexture(GL_TEXTURE_2D, 0);
   gld_ResetLastTexture();
@@ -438,7 +438,6 @@ void gld_DrawLine(int x0, int y0, int x1, int y1, int BaseColor)
     glVertex2i( x0, y0 );
     glVertex2i( x1, y1 );
   glEnd();
-  W_UnlockLumpName("PLAYPAL");
 }
 
 void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
@@ -499,7 +498,7 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
 
 void gld_FillBlock(int x, int y, int width, int height, int col)
 {
-  const unsigned char *playpal=W_CacheLumpName("PLAYPAL");
+  const unsigned char *playpal = V_GetPlaypal();
 
   glBindTexture(GL_TEXTURE_2D, 0);
   gld_ResetLastTexture();
@@ -513,7 +512,6 @@ void gld_FillBlock(int x, int y, int width, int height, int col)
     glVertex2i( x+width, y+height );
   glEnd();
   glColor3f(1.0f,1.0f,1.0f);
-  W_UnlockLumpName("PLAYPAL");
 }
 
 void gld_SetPalette(int palette)
@@ -531,7 +529,7 @@ void gld_SetPalette(int palette)
     unsigned char pal[1024];
     int i;
 
-    playpal = W_CacheLumpName("PLAYPAL");
+    playpal = V_GetPlaypal();
     playpal += (768*palette);
     for (i=0; i<256; i++) {
       int col;
@@ -552,7 +550,6 @@ void gld_SetPalette(int palette)
     pal[transparent_pal_index*4+2]=0;
     pal[transparent_pal_index*4+3]=0;
     GLEXT_glColorTableEXT(GL_SHARED_TEXTURE_PALETTE_EXT, GL_RGBA, 256, GL_RGBA, GL_UNSIGNED_BYTE, pal);
-    W_UnlockLumpName("PLAYPAL");
   } else {
     if (palette>0)
     {
