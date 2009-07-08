@@ -172,4 +172,6 @@ typedef struct shadow_params_s
 
 extern simple_shadow_params_t simple_shadows;
 
+void gld_EnableTexture2D(int state);
+
 #endif // _GL_STRUCT_H

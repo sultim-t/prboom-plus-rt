@@ -1595,6 +1595,13 @@ void AM_Drawer (void)
   // CPhipps - all automap modes put into one enum
   if (!(automapmode & am_active)) return;
 
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL)
+  {
+    gld_EnableTexture2D(false);
+  }
+#endif
+
   if (!(automapmode & am_overlay)) // cph - If not overlay mode, clear background for the automap
     V_FillRect(FB, f_x, f_y, f_w, f_h, (byte)mapcolor_back); //jff 1/5/98 background default color
   if (automapmode & am_grid)
@@ -1606,4 +1613,11 @@ void AM_Drawer (void)
   AM_drawCrosshair(mapcolor_hair);   //jff 1/7/98 default crosshair color
 
   AM_drawMarks();
+
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL)
+  {
+    gld_EnableTexture2D(true);
+  }
+#endif
 }

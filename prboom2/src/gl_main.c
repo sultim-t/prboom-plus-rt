@@ -283,6 +283,18 @@ void gld_InitCommandLine(void)
 {
 }
 
+void gld_EnableTexture2D(int state)
+{
+  if (state)
+  {
+    glEnable(GL_TEXTURE_2D);
+  }
+  else
+  {
+    glDisable(GL_TEXTURE_2D);
+  }
+}
+
 void gld_DrawTriangleStrip(GLWall *wall, gl_strip_coords_t *c)
 {
   glBegin(GL_TRIANGLE_STRIP);
@@ -429,8 +441,6 @@ void gld_DrawLine(int x0, int y0, int x1, int y1, int BaseColor)
 {
   const unsigned char *playpal = V_GetPlaypal();
 
-  glBindTexture(GL_TEXTURE_2D, 0);
-  gld_ResetLastTexture();
   glColor3f((float)playpal[3*BaseColor]/255.0f,
             (float)playpal[3*BaseColor+1]/255.0f,
             (float)playpal[3*BaseColor+2]/255.0f);
@@ -500,8 +510,6 @@ void gld_FillBlock(int x, int y, int width, int height, int col)
 {
   const unsigned char *playpal = V_GetPlaypal();
 
-  glBindTexture(GL_TEXTURE_2D, 0);
-  gld_ResetLastTexture();
   glColor3f((float)playpal[3*col]/255.0f,
             (float)playpal[3*col+1]/255.0f,
             (float)playpal[3*col+2]/255.0f);
