@@ -53,30 +53,12 @@ typedef int fixed_t;
  * killough 9/05/98: better code seems to be gotten from using inlined C
  */
 
-#ifdef _MSC_VER
-# ifdef I386_ASM
-#pragma warning( disable : 4035 )
-__inline static int D_abs(int x)
-{
-    __asm
-    {
-        mov eax,x
-        cdq
-        xor eax,edx
-        sub eax,edx
-    }
-}
-# else /* I386_ASM */
-inline static const int D_abs(x)
+inline static CONSTFUNC fixed_t D_abs(fixed_t x)
 {
   fixed_t _t = (x),_s;
   _s = _t >> (8*sizeof _t-1);
   return (_t^_s)-_s;
 }
-# endif /* I386_ASM */
-#else /* _MSC_VER */
-#define D_abs(x) ({fixed_t _t = (x), _s = _t >> (8*sizeof _t-1); (_t^_s)-_s;})
-#endif /* _MSC_VER */
 
 /*
  * Fixed Point Multiplication
