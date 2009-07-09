@@ -136,55 +136,6 @@ inline static CONSTFUNC fixed_t FixedMul(fixed_t a, fixed_t b)
  * Fixed Point Division
  */
 
-#ifdef I386_ASM
-
-# ifdef _MSC_VER
-#pragma warning( disable : 4035 )
-__inline static fixed_t FixedDiv(fixed_t a, fixed_t b)
-{
-    if (D_abs(a) >> 14 >= D_abs(b))
-        return (a^b)<0 ? INT_MIN : INT_MAX;
-    __asm
-    {
-        mov  eax,a
-        mov  ebx,b
-        mov  edx,eax
-        shl  eax,16     // proff 11/06/98: Changed from sal to shl, I think
-                        // this is better
-        sar  edx,16
-        idiv ebx        // This is needed, because when I used 'idiv b' the
-                        // compiler produced wrong code in a different place
-    }
-}
-#pragma warning( default : 4035 )
-# else /* _MSC_VER */
-/* killough 5/10/98: In djgpp, use inlined assembly for performance
- * killough 9/5/98: optimized to reduce the number of branches
- * CPhipps - made __inline__ to inline, as specified in the gcc docs
- * Also made const, also __asm__ to asm as in docs.
- * Replaced inline asm with Julian's version for Eternity dated 6/7/2001
- */
-inline
-static CONSTFUNC fixed_t FixedDiv(fixed_t a, fixed_t b)
-{
-  if (D_abs(a) >> 14 < D_abs(b))
-    {
-      fixed_t result;
-      asm (
-          " idivl %3 ;"
-	  : "=a" (result)
-	  : "0" (a<<16),
-	    "d" (a>>16),
-	    "rm" (b)
-	  : "%cc"
-	  );
-      return result;
-    }
-  return ((a^b)>>31) ^ INT_MAX;
-}
-# endif /* _MSC_VER */
-
-#else /* I386_ASM */
 /* CPhipps - made __inline__ to inline, as specified in the gcc docs
  * Also made const */
 
@@ -193,8 +144,6 @@ inline static CONSTFUNC fixed_t FixedDiv(fixed_t a, fixed_t b)
   return (D_abs(a)>>14) >= D_abs(b) ? ((a^b)>>31) ^ INT_MAX :
     (fixed_t)(((int_64_t) a << FRACBITS) / b);
 }
-
-#endif /* I386_ASM */
 
 /* CPhipps -
  * FixedMod - returns a % b, guaranteeing 0<=a<b
