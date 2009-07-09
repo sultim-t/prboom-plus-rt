@@ -82,46 +82,6 @@ inline static const int D_abs(x)
  * Fixed Point Multiplication
  */
 
-#ifdef I386_ASM
-# ifdef _MSC_VER
-#pragma warning( disable : 4035 )
-__inline static fixed_t FixedMul(fixed_t a, fixed_t b)
-{
-//    return (fixed_t)((longlong) a*b >> FRACBITS);
-    __asm
-    {
-        mov  eax,a
-        imul b
-        shrd eax,edx,16
-    }
-}
-#pragma warning( default : 4035 )
-# else /* _MSC_VER */
-/* killough 5/10/98: In djgpp, use inlined assembly for performance
- * CPhipps - made __inline__ to inline, as specified in the gcc docs
- * Also made const. Also __asm__ to asm, as in docs. 
- * Replaced inline asm with Julian's version for Eternity dated 6/7/2001
- */
-inline
-static CONSTFUNC fixed_t FixedMul(fixed_t a, fixed_t b)
-{
-  fixed_t result;
-
-  asm (
-      "  imull %2 ;"
-      "  shrdl $16,%%edx,%0 ;"
-      : "=a" (result)           /* eax is always the result */
-      : "0" (a),                /* eax is also first operand */
-        "rm" (b)                /* second operand can be reg or mem */
-      : "%edx", "%cc"           /* edx and condition codes clobbered */
-      );
-
-  return result;
-}
-# endif /* _MSC_VER */
-
-#else /* I386_ASM */
-
 /* CPhipps - made __inline__ to inline, as specified in the gcc docs
  * Also made const */
 
@@ -129,8 +89,6 @@ inline static CONSTFUNC fixed_t FixedMul(fixed_t a, fixed_t b)
 {
   return (fixed_t)((int_64_t) a*b >> FRACBITS);
 }
-
-#endif /* I386_ASM */
 
 /*
  * Fixed Point Division
