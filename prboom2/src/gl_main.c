@@ -74,6 +74,7 @@
 #include "m_argv.h"
 #include "i_video.h"
 #include "i_main.h"
+#include "am_map.h"
 #include "e6y.h"//e6y
 
 // All OpenGL extentions will be disabled in gl_compatibility mode
@@ -437,8 +438,44 @@ void gld_DrawBackground(const char* name)
   glEnd();
 }
 
+void gld_DrawMapLines(void)
+{
+#ifdef USE_VERTEX_ARRAYS
+  int i;
+  int size, type, stride;
+  void *pointer;
+  const unsigned char *playpal = V_GetPlaypal();
+
+  glGetIntegerv(GL_VERTEX_ARRAY_SIZE, &size);
+  glGetIntegerv(GL_VERTEX_ARRAY_TYPE, &type);
+  glGetIntegerv(GL_VERTEX_ARRAY_STRIDE, &stride);
+  glGetPointerv(GL_VERTEX_ARRAY_POINTER, &pointer);
+
+  glEnableClientState(GL_VERTEX_ARRAY);
+
+  for (i = 0; i < MAP_COLORS_COUNT; i++)
+  {
+    if (map_lines.count[i] > 0)
+    {
+      glColor3f(
+        (float)playpal[3 * i + 0] / 255.0f,
+        (float)playpal[3 * i + 1] / 255.0f,
+        (float)playpal[3 * i + 2] / 255.0f);
+
+      glVertexPointer(2, GL_SHORT , 0, map_lines.points[i]); 
+      glDrawArrays(GL_LINES, 0, map_lines.count[i]/2);
+    }
+  }
+
+  glVertexPointer(size, type, stride, pointer);
+
+  glDisableClientState(GL_VERTEX_ARRAY);
+#endif
+}
+
 void gld_DrawLine(int x0, int y0, int x1, int y1, int BaseColor)
 {
+#ifndef USE_VERTEX_ARRAYS
   const unsigned char *playpal = V_GetPlaypal();
 
   glColor3f((float)playpal[3*BaseColor]/255.0f,
@@ -448,6 +485,23 @@ void gld_DrawLine(int x0, int y0, int x1, int y1, int BaseColor)
     glVertex2i( x0, y0 );
     glVertex2i( x1, y1 );
   glEnd();
+#else
+  if (!map_lines.points[BaseColor])
+  {
+    map_lines.points[BaseColor] = malloc(128 * 4 * sizeof(map_lines.points[0][0]));
+    map_lines.maxsize[BaseColor] = 128;
+  }
+  if (map_lines.count[BaseColor] + 4 >= map_lines.maxsize[BaseColor])
+  {
+    map_lines.maxsize[BaseColor] = map_lines.maxsize[BaseColor] * 2;
+    map_lines.points[BaseColor] = realloc(map_lines.points[BaseColor], map_lines.maxsize[BaseColor] * 4 * sizeof(map_lines.points[0][0]));
+  }
+
+  map_lines.points[BaseColor][map_lines.count[BaseColor]++] = x0;
+  map_lines.points[BaseColor][map_lines.count[BaseColor]++] = y0;
+  map_lines.points[BaseColor][map_lines.count[BaseColor]++] = x1;
+  map_lines.points[BaseColor][map_lines.count[BaseColor]++] = y1;
+#endif
 }
 
 void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)

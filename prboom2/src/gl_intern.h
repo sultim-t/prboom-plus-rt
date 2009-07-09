@@ -37,8 +37,6 @@
 #include "v_video.h"
 #include "gl_opengl.h"
 
-#define USE_VERTEX_ARRAYS
-
 #define MAP_COEFF 128.0f
 #define MAP_SCALE (MAP_COEFF*(float)FRACUNIT)
 

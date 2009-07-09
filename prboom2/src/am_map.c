@@ -514,6 +514,20 @@ static void AM_LevelInit(void)
   if (scale_mtof > max_scale_mtof)
     scale_mtof = min_scale_mtof;
   scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
+
+#ifdef USE_VERTEX_ARRAYS
+  {
+    int i;
+    for (i = 0; i < MAP_COLORS_COUNT; i++)
+    {
+      if (map_lines.points[i])
+      {
+        free(map_lines.points[i]);
+      }
+    }
+    memset(&map_lines, 0, sizeof(map_lines));
+  }
+#endif
 }
 
 //
@@ -1590,6 +1604,9 @@ inline static void AM_drawCrosshair(int color)
 //
 // Passed nothing, returns nothing
 //
+
+map_lines_t map_lines;
+
 void AM_Drawer (void)
 {
   // CPhipps - all automap modes put into one enum
@@ -1599,6 +1616,9 @@ void AM_Drawer (void)
   if (V_GetMode() == VID_MODEGL)
   {
     gld_EnableTexture2D(false);
+#ifdef USE_VERTEX_ARRAYS
+    memset(map_lines.count, 0, MAP_COLORS_COUNT * sizeof(map_lines.count[0]));
+#endif
   }
 #endif
 
@@ -1617,6 +1637,9 @@ void AM_Drawer (void)
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
+#ifdef USE_VERTEX_ARRAYS
+    gld_DrawMapLines();
+#endif
     gld_EnableTexture2D(true);
   }
 #endif
