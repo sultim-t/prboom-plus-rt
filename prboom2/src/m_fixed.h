@@ -140,8 +140,18 @@ inline static CONSTFUNC fixed_t FixedMul(fixed_t a, fixed_t b)
 // e6y: do not use ASM version of FixedDiv at all, because it is unsafe.
 inline static CONSTFUNC fixed_t FixedDiv(fixed_t a, fixed_t b)
 {
-  return (D_abs(a)>>14) >= D_abs(b) ? ((a^b)>>31) ^ INT_MAX :
-    (fixed_t)(((int_64_t) a << FRACBITS) / b);
+  extern dboolean *use_wrong_fixeddiv;
+  if (*use_wrong_fixeddiv)
+  //if (prboom_comp[PC_WRONG_FIXEDDIV].state)
+  {
+    return ((unsigned)D_abs(a)>>14) >= (unsigned)D_abs(b) ? ((a^b)>>31) ^ INT_MAX :
+      (fixed_t)(((int_64_t) a << FRACBITS) / b);
+  }
+  else
+  {
+    return (D_abs(a)>>14) >= D_abs(b) ? ((a^b)>>31) ^ INT_MAX :
+      (fixed_t)(((int_64_t) a << FRACBITS) / b);
+  }
 }
 #else // code below is unsafe
 #ifdef I386_ASM

@@ -274,8 +274,10 @@ prboom_comp_t prboom_comp[PC_MAX] = {
   {0x00000000, 0x02040802, 0, "-allow_sky_transfer_in_boom"},
   {0x00000000, 0x02040803, 0, "-apply_green_armor_class_to_armor_bonuses"},
   {0x00000000, 0x02040803, 0, "-apply_blue_armor_class_to_megasphere"},
+  {0x02050001, 0x02050003, 0, "-wrong_fixeddiv"},
 };
 
+dboolean *use_wrong_fixeddiv;
 void e6y_InitCommandLine(void)
 {
   int i, p;
@@ -320,6 +322,7 @@ void e6y_InitCommandLine(void)
         prboom_comp[i].state = true;
     }
   }
+  use_wrong_fixeddiv = &(prboom_comp[PC_WRONG_FIXEDDIV].state);
 
   // TAS-tracers
   {
