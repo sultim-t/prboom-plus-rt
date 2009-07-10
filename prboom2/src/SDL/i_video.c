@@ -730,17 +730,18 @@ int try_to_reduce_cpu_cache_misses;
 
 // e6y
 // It is a simple test of CPU cache misses.
-unsigned int I_TestCPUCacheMisses(int width, int height)
+unsigned int I_TestCPUCacheMisses(int width, int height, unsigned int mintime)
 {
   int i, k;
   char *s, *d, *ps, *pd;
-  unsigned int tickStart, tickEnd;
+  unsigned int tickStart;
   
   s = malloc(width * height);
   d = malloc(width * height);
 
   tickStart = SDL_GetTicks();
-  for(k = 0; k < 1000; k++)
+  k = 0;
+  do
   {
     ps = s;
     pd = d;
@@ -750,13 +751,14 @@ unsigned int I_TestCPUCacheMisses(int width, int height)
       pd += width;
       ps += width;
     }
+    k++;
   }
-  tickEnd = SDL_GetTicks();
+  while (SDL_GetTicks() - tickStart < mintime);
 
   free(d);
   free(s);
 
-  return (tickEnd - tickStart);
+  return k;
 }
 
 // CPhipps -
@@ -797,15 +799,16 @@ void I_CalculateRes(unsigned int width, unsigned int height)
     // and only ~10% for Core2Duo
     if (try_to_reduce_cpu_cache_misses)
     {
+      unsigned int mintime = 100;
       pitch1 = SCREENWIDTH * V_GetPixelDepth();
       pitch2 = SCREENWIDTH * V_GetPixelDepth() + 32;
 
-      t1 = I_TestCPUCacheMisses(pitch1, SCREENHEIGHT);
-      t2 = I_TestCPUCacheMisses(pitch2, SCREENHEIGHT);
+      t1 = I_TestCPUCacheMisses(pitch1, SCREENHEIGHT, mintime);
+      t2 = I_TestCPUCacheMisses(pitch2, SCREENHEIGHT, mintime);
 
       lprintf(LO_INFO, "I_CalculateRes: trying to optimise screen pitch\n");
-      lprintf(LO_INFO, " test case for pitch=%d is %d msec\n", pitch1, t1);
-      lprintf(LO_INFO, " test case for pitch=%d is %d msec\n", pitch2, t2);
+      lprintf(LO_INFO, " test case for pitch=%d is processed %d times for %d msec\n", pitch1, t1, mintime);
+      lprintf(LO_INFO, " test case for pitch=%d is processed %d times for %d msec\n", pitch2, t2, mintime);
 
       SCREENPITCH = (t1 <= t2 ? pitch1 : pitch2);
 
