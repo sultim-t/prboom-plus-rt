@@ -43,10 +43,22 @@
 
 <h1>Change Log</h1>
 
+<br><span class="ver">2.5.0.3</span>
+<span class="date">&nbsp;@&nbsp;2009-Jul-11</span>
+<table>
+<tr><td class="aaa">[+]</td><td>Simple shadows, from Doomsday.
+<tr><td class="aaa">[+]</td><td>New "Fog Based" sector light mode which is very similar to software mode. If it doesn't work correctly, try updating your drivers or replacing your ATI, because per-pixel fog (GL_NICEST) doesn't work with some ATI cards or their drivers.
+<tr><td class="aaa">[+]</td><td>New map_always_updates config variable that can be toggled between updating unexplored parts in automap mode or the classic behavior.
+<tr><td class="aaa">[*]</td><td>No multisampling in automap mode.
+<tr><td class="aaa">[*]</td><td>Speed improvement in OpenGL mode: ~25% on nuts.wad, 7% generally.
+<tr><td class="aaa">[*]</td><td>Automap drawing optimisation in GL mode: 220 fps instead of only 30 on map05 @ dv.wad after IDDT IDDT.
+<tr><td class="aaa">[-]</td><td>Fixed middle texture bug on Claustrophobia 1024 map06, sector 39.
+<tr><td class="aaa">[-]</td><td>Fixed desynch on longdays.wad (-emulate 2.5.0.1/2 for viewing demos recorded with buggy versions).
+</table>
+
 <br><span class="ver">2.5.0.2</span>
 <span class="date">&nbsp;@&nbsp;2009-May-09</span>
 <table>
-
 <tr><td class="aaa">[+]</td><td>Support for DeePsea's tall patch method: Now it's possible to use patches of any height.
 <tr><td class="aaa">[+]</td><td>Support for hi-res textures in wads. You should place them between HI_START/HI_END markers.
 <tr><td class="aaa">[+]</td><td>Fog in "gzdoom" lighting mode.

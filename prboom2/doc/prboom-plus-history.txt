@@ -1,5 +1,15 @@
 Change Log
 
+2.5.0.3 @ 2009.07.11
+[+] Simple shadows, from Doomsday.
+[+] New "Fog Based" sector light mode which is very similar to software mode. If it doesn't work correctly, try updating your drivers or replacing your ATI, because per-pixel fog (GL_NICEST) doesn't work with some ATI cards or their drivers.
+[+] New map_always_updates config variable that can be toggled between updating unexplored parts in automap mode or the classic behavior.
+[*] No multisampling in automap mode.
+[*] Speed improvement in OpenGL mode: ~25% on nuts.wad, 7% generally.
+[*] Automap drawing optimisation in GL mode: 220 fps instead of only 30 on map05 @ dv.wad after IDDT IDDT.
+[-] Fixed middle texture bug on Claustrophobia 1024 map06, sector 39.
+[-] Fixed desynch on longdays.wad (-emulate 2.5.0.1/2 for viewing demos recorded with buggy versions).
+
 2.5.0.2 @ 2009.05.09
 [+] Support for DeePsea's tall patch method: Now it's possible to use patches of any height.
 [+] Support for hi-res textures in wads. You should place them between HI_START/HI_END markers.
