@@ -10,19 +10,6 @@ dnl --- Fire up automake
 AM_INIT_AUTOMAKE([check-news foreign -Woverride -Wobsolete -Wportability -Wsyntax -Wunsupported])
 AM_CONFIG_HEADER(config.h)
 
-AC_MSG_CHECKING([checking whether to use x86 asm versions of some functions])
-AC_ARG_ENABLE(i386-asm,AC_HELP_STRING([--disable-i386-asm],[Do not use i386 assembly]),,[
-enable_i386_asm="no"
-case "$target" in
-        i?86-*) enable_i386_asm="yes" ;;
-esac])
-if test "$enable_i386_asm" = yes; then
-    AC_DEFINE(I386_ASM,1,[Define on targets supporting 386 assembly])
-    AC_MSG_RESULT(yes)
-else
-    AC_MSG_RESULT(no)
-fi
-
 AC_ARG_WITH(waddir,AC_HELP_STRING([--with-waddir],[Path to install prboom.wad and look for other WAD files]),
 DOOMWADDIR="$withval",
 if test "x$prefix" != xNONE; then
