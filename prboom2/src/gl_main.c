@@ -564,6 +564,7 @@ void gld_FillBlock(int x, int y, int width, int height, int col)
 {
   const unsigned char *playpal = V_GetPlaypal();
 
+  glDisable(GL_TEXTURE_2D);
   glColor3f((float)playpal[3*col]/255.0f,
             (float)playpal[3*col+1]/255.0f,
             (float)playpal[3*col+2]/255.0f);
@@ -574,6 +575,7 @@ void gld_FillBlock(int x, int y, int width, int height, int col)
     glVertex2i( x+width, y+height );
   glEnd();
   glColor3f(1.0f,1.0f,1.0f);
+  glEnable(GL_TEXTURE_2D);
 }
 
 void gld_SetPalette(int palette)
