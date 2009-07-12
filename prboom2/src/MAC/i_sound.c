@@ -71,6 +71,7 @@
 
 static int playFile(const char *filename);
 
+typedef int boolean;
 char* music_tmp; /* cph - name of music temporary file */
 static boolean qtInited = false;
 static boolean inLoopedMode = false;
