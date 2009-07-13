@@ -234,7 +234,7 @@ task(:image => :bundle) do |t|
 	end
 
 	sh("hdiutil create -fs HFS+ -volname #{imageName} -ov -type SPARSE -attach #{imageName}")
-	cp_r([BUNDLEDIR, '../AUTHORS', '../COPYING', '../NEWS', '../README', '../doc'], imagePath)
+	system('/usr/bin/rsync', '-a', BUNDLEDIR, '../AUTHORS', '../COPYING', '../NEWS', '../README', '../doc', imagePath)
 
 	cp('MAC/Image-DS_Store', "#{imagePath}/.DS_Store")
 	sh("diskutil eject #{imagePath}")
