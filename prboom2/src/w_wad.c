@@ -217,7 +217,9 @@ static void W_AddFile(wadfile_info_t *wadfile)
 static int IsMarker(const char *marker, const char *name)
 {
   return !strncasecmp(name, marker, 8) ||
-    (*name == *marker && !strncasecmp(name+1, marker, 7));
+    // doubled first character test for single-character prefixes only
+    // FF_* is valid alias for F_*, but HI_* should not allow HHI_*
+    (marker[1] == '_' && *name == *marker && !strncasecmp(name+1, marker, 7));
 }
 
 // killough 4/17/98: add namespace tags
