@@ -107,6 +107,7 @@ typedef struct
     ns_sprites,
     ns_flats,
     ns_colormaps,
+    ns_hires,
     ns_prboom
   } li_namespace; // haleyjd 05/21/02: renamed from "namespace"
 
