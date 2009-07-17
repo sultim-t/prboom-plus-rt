@@ -225,6 +225,7 @@ static dboolean CheckIfPatch(int lump)
   int size;
   int width, height;
   const patch_t * patch;
+  dboolean result;
 
   size = W_LumpLength(lump);
   
@@ -237,38 +238,31 @@ static dboolean CheckIfPatch(int lump)
   width = LittleShort(patch->width);
   height = LittleShort(patch->height);
 
-  if (height > 0 && height < 2048 && width > 0 && width <= 2048 && width < size / 4)
+  result = (height > 0 && height < 2048 && width > 0 && width <= 2048 && width < size / 4);
+
+  if (result)
   {
     // The dimensions seem like they might be valid for a patch, so
-    // check the column directory for extra security. At least one
-    // column must begin exactly at the end of the column directory,
-    // and none of them must point past the end of the patch.
-    dboolean gapAtStart = true;
+    // check the column directory for extra security. All columns 
+    // must begin after the column directory, and none of them must
+    // point past the end of the patch.
     int x;
 
     for (x = 0; x < width; x++)
     {
       unsigned int ofs = LittleLong(patch->columnofs[x]);
-      if (ofs == (unsigned int)width * 4 + 8)
+
+      // Need one byte for an empty column (but there's patches that don't know that!)
+      if (ofs < (unsigned int)width * 4 + 8 || ofs >= (unsigned int)size)
       {
-        gapAtStart = false;
-      }
-      else
-      {
-        // Need one byte for an empty column (but there's patches that don't know that!)
-        if (ofs >= (unsigned int)size)
-        {
-          W_UnlockLumpNum(lump);
-          return false;
-        }
+        result = false;
+        break;
       }
     }
-    W_UnlockLumpNum(lump);
-    return !gapAtStart;
   }
 
   W_UnlockLumpNum(lump);
-  return false;
+  return result;
 }
 
 //---------------------------------------------------------------------------
