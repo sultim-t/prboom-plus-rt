@@ -564,7 +564,7 @@ void gld_FillBlock(int x, int y, int width, int height, int col)
 {
   const unsigned char *playpal = V_GetPlaypal();
 
-  glDisable(GL_TEXTURE_2D);
+  gld_EnableTexture2D(false);
   glColor3f((float)playpal[3*col]/255.0f,
             (float)playpal[3*col+1]/255.0f,
             (float)playpal[3*col+2]/255.0f);
@@ -575,7 +575,7 @@ void gld_FillBlock(int x, int y, int width, int height, int col)
     glVertex2i( x+width, y+height );
   glEnd();
   glColor3f(1.0f,1.0f,1.0f);
-  glEnable(GL_TEXTURE_2D);
+  gld_EnableTexture2D(true);
 }
 
 void gld_SetPalette(int palette)
@@ -1854,14 +1854,14 @@ static void gld_ProcessExtraAlpha(void)
   {
     glDisable(GL_ALPHA_TEST);
     glColor4f(extra_red, extra_green, extra_blue, extra_alpha);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    gld_ResetLastTexture();
+    gld_EnableTexture2D(false);
     glBegin(GL_TRIANGLE_STRIP);
       glVertex2f( 0.0f, 0.0f);
       glVertex2f( 0.0f, (float)SCREENHEIGHT);
       glVertex2f( (float)SCREENWIDTH, 0.0f);
       glVertex2f( (float)SCREENWIDTH, (float)SCREENHEIGHT);
     glEnd();
+    gld_EnableTexture2D(true);
     glEnable(GL_ALPHA_TEST);
   }
 }
@@ -1871,14 +1871,14 @@ static void gld_InvertScene(void)
 {
   glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
   glColor4f(1,1,1,1);
-  glBindTexture(GL_TEXTURE_2D, 0);
-  gld_ResetLastTexture();
+  gld_EnableTexture2D(false);
   glBegin(GL_TRIANGLE_STRIP);
     glVertex2f( 0.0f, 0.0f);
     glVertex2f( 0.0f, (float)SCREENHEIGHT);
     glVertex2f( (float)SCREENWIDTH, 0.0f);
     glVertex2f( (float)SCREENWIDTH, (float)SCREENHEIGHT);
   glEnd();
+  gld_EnableTexture2D(true);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
