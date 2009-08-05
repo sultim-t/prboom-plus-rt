@@ -192,7 +192,7 @@ const char* I_GetVersionString(char* buf, size_t sz)
  */
 const char* I_SigString(char* buf, size_t sz, int signum)
 {
-#ifdef SYS_SIGLIST_DECLARED
+#ifdef HAVE_DECL_SYS_SIGLIST
   if (strlen(sys_siglist[signum]) < sz)
     strcpy(buf,sys_siglist[signum]);
   else
