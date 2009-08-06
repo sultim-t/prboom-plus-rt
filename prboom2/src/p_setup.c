@@ -1355,7 +1355,7 @@ static void P_LoadReject(int lumpnum, int totallines)
   rejectmatrix = W_CacheLumpNum(rejectlump);
 
   //e6y: check for overflow
-  RejectOverrun(rejectlump, rejectmatrix, totallines);
+  RejectOverrun(rejectlump, &rejectmatrix, totallines);
 }
 
 //

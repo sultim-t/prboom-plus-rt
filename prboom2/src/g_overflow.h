@@ -118,6 +118,6 @@ void SpechitOverrun(spechit_overrun_param_t *params);
 // reject overrun emulation
 //
 
-void RejectOverrun(int rejectlump, const byte *rejectmatrix, int totallines);
+void RejectOverrun(int rejectlump, const byte **rejectmatrix, int totallines);
 
 #endif // __G_OVERFLOW__

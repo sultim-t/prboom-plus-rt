@@ -322,7 +322,7 @@ void SpechitOverrun(spechit_overrun_param_t *params)
 // No more desync on teeth-32.wad\teeth-32.lmp.
 // http://www.doomworld.com/vb/showthread.php?s=&threadid=35214
 
-void RejectOverrun(int rejectlump, const byte *rejectmatrix, int totallines)
+void RejectOverrun(int rejectlump, const byte **rejectmatrix, int totallines)
 {
   unsigned int length, required;
   byte *newreject;
@@ -336,7 +336,7 @@ void RejectOverrun(int rejectlump, const byte *rejectmatrix, int totallines)
     // allocate a new block and copy the reject table into it; zero the rest
     // PU_LEVEL => will be freed on level exit
     newreject = Z_Malloc(required, PU_LEVEL, NULL);
-    rejectmatrix = (const byte *)memmove(newreject, rejectmatrix, length);
+    *rejectmatrix = memmove(newreject, *rejectmatrix, length);
 
     // e6y
     // PrBoom 2.2.5 and 2.2.6 padded a short REJECT with 0xff
