@@ -275,6 +275,7 @@ prboom_comp_t prboom_comp[PC_MAX] = {
   {0x00000000, 0x02040803, 0, "-apply_green_armor_class_to_armor_bonuses"},
   {0x00000000, 0x02040803, 0, "-apply_blue_armor_class_to_megasphere"},
   {0x02050001, 0x02050003, 0, "-wrong_fixeddiv"},
+  {0x02020200, 0x02050003, 0, "-force_incorrect_bobbing_in_boom"},
 };
 
 dboolean *use_wrong_fixeddiv;
