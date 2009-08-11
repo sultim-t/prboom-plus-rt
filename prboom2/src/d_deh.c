@@ -47,6 +47,7 @@
 #include "g_game.h"
 #include "d_think.h"
 #include "w_wad.h"
+#include "m_argv.h"
 #include "e6y.h"//e6y
 
 // CPhipps - modify to use logical output routine
@@ -2341,10 +2342,15 @@ static void deh_procCheat(DEHFILE *fpin, FILE* fpout, char *line) // done
           cheat[i].deh_modified = true;
                 }
 #endif
-                cheat[iy].cheat = strdup(p);
-                if (fpout) fprintf(fpout,
-                                   "Assigned new cheat '%s' to cheat '%s'at index %d\n",
-                                   p, cheat[ix].deh_cheat, iy); // killough 4/18/98
+                //e6y: ability to ignore cheats in dehacked files.
+                if (!M_CheckParm("-nocheats"))
+                {
+                  cheat[iy].cheat = strdup(p);
+                  if (fpout) fprintf(fpout,
+                    "Assigned new cheat '%s' to cheat '%s'at index %d\n",
+                    p, cheat[ix].deh_cheat, iy); // killough 4/18/98
+                }
+
               }
           }
       if (fpout) fprintf(fpout,"- %s\n",inbuffer);
