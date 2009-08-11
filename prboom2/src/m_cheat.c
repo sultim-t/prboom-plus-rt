@@ -673,10 +673,13 @@ static int M_FindCheats_Boom(int key)
 // Called in st_stuff module, which handles the input.
 // Returns a 1 if the cheat was successful, 0 if failed.
 //
-static int M_FindCheats_Doom(char key)
+static int M_FindCheats_Doom(int key)
 {
   int rc = 0;
   cheatseq_t* cht;
+  char char_key;
+
+  char_key = (char)key;
 
   for (cht = cheat; cht->cheat; cht++)
   {
@@ -701,7 +704,7 @@ static int M_FindCheats_Doom(char key)
         // and verifying.  reset back to the beginning 
         // if a key is wrong
 
-        if (key == cht->cheat[cht->chars_read])
+        if (char_key == cht->cheat[cht->chars_read])
           ++cht->chars_read;
         else
           cht->chars_read = 0;
@@ -713,7 +716,7 @@ static int M_FindCheats_Doom(char key)
         // we have passed the end of the cheat sequence and are 
         // entering parameters now 
 
-        cht->parameter_buf[cht->param_chars_read] = key;
+        cht->parameter_buf[cht->param_chars_read] = char_key;
 
         ++cht->param_chars_read;
 
