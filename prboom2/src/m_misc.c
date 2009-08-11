@@ -67,6 +67,7 @@
 #include "i_joy.h"
 #include "lprintf.h"
 #include "d_main.h"
+#include "d_deh.h"
 #include "r_draw.h"
 #include "r_demo.h"
 #include "r_fps.h"
@@ -307,6 +308,10 @@ default_t defaults[] =
    def_bool,ss_none}, // enables message display
   {"autorun",{&autorun},{0},0,1,  // killough 3/6/98: preserve autorun across games
    def_bool,ss_none},
+
+  {"Dehacked settings",{NULL},{0},UL,UL,def_none,ss_none},
+  {"deh_apply_cheats",{&deh_apply_cheats},{1},0,1,
+   def_bool,ss_stat}, // if 0, dehacked cheat replacements are ignored.
 
   {"Compatibility settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"comp_zombie",{&default_comp[comp_zombie]},{0},0,1,def_bool,ss_comp,&comp[comp_zombie]},

@@ -66,6 +66,9 @@ char* strlwr(char* str)
 }
 #endif
 
+// If false, dehacked cheat replacements are ignored.
+int deh_apply_cheats = true;
+
 // killough 10/98: new functions, to allow processing DEH files in-memory
 // (e.g. from wads)
 
@@ -2343,7 +2346,7 @@ static void deh_procCheat(DEHFILE *fpin, FILE* fpout, char *line) // done
                 }
 #endif
                 //e6y: ability to ignore cheats in dehacked files.
-                if (!M_CheckParm("-nocheats"))
+                if (deh_apply_cheats && !M_CheckParm("-nocheats"))
                 {
                   cheat[iy].cheat = strdup(p);
                   if (fpout) fprintf(fpout,
