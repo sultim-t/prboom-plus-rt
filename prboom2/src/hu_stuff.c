@@ -885,13 +885,15 @@ void HU_Drawer(void)
   {
     if (doit)            //jff 8/7/98 update every time, avoid lag in update
     {
+      int fullammo = plr->maxammo[weaponinfo[plr->readyweapon].ammo];
+
       HU_MoveHud();                  // insure HUD display coords are correct
 
       // do the hud ammo display
       // clear the widgets internal line
       HUlib_clearTextLine(&w_ammo);
       strcpy(hud_ammostr,"AMM ");
-      if (weaponinfo[plr->readyweapon].ammo == am_noammo)
+      if (weaponinfo[plr->readyweapon].ammo == am_noammo || fullammo == 0)
       { // special case for weapon with no ammo selected - blank bargraph + N/A
         strcat(hud_ammostr,"\x7f\x7f\x7f\x7f\x7f\x7f\x7f N/A");
         w_ammo.cm = CR_GRAY;
@@ -899,7 +901,6 @@ void HU_Drawer(void)
       else
       {
         int ammo = plr->ammo[weaponinfo[plr->readyweapon].ammo];
-        int fullammo = plr->maxammo[weaponinfo[plr->readyweapon].ammo];
         int ammopct = (100*ammo)/fullammo;
         int ammobars = ammopct/4;
 
