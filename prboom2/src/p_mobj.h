@@ -395,6 +395,7 @@ typedef struct mobj_s
 extern int iquehead;
 extern int iquetail;
 
+mobj_t* P_SubstNullMobj (mobj_t* th);
 void    P_RespawnSpecials(void);
 mobj_t  *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type);
 void    P_RemoveMobj(mobj_t *th);

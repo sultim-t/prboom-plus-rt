@@ -1744,14 +1744,17 @@ void A_FireCrackle(mobj_t* actor)
 
 void A_Fire(mobj_t *actor)
 {
+  mobj_t* target;
   unsigned an;
   mobj_t *dest = actor->tracer;
 
   if (!dest)
     return;
 
+  target = P_SubstNullMobj(actor->target);
+
   // don't move it if the vile lost sight
-  if (!P_CheckSight(actor->target, dest) )
+  if (!P_CheckSight(target, dest) )
     return;
 
   an = dest->angle >> ANGLETOFINESHIFT;
@@ -1840,6 +1843,7 @@ void A_FatRaise(mobj_t *actor)
 void A_FatAttack1(mobj_t *actor)
 {
   mobj_t *mo;
+  mobj_t* target;
   int    an;
 
   if (!actor->target)
@@ -1849,10 +1853,10 @@ void A_FatAttack1(mobj_t *actor)
 
   // Change direction  to ...
   actor->angle += FATSPREAD;
+  target = P_SubstNullMobj(actor->target);
+  P_SpawnMissile(actor, target, MT_FATSHOT);
 
-  P_SpawnMissile(actor, actor->target, MT_FATSHOT);
-
-  mo = P_SpawnMissile (actor, actor->target, MT_FATSHOT);
+  mo = P_SpawnMissile (actor, target, MT_FATSHOT);
   mo->angle += FATSPREAD;
   an = mo->angle >> ANGLETOFINESHIFT;
   mo->momx = FixedMul(mo->info->speed, finecosine[an]);
@@ -1862,6 +1866,7 @@ void A_FatAttack1(mobj_t *actor)
 void A_FatAttack2(mobj_t *actor)
 {
   mobj_t *mo;
+  mobj_t* target;
   int    an;
 
   if (!actor->target)
@@ -1870,9 +1875,10 @@ void A_FatAttack2(mobj_t *actor)
   A_FaceTarget(actor);
   // Now here choose opposite deviation.
   actor->angle -= FATSPREAD;
-  P_SpawnMissile(actor, actor->target, MT_FATSHOT);
+  target = P_SubstNullMobj(actor->target);
+  P_SpawnMissile(actor, target, MT_FATSHOT);
 
-  mo = P_SpawnMissile(actor, actor->target, MT_FATSHOT);
+  mo = P_SpawnMissile(actor, target, MT_FATSHOT);
   mo->angle -= FATSPREAD*2;
   an = mo->angle >> ANGLETOFINESHIFT;
   mo->momx = FixedMul(mo->info->speed, finecosine[an]);
@@ -1882,6 +1888,7 @@ void A_FatAttack2(mobj_t *actor)
 void A_FatAttack3(mobj_t *actor)
 {
   mobj_t *mo;
+  mobj_t* target;
   int    an;
 
   if (!actor->target)
@@ -1889,13 +1896,15 @@ void A_FatAttack3(mobj_t *actor)
 
   A_FaceTarget(actor);
 
-  mo = P_SpawnMissile(actor, actor->target, MT_FATSHOT);
+  target = P_SubstNullMobj(actor->target);
+
+  mo = P_SpawnMissile(actor, target, MT_FATSHOT);
   mo->angle -= FATSPREAD/2;
   an = mo->angle >> ANGLETOFINESHIFT;
   mo->momx = FixedMul(mo->info->speed, finecosine[an]);
   mo->momy = FixedMul(mo->info->speed, finesine[an]);
 
-  mo = P_SpawnMissile(actor, actor->target, MT_FATSHOT);
+  mo = P_SpawnMissile(actor, target, MT_FATSHOT);
   mo->angle += FATSPREAD/2;
   an = mo->angle >> ANGLETOFINESHIFT;
   mo->momx = FixedMul(mo->info->speed, finecosine[an]);
@@ -2435,7 +2444,7 @@ void A_SpawnFly(mobj_t *mo)
   if (--mo->reactiontime)
     return;     // still flying
 
-  targ = mo->target;
+  targ = P_SubstNullMobj(mo->target);
 
   // First spawn teleport fog.
   fog = P_SpawnMobj(targ->x, targ->y, targ->z, MT_SPAWNFIRE);

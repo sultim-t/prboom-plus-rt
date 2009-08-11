@@ -1666,6 +1666,8 @@ fixed_t P_AimLineAttack(mobj_t* t1,angle_t angle,fixed_t distance, uint_64_t mas
   fixed_t x2;
   fixed_t y2;
 
+  t1 = P_SubstNullMobj(t1);
+
   angle >>= ANGLETOFINESHIFT;
   shootthing = t1;
 
