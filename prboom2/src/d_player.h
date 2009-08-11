@@ -107,13 +107,6 @@ typedef struct player_s
   // bounded/scaled total momentum.
   fixed_t             bob;
 
-  /* killough 10/98: used for realistic bobbing (i.e. not simply overall speed)
-   * mo->momx and mo->momy represent true momenta experienced by player.
-   * This only represents the thrust that the player applies himself.
-   * This avoids anomolies with such things as Boom ice and conveyors.
-   */
-  fixed_t            momx, momy;      // killough 10/98
-
   // This is only used between levels,
   // mo->health is used during levels.
   int                 health;
@@ -153,10 +146,6 @@ typedef struct player_s
   int                 itemcount;
   int                 secretcount;
 
-  //e6y
-  int                 resurectedkillcount;
-  const char*         centermessage;
-
   // Hint messages. // CPhipps - const
   const char*         message;
 
@@ -184,6 +173,20 @@ typedef struct player_s
   // True if secret level has been done.
   dboolean           didsecret;
 
+  // e6y
+  // All non original (new) fields of player_t struct are moved to bottom
+  // for compatibility with overflow (from a deh) of player_t::ammo[NUMAMMO]
+
+  /* killough 10/98: used for realistic bobbing (i.e. not simply overall speed)
+   * mo->momx and mo->momy represent true momenta experienced by player.
+   * This only represents the thrust that the player applies himself.
+   * This avoids anomolies with such things as Boom ice and conveyors.
+   */
+  fixed_t            momx, momy;      // killough 10/98
+
+  //e6y
+  int                 resurectedkillcount;
+  const char*         centermessage;
 } player_t;
 
 
