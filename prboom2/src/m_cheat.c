@@ -51,7 +51,6 @@
 
 //e6y: for speedup
 static int boom_cheat_route[MAX_COMPATIBILITY_LEVEL];
-static int cheats_abc[256];
 
 //-----------------------------------------------------------------------------
 //
@@ -679,9 +678,6 @@ static int M_FindCheats_Doom(char key)
   int rc = 0;
   cheatseq_t* cht;
 
-  if (!cheats_abc[key])
-    return 0;
-
   for (cht = cheat; cht->cheat; cht++)
   {
     if (!(cht->when & not_dm   && deathmatch) &&  // and if cheat allowed
@@ -768,17 +764,9 @@ static void cht_InitCheats(void)
     boom_cheat_route[boom_202_compatibility] = 1;
     boom_cheat_route[mbf_compatibility] = 1;
 
-    memset(cheats_abc, 0, sizeof(cheats_abc));
     for (cht = cheat; cht->cheat; cht++)
     {
-      unsigned int i;
-      
       cht->deh_sequence_len = strlen(cht->cheat);
-
-      for (i = 0; i < strlen(cht->cheat); i++)
-      {
-        cheats_abc[cht->cheat[i]] = 1;
-      }
     }
   }
 }
