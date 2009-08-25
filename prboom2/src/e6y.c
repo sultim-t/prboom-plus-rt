@@ -626,7 +626,11 @@ void M_ChangeFOV(void)
 void M_ChangeUseDetail(void)
 {
   if (V_GetMode() == VID_MODEGL)
+  {
     render_usedetail = (render_canusedetail) && (render_detailedflats || render_detailedwalls);
+    gld_EnableDetail(true);
+    gld_EnableDetail(false);
+  }
 }
 
 void M_ChangeSpriteClip(void)

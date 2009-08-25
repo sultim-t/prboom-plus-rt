@@ -34,8 +34,6 @@
 #ifndef _GL_STRUCT_H
 #define _GL_STRUCT_H
 
-#define USE_VERTEX_ARRAYS
-
 extern int nodesVersion;
 
 typedef enum {
@@ -174,7 +172,6 @@ typedef struct shadow_params_s
 
 extern simple_shadow_params_t simple_shadows;
 
-void gld_EnableTexture2D(int state);
 void gld_DrawMapLines(void);
 
 #endif // _GL_STRUCT_H

@@ -52,6 +52,30 @@
 
 #include "e6y.h"
 
+typedef struct vbo_vertex_s
+{
+  float x, y, z;
+  float u, v;
+  unsigned char r, g, b, a;
+} vbo_vertex_t;
+#define NULL_VBO_VERTEX ((vbo_vertex_t*)NULL)
+
+typedef struct
+{
+  int mode;
+  int vertexcount;
+  int vertexindex;
+  int use_texture;
+} GLSkyLoopDef;
+
+typedef struct
+{
+  int rows, columns;
+  int loopcount;
+  GLSkyLoopDef *loops;
+  vbo_vertex_t *data;
+} GLSkyVBO;
+
 int gl_drawskys;
 
 static PalEntry_t *SkyColor;
@@ -275,9 +299,9 @@ void averageColor(PalEntry_t * PalEntry, const unsigned int *data, int size, fix
     b = b * maxout_factor / maxv;
   }
 
-  PalEntry->r = (float)r / 255.0f;
-  PalEntry->g = (float)g / 255.0f;
-  PalEntry->b = (float)b / 255.0f;
+  PalEntry->r = r;
+  PalEntry->g = g;
+  PalEntry->b = b;
   return;
 }
 
@@ -299,7 +323,7 @@ void gld_DrawScreenSkybox(void)
     {
       glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // no graphics
     }
-    glDisable(GL_TEXTURE_2D);
+    gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
 
     for (i = gld_drawinfo.num_items[GLDIT_SWALL] - 1; i >= 0; i--)
     {
@@ -313,7 +337,7 @@ void gld_DrawScreenSkybox(void)
       glEnd();
     }
 
-    glEnable(GL_TEXTURE_2D);
+    gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
     if (!gl_compatibility)
     {
       glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -374,9 +398,7 @@ void gld_DrawScreenSkybox(void)
 }
 
 // The texture offset to be applied to the texture coordinates in SkyVertex().
-static angle_t maxSideAngle = ANG180 / 3;
 static int rows, columns;	
-static fixed_t scale = 10000 << FRACBITS;
 static dboolean yflip;
 static int texw;
 static float yMult, yAdd;
@@ -384,12 +406,6 @@ static dboolean foglayer;
 static float delta = 0.0f;
 
 int gl_sky_detail = 16;
-
-#define SKYHEMI_UPPER		0x1
-#define SKYHEMI_LOWER		0x2
-#define SKYHEMI_JUST_CAP	0x4	// Just draw the top or bottom cap.
-
-#define TO_GL(v) ((float)(v)/(float)MAP_SCALE)
 
 //-----------------------------------------------------------------------------
 //
@@ -429,8 +445,11 @@ void gld_GetSkyCapColors(void)
 //
 //-----------------------------------------------------------------------------
 
-static void SkyVertex(int r, int c)
+static void SkyVertex(vbo_vertex_t *vbo, int r, int c)
 {
+  static fixed_t scale = 10000 << FRACBITS;
+  static angle_t maxSideAngle = ANG180 / 3;
+
   angle_t topAngle= (angle_t)(c / (float)columns * ANGLE_MAX);
   angle_t sideAngle = maxSideAngle * (rows - r) / rows;
   fixed_t height = finesine[sideAngle>>ANGLETOFINESHIFT];
@@ -438,8 +457,6 @@ static void SkyVertex(int r, int c)
   fixed_t x = FixedMul(realRadius, finecosine[topAngle>>ANGLETOFINESHIFT]);
   fixed_t y = (!yflip) ? FixedMul(scale, height) : FixedMul(scale, height) * -1;
   fixed_t z = FixedMul(realRadius, finesine[topAngle>>ANGLETOFINESHIFT]);
-  float fx, fy, fz;
-  float u, v;
   float timesRepeat;
 
   timesRepeat = (short)(4 * (256.0f / texw));
@@ -448,126 +465,112 @@ static void SkyVertex(int r, int c)
 
   if (!foglayer)
   {
-    glColor4f(1.0f, 1.0f, 1.0f, (r == 0 ? 0.0f : 1.0f));
+    vbo->r = 255;
+    vbo->g = 255;
+    vbo->b = 255;
+    vbo->a = (r == 0 ? 0 : 255);
     
     // And the texture coordinates.
     if(!yflip)	// Flipped Y is for the lower hemisphere.
     {
-      u = (-timesRepeat * c / (float)columns) ;
-      v = (r / (float)rows) * 1.f * yMult + yAdd;
+      vbo->u = (-timesRepeat * c / (float)columns) ;
+      vbo->v = (r / (float)rows) * 1.f * yMult + yAdd;
     }
     else
     {
-      u = (-timesRepeat * c / (float)columns) ;
-      v = ((rows-r)/(float)rows) * 1.f * yMult + yAdd;
+      vbo->u = (-timesRepeat * c / (float)columns) ;
+      vbo->v = ((rows-r)/(float)rows) * 1.f * yMult + yAdd;
     }
-
-    glTexCoord2f(u, v);
   }
+
   // And finally the vertex.
-  fx =-TO_GL(x);	// Doom mirrors the sky vertically!
-  fy = TO_GL(y);
-  fz = TO_GL(z);
-  glVertex3f(fx, fy + delta, fz);
+  vbo->x =-(float)x/(float)MAP_SCALE;	// Doom mirrors the sky vertically!
+  vbo->y = (float)y/(float)MAP_SCALE + delta;
+  vbo->z = (float)z/(float)MAP_SCALE;
 }
 
+GLSkyVBO *sky_vbo = NULL;
 
-//-----------------------------------------------------------------------------
-//
-// Hemi is Upper or Lower. Zero is not acceptable.
-// The current texture is used. SKYHEMI_NO_TOPCAP can be used.
-//
-//-----------------------------------------------------------------------------
-
-static void RenderSkyHemisphere(int hemi)
+static void gld_BuildSky(int row_count, int col_count, SkyBoxParams_t *sky)
 {
-  int r, c;
+  int texh, c, r;
+  vbo_vertex_t *vertex_p;
+  int vertex_count = 2 * row_count * (col_count * 2 + 2) + col_count * 2;
 
-  yflip = (hemi & SKYHEMI_LOWER);
-
-  // The top row (row 0) is the one that's faded out.
-  // There must be at least 4 columns. The preferable number
-  // is 4n, where n is 1, 2, 3... There should be at least
-  // two rows because the first one is always faded.
-  rows = 4;
-
-  if (hemi & SKYHEMI_JUST_CAP)
+  if (sky_vbo && ((sky_vbo->columns != col_count) || (sky_vbo->rows != row_count)))
   {
-    return;
+    free(sky_vbo[0].loops);
+    free(sky_vbo[0].data);
+    free(sky_vbo);
+    sky_vbo = NULL;
   }
 
-  delta = 0.0f;
-
-  // Draw the cap as one solid color polygon
-  if (!foglayer)
+  if (!sky_vbo)
   {
-    columns = 4 * gl_sky_detail;
-    if (mlook_or_fov)
+    sky_vbo = malloc(sizeof(sky_vbo[0]));
+    sky_vbo[0].loops = malloc((row_count * 2 + 2) * sizeof(sky_vbo[0].loops[0]));
+    // create vertex array
+    sky_vbo[0].data = malloc(vertex_count * sizeof(sky_vbo[0].data[0]));
+  }
+
+  sky_vbo->columns = col_count;
+  sky_vbo->rows = row_count;
+
+  texh = sky->wall.gltexture->buffer_height;
+  if (texh > 190)
+    texh = 190;
+  texw = sky->wall.gltexture->buffer_width;
+
+  vertex_p = &sky_vbo[0].data[0];
+  sky_vbo[0].loopcount = 0;
+  for(yflip = 0; yflip < 2; yflip++)
+  {
+    sky_vbo[0].loops[sky_vbo[0].loopcount].mode = GL_TRIANGLE_FAN;
+    sky_vbo[0].loops[sky_vbo[0].loopcount].vertexindex = vertex_p - &sky_vbo[0].data[0];
+    sky_vbo[0].loops[sky_vbo[0].loopcount].vertexcount = col_count;
+    sky_vbo[0].loops[sky_vbo[0].loopcount].use_texture = false;
+    sky_vbo[0].loopcount++;
+
+    yAdd = sky->y_offset / texh;
+    yMult = (texh <= 180 ? 1.0f : 180.0f / texh);
+    if (yflip == 0)
     {
-      foglayer = true;
-      glDisable(GL_TEXTURE_2D);
-
-      glColor3f(SkyColor->r, SkyColor->g ,SkyColor->b);
-      glBegin(GL_TRIANGLE_FAN);
-      for(c = 0; c < columns; c++)
-      {
-        SkyVertex(1, c);
-      }
-      glEnd();
-
-      glEnable(GL_TEXTURE_2D);
-      foglayer = false;
-    }
-  }
-  else
-  {
-    columns = 4;	// no need to do more!
-    glBegin(GL_TRIANGLE_FAN);
-    for(c = 0; c < columns; c++)
-    {
-      SkyVertex(0, c);
-    }
-    glEnd();
-  }
-
-  if (hemi & SKYHEMI_UPPER)
-  {
-      delta = -5.0f / 128.0f;
-  }
-
-  if (hemi & SKYHEMI_LOWER)
-  {
-      delta = 5.0f / 128.0f;
-  }
-
-  // The total number of triangles per hemisphere can be calculated
-  // as follows: rows * columns * 2 + 2 (for the top cap).
-  //glColor3f(1.0f, 1.0f , 1.0f);
-  for(r = 0; r < rows; r++)
-  {
-    if (yflip)
-    {
-      glBegin(GL_TRIANGLE_STRIP);
-      SkyVertex(r + 1, 0);
-      SkyVertex(r, 0);
-      for(c = 1; c <= columns; c++)
-      {
-        SkyVertex(r + 1, c);
-        SkyVertex(r, c);
-      }
-      glEnd();
+      SkyColor = &sky->CeilingSkyColor;
     }
     else
     {
-      glBegin(GL_TRIANGLE_STRIP);
-      SkyVertex(r, 0);
-      SkyVertex(r + 1, 0);
-      for(c = 1; c <= columns; c++)
+      SkyColor = &sky->FloorSkyColor;
+      if (texh <= 180) yMult = 1.0f; else yAdd += 180.0f/texh;
+    }
+
+    delta = 0.0f;
+    foglayer = true;
+    for(c = 0; c < col_count; c++)
+    {
+      SkyVertex(vertex_p, 1, c);
+      vertex_p->r = SkyColor->r;
+      vertex_p->g = SkyColor->g;
+      vertex_p->b = SkyColor->b;
+      vertex_p->a = 255;
+      vertex_p++;
+    }
+    foglayer = false;
+
+    delta = (yflip ? 5.0f : -5.0f) / 128.0f;
+
+    for(r = 0; r < row_count; r++)
+    {
+      sky_vbo[0].loops[sky_vbo[0].loopcount].mode = GL_TRIANGLE_STRIP;
+      sky_vbo[0].loops[sky_vbo[0].loopcount].vertexindex = vertex_p - &sky_vbo[0].data[0];
+      sky_vbo[0].loops[sky_vbo[0].loopcount].vertexcount = 2 * col_count + 2;
+      sky_vbo[0].loops[sky_vbo[0].loopcount].use_texture = true;
+      sky_vbo[0].loopcount++;
+
+      for(c = 0; c <= col_count; c++)
       {
-        SkyVertex(r, c);
-        SkyVertex(r + 1, c);
+        SkyVertex(vertex_p++, r + (yflip ? 1 : 0), (c ? c : 0));
+        SkyVertex(vertex_p++, r + (yflip ? 0 : 1), (c ? c : 0));
       }
-      glEnd();
     }
   }
 }
@@ -580,44 +583,144 @@ static void RenderSkyHemisphere(int hemi)
 
 static void RenderDome(SkyBoxParams_t *sky)
 {
-	int texh;
+  int i, j;
+  int vbosize;
+  int use_vbo;
+
+#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
+  static GLuint sky_vbo_id = 0; // ID of VBO
+#endif
+
+  use_vbo = false;
+#ifdef USE_VBO
+  use_vbo = gl_ext_arb_vertex_buffer_object;
+#endif
 
   if (!sky || !sky->wall.gltexture)
     return;
 
-  yflip = (sky->wall.flag & GLDWF_SKYFLIP);
+#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
+  // be sure the second ARB is not enabled
+  gld_EnableDetail(false);
+#endif
 
   gld_BindTexture(sky->wall.gltexture);
+
+  glRotatef(-180.0f + sky->x_offset, 0.f, 1.f, 0.f);
+
+  rows = 4;
+  columns = 4 * gl_sky_detail;
+
+  vbosize = 2 * rows * (columns * 2 + 2) + columns * 2;
 
   if (sky->wall.gltexture->index != sky->index)
   {
     sky->index = sky->wall.gltexture->index;
     gld_GetSkyCapColors();
+
+    gld_BuildSky(rows, columns, sky);
+
+#ifdef USE_VBO
+    if (use_vbo)
+    {
+      if (sky_vbo_id)
+      {
+        // delete VBO when already exists
+        GLEXT_glDeleteBuffersARB(1, &sky_vbo_id);
+      }
+      // generate a new VBO and get the associated ID
+      GLEXT_glGenBuffersARB(1, &sky_vbo_id);
+      // bind VBO in order to use
+      GLEXT_glBindBufferARB(GL_ARRAY_BUFFER, sky_vbo_id);
+      // upload data to VBO
+      GLEXT_glBufferDataARB(GL_ARRAY_BUFFER,
+        (vbosize) * sizeof(sky_vbo[0].data[0]),
+        sky_vbo[0].data, GL_STATIC_DRAW_ARB);
+    }
+#endif
   }
 
-  texw = sky->wall.gltexture->buffer_width;
-  texh = sky->wall.gltexture->buffer_height;
-  if (texh > 190)
-    texh = 190;
+#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
+  if (use_vbo)
+  {
+    // bind VBO in order to use
+    GLEXT_glBindBufferARB(GL_ARRAY_BUFFER, sky_vbo_id);
 
-  glRotatef(-180.0f + sky->x_offset, 0.f, 1.f, 0.f);
-
-  yAdd = sky->y_offset / texh;
-  yMult = (texh <= 180 ? 1.0f : 180.0f / texh);
-
-  SkyColor = &sky->CeilingSkyColor;
-  RenderSkyHemisphere(SKYHEMI_UPPER);
-
-  if (texh <= 180)
-    yMult = 1.0f;
+    // last param is offset, not ptr
+    glVertexPointer(3, GL_FLOAT, sizeof(sky_vbo[0].data[0]), &NULL_VBO_VERTEX->x);
+    glTexCoordPointer(2, GL_FLOAT, sizeof(sky_vbo[0].data[0]), &NULL_VBO_VERTEX->u);
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(sky_vbo[0].data[0]), &NULL_VBO_VERTEX->r);
+  }
   else
-    yAdd += 180.0f/texh;
+  {
+    // activate and specify pointers to arrays
+    glVertexPointer(3, GL_FLOAT, sizeof(sky_vbo[0].data[0]), &sky_vbo[0].data[0].x);
+    glTexCoordPointer(2, GL_FLOAT, sizeof(sky_vbo[0].data[0]), &sky_vbo[0].data[0].u);
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(sky_vbo[0].data[0]), &sky_vbo[0].data[0].r);
+  }
 
-  SkyColor = &sky->FloorSkyColor;
-  RenderSkyHemisphere(SKYHEMI_LOWER);
+  // activate vertex array, texture coord array and color arrays
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glEnableClientState(GL_COLOR_ARRAY);
+#endif
 
-  glRotatef(180.0f - sky->x_offset, 0, 1, 0);
-  glScalef(1.0f, 1.0f, 1.0f);
+  for(j = 0; j < 2; j++)
+  {
+    if (j == 0 && !HaveMouseLook())
+    {
+      continue;
+    }
+
+    gld_EnableTexture2D(GL_TEXTURE0_ARB, j != 0);
+
+    for(i = 0; i < sky_vbo[0].loopcount; i++)
+    {
+      GLSkyLoopDef *loop = &sky_vbo[0].loops[i];
+
+      if (j == 0 ? loop->use_texture : !loop->use_texture)
+        continue;
+
+#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
+      glDrawArrays(loop->mode, loop->vertexindex, loop->vertexcount);
+#else
+      {
+        int k;
+        glBegin(loop->mode);
+        for (k = loop->vertexindex; k < (loop->vertexindex + loop->vertexcount); k++)
+        {
+          vbo_vertex_t *v = &sky_vbo[0].data[k];
+          if (loop->use_texture)
+          {
+            glTexCoord2fv((GLfloat*)&v->u);
+          }
+          glColor4ubv((GLubyte*)&v->r);
+          glVertex3fv((GLfloat*)&v->x);
+        }
+        glEnd();
+      }
+#endif
+    }
+  }
+
+  // current color is undefined after glDrawArrays
+  glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
+  // deactivate color array
+  glDisableClientState(GL_COLOR_ARRAY);
+#endif
+
+#ifdef USE_VBO
+  // bind with 0, so, switch back to normal pointer operation
+  GLEXT_glBindBufferARB(GL_ARRAY_BUFFER, 0);
+#endif
+
+  // restore
+#ifdef USE_VERTEX_ARRAYS
+  glTexCoordPointer(2, GL_FLOAT, 0, gld_texcoords);
+  glVertexPointer(3, GL_FLOAT, 0, gld_vertexes);
+#endif
 }
 
 void gld_DrawDomeSkyBox(void)
@@ -639,7 +742,7 @@ void gld_DrawDomeSkyBox(void)
     {
       glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // no graphics
     }
-    glDisable(GL_TEXTURE_2D);
+    gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
 
     for (i = gld_drawinfo.num_items[GLDIT_SWALL] - 1; i >= 0; i--)
     {
@@ -653,7 +756,7 @@ void gld_DrawDomeSkyBox(void)
       glEnd();
     }
 
-    glEnable(GL_TEXTURE_2D);
+    gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
     if (!gl_compatibility)
     {
       glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);

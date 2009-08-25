@@ -50,6 +50,10 @@
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "g_game.h"
 
+#ifdef GL_DOOM
+#include "gl_opengl.h"
+#endif
+
 //jff 1/7/98 default automap colors added
 int mapcolor_back;    // map background
 int mapcolor_grid;    // grid lines color
@@ -1618,7 +1622,7 @@ void AM_Drawer (void)
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
-    gld_EnableTexture2D(false);
+    gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
 #ifdef USE_VERTEX_ARRAYS
     memset(map_lines.count, 0, MAP_COLORS_COUNT * sizeof(map_lines.count[0]));
 #endif
@@ -1641,7 +1645,7 @@ void AM_Drawer (void)
 #ifdef USE_VERTEX_ARRAYS
     gld_DrawMapLines();
 #endif
-    gld_EnableTexture2D(true);
+    gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
   }
 #endif
 }

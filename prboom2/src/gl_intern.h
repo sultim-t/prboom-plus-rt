@@ -326,6 +326,7 @@ void gld_RecalcVertexHeights(const vertex_t *v);
 void gld_InitGLVersion(void);
 void gld_PreprocessDetail(void);
 void gld_DrawDetail_NoARB(void);
+void gld_EnableDetail(int enable);
 void gld_DrawWallWithDetail(GLWall *wall);
 void gld_ResetLastTexture(void);
 
@@ -408,7 +409,7 @@ unsigned char* gld_HQResize(GLTexture *gltexture, unsigned char *inputBuffer, in
 #define SKY_FLOOR   2
 typedef struct PalEntry_s
 {
-  float r, g, b, a;
+  unsigned char r, g, b, a;
 } PalEntry_t;
 typedef struct SkyBoxParams_s
 {

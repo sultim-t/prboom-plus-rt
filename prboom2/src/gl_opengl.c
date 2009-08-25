@@ -64,6 +64,7 @@ dboolean gl_arb_texture_compression = false;
 dboolean gl_ext_framebuffer_object = false;
 dboolean gl_ext_blend_color = false;
 dboolean gl_use_stencil = false;
+dboolean gl_ext_arb_vertex_buffer_object = false;
 
 // obsolete?
 PFNGLCOLORTABLEEXTPROC              GLEXT_glColorTableEXT              = NULL;
@@ -90,6 +91,12 @@ PFNGLMULTITEXCOORD2FVARBPROC     GLEXT_glMultiTexCoord2fvARB           = NULL;
 PFNGLCOMPRESSEDTEXIMAGE2DARBPROC GLEXT_glCompressedTexImage2DARB       = NULL;
 
 PFNGLBLENDCOLOREXTPROC              GLEXT_glBlendColorEXT              = NULL;
+
+/* VBO */
+PFNGLGENBUFFERSARBPROC              GLEXT_glGenBuffersARB              = NULL;
+PFNGLDELETEBUFFERSARBPROC           GLEXT_glDeleteBuffersARB           = NULL;
+PFNGLBINDBUFFERARBPROC              GLEXT_glBindBufferARB              = NULL;
+PFNGLBUFFERDATAARBPROC              GLEXT_glBufferDataARB              = NULL;
 
 void gld_InitOpenGLVersion(void)
 {
@@ -231,6 +238,26 @@ void gld_InitOpenGL(dboolean compatibility_mode)
   if (gl_ext_blend_color)
     lprintf(LO_INFO,"using GL_EXT_blend_color\n");
 
+  // VBO
+#ifdef USE_VBO
+  gl_ext_arb_vertex_buffer_object = isExtensionSupported("GL_ARB_vertex_buffer_object") != NULL;
+  if (gl_ext_arb_vertex_buffer_object)
+  {
+    GLEXT_glGenBuffersARB = SDL_GL_GetProcAddress("glGenBuffersARB");
+    GLEXT_glDeleteBuffersARB = SDL_GL_GetProcAddress("glDeleteBuffersARB");
+    GLEXT_glBindBufferARB = SDL_GL_GetProcAddress("glBindBufferARB");
+    GLEXT_glBufferDataARB = SDL_GL_GetProcAddress("glBufferDataARB");
+
+    if (!GLEXT_glGenBuffersARB || !GLEXT_glDeleteBuffersARB ||
+        !GLEXT_glBindBufferARB || !GLEXT_glBufferDataARB)
+      gl_ext_arb_vertex_buffer_object = false;
+  }
+  if (gl_ext_arb_vertex_buffer_object)
+    lprintf(LO_INFO,"using GL_ARB_vertex_buffer_object\n");
+#else
+  gl_ext_arb_vertex_buffer_object = false;
+#endif
+
   //
   // Stencil support
   //
@@ -259,7 +286,100 @@ void gld_InitOpenGL(dboolean compatibility_mode)
     gl_ext_framebuffer_object = false;
     gl_ext_blend_color = false;
     gl_use_stencil = false;
+    gl_ext_arb_vertex_buffer_object = false;
     GLEXT_CLAMP_TO_EDGE = GL_CLAMP;
     gl_version = OPENGL_VERSION_1_1;
   }
+}
+
+void gld_EnableTexture2D(GLenum texture, int enable)
+{
+  static int arb_enabled[32];
+  int arb;
+
+  if (!gl_arb_multitexture)
+    return;
+
+  arb = texture - GL_TEXTURE0_ARB;
+
+#ifdef RANGECHECK
+  if (arb < 0 || arb > 31)
+    I_Error("gld_EnableTexture2D: wronge ARB texture unit %d", arb);
+#endif
+
+  if (enable)
+  {
+    if (!arb_enabled[arb])
+    {
+      if (arb != 0)
+      {
+        GLEXT_glActiveTextureARB(texture);
+        glEnable(GL_TEXTURE_2D);
+        GLEXT_glActiveTextureARB(GL_TEXTURE0_ARB);
+      }
+      else
+      {
+        glEnable(GL_TEXTURE_2D);
+      }
+      arb_enabled[arb] = enable;
+    }
+  }
+  else
+  {
+    if (arb_enabled[arb])
+    {
+      if (arb != 0)
+      {
+        GLEXT_glActiveTextureARB(texture);
+        glDisable(GL_TEXTURE_2D);
+        GLEXT_glActiveTextureARB(GL_TEXTURE0_ARB);
+      }
+      else
+      {
+        glDisable(GL_TEXTURE_2D);
+      }
+      arb_enabled[arb] = enable;
+    }
+  }
+}
+
+void gld_EnableClientCoordArray(GLenum texture, int enable)
+{
+#ifdef USE_VERTEX_ARRAYS
+  static int arb_is_enabled[32];
+  int arb;
+
+  if (!gl_arb_multitexture)
+    return;
+
+  arb = texture - GL_TEXTURE0_ARB;
+
+#ifdef RANGECHECK
+  if (arb < 0 || arb > 31)
+    I_Error("gld_EnableTexture2D: wronge ARB texture unit %d", arb);
+#endif
+
+  if (enable)
+  {
+    if (!arb_is_enabled[arb])
+    {
+      GLEXT_glClientActiveTextureARB(texture);
+      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+      GLEXT_glClientActiveTextureARB(GL_TEXTURE0_ARB);
+
+      arb_is_enabled[arb] = enable;
+    }
+  }
+  else
+  {
+    if (arb_is_enabled[arb])
+    {
+      GLEXT_glClientActiveTextureARB(texture);
+      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+      GLEXT_glClientActiveTextureARB(GL_TEXTURE0_ARB);
+
+      arb_is_enabled[arb] = enable;
+    }
+  }
+#endif
 }

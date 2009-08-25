@@ -315,7 +315,7 @@ void gld_SetupFloodStencil(GLWall *wall)
   glStencilFunc(GL_EQUAL, recursion, ~0); // create stencil
   glStencilOp(GL_KEEP, GL_KEEP, GL_INCR); // increment stencil of valid pixels
   glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // don't write to the graphics buffer
-  glDisable(GL_TEXTURE_2D);
+  gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
   glColor3f(1, 1, 1);
   glEnable(GL_DEPTH_TEST);
   glDepthMask(true);
@@ -331,7 +331,7 @@ void gld_SetupFloodStencil(GLWall *wall)
   glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);   // this stage doesn't modify the stencil
 
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); // don't write to the graphics buffer
-  glEnable(GL_TEXTURE_2D);
+  gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
   glDisable(GL_DEPTH_TEST);
   glDepthMask(false);
 }
@@ -341,7 +341,7 @@ void gld_ClearFloodStencil(GLWall *wall)
   int recursion = 0;
 
   glStencilOp(GL_KEEP, GL_KEEP, GL_DECR);
-  glDisable(GL_TEXTURE_2D);
+  gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
   glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // don't write to the graphics buffer
   glColor3f(1, 1, 1);
 
@@ -355,7 +355,7 @@ void gld_ClearFloodStencil(GLWall *wall)
   // restore old stencil op.
   glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
   glStencilFunc(GL_EQUAL, recursion, ~0);
-  glEnable(GL_TEXTURE_2D);
+  gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   glEnable(GL_DEPTH_TEST);
   glDepthMask(true);

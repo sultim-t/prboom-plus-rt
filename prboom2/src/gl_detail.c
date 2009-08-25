@@ -175,16 +175,27 @@ void gld_PreprocessDetail(void)
   if (gl_arb_multitexture)
   {
     GLEXT_glClientActiveTextureARB(GL_TEXTURE0_ARB);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glTexCoordPointer(2,GL_FLOAT,0,gld_texcoords);
+
     GLEXT_glClientActiveTextureARB(GL_TEXTURE1_ARB);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glTexCoordPointer(2,GL_FLOAT,0,gld_texcoords);
+    GLEXT_glClientActiveTextureARB(GL_TEXTURE0_ARB);
+
     GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
     glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 2);
     GLEXT_glActiveTextureARB(GL_TEXTURE0_ARB);
   }
+}
+
+
+void gld_EnableDetail(int enable)
+{
+  if (!gl_arb_multitexture || !render_usedetail)
+    return;
+
+  gld_EnableTexture2D(GL_TEXTURE1_ARB, enable);
+  gld_EnableClientCoordArray(GL_TEXTURE1_ARB, enable);
 }
 
 void gld_DrawWallWithDetail(GLWall *wall)
@@ -225,21 +236,14 @@ void gld_DrawWallWithDetail(GLWall *wall)
       c2.t[i][1] = c1.t[i][1] * h;
     }
 
-    GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
-    glEnable(GL_TEXTURE_2D);
-
+    gld_EnableTexture2D(GL_TEXTURE1_ARB, true);
     gld_DrawTriangleStripARB(wall, &c1, &c2);
-
-    glDisable(GL_TEXTURE_2D);
-    GLEXT_glActiveTextureARB(GL_TEXTURE0_ARB);
+    gld_EnableTexture2D(GL_TEXTURE1_ARB, false);
 
     gld_ClearFloodStencil(wall);
 
     return;
   }
-
-  GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
-  glEnable(GL_TEXTURE_2D);
 
   animitem = &anim_textures[wall->gltexture->index];
   if (!animitem->anim)
@@ -286,9 +290,6 @@ void gld_DrawWallWithDetail(GLWall *wall)
   glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
 
   glEnd();
-
-  glDisable(GL_TEXTURE_2D);
-  GLEXT_glActiveTextureARB(GL_TEXTURE0_ARB);
 }
 
 void gld_DrawWallDetail_NoARB(GLWall *wall, int from_index, int to_index)

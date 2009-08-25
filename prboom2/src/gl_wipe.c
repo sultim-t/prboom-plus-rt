@@ -45,7 +45,7 @@ GLuint CaptureScreenAsTexID(void)
 {
   GLuint id;
 
-  glEnable(GL_TEXTURE_2D);
+  gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
  
   glGenTextures(1, &id);
   glBindTexture(GL_TEXTURE_2D, id);
@@ -78,7 +78,7 @@ int gld_wipe_doMelt(int ticks, int *y_lookup)
   fU2 = (float)SCREENWIDTH / (float)total_w;
   fV2 = 0.0f;
   
-  glEnable(GL_TEXTURE_2D);
+  gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
   
   glBindTexture(GL_TEXTURE_2D, wipe_scr_end_tex);
   glColor3f(1.0f, 1.0f, 1.0f);

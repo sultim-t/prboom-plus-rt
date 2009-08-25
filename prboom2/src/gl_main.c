@@ -234,7 +234,7 @@ void gld_Init(int width, int height)
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // proff_dis
   glShadeModel(GL_FLAT);
-  glEnable(GL_TEXTURE_2D);
+  gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
   glDepthFunc(GL_LEQUAL);
   glEnable(GL_ALPHA_TEST);
   glAlphaFunc(GL_GEQUAL,0.5f);
@@ -282,18 +282,6 @@ void gld_Init(int width, int height)
 
 void gld_InitCommandLine(void)
 {
-}
-
-void gld_EnableTexture2D(int state)
-{
-  if (state)
-  {
-    glEnable(GL_TEXTURE_2D);
-  }
-  else
-  {
-    glDisable(GL_TEXTURE_2D);
-  }
 }
 
 void gld_DrawTriangleStrip(GLWall *wall, gl_strip_coords_t *c)
@@ -564,7 +552,7 @@ void gld_FillBlock(int x, int y, int width, int height, int col)
 {
   const unsigned char *playpal = V_GetPlaypal();
 
-  gld_EnableTexture2D(false);
+  gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
   glColor3f((float)playpal[3*col]/255.0f,
             (float)playpal[3*col+1]/255.0f,
             (float)playpal[3*col+2]/255.0f);
@@ -575,7 +563,7 @@ void gld_FillBlock(int x, int y, int width, int height, int col)
     glVertex2i( x+width, y+height );
   glEnd();
   glColor3f(1.0f,1.0f,1.0f);
-  gld_EnableTexture2D(true);
+  gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
 }
 
 void gld_SetPalette(int palette)
@@ -1854,14 +1842,14 @@ static void gld_ProcessExtraAlpha(void)
   {
     glDisable(GL_ALPHA_TEST);
     glColor4f(extra_red, extra_green, extra_blue, extra_alpha);
-    gld_EnableTexture2D(false);
+    gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
     glBegin(GL_TRIANGLE_STRIP);
       glVertex2f( 0.0f, 0.0f);
       glVertex2f( 0.0f, (float)SCREENHEIGHT);
       glVertex2f( (float)SCREENWIDTH, 0.0f);
       glVertex2f( (float)SCREENWIDTH, (float)SCREENHEIGHT);
     glEnd();
-    gld_EnableTexture2D(true);
+    gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
     glEnable(GL_ALPHA_TEST);
   }
 }
@@ -1871,14 +1859,14 @@ static void gld_InvertScene(void)
 {
   glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
   glColor4f(1,1,1,1);
-  gld_EnableTexture2D(false);
+  gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
   glBegin(GL_TRIANGLE_STRIP);
     glVertex2f( 0.0f, 0.0f);
     glVertex2f( 0.0f, (float)SCREENHEIGHT);
     glVertex2f( (float)SCREENWIDTH, 0.0f);
     glVertex2f( (float)SCREENWIDTH, (float)SCREENHEIGHT);
   glEnd();
-  gld_EnableTexture2D(true);
+  gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
@@ -2124,7 +2112,19 @@ void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata)
 
 static void gld_DrawWall(GLWall *wall)
 {
+  int need_detail;
+
   rendered_segs++;
+
+  need_detail =
+    gl_arb_multitexture && render_detailedwalls &&
+    (wall->flag < GLDWF_SKY) &&
+    !(wall->gltexture->flags & GLTEXTURE_HIRES) &&
+    distance2piece(xCamera, yCamera, 
+    wall->glseg->x1, wall->glseg->z1,
+    wall->glseg->x2, wall->glseg->z2) < DETAIL_DISTANCE;
+
+  gld_EnableDetail(need_detail);
 
   if ((gl_drawskys == skytype_none) && (wall->flag >= GLDWF_SKY))
     wall->gltexture=NULL;
@@ -2180,12 +2180,7 @@ static void gld_DrawWall(GLWall *wall)
   }
   else
   {
-    //e6y
-    if (gl_arb_multitexture && render_detailedwalls &&
-      !(wall->gltexture->flags & GLTEXTURE_HIRES) &&
-      distance2piece(xCamera, yCamera, 
-      wall->glseg->x1, wall->glseg->z1,
-      wall->glseg->x2, wall->glseg->z2) < DETAIL_DISTANCE)
+    if (need_detail)
     {
       gld_DrawWallWithDetail(wall);
     }
@@ -2650,13 +2645,13 @@ static void gld_DrawFlat(GLFlat *flat)
   
   //e6y
   arb_detail = gl_arb_multitexture && render_detailedflats && !(flat->gltexture->flags & GLTEXTURE_HIRES);
+  gld_EnableDetail(arb_detail && !(flat->gltexture->flags & GLTEXTURE_HIRES));
   if (arb_detail)
   {
     float s;
     TAnimItemParam *animitem = &anim_flats[flat->gltexture->index - firstflat];
 
     GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
-    glEnable(GL_TEXTURE_2D);
     gld_StaticLight(flat->light);
     
     if (!animitem->anim)
@@ -2742,7 +2737,6 @@ static void gld_DrawFlat(GLFlat *flat)
   if (arb_detail)
   {
     glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
     GLEXT_glActiveTextureARB(GL_TEXTURE0_ARB);
   }
 
@@ -3122,6 +3116,7 @@ void gld_DrawScene(player_t *player)
 
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glEnableClientState(GL_VERTEX_ARRAY);
+
   rendered_visplanes = rendered_segs = rendered_vissprites = 0;
 
   //e6y: skybox
@@ -3168,6 +3163,9 @@ void gld_DrawScene(player_t *player)
   // disable backside removing
   glDisable(GL_CULL_FACE);
 
+  // detail texture works only with flats nad walls
+  gld_EnableDetail(false);
+
   // top, bottom, one-sided walls
   gld_DrawItemsSortByTexture(GLDIT_WALL);
   for (i = gld_drawinfo.num_items[GLDIT_WALL] - 1; i >= 0; i--)
@@ -3188,6 +3186,7 @@ void gld_DrawScene(player_t *player)
   }
 
   gl_EnableFog(false);
+  gld_EnableDetail(false);
 
   // projected walls
   if (gl_use_stencil && gld_drawinfo.num_items[GLDIT_FWALL] > 0)

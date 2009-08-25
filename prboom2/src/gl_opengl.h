@@ -38,6 +38,9 @@
 #include "config.h"
 #endif
 
+#define USE_VERTEX_ARRAYS
+//#define USE_VBO
+
 #include <SDL.h>
 #include <SDL_opengl.h>
 
@@ -74,6 +77,8 @@ extern dboolean gl_arb_multitexture;
 extern dboolean gl_arb_texture_compression;
 extern dboolean gl_ext_framebuffer_object;
 extern dboolean gl_ext_blend_color;
+extern dboolean gl_use_stencil;
+extern dboolean gl_ext_arb_vertex_buffer_object;
 
 // obsolete?
 extern PFNGLCOLORTABLEEXTPROC              GLEXT_glColorTableEXT;
@@ -100,6 +105,16 @@ extern PFNGLBLENDCOLOREXTPROC              GLEXT_glBlendColorEXT;
 /* ARB_texture_compression */
 extern PFNGLCOMPRESSEDTEXIMAGE2DARBPROC    GLEXT_glCompressedTexImage2DARB;
 
+/* VBO */
+extern PFNGLGENBUFFERSARBPROC              GLEXT_glGenBuffersARB;
+extern PFNGLDELETEBUFFERSARBPROC           GLEXT_glDeleteBuffersARB;
+extern PFNGLBINDBUFFERARBPROC              GLEXT_glBindBufferARB;
+extern PFNGLBUFFERDATAARBPROC              GLEXT_glBufferDataARB;
+
 void gld_InitOpenGL(dboolean compatibility_mode);
+
+//states
+void gld_EnableTexture2D(GLenum texture, int enable);
+void gld_EnableClientCoordArray(GLenum texture, int enable);
 
 #endif // _GL_OPENGL_H
