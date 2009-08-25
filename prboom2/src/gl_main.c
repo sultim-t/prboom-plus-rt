@@ -3114,8 +3114,10 @@ void gld_DrawScene(player_t *player)
   gl_EnableFog(true);
   gl_EnableFog(false);
 
+#ifdef USE_VERTEX_ARRAYS
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glEnableClientState(GL_VERTEX_ARRAY);
+#endif
 
   rendered_visplanes = rendered_segs = rendered_vissprites = 0;
 
@@ -3399,8 +3401,10 @@ void gld_PreprocessLevel(void)
 
   gld_FreeDrawInfo();
 
+#ifdef USE_VERTEX_ARRAYS
   glTexCoordPointer(2,GL_FLOAT,0,gld_texcoords);
   glVertexPointer(3,GL_FLOAT,0,gld_vertexes);
+#endif
 
   //e6y
   gld_PreprocessDetail();
