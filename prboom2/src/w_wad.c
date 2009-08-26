@@ -292,8 +292,8 @@ static int W_CoalesceMarkedResource(const char *start_marker,
           is_marked = 0;                          // stop marking lumps
         }
       else
-        if (is_marked || lump->li_namespace == li_namespace) // if we are marking lumps,
-          {                                                  // move lump to marked list
+        if (is_marked || lump->li_namespace == li_namespace)
+          {
             // if we are marking lumps,
             // move lump to marked list
             // sf: check for namespace already set
