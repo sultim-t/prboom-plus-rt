@@ -34,7 +34,12 @@
 #ifndef __M_FIXED__
 #define __M_FIXED__
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
+
+#include <stdlib.h>
+
 #include "doomtype.h"
 
 /*
@@ -53,6 +58,20 @@ typedef int fixed_t;
  * killough 9/05/98: better code seems to be gotten from using inlined C
  */
 
+// e6y
+// Microsoft and Intel compilers produce stupid and slow code for asm version of D_abs:
+//
+// mov    DWORD PTR $T49478[esp+12], eax
+// mov    eax, DWORD PTR $T49478[esp+12]
+//
+// Plane abs() generates absolutely the same code as in asm version of D_abs(),
+// so we do not need additional implementations for abs() at all.
+//
+// btw, GCC generates code without nonsenses
+
+#define D_abs abs
+
+#if 0
 #ifdef _MSC_VER
 # ifdef I386_ASM
 #pragma warning( disable : 4035 )
@@ -77,6 +96,7 @@ inline static const int D_abs(x)
 #else /* _MSC_VER */
 #define D_abs(x) ({fixed_t _t = (x), _s = _t >> (8*sizeof _t-1); (_t^_s)-_s;})
 #endif /* _MSC_VER */
+#endif //0
 
 /*
  * Fixed Point Multiplication
