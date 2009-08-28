@@ -2126,8 +2126,6 @@ static void gld_DrawWall(GLWall *wall)
 
   gld_EnableDetail(need_detail);
 
-  if ((gl_drawskys == skytype_none) && (wall->flag >= GLDWF_SKY))
-    wall->gltexture=NULL;
   gld_BindTexture(wall->gltexture);
 
   // e6y
@@ -2153,80 +2151,53 @@ static void gld_DrawWall(GLWall *wall)
   {
     glColor4f(1.0f,0.0f,0.0f,1.0f);
   }
-  if (wall->flag>=GLDWF_SKY)
+
+  if (need_detail)
   {
-    if ( wall->gltexture )
-    {
-      float sx, sy;
-
-      glMatrixMode(GL_TEXTURE);
-      glPushMatrix();
-
-      gld_GetScreenSkyScale(wall, &sx, &sy);
-      glScalef(sx, sy, 1.0f);
-      glTranslatef(wall->skyyaw, wall->skyymid, 0.0f);
-    }
-    glBegin(GL_TRIANGLE_STRIP);
-      glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
-      glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
-      glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
-      glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
-    glEnd();
-    if ( wall->gltexture )
-    {
-      glPopMatrix();
-      glMatrixMode(GL_MODELVIEW);
-    }
+    gld_DrawWallWithDetail(wall);
   }
   else
   {
-    if (need_detail)
+    if ((wall->flag == GLDWF_TOPFLUD) || (wall->flag == GLDWF_BOTFLUD))
     {
-      gld_DrawWallWithDetail(wall);
+      gl_strip_coords_t c;
+
+      gld_BindFlat(wall->gltexture);
+
+      gld_SetupFloodStencil(wall);
+      gld_SetupFloodedPlaneCoords(wall, &c);
+      gld_SetupFloodedPlaneLight(wall);
+      gld_DrawTriangleStrip(wall, &c);
+
+      gld_ClearFloodStencil(wall);
     }
     else
     {
-      if ((wall->flag == GLDWF_TOPFLUD) || (wall->flag == GLDWF_BOTFLUD))
-      {
-        gl_strip_coords_t c;
+      gld_StaticLightAlpha(wall->light, wall->alpha);
 
-        gld_BindFlat(wall->gltexture);
+      glBegin(GL_TRIANGLE_FAN);
 
-        gld_SetupFloodStencil(wall);
-        gld_SetupFloodedPlaneCoords(wall, &c);
-        gld_SetupFloodedPlaneLight(wall);
-        gld_DrawTriangleStrip(wall, &c);
+      // lower left corner
+      glTexCoord2f(wall->ul,wall->vb); glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
 
-        gld_ClearFloodStencil(wall);
-      }
-      else
-      {
-        gld_StaticLightAlpha(wall->light, wall->alpha);
+      // split left edge of wall
+      if (gl_seamless && !wall->glseg->fracleft)
+        gld_SplitLeftEdge(wall, false, 0.0f, 0.0f);
 
-        glBegin(GL_TRIANGLE_FAN);
+      // upper left corner
+      glTexCoord2f(wall->ul,wall->vt); glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
 
-        // lower left corner
-        glTexCoord2f(wall->ul,wall->vb); glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
+      // upper right corner
+      glTexCoord2f(wall->ur,wall->vt); glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
 
-        // split left edge of wall
-        if (gl_seamless && !wall->glseg->fracleft)
-          gld_SplitLeftEdge(wall, false, 0.0f, 0.0f);
+      // split right edge of wall
+      if (gl_seamless && !wall->glseg->fracright)
+        gld_SplitRightEdge(wall, false, 0.0f, 0.0f);
 
-        // upper left corner
-        glTexCoord2f(wall->ul,wall->vt); glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
+      // lower right corner
+      glTexCoord2f(wall->ur,wall->vb); glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
 
-        // upper right corner
-        glTexCoord2f(wall->ur,wall->vt); glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
-
-        // split right edge of wall
-        if (gl_seamless && !wall->glseg->fracright)
-          gld_SplitRightEdge(wall, false, 0.0f, 0.0f);
-
-        // lower right corner
-        glTexCoord2f(wall->ur,wall->vb); glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
-
-        glEnd();
-      }
+      glEnd();
     }
   }
 }
@@ -3229,40 +3200,9 @@ void gld_DrawScene(player_t *player)
   // normal sky (not a skybox)
   if (gl_drawskys == skytype_none || gl_drawskys == skytype_standard)
   {
-    if (gl_drawskys == skytype_standard)
-    {
-      if (comp[comp_skymap] && gl_shared_texture_palette)
-        glDisable(GL_SHARED_TEXTURE_PALETTE_EXT);
-
-      if (comp[comp_skymap] && (invul_method & INVUL_BW))
-        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-
-      glEnable(GL_TEXTURE_GEN_S);
-      glEnable(GL_TEXTURE_GEN_T);
-      glEnable(GL_TEXTURE_GEN_Q);
-      if (comp[comp_skymap] || !(invul_method & INVUL_BW))
-        glColor4fv(gl_whitecolor);
-    }
-
+    rendered_segs += gld_drawinfo.num_items[GLDIT_SWALL];
     // fake strips of sky
-    for (i = gld_drawinfo.num_items[GLDIT_SWALL] - 1; i >= 0; i--)
-    {
-      gld_DrawWall(gld_drawinfo.items[GLDIT_SWALL][i].item.wall);
-    }
-    gld_DrawSkyCaps();
-
-    if (gl_drawskys == skytype_standard)
-    {
-      glDisable(GL_TEXTURE_GEN_Q);
-      glDisable(GL_TEXTURE_GEN_T);
-      glDisable(GL_TEXTURE_GEN_S);
-
-      if (comp[comp_skymap] && (invul_method & INVUL_BW))
-        glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB,GL_COMBINE);
-
-      if (comp[comp_skymap] && gl_shared_texture_palette)
-        glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
-    }
+    gld_DrawStripsSky();
   }
 
   // opaque sprites

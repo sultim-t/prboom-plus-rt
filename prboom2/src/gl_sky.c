@@ -207,6 +207,83 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, int skytype)
   }
 }
 
+void gld_DrawStripsSky(void)
+{
+  int i;
+  GLTexture *gltexture = NULL;
+
+  if (gl_drawskys == skytype_standard)
+  {
+    if (comp[comp_skymap] && gl_shared_texture_palette)
+      glDisable(GL_SHARED_TEXTURE_PALETTE_EXT);
+
+    if (comp[comp_skymap] && (invul_method & INVUL_BW))
+      glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+
+    glEnable(GL_TEXTURE_GEN_S);
+    glEnable(GL_TEXTURE_GEN_T);
+    glEnable(GL_TEXTURE_GEN_Q);
+    if (comp[comp_skymap] || !(invul_method & INVUL_BW))
+      glColor4fv(gl_whitecolor);
+  }
+
+  gld_EnableDetail(false);
+  glMatrixMode(GL_TEXTURE);
+
+  for (i = gld_drawinfo.num_items[GLDIT_SWALL] - 1; i >= 0; i--)
+  {
+    GLWall *wall = gld_drawinfo.items[GLDIT_SWALL][i].item.wall;
+
+    gltexture = (gl_drawskys == skytype_none ? NULL : wall->gltexture);
+    gld_BindTexture(gltexture);
+
+    if (!gltexture)
+    {
+      glColor4f(1.0f,0.0f,0.0f,1.0f);
+    }
+
+    if (gltexture)
+    {
+      float sx, sy;
+
+      glPushMatrix();
+
+      gld_GetScreenSkyScale(wall, &sx, &sy);
+      glScalef(sx, sy, 1.0f);
+      glTranslatef(wall->skyyaw, wall->skyymid, 0.0f);
+    }
+
+    glBegin(GL_TRIANGLE_STRIP);
+    glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
+    glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
+    glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
+    glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
+    glEnd();
+
+    if (gltexture)
+    {
+      glPopMatrix();
+    }
+  }
+
+  glMatrixMode(GL_MODELVIEW);
+
+  gld_DrawSkyCaps();
+
+  if (gl_drawskys == skytype_standard)
+  {
+    glDisable(GL_TEXTURE_GEN_Q);
+    glDisable(GL_TEXTURE_GEN_T);
+    glDisable(GL_TEXTURE_GEN_S);
+
+    if (comp[comp_skymap] && (invul_method & INVUL_BW))
+      glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB,GL_COMBINE);
+
+    if (comp[comp_skymap] && gl_shared_texture_palette)
+      glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
+  }
+}
+
 void gld_DrawSkyCaps(void)
 {
   if (SkyBox.type && SkyBox.wall.gltexture)
