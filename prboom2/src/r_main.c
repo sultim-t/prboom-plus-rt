@@ -496,7 +496,8 @@ void R_ExecuteSetViewSize (void)
   centerxfrac = centerx<<FRACBITS;
   centeryfrac = centery<<FRACBITS;
 
-	if (WidescreenRatio & 4)
+#ifdef GL_DOOM
+  if (WidescreenRatio & 4)
 	{
 		centerxwide = centerx;
 	}
@@ -505,6 +506,7 @@ void R_ExecuteSetViewSize (void)
 		centerxwide = centerx * BaseRatioSizes[WidescreenRatio].multiplier / 48;
 	}
   centerxwidefrac = centerxwide<<FRACBITS;
+#endif
 
   projection = centerxfrac;
 // proff 11/06/98: Added for high-res
