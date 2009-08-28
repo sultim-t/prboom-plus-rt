@@ -1822,7 +1822,7 @@ void gld_StartDrawScene(void)
   glLoadIdentity();
 
 //e6y  infinitePerspective(64.0f, 320.0f/200.0f, (float)gl_nearclip/100.0f);
-  infinitePerspective(internal_render_fov,render_aspect_ratio, (float)gl_nearclip/100.0f);//e6y
+  infinitePerspective(render_fovy, render_ratio, (float)gl_nearclip/100.0f);//e6y
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();

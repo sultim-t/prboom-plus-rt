@@ -540,6 +540,11 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   if (tz < r_near_clip_plane)
     return;
 
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL)
+    xscale = FixedDiv(centerxwidefrac, tz);
+  else
+#endif
   xscale = FixedDiv(projection, tz);
 
   gxt = -FixedMul(tr_x,viewsin);

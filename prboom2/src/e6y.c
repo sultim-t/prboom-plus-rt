@@ -146,11 +146,6 @@ int render_wipescreen;
 int mouse_acceleration;
 int demo_overwriteexisting;
 
-dboolean was_aspected;
-int render_aspect_width;
-int render_aspect_height;
-float render_aspect_ratio;
-
 int misc_fastexit;
 
 char *sdl_videodriver;
@@ -173,7 +168,6 @@ fixed_t sidemove_strafe50[2]    = {0x19, 0x32};
 
 int mouseSensitivity_mlook;
 angle_t viewpitch;
-float fovscale;
 float skyscale;
 float screen_skybox_zplane;
 float tan_pitch;
@@ -182,8 +176,6 @@ float skyUpShift;
 float skyXShift;
 float skyYShift;
 dboolean mlook_or_fov;
-
-float internal_render_fov = FOV90;
 
 int maxViewPitch;
 int minViewPitch;
@@ -584,6 +576,63 @@ void M_ChangeMultiSample(void)
 {
 }
 
+const base_ratio_t BaseRatioSizes[5] =
+{
+	{  960, 600, 0, 48 ,      RMUL*1.333333f }, // 4:3
+	{ 1280, 450, 0, 48*3/4,   RMUL*1.777777f }, // 16:9
+	{ 1152, 500, 0, 48*5/6,   RMUL*1.6f      }, // 16:10
+  {  960, 600, 0, 48,       RMUL*1.333333f },
+	{  960, 640, (int)(6.5*FRACUNIT), 48*15/16, RMUL*1.2f } // 5:4
+};
+
+int render_nowidescreen;
+int render_tft;
+float render_ratio;
+float render_fovratio;
+float render_fovy = FOV90;
+float render_multiplier;
+int WidescreenRatio;
+
+// Tries to guess the physical dimensions of the screen based on the
+// screen's pixel dimensions. Can return:
+// 0: 4:3
+// 1: 16:9
+// 2: 16:10
+// 4: 5:4
+int CheckRatio (int width, int height)
+{
+  if (render_nowidescreen)
+  {
+    if (!render_tft)
+    {
+      return 0;
+    }
+    return (height * 5/4 == width) ? 4 : 0;
+  }
+  // If the size is approximately 16:9, consider it so.
+  if (abs (height * 16/9 - width) < 10)
+  {
+    return 1;
+  }
+  // 16:10 has more variance in the pixel dimensions. Grr.
+  if (abs (height * 16/10 - width) < 60)
+  {
+    // 320x200 and 640x400 are always 4:3, not 16:10
+    if ((width == 320 && height == 200) || (width == 640 && height == 400))
+    {
+      return 0;
+    }
+    return 2;
+  }
+  // Unless render_tft is set, 1280x1024 is 4:3, not 5:4.
+  if (height * 5/4 == width && render_tft)
+  {
+    return 4;
+  }
+  // Assume anything else is 4:3.
+  return 0;
+}
+
 void M_ChangeFOV(void)
 {
   float f1, f2;
@@ -591,34 +640,40 @@ void M_ChangeFOV(void)
   int render_aspect_width, render_aspect_height;
 
   if ((p = M_CheckParm("-aspect")) && (p+1 < myargc) && (strlen(myargv[p+1]) <= 21) &&
-    (2 == sscanf(myargv[p+1], "%dx%d", &render_aspect_width, &render_aspect_height)))
+     (2 == sscanf(myargv[p+1], "%dx%d", &render_aspect_width, &render_aspect_height)))
   {
-    render_aspect_ratio = (float)render_aspect_width/(float)render_aspect_height;
+    WidescreenRatio = CheckRatio(SCREENWIDTH, SCREENHEIGHT);
+    render_fovratio = (float)render_aspect_width / (float)render_aspect_height;
+    render_ratio = RMUL * render_fovratio;
+    render_multiplier = 64.0f / render_fovratio / RMUL;
   }
   else
   {
-    render_aspect_ratio = 1.6f;
-    /*if (desired_fullscreen)
-      render_aspect_ratio = 1.6f;
+    WidescreenRatio = CheckRatio(SCREENWIDTH, SCREENHEIGHT);
+    render_ratio = BaseRatioSizes[WidescreenRatio].gl_ratio;
+    render_multiplier = (float)BaseRatioSizes[WidescreenRatio].multiplier;
+    if (!(WidescreenRatio & 4))
+    {
+      render_fovratio = 1.6f;
+    }
     else
-      render_aspect_ratio = (float)REAL_SCREENWIDTH/(float)REAL_SCREENHEIGHT;*/
+    {
+      render_fovratio = render_ratio;
+    }
   }
-  was_aspected = (float)render_aspect_ratio != 1.6f;
 
-  internal_render_fov = (float)(2 * RAD2DEG(atan(tan(DEG2RAD(render_fov) / 2) / render_aspect_ratio)));
+  render_fovy = (float)(2 * RAD2DEG(atan(tan(DEG2RAD(render_fov) / 2) / render_fovratio)));
 
-  fovscale = FOV90/(float)render_fov;//*(render_aspect_ratio/1.6f);
-  //fovscale = render_aspect_ratio/1.6f;
   screen_skybox_zplane = 320.0f/2.0f/(float)tan(DEG2RAD(render_fov/2));
 
-  f1 = (float)(320.0f/200.0f/fovscale-0.2f);
-  f2 = (float)tan(DEG2RAD(internal_render_fov)/2.0f);
+  f1 = (float)(320.0f / 200.0f * (float)render_fov / (float)FOV90 - 0.2f);
+  f2 = (float)tan(DEG2RAD(render_fovy)/2.0f);
   if (f1-f2<1)
     skyUpAngle = (float)-RAD2DEG(asin(f1-f2));
   else
     skyUpAngle = -90.0f;
 
-  skyUpShift = (float)tan(DEG2RAD(internal_render_fov)/2.0f);
+  skyUpShift = (float)tan(DEG2RAD(render_fovy)/2.0f);
 
   skyscale = 1.0f / (float)tan(DEG2RAD(render_fov / 2));
 }

@@ -59,6 +59,11 @@ extern fixed_t  centerxfrac;
 extern fixed_t  centeryfrac;
 extern fixed_t  viewheightfrac; //e6y: for correct cliping of things
 extern fixed_t  projection;
+
+//e6y
+extern int centerxwide;
+extern fixed_t centerxwidefrac;
+
 // proff 11/06/98: Added for high-res
 extern fixed_t  projectiony;
 extern int      validcount;

@@ -79,6 +79,11 @@ int viewangleoffset;
 int validcount = 1;         // increment every time a check is made
 const lighttable_t *fixedcolormap;
 int      centerx, centery;
+
+//e6y
+int centerxwide;
+fixed_t  centerxwidefrac;
+
 fixed_t  centerxfrac, centeryfrac;
 fixed_t  viewheightfrac; //e6y: for correct cliping of things
 fixed_t  projection;
@@ -490,6 +495,17 @@ void R_ExecuteSetViewSize (void)
   centerx = viewwidth/2;
   centerxfrac = centerx<<FRACBITS;
   centeryfrac = centery<<FRACBITS;
+
+	if (WidescreenRatio & 4)
+	{
+		centerxwide = centerx;
+	}
+	else
+	{
+		centerxwide = centerx * BaseRatioSizes[WidescreenRatio].multiplier / 48;
+	}
+  centerxwidefrac = centerxwide<<FRACBITS;
+
   projection = centerxfrac;
 // proff 11/06/98: Added for high-res
   projectiony = ((SCREENHEIGHT * centerx * 320) / 200) / SCREENWIDTH * FRACUNIT;
@@ -507,10 +523,15 @@ void R_ExecuteSetViewSize (void)
 // proff 11/06/98: Added for high-res
   pspritexscale = (centerx << FRACBITS) / 160;
   pspriteyscale = (((SCREENHEIGHT*viewwidth)/SCREENWIDTH) << FRACBITS) / 200;
+
 #ifdef GL_DOOM
-  //e6y: added for GL
-  pspritexscale_f = (float)centerx/160.0f;
-  pspriteyscale_f = (((float)SCREENHEIGHT*viewwidth)/(float)SCREENWIDTH) / 200.0f;
+  if (V_GetMode() == VID_MODEGL)
+  {
+    //e6y: added for GL
+    pspritescale = pspritescale * BaseRatioSizes[WidescreenRatio].multiplier / 48;
+    pspritexscale_f = (float)centerxwide/160.0f;
+    pspriteyscale_f = (((float)SCREENHEIGHT*viewwidth)/(float)SCREENWIDTH) / 200.0f;
+  }
 #endif
 
   // thing clipping

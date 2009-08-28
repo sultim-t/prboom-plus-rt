@@ -146,7 +146,6 @@ extern int movement_mouseinvert;
 extern int movement_maxviewpitch;
 extern int mouse_handler;
 extern int mouse_doubleclick_as_use;
-extern int render_fov;
 extern int render_usedetail;
 extern int render_detailedwalls;
 extern int render_detailedflats;
@@ -156,10 +155,24 @@ extern int render_wipescreen;
 extern int mouse_acceleration;
 extern int demo_overwriteexisting;
 
-extern dboolean was_aspected;
-extern int render_aspect_width;
-extern int render_aspect_height;
-extern float render_aspect_ratio;
+#define RMUL (1.6f/1.333333f)
+typedef struct base_ratio_s
+{
+  int base_width;      // Base width (unused)
+  int base_height;     // Base height (used for wall visibility multiplier)
+  int psprite_offset;  // Psprite offset (needed for "tallscreen" modes)
+  int multiplier;      // Width or height multiplier
+  float gl_ratio;
+} base_ratio_t;
+extern int render_fov;
+extern int render_nowidescreen;
+extern int render_tft;
+extern float render_ratio;
+extern float render_fovratio;
+extern float render_fovy;
+extern float render_multiplier;
+extern int WidescreenRatio;
+extern const base_ratio_t BaseRatioSizes[];
 
 extern int misc_fastexit;
 
@@ -176,7 +189,6 @@ extern fixed_t sidemove_strafe50[2];
 extern int PitchSign;
 extern int mouseSensitivity_mlook;
 extern angle_t viewpitch;
-extern float fovscale;
 extern float skyscale;
 extern float screen_skybox_zplane;
 extern float maxNoPitch[];
@@ -186,8 +198,6 @@ extern float skyUpShift;
 extern float skyXShift;
 extern float skyYShift;
 extern dboolean mlook_or_fov;
-
-extern float internal_render_fov;
 
 extern hu_textline_t  w_hudadd;
 extern hu_textline_t  w_centermsg;
