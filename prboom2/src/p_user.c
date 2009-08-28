@@ -128,18 +128,10 @@ void P_CalcHeight (player_t* player)
     }
     else
     {
-      if (demo_compatibility || prboom_comp[PC_FORCE_INCORRECT_BOBBING_IN_BOOM].state)
+      if (demo_compatibility || player_bobbing || prboom_comp[PC_FORCE_INCORRECT_BOBBING_IN_BOOM].state)
       {
         player->bob = (FixedMul(player->mo->momx, player->mo->momx) +
           FixedMul(player->mo->momy, player->mo->momy)) >> 2;
-      }
-      else
-      {
-        if (player_bobbing)
-        {
-          player->bob = (FixedMul(player->momx, player->momx) +
-            FixedMul(player->momy, player->momy)) >> 2;
-        }
       }
     }
 
@@ -153,9 +145,10 @@ void P_CalcHeight (player_t* player)
         player->bob = MAXBOB>>2;
     }
     else
-
-  if (player->bob > MAXBOB)
-    player->bob = MAXBOB;
+    {
+      if (player->bob > MAXBOB)
+        player->bob = MAXBOB;
+    }
 
   if (!onground || player->cheats & CF_NOMOMENTUM)
     {
