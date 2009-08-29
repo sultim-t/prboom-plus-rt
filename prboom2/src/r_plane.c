@@ -216,8 +216,8 @@ static void R_MapPlane(int y, int x1, int x2, draw_span_vars_t *dsvars)
     slope = (float)(planeheight / 65535.0f / D_abs(centery - y));
     realy = (float)distance / 65536.0f;
 
-    dsvars->xstep = (unsigned int)(viewsin * slope * viewfocratio);
-    dsvars->ystep = (unsigned int)(viewcos * slope * viewfocratio);
+    dsvars->xstep = (fixed_t)(viewsin * slope * viewfocratio);
+    dsvars->ystep = (fixed_t)(viewcos * slope * viewfocratio);
 
     dsvars->xfrac =  viewx + xoffs + (int)(viewcos * realy) + (x1 - centerx) * dsvars->xstep;
     dsvars->yfrac = -viewy + yoffs - (int)(viewsin * realy) + (x1 - centerx) * dsvars->ystep;
