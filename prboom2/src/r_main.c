@@ -82,7 +82,6 @@ int      centerx, centery;
 
 //e6y
 int centerxwide;
-fixed_t  centerxwidefrac;
 
 fixed_t  centerxfrac, centeryfrac;
 fixed_t  viewheightfrac; //e6y: for correct cliping of things
@@ -295,6 +294,16 @@ static void R_InitTextureMapping (void)
 {
   register int i,x;
   fixed_t focallength;
+  int fov = FIELDOFVIEW;
+
+  // For widescreen displays, increase the FOV so that the middle part of the
+  // screen that would be visible on a 4:3 display has the requested FOV.
+  if (centerxwide != centerx)
+  { // centerxwide is what centerx would be if the display was not widescreen
+    fov = (int)(atan((double)centerx * tan((double)fov * M_PI / FINEANGLES) / (double)centerxwide) * FINEANGLES/M_PI);
+    if (fov > 170*FINEANGLES/360)
+      fov = 170*FINEANGLES/360;
+  }
 
   // Use tangent table to generate viewangletox:
   //  viewangletox will give the next greatest x
@@ -303,7 +312,7 @@ static void R_InitTextureMapping (void)
   // Calc focallength
   //  so FIELDOFVIEW angles covers SCREENWIDTH.
 
-  focallength = FixedDiv(centerxfrac, finetangent[FINEANGLES/4+FIELDOFVIEW/2]);
+  focallength = FixedDiv(centerxfrac, finetangent[FINEANGLES/4 + fov/2]);
 
   for (i=0 ; i<FINEANGLES/2 ; i++)
     {
@@ -496,7 +505,9 @@ void R_ExecuteSetViewSize (void)
   centerxfrac = centerx<<FRACBITS;
   centeryfrac = centery<<FRACBITS;
 
-#ifdef GL_DOOM
+  // If the screen is approximately 16:9 or 16:10, consider it widescreen.
+  WidescreenRatio = CheckRatio(SCREENWIDTH, SCREENHEIGHT);
+
   if (WidescreenRatio & 4)
 	{
 		centerxwide = centerx;
@@ -505,36 +516,30 @@ void R_ExecuteSetViewSize (void)
 	{
 		centerxwide = centerx * BaseRatioSizes[WidescreenRatio].multiplier / 48;
 	}
-  centerxwidefrac = centerxwide<<FRACBITS;
-#endif
 
-  projection = centerxfrac;
+  // e6y: support for wide resulutions
+  projection = centerxwide<<FRACBITS;
+
 // proff 11/06/98: Added for high-res
   projectiony = ((SCREENHEIGHT * centerx * 320) / 200) / SCREENWIDTH * FRACUNIT;
   // e6y: this is a precalculated value for more precise flats drawing (see R_MapPlane)
-  viewfocratio = 1.6f / ((float)SCREENWIDTH / (float)SCREENHEIGHT);
+  viewfocratio = (1.6f * centerx / centerxwide) / ((float)SCREENWIDTH / (float)SCREENHEIGHT);
 
   R_InitBuffer (scaledviewwidth, viewheight);
 
   R_InitTextureMapping();
 
   // psprite scales
-// proff 08/17/98: Changed for high-res
-  pspritescale = FRACUNIT*viewwidth/320;
-  pspriteiscale = FRACUNIT*320/viewwidth;
-// proff 11/06/98: Added for high-res
-  pspritexscale = (centerx << FRACBITS) / 160;
+  // proff 08/17/98: Changed for high-res
+  // proff 11/06/98: Added for high-res
+  // e6y: support for wide resulutions
+  pspritexscale = (centerxwide << FRACBITS) / 160;
   pspriteyscale = (((SCREENHEIGHT*viewwidth)/SCREENWIDTH) << FRACBITS) / 200;
+  pspriteiscale = FixedDiv (FRACUNIT, pspritexscale);
 
-#ifdef GL_DOOM
-  if (V_GetMode() == VID_MODEGL)
-  {
-    //e6y: added for GL
-    pspritescale = pspritescale * BaseRatioSizes[WidescreenRatio].multiplier / 48;
-    pspritexscale_f = (float)centerxwide/160.0f;
-    pspriteyscale_f = (((float)SCREENHEIGHT*viewwidth)/(float)SCREENWIDTH) / 200.0f;
-  }
-#endif
+  //e6y: added for GL
+  pspritexscale_f = (float)centerxwide/160.0f;
+  pspriteyscale_f = (((float)SCREENHEIGHT*viewwidth)/(float)SCREENWIDTH) / 200.0f;
 
   // thing clipping
   for (i=0 ; i<viewwidth ; i++)

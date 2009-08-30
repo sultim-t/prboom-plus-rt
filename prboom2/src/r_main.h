@@ -62,7 +62,6 @@ extern fixed_t  projection;
 
 //e6y
 extern int centerxwide;
-extern fixed_t centerxwidefrac;
 
 // proff 11/06/98: Added for high-res
 extern fixed_t  projectiony;

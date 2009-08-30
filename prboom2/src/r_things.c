@@ -62,16 +62,13 @@ typedef struct {
 // There was a lot of stuff grabbed wrong, so I changed it...
 //
 
-fixed_t pspritescale;
 fixed_t pspriteiscale;
 // proff 11/06/98: Added for high-res
 fixed_t pspritexscale;
 fixed_t pspriteyscale;
-#ifdef GL_DOOM
 //e6y: added for GL
 float pspriteyscale_f;
 float pspritexscale_f;
-#endif
 
 // constant arrays
 //  used for psprite clipping and initializing clipping
@@ -540,11 +537,6 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   if (tz < r_near_clip_plane)
     return;
 
-#ifdef GL_DOOM
-  if (V_GetMode() == VID_MODEGL)
-    xscale = FixedDiv(centerxwidefrac, tz);
-  else
-#endif
   xscale = FixedDiv(projection, tz);
 
   gxt = -FixedMul(tr_x,viewsin);
@@ -614,7 +606,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
     x1 = (centerxfrac + FixedMul(tx,xscale)) >> FRACBITS;
 
     tx += patch->width<<FRACBITS;
-    x2 = ((centerxfrac + FixedMul (tx,xscale) ) >> FRACBITS) - 1;
+    x2 = ((centerxfrac + FixedMul (tx,xscale) - FRACUNIT/2) >> FRACBITS);
 
     gzt = fz + (patch->topoffset << FRACBITS);
     width = patch->width;
@@ -840,10 +832,10 @@ static void R_DrawPSprite (pspdef_t *psp, int lightlevel)
     tx = psp->sx-160*FRACUNIT;
 
     tx -= patch->leftoffset<<FRACBITS;
-    x1 = (centerxfrac + FixedMul (tx,pspritescale))>>FRACBITS;
+    x1 = (centerxfrac + FixedMul (tx,pspritexscale))>>FRACBITS;
 
     tx += patch->width<<FRACBITS;
-    x2 = ((centerxfrac + FixedMul (tx, pspritescale) ) >>FRACBITS) - 1;
+    x2 = ((centerxfrac + FixedMul (tx, pspritexscale) ) >>FRACBITS) - 1;
 
     width = patch->width;
     topoffset = patch->topoffset<<FRACBITS;

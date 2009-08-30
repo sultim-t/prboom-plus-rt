@@ -571,11 +571,6 @@ void CheckPitch(signed int *pitch)
   }
 }
 
-#ifdef GL_DOOM
-void M_ChangeMultiSample(void)
-{
-}
-
 const base_ratio_t BaseRatioSizes[5] =
 {
 	{  960, 600, 0, 48 ,      RMUL*1.333333f }, // 4:3
@@ -631,6 +626,11 @@ int CheckRatio (int width, int height)
   }
   // Assume anything else is 4:3.
   return 0;
+}
+
+#ifdef GL_DOOM
+void M_ChangeMultiSample(void)
+{
 }
 
 void M_ChangeFOV(void)

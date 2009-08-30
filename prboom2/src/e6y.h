@@ -173,6 +173,7 @@ extern float render_fovy;
 extern float render_multiplier;
 extern int WidescreenRatio;
 extern const base_ratio_t BaseRatioSizes[];
+int CheckRatio(int width, int height);
 
 extern int misc_fastexit;
 
