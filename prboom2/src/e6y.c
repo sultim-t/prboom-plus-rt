@@ -580,6 +580,7 @@ const base_ratio_t BaseRatioSizes[5] =
 	{  960, 640, (int)(6.5*FRACUNIT), 48*15/16, RMUL*1.2f } // 5:4
 };
 
+int render_aspect;
 int render_nowidescreen;
 int render_tft;
 float render_ratio;
@@ -596,6 +597,12 @@ int WidescreenRatio;
 // 4: 5:4
 int CheckRatio (int width, int height)
 {
+  if ((render_aspect >= 1) && (render_aspect <= 4))
+  {
+    // [SP] User wants to force aspect ratio; let them.
+    return (render_aspect == 3 ? 0 : (int)render_aspect);
+  }
+
   if (render_nowidescreen)
   {
     if (!render_tft)
