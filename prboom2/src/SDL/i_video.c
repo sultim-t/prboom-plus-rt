@@ -556,6 +556,7 @@ void I_InitBuffersRes(void)
 #define MAX_RESOLUTIONS_COUNT 128
 const char *screen_resolutions_list[MAX_RESOLUTIONS_COUNT] = {NULL};
 const char *screen_resolution = NULL;
+const char *render_aspects_list[5] = {"auto", "16:9", "16:10", "4:3", "5:4"};
 
 //
 // I_GetScreenResolution

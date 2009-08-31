@@ -43,6 +43,7 @@
 
 extern const char *screen_resolutions_list[];
 extern const char *screen_resolution;
+extern const char *render_aspects_list[];
 
 void I_PreInitGraphics(void); /* CPhipps - do stuff immediately on start */
 void I_InitScreenResolution(void); /* init resolution */

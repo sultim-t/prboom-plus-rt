@@ -635,6 +635,14 @@ int CheckRatio (int width, int height)
   return 0;
 }
 
+void M_ChangeAspectRatio(void)
+{
+#ifdef GL_DOOM
+  M_ChangeFOV();
+#endif
+  R_ExecuteSetViewSize();
+}
+
 #ifdef GL_DOOM
 void M_ChangeMultiSample(void)
 {

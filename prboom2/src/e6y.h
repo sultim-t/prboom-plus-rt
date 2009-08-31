@@ -175,6 +175,7 @@ extern float render_multiplier;
 extern int WidescreenRatio;
 extern const base_ratio_t BaseRatioSizes[];
 int CheckRatio(int width, int height);
+void M_ChangeAspectRatio(void);
 
 extern int misc_fastexit;
 
