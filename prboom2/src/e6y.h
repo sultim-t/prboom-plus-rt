@@ -166,8 +166,6 @@ typedef struct base_ratio_s
 } base_ratio_t;
 extern int render_fov;
 extern int render_aspect;
-extern int render_nowidescreen;
-extern int render_tft;
 extern float render_ratio;
 extern float render_fovratio;
 extern float render_fovy;

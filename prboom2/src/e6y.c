@@ -581,8 +581,6 @@ const base_ratio_t BaseRatioSizes[5] =
 };
 
 int render_aspect;
-int render_nowidescreen;
-int render_tft;
 float render_ratio;
 float render_fovratio;
 float render_fovy = FOV90;
@@ -603,14 +601,6 @@ int CheckRatio (int width, int height)
     return (render_aspect == 3 ? 0 : (int)render_aspect);
   }
 
-  if (render_nowidescreen)
-  {
-    if (!render_tft)
-    {
-      return 0;
-    }
-    return (height * 5/4 == width) ? 4 : 0;
-  }
   // If the size is approximately 16:9, consider it so.
   if (abs (height * 16/9 - width) < 10)
   {
@@ -626,11 +616,7 @@ int CheckRatio (int width, int height)
     }
     return 2;
   }
-  // Unless render_tft is set, 1280x1024 is 4:3, not 5:4.
-  if (height * 5/4 == width && render_tft)
-  {
-    return 4;
-  }
+
   // Assume anything else is 4:3.
   return 0;
 }

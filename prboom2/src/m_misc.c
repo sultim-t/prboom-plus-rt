@@ -841,10 +841,6 @@ default_t defaults[] =
    render_precise_speed, render_precise_quality, def_int,ss_none},
   {"render_aspect", {&render_aspect},  {0},0,4,
    def_int,ss_stat},
-  {"render_nowidescreen", {&render_nowidescreen},  {0},0,1,
-   def_bool,ss_stat},
-  {"render_tft", {&render_tft},  {0},0,1,
-   def_bool,ss_stat},
 
 #ifdef GL_DOOM
   {"Prboom-plus OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
