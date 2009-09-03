@@ -122,12 +122,21 @@ static void FUNC_V_CopyRect(int srcx, int srcy, int srcscrn, int width,
   {
     int delta = video.strech_offsetx[flags & (VPT_STRETCH | VPT_STRETCH_RIGHT)];
 
+#if 1
     srcx   = video.x1lookup[srcx] + delta;
     srcy   = video.y1lookup[srcy];
-    width  = video.x1lookup[width];
-    height = video.y1lookup[height];
+    width  = video.x2lookup[width - 1];
+    height = video.y2lookup[height - 1];
     destx  = video.x1lookup[destx] + delta;
     desty  = video.y1lookup[desty];
+#else
+    srcx=srcx*WIDE_SCREENWIDTH/320 + delta;
+    srcy=srcy*SCREENHEIGHT/200;
+    width=width*WIDE_SCREENWIDTH/320;
+    height=height*SCREENHEIGHT/200;
+    destx=destx*WIDE_SCREENWIDTH/320 + delta;
+    desty=desty*SCREENHEIGHT/200;
+#endif
   }
 
 #ifdef RANGECHECK

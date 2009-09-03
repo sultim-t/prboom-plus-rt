@@ -359,7 +359,7 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
     xpos   = (float)(video.x1lookup[x - gltexture->leftoffset] + delta);
     ypos   = (float)(video.y1lookup[y - gltexture->topoffset]);
     width  = (float)(gltexture->realtexwidth * WIDE_SCREENWIDTH / 320);
-    height = (float)(video.y1lookup[gltexture->realtexheight]);
+    height = (float)(video.y2lookup[gltexture->realtexheight - 1]);
   }
   else
   {
