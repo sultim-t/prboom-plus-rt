@@ -61,6 +61,7 @@
 #include "r_draw.h"
 #include "r_things.h"
 #include "r_plane.h"
+#include "r_main.h"
 #include "f_wipe.h"
 #include "d_main.h"
 #include "d_event.h"
@@ -1131,6 +1132,10 @@ void I_UpdateVideoMode(void)
   V_AllocScreens();
 
   R_InitBuffer(SCREENWIDTH, SCREENHEIGHT);
+
+  // e6y: wide-res
+  // Need some initialisations before level precache
+  R_ExecuteSetViewSize();
 
   if (V_GetMode() == VID_MODEGL) {
     int temp;

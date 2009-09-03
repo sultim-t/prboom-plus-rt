@@ -159,6 +159,8 @@ static void FUNC_V_FillFlat(int lump, int scrn, int x, int y, int width, int hei
   int         sx, sy;
   int         w, h;
 
+  lump += firstflat;
+
   // killough 4/17/98:
   src = W_CacheLumpNum(lump);
 
@@ -831,7 +833,7 @@ static void WRAP_gld_DrawBackground(const char *flatname, int n)
 }
 static void WRAP_gld_FillFlat(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags)
 {
-  gld_FillFlat(lump - firstflat, x, y, width, height, flags);
+  gld_FillFlat(lump, x, y, width, height, flags);
 }
 static void WRAP_gld_FillPatch(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags)
 {

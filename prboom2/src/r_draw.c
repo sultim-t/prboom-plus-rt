@@ -1054,36 +1054,44 @@ void R_InitBuffer(int width, int height)
 void R_FillBackScreen (void)
 {
   int lump,width,height;
-
-  if (!wide_ratio && scaledviewwidth == SCREENWIDTH)
-    return;
-
-  V_DrawBackground(gamemode == commercial ? "GRNROCK" : "FLOOR7_2", 1);
+  int automap = ((automapmode & am_active) && !(automapmode & am_overlay));
 
   // e6y: wide-res
   if (wide_ratio)
   {
-    int need, top;
+    extern int screenblocks;
+    int only_stbar = (automap ? screenblocks >= 10 : screenblocks == 10);
 
-#ifdef GL_DOOM
-    if (V_GetMode() == VID_MODEGL)
+    if (only_stbar)
     {
-      need = (scaledviewwidth == SCREENWIDTH) || ((automapmode & am_active) && !(automapmode & am_overlay));
-      top = SCREENHEIGHT - ST_SCALED_HEIGHT;
-    }
-    else
-#endif
-    {
-      need = (scaledviewwidth == SCREENWIDTH) || (viewheight == SCREENHEIGHT);
-      top = (viewheight == SCREENHEIGHT ? SCREENHEIGHT - ST_SCALED_HEIGHT : viewwindowy + viewheight);
-    }
+      int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
+      int lump_back = R_FlatNumForName((gamemode == commercial ? "GRNROCK" : "FLOOR7_2"));
+      int lump_border = W_GetNumForName("brdr_b");
+      height = R_NumPatchHeight(lump_border);
 
-    if (need)
-    {
+      V_FillFlat(lump_back, 1,
+        0, stbar_top, wide_offsetx, ST_SCALED_HEIGHT, VPT_NONE);
+      V_FillFlat(lump_back, 1,
+        SCREENWIDTH - wide_offsetx, stbar_top, wide_offsetx, ST_SCALED_HEIGHT, VPT_NONE);
+      
       // line between view and status bar
-      V_FillPatchName("brdr_b", 1, 0, top, SCREENWIDTH, V_NamePatchHeight("brdr_b"), VPT_NONE);
+      V_FillPatch(lump_border, 1, 0, stbar_top, wide_offsetx, height, VPT_NONE);
+      V_FillPatch(lump_border, 1, SCREENWIDTH - wide_offsetx, stbar_top, wide_offsetx, height, VPT_NONE);
+
       return;
     }
+  }
+
+  if (scaledviewwidth == SCREENWIDTH)
+    return;
+
+  V_DrawBackground((gamemode == commercial ? "GRNROCK" : "FLOOR7_2"), 1);
+
+  // line between view and status bar
+  if (wide_ratio && (automap || scaledviewwidth == SCREENWIDTH))
+  {
+    int lump = W_GetNumForName("brdr_b");
+    V_FillPatch(lump, 1, 0, SCREENHEIGHT - ST_SCALED_HEIGHT, SCREENWIDTH, R_NumPatchHeight(lump), VPT_NONE);
   }
 
   lump = W_GetNumForName("brdr_t"); height = R_NumPatchHeight(lump);

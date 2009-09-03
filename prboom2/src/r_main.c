@@ -599,11 +599,6 @@ void R_Init (void)
   lprintf(LO_INFO, "\nR_InitData: ");
   R_InitData();
   R_SetViewSize(screenblocks);
-  
-  // e6y: wide-res
-  // Need some initialisations before level precache
-  R_ExecuteSetViewSize();
-
   lprintf(LO_INFO, "\nR_Init: R_InitPlanes ");
   R_InitPlanes();
   lprintf(LO_INFO, "R_InitLightTables ");

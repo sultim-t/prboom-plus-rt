@@ -188,7 +188,7 @@ extern V_DrawNumPatch_f V_DrawNumPatch;
 typedef void (*V_FillFlat_f)(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags);
 extern V_FillFlat_f V_FillFlat;
 #define V_FillFlatName(flatname, scrn, x, y, width, height, flags) \
-  V_FillFlat(firstflat + R_FlatNumForName(flatname), (scrn), (x), (y), (width), (height), (flags))
+  V_FillFlat(R_FlatNumForName(flatname), (scrn), (x), (y), (width), (height), (flags))
 
 typedef void (*V_FillPatch_f)(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags);
 extern V_FillPatch_f V_FillPatch;
