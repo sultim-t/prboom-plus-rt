@@ -664,5 +664,7 @@ void F_Drawer (void)
            V_DrawNamePatch(0, 0, 0, "ENDPIC", CR_DEFAULT, VPT_STRETCH);
            break;
     }
+    // e6y: wide-res
+    V_FillBorder(-1, 0);
   }
 }

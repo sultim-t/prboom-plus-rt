@@ -438,7 +438,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
 
       //FIXME: Is it needed only for F_BunnyScroll?
 
-      left = (x < 0 || x > 320 ? (x * SCREENWIDTH)  / 320 : video.x1lookup[x] + delta);
+      left = (x < 0 || x > 320 ? (x * WIDE_SCREENWIDTH) / 320 + delta : video.x1lookup[x] + delta);
       top =  (y < 0 || y > 200 ? (y * SCREENHEIGHT) / 200 : video.y1lookup[y]);
 
       if (x + patch->width < 0 || x + patch->width > 320)

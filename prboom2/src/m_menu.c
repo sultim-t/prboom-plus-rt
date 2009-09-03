@@ -477,7 +477,11 @@ void M_DrawReadThis1(void)
 {
   inhelpscreens = true;
   if (gamemode == shareware)
+  {
     V_DrawNamePatch(0, 0, 0, "HELP2", CR_DEFAULT, VPT_STRETCH);
+    // e6y: wide-res
+    V_FillBorder(-1, 0);
+  }
   else
     M_DrawCredits();
 }
@@ -493,7 +497,11 @@ void M_DrawReadThis2(void)
   if (gamemode == shareware)
     M_DrawCredits();
   else
+  {
     V_DrawNamePatch(0, 0, 0, "CREDIT", CR_DEFAULT, VPT_STRETCH);
+    // e6y: wide-res
+    V_FillBorder(-1, 0);
+  }
 }
 
 /////////////////////////////
