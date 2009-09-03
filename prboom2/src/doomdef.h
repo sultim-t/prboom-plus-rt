@@ -120,6 +120,8 @@ extern int SCREENHEIGHT;
 // of one pixel (8, 16 or 32 bit) and the padding at the
 // end of the line caused by hardware considerations
 extern int SCREENPITCH;
+// e6y: wide-res
+extern int WIDE_SCREENWIDTH;
 
 // The maximum number of players, multiplayer/networking.
 #define MAXPLAYERS       4

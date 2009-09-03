@@ -88,7 +88,15 @@ void gld_InitCommandLine(void);
 void gld_InitTextureParams(void);
 
 void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e flags);
-void gld_DrawBackground(const char* name);
+
+void gld_FillFlat(int lump, int x, int y, int width, int height, enum patch_translation_e flags);
+#define gld_FillFlatName(flatname, x, y, width, height, flags) \
+  gld_FillFlat(R_FlatNumForName(flatname), (x), (y), (width), (height), (flags))
+
+void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_translation_e flags);
+#define gld_FillPatchName(name, x, y, width, height, flags) \
+  gld_FillPatch(W_GetNumForName(name), (x), (y), (width), (height), (flags))
+
 void gld_DrawLine(int x0, int y0, int x1, int y1, int BaseColor);
 void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel);
 void gld_FillBlock(int x, int y, int width, int height, int col);

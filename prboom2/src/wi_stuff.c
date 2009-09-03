@@ -420,6 +420,9 @@ static void WI_slamBackground(void)
 
   // background
   V_DrawNamePatch(0, 0, FB, name, CR_DEFAULT, VPT_STRETCH);
+
+  // e6y: wide-res
+  V_FillBorder(-1, 0);
 }
 
 

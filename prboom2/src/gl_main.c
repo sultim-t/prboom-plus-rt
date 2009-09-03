@@ -303,9 +303,6 @@ void gld_DrawTriangleStrip(GLWall *wall, gl_strip_coords_t *c)
   glEnd();
 }
 
-#define SCALE_X(x)    ((flags & VPT_STRETCH)?((float)x)*(float)SCREENWIDTH/320.0f:(float)x)
-#define SCALE_Y(y)    ((flags & VPT_STRETCH)?((float)y)*(float)SCREENHEIGHT/200.0f:(float)y)
-
 void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e flags)
 {
   GLTexture *gltexture;
@@ -354,10 +351,23 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
     fU1=0.0f;
     fU2=gltexture->scalexfac;
   }
-  xpos=SCALE_X(x-gltexture->leftoffset);
-  ypos=SCALE_Y(y-gltexture->topoffset);
-  width=SCALE_X(gltexture->realtexwidth);
-  height=SCALE_Y(gltexture->realtexheight);
+
+  if (flags & VPT_ANYSTRETCH)
+  {
+    int delta = video.strech_offsetx[flags & (VPT_STRETCH | VPT_STRETCH_RIGHT)];
+
+    xpos   = (float)(video.x1lookup[x - gltexture->leftoffset] + delta);
+    ypos   = (float)(video.y1lookup[y - gltexture->topoffset]);
+    width  = (float)(gltexture->realtexwidth * WIDE_SCREENWIDTH / 320);
+    height = (float)(video.y1lookup[gltexture->realtexheight]);
+  }
+  else
+  {
+    xpos   = (float)(x - gltexture->leftoffset);
+    ypos   = (float)(y - gltexture->topoffset);
+    width  = (float)(gltexture->realtexwidth);
+    height = (float)(gltexture->realtexheight);
+  }
 
   bFakeColormap =
     (gltexture->flags & GLTEXTURE_HIRES) && 
@@ -394,17 +404,16 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
 #undef SCALE_X
 #undef SCALE_Y
 
-void gld_DrawBackground(const char* name)
+void gld_FillFlat(int lump, int x, int y, int width, int height, enum patch_translation_e flags)
 {
   GLTexture *gltexture;
-  float fU1,fU2,fV1,fV2;
-  int width,height;
+  float fU1, fU2, fV1, fV2;
 
   //e6y: Boom colormap should not be applied for background
   int saved_boom_cm = boom_cm;
   boom_cm = 0;
 
-  gltexture=gld_RegisterFlat(R_FlatNumForName(name), false);
+  gltexture = gld_RegisterFlat(lump, false);
   gld_BindFlat(gltexture);
 
   //e6y
@@ -412,17 +421,67 @@ void gld_DrawBackground(const char* name)
 
   if (!gltexture)
     return;
-  fU1=0;
-  fV1=0;
-  fU2=(float)SCREENWIDTH/(float)gltexture->realtexwidth;
-  fV2=(float)SCREENHEIGHT/(float)gltexture->realtexheight;
-  width=SCREENWIDTH;
-  height=SCREENHEIGHT;
+
+  if (flags & VPT_STRETCH)
+  {
+    x = x * SCREENWIDTH / 320;
+    y = y * SCREENHEIGHT / 200;
+    width = width * SCREENWIDTH / 320;
+    height = height * SCREENHEIGHT / 200;
+  }
+
+  fU1 = 0;
+  fV1 = 0;
+  fU2 = (float)width / (float)gltexture->realtexwidth;
+  fV2 = (float)height / (float)gltexture->realtexheight;
+
   glBegin(GL_TRIANGLE_STRIP);
-    glTexCoord2f(fU1, fV1); glVertex2f((float)(0),(float)(0));
-    glTexCoord2f(fU1, fV2); glVertex2f((float)(0),(float)(0+height));
-    glTexCoord2f(fU2, fV1); glVertex2f((float)(0+width),(float)(0));
-    glTexCoord2f(fU2, fV2); glVertex2f((float)(0+width),(float)(0+height));
+    glTexCoord2f(fU1, fV1); glVertex2f((float)(x),(float)(y));
+    glTexCoord2f(fU1, fV2); glVertex2f((float)(x),(float)(y + height));
+    glTexCoord2f(fU2, fV1); glVertex2f((float)(x + width),(float)(y));
+    glTexCoord2f(fU2, fV2); glVertex2f((float)(x + width),(float)(y + height));
+  glEnd();
+}
+
+void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_translation_e flags)
+{
+  GLTexture *gltexture;
+  float fU1, fU2, fV1, fV2;
+
+  //e6y: Boom colormap should not be applied for background
+  int saved_boom_cm = boom_cm;
+  boom_cm = 0;
+
+  gltexture = gld_RegisterPatch(lump, false);
+  gld_BindPatch(gltexture, CR_DEFAULT);
+
+  x = x - gltexture->leftoffset;
+  y = y - gltexture->topoffset;
+
+  //e6y
+  boom_cm = saved_boom_cm;
+
+  if (!gltexture)
+    return;
+
+  if (flags & VPT_STRETCH)
+  {
+    x = x * SCREENWIDTH / 320;
+    y = y * SCREENHEIGHT / 200;
+    width = width * SCREENWIDTH / 320;
+    height = height * SCREENHEIGHT / 200;
+  }
+
+  fU1 = 0;
+  fV1 = 0;
+  fU2 = (float)width / (float)gltexture->realtexwidth;
+  fV2 = (float)height / (float)gltexture->realtexheight;
+
+  glBegin(GL_TRIANGLE_STRIP);
+    glTexCoord2f(fU1, fV1); glVertex2f((float)(x),(float)(y));
+    glTexCoord2f(fU1, fV2); glVertex2f((float)(x),(float)(y + height));
+    glTexCoord2f(fU2, fV1); glVertex2f((float)(x + width),(float)(y));
+    glTexCoord2f(fU2, fV2); glVertex2f((float)(x + width),(float)(y + height));
   glEnd();
 }
 

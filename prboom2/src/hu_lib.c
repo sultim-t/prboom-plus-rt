@@ -163,6 +163,7 @@ void HUlib_drawTextLine
   unsigned char c;
   int oc = l->cm; //jff 2/17/98 remember default color
   int y = l->y;           // killough 1/18/98 -- support multiple lines
+  int stretch_flags = (l->flags == PATCH_ALIGNX_RIGHT ? VPT_STRETCH_RIGHT : VPT_STRETCH_LEFT);
 
   // draw the new stuff
   x = l->x;
@@ -187,7 +188,7 @@ void HUlib_drawTextLine
         break;
       // killough 1/18/98 -- support multiple lines:
       // CPhipps - patch drawing updated
-      V_DrawNumPatch(x, y, FG, l->f[c - l->sc].lumpnum, l->cm, VPT_TRANS | VPT_STRETCH);
+      V_DrawNumPatch(x, y, FG, l->f[c - l->sc].lumpnum, l->cm, VPT_TRANS | stretch_flags);
       x += w;
     }
     else
@@ -204,7 +205,7 @@ void HUlib_drawTextLine
   {
     // killough 1/18/98 -- support multiple lines
     // CPhipps - patch drawing updated
-    V_DrawNumPatch(x, y, FG, l->f['_' - l->sc].lumpnum, CR_DEFAULT, VPT_NONE | VPT_STRETCH);
+    V_DrawNumPatch(x, y, FG, l->f['_' - l->sc].lumpnum, CR_DEFAULT, VPT_NONE | stretch_flags);
   }
 }
 
@@ -777,7 +778,7 @@ void HUlib_eraseIText(hu_itext_t* it)
 void HUlib_setTextXCenter(hu_textline_t* t)
 {
   char *s = t->l;
-  t->x = 320;
+  t->x = centerx;
   while (*s)
   {
     t->x -= t->f[toupper(*(s++))-HU_FONTSTART].width;

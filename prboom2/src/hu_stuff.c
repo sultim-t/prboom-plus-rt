@@ -775,6 +775,7 @@ void HU_MoveHud(void)
   //jff 3/4/98 move displays around on F5 changing hud_distributed
   if (hud_distributed!=ohud_distributed)
   {
+    int alignx;
     w_ammo.x =    hud_distributed? HU_AMMOX_D   : HU_AMMOX;
     w_ammo.y =    hud_distributed? HU_AMMOY_D   : HU_AMMOY;
     w_weapon.x =  hud_distributed? HU_WEAPX_D   : HU_WEAPX;
@@ -792,6 +793,13 @@ void HU_MoveHud(void)
     //e6y
     w_hudadd.x =  hud_distributed? HU_HUDADDX_D : HU_HUDADDX;
     w_hudadd.y =  hud_distributed? HU_HUDADDY_D : HU_HUDADDY;
+
+    // e6y: wide-res
+    alignx = hud_distributed ? PATCH_ALIGNX_RIGHT : PATCH_ALIGNX_NONE;
+    w_health.flags =  alignx;
+    w_armor.flags  =  alignx;
+    w_weapon.flags =  alignx;
+    w_ammo.flags   =  alignx;
   }
   ohud_distributed = hud_distributed;
 }

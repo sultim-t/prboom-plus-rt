@@ -1053,24 +1053,50 @@ void R_InitBuffer(int width, int height)
 
 void R_FillBackScreen (void)
 {
-  int     x,y;
+  int lump,width,height;
 
-  if (scaledviewwidth == SCREENWIDTH)
+  if (!wide_ratio && scaledviewwidth == SCREENWIDTH)
     return;
 
   V_DrawBackground(gamemode == commercial ? "GRNROCK" : "FLOOR7_2", 1);
 
-  for (x=0; x<scaledviewwidth; x+=8)
-    V_DrawNamePatch(viewwindowx+x,viewwindowy-8,1,"brdr_t", CR_DEFAULT, VPT_NONE);
+  // e6y: wide-res
+  if (wide_ratio)
+  {
+    int need, top;
 
-  for (x=0; x<scaledviewwidth; x+=8)
-    V_DrawNamePatch(viewwindowx+x,viewwindowy+viewheight,1,"brdr_b", CR_DEFAULT, VPT_NONE);
+#ifdef GL_DOOM
+    if (V_GetMode() == VID_MODEGL)
+    {
+      need = (scaledviewwidth == SCREENWIDTH) || ((automapmode & am_active) && !(automapmode & am_overlay));
+      top = SCREENHEIGHT - ST_SCALED_HEIGHT;
+    }
+    else
+#endif
+    {
+      need = (scaledviewwidth == SCREENWIDTH) || (viewheight == SCREENHEIGHT);
+      top = (viewheight == SCREENHEIGHT ? SCREENHEIGHT - ST_SCALED_HEIGHT : viewwindowy + viewheight);
+    }
 
-  for (y=0; y<viewheight; y+=8)
-    V_DrawNamePatch(viewwindowx-8,viewwindowy+y,1,"brdr_l", CR_DEFAULT, VPT_NONE);
+    if (need)
+    {
+      // line between view and status bar
+      V_FillPatchName("brdr_b", 1, 0, top, SCREENWIDTH, V_NamePatchHeight("brdr_b"), VPT_NONE);
+      return;
+    }
+  }
 
-  for (y=0; y<viewheight; y+=8)
-    V_DrawNamePatch(viewwindowx+scaledviewwidth,viewwindowy+y,1,"brdr_r", CR_DEFAULT, VPT_NONE);
+  lump = W_GetNumForName("brdr_t"); height = R_NumPatchHeight(lump);
+  V_FillPatch(lump, 1, viewwindowx, viewwindowy-8, scaledviewwidth, height, VPT_NONE);
+
+  lump = W_GetNumForName("brdr_b"); height = R_NumPatchHeight(lump);
+  V_FillPatch(lump, 1, viewwindowx, viewwindowy+viewheight, scaledviewwidth, height, VPT_NONE);
+
+  lump = W_GetNumForName("brdr_l"); height = R_NumPatchHeight(lump); width = R_NumPatchWidth(lump);
+  V_FillPatch(lump, 1, viewwindowx-8, viewwindowy, width, viewheight, VPT_NONE);
+
+  lump = W_GetNumForName("brdr_r"); height = R_NumPatchHeight(lump); width = R_NumPatchWidth(lump);
+  V_FillPatch(lump, 1, viewwindowx+scaledviewwidth, viewwindowy, width, viewheight, VPT_NONE);
 
   // Draw beveled edge.
   V_DrawNamePatch(viewwindowx-8,viewwindowy-8,1,"brdr_tl", CR_DEFAULT, VPT_NONE);
@@ -1110,18 +1136,15 @@ void R_DrawViewBorder(void)
     return;
   }
 
-  if ((SCREENHEIGHT != viewheight) ||
-      ((automapmode & am_active) && ! (automapmode & am_overlay)))
+  // e6y: wide-res
+  if (wide_ratio &&
+     ((SCREENHEIGHT != viewheight) ||
+     ((automapmode & am_active) && ! (automapmode & am_overlay))))
   {
-    // erase left and right of statusbar
-    side= ( SCREENWIDTH - ST_SCALED_WIDTH ) / 2;
-
-    if (side > 0) {
-      for (i = (SCREENHEIGHT - ST_SCALED_HEIGHT); i < SCREENHEIGHT; i++)
-      {
-        R_VideoErase (0, i, side);
-        R_VideoErase (ST_SCALED_WIDTH+side, i, side);
-      }
+    for (i = (SCREENHEIGHT - ST_SCALED_HEIGHT); i < SCREENHEIGHT; i++)
+    {
+      R_VideoErase (0, i, wide_offsetx);
+      R_VideoErase (SCREENWIDTH - wide_offsetx, i, wide_offsetx);
     }
   }
 

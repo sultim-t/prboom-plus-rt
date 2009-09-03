@@ -48,22 +48,10 @@
 
 typedef struct
 {
-   // SoM: Not implemented (yet)
-   //int bitdepth;
-
-//   int         width, height;
-//   int         pitch;
-//   fixed_t     widthfrac, heightfrac;
    fixed_t     xscale, yscale;
    fixed_t     xstep, ystep;
 
-//   float       xscalef, yscalef;
-//   float       xstepf, ystepf;
-//   dboolean     scaled; // SoM: should be set when the scale values are
-
-   // SoM: if set to true, screens[0] is the SDL_Screen surface
-//   dboolean     usescreen;
-//   byte        *screens[5];
+   int strech_offsetx[(VPT_STRETCH | VPT_STRETCH_RIGHT) + 1];
 
    // SoM 1-31-04: This will insure that scaled patches and such are put in the right places
    int x1lookup[321];
@@ -196,6 +184,18 @@ extern V_DrawNumPatch_f V_DrawNumPatch;
 #define V_NamePatchWidth(name) R_NumPatchWidth(W_GetNumForName(name))
 #define V_NamePatchHeight(name) R_NumPatchHeight(W_GetNumForName(name))
 
+// e6y
+typedef void (*V_FillFlat_f)(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags);
+extern V_FillFlat_f V_FillFlat;
+#define V_FillFlatName(flatname, scrn, x, y, width, height, flags) \
+  V_FillFlat(firstflat + R_FlatNumForName(flatname), (scrn), (x), (y), (width), (height), (flags))
+
+typedef void (*V_FillPatch_f)(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags);
+extern V_FillPatch_f V_FillPatch;
+#define V_FillPatchName(name, scrn, x, y, width, height, flags) \
+  V_FillPatch(W_GetNumForName(name), (scrn), (x), (y), (width), (height), (flags))
+
+
 /* cphipps 10/99: function to tile a flat over the screen */
 typedef void (*V_DrawBackground_f)(const char* flatname, int scrn);
 extern V_DrawBackground_f V_DrawBackground;
@@ -231,6 +231,9 @@ void V_FreeScreens();
 
 const unsigned char* V_GetPlaypal(void);
 void V_FreePlaypal(void);
+
+// e6y: wide-res
+void V_FillBorder(int lump, byte color);
 
 #ifdef GL_DOOM
 #include "gl_struct.h"

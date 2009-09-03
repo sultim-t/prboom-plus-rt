@@ -79,9 +79,18 @@ int viewangleoffset;
 int validcount = 1;         // increment every time a check is made
 const lighttable_t *fixedcolormap;
 int      centerx, centery;
-
-//e6y
-int centerxwide;
+// e6y: wide-res
+int wide_centerx;
+int wide_ratio;
+int wide_offsetx;
+const base_ratio_t BaseRatioSizes[5] =
+{
+	{  960, 600, 0, 48 ,      RMUL*1.333333f }, // 4:3
+	{ 1280, 450, 0, 48*3/4,   RMUL*1.777777f }, // 16:9
+	{ 1152, 500, 0, 48*5/6,   RMUL*1.6f      }, // 16:10
+  {  960, 600, 0, 48,       RMUL*1.333333f },
+	{  960, 640, (int)(6.5*FRACUNIT), 48*15/16, RMUL*1.2f } // 5:4
+};
 
 fixed_t  centerxfrac, centeryfrac;
 fixed_t  viewheightfrac; //e6y: for correct cliping of things
@@ -298,11 +307,11 @@ static void R_InitTextureMapping (void)
 
   // For widescreen displays, increase the FOV so that the middle part of the
   // screen that would be visible on a 4:3 display has the requested FOV.
-  if (centerxwide != centerx)
-  { // centerxwide is what centerx would be if the display was not widescreen
-    fov = (int)(atan((double)centerx * tan((double)fov * M_PI / FINEANGLES) / (double)centerxwide) * FINEANGLES/M_PI);
-    if (fov > 170*FINEANGLES/360)
-      fov = 170*FINEANGLES/360;
+  if (wide_centerx != centerx)
+  { // wide_centerx is what centerx would be if the display was not widescreen
+    fov = (int)(atan((double)centerx * tan((double)fov * M_PI / FINEANGLES) / (double)wide_centerx) * FINEANGLES / M_PI);
+    if (fov > 130 * FINEANGLES / 360)
+      fov = 130 * FINEANGLES / 360;
   }
 
   // Use tangent table to generate viewangletox:
@@ -416,12 +425,13 @@ void R_SetupViewScaling(void)
 {
   int i;
   fixed_t frac = 0, lastfrac;
+
   // SoM: ANYRES
   // Moved stuff, reformatted a bit
   // haleyjd 04/03/05: removed unnecessary FixedDiv calls
 
   video.xscale  = (SCREENWIDTH << FRACBITS) / 320;
-  video.xstep   = ((320 << FRACBITS) / SCREENWIDTH) + 1;
+  video.xstep   = ((320 << FRACBITS) / WIDE_SCREENWIDTH) + 1; // e6y: wide-res
   video.yscale  = (SCREENHEIGHT << FRACBITS) / 200;
   video.ystep   = ((200 << FRACBITS) / SCREENHEIGHT) + 1;
 
@@ -432,22 +442,24 @@ void R_SetupViewScaling(void)
   // because the scaling will change the final scaled widths depending on what their unscaled
   // screen coords were. Thusly, all rectangles should be converted to unscaled x1, y1, x2, y2
   // coords, scaled, and then converted back to x, y, w, h
+  //
+  // e6y: wide-res
+
   video.x1lookup[0] = 0;
   lastfrac = frac = 0;
-  for(i = 0; i < SCREENWIDTH; i++)
+  for(i = 0; i < WIDE_SCREENWIDTH; i++)
   {
     if(frac >> FRACBITS > lastfrac >> FRACBITS)
     {
       video.x1lookup[frac >> FRACBITS] = i;
-      video.x2lookup[lastfrac >> FRACBITS] = i-1;
+      video.x2lookup[lastfrac >> FRACBITS] = i - 1;
+
       lastfrac = frac;
     }
-
     frac += video.xstep;
   }
   video.x2lookup[319] = SCREENWIDTH - 1;
   video.x1lookup[320] = video.x2lookup[320] = SCREENWIDTH;
-
 
   video.y1lookup[0] = 0;
   lastfrac = frac = 0;
@@ -464,6 +476,11 @@ void R_SetupViewScaling(void)
   }
   video.y2lookup[199] = SCREENHEIGHT - 1;
   video.y1lookup[200] = video.y2lookup[200] = SCREENHEIGHT;
+
+  // e6y: for fast calculation of patches offset
+  memset(video.strech_offsetx, 0, sizeof(video.strech_offsetx));
+  video.strech_offsetx[VPT_STRETCH] = wide_offsetx;
+  video.strech_offsetx[VPT_STRETCH_RIGHT] = 2 * wide_offsetx;
 }
 
 //
@@ -475,8 +492,6 @@ void R_ExecuteSetViewSize (void)
   int i;
 
   setsizeneeded = false;
-
-  R_SetupViewScaling();
 
   if (setblocks == 11)
     {
@@ -506,24 +521,17 @@ void R_ExecuteSetViewSize (void)
   centeryfrac = centery<<FRACBITS;
 
   // If the screen is approximately 16:9 or 16:10, consider it widescreen.
-  WidescreenRatio = CheckRatio(SCREENWIDTH, SCREENHEIGHT);
+  CheckRatio(SCREENWIDTH, SCREENHEIGHT);
 
-  if (WidescreenRatio & 4)
-	{
-		centerxwide = centerx;
-	}
-	else
-	{
-		centerxwide = centerx * BaseRatioSizes[WidescreenRatio].multiplier / 48;
-	}
-
-  // e6y: support for wide resulutions
-  projection = centerxwide<<FRACBITS;
+  // e6y: wide-res
+  projection = wide_centerx<<FRACBITS;
 
 // proff 11/06/98: Added for high-res
   projectiony = ((SCREENHEIGHT * centerx * 320) / 200) / SCREENWIDTH * FRACUNIT;
   // e6y: this is a precalculated value for more precise flats drawing (see R_MapPlane)
-  viewfocratio = (1.6f * centerx / centerxwide) / ((float)SCREENWIDTH / (float)SCREENHEIGHT);
+  viewfocratio = (1.6f * centerx / wide_centerx) / ((float)SCREENWIDTH / (float)SCREENHEIGHT);
+
+  R_SetupViewScaling();
 
   R_InitBuffer (scaledviewwidth, viewheight);
 
@@ -532,13 +540,13 @@ void R_ExecuteSetViewSize (void)
   // psprite scales
   // proff 08/17/98: Changed for high-res
   // proff 11/06/98: Added for high-res
-  // e6y: support for wide resulutions
-  pspritexscale = (centerxwide << FRACBITS) / 160;
+  // e6y: wide-res
+  pspritexscale = (wide_centerx << FRACBITS) / 160;
   pspriteyscale = (((SCREENHEIGHT*viewwidth)/SCREENWIDTH) << FRACBITS) / 200;
   pspriteiscale = FixedDiv (FRACUNIT, pspritexscale);
 
   //e6y: added for GL
-  pspritexscale_f = (float)centerxwide/160.0f;
+  pspritexscale_f = (float)wide_centerx/160.0f;
   pspriteyscale_f = (((float)SCREENHEIGHT*viewwidth)/(float)SCREENWIDTH) / 200.0f;
 
   // thing clipping
@@ -591,6 +599,11 @@ void R_Init (void)
   lprintf(LO_INFO, "\nR_InitData: ");
   R_InitData();
   R_SetViewSize(screenblocks);
+  
+  // e6y: wide-res
+  // Need some initialisations before level precache
+  R_ExecuteSetViewSize();
+
   lprintf(LO_INFO, "\nR_Init: R_InitPlanes ");
   R_InitPlanes();
   lprintf(LO_INFO, "R_InitLightTables ");

@@ -155,24 +155,13 @@ extern int render_wipescreen;
 extern int mouse_acceleration;
 extern int demo_overwriteexisting;
 
-#define RMUL (1.6f/1.333333f)
-typedef struct base_ratio_s
-{
-  int base_width;      // Base width (unused)
-  int base_height;     // Base height (used for wall visibility multiplier)
-  int psprite_offset;  // Psprite offset (needed for "tallscreen" modes)
-  int multiplier;      // Width or height multiplier
-  float gl_ratio;
-} base_ratio_t;
 extern int render_fov;
 extern int render_aspect;
 extern float render_ratio;
 extern float render_fovratio;
 extern float render_fovy;
 extern float render_multiplier;
-extern int WidescreenRatio;
-extern const base_ratio_t BaseRatioSizes[];
-int CheckRatio(int width, int height);
+void CheckRatio(int width, int height);
 void M_ChangeAspectRatio(void);
 
 extern int misc_fastexit;

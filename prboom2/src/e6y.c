@@ -571,21 +571,11 @@ void CheckPitch(signed int *pitch)
   }
 }
 
-const base_ratio_t BaseRatioSizes[5] =
-{
-	{  960, 600, 0, 48 ,      RMUL*1.333333f }, // 4:3
-	{ 1280, 450, 0, 48*3/4,   RMUL*1.777777f }, // 16:9
-	{ 1152, 500, 0, 48*5/6,   RMUL*1.6f      }, // 16:10
-  {  960, 600, 0, 48,       RMUL*1.333333f },
-	{  960, 640, (int)(6.5*FRACUNIT), 48*15/16, RMUL*1.2f } // 5:4
-};
-
 int render_aspect;
 float render_ratio;
 float render_fovratio;
 float render_fovy = FOV90;
 float render_multiplier;
-int WidescreenRatio;
 
 // Tries to guess the physical dimensions of the screen based on the
 // screen's pixel dimensions. Can return:
@@ -593,32 +583,53 @@ int WidescreenRatio;
 // 1: 16:9
 // 2: 16:10
 // 4: 5:4
-int CheckRatio (int width, int height)
+void CheckRatio (int width, int height)
 {
+  // Assume anything else is 4:3.
+  wide_ratio = 0;
+
   if ((render_aspect >= 1) && (render_aspect <= 4))
   {
     // [SP] User wants to force aspect ratio; let them.
-    return (render_aspect == 3 ? 0 : (int)render_aspect);
+    wide_ratio = (render_aspect == 3 ? 0 : (int)render_aspect);
   }
-
-  // If the size is approximately 16:9, consider it so.
-  if (abs (height * 16/9 - width) < 10)
+  else
   {
-    return 1;
-  }
-  // 16:10 has more variance in the pixel dimensions. Grr.
-  if (abs (height * 16/10 - width) < 60)
-  {
-    // 320x200 and 640x400 are always 4:3, not 16:10
-    if ((width == 320 && height == 200) || (width == 640 && height == 400))
+    // If the size is approximately 16:9, consider it so.
+    if (abs (height * 16/9 - width) < 10)
     {
-      return 0;
+      wide_ratio = 1;
     }
-    return 2;
+    else
+    {
+      // 16:10 has more variance in the pixel dimensions. Grr.
+      if (abs (height * 16/10 - width) < 60)
+      {
+        // 320x200 and 640x400 are always 4:3, not 16:10
+        if ((width == 320 && height == 200) || (width == 640 && height == 400))
+        {
+          wide_ratio = 0;
+        }
+        else
+        {
+          wide_ratio = 2;
+        }
+      }
+    }
   }
 
-  // Assume anything else is 4:3.
-  return 0;
+  if (wide_ratio & 4)
+  {
+    wide_centerx = centerx;
+    WIDE_SCREENWIDTH = SCREENWIDTH;
+    wide_offsetx = 0;
+  }
+  else
+  {
+    wide_centerx = centerx * BaseRatioSizes[wide_ratio].multiplier / 48;
+    WIDE_SCREENWIDTH = SCREENWIDTH * BaseRatioSizes[wide_ratio].multiplier / 48;
+    wide_offsetx = (SCREENWIDTH - WIDE_SCREENWIDTH) / 2;
+  }
 }
 
 void M_ChangeAspectRatio(void)
@@ -627,6 +638,8 @@ void M_ChangeAspectRatio(void)
   M_ChangeFOV();
 #endif
   R_ExecuteSetViewSize();
+  // draw the pattern into the back screen
+  R_FillBackScreen ();
 }
 
 #ifdef GL_DOOM
@@ -643,17 +656,17 @@ void M_ChangeFOV(void)
   if ((p = M_CheckParm("-aspect")) && (p+1 < myargc) && (strlen(myargv[p+1]) <= 21) &&
      (2 == sscanf(myargv[p+1], "%dx%d", &render_aspect_width, &render_aspect_height)))
   {
-    WidescreenRatio = CheckRatio(SCREENWIDTH, SCREENHEIGHT);
+    CheckRatio(SCREENWIDTH, SCREENHEIGHT);
     render_fovratio = (float)render_aspect_width / (float)render_aspect_height;
     render_ratio = RMUL * render_fovratio;
     render_multiplier = 64.0f / render_fovratio / RMUL;
   }
   else
   {
-    WidescreenRatio = CheckRatio(SCREENWIDTH, SCREENHEIGHT);
-    render_ratio = BaseRatioSizes[WidescreenRatio].gl_ratio;
-    render_multiplier = (float)BaseRatioSizes[WidescreenRatio].multiplier;
-    if (!(WidescreenRatio & 4))
+    CheckRatio(SCREENWIDTH, SCREENHEIGHT);
+    render_ratio = BaseRatioSizes[wide_ratio].gl_ratio;
+    render_multiplier = (float)BaseRatioSizes[wide_ratio].multiplier;
+    if (!(wide_ratio & 4))
     {
       render_fovratio = 1.6f;
     }

@@ -118,14 +118,16 @@ static void FUNC_V_CopyRect(int srcx, int srcy, int srcscrn, int width,
   byte *src;
   byte *dest;
 
-  if (flags & VPT_STRETCH)
+  if (flags & VPT_ANYSTRETCH)
   {
-    srcx=srcx*SCREENWIDTH/320;
-    srcy=srcy*SCREENHEIGHT/200;
-    width=width*SCREENWIDTH/320;
-    height=height*SCREENHEIGHT/200;
-    destx=destx*SCREENWIDTH/320;
-    desty=desty*SCREENHEIGHT/200;
+    int delta = video.strech_offsetx[flags & (VPT_STRETCH | VPT_STRETCH_RIGHT)];
+
+    srcx   = video.x1lookup[srcx] + delta;
+    srcy   = video.y1lookup[srcy];
+    width  = video.x1lookup[width];
+    height = video.y1lookup[height];
+    destx  = video.x1lookup[destx] + delta;
+    desty  = video.y1lookup[desty];
   }
 
 #ifdef RANGECHECK
@@ -150,6 +152,90 @@ static void FUNC_V_CopyRect(int srcx, int srcy, int srcscrn, int width,
     }
 }
 
+static void FUNC_V_FillFlat(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags)
+{
+  /* erase the entire screen to a tiled background */
+  const byte *src;
+  int         sx, sy;
+  int         w, h;
+
+  // killough 4/17/98:
+  src = W_CacheLumpNum(lump);
+
+  w = h = 64;
+  if (V_GetMode() == VID_MODE8) {
+    byte *dest = screens[scrn].data;
+
+    while (h--) {
+      memcpy (dest, src, w);
+      src += w;
+      dest += screens[scrn].byte_pitch;
+    }
+  } else if (V_GetMode() == VID_MODE15) {
+    unsigned short *dest = (unsigned short *)screens[scrn].data;
+
+    while (h--) {
+      int i;
+      for (i=0; i<w; i++) {
+        dest[i] = VID_PAL15(src[i], VID_COLORWEIGHTMASK);
+      }
+      src += w;
+      dest += screens[scrn].short_pitch;
+    }
+  } else if (V_GetMode() == VID_MODE16) {
+    unsigned short *dest = (unsigned short *)screens[scrn].data;
+
+    while (h--) {
+      int i;
+      for (i=0; i<w; i++) {
+        dest[i] = VID_PAL16(src[i], VID_COLORWEIGHTMASK);
+      }
+      src += w;
+      dest += screens[scrn].short_pitch;
+    }
+  } else if (V_GetMode() == VID_MODE32) {
+    unsigned int *dest = (unsigned int *)screens[scrn].data;
+
+    while (h--) {
+      int i;
+      for (i=0; i<w; i++) {
+        dest[i] = VID_PAL32(src[i], VID_COLORWEIGHTMASK);
+      }
+      src += w;
+      dest += screens[scrn].int_pitch;
+    }
+  }
+  /* end V_DrawBlock */
+
+  for (sy = y ; sy < y + height; sy += 64)
+  {
+    for (sx = x/*sy ? x : x + 64*/; sx < x + width; sx += 64)
+    {
+      V_CopyRect(0, 0, scrn,
+      (x + width - sx < 64 ? x + width - sx : 64),
+      (y + height - sy < 64 ? y + height - sy : 64),
+      sx, sy, scrn, VPT_NONE);
+    }
+  }
+  W_UnlockLumpNum(lump);
+}
+
+static void FUNC_V_FillPatch(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags)
+{
+  int sx, sy, w, h;
+
+  w = R_NumPatchWidth(lump);
+  h = R_NumPatchHeight(lump);
+
+  for (sy = y; sy < y + height; sy += h)
+  {
+    for (sx = x; sx < x + width; sx += w)
+    {
+      V_DrawNumPatch(sx, sy, scrn, lump, CR_DEFAULT, flags);
+    }
+  }
+}
+
 /*
  * V_DrawBackground tiles a 64x64 patch over the entire screen, providing the
  * background for the Help and Setup screens, and plot text betwen levels.
@@ -158,66 +244,7 @@ static void FUNC_V_CopyRect(int srcx, int srcy, int srcscrn, int width,
  */
 static void FUNC_V_DrawBackground(const char* flatname, int scrn)
 {
-  /* erase the entire screen to a tiled background */
-  const byte *src;
-  int         x,y;
-  int         width,height;
-  int         lump;
-
-  // killough 4/17/98:
-  src = W_CacheLumpNum(lump = firstflat + R_FlatNumForName(flatname));
-
-  /* V_DrawBlock(0, 0, scrn, 64, 64, src, 0); */
-  width = height = 64;
-  if (V_GetMode() == VID_MODE8) {
-    byte *dest = screens[scrn].data;
-
-    while (height--) {
-      memcpy (dest, src, width);
-      src += width;
-      dest += screens[scrn].byte_pitch;
-    }
-  } else if (V_GetMode() == VID_MODE15) {
-    unsigned short *dest = (unsigned short *)screens[scrn].data;
-
-    while (height--) {
-      int i;
-      for (i=0; i<width; i++) {
-        dest[i] = VID_PAL15(src[i], VID_COLORWEIGHTMASK);
-      }
-      src += width;
-      dest += screens[scrn].short_pitch;
-    }
-  } else if (V_GetMode() == VID_MODE16) {
-    unsigned short *dest = (unsigned short *)screens[scrn].data;
-
-    while (height--) {
-      int i;
-      for (i=0; i<width; i++) {
-        dest[i] = VID_PAL16(src[i], VID_COLORWEIGHTMASK);
-      }
-      src += width;
-      dest += screens[scrn].short_pitch;
-    }
-  } else if (V_GetMode() == VID_MODE32) {
-    unsigned int *dest = (unsigned int *)screens[scrn].data;
-
-    while (height--) {
-      int i;
-      for (i=0; i<width; i++) {
-        dest[i] = VID_PAL32(src[i], VID_COLORWEIGHTMASK);
-      }
-      src += width;
-      dest += screens[scrn].int_pitch;
-    }
-  }
-  /* end V_DrawBlock */
-
-  for (y=0 ; y<SCREENHEIGHT ; y+=64)
-    for (x=y ? 0 : 64; x<SCREENWIDTH ; x+=64)
-      V_CopyRect(0, 0, scrn, ((SCREENWIDTH-x) < 64) ? (SCREENWIDTH-x) : 64,
-     ((SCREENHEIGHT-y) < 64) ? (SCREENHEIGHT-y) : 64, x, y, scrn, VPT_NONE);
-  W_UnlockLumpNum(lump);
+  V_FillFlatName(flatname, scrn, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_NONE);
 }
 
 //
@@ -260,6 +287,8 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
 {
   const byte *trans;
 
+  int delta;
+
   if (cm<CR_LIMIT)
     trans=colrngs[cm];
   else
@@ -272,11 +301,14 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
     if ((SCREENWIDTH==320) && (SCREENHEIGHT==200))
       flags &= ~VPT_STRETCH;
 
+  // e6y: wide-res
+  delta = ((flags & VPT_STRETCH) ? wide_offsetx : 0);
+
   // CPhipps - null translation pointer => no translation
   if (!trans)
     flags &= ~VPT_TRANS;
 
-  if (V_GetMode() == VID_MODE8 && !(flags & VPT_STRETCH)) {
+  if (V_GetMode() == VID_MODE8 && !(flags & VPT_ANYSTRETCH)) {
     int             col;
     byte           *desttop = screens[scrn].data+y*screens[scrn].byte_pitch+x*V_GetPixelDepth();
     unsigned int    w = patch->width;
@@ -389,7 +421,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
     }
 
     //e6y: predefined arrays are used
-    if (!(flags & VPT_STRETCH))
+    if (!(flags & VPT_ANYSTRETCH))
     {
       DXI = 1 << 16;
       DYI = 1 << 16;
@@ -406,13 +438,19 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
 
       //FIXME: Is it needed only for F_BunnyScroll?
 
-      left = (x < 0 || x > 320 ? (x * SCREENWIDTH)  / 320 : video.x1lookup[x]);
+      left = (x < 0 || x > 320 ? (x * SCREENWIDTH)  / 320 : video.x1lookup[x] + delta);
       top =  (y < 0 || y > 200 ? (y * SCREENHEIGHT) / 200 : video.y1lookup[y]);
 
       if (x + patch->width < 0 || x + patch->width > 320)
         right = ( ((x + patch->width - 1) * SCREENWIDTH) / 320 );
       else
-        right = video.x2lookup[x + patch->width - 1];
+        right = video.x2lookup[x + patch->width - 1] + delta;
+
+      if (flags & VPT_STRETCH_RIGHT)
+      {
+        left = left + wide_offsetx * 2;
+        right = right + wide_offsetx * 2;
+      }
 
       if (y + patch->height < 0 || y + patch->height > 200)
         bottom = ( ((y + patch->height - 0) * SCREENHEIGHT) / 200 );
@@ -457,7 +495,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
         int yoffset = 0;
 
         //e6y
-        if (!(flags & VPT_STRETCH))
+        if (!(flags & VPT_ANYSTRETCH))
         {
           dcvars.yl = y + post->topdelta;
           dcvars.yh = ((((y + post->topdelta + post->length) << 16) - (FRACUNIT>>1))>>FRACBITS);
@@ -789,7 +827,15 @@ static void WRAP_gld_CopyRect(int srcx, int srcy, int srcscrn, int width, int he
 }
 static void WRAP_gld_DrawBackground(const char *flatname, int n)
 {
-  gld_DrawBackground(flatname);
+  gld_FillFlatName(flatname, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_NONE);
+}
+static void WRAP_gld_FillFlat(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags)
+{
+  gld_FillFlat(lump - firstflat, x, y, width, height, flags);
+}
+static void WRAP_gld_FillPatch(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags)
+{
+  gld_FillPatch(lump, x, y, width, height, flags);
 }
 static void WRAP_gld_DrawNumPatch(int x, int y, int scrn, int lump, int cm, enum patch_translation_e flags)
 {
@@ -810,6 +856,8 @@ static void WRAP_gld_DrawLine(fline_t* fl, int color)
 
 static void NULL_FillRect(int scrn, int x, int y, int width, int height, byte colour) {}
 static void NULL_CopyRect(int srcx, int srcy, int srcscrn, int width, int height, int destx, int desty, int destscrn, enum patch_translation_e flags) {}
+static void NULL_FillFlat(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags) {}
+static void NULL_FillPatch(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags) {}
 static void NULL_DrawBackground(const char *flatname, int n) {}
 static void NULL_DrawNumPatch(int x, int y, int scrn, int lump, int cm, enum patch_translation_e flags) {}
 static void NULL_DrawBlock(int x, int y, int scrn, int width, int height, const byte *src, enum patch_translation_e flags) {}
@@ -822,6 +870,8 @@ static video_mode_t current_videomode = VID_MODE8;
 V_CopyRect_f V_CopyRect = NULL_CopyRect;
 V_FillRect_f V_FillRect = NULL_FillRect;
 V_DrawNumPatch_f V_DrawNumPatch = NULL_DrawNumPatch;
+V_FillFlat_f V_FillFlat = NULL_FillFlat;
+V_FillPatch_f V_FillPatch = NULL_FillPatch;
 V_DrawBackground_f V_DrawBackground = NULL_DrawBackground;
 V_PlotPixel_f V_PlotPixel = NULL_PlotPixel;
 V_DrawLine_f V_DrawLine = NULL_DrawLine;
@@ -840,6 +890,8 @@ void V_InitMode(video_mode_t mode) {
       V_CopyRect = FUNC_V_CopyRect;
       V_FillRect = V_FillRect8;
       V_DrawNumPatch = FUNC_V_DrawNumPatch;
+      V_FillFlat = FUNC_V_FillFlat;
+      V_FillPatch = FUNC_V_FillPatch;
       V_DrawBackground = FUNC_V_DrawBackground;
       V_PlotPixel = V_PlotPixel8;
       V_DrawLine = WRAP_V_DrawLine;
@@ -850,6 +902,8 @@ void V_InitMode(video_mode_t mode) {
       V_CopyRect = FUNC_V_CopyRect;
       V_FillRect = V_FillRect15;
       V_DrawNumPatch = FUNC_V_DrawNumPatch;
+      V_FillFlat = FUNC_V_FillFlat;
+      V_FillPatch = FUNC_V_FillPatch;
       V_DrawBackground = FUNC_V_DrawBackground;
       V_PlotPixel = V_PlotPixel15;
       V_DrawLine = WRAP_V_DrawLine;
@@ -860,6 +914,8 @@ void V_InitMode(video_mode_t mode) {
       V_CopyRect = FUNC_V_CopyRect;
       V_FillRect = V_FillRect16;
       V_DrawNumPatch = FUNC_V_DrawNumPatch;
+      V_FillFlat = FUNC_V_FillFlat;
+      V_FillPatch = FUNC_V_FillPatch;
       V_DrawBackground = FUNC_V_DrawBackground;
       V_PlotPixel = V_PlotPixel16;
       V_DrawLine = WRAP_V_DrawLine;
@@ -870,6 +926,8 @@ void V_InitMode(video_mode_t mode) {
       V_CopyRect = FUNC_V_CopyRect;
       V_FillRect = V_FillRect32;
       V_DrawNumPatch = FUNC_V_DrawNumPatch;
+      V_FillFlat = FUNC_V_FillFlat;
+      V_FillPatch = FUNC_V_FillPatch;
       V_DrawBackground = FUNC_V_DrawBackground;
       V_PlotPixel = V_PlotPixel32;
       V_DrawLine = WRAP_V_DrawLine;
@@ -881,6 +939,8 @@ void V_InitMode(video_mode_t mode) {
       V_CopyRect = WRAP_gld_CopyRect;
       V_FillRect = WRAP_gld_FillRect;
       V_DrawNumPatch = WRAP_gld_DrawNumPatch;
+      V_FillFlat = WRAP_gld_FillFlat;
+      V_FillPatch = WRAP_gld_FillPatch;
       V_DrawBackground = WRAP_gld_DrawBackground;
       V_PlotPixel = V_PlotPixelGL;
       V_DrawLine = WRAP_gld_DrawLine;
@@ -1095,5 +1155,58 @@ void V_FreePlaypal(void)
   {
     free(playpal_data);
     playpal_data = NULL;
+  }
+}
+
+void V_FillBorder(int lump, byte color)
+{
+  int bordtop, bordbottom, bordleft, bordright, bord;
+  int Width = SCREENWIDTH;
+  int Height = SCREENHEIGHT;
+
+  if (wide_ratio == 0)
+  {
+    // This is a 4:3 display, so no border to show
+    return;
+  }
+
+  if (wide_ratio & 4)
+  {
+    // Screen is taller than it is wide
+    bordleft = bordright = 0;
+    bord = Height - Height * BaseRatioSizes[wide_ratio].multiplier / 48;
+    bordtop = bord / 2;
+    bordbottom = bord - bordtop;
+  }
+  else
+  {
+    // Screen is wider than it is tall
+    bordtop = bordbottom = 0;
+    bord = Width - Width * BaseRatioSizes[wide_ratio].multiplier / 48;
+    bordleft = bord / 2;
+    bordright = bord - bordleft;
+  }
+
+  if (lump >= 0)
+  {
+    // Top
+    V_FillFlat(lump, 0, 0, 0, Width, bordtop, VPT_NONE);
+    // Left
+    V_FillFlat(lump, 0, 0, bordtop, bordleft, Height - bordbottom - bordtop, VPT_NONE);
+    // Right
+    V_FillFlat(lump, 0, Width - bordright, bordtop, bordright, Height - bordbottom - bordtop, VPT_NONE);
+    // Bottom
+    V_FillFlat(lump, 0, 0, Width - bordbottom, Width, bordbottom, VPT_NONE);
+  }
+  else
+  {
+    // Top
+    V_FillRect(0, 0, 0, Width, bordtop, color);
+    // Left
+    V_FillRect(0, 0, bordtop, bordleft, Height - bordbottom - bordtop, color);
+    // Right
+    V_FillRect(0, Width - bordright, bordtop, bordright, Height - bordbottom - bordtop, color);
+    // Bottom
+    V_FillRect(0, 0, Width - bordbottom, Width, bordbottom, color);
   }
 }

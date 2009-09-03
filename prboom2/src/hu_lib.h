@@ -53,6 +53,13 @@
 /*jff 2/26/98 maximum number of messages allowed in refresh list */
 #define HU_MAXMESSAGES 16
 
+typedef enum patch_flags_s
+{
+  PATCH_ALIGNX_NONE   = 0,
+  PATCH_ALIGNX_MIDDLE = 1,
+  PATCH_ALIGNX_RIGHT  = 2,
+} patch_flags_e;
+
 /*
  * Typedefs of widgets
  */
@@ -81,6 +88,8 @@ typedef struct
   // whether this line needs to be udpated
   int   needsupdate;
 
+  // e6y: wide-res
+  patch_flags_e flags;
 } hu_textline_t;
 
 
