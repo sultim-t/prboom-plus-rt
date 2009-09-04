@@ -415,6 +415,13 @@ void gld_FillFlat(int lump, int x, int y, int width, int height, enum patch_tran
 
   gltexture = gld_RegisterFlat(lump, false);
   gld_BindFlat(gltexture);
+  
+  if (gltexture->flags & GLTEXTURE_CLAMPXY)
+  {
+    gltexture->flags &= ~GLTEXTURE_CLAMPXY;
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, gltexture->wrap_mode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gltexture->wrap_mode);
+  }
 
   //e6y
   boom_cm = saved_boom_cm;
