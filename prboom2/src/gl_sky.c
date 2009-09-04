@@ -395,6 +395,7 @@ void gld_DrawScreenSkybox(void)
     GLWall *wall = &SkyBox.wall;
     angle_t angle;
     int i, k;
+    float w;
 
     if (!gl_compatibility)
     {
@@ -460,11 +461,12 @@ void gld_DrawScreenSkybox(void)
 
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     gld_BindTexture(wall->gltexture);
+    w = 160.0f * SCREENWIDTH / WIDE_SCREENWIDTH;
     glBegin(GL_TRIANGLE_STRIP);
-      glTexCoord2f(fU1, fV1); glVertex3f(-160.0f, +100.5f, -screen_skybox_zplane);
-      glTexCoord2f(fU1, fV2); glVertex3f(-160.0f, -100.5f, -screen_skybox_zplane);
-      glTexCoord2f(fU2, fV1); glVertex3f(+160.0f, +100.5f, -screen_skybox_zplane);
-      glTexCoord2f(fU2, fV2); glVertex3f(+160.0f, -100.5f, -screen_skybox_zplane);
+      glTexCoord2f(fU1, fV1); glVertex3f(-w, +100.5f, -screen_skybox_zplane);
+      glTexCoord2f(fU1, fV2); glVertex3f(-w, -100.5f, -screen_skybox_zplane);
+      glTexCoord2f(fU2, fV1); glVertex3f(+w, +100.5f, -screen_skybox_zplane);
+      glTexCoord2f(fU2, fV2); glVertex3f(+w, -100.5f, -screen_skybox_zplane);
     glEnd();
 
     glPopMatrix();
