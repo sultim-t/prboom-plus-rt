@@ -308,6 +308,9 @@ static patchnum_t faceback; // CPhipps - single background, translated for diffe
 
 //e6y: status bar background
 static patchnum_t stbarbg;
+patchnum_t grnrock;
+patchnum_t brdr_t, brdr_b, brdr_l, brdr_r;
+patchnum_t brdr_tl, brdr_tr, brdr_bl, brdr_br;
 
 // main bar right
 static patchnum_t armsbg;
@@ -917,6 +920,15 @@ static void ST_loadGraphics(dboolean doload)
 
   //e6y: status bar background
   R_SetPatchNum(&stbarbg, "STBAR");
+  R_SetFloorNum(&grnrock, (gamemode == commercial ? "GRNROCK" : "FLOOR7_2"));
+  R_SetPatchNum(&brdr_t, "brdr_t");
+  R_SetPatchNum(&brdr_b, "brdr_b");
+  R_SetPatchNum(&brdr_l, "brdr_l");
+  R_SetPatchNum(&brdr_r, "brdr_r");
+  R_SetPatchNum(&brdr_tl, "brdr_tl");
+  R_SetPatchNum(&brdr_tr, "brdr_tr");
+  R_SetPatchNum(&brdr_bl, "brdr_bl");
+  R_SetPatchNum(&brdr_br, "brdr_br");
 
   // arms background
   R_SetPatchNum(&armsbg, "STARMS");

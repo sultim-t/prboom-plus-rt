@@ -105,5 +105,7 @@ extern const byte *main_tranmap, *tranmap;
 
 /* Proff - Added for OpenGL - cph - const char* param */
 void R_SetPatchNum(patchnum_t *patchnum, const char *name);
+// e6y: Added for "GRNROCK" mostly
+void R_SetFloorNum(patchnum_t *patchnum, const char *name);
 
 #endif

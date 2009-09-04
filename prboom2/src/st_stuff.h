@@ -38,6 +38,7 @@
 
 #include "doomtype.h"
 #include "d_event.h"
+#include "r_defs.h"
 
 // Size of statusbar.
 // Now sensitive for scaling.
@@ -99,4 +100,10 @@ extern int sts_pct_always_gray;// status percents do not change colors
 extern int sts_traditional_keys;  // display keys the traditional way
 
 extern int st_palette;    // cph 2006/04/06 - make palette visible
+
+// e6y: makes sense for wide resolutions
+extern patchnum_t grnrock;
+extern patchnum_t brdr_t, brdr_b, brdr_l, brdr_r;
+extern patchnum_t brdr_tl, brdr_tr, brdr_bl, brdr_br;
+
 #endif

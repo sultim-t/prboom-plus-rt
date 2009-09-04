@@ -753,3 +753,13 @@ void R_SetPatchNum(patchnum_t *patchnum, const char *name)
   patchnum->lumpnum = W_GetNumForName(name);
   R_UnlockPatchName(name);
 }
+
+// e6y: Added for "GRNROCK" mostly
+void R_SetFloorNum(patchnum_t *patchnum, const char *name)
+{
+  patchnum->width = 64;
+  patchnum->height = 64;
+  patchnum->leftoffset = 0;
+  patchnum->topoffset = 0;
+  patchnum->lumpnum = R_FlatNumForName(name);
+}

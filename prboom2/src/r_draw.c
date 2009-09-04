@@ -1053,7 +1053,6 @@ void R_InitBuffer(int width, int height)
 
 void R_FillBackScreen (void)
 {
-  int lump,width,height;
   int automap = ((automapmode & am_active) && !(automapmode & am_overlay));
 
   // e6y: wide-res
@@ -1065,18 +1064,15 @@ void R_FillBackScreen (void)
     if (only_stbar)
     {
       int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
-      int lump_back = R_FlatNumForName((gamemode == commercial ? "GRNROCK" : "FLOOR7_2"));
-      int lump_border = W_GetNumForName("brdr_b");
-      height = R_NumPatchHeight(lump_border);
 
-      V_FillFlat(lump_back, 1,
+      V_FillFlat(grnrock.lumpnum, 1,
         0, stbar_top, wide_offsetx, ST_SCALED_HEIGHT, VPT_NONE);
-      V_FillFlat(lump_back, 1,
+      V_FillFlat(grnrock.lumpnum, 1,
         SCREENWIDTH - wide_offsetx, stbar_top, wide_offsetx, ST_SCALED_HEIGHT, VPT_NONE);
       
       // line between view and status bar
-      V_FillPatch(lump_border, 1, 0, stbar_top, wide_offsetx, height, VPT_NONE);
-      V_FillPatch(lump_border, 1, SCREENWIDTH - wide_offsetx, stbar_top, wide_offsetx, height, VPT_NONE);
+      V_FillPatch(brdr_b.lumpnum, 1, 0, stbar_top, wide_offsetx, brdr_b.height, VPT_NONE);
+      V_FillPatch(brdr_b.lumpnum, 1, SCREENWIDTH - wide_offsetx, stbar_top, wide_offsetx, brdr_b.height, VPT_NONE);
 
       return;
     }
@@ -1085,35 +1081,30 @@ void R_FillBackScreen (void)
   if (scaledviewwidth == SCREENWIDTH)
     return;
 
-  V_DrawBackground((gamemode == commercial ? "GRNROCK" : "FLOOR7_2"), 1);
+  V_FillFlat(grnrock.lumpnum, 1, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_NONE);
 
   // line between view and status bar
   if (wide_ratio && (automap || scaledviewwidth == SCREENWIDTH))
   {
-    int lump = W_GetNumForName("brdr_b");
-    V_FillPatch(lump, 1, 0, SCREENHEIGHT - ST_SCALED_HEIGHT, SCREENWIDTH, R_NumPatchHeight(lump), VPT_NONE);
+    V_FillPatch(brdr_b.lumpnum, 1, 0, SCREENHEIGHT - ST_SCALED_HEIGHT, SCREENWIDTH, brdr_b.height, VPT_NONE);
   }
 
-  lump = W_GetNumForName("brdr_t"); height = R_NumPatchHeight(lump);
-  V_FillPatch(lump, 1, viewwindowx, viewwindowy-8, scaledviewwidth, height, VPT_NONE);
+  V_FillPatch(brdr_t.lumpnum, 1, viewwindowx, viewwindowy-8, scaledviewwidth, brdr_t.height, VPT_NONE);
 
-  lump = W_GetNumForName("brdr_b"); height = R_NumPatchHeight(lump);
-  V_FillPatch(lump, 1, viewwindowx, viewwindowy+viewheight, scaledviewwidth, height, VPT_NONE);
+  V_FillPatch(brdr_b.lumpnum, 1, viewwindowx, viewwindowy+viewheight, scaledviewwidth, brdr_b.height, VPT_NONE);
 
-  lump = W_GetNumForName("brdr_l"); height = R_NumPatchHeight(lump); width = R_NumPatchWidth(lump);
-  V_FillPatch(lump, 1, viewwindowx-8, viewwindowy, width, viewheight, VPT_NONE);
+  V_FillPatch(brdr_l.lumpnum, 1, viewwindowx-8, viewwindowy, brdr_l.width, viewheight, VPT_NONE);
 
-  lump = W_GetNumForName("brdr_r"); height = R_NumPatchHeight(lump); width = R_NumPatchWidth(lump);
-  V_FillPatch(lump, 1, viewwindowx+scaledviewwidth, viewwindowy, width, viewheight, VPT_NONE);
+  V_FillPatch(brdr_r.lumpnum, 1, viewwindowx+scaledviewwidth, viewwindowy, brdr_r.width, viewheight, VPT_NONE);
 
   // Draw beveled edge.
-  V_DrawNamePatch(viewwindowx-8,viewwindowy-8,1,"brdr_tl", CR_DEFAULT, VPT_NONE);
+  V_DrawNumPatch(viewwindowx-8,viewwindowy-8,1,brdr_tl.lumpnum, CR_DEFAULT, VPT_NONE);
 
-  V_DrawNamePatch(viewwindowx+scaledviewwidth,viewwindowy-8,1,"brdr_tr", CR_DEFAULT, VPT_NONE);
+  V_DrawNumPatch(viewwindowx+scaledviewwidth,viewwindowy-8,1,brdr_tr.lumpnum, CR_DEFAULT, VPT_NONE);
 
-  V_DrawNamePatch(viewwindowx-8,viewwindowy+viewheight,1,"brdr_bl", CR_DEFAULT, VPT_NONE);
+  V_DrawNumPatch(viewwindowx-8,viewwindowy+viewheight,1,brdr_bl.lumpnum, CR_DEFAULT, VPT_NONE);
 
-  V_DrawNamePatch(viewwindowx+scaledviewwidth,viewwindowy+viewheight,1,"brdr_br", CR_DEFAULT, VPT_NONE);
+  V_DrawNumPatch(viewwindowx+scaledviewwidth,viewwindowy+viewheight,1,brdr_br.lumpnum, CR_DEFAULT, VPT_NONE);
 }
 
 //
