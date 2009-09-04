@@ -356,10 +356,17 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
   {
     int delta = video.strech_offsetx[flags & (VPT_STRETCH | VPT_STRETCH_RIGHT)];
 
+#if 1
+    xpos   = (float)(x - gltexture->leftoffset) * (float)WIDE_SCREENWIDTH / 320.0f + delta;
+    ypos   = (float)(y - gltexture->topoffset)  * (float)SCREENHEIGHT     / 200.0f;
+    width  = (float)(gltexture->realtexwidth)   * (float)WIDE_SCREENWIDTH / 320.0f;
+    height = (float)(gltexture->realtexheight)  * (float)SCREENHEIGHT     / 200.0f;
+#else
     xpos   = (float)(video.x1lookup[x - gltexture->leftoffset] + delta);
     ypos   = (float)(video.y1lookup[y - gltexture->topoffset]);
     width  = (float)(gltexture->realtexwidth * WIDE_SCREENWIDTH / 320);
     height = (float)(video.y2lookup[gltexture->realtexheight - 1]);
+#endif
   }
   else
   {
