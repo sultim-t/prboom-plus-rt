@@ -195,7 +195,6 @@ void* NewIntDynArray(int dimCount, int *dims)
 // Get index of player->fixedcolormap for GLTexture().glTexExID array
 // There are three known values for player->fixedcolormap: 0, 1 and 32
 // 0 (normal) -> 0; 1 (pw_infrared) -> 1; 32 (pw_invulnerability) -> 2
-#define PLAYERCOLORMAP_COUNT (3)
 int* gld_GetTextureTexID(GLTexture *gltexture, int cm)
 {
   static int data[NUMCOLORMAPS+1] = {
@@ -206,14 +205,12 @@ int* gld_GetTextureTexID(GLTexture *gltexture, int cm)
      2
   };
 
-  int player_cm;
-
   if (!gl_boom_colormaps)
     return &gltexture->glTexExID[cm][0][0];
 
   if (gltexture->flags & GLTEXTURE_HIRES)
   {
-    player_cm = 0;
+    gltexture->player_cm = 0;
   }
   else
   {
@@ -222,10 +219,12 @@ int* gld_GetTextureTexID(GLTexture *gltexture, int cm)
       I_Error("gld_GetFixedColormapIndex: Unknown player->fixedcolormap?");
     }
 
-    player_cm = data[frame_fixedcolormap];
+    gltexture->player_cm = data[frame_fixedcolormap];
   }
 
-  return &gltexture->glTexExID[cm][player_cm][(gl_boom_colormaps ? boom_cm : 0)];
+  gltexture->cm = cm;
+
+  return &gltexture->glTexExID[cm][gltexture->player_cm][(gl_boom_colormaps ? boom_cm : 0)];
 }
 
 // e6y

@@ -85,6 +85,8 @@ typedef struct gl_strip_coords_s
   GLfloat t[4][2];
 } gl_strip_coords_t;
 
+#define PLAYERCOLORMAP_COUNT (3)
+
 typedef struct
 {
   int index;
@@ -97,6 +99,9 @@ typedef struct
   
   //e6y: support for Boom colormaps
   int ***glTexExID;
+  int texflags[CR_LIMIT+MAXPLAYERS][PLAYERCOLORMAP_COUNT];
+  int cm;
+  int player_cm;
 
   GLTexType textype;
   dboolean mipmap;

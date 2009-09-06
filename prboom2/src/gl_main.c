@@ -423,9 +423,9 @@ void gld_FillFlat(int lump, int x, int y, int width, int height, enum patch_tran
   gltexture = gld_RegisterFlat(lump, false);
   gld_BindFlat(gltexture);
   
-  if (gltexture->flags & GLTEXTURE_CLAMPXY)
+  if (gltexture->texflags[gltexture->cm][gltexture->player_cm] & GLTEXTURE_CLAMPXY)
   {
-    gltexture->flags &= ~GLTEXTURE_CLAMPXY;
+    gltexture->texflags[gltexture->cm][gltexture->player_cm] &= ~GLTEXTURE_CLAMPXY;
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, gltexture->wrap_mode);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gltexture->wrap_mode);
   }
@@ -2206,16 +2206,17 @@ static void gld_DrawWall(GLWall *wall)
   // to avoid visual glitches for textures with holes
   if (wall->gltexture)
   {
+    int *flags = &wall->gltexture->texflags[wall->gltexture->cm][wall->gltexture->player_cm];
     dboolean need_clamp_y = (wall->flag == GLDWF_M2S) && (wall->flag < GLDWF_SKY);
-    dboolean has_clamp_y = (wall->gltexture->flags & GLTEXTURE_CLAMPY);
+    dboolean has_clamp_y = (*flags & GLTEXTURE_CLAMPY);
     if (need_clamp_y && !has_clamp_y)
     {
-      wall->gltexture->flags |= GLTEXTURE_CLAMPY;
+      *flags |= GLTEXTURE_CLAMPY;
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GLEXT_CLAMP_TO_EDGE);
     }
     if (!need_clamp_y && has_clamp_y)
     {
-      wall->gltexture->flags &= ~GLTEXTURE_CLAMPY;
+      *flags &= ~GLTEXTURE_CLAMPY;
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wall->gltexture->wrap_mode);
     }
   }
@@ -2715,23 +2716,24 @@ static void gld_DrawFlat(GLFlat *flat)
 
   if (flat->sectornum>=0)
   {
+    int *flags = &flat->gltexture->texflags[flat->gltexture->cm][flat->gltexture->player_cm];
     dboolean need_clamp_y, has_clamp_y;
     if (!arb_detail && 
       (tex_filter[MIP_TEXTURE].mag_filter == GL_NEAREST ||
-      (flat->gltexture->flags & GLTEXTURE_HIRES)))
+      (*flags & GLTEXTURE_HIRES)))
     {
       need_clamp_y = (sectorloops[flat->sectornum].flags & SECTOR_CLAMPXY);
-      has_clamp_y = (flat->gltexture->flags & GLTEXTURE_CLAMPXY);
+      has_clamp_y = (*flags & GLTEXTURE_CLAMPXY);
 
       if (need_clamp_y && !has_clamp_y)
       {
-        flat->gltexture->flags |= GLTEXTURE_CLAMPXY;
+        *flags |= GLTEXTURE_CLAMPXY;
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GLEXT_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GLEXT_CLAMP_TO_EDGE);
       }
       if (!need_clamp_y && has_clamp_y)
       {
-        flat->gltexture->flags &= ~GLTEXTURE_CLAMPXY;
+        *flags &= ~GLTEXTURE_CLAMPXY;
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, flat->gltexture->wrap_mode);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, flat->gltexture->wrap_mode);
       }
