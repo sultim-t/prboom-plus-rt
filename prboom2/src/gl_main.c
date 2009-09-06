@@ -2945,12 +2945,10 @@ static void gld_DrawSprite(GLSprite *sprite)
   }
   else
   {
-    float cx, x1, x2, y1, y2, z1, z2;
+    float x1, x2, y1, y2, z1, z2;
 
-    cx = (sprite->x + sprite->x1 + sprite->x + sprite->x2) / 2.0f;
-
-    x1 = +(sprite->x1 * cos_inv_yaw) + cx;
-    x2 = +(sprite->x2 * cos_inv_yaw) + cx;
+    x1 = +(sprite->x1 * cos_inv_yaw) + sprite->x;
+    x2 = +(sprite->x2 * cos_inv_yaw) + sprite->x;
 
     y1 = offsety + sprite->y1;
     y2 = offsety + sprite->y2;
