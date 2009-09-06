@@ -59,10 +59,11 @@ int hud_graph_keys=1; //jff 3/7/98 display HUD keys as graphics
 //
 // Ty 03/28/98 -
 // These four shortcuts modifed to reflect char ** of mapnamesx[]
+// e6y: why sizeof(mapnamest)/sizeof(mapnamest[0]) does not work?
 #define HU_TITLE  (*mapnames[(gameepisode-1)*9+gamemap-1])
-#define HU_TITLE2 (*mapnames2[gamemap-1])
-#define HU_TITLEP (*mapnamesp[gamemap-1])
-#define HU_TITLET (*mapnamest[gamemap-1])
+#define HU_TITLE2 (gamemap <= 32 ? *mapnames2[gamemap-1] : "")
+#define HU_TITLEP (gamemap <= 32 ? *mapnamesp[gamemap-1] : "")
+#define HU_TITLET (gamemap <= 32 ? *mapnamest[gamemap-1] : "")
 #define HU_TITLEHEIGHT  1
 #define HU_TITLEX 0
 //jff 2/16/98 change 167 to ST_Y-1
