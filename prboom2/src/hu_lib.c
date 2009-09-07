@@ -778,7 +778,7 @@ void HUlib_eraseIText(hu_itext_t* it)
 void HUlib_setTextXCenter(hu_textline_t* t)
 {
   char *s = t->l;
-  t->x = SCREENWIDTH / 2;
+  t->x = 320 + wide_offsetx;
   while (*s)
   {
     t->x -= t->f[toupper(*(s++))-HU_FONTSTART].width;
