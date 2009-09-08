@@ -1211,7 +1211,7 @@ static void gld_CleanTexItems(int count, GLTexture ***items)
         {
           for (cm=0; cm<numcolormaps; cm++)
           {
-            if ((*items) && (*items)[i]->glTexExID)
+            if ((*items) && (*items)[i]->glTexExID[j][n][cm])
             {
               glDeleteTextures(1,&((*items)[i]->glTexExID[j][n][cm]));
             }
