@@ -408,9 +408,6 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
   }
 }
 
-#undef SCALE_X
-#undef SCALE_Y
-
 void gld_FillFlat(int lump, int x, int y, int width, int height, enum patch_translation_e flags)
 {
   GLTexture *gltexture;

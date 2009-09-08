@@ -122,11 +122,11 @@ static void FUNC_V_CopyRect(int srcx, int srcy, int srcscrn, int width,
   {
     int delta = video.strech_offsetx[flags & (VPT_STRETCH | VPT_STRETCH_RIGHT)];
 
-#if 1
+#if 0
     srcx   = video.x1lookup[srcx] + delta;
     srcy   = video.y1lookup[srcy];
-    width  = video.x2lookup[width - 1];
-    height = video.y2lookup[height - 1];
+    width  = video.x1lookup[width];
+    height = video.y1lookup[height];
     destx  = video.x1lookup[destx] + delta;
     desty  = video.y1lookup[desty];
 #else
@@ -308,9 +308,9 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
   x -= patch->leftoffset;
 
   // CPhipps - auto-no-stretch if not high-res
-  if (flags & VPT_STRETCH)
+  if (flags & VPT_ANYSTRETCH)
     if ((SCREENWIDTH==320) && (SCREENHEIGHT==200))
-      flags &= ~VPT_STRETCH;
+      flags &= ~VPT_ANYSTRETCH;
 
   // e6y: wide-res
   delta = ((flags & VPT_STRETCH) ? wide_offsetx : 0);
@@ -453,7 +453,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
       top =  (y < 0 || y > 200 ? (y * SCREENHEIGHT) / 200 : video.y1lookup[y]);
 
       if (x + patch->width < 0 || x + patch->width > 320)
-        right = ( ((x + patch->width - 1) * SCREENWIDTH) / 320 );
+        right = ( ((x + patch->width - 1) * WIDE_SCREENWIDTH) / 320 );
       else
         right = video.x2lookup[x + patch->width - 1] + delta;
 
