@@ -1,6 +1,11 @@
 #include "resource.h"
-#include "afxres.h"
+#include "winresrc.h"
 #include "config.h"
+
+/* IDC_STATIC is documented in winuser.h, but not defined. */
+#ifndef IDC_STATIC
+#define IDC_STATIC (-1)
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
