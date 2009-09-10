@@ -730,10 +730,10 @@ static void R_DemoEx_AddMouseLookData(wadtbl_t *wadtbl)
 
 void I_DemoExShutdown(void)
 {
-  if (demoex_filename && !(demo_demoex_filename && *demo_demoex_filename))
-  {
-    W_ReleaseAllWads();
+  W_ReleaseAllWads();
 
+  if (demoex_filename[0] && !(demo_demoex_filename && *demo_demoex_filename))
+  {
     lprintf(LO_DEBUG, "I_DemoExShutdown: removing %s\n", demoex_filename);
     if (unlink(demoex_filename) != 0)
     {
@@ -888,14 +888,8 @@ static int G_ReadDemoFooter(const char *filename)
         strcat(tmp_path, "/");
       }
 
-      if (strlen(tmp_path) > 0)
-      {
-        if (demoex_filename)
-        {
-          SNPRINTF(demoex_filename, sizeof(demoex_filename), template_format, tmp_path);
-          mktemp(demoex_filename);
-        }
-      }
+      SNPRINTF(demoex_filename, sizeof(demoex_filename), template_format, tmp_path);
+      mktemp(demoex_filename);
 
       free(tmp_path);
     }
@@ -964,6 +958,10 @@ static int G_ReadDemoFooter(const char *filename)
         WadDataFree(&waddata);
       }
       free(buffer);
+    }
+    else
+    {
+      demoex_filename[0] = 0;
     }
   }
 
