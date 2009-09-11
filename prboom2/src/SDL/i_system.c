@@ -420,6 +420,9 @@ const char *I_GetTempDir(void)
 dboolean HasTrailingSlash(const char* dn)
 {
   return ( (dn[strlen(dn)-1] == '/')
+#if defined(_WIN32)
+        || (dn[strlen(dn)-1] == '\\')
+#endif
 #if defined(AMIGA)
         || (dn[strlen(dn)-1] == ':')
 #endif
