@@ -1603,7 +1603,7 @@ void P_CheckLevelWadStructure(const char *mapname)
 {
   int i, lumpnum;
 
-  char *ml_labels[] = {
+  static const char *ml_labels[] = {
     "ML_LABEL",             // A separator, name, ExMx or MAPxx
     "ML_THINGS",            // Monsters, items..
     "ML_LINEDEFS",          // LineDefs, from editing
