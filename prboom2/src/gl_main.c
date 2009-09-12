@@ -496,20 +496,29 @@ void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_tra
   glEnd();
 }
 
+void gld_BeginLines(void)
+{
+  gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
+#ifdef USE_VERTEX_ARRAYS
+  glEnableClientState(GL_VERTEX_ARRAY);
+  memset(map_lines.count, 0, MAP_COLORS_COUNT * sizeof(map_lines.count[0]));
+#endif
+}
+
+void gld_EndLines(void)
+{
+  gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
+#ifdef USE_VERTEX_ARRAYS
+  glVertexPointer(3, GL_FLOAT, 0, gld_vertexes);
+  glDisableClientState(GL_VERTEX_ARRAY);
+#endif
+}
+
 void gld_DrawMapLines(void)
 {
 #ifdef USE_VERTEX_ARRAYS
   int i;
-  int size, type, stride;
-  void *pointer;
   const unsigned char *playpal = V_GetPlaypal();
-
-  glGetIntegerv(GL_VERTEX_ARRAY_SIZE, &size);
-  glGetIntegerv(GL_VERTEX_ARRAY_TYPE, &type);
-  glGetIntegerv(GL_VERTEX_ARRAY_STRIDE, &stride);
-  glGetPointerv(GL_VERTEX_ARRAY_POINTER, &pointer);
-
-  glEnableClientState(GL_VERTEX_ARRAY);
 
   for (i = 0; i < MAP_COLORS_COUNT; i++)
   {
@@ -524,10 +533,6 @@ void gld_DrawMapLines(void)
       glDrawArrays(GL_LINES, 0, map_lines.count[i]/2);
     }
   }
-
-  glVertexPointer(size, type, stride, pointer);
-
-  glDisableClientState(GL_VERTEX_ARRAY);
 #endif
 }
 

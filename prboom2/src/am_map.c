@@ -1601,6 +1601,39 @@ inline static void AM_drawCrosshair(int color)
   V_DrawLine(&line, color);
 }
 
+map_lines_t map_lines;
+
+void AM_BeginLines(void)
+{
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL)
+  {
+    gld_BeginLines();
+  }
+#endif
+}
+
+void AM_DrawLines(void)
+{
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL)
+  {
+    gld_DrawMapLines();
+    memset(map_lines.count, 0, MAP_COLORS_COUNT * sizeof(map_lines.count[0]));
+  }
+#endif
+}
+
+void AM_EndLines(void)
+{
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL)
+  {
+    gld_EndLines();
+  }
+#endif
+}
+
 //
 // AM_Drawer()
 //
@@ -1608,8 +1641,6 @@ inline static void AM_drawCrosshair(int color)
 //
 // Passed nothing, returns nothing
 //
-
-map_lines_t map_lines;
 
 void AM_Drawer (void)
 {
@@ -1619,33 +1650,32 @@ void AM_Drawer (void)
   if (!(automapmode & am_overlay)) // cph - If not overlay mode, clear background for the automap
     V_FillRect(FB, f_x, f_y, f_w, f_h, (byte)mapcolor_back); //jff 1/5/98 background default color
 
-#ifdef GL_DOOM
-  if (V_GetMode() == VID_MODEGL)
-  {
-    gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
-#ifdef USE_VERTEX_ARRAYS
-    memset(map_lines.count, 0, MAP_COLORS_COUNT * sizeof(map_lines.count[0]));
-#endif
-  }
-#endif
+  AM_BeginLines();
 
   if (automapmode & am_grid)
+  {
+    // Avoid z-fighting between grid and walls
     AM_drawGrid(mapcolor_grid);      //jff 1/7/98 grid default color
+    AM_DrawLines();
+  }
+
   AM_drawWalls();
+  AM_DrawLines();
+
   AM_drawPlayers();
+  AM_DrawLines();
+
   if (ddt_cheating==2)
+  {
     AM_drawThings(); //jff 1/5/98 default double IDDT sprite
+    AM_DrawLines();
+  }
+
   AM_drawCrosshair(mapcolor_hair);   //jff 1/7/98 default crosshair color
+  AM_DrawLines();
 
   AM_drawMarks();
+  AM_DrawLines();
 
-#ifdef GL_DOOM
-  if (V_GetMode() == VID_MODEGL)
-  {
-#ifdef USE_VERTEX_ARRAYS
-    gld_DrawMapLines();
-#endif
-    gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
-  }
-#endif
+  AM_EndLines();
 }
