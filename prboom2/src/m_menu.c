@@ -2677,13 +2677,14 @@ setup_menu_t auto_settings1[] =  // 1st AutoMap Settings screen
   {"blue door"                          ,S_COLOR,m_null,AU_X,AU_Y+10*8, {"mapcolor_bdor"}},
   {"yellow door"                        ,S_COLOR,m_null,AU_X,AU_Y+11*8, {"mapcolor_ydor"}},
 
-  {"AUTOMAP LEVEL TITLE COLOR"      ,S_CRITEM,m_null,AU_X,AU_Y+13*8, {"hudcolor_titl"}},
-  {"AUTOMAP COORDINATES COLOR"      ,S_CRITEM,m_null,AU_X,AU_Y+14*8, {"hudcolor_xyco"}},
+  {"AUTOMAP LEVEL TITLE COLOR"      ,S_CRITEM,m_null,AU_X,AU_Y+12*8, {"hudcolor_titl"}},
+  {"AUTOMAP COORDINATES COLOR"      ,S_CRITEM,m_null,AU_X,AU_Y+13*8, {"hudcolor_xyco"}},
 
-  {"Show Secrets only after entering",S_YESNO,m_null,AU_X,AU_Y+15*8, {"map_secret_after"}},
+  {"Show Secrets only after entering",S_YESNO,m_null,AU_X,AU_Y+14*8, {"map_secret_after"}},
 
-  {"Show coordinates of automap pointer",S_YESNO,m_null,AU_X,AU_Y+16*8, {"map_point_coord"}},  // killough 10/98
-  {"Update unexplored parts in automap mode",S_YESNO,m_null,AU_X,AU_Y+17*8, {"map_always_updates"}},
+  {"Show coordinates of automap pointer",S_YESNO,m_null,AU_X,AU_Y+15*8, {"map_point_coord"}},  // killough 10/98
+  {"Update unexplored parts in automap mode",S_YESNO,m_null,AU_X,AU_Y+16*8, {"map_always_updates"}},
+  {"Grid cell size (8..256)",S_NUM,m_null,AU_X,AU_Y+17*8, {"map_grid_size"}},
 
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},

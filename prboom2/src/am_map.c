@@ -84,6 +84,7 @@ int mapcolor_plyr[4] = { 112, 88, 64, 32 }; // colors for player arrows in multi
 int map_secret_after;
 
 int map_always_updates;
+int map_grid_size;
 
 //jff 4/3/98 add symbols for "no-color" for disable and "black color" for black
 #define NC 0
@@ -1026,18 +1027,19 @@ static void AM_drawGrid(int color)
   fixed_t x, y;
   fixed_t start, end;
   mline_t ml;
+  int gridsize = map_grid_size;
 
   // Figure out start of vertical gridlines
   start = m_x;
-  if ((start-bmaporgx)%(MAPBLOCKUNITS<<MAPBITS))//e6y
-    start += (MAPBLOCKUNITS<<MAPBITS)//e6y
-      - ((start-bmaporgx)%(MAPBLOCKUNITS<<MAPBITS));//e6y
+  if ((start-bmaporgx)%(gridsize<<MAPBITS))
+    start += (gridsize<<MAPBITS)
+      - ((start-bmaporgx)%(gridsize<<MAPBITS));
   end = m_x + m_w;
 
   // draw vertical gridlines
   ml.a.y = m_y;
   ml.b.y = m_y+m_h;
-  for (x=start; x<end; x+=(MAPBLOCKUNITS<<MAPBITS))//e6y
+  for (x=start; x<end; x+=(gridsize<<MAPBITS))
   {
     ml.a.x = x;
     ml.b.x = x;
@@ -1046,15 +1048,15 @@ static void AM_drawGrid(int color)
 
   // Figure out start of horizontal gridlines
   start = m_y;
-  if ((start-bmaporgy)%(MAPBLOCKUNITS<<MAPBITS))//e6y
-    start += (MAPBLOCKUNITS<<MAPBITS)//e6y
-      - ((start-bmaporgy)%(MAPBLOCKUNITS<<MAPBITS));//e6y
+  if ((start-bmaporgy)%(gridsize<<MAPBITS))
+    start += (gridsize<<MAPBITS)
+      - ((start-bmaporgy)%(gridsize<<MAPBITS));
   end = m_y + m_h;
 
   // draw horizontal gridlines
   ml.a.x = m_x;
   ml.b.x = m_x + m_w;
-  for (y=start; y<end; y+=(MAPBLOCKUNITS<<MAPBITS))//e6y
+  for (y=start; y<end; y+=(gridsize<<MAPBITS))
   {
     ml.a.y = y;
     ml.b.y = y;
