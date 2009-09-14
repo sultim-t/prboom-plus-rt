@@ -106,6 +106,7 @@ extern int  key_right;
 extern int  key_left;
 extern int  key_up;
 extern int  key_down;
+extern int  key_mlook;
 extern int  key_menu_right;                                  // phares 3/7/98
 extern int  key_menu_left;                                   //     |
 extern int  key_menu_up;                                     //     V

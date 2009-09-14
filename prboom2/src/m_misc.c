@@ -481,6 +481,8 @@ default_t defaults[] =
    0,MAX_KEY,def_key,ss_keys}, // key to move forward
   {"key_down",        {&key_down},           {KEYD_DOWNARROW},
    0,MAX_KEY,def_key,ss_keys}, // key to move backward
+  {"key_mlook",       {&key_mlook},           {'\\'},
+   0,MAX_KEY,def_key,ss_keys}, // key to move backward
   {"key_menu_right",  {&key_menu_right},     {KEYD_RIGHTARROW},// phares 3/7/98
    0,MAX_KEY,def_key,ss_keys}, // key to move right in a menu  //     |
   {"key_menu_left",   {&key_menu_left},      {KEYD_LEFTARROW} ,//     V

@@ -2170,7 +2170,8 @@ setup_menu_t keys_settings1[];
 setup_menu_t keys_settings2[];
 setup_menu_t keys_settings3[];
 setup_menu_t keys_settings4[];
-setup_menu_t keys_settings5[];//e6y
+setup_menu_t keys_settings5[];
+setup_menu_t keys_settings6[];
 
 // The table which gets you from one screen table to the next.
 
@@ -2235,15 +2236,9 @@ setup_menu_t keys_settings1[] =  // Key Binding screen strings
   {"AUTORUN"     ,S_KEY       ,m_scrn,KB_X,KB_Y+9*8,{&key_autorun}},
   {"180 TURN"    ,S_KEY       ,m_scrn,KB_X,KB_Y+10*8,{&key_reverse}},
   {"USE"         ,S_KEY       ,m_scrn,KB_X,KB_Y+11*8,{&key_use},&mousebforward,&joybuse},
-
-  {"MENUS"       ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y+12*8},
-  {"NEXT ITEM"   ,S_KEY       ,m_menu,KB_X,KB_Y+13*8,{&key_menu_down}},
-  {"PREV ITEM"   ,S_KEY       ,m_menu,KB_X,KB_Y+14*8,{&key_menu_up}},
-  {"LEFT"        ,S_KEY       ,m_menu,KB_X,KB_Y+15*8,{&key_menu_left}},
-  {"RIGHT"       ,S_KEY       ,m_menu,KB_X,KB_Y+16*8,{&key_menu_right}},
-  {"BACKSPACE"   ,S_KEY       ,m_menu,KB_X,KB_Y+17*8,{&key_menu_backspace}},
-  {"SELECT ITEM" ,S_KEY       ,m_menu,KB_X,KB_Y+18*8,{&key_menu_enter}},
-  {"EXIT"        ,S_KEY       ,m_menu,KB_X,KB_Y+19*8,{&key_menu_escape}},
+#ifdef GL_DOOM
+  {"MOUSE LOOK"  ,S_KEY       ,m_scrn,KB_X,KB_Y+12*8,{&key_mlook}},
+#endif
 
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
@@ -2347,7 +2342,6 @@ setup_menu_t keys_settings4[] =  // Key Binding screen strings
   {"ENTER"      ,S_KEY       ,m_scrn,KB_X,KB_Y+19*8,{&key_enter}},
 
   {"<- PREV" ,S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {keys_settings3}},
-//e6y
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {keys_settings5}},
 
   // Final entry
@@ -2375,6 +2369,23 @@ setup_menu_t keys_settings5[] =  // Key Binding screen strings
 #endif
 
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {keys_settings4}},
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {keys_settings6}},
+  // Final entry
+  {0,S_SKIP|S_END,m_null}
+};
+
+setup_menu_t keys_settings6[] =
+{
+  {"MENUS"       ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y+0*8},
+  {"NEXT ITEM"   ,S_KEY       ,m_menu,KB_X,KB_Y+1*8,{&key_menu_down}},
+  {"PREV ITEM"   ,S_KEY       ,m_menu,KB_X,KB_Y+2*8,{&key_menu_up}},
+  {"LEFT"        ,S_KEY       ,m_menu,KB_X,KB_Y+3*8,{&key_menu_left}},
+  {"RIGHT"       ,S_KEY       ,m_menu,KB_X,KB_Y+4*8,{&key_menu_right}},
+  {"BACKSPACE"   ,S_KEY       ,m_menu,KB_X,KB_Y+5*8,{&key_menu_backspace}},
+  {"SELECT ITEM" ,S_KEY       ,m_menu,KB_X,KB_Y+6*8,{&key_menu_enter}},
+  {"EXIT"        ,S_KEY       ,m_menu,KB_X,KB_Y+7*8,{&key_menu_escape}},
+
+  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {keys_settings5}},
   // Final entry
   {0,S_SKIP|S_END,m_null}
 };
@@ -4597,6 +4608,13 @@ dboolean M_Responder (event_t* ev) {
         show_alive = (show_alive + 1) % 3;
         doom_printf("Show Alive Monsters %s",
           (show_alive ? (show_alive == 1 ? "(mode 1) on" : "(mode 2) on" ) : "off"));
+      }
+
+      if (ch == key_mlook) // mouse look
+      {
+        movement_mouselook = !movement_mouselook;
+        M_ChangeMouseLook();
+        return true;
       }
     }
 #endif

@@ -162,6 +162,7 @@ int     key_right;
 int     key_left;
 int     key_up;
 int     key_down;
+int     key_mlook;
 int     key_menu_right;                                      // phares 3/7/98
 int     key_menu_left;                                       //     |
 int     key_menu_up;                                         //     V
