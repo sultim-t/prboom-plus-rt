@@ -69,13 +69,28 @@ char* strlwr(char* str)
 // e6y: for compatibility with BOOM deh parser
 int deh_strcasecmp(const char *str1, const char *str2)
 {
-  if (compatibility_level >= boom_compatibility_compatibility && compatibility_level <= boom_202_compatibility)
+  if (prboom_comp[PC_BOOM_DEH_PARSER].state &&
+      compatibility_level >= boom_compatibility_compatibility &&
+      compatibility_level <= boom_202_compatibility)
   {
     return strcmp(str1, str2);
   }
   else
   {
     return strcasecmp(str1, str2);
+  }
+}
+const char * deh_getBitsDelims(void)
+{
+  if (prboom_comp[PC_BOOM_DEH_PARSER].state &&
+      compatibility_level >= boom_compatibility_compatibility &&
+      compatibility_level <= boom_202_compatibility)
+  {
+    return "+";
+  }
+  else
+  {
+    return ",+| \t\f\r";
   }
 }
 
@@ -1799,7 +1814,7 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
             // Fix error-handling case ('found' var wasn't being reset)
             //
             // Use OR logic instead of addition, to allow repetition
-            for (;(strval = strtok(strval,",+| \t\f\r")); strval = NULL) {
+            for (;(strval = strtok(strval,deh_getBitsDelims())); strval = NULL) {
               size_t iy;
               for (iy=0; iy < DEH_MOBJFLAGMAX; iy++) {
                 if (deh_strcasecmp(strval,deh_mobjflags[iy].name)) continue;
