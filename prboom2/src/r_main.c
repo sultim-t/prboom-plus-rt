@@ -61,12 +61,12 @@
 #include "e6y.h"//e6y
 
 // e6y
-// Now they are variables. Depends from render_old_lightmaps variable.
+// Now they are variables. Depends from render_doom_lightmaps variable.
 // Unify colour maping logic by cph is removed, because of bugs.
 int LIGHTLEVELS   = 32;
 int LIGHTSEGSHIFT = 3;
 int LIGHTBRIGHT   = 2;
-int render_old_lightmaps;
+int render_doom_lightmaps;
 
 int r_frame_count;
 
@@ -392,9 +392,9 @@ static void R_InitLightTables (void)
   c_zlight = malloc(sizeof(*c_zlight) * numcolormaps);
   c_scalelight = malloc(sizeof(*c_scalelight) * numcolormaps);
 
-  LIGHTLEVELS   = (render_old_lightmaps ? 16 : 32);
-  LIGHTSEGSHIFT = (render_old_lightmaps ? 4 : 3);
-  LIGHTBRIGHT   = (render_old_lightmaps ? 1 : 2);
+  LIGHTLEVELS   = (render_doom_lightmaps ? 16 : 32);
+  LIGHTSEGSHIFT = (render_doom_lightmaps ? 4 : 3);
+  LIGHTBRIGHT   = (render_doom_lightmaps ? 1 : 2);
 
   // Calculate the light levels to use
   //  for each level / distance combination.

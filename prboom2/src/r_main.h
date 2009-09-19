@@ -105,7 +105,7 @@ extern dboolean rendering_stats;
 extern int LIGHTSEGSHIFT;
 extern int LIGHTBRIGHT;
 extern int LIGHTLEVELS;
-extern int render_old_lightmaps;
+extern int render_doom_lightmaps;
 
 #define MAXLIGHTSCALE     48
 #define LIGHTSCALESHIFT   12
