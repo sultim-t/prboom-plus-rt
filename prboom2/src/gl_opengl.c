@@ -297,7 +297,7 @@ void gld_EnableTexture2D(GLenum texture, int enable)
   static int arb_enabled[32];
   int arb;
 
-  if (!gl_arb_multitexture)
+  if (!gl_arb_multitexture && texture != GL_TEXTURE0_ARB)
     return;
 
   arb = texture - GL_TEXTURE0_ARB;
