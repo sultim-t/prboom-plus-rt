@@ -66,6 +66,9 @@ fixed_t pspriteiscale;
 // proff 11/06/98: Added for high-res
 fixed_t pspritexscale;
 fixed_t pspriteyscale;
+
+static const lighttable_t **spritelights;        // killough 1/25/98 made static
+
 //e6y: added for GL
 float pspriteyscale_f;
 float pspritexscale_f;
@@ -487,7 +490,7 @@ void R_SetClipPlanes(void)
 // Generates a vissprite for a thing if it might be visible.
 //
 
-static void R_ProjectSprite (mobj_t* thing, int lightlevel)
+static void R_ProjectSprite (mobj_t* thing)
 {
   fixed_t   gzt;               // killough 3/27/98
   fixed_t   tx;
@@ -713,7 +716,10 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
     vis->colormap = fullcolormap;     // full bright  // killough 3/20/98
   else
     {      // diminished light
-      vis->colormap = R_ColourMap(lightlevel,xscale);
+      int index = ((xscale * 160 / wide_centerx) >> LIGHTSCALESHIFT);
+      if (index >= MAXLIGHTSCALE)
+        index = MAXLIGHTSCALE - 1;
+      vis->colormap = spritelights[index];
     }
 }
 
@@ -726,6 +732,7 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
 {
   sector_t* sec=subsec->sector;
   mobj_t *thing;
+  int lightnum;
 
   // BSP is traversed by subsector.
   // A sector might have been split into several
@@ -738,6 +745,9 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
   // Well, now it will be done.
   sec->validcount = validcount;
 
+  lightnum = (lightlevel >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT);
+  spritelights = scalelight[BETWEEN(0, LIGHTLEVELS - 1, lightnum)];
+
   // Handle all things in sector.
 
 #ifdef GL_DOOM
@@ -748,7 +758,7 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
       for (thing = sec->thinglist; thing; thing = thing->snext)
       {
         if (!ALIVE(thing))
-          R_ProjectSprite(thing, lightlevel);
+          R_ProjectSprite(thing);
       }
     }
   }
@@ -757,7 +767,7 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
   {
     for (thing = sec->thinglist; thing; thing = thing->snext)
     {
-      R_ProjectSprite(thing, lightlevel);
+      R_ProjectSprite(thing);
     }
   }
 }
@@ -780,7 +790,7 @@ void R_AddAllAliveMonstersSprites(void)
       if (ALIVE(thing))
       {
         thing->flags |= MF_NO_DEPTH_TEST;
-        R_ProjectSprite(thing, 255);
+        R_ProjectSprite(thing);
         thing->flags &= ~MF_NO_DEPTH_TEST;
       }
     }
@@ -791,7 +801,7 @@ void R_AddAllAliveMonstersSprites(void)
 // R_DrawPSprite
 //
 
-static void R_DrawPSprite (pspdef_t *psp, int lightlevel)
+static void R_DrawPSprite (pspdef_t *psp)
 {
   int           x1, x2;
   spritedef_t   *sprdef;
@@ -881,24 +891,8 @@ static void R_DrawPSprite (pspdef_t *psp, int lightlevel)
   else if (psp->state->frame & FF_FULLBRIGHT)
     vis->colormap = fullcolormap;            // full bright // killough 3/20/98
   else
-    // e6y
-    // In PRBoom the player's weapon is displayed much darker than in other ports.
-    // Eternity, Chocolate Doom, and ZDoom are all identical.
-    // This patch corrects the bug in software rendering.
-    //
-    // old code: vis->colormap = R_ColourMap(lightlevel,pspritescale);  // local light
-    //
-    // dynamic version of new code (slower):
-    // {
-    //   int lightnum = BETWEEN(0, LIGHTLEVELS-1, (lightlevel >> LIGHTSEGSHIFT)+extralight);
-    //   int level = ((LIGHTLEVELS-1-lightnum)*2)*NUMCOLORMAPS/LIGHTLEVELS -
-    //     (MAXLIGHTSCALE-1)*SCREENWIDTH/viewwidth/2;
-    //   vis->colormap = (fixedcolormap ? fixedcolormap : fullcolormap) +
-    //     BETWEEN(0, NUMCOLORMAPS-1, level) * 256;
-    // }
-    vis->colormap = (fixedcolormap ? fixedcolormap : fullcolormap) + 
-      scalelight_offset[BETWEEN(0, LIGHTLEVELS-1, 
-      (lightlevel >> LIGHTSEGSHIFT)+extralight)][MAXLIGHTSCALE-1];
+    // e6y: original code is restored
+    vis->colormap = spritelights[MAXLIGHTSCALE-1];  // local light
 
   //e6y: interpolation for weapon bobbing
   if (movement_smooth)
@@ -975,10 +969,17 @@ static void R_DrawPSprite (pspdef_t *psp, int lightlevel)
 
 void R_DrawPlayerSprites(void)
 {
-  int i, lightlevel = viewplayer->mo->subsector->sector->lightlevel;
+  int i, lightnum;
   pspdef_t *psp;
 
-  if (walkcamera.type != 0) return;//e6y
+  if (walkcamera.type != 0)
+    return;
+
+  // get light level
+  lightnum = (viewplayer->mo->subsector->sector->lightlevel >> LIGHTSEGSHIFT)
+    + (extralight * LIGHTBRIGHT);
+
+  spritelights = scalelight[BETWEEN(0, LIGHTLEVELS - 1, lightnum)];
 
   // clip to screen bounds
   mfloorclip = screenheightarray;
@@ -987,7 +988,7 @@ void R_DrawPlayerSprites(void)
   // add all active psprites
   for (i=0, psp=viewplayer->psprites; i<NUMPSPRITES; i++,psp++)
     if (psp->state)
-      R_DrawPSprite (psp, lightlevel);
+      R_DrawPSprite (psp);
 }
 
 //

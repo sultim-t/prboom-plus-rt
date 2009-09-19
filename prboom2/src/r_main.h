@@ -95,22 +95,33 @@ extern dboolean rendering_stats;
 
 // Lighting constants.
 
-#define LIGHTLEVELS       16
-#define LIGHTSEGSHIFT      4
+// SoM: I am really speechless at this... just... why?
+// Lighting in doom was originally clamped off to just 16 brightness levels
+// for sector lighting. Simply changing the constants is enough to change this
+// it seriously bottles the mind why this wasn't done in doom from the start 
+// except for maybe memory usage savings. 
+#define LIGHTLEVELS_MAX   32
+
+extern int LIGHTSEGSHIFT;
+extern int LIGHTBRIGHT;
+extern int LIGHTLEVELS;
+extern int render_old_lightmaps;
+
 #define MAXLIGHTSCALE     48
 #define LIGHTSCALESHIFT   12
 #define MAXLIGHTZ        128
 #define LIGHTZSHIFT       20
 
+/* cph - allow crappy fake contrast to be disabled */
+extern int fake_contrast;
+
 // killough 3/20/98: Allow colormaps to be dynamic (e.g. underwater)
+extern const lighttable_t *(*scalelight)[MAXLIGHTSCALE];
 extern const lighttable_t *(*zlight)[MAXLIGHTZ];
 extern const lighttable_t *fullcolormap;
 extern int numcolormaps;    // killough 4/4/98: dynamic number of maps
 extern const lighttable_t **colormaps;
 // killough 3/20/98, 4/4/98: end dynamic colormaps
-
-//e6y
-extern int scalelight_offset[LIGHTLEVELS][MAXLIGHTSCALE];
 
 //e6y: for Boom colormaps in OpenGL mode
 extern dboolean use_boom_cm;

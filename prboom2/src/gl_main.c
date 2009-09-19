@@ -2369,10 +2369,13 @@ void gld_AddWall(seg_t *seg)
   // e6y: fake contrast stuff
   // Original doom added/removed one light level ((1<<LIGHTSEGSHIFT) == 16) 
   // for walls exactly vertical/horizontal on the map
-  if (gl_lightmode == gl_lightmode_gzdoom)
-    rellight = seg->linedef->dx==0? +8 : seg->linedef->dy==0 ? -8 : 0;
-  else
-    rellight = seg->linedef->dx==0? +(1<<LIGHTSEGSHIFT) : seg->linedef->dy==0 ? -(1<<LIGHTSEGSHIFT) : 0;
+  if (fake_contrast)
+  {
+    if (gl_lightmode == gl_lightmode_gzdoom)
+      rellight = seg->linedef->dx == 0 ? +8 : seg->linedef->dy==0 ? -8 : 0;
+    else
+      rellight = seg->linedef->dx == 0 ? +16 : seg->linedef->dy == 0 ? -16 : 0;
+  }
   wall.light=gld_CalcLightLevel(frontsector->lightlevel+rellight+(extralight<<5));
   wall.fogdensity = gld_CalcFogDensity(frontsector, frontsector->lightlevel+rellight, GLDIT_WALL);
   wall.alpha=1.0f;

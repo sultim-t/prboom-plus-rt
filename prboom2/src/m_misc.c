@@ -845,6 +845,10 @@ default_t defaults[] =
    render_precise_speed, render_precise_quality, def_int,ss_none},
   {"render_aspect", {&render_aspect},  {0},0,4,
    def_int,ss_stat},
+  {"render_old_lightmaps", {&render_old_lightmaps},  {0},0,1,
+   def_bool,ss_stat},
+  {"fake_contrast", {&fake_contrast},  {1},0,1,
+   def_bool,ss_stat}, /* cph - allow crappy fake contrast to be disabled */
 
 #ifdef GL_DOOM
   {"Prboom-plus OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},

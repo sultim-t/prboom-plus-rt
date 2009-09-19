@@ -696,7 +696,7 @@ void R_SetDefaultDrawColumnVars(draw_column_vars_t *dcvars) {
 //
 
 byte playernumtotrans[MAXPLAYERS];
-extern lighttable_t *(*c_zlight)[LIGHTLEVELS][MAXLIGHTZ];
+extern lighttable_t *(*c_zlight)[LIGHTLEVELS_MAX][MAXLIGHTZ];
 
 void R_InitTranslationTables (void)
 {

@@ -499,13 +499,18 @@ static void R_DoDrawPlane(visplane_t *pl)
       xoffs = pl->xoffs;  // killough 2/28/98: Add offsets
       yoffs = pl->yoffs;
       planeheight = D_abs(pl->height-viewz);
-      light = (pl->lightlevel >> LIGHTSEGSHIFT) + extralight;
 
-      if (light >= LIGHTLEVELS)
-  light = LIGHTLEVELS-1;
+      // SoM 10/19/02: deep water colormap fix
+      if(fixedcolormap)
+        light = (255  >> LIGHTSEGSHIFT);
+      else
+        light = (pl->lightlevel >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT);
 
-      if (light < 0)
-  light = 0;
+      if(light >= LIGHTLEVELS)
+        light = LIGHTLEVELS-1;
+
+      if(light < 0)
+        light = 0;
 
       stop = pl->maxx + 1;
       planezlight = zlight[light];

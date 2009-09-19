@@ -62,6 +62,8 @@ static fixed_t  toptexheight, midtexheight, bottomtexheight; // cph
 angle_t         rw_normalangle; // angle to line origin
 int             rw_angle1;
 fixed_t         rw_distance;
+const lighttable_t    **walllights;
+const lighttable_t    **walllightsnext;
 
 //
 // regular wall
@@ -89,6 +91,30 @@ static fixed_t  topstep;
 static fixed_t  bottomfrac;
 static fixed_t  bottomstep;
 static int      *maskedtexturecol; // dropoff overflow
+
+const lighttable_t** GetLightTable(int lightlevel)
+{
+  int lightnum = (lightlevel >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT);
+
+  /* cph - ...what is this for? adding contrast to rooms?
+   * It looks crap in outdoor areas */
+  if (fake_contrast && curline)
+  {
+    if (curline->v1->y == curline->v2->y)
+    {
+      lightnum -= LIGHTBRIGHT;
+    }
+    else
+    {
+      if (curline->v1->x == curline->v2->x)
+      {
+        lightnum += LIGHTBRIGHT;
+      }
+    }
+  }
+
+  return scalelight[BETWEEN(0, LIGHTLEVELS - 1, lightnum)];
+}
 
 //
 // R_ScaleFromGlobalAngle
@@ -154,6 +180,8 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 
   // killough 4/13/98: get correct lightlevel for 2s normal textures
   rw_lightlevel = R_FakeFlat(frontsector, &tempsec, NULL, NULL, false) ->lightlevel;
+  walllights = GetLightTable(rw_lightlevel);
+  walllightsnext = GetLightTable(rw_lightlevel + 1);
 
   maskedtexturecol = ds->maskedtexturecol;
 
@@ -197,8 +225,21 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 
         if (!fixedcolormap)
           dcvars.z = spryscale; // for filtering -- POPE
-        dcvars.colormap = R_ColourMap(rw_lightlevel,spryscale);
-        dcvars.nextcolormap = R_ColourMap(rw_lightlevel+1,spryscale); // for filtering -- POPE
+
+        if (!fixedcolormap)
+        {
+          int index = ((spryscale * 160 / wide_centerx) >> LIGHTSCALESHIFT);
+          if (index >= MAXLIGHTSCALE)
+            index = MAXLIGHTSCALE - 1;
+
+          dcvars.colormap = walllights[index];
+          dcvars.nextcolormap = walllightsnext[index];
+        }
+        else
+        {
+          dcvars.colormap = fixedcolormap;
+          dcvars.nextcolormap = fixedcolormap;
+        }
 
         // killough 3/2/98:
         //
@@ -334,8 +375,21 @@ static void R_RenderSegLoop (void)
           dcvars.texu = texturecolumn; // for filtering -- POPE
           texturecolumn >>= FRACBITS;
 
-          dcvars.colormap = R_ColourMap(rw_lightlevel,rw_scale);
-          dcvars.nextcolormap = R_ColourMap(rw_lightlevel+1,rw_scale); // for filtering -- POPE
+          // calculate lighting
+          if (!fixedcolormap)
+          {
+            int index = ((rw_scale * 160 / wide_centerx) >> LIGHTSCALESHIFT);
+            if (index >= MAXLIGHTSCALE)
+               index = MAXLIGHTSCALE - 1;
+
+            dcvars.colormap = walllights[index];
+            dcvars.nextcolormap = walllightsnext[index];
+          }
+          else
+          {
+            dcvars.colormap = fixedcolormap;
+            dcvars.nextcolormap = fixedcolormap;
+          }
           dcvars.z = rw_scale; // for filtering -- POPE
 
           dcvars.x = rw_x;
@@ -740,7 +794,17 @@ void R_StoreWallRange(const int start, const int stop)
       rw_centerangle = ANG90 + viewangle - rw_normalangle;
 
       rw_lightlevel = frontsector->lightlevel;
-    }
+
+      // calculate light table
+      //  use different light tables
+      //  for horizontal / vertical / diagonal
+      // OPTIMIZE: get rid of LIGHTSEGSHIFT globally
+      if (!fixedcolormap)
+      {
+        walllights = GetLightTable(rw_lightlevel);
+        walllightsnext = GetLightTable(rw_lightlevel + 1);
+      }
+  }
 
   // Remember the vars used to determine fractional U texture
   // coords for later - POPE
