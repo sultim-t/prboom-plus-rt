@@ -153,7 +153,7 @@ void gld_ProgressUpdate(char * text, int progress, int total)
     return;
   lastupdate = tic;
 
-  if ((text) && (strlen(text) > 0) && strcmp((last_text ? last_text : ""), text))
+  if ((text) && (strlen(text) > 0) && strcmp((last_text[0] ? last_text : ""), text))
   {
     char *s;
     strcpy(last_text, text);

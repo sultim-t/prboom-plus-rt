@@ -375,7 +375,7 @@ void P_PlayerThink (player_t* player)
   weapontype_t newweapon;
 
   //e6y
-  if (movement_smooth && players && &players[displayplayer] == player)
+  if (movement_smooth && &players[displayplayer] == player)
   {
     original_view_vars.viewx = player->mo->x;
     original_view_vars.viewy = player->mo->y;
