@@ -43,6 +43,7 @@
 #include "doomstat.h"
 #include "lprintf.h"
 #include "v_video.h"
+#include "r_main.h"
 #include "gl_intern.h"
 #include "e6y.h"
 
@@ -214,7 +215,12 @@ static float gld_CalcLightLevel_fogbased(int lightlevel)
   if (players[displayplayer].fixedcolormap)
     return lighttable_gzdoom[BETWEEN(0, 255, lightlevel)];
   else
-    return lighttable_fogbased[BETWEEN(0, 255, lightlevel)];
+  {
+    if (extralight)
+      return lighttable_fogbased[255];
+    else
+      return lighttable_fogbased[BETWEEN(0, 255, lightlevel)];
+  }
 }
 
 void gld_StaticLightAlpha(float light, float alpha)
@@ -345,13 +351,23 @@ static float gld_CalcFogDensity_fogbased(sector_t *sector, int lightlevel, GLDra
   }
   else
   {
+    float fog = distfogtable[2][BETWEEN(0, 255, lightlevel)];
+    
+    if (extralight)
+    {
+      if (extralight == 1)
+        fog -= fog / 3.0f;
+      else
+        fog -= fog / 2.0f;
+    }
+
     if (type == GLDIT_CEILING || type == GLDIT_FLOOR || type == GLDIT_FWALL)
     {
-      return distfogtable[2][BETWEEN(0, 255, lightlevel)] * 2;
+      return fog * 2;
     }
     else
     {
-      return distfogtable[2][BETWEEN(0, 255, lightlevel)];
+      return fog;
     }
   }
 }

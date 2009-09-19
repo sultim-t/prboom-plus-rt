@@ -2339,7 +2339,6 @@ void gld_AddWall(seg_t *seg)
   sector_t btempsec; // needed for R_FakeFlat
   float lineheight, linelength;
   int rellight = 0;
-  int lightlevel;
   int backseg;
 
   if (render_segs)
@@ -2377,9 +2376,8 @@ void gld_AddWall(seg_t *seg)
     else
       rellight = seg->linedef->dx == 0 ? +16 : seg->linedef->dy == 0 ? -16 : 0;
   }
-  lightlevel = frontsector->lightlevel+rellight+(extralight<<5);
-  wall.light=gld_CalcLightLevel(lightlevel);
-  wall.fogdensity = gld_CalcFogDensity(frontsector, lightlevel, GLDIT_WALL);
+  wall.light=gld_CalcLightLevel(frontsector->lightlevel+rellight+(extralight<<5));
+  wall.fogdensity = gld_CalcFogDensity(frontsector, frontsector->lightlevel, GLDIT_WALL);
   wall.alpha=1.0f;
   wall.gltexture=NULL;
   wall.seg = seg; //e6y
@@ -2810,7 +2808,6 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
   int floorlightlevel;      // killough 3/16/98: set floor lightlevel
   int ceilinglightlevel;    // killough 4/11/98
   GLFlat flat;
-  int lightlevel;
 
   if (sectornum<0)
     return;
@@ -2828,9 +2825,8 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
     if (!flat.gltexture)
       return;
     // get the lightlevel from floorlightlevel
-    lightlevel = plane->lightlevel+(extralight<<5);
-    flat.light=gld_CalcLightLevel(lightlevel);
-    flat.fogdensity = gld_CalcFogDensity(sector, lightlevel, GLDIT_FLOOR);
+    flat.light=gld_CalcLightLevel(plane->lightlevel+(extralight<<5));
+    flat.fogdensity = gld_CalcFogDensity(sector, plane->lightlevel, GLDIT_FLOOR);
     // calculate texture offsets
     flat.uoffs=(float)sector->floor_xoffs/(float)FRACUNIT;
     flat.voffs=(float)sector->floor_yoffs/(float)FRACUNIT;
@@ -2845,9 +2841,8 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
     if (!flat.gltexture)
       return;
     // get the lightlevel from ceilinglightlevel
-    lightlevel = plane->lightlevel+(extralight<<5);
-    flat.light=gld_CalcLightLevel(lightlevel);
-    flat.fogdensity = gld_CalcFogDensity(sector, lightlevel, GLDIT_CEILING);
+    flat.light=gld_CalcLightLevel(plane->lightlevel+(extralight<<5));
+    flat.fogdensity = gld_CalcFogDensity(sector, plane->lightlevel, GLDIT_CEILING);
     // calculate texture offsets
     flat.uoffs=(float)sector->ceiling_xoffs/(float)FRACUNIT;
     flat.voffs=(float)sector->ceiling_yoffs/(float)FRACUNIT;
@@ -2991,7 +2986,6 @@ void gld_AddSprite(vissprite_t *vspr)
   mobj_t *pSpr=vspr->thing;
   GLSprite sprite;
   float voff,hoff;
-  int lightlevel;
 
   sprite.scale=vspr->scale;
   if ((pSpr->frame & FF_FULLBRIGHT) || show_alive)
@@ -3001,9 +2995,8 @@ void gld_AddSprite(vissprite_t *vspr)
   }
   else
   {
-    lightlevel = pSpr->subsector->sector->lightlevel+(extralight<<5);
-    sprite.light = gld_CalcLightLevel(lightlevel);
-    sprite.fogdensity = gld_CalcFogDensity(pSpr->subsector->sector, lightlevel, GLDIT_SPRITE);
+    sprite.light = gld_CalcLightLevel(pSpr->subsector->sector->lightlevel+(extralight<<5));
+    sprite.fogdensity = gld_CalcFogDensity(pSpr->subsector->sector, pSpr->subsector->sector->lightlevel, GLDIT_SPRITE);
   }
   sprite.cm=CR_LIMIT+(int)((pSpr->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
   sprite.gltexture=gld_RegisterPatch(vspr->patch+firstspritelump,sprite.cm);
@@ -3265,7 +3258,7 @@ void gld_DrawScene(player_t *player)
         // calculation of fog density for flooded walls
         if (((wall->flag == GLDWF_TOPFLUD) || (wall->flag == GLDWF_BOTFLUD)) && (wall->seg->backsector))
         {
-          wall->fogdensity = gld_CalcFogDensity(frontsector, wall->seg->backsector->lightlevel+(extralight<<5), GLDIT_FWALL);
+          wall->fogdensity = gld_CalcFogDensity(frontsector, wall->seg->backsector->lightlevel, GLDIT_FWALL);
         }
 
         gld_SetFog(wall->fogdensity);
