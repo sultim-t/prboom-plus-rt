@@ -183,7 +183,7 @@ int PlayeringameOverrun(const mapthing_t* mthing)
 {
   if (mthing->type == 0 && PROCESS(OVERFLOW_PLYERINGAME))
   {
-    ShowOverflowWarning(OVERFLOW_PLYERINGAME, players[4].didsecret, "");
+    ShowOverflowWarning(OVERFLOW_PLYERINGAME, (players + 4)->didsecret, "");
 
     if (EMULATE(OVERFLOW_PLYERINGAME))
     {

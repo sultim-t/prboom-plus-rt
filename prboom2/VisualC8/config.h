@@ -171,7 +171,7 @@
 
 /* Shut up warnings */
 #ifdef __INTEL_COMPILER
-  #pragma warning(disable : 94 144 175 177 186 188 279 556 589 810)
+  #pragma warning(disable : 94 144 177 186 188 279 556 589 810)
 #endif // __INTEL_COMPILER
 
 #ifdef _WIN32
