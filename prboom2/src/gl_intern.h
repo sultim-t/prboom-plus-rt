@@ -395,7 +395,9 @@ void gld_StaticLightAlpha(float light, float alpha);
 #define gld_StaticLight(light) gld_StaticLightAlpha(light, 1.0f)
 void gld_InitLightTable(void);
 typedef float (*gld_CalcLightLevel_f)(int lightlevel);
+typedef float (*gld_Calc2DLightLevel_f)(int lightlevel);
 gld_CalcLightLevel_f gld_CalcLightLevel;
+gld_Calc2DLightLevel_f gld_Calc2DLightLevel;
 
 //fog
 extern int gl_fog;

@@ -65,6 +65,7 @@ typedef struct
 {
   gld_InitLightTable_f Init;
   gld_CalcLightLevel_f GetLight;
+  gld_Calc2DLightLevel_f Get2DLight;
   gld_CalcFogDensity_f GetFog;
 } GLLight;
 
@@ -86,11 +87,17 @@ static float gld_CalcFogDensity_fogbased(sector_t *sector, int lightlevel, GLDra
 
 static GLLight gld_light[gl_lightmode_last] = {
   //gl_lightmode_glboom
-  {gld_InitLightTable_glboom, gld_CalcLightLevel_glboom, gld_CalcFogDensity_glboom},
+  {gld_InitLightTable_glboom,
+   gld_CalcLightLevel_glboom, gld_CalcLightLevel_glboom,
+   gld_CalcFogDensity_glboom},
   //gl_lightmode_gzdoom
-  {gld_InitLightTable_gzdoom, gld_CalcLightLevel_gzdoom, gld_CalcFogDensity_gzdoom},
+  {gld_InitLightTable_gzdoom,
+   gld_CalcLightLevel_gzdoom, gld_CalcLightLevel_gzdoom,
+   gld_CalcFogDensity_gzdoom},
   //gl_lightmode_fogbased
-  {gld_InitLightTable_fogbased, gld_CalcLightLevel_fogbased, gld_CalcFogDensity_fogbased},
+  {gld_InitLightTable_fogbased,
+   gld_CalcLightLevel_fogbased, gld_CalcLightLevel_gzdoom,
+   gld_CalcFogDensity_fogbased},
 };
 
 gld_CalcLightLevel_f gld_CalcLightLevel = gld_CalcLightLevel_glboom;
@@ -106,6 +113,7 @@ void M_ChangeLightMode(void)
   }
 
   gld_CalcLightLevel = gld_light[gl_lightmode].GetLight;
+  gld_Calc2DLightLevel = gld_light[gl_lightmode].Get2DLight;
   gld_CalcFogDensity = gld_light[gl_lightmode].GetFog;
 
   if (gl_lightmode == gl_lightmode_glboom)
