@@ -396,8 +396,9 @@ static void I_EndDoom2(void)
 
   if (lump != -1)
   {
-    const char (*endoom)[2] = (const void*)W_CacheLumpNum(lump);
     int i, l = W_LumpLength(lump) / 2;
+    const char (*endoom)[2];
+    endoom = W_CacheLumpNum(lump);
 
     /* cph - colour ENDOOM by rain */
 #ifndef _WIN32
