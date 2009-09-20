@@ -286,8 +286,6 @@ extern int gl_preprocessed; //e6y
 
 extern GLDrawInfo gld_drawinfo;
 extern GLSector *sectorloops;
-extern GLVertex *gld_vertexes;
-extern GLTexcoord *gld_texcoords;
 
 extern char *gl_tex_format_string;
 extern int gl_tex_format;
@@ -443,5 +441,27 @@ void gld_DrawSkyCaps(void);
 void gld_InitShadows(void);
 void gld_ProcessThingShadow(mobj_t *mo);
 void gld_RenderShadows(void);
+
+// VBO
+typedef struct vbo_vertex_s
+{
+  float x, y, z;
+  float u, v;
+  unsigned char r, g, b, a;
+} vbo_vertex_t;
+#define NULL_VBO_VERTEX ((vbo_vertex_t*)NULL)
+#define sky_vbo_x (gl_ext_arb_vertex_buffer_object ? &NULL_VBO_VERTEX->x : &sky_vbo[0].data[0].x)
+#define sky_vbo_u (gl_ext_arb_vertex_buffer_object ? &NULL_VBO_VERTEX->u : &sky_vbo[0].data[0].u)
+#define sky_vbo_r (gl_ext_arb_vertex_buffer_object ? &NULL_VBO_VERTEX->r : &sky_vbo[0].data[0].r)
+
+typedef struct vbo_xyz_uv_s
+{
+  float x, y, z;
+  float u, v;
+} vbo_xyz_uv_t;
+extern vbo_xyz_uv_t *flats_vbo;
+#define NULL_VBO_XYZ_UV ((vbo_xyz_uv_t*)NULL)
+#define flats_vbo_x (gl_ext_arb_vertex_buffer_object ? &NULL_VBO_XYZ_UV->x : &flats_vbo[0].x)
+#define flats_vbo_u (gl_ext_arb_vertex_buffer_object ? &NULL_VBO_XYZ_UV->u : &flats_vbo[0].u)
 
 #endif // _GL_INTERN_H

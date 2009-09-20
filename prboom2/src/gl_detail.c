@@ -175,10 +175,14 @@ void gld_PreprocessDetail(void)
   if (gl_arb_multitexture)
   {
     GLEXT_glClientActiveTextureARB(GL_TEXTURE0_ARB);
-    glTexCoordPointer(2,GL_FLOAT,0,gld_texcoords);
+#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
+    glTexCoordPointer(2, GL_FLOAT, sizeof(flats_vbo[0]), flats_vbo_u);
+#endif
 
     GLEXT_glClientActiveTextureARB(GL_TEXTURE1_ARB);
-    glTexCoordPointer(2,GL_FLOAT,0,gld_texcoords);
+#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
+    glTexCoordPointer(2, GL_FLOAT, sizeof(flats_vbo[0]), flats_vbo_u);
+#endif
     GLEXT_glClientActiveTextureARB(GL_TEXTURE0_ARB);
 
     GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
@@ -335,7 +339,13 @@ void gld_DrawFlatDetail_NoARB(GLFlat *flat)
   if (flat->sectornum>=0)
   {
     // go through all loops of this sector
-#ifndef USE_VERTEX_ARRAYS
+#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
+    for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)
+    {
+      currentloop=&sectorloops[flat->sectornum].loops[loopnum];
+      glDrawArrays(currentloop->mode,currentloop->vertexindex,currentloop->vertexcount);
+    }
+#else
     for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)
     {
       int vertexnum;
@@ -351,24 +361,18 @@ void gld_DrawFlatDetail_NoARB(GLFlat *flat)
         // set texture coordinate of this vertex
         if (gl_arb_multitexture && render_detailedflats)
         {
-          GLEXT_glMultiTexCoord2fvARB(GL_TEXTURE0_ARB, (GLfloat*)&gld_texcoords[vertexnum]);
-          GLEXT_glMultiTexCoord2fvARB(GL_TEXTURE1_ARB, (GLfloat*)&gld_texcoords[vertexnum]);
+          GLEXT_glMultiTexCoord2fvARB(GL_TEXTURE0_ARB, (GLfloat*)&flats_vbo[vertexnum].u);
+          GLEXT_glMultiTexCoord2fvARB(GL_TEXTURE1_ARB, (GLfloat*)&flats_vbo[vertexnum].u);
         }
         else
         {
-          glTexCoord2fv((GLfloat*)&gld_texcoords[vertexnum]);
+          glTexCoord2fv((GLfloat*)&flats_vbo[vertexnum].u);
         }
         // set vertex coordinate
-        glVertex3fv((GLfloat*)&gld_vertexes[vertexnum]);
+        glVertex3fv((GLfloat*)&flats_vbo[vertexnum].x);
       }
       // end of loop
       glEnd();
-    }
-#else
-    for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)
-    {
-      currentloop=&sectorloops[flat->sectornum].loops[loopnum];
-      glDrawArrays(currentloop->mode,currentloop->vertexindex,currentloop->vertexcount);
     }
 #endif
   }

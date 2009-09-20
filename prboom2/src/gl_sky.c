@@ -52,14 +52,6 @@
 
 #include "e6y.h"
 
-typedef struct vbo_vertex_s
-{
-  float x, y, z;
-  float u, v;
-  unsigned char r, g, b, a;
-} vbo_vertex_t;
-#define NULL_VBO_VERTEX ((vbo_vertex_t*)NULL)
-
 typedef struct
 {
   int mode;
@@ -664,15 +656,9 @@ static void RenderDome(SkyBoxParams_t *sky)
 {
   int i, j;
   int vbosize;
-  int use_vbo;
 
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
   static GLuint sky_vbo_id = 0; // ID of VBO
-#endif
-
-  use_vbo = false;
-#ifdef USE_VBO
-  use_vbo = gl_ext_arb_vertex_buffer_object;
 #endif
 
   if (!sky || !sky->wall.gltexture)
@@ -700,7 +686,7 @@ static void RenderDome(SkyBoxParams_t *sky)
     gld_BuildSky(rows, columns, sky);
 
 #ifdef USE_VBO
-    if (use_vbo)
+    if (gl_ext_arb_vertex_buffer_object)
     {
       if (sky_vbo_id)
       {
@@ -713,30 +699,23 @@ static void RenderDome(SkyBoxParams_t *sky)
       GLEXT_glBindBufferARB(GL_ARRAY_BUFFER, sky_vbo_id);
       // upload data to VBO
       GLEXT_glBufferDataARB(GL_ARRAY_BUFFER,
-        (vbosize) * sizeof(sky_vbo[0].data[0]),
+        vbosize * sizeof(sky_vbo[0].data[0]),
         sky_vbo[0].data, GL_STATIC_DRAW_ARB);
     }
 #endif
   }
 
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
-  if (use_vbo)
+  if (gl_ext_arb_vertex_buffer_object)
   {
     // bind VBO in order to use
     GLEXT_glBindBufferARB(GL_ARRAY_BUFFER, sky_vbo_id);
+  }
 
-    // last param is offset, not ptr
-    glVertexPointer(3, GL_FLOAT, sizeof(sky_vbo[0].data[0]), &NULL_VBO_VERTEX->x);
-    glTexCoordPointer(2, GL_FLOAT, sizeof(sky_vbo[0].data[0]), &NULL_VBO_VERTEX->u);
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(sky_vbo[0].data[0]), &NULL_VBO_VERTEX->r);
-  }
-  else
-  {
-    // activate and specify pointers to arrays
-    glVertexPointer(3, GL_FLOAT, sizeof(sky_vbo[0].data[0]), &sky_vbo[0].data[0].x);
-    glTexCoordPointer(2, GL_FLOAT, sizeof(sky_vbo[0].data[0]), &sky_vbo[0].data[0].u);
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(sky_vbo[0].data[0]), &sky_vbo[0].data[0].r);
-  }
+  // activate and specify pointers to arrays
+  glVertexPointer(3, GL_FLOAT, sizeof(sky_vbo[0].data[0]), sky_vbo_x);
+  glTexCoordPointer(2, GL_FLOAT, sizeof(sky_vbo[0].data[0]), sky_vbo_u);
+  glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(sky_vbo[0].data[0]), sky_vbo_r);
 
   // activate vertex array, texture coord array and color arrays
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -786,19 +765,13 @@ static void RenderDome(SkyBoxParams_t *sky)
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
+  if (gl_ext_arb_vertex_buffer_object)
+  {
+    // bind with 0, so, switch back to normal pointer operation
+    GLEXT_glBindBufferARB(GL_ARRAY_BUFFER, 0);
+  }
   // deactivate color array
   glDisableClientState(GL_COLOR_ARRAY);
-#endif
-
-#ifdef USE_VBO
-  // bind with 0, so, switch back to normal pointer operation
-  GLEXT_glBindBufferARB(GL_ARRAY_BUFFER, 0);
-#endif
-
-  // restore
-#ifdef USE_VERTEX_ARRAYS
-  glTexCoordPointer(2, GL_FLOAT, 0, gld_texcoords);
-  glVertexPointer(3, GL_FLOAT, 0, gld_vertexes);
 #endif
 }
 

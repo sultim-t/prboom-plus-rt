@@ -499,7 +499,7 @@ void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_tra
 void gld_BeginLines(void)
 {
   gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
-#ifdef USE_VERTEX_ARRAYS
+#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
   glEnableClientState(GL_VERTEX_ARRAY);
   memset(map_lines.count, 0, MAP_COLORS_COUNT * sizeof(map_lines.count[0]));
 #endif
@@ -508,15 +508,16 @@ void gld_BeginLines(void)
 void gld_EndLines(void)
 {
   gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
-#ifdef USE_VERTEX_ARRAYS
-  glVertexPointer(3, GL_FLOAT, 0, gld_vertexes);
+
+#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
+  glVertexPointer(3, GL_FLOAT, sizeof(flats_vbo[0]), flats_vbo_x);
   glDisableClientState(GL_VERTEX_ARRAY);
 #endif
 }
 
 void gld_DrawMapLines(void)
 {
-#ifdef USE_VERTEX_ARRAYS
+#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
   int i;
   const unsigned char *playpal = V_GetPlaypal();
 
@@ -538,17 +539,7 @@ void gld_DrawMapLines(void)
 
 void gld_DrawLine(int x0, int y0, int x1, int y1, int BaseColor)
 {
-#ifndef USE_VERTEX_ARRAYS
-  const unsigned char *playpal = V_GetPlaypal();
-
-  glColor3f((float)playpal[3*BaseColor]/255.0f,
-            (float)playpal[3*BaseColor+1]/255.0f,
-            (float)playpal[3*BaseColor+2]/255.0f);
-  glBegin(GL_LINES);
-    glVertex2i( x0, y0 );
-    glVertex2i( x1, y1 );
-  glEnd();
-#else
+#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
   if (!map_lines.points[BaseColor])
   {
     map_lines.points[BaseColor] = malloc(128 * 4 * sizeof(map_lines.points[0][0]));
@@ -564,6 +555,16 @@ void gld_DrawLine(int x0, int y0, int x1, int y1, int BaseColor)
   map_lines.points[BaseColor][map_lines.count[BaseColor]++] = y0;
   map_lines.points[BaseColor][map_lines.count[BaseColor]++] = x1;
   map_lines.points[BaseColor][map_lines.count[BaseColor]++] = y1;
+#else
+  const unsigned char *playpal = V_GetPlaypal();
+
+  glColor3f((float)playpal[3*BaseColor]/255.0f,
+            (float)playpal[3*BaseColor+1]/255.0f,
+            (float)playpal[3*BaseColor+2]/255.0f);
+  glBegin(GL_LINES);
+    glVertex2i( x0, y0 );
+    glVertex2i( x1, y1 );
+  glEnd();
 #endif
 }
 
@@ -776,16 +777,17 @@ void gld_Finish(void)
 
 int gld_max_vertexes=0;
 int gld_num_vertexes=0;
-GLVertex *gld_vertexes=NULL;
-GLTexcoord *gld_texcoords=NULL;
+GLuint flats_vbo_id = 0; // ID of VBO
+
+vbo_xyz_uv_t *flats_vbo = NULL;
+
 
 static void gld_AddGlobalVertexes(int count)
 {
   if ((gld_num_vertexes+count)>=gld_max_vertexes)
   {
     gld_max_vertexes+=count+1024;
-    gld_vertexes=Z_Realloc(gld_vertexes,gld_max_vertexes*sizeof(GLVertex),PU_STATIC,0);
-    gld_texcoords=Z_Realloc(gld_texcoords,gld_max_vertexes*sizeof(GLTexcoord),PU_STATIC,0);
+    flats_vbo = Z_Realloc(flats_vbo, gld_max_vertexes * sizeof(flats_vbo[0]), PU_STATIC, 0);
   }
 }
 
@@ -973,7 +975,7 @@ static void gld_FlatConvexCarver(int ssidx, int num, divline_t *list)
     if(numedgepoints >= 3)
     {
       gld_AddGlobalVertexes(numedgepoints);
-      if ((gld_vertexes) && (gld_texcoords))
+      if (flats_vbo)
       {
         int currentsector=ssec->sector->iSectorID;
 
@@ -985,11 +987,11 @@ static void gld_FlatConvexCarver(int ssidx, int num, divline_t *list)
 
         for(i = 0;  i < numedgepoints; i++)
         {
-          gld_texcoords[gld_num_vertexes].u = ( (float)edgepoints[i].x/(float)FRACUNIT)/64.0f;
-          gld_texcoords[gld_num_vertexes].v = (-(float)edgepoints[i].y/(float)FRACUNIT)/64.0f;
-          gld_vertexes[gld_num_vertexes].x = -(float)edgepoints[i].x/MAP_SCALE;
-          gld_vertexes[gld_num_vertexes].y = 0.0f;
-          gld_vertexes[gld_num_vertexes].z =  (float)edgepoints[i].y/MAP_SCALE;
+          flats_vbo[gld_num_vertexes].u = ( (float)edgepoints[i].x/(float)FRACUNIT)/64.0f;
+          flats_vbo[gld_num_vertexes].v = (-(float)edgepoints[i].y/(float)FRACUNIT)/64.0f;
+          flats_vbo[gld_num_vertexes].x = -(float)edgepoints[i].x/MAP_SCALE;
+          flats_vbo[gld_num_vertexes].y = 0.0f;
+          flats_vbo[gld_num_vertexes].z =  (float)edgepoints[i].y/MAP_SCALE;
           gld_num_vertexes++;
         }
       }
@@ -1133,11 +1135,11 @@ static void CALLBACK ntessVertex( vertex_t *vert )
   // increase vertex count
   gld_AddGlobalVertexes(1);
   // add the new vertex (vert is the second argument of gluTessVertex)
-  gld_texcoords[gld_num_vertexes].u=( (float)vert->x/(float)FRACUNIT)/64.0f;
-  gld_texcoords[gld_num_vertexes].v=(-(float)vert->y/(float)FRACUNIT)/64.0f;
-  gld_vertexes[gld_num_vertexes].x=-(float)vert->x/MAP_SCALE;
-  gld_vertexes[gld_num_vertexes].y=0.0f;
-  gld_vertexes[gld_num_vertexes].z= (float)vert->y/MAP_SCALE;
+  flats_vbo[gld_num_vertexes].u=( (float)vert->x/(float)FRACUNIT)/64.0f;
+  flats_vbo[gld_num_vertexes].v=(-(float)vert->y/(float)FRACUNIT)/64.0f;
+  flats_vbo[gld_num_vertexes].x=-(float)vert->x/MAP_SCALE;
+  flats_vbo[gld_num_vertexes].y=0.0f;
+  flats_vbo[gld_num_vertexes].z= (float)vert->y/MAP_SCALE;
   gld_num_vertexes++;
 }
 
@@ -1445,7 +1447,7 @@ void gld_GetSubSectorVertices(void)
 
     gld_AddGlobalVertexes(numedgepoints);
 
-    if ((gld_vertexes) && (gld_texcoords))
+    if (flats_vbo)
     {
       int currentsector = ssector->sector->iSectorID;
 
@@ -1456,11 +1458,11 @@ void gld_GetSubSectorVertices(void)
       sectorloops[currentsector].loops[sectorloops[currentsector].loopcount-1].vertexindex = gld_num_vertexes;
       for(j = 0;  j < numedgepoints; j++)
       {
-        gld_texcoords[gld_num_vertexes].u =( (float)(segs[ssector->firstline + j].v1->x)/FRACUNIT)/64.0f;
-        gld_texcoords[gld_num_vertexes].v =(-(float)(segs[ssector->firstline + j].v1->y)/FRACUNIT)/64.0f;
-        gld_vertexes[gld_num_vertexes].x = -(float)(segs[ssector->firstline + j].v1->x)/MAP_SCALE;
-        gld_vertexes[gld_num_vertexes].y = 0.0f;
-        gld_vertexes[gld_num_vertexes].z =  (float)(segs[ssector->firstline + j].v1->y)/MAP_SCALE;
+        flats_vbo[gld_num_vertexes].u =( (float)(segs[ssector->firstline + j].v1->x)/FRACUNIT)/64.0f;
+        flats_vbo[gld_num_vertexes].v =(-(float)(segs[ssector->firstline + j].v1->y)/FRACUNIT)/64.0f;
+        flats_vbo[gld_num_vertexes].x = -(float)(segs[ssector->firstline + j].v1->x)/MAP_SCALE;
+        flats_vbo[gld_num_vertexes].y = 0.0f;
+        flats_vbo[gld_num_vertexes].z =  (float)(segs[ssector->firstline + j].v1->y)/MAP_SCALE;
         gld_num_vertexes++;
       }
     }
@@ -1519,13 +1521,13 @@ static void gld_MarkSectorsForClamp(void)
         continue;
       for (vertexnum = currentloop->vertexindex; !fail && vertexnum<(currentloop->vertexindex+currentloop->vertexcount); vertexnum++)
       {
-        GLTexcoord *coord;
-        coord = &gld_texcoords[vertexnum];
+        vbo_xyz_uv_t *vbo;
+        vbo = &flats_vbo[vertexnum];
 
-        if (coord->u < minu) minu = (float)floor(coord->u);
-        if (coord->v < minv) minv = (float)floor(coord->v);
-        if (coord->u > maxu) maxu = coord->u;
-        if (coord->v > maxv) maxv = coord->v;
+        if (vbo->u < minu) minu = (float)floor(vbo->u);
+        if (vbo->v < minv) minv = (float)floor(vbo->v);
+        if (vbo->u > maxu) maxu = vbo->u;
+        if (vbo->v > maxv) maxv = vbo->v;
         
         fail = (maxu - minu > 1.0f || maxv - minv > 1.0f);
       }
@@ -1544,8 +1546,8 @@ static void gld_MarkSectorsForClamp(void)
           continue;
         for (vertexnum = currentloop->vertexindex; vertexnum < (currentloop->vertexindex+currentloop->vertexcount); vertexnum++)
         {
-          gld_texcoords[vertexnum].u = gld_texcoords[vertexnum].u - minu;
-          gld_texcoords[vertexnum].v = gld_texcoords[vertexnum].v - minv;
+          flats_vbo[vertexnum].u = flats_vbo[vertexnum].u - minu;
+          flats_vbo[vertexnum].v = flats_vbo[vertexnum].v - minv;
         }
       }
     }
@@ -1593,8 +1595,7 @@ void gld_PreprocessSectors(void)
   if (!linerendered[0] || !linerendered[1])
     I_Error("gld_PreprocessSectors: Not enough memory for array linerendered");
 
-  gld_vertexes=NULL;
-  gld_texcoords=NULL;
+  flats_vbo = NULL;
   gld_max_vertexes=0;
   gld_num_vertexes=0;
   gld_AddGlobalVertexes(numvertexes*2);
@@ -2745,7 +2746,14 @@ static void gld_DrawFlat(GLFlat *flat)
     }
 
     // go through all loops of this sector
-#ifndef USE_VERTEX_ARRAYS
+#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
+    for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)
+    {
+      // set the current loop
+      currentloop=&sectorloops[flat->sectornum].loops[loopnum];
+      glDrawArrays(currentloop->mode,currentloop->vertexindex,currentloop->vertexcount);
+    }
+#else
     for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)
     {
       int vertexnum;
@@ -2761,25 +2769,18 @@ static void gld_DrawFlat(GLFlat *flat)
         // set texture coordinate of this vertex
         if (gl_arb_multitexture && render_detailedflats)
         {
-          GLEXT_glMultiTexCoord2fvARB(GL_TEXTURE0_ARB, (GLfloat*)&gld_texcoords[vertexnum]);
-          GLEXT_glMultiTexCoord2fvARB(GL_TEXTURE1_ARB, (GLfloat*)&gld_texcoords[vertexnum]);
+          GLEXT_glMultiTexCoord2fvARB(GL_TEXTURE0_ARB, (GLfloat*)&flats_vbo[vertexnum].u);
+          GLEXT_glMultiTexCoord2fvARB(GL_TEXTURE1_ARB, (GLfloat*)&flats_vbo[vertexnum].u);
         }
         else
         {
-          glTexCoord2fv((GLfloat*)&gld_texcoords[vertexnum]);
+          glTexCoord2fv((GLfloat*)&flats_vbo[vertexnum].u);
         }
         // set vertex coordinate
-        glVertex3fv((GLfloat*)&gld_vertexes[vertexnum]);
+        glVertex3fv((GLfloat*)&flats_vbo[vertexnum].x);
       }
       // end of loop
       glEnd();
-    }
-#else
-    for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)
-    {
-      // set the current loop
-      currentloop=&sectorloops[flat->sectornum].loops[loopnum];
-      glDrawArrays(currentloop->mode,currentloop->vertexindex,currentloop->vertexcount);
     }
 #endif
   }
@@ -3163,9 +3164,10 @@ void gld_DrawScene(player_t *player)
   gl_EnableFog(true);
   gl_EnableFog(false);
 
-#ifdef USE_VERTEX_ARRAYS
+#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glEnableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_COLOR_ARRAY);
 #endif
 
   rendered_visplanes = rendered_segs = rendered_vissprites = 0;
@@ -3180,6 +3182,15 @@ void gld_DrawScene(player_t *player)
   {
     gld_DrawScreenSkybox();
   }
+
+#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
+  if (gl_ext_arb_vertex_buffer_object)
+  {
+    GLEXT_glBindBufferARB(GL_ARRAY_BUFFER, flats_vbo_id);
+  }
+  glVertexPointer(3, GL_FLOAT, sizeof(flats_vbo[0]), flats_vbo_x);
+  glTexCoordPointer(2, GL_FLOAT, sizeof(flats_vbo[0]), flats_vbo_u);
+#endif
 
   //
   // opaque stuff
@@ -3370,8 +3381,16 @@ void gld_DrawScene(player_t *player)
   if (!gl_arb_multitexture && render_usedetail)
     gld_DrawDetail_NoARB();
 
+#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
+  if (gl_ext_arb_vertex_buffer_object)
+  {
+    // bind with 0, so, switch back to normal pointer operation
+    GLEXT_glBindBufferARB(GL_ARRAY_BUFFER, 0);
+  }
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_COLOR_ARRAY);
+#endif
 }
 
 void gld_PreprocessLevel(void)
@@ -3386,8 +3405,7 @@ void gld_PreprocessLevel(void)
     free(gl_segs);
     free(gl_lines);
 
-    free(gld_texcoords);
-    free(gld_vertexes);
+    free(flats_vbo);
 
     free(segrendered);
     free(linerendered[0]);
@@ -3419,9 +3437,32 @@ void gld_PreprocessLevel(void)
 
   gld_FreeDrawInfo();
 
-#ifdef USE_VERTEX_ARRAYS
-  glTexCoordPointer(2,GL_FLOAT,0,gld_texcoords);
-  glVertexPointer(3,GL_FLOAT,0,gld_vertexes);
+#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
+    if (gl_ext_arb_vertex_buffer_object)
+    {
+      if (flats_vbo_id)
+      {
+        // delete VBO when already exists
+        GLEXT_glDeleteBuffersARB(1, &flats_vbo_id);
+      }
+      // generate a new VBO and get the associated ID
+      GLEXT_glGenBuffersARB(1, &flats_vbo_id);
+      // bind VBO in order to use
+      GLEXT_glBindBufferARB(GL_ARRAY_BUFFER, flats_vbo_id);
+      // upload data to VBO
+      GLEXT_glBufferDataARB(GL_ARRAY_BUFFER,
+        gld_num_vertexes * sizeof(flats_vbo[0]),
+        flats_vbo, GL_STATIC_DRAW_ARB);
+
+      free(flats_vbo);
+      flats_vbo = NULL;
+
+      // bind VBO in order to use
+      GLEXT_glBindBufferARB(GL_ARRAY_BUFFER, flats_vbo_id);
+    }
+
+    glVertexPointer(3, GL_FLOAT, sizeof(flats_vbo[0]), flats_vbo_x);
+    glTexCoordPointer(2, GL_FLOAT, sizeof(flats_vbo[0]), flats_vbo_u);
 #endif
 
   //e6y

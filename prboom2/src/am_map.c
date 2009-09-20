@@ -520,7 +520,7 @@ static void AM_LevelInit(void)
     scale_mtof = min_scale_mtof;
   scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
 
-#ifdef USE_VERTEX_ARRAYS
+#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
   {
     int i;
     for (i = 0; i < MAP_COLORS_COUNT; i++)
