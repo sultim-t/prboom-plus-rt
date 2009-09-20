@@ -256,7 +256,7 @@ int EV_DoCeiling
   secnum = -1;
   rtn = 0;
 
-  if (ProcessNoTagLines(line, &sec, &secnum)) if (zerotag_manual) goto manual_ceiling; else return rtn;//e6y
+  if (ProcessNoTagLines(line, &sec, &secnum)) {if (zerotag_manual) goto manual_ceiling; else {return rtn;}};//e6y
   // Reactivate in-stasis ceilings...for certain types.
   // This restarts a crusher after it has been stopped
   switch(type)
@@ -277,8 +277,8 @@ int EV_DoCeiling
 
 manual_ceiling://e6y
     // if ceiling already moving, don't start a second function on it
-    if (P_SectorActive(ceiling_special,sec))  //jff 2/22/98
-      if (!zerotag_manual) continue; else  return rtn;//e6y
+    if (P_SectorActive(ceiling_special,sec)) { //jff 2/22/98
+      if (!zerotag_manual) continue; else {return rtn;}};//e6y
 
     // create a new ceiling thinker
     rtn = 1;

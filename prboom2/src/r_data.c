@@ -636,8 +636,8 @@ void R_PrecacheLevel(void)
     return;
 
   {
-    size_t size = numflats > numsprites  ? numflats : numsprites;
-    hitlist = malloc((size_t)numtextures > size ? numtextures : size);
+    int size = numflats > numsprites  ? numflats : numsprites;
+    hitlist = malloc(numtextures > size ? numtextures : size);
   }
 
   // Precache flats.

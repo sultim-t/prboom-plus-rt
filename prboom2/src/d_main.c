@@ -1109,7 +1109,7 @@ static void DoLooseFiles(void)
   };
 
   struct {
-    char *cmdparam;
+    const char *cmdparam;
     char ***list;
     int *count;
   } params[] = {
