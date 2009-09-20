@@ -322,7 +322,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
   if (V_GetMode() == VID_MODE8 && !(flags & VPT_ANYSTRETCH)) {
     int             col;
     byte           *desttop = screens[scrn].data+y*screens[scrn].byte_pitch+x*V_GetPixelDepth();
-    unsigned int    w = patch->width;
+    int    w = patch->width;
 
     if (y<0 || y+patch->height > ((flags & VPT_STRETCH) ? 200 :  SCREENHEIGHT)) {
       // killough 1/19/98: improved error message:
@@ -333,7 +333,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
 
     w--; // CPhipps - note: w = width-1 now, speeds up flipping
 
-    for (col=0 ; (unsigned int)col<=w ; desttop++, col++, x++) {
+    for (col=0 ; col<=w ; desttop++, col++, x++) {
       int i;
       const int colindex = (flags & VPT_FLIP) ? (w - col) : (col);
       const rcolumn_t *column = R_GetPatchColumn(patch, colindex);
@@ -654,7 +654,7 @@ void V_UpdateTrueColorPalette(video_mode_t mode) {
   else if (mode == VID_MODE16) {
     if (!Palettes16) {
       // set short palette
-      Palettes16 = (short*)malloc(numPals*256*sizeof(short)*VID_NUMCOLORWEIGHTS);
+      Palettes16 = malloc(numPals*256*sizeof(short)*VID_NUMCOLORWEIGHTS);
       for (p=0; p<numPals; p++) {
         for (i=0; i<256; i++) {
           r = gtable[pal[(256*p+i)*3+0]];
@@ -684,7 +684,7 @@ void V_UpdateTrueColorPalette(video_mode_t mode) {
   else if (mode == VID_MODE15) {
     if (!Palettes15) {
       // set short palette
-      Palettes15 = (short*)malloc(numPals*256*sizeof(short)*VID_NUMCOLORWEIGHTS);
+      Palettes15 = malloc(numPals*256*sizeof(short)*VID_NUMCOLORWEIGHTS);
       for (p=0; p<numPals; p++) {
         for (i=0; i<256; i++) {
           r = gtable[pal[(256*p+i)*3+0]];

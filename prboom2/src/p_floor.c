@@ -452,7 +452,7 @@ int EV_DoFloor
   secnum = -1;
   rtn = 0;
   
-  if (ProcessNoTagLines(line, &sec, &secnum)) if (zerotag_manual) goto manual_floor; else return rtn;//e6y
+  if (ProcessNoTagLines(line, &sec, &secnum)) {if (zerotag_manual) goto manual_floor; else {return rtn;}};//e6y
   // move all floors with the same tag as the linedef
   while ((secnum = P_FindSectorFromLineTag(line,secnum)) >= 0)
   {
@@ -757,7 +757,7 @@ int EV_BuildStairs
   //e6y
   int           secnum = -1;
   sector_t*     sec;
-  if (ProcessNoTagLines(line, &sec, &secnum)) if (zerotag_manual) goto manual_stair; else return rtn;//e6y
+  if (ProcessNoTagLines(line, &sec, &secnum)) {if (zerotag_manual) goto manual_stair; else {return rtn;}};//e6y
 
   // start a stair at each sector tagged the same as the linedef
   while ((ssec = P_FindSectorFromLineTagWithLowerBound(line,ssec,minssec)) >= 0)

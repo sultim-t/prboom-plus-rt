@@ -113,7 +113,7 @@ void I_WaitForPacket(int ms)
   SDLNet_CheckSockets(ss,ms);
   SDLNet_FreeSocketSet(ss);
 #if (defined _WIN32 && !defined PRBOOM_SERVER)
-  //I_UpdateConsole();
+  I_UpdateConsole();
 #endif
 }
 
