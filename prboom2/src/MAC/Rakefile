@@ -66,6 +66,7 @@ TEXTSCREEN/txt_inputbox.c
 TEXTSCREEN/txt_io.c
 TEXTSCREEN/txt_label.c
 TEXTSCREEN/txt_radiobutton.c
+TEXTSCREEN/txt_scrollpane.c
 TEXTSCREEN/txt_sdl.c
 TEXTSCREEN/txt_separator.c
 TEXTSCREEN/txt_spinctrl.c
