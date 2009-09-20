@@ -83,7 +83,7 @@ typedef enum {
 // We _must_ have the wadfiles[] the same as those actually loaded, so there 
 // is no point having these separate entities. This belongs here.
 typedef struct {
-  const char* name;
+  char* name;
   wad_source_t src;
   int handle;
 } wadfile_info_t;

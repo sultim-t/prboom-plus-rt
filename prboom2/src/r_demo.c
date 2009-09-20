@@ -208,7 +208,7 @@ typedef struct
 
 mlooklump_t mlook_lump = {DEMOEX_MLOOK_LUMPNAME, NULL, -2, 0, 0};
 
-int AddString(char **str, char *val);
+int AddString(char **str, const char *val);
 
 static void R_DemoEx_AddParams(wadtbl_t *wadtbl);
 static int R_DemoEx_GetVersion(void);
@@ -217,7 +217,7 @@ static void R_DemoEx_AddMouseLookData(wadtbl_t *wadtbl);
 
 static int G_ReadDemoFooter(const char *filename);
 
-int AddString(char **str, char *val)
+int AddString(char **str, const char *val)
 {
   int size = 0;
 
@@ -304,7 +304,7 @@ wadtbl_t* W_CreatePWADTable(const byte* buffer, size_t size)
     char lumpname[9];
     strncpy(lumpname, filelump_p->name, 8);
     lumpname[8] = 0;
-    W_AddLump(wadtbl, lumpname, pwad_p + filelump_p->filepos, filelump_p->size);
+    W_AddLump(wadtbl, lumpname, (const byte*)(pwad_p + filelump_p->filepos), filelump_p->size);
   }
 
   return wadtbl;
@@ -462,7 +462,8 @@ static int R_DemoEx_GetVersion(void)
 {
   int result = -1;
 
-  int lump, size, ver;
+  int lump, ver;
+  unsigned int size;
   const char *data;
   char str_ver[32];
 
@@ -493,8 +494,8 @@ static void R_DemoEx_GetParams(const byte *pwad_p, waddata_t *waddata)
   char *str;
   const char *data;
   char **params;
-  int paramscount;
-  int i, p;
+  unsigned int i, paramscount;
+  int p;
   
   lump = W_CheckNumForName(DEMOEX_PARAMS_LUMPNAME);
   if (lump == -1)
@@ -517,7 +518,7 @@ static void R_DemoEx_GetParams(const byte *pwad_p, waddata_t *waddata)
   if (params)
   {
     struct {
-      char *param;
+      const char *param;
       wad_source_t source;
     } files[] = {
       {"-iwad" , source_iwad},
@@ -704,7 +705,7 @@ static void R_DemoEx_AddParams(wadtbl_t *wadtbl)
 
   if (files)
   {
-    W_AddLump(wadtbl, DEMOEX_PARAMS_LUMPNAME, files, strlen(files));
+    W_AddLump(wadtbl, DEMOEX_PARAMS_LUMPNAME, (const byte*)files, strlen(files));
   }
 }
 
@@ -766,7 +767,7 @@ byte* G_GetDemoFooter(const char *filename, byte** footer, size_t *size)
   if (fread(buffer, file_size, 1, hfile) == 1)
   {
     //skip demo header
-    p = (char*)G_ReadDemoHeaderEx(buffer, file_size, RDH_SKIP_HEADER);
+    p = (byte*)G_ReadDemoHeaderEx(buffer, file_size, RDH_SKIP_HEADER);
 
     //skip demo data
     while (p < buffer + file_size && *((byte*)p) != DEMOMARKER)
@@ -876,7 +877,7 @@ static int G_ReadDemoFooter(const char *filename)
   {
     const char* tmp_dir;
     char* tmp_path = NULL;
-    char* template_format = "%sprboom-plus-demoex-XXXXXX";
+    const char* template_format = "%sprboom-plus-demoex-XXXXXX";
 
     tmp_dir = I_GetTempDir();
     if (tmp_dir && strlen(tmp_dir) > 0)
@@ -983,25 +984,25 @@ void G_WriteDemoFooter(FILE *file)
   //
 
   // separators for eye-friendly looking
-  W_AddLump(&demoex, NULL, DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
-  W_AddLump(&demoex, NULL, DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
+  W_AddLump(&demoex, NULL, (const byte*)DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
+  W_AddLump(&demoex, NULL, (const byte*)DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
 
   //process format version
-  W_AddLump(&demoex, DEMOEX_VERSION_LUMPNAME, DEMOEX_VERSION, strlen(DEMOEX_VERSION));
-  W_AddLump(&demoex, NULL, DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
+  W_AddLump(&demoex, DEMOEX_VERSION_LUMPNAME, (const byte*)DEMOEX_VERSION, strlen(DEMOEX_VERSION));
+  W_AddLump(&demoex, NULL, (const byte*)DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
 
   //process mlook
   R_DemoEx_AddMouseLookData(&demoex);
-  W_AddLump(&demoex, NULL, DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
+  W_AddLump(&demoex, NULL, (const byte*)DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
 
   //process port name
   W_AddLump(&demoex, DEMOEX_PORTNAME_LUMPNAME,
-    PACKAGE_TITLE" "VERSION, strlen(PACKAGE_TITLE" "VERSION));
-  W_AddLump(&demoex, NULL, DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
+    (const byte*)(PACKAGE_TITLE" "VERSION), strlen(PACKAGE_TITLE" "VERSION));
+  W_AddLump(&demoex, NULL, (const byte*)DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
 
   //process iwad, pwads, dehs and critical for demos params like -spechit, etc
   R_DemoEx_AddParams(&demoex);
-  W_AddLump(&demoex, NULL, DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
+  W_AddLump(&demoex, NULL, (const byte*)DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
 
   //write pwad header, all data and lookup table to the end of a demo
   if (
@@ -1034,7 +1035,7 @@ void WadDataFree(waddata_t *waddata)
       {
         if (waddata->wadfiles[i].name)
         {
-          free((char*)waddata->wadfiles[i].name);
+          free(waddata->wadfiles[i].name);
           waddata->wadfiles[i].name = NULL;
         }
       }
@@ -1044,7 +1045,7 @@ void WadDataFree(waddata_t *waddata)
   }
 }
 
-int WadDataAddItem(waddata_t *waddata, const byte *filename, wad_source_t source, int handle)
+int WadDataAddItem(waddata_t *waddata, const char *filename, wad_source_t source, int handle)
 {
   if (!waddata || !filename)
     return false;

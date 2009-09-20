@@ -624,7 +624,7 @@ void V_UpdateTrueColorPalette(video_mode_t mode) {
   if (mode == VID_MODE32) {
     if (!Palettes32) {
       // set int palette
-      Palettes32 = (int*)malloc(numPals*256*sizeof(int)*VID_NUMCOLORWEIGHTS);
+      Palettes32 = malloc(numPals*256*sizeof(int)*VID_NUMCOLORWEIGHTS);
       for (p=0; p<numPals; p++) {
         for (i=0; i<256; i++) {
           r = gtable[pal[(256*p+i)*3+0]];

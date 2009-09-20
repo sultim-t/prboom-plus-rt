@@ -197,7 +197,7 @@ void gld_Init(int width, int height)
   lprintf(LO_INFO,"GL_EXTENSIONS:\n");
   {
     char ext_name[256];
-    const char *extensions = (char*)glGetString(GL_EXTENSIONS);
+    const char *extensions = (const char*)glGetString(GL_EXTENSIONS);
     const char *rover = extensions;
     const char *p = rover;
 

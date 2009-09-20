@@ -1094,7 +1094,7 @@ static void DoLooseFiles(void)
   dboolean *skip; // CPhipps - should these be skipped at the end
 
   struct {
-    char *ext;
+    const char *ext;
     char ***list;
     int *count;
   } looses[] = {

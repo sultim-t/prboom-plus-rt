@@ -72,7 +72,7 @@ char *Last = NULL;
 dboolean console_inited=FALSE;
 static dboolean should_exit = 0;
 
-static CALLBACK ConWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK ConWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
   PAINTSTRUCT paint;
   HDC dc;
@@ -86,7 +86,7 @@ static CALLBACK ConWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
     return 1;
     break;
   case WM_PAINT:
-    if (dc = BeginPaint (con_hWnd, &paint))
+    if ((dc = BeginPaint (con_hWnd, &paint)))
     {
       if (Last)
       {

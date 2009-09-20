@@ -590,7 +590,7 @@ static void I_FillScreenResolutionsList(void)
 {
   SDL_Rect **modes;
   int i, j, list_size, current_resolution_index, count;
-  unsigned char mode[256];
+  char mode[256];
   Uint32 flags;
 
   // do it only once
@@ -766,7 +766,7 @@ unsigned int I_TestCPUCacheMisses(int width, int height, unsigned int mintime)
 // CPhipps -
 // I_CalculateRes
 // Calculates the screen resolution, possibly using the supplied guide
-void I_CalculateRes(unsigned int width, unsigned int height)
+void I_CalculateRes(int width, int height)
 {
   // e6y: how about 1680x1050?
   /*

@@ -221,7 +221,7 @@ void I_ExeptionProcess(void)
 {
   if (current_exception_index > EXEPTION_NONE && current_exception_index < EXEPTION_MAX)
   {
-    I_Error("%s", ExeptionsParams[current_exception_index]);
+    I_Error("%s", ExeptionsParams[current_exception_index].error_message);
   }
 }
 

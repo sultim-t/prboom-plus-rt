@@ -1465,7 +1465,7 @@ void HU_Drawer(void)
           hud_add[0] = 0;
           if (hudadd_gamespeed)
             sprintf(hud_add,"\x1b\x31speed \x1b\x33%.2d ", realtic_clock_rate);
-          if (hudadd_leveltime || demoplayback && hudadd_demotime)
+          if ((hudadd_leveltime) || (demoplayback && hudadd_demotime))
           {
             static char demo_len_null[1]={0};
             char *demo_len = demoplayback && hudadd_demotime ? demo_len_st : demo_len_null;

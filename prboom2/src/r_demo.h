@@ -92,7 +92,7 @@ extern char *demo_patterns_list_def[];
 extern char *getwad_cmdline;
 
 int WadDataInit(waddata_t *waddata);
-int WadDataAddItem(waddata_t *waddata, const byte *filename, wad_source_t source, int handle);
+int WadDataAddItem(waddata_t *waddata, const char *filename, wad_source_t source, int handle);
 void WadDataFree(waddata_t *wadfiles);
 
 int CheckDemoExDemo(void);
