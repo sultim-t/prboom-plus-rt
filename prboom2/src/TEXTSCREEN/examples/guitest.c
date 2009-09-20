@@ -1,3 +1,32 @@
+// Emacs style mode select   -*- C++ -*- 
+//-----------------------------------------------------------------------------
+//
+// Copyright(C) 2006-2009 Simon Howard
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+// 02111-1307, USA.
+//
+//-----------------------------------------------------------------------------
+//
+// Example program: GUI test program
+//
+// Demonstrates all the main textscreen widgets in use and shows how
+// a simple textscreen program can be written.
+//
+//-----------------------------------------------------------------------------
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -82,6 +111,7 @@ void SetupWindow(void)
     TXT_AddWidget(window, toplabel);
     TXT_SetWidgetAlign(toplabel, TXT_HORIZ_CENTER);
 
+    //TXT_AddWidget(window, TXT_NewScrollPane(15, 4, table));
     TXT_AddWidget(window, table);
 
     for (i=0; i<5; ++i)
@@ -119,7 +149,7 @@ void SetupWindow(void)
     }
 
     UpdateLabel(NULL, NULL);
-                                     
+
     TXT_AddWidget(window, TXT_NewButton2("Close Window", CloseWindow, NULL));
 
     pwn = TXT_NewWindowAction(KEY_F1, "PWN!");
@@ -133,8 +163,9 @@ void Window2(void)
 {
     txt_window_t *window;
     txt_table_t *table;
+    txt_scrollpane_t *scrollpane;
     int i;
-    
+
     window = TXT_NewWindow("Another test");
     TXT_SetWindowPosition(window, 
                           TXT_HORIZ_RIGHT, 
@@ -150,11 +181,56 @@ void Window2(void)
     table = TXT_NewTable(2);
     TXT_AddWidget(window, table);
     TXT_AddWidget(table, TXT_NewLabel("String: "));
-    TXT_AddWidget(table, TXT_NewInputBox(&textbox_value, 30));
+    TXT_AddWidget(table, TXT_NewInputBox(&textbox_value, 20));
     TXT_AddWidget(table, TXT_NewLabel("Int: "));
     TXT_AddWidget(table, TXT_NewIntInputBox(&numbox_value, 10));
     TXT_AddWidget(table, TXT_NewLabel("Spin control:"));
     TXT_AddWidget(table, TXT_NewSpinControl(&numbox_value, 0, 15));
+
+    TXT_AddWidget(window, TXT_NewSeparator("Scroll pane test"));
+    scrollpane = TXT_NewScrollPane(40, 5, TXT_NewLabel(
+        "This is a scrollable pane. The contents\n"
+        "of this box are larger than the box\n"
+        "itself, but it can be scrolled around\n"
+        "to explore the full contents.\n"
+        "\n"
+        "Scrollable panes can be scrolled both\n"
+        "vertically and horizontally. They\n"
+        "can contain any widget. The scroll bars\n"
+        "appear automatically as needed.\n"
+        "\n"
+        "This is a very long line of text that forces a horizontal scrollbar"
+    ));
+    TXT_AddWidget(window, scrollpane);
+}
+
+void ScrollingMenu(void)
+{
+    txt_window_t *window;
+    txt_button_t *button;
+    txt_table_t *table;
+
+    window = TXT_NewWindow("Scrollable menu");
+
+    table = TXT_NewTable(1);
+
+    TXT_AddWidgets(table,
+                   TXT_NewButton("Configure display"),
+                   TXT_NewButton("Configure joystick"),
+                   TXT_NewButton("Configure keyboard"),
+                   TXT_NewButton("Configure mouse"),
+                   TXT_NewButton("Configure sound"),
+                   TXT_NewStrut(0, 1),
+                   button = TXT_NewButton("Save Parameters and launch DOOM"),
+                   TXT_NewStrut(0, 1),
+                   TXT_NewButton("Start a network game"),
+                   TXT_NewButton("Join a network game"),
+                   TXT_NewButton("Multiplayer configuration"),
+                   NULL);
+
+    TXT_SignalConnect(button, "pressed", PwnBox, NULL);
+
+    TXT_AddWidget(window, TXT_NewScrollPane(0, 6, table));
 }
 
 int main(int argc, char *argv[])
@@ -167,6 +243,7 @@ int main(int argc, char *argv[])
 
     TXT_SetDesktopTitle("Not Chocolate Doom Setup");
 
+    ScrollingMenu();
     Window2();
     SetupWindow();
 
