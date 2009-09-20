@@ -181,7 +181,7 @@ int maxViewPitch;
 int minViewPitch;
 
 #ifdef _WIN32
-char* WINError(void)
+const char* WINError(void)
 {
   static char *WinEBuff = NULL;
   DWORD err = GetLastError();
@@ -373,7 +373,7 @@ void e6y_InitCommandLine(void)
       if (buffer && demoex_p)
       {
         wadtbl_t* demoex;
-        size_t lump_size = 0;
+        int lump_size = 0;
         byte *lump_buffer = NULL;
 
         demoex = W_CreatePWADTable(demoex_p, size);

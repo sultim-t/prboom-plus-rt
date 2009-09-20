@@ -98,7 +98,7 @@ typedef struct
   int buffer_size;
   
   //e6y: support for Boom colormaps
-  int ***glTexExID;
+  GLuint ***glTexExID;
   int texflags[CR_LIMIT+MAXPLAYERS][PLAYERCOLORMAP_COUNT];
   int cm;
   int player_cm;
@@ -239,8 +239,6 @@ typedef enum
   GLDIT_TYPES
 } GLDrawItemType;
 
-typedef struct GLDrawItem_s;
-
 typedef struct GLDrawItem_s
 {
   union
@@ -305,7 +303,7 @@ extern float xCamera,yCamera,zCamera;
 float distance2piece(float x0, float y0, float x1, float y1, float x2, float y2);
 void gld_InitDetail(void);
 
-extern int* last_glTexID;
+extern GLuint* last_glTexID;
 GLTexture *gld_RegisterTexture(int texture_num, dboolean mipmap, dboolean force);
 void gld_BindTexture(GLTexture *gltexture);
 GLTexture *gld_RegisterPatch(int lump, int cm);
@@ -344,9 +342,9 @@ extern unsigned int gl_has_hires;
 int gld_HiRes_BuildTables(void);
 void gld_InitHiRes(void);
 int* gld_LoadHiresTex(GLTexture *gltexture, int cm);
-int* gld_GetTextureTexID(GLTexture *gltexture, int cm);
+GLuint* gld_GetTextureTexID(GLTexture *gltexture, int cm);
 GLuint CaptureScreenAsTexID(void);
-void gld_ProgressUpdate(char * text, int progress, int total);
+void gld_ProgressUpdate(const char * text, int progress, int total);
 int gld_ProgressStart(void);
 int gld_ProgressEnd(void);
 

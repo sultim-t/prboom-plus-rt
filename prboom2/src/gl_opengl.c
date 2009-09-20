@@ -102,7 +102,7 @@ void gld_InitOpenGLVersion(void)
 {
   int MajorVersion, MinorVersion;
   gl_version = OPENGL_VERSION_1_0;
-  if (sscanf(glGetString(GL_VERSION), "%d.%d", &MajorVersion, &MinorVersion) == 2)
+  if (sscanf((const char*)glGetString(GL_VERSION), "%d.%d", &MajorVersion, &MinorVersion) == 2)
   {
     if (MajorVersion > 1)
     {
@@ -123,7 +123,7 @@ void gld_InitOpenGLVersion(void)
 
 void gld_InitOpenGL(dboolean compatibility_mode)
 {
-  const GLubyte *extensions = glGetString(GL_EXTENSIONS);
+  const char *extensions = (const char*)glGetString(GL_EXTENSIONS);
 
   gld_InitOpenGLVersion();
 

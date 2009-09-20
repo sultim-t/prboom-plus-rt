@@ -523,7 +523,7 @@ static void I_SetAffinityMask(void)
   // SDL_mixer that causes occasional crashes.
   if (process_affinity_mask)
   {
-    char *errbuf = NULL;
+    const char *errbuf = NULL;
 #ifdef _WIN32
     HMODULE kernel32_dll;
     SetAffinityFunc SetAffinity = NULL;

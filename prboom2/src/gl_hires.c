@@ -138,7 +138,7 @@ int gld_ProgressEnd(void)
   return false;
 }
 
-void gld_ProgressUpdate(char * text, int progress, int total)
+void gld_ProgressUpdate(const char * text, int progress, int total)
 {
   int len;
   static char last_text[32] = {0};
@@ -155,7 +155,7 @@ void gld_ProgressUpdate(char * text, int progress, int total)
 
   if ((text) && (strlen(text) > 0) && strcmp((last_text[0] ? last_text : ""), text))
   {
-    char *s;
+    const char *s;
     strcpy(last_text, text);
 
     if (!w_precache.f)

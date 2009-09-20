@@ -258,10 +258,11 @@ typedef struct prboom_comp_s
   unsigned int minver;
   unsigned int maxver;
   dboolean state;
-  char *cmd;
+  const char *cmd;
 } prboom_comp_t;
 
-typedef enum {
+enum
+{
   PC_MONSTER_AVOID_HAZARDS,
   PC_REMOVE_SLIME_TRAILS,
   PC_NO_DROPOFF,
@@ -316,7 +317,7 @@ typedef struct timetable_s
 } timetable_t;
 
 #ifdef _WIN32
-char* WINError(void);
+const char* WINError(void);
 #endif
 
 extern int stats_level;

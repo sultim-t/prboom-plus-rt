@@ -34,6 +34,8 @@
 #ifndef _GL_STRUCT_H
 #define _GL_STRUCT_H
 
+#include <SDL_opengl.h>
+
 extern int nodesVersion;
 
 typedef enum {
@@ -168,7 +170,7 @@ typedef struct shadow_params_s
   int enable;
   int loaded;
 
-  int tex_id;
+  GLuint tex_id;
   int width;
   int height;
 

@@ -313,15 +313,13 @@ void gld_InitVertexData()
   int i, j, k;
   int vertexes_count, gl_vertexsplit_size, pos;
   int ** vt_sectorlists;
-  int * vt_sectorlists_size;
+  unsigned int * vt_sectorlists_size;
 
   if (!gl_seamless || gl_vertexsplit)
     return;
 
-  vt_sectorlists = malloc(sizeof(int) * numvertexes);
-  memset(vt_sectorlists, 0, sizeof(int) * numvertexes);
-  vt_sectorlists_size = malloc(sizeof(int) * numvertexes);
-  memset(vt_sectorlists_size, 0, sizeof(int) * numvertexes);
+  vt_sectorlists = calloc(sizeof(vt_sectorlists[0]), numvertexes);
+  vt_sectorlists_size = calloc(sizeof(vt_sectorlists_size[0]), numvertexes);
 
   for(i = 0; i < numlines; i++)
   {

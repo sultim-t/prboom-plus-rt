@@ -87,7 +87,7 @@ int gl_color_mip_levels;
 int gl_boom_colormaps = -1;
 int gl_boom_colormaps_default;
 
-int* last_glTexID = NULL;
+GLuint* last_glTexID = NULL;
 
 int transparent_pal_index;
 unsigned char gld_palmap[256];
@@ -195,7 +195,7 @@ void* NewIntDynArray(int dimCount, int *dims)
 // Get index of player->fixedcolormap for GLTexture().glTexExID array
 // There are three known values for player->fixedcolormap: 0, 1 and 32
 // 0 (normal) -> 0; 1 (pw_infrared) -> 1; 32 (pw_invulnerability) -> 2
-int* gld_GetTextureTexID(GLTexture *gltexture, int cm)
+GLuint* gld_GetTextureTexID(GLTexture *gltexture, int cm)
 {
   static int data[NUMCOLORMAPS+1] = {
      0,  1, -1, -1, -1, -1, -1, -1,
@@ -891,7 +891,7 @@ void gld_BindTexture(GLTexture *gltexture)
 {
   const rpatch_t *patch;
   unsigned char *buffer;
-  int *glTexID;
+  GLuint *glTexID;
   int w, h;
 
   if (!gltexture || gltexture->textype != GLDT_TEXTURE)
@@ -1017,7 +1017,7 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
 {
   const rpatch_t *patch;
   unsigned char *buffer;
-  int *glTexID;
+  GLuint *glTexID;
   int w, h;
 
   if (!gltexture || gltexture->textype != GLDT_PATCH)
@@ -1141,7 +1141,7 @@ void gld_BindFlat(GLTexture *gltexture)
 {
   const unsigned char *flat;
   unsigned char *buffer;
-  int *glTexID;
+  GLuint *glTexID;
   int w, h;
 
   if (!gltexture || gltexture->textype != GLDT_FLAT)
@@ -1285,7 +1285,7 @@ void gld_Precache(void)
 
   {
     size_t size = numflats > numsprites  ? numflats : numsprites;
-    hitlist = Z_Malloc((size_t)numtextures > size ? numtextures : size,PU_LEVEL,0);
+    hitlist = Z_Malloc((size_t)numtextures > size ? (size_t)numtextures : size,PU_LEVEL,0);
   }
 
   // Precache flats.

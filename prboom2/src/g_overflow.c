@@ -49,7 +49,7 @@
 #define PROCESS(overflow) (overflows[overflow].warn || EMULATE(overflow))
 
 overrun_param_t overflows[OVERFLOW_MAX];
-char *overflow_cfgname[OVERFLOW_MAX] =
+const char *overflow_cfgname[OVERFLOW_MAX] =
 {
   "overrun_spechit_emulate",
   "overrun_reject_emulate",
@@ -66,17 +66,17 @@ static void ShowOverflowWarning(overrun_list_t overflow, int fatal, const char *
     va_list argptr;
     char buffer[1024];
 
-    static char *name[OVERFLOW_MAX] = {"SPECHIT", "REJECT", "INTERCEPT", "PLYERINGAME"};
+    static const char *name[OVERFLOW_MAX] = {"SPECHIT", "REJECT", "INTERCEPT", "PLYERINGAME"};
 
-    char str1[] =
+    static const char str1[] =
       "Too big or not supported %s overflow has been detected. "
       "Desync or crash can occur soon "
       "or during playback with the vanilla engine in case you're recording demo.%s%s";
     
-    char str2[] = 
+    static const char str2[] = 
       "%s overflow has been detected.%s%s";
 
-    char str3[] = 
+    static const char str3[] = 
       "%s overflow has been detected. "
       "The option responsible for emulation of this overflow is switched off "
       "hence desync or crash can occur soon "

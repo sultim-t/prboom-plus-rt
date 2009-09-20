@@ -128,14 +128,14 @@ void gld_InitTextureParams(void)
     dboolean mipmap;
     int tex_filter;
     int mipmap_filter;
-    char *tex_filter_name;
-    char *mipmap_filter_name;
+    const char *tex_filter_name;
+    const char *mipmap_filter_name;
   } tex_filter_t;
 
   typedef struct tex_format_s
   {
     int tex_format;
-    char *tex_format_name;
+    const char *tex_format_name;
   } tex_format_t;
 
   tex_filter_t params[filter_count] = {
@@ -197,7 +197,7 @@ void gld_Init(int width, int height)
   lprintf(LO_INFO,"GL_EXTENSIONS:\n");
   {
     char ext_name[256];
-    const char *extensions = glGetString(GL_EXTENSIONS);
+    const char *extensions = (char*)glGetString(GL_EXTENSIONS);
     const char *rover = extensions;
     const char *p = rover;
 
@@ -3132,7 +3132,7 @@ static int C_DECL dicmp_sprite (const void *a, const void *b)
   GLTexture *tx2 = ((const GLDrawItem *)b)->item.sprite->gltexture;
   return (tx1 != tx2 ? tx1 - tx2 : 0);
 }
-static gld_DrawItemsSortByTexture(GLDrawItemType itemtype)
+static void gld_DrawItemsSortByTexture(GLDrawItemType itemtype)
 {
   typedef int(C_DECL *DICMP_ITEM)(const void *a, const void *b);
 
