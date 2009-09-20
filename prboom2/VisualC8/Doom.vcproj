@@ -7295,6 +7295,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\TEXTSCREEN\txt_scrollpane.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TEXTSCREEN\txt_scrollpane.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\TEXTSCREEN\txt_sdl.c"
 				>
 			</File>

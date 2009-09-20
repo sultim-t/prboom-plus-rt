@@ -1773,6 +1773,14 @@ SOURCE=..\src\TEXTSCREEN\txt_radiobutton.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\TEXTSCREEN\txt_scrollpane.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\TEXTSCREEN\txt_scrollpane.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\TEXTSCREEN\txt_sdl.c
 # End Source File
 # Begin Source File
