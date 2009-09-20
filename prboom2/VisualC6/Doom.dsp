@@ -1797,6 +1797,10 @@ SOURCE=..\src\TEXTSCREEN\txt_separator.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\TEXTSCREEN\txt_smallfont.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\TEXTSCREEN\txt_spinctrl.c
 # End Source File
 # Begin Source File

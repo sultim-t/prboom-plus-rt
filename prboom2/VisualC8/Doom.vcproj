@@ -7319,6 +7319,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\TEXTSCREEN\txt_smallfont.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\TEXTSCREEN\txt_spinctrl.c"
 				>
 			</File>
