@@ -494,8 +494,7 @@ static void R_DemoEx_GetParams(const byte *pwad_p, waddata_t *waddata)
   char *str;
   const char *data;
   char **params;
-  unsigned int i, paramscount;
-  int p;
+  int i, p, paramscount;
   
   lump = W_CheckNumForName(DEMOEX_PARAMS_LUMPNAME);
   if (lump == -1)
