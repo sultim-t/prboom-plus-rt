@@ -53,6 +53,10 @@
 // STATUS BAR DATA
 //
 
+int ST_SCALED_HEIGHT;
+int ST_SCALED_WIDTH;
+int ST_SCALED_Y;
+
 // Palette indices.
 // For damage/bonus red-/gold-shifts
 #define STARTREDPALS            1
@@ -390,16 +394,20 @@ static void ST_Stop(void);
 static void ST_refreshBackground(void)
 {
   int y=0;
+  enum patch_translation_e flags = VPT_ALIGN_LEFT_TOP;
   
   if (st_statusbaron)
     {
       // proff 05/17/2000: draw to the frontbuffer in OpenGL
       if (V_GetMode() == VID_MODEGL)
+      {
         y=ST_Y;
-      V_DrawNumPatch(ST_X, y, BG, stbarbg.lumpnum, CR_DEFAULT, VPT_STRETCH);
+        flags = VPT_ALIGN_BOTTOM;
+      }
+      V_DrawNumPatch(ST_X, y, BG, stbarbg.lumpnum, CR_DEFAULT, flags);
       if (!deathmatch)
       {
-        V_DrawNumPatch(ST_ARMSBGX, y, BG, armsbg.lumpnum, CR_DEFAULT, VPT_STRETCH);
+        V_DrawNumPatch(ST_ARMSBGX, y, BG, armsbg.lumpnum, CR_DEFAULT, flags);
       }
 
       // killough 3/7/98: make face background change with displayplayer
@@ -407,9 +415,9 @@ static void ST_refreshBackground(void)
       {
         V_DrawNumPatch(ST_FX, y, BG, faceback.lumpnum,
            displayplayer ? CR_LIMIT+displayplayer : CR_DEFAULT,
-           displayplayer ? (VPT_TRANS | VPT_STRETCH) : VPT_STRETCH);
+           displayplayer ? (VPT_TRANS | VPT_STRETCH) : flags);
       }
-      V_CopyRect(ST_X, y, BG, ST_SCALED_WIDTH, ST_SCALED_HEIGHT, ST_X, ST_SCALED_Y, FG, VPT_NONE);
+      V_CopyRect(ST_X, y, BG, ST_SCALED_WIDTH, ST_SCALED_HEIGHT, ST_X + wide_offsetx, ST_SCALED_Y + 2 * wide_offsety, FG, VPT_NONE);
     }
 }
 

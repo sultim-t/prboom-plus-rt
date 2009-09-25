@@ -478,7 +478,7 @@ void M_DrawReadThis1(void)
   inhelpscreens = true;
   if (gamemode == shareware)
   {
-    V_DrawNamePatch(0, 0, 0, "HELP2", CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatch(0, 0, 0, "HELP2", CR_DEFAULT, VPT_STRETCH | VPT_ALIGN_WIDE);
     // e6y: wide-res
     V_FillBorder(-1, 0);
   }
@@ -498,7 +498,7 @@ void M_DrawReadThis2(void)
     M_DrawCredits();
   else
   {
-    V_DrawNamePatch(0, 0, 0, "CREDIT", CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatch(0, 0, 0, "CREDIT", CR_DEFAULT, VPT_STRETCH | VPT_ALIGN_WIDE);
     // e6y: wide-res
     V_FillBorder(-1, 0);
   }
@@ -2959,7 +2959,7 @@ setup_menu_t* gen_settings[] =
   NULL
 };
 
-#define G_X 250
+#define G_X 230
 #define GF_X 76
 #define G_Y 23
 #define G_X2 284
@@ -2977,19 +2977,20 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
   {"Screen Resolution",              S_CHOICE|S_PRGWARN, m_null, G_X, G_Y+ 3*8, {"screen_resolution"}, 0, 0, NULL, screen_resolutions_list},
   {"Aspect Ratio",                   S_CHOICE,           m_null, G_X, G_Y+ 4*8, {"render_aspect"}, 0, 0, M_ChangeAspectRatio, render_aspects_list},
   {"Fullscreen Video mode",          S_YESNO|S_PRGWARN,  m_null, G_X, G_Y+ 5*8, {"use_fullscreen"}, 0, 0, NULL},
+  {"Status Bar and Menu Appearance", S_CHOICE,           m_null, G_X, G_Y+ 6*8, {"render_stretch_hud"}, 0, 0, M_ChangeStretch, render_stretch_list},
 #ifdef GL_DOOM
-  {"Vertical Sync",                  S_YESNO|S_PRGWARN,  m_null, G_X, G_Y+ 6*8, {"gl_vsync"}},
+  {"Vertical Sync",                  S_YESNO|S_PRGWARN,  m_null, G_X, G_Y+ 7*8, {"gl_vsync"}},
 #endif
   
-  {"Enable Translucency",            S_YESNO,            m_null, G_X, G_Y+ 8*8, {"translucency"}, 0, 0, M_Trans},
-  {"Translucency filter percentage", S_NUM,              m_null, G_X, G_Y+ 9*8, {"tran_filter_pct"}, 0, 0, M_Trans},
-  {"Uncapped Framerate",             S_YESNO,            m_null, G_X, G_Y+10*8, {"uncapped_framerate"}},
+  {"Enable Translucency",            S_YESNO,            m_null, G_X, G_Y+ 9*8, {"translucency"}, 0, 0, M_Trans},
+  {"Translucency filter percentage", S_NUM,              m_null, G_X, G_Y+10*8, {"tran_filter_pct"}, 0, 0, M_Trans},
+  {"Uncapped Framerate",             S_YESNO,            m_null, G_X, G_Y+11*8, {"uncapped_framerate"}},
 
-  {"Sound & Music",                  S_SKIP|S_TITLE,     m_null, G_X, G_Y+12*8},
-  {"Number of Sound Channels",       S_NUM|S_PRGWARN,    m_null, G_X, G_Y+13*8, {"snd_channels"}},
-  {"Enable v1.1 Pitch Effects",      S_YESNO,            m_null, G_X, G_Y+14*8, {"pitched_sounds"}},
+  {"Sound & Music",                  S_SKIP|S_TITLE,     m_null, G_X, G_Y+13*8},
+  {"Number of Sound Channels",       S_NUM|S_PRGWARN,    m_null, G_X, G_Y+14*8, {"snd_channels"}},
+  {"Enable v1.1 Pitch Effects",      S_YESNO,            m_null, G_X, G_Y+15*8, {"pitched_sounds"}},
 #ifdef HAVE_LIBSDL_MIXER
-  {"PC Speaker emulation",           S_YESNO|S_PRGWARN,  m_null, G_X, G_Y+15*8, {"snd_pcspeaker"}},
+  {"PC Speaker emulation",           S_YESNO|S_PRGWARN,  m_null, G_X, G_Y+16*8, {"snd_pcspeaker"}},
 #endif
 
   // Button for resetting to defaults
@@ -4633,7 +4634,7 @@ dboolean M_Responder (event_t* ev) {
         if (!hud_active)                 //jff 3/4/98 add distributed
           {
           hud_distributed = !hud_distributed; // to cycle
-          HU_MoveHud(); //jff 3/9/98 move it now to avoid glitch
+          HU_MoveHud(true); //jff 3/9/98 move it now to avoid glitch
           }
         }
       return true;
@@ -5863,6 +5864,8 @@ void M_Init(void)
 
   M_ChangeDemoSmoothTurns();
   M_ChangeDemoExtendedFormat();
+
+  render_stretch_hud = render_stretch_hud_default;
 }
 
 //

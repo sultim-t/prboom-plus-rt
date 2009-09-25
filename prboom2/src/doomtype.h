@@ -128,16 +128,25 @@ typedef enum {
 } complevel_t;
 
 /* cph - from v_video.h, needed by gl_struct.h */
+#define VPT_ALIGN_MASK 0xf
+#define VPT_STRETCH_MASK 0x1f
 enum patch_translation_e {
-  VPT_NONE    = 0, // Normal
-  VPT_FLIP    = 1, // Flip image horizontally
-  VPT_TRANS   = 2, // Translate image via a translation table
-  VPT_STRETCH = 4, // Stretch to compensate for high-res
-  
   // e6y: wide-res
-  VPT_STRETCH_LEFT = 8,
-  VPT_STRETCH_RIGHT = 16,
-  VPT_ANYSTRETCH = VPT_STRETCH | VPT_STRETCH_LEFT | VPT_STRETCH_RIGHT,
+  VPT_ALIGN_LEFT         = 1,
+  VPT_ALIGN_RIGHT        = 2,
+  VPT_ALIGN_TOP          = 3,
+  VPT_ALIGN_LEFT_TOP     = 4,
+  VPT_ALIGN_RIGHT_TOP    = 5,
+  VPT_ALIGN_BOTTOM       = 6,
+  VPT_ALIGN_WIDE         = 7,
+  VPT_ALIGN_LEFT_BOTTOM  = 8,
+  VPT_ALIGN_RIGHT_BOTTOM = 9,
+  VPT_ALIGN_MAX          = 10,
+  VPT_STRETCH            = 16, // Stretch to compensate for high-res
+
+  VPT_NONE    = 128, // Normal
+  VPT_FLIP    = 256, // Flip image horizontally
+  VPT_TRANS   = 512, // Translate image via a translation table
 };
 
 #endif

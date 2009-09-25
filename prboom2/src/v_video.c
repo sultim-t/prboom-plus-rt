@@ -44,8 +44,23 @@
 #include "i_video.h"
 #include "r_filter.h"
 #include "lprintf.h"
+#include "st_stuff.h"
+#include "e6y.h"
+
+const char *render_aspects_list[5] = {"auto", "16:9", "16:10", "4:3", "5:4"};
+const char *render_stretch_list[patch_stretch_max] = {"not adjusted", "Doom format", "fit to width"};
+
+stretch_param_t stretch_params_table[3][VPT_ALIGN_MAX];
+stretch_param_t *stretch_params;
 
 cb_video_t video;
+cb_video_t video_stretch;
+cb_video_t video_full;
+int patches_scalex;
+int patches_scaley;
+
+int render_stretch_hud;
+int render_stretch_hud_default;
 
 // Each screen is [SCREENWIDTH*SCREENHEIGHT];
 screeninfo_t screens[NUM_SCREENS];
@@ -118,23 +133,29 @@ static void FUNC_V_CopyRect(int srcx, int srcy, int srcscrn, int width,
   byte *src;
   byte *dest;
 
-  if (flags & VPT_ANYSTRETCH)
+  if (flags & VPT_STRETCH_MASK)
   {
-    int delta = video.strech_offsetx[flags & (VPT_STRETCH | VPT_STRETCH_RIGHT)];
+    stretch_param_t *params;
+    int sx = srcx;
+    int w = width;
+    int sy = srcy;
+    int h = height;
 
-#if 0
-    srcx   = video.x1lookup[srcx] + delta;
-    srcy   = video.y1lookup[srcy];
-    width  = video.x1lookup[width];
-    height = video.y1lookup[height];
-    destx  = video.x1lookup[destx] + delta;
-    desty  = video.y1lookup[desty];
+    params = &stretch_params[flags & VPT_ALIGN_MASK];
+
+#if 1
+    srcx   = params->video->x1lookup[srcx];
+    srcy   = params->video->y1lookup[srcy];
+    width  = params->video->x1lookup[sx + w] - srcx;
+    height = params->video->y1lookup[sy + h] - srcy;
+    destx  = params->video->x1lookup[destx] + params->deltax1;
+    desty  = params->video->y1lookup[desty] + params->deltay1;
 #else
-    srcx=srcx*WIDE_SCREENWIDTH/320 + delta;
+    srcx=srcx*WIDE_SCREENWIDTH/320 + deltax;
     srcy=srcy*SCREENHEIGHT/200;
     width=width*WIDE_SCREENWIDTH/320;
     height=height*SCREENHEIGHT/200;
-    destx=destx*WIDE_SCREENWIDTH/320 + delta;
+    destx=destx*WIDE_SCREENWIDTH/320 + deltax;
     desty=desty*SCREENHEIGHT/200;
 #endif
   }
@@ -298,7 +319,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
 {
   const byte *trans;
 
-  int delta;
+  stretch_param_t *params;
 
   if (cm<CR_LIMIT)
     trans=colrngs[cm];
@@ -308,18 +329,18 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
   x -= patch->leftoffset;
 
   // CPhipps - auto-no-stretch if not high-res
-  if (flags & VPT_ANYSTRETCH)
+  if (flags & VPT_STRETCH_MASK)
     if ((SCREENWIDTH==320) && (SCREENHEIGHT==200))
-      flags &= ~VPT_ANYSTRETCH;
+      flags &= ~VPT_STRETCH_MASK;
 
   // e6y: wide-res
-  delta = ((flags & VPT_STRETCH) ? wide_offsetx : 0);
+  params = &stretch_params[flags & VPT_ALIGN_MASK];
 
   // CPhipps - null translation pointer => no translation
   if (!trans)
     flags &= ~VPT_TRANS;
 
-  if (V_GetMode() == VID_MODE8 && !(flags & VPT_ANYSTRETCH)) {
+  if (V_GetMode() == VID_MODE8 && !(flags & VPT_STRETCH_MASK)) {
     int             col;
     byte           *desttop = screens[scrn].data+y*screens[scrn].byte_pitch+x*V_GetPixelDepth();
     int    w = patch->width;
@@ -432,41 +453,40 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
     }
 
     //e6y: predefined arrays are used
-    if (!(flags & VPT_ANYSTRETCH))
+    if (!(flags & VPT_STRETCH_MASK))
     {
       DXI = 1 << 16;
       DYI = 1 << 16;
 
       left = x;
       top = y;
-      right = x + patch->width;
+      right = x + patch->width - 1;
       bottom = y + patch->height;
     }
     else
     {
-      DXI = video.xstep;
-      DYI = video.ystep;
+      DXI = params->video->xstep;
+      DYI = params->video->ystep;
 
       //FIXME: Is it needed only for F_BunnyScroll?
 
-      left = (x < 0 || x > 320 ? (x * WIDE_SCREENWIDTH) / 320 + delta : video.x1lookup[x] + delta);
-      top =  (y < 0 || y > 200 ? (y * SCREENHEIGHT) / 200 : video.y1lookup[y]);
+      left = (x < 0 || x > 320 ? (x * params->video->width) / 320 : params->video->x1lookup[x]);
+      top =  (y < 0 || y > 200 ? (y * params->video->height) / 200 : params->video->y1lookup[y]);
 
       if (x + patch->width < 0 || x + patch->width > 320)
-        right = ( ((x + patch->width - 1) * WIDE_SCREENWIDTH) / 320 );
+        right = ( ((x + patch->width - 1) * params->video->width) / 320 );
       else
-        right = video.x2lookup[x + patch->width - 1] + delta;
-
-      if (flags & VPT_STRETCH_RIGHT)
-      {
-        left = left + wide_offsetx * 2;
-        right = right + wide_offsetx * 2;
-      }
+        right = params->video->x2lookup[x + patch->width - 1];
 
       if (y + patch->height < 0 || y + patch->height > 200)
-        bottom = ( ((y + patch->height - 0) * SCREENHEIGHT) / 200 );
+        bottom = ( ((y + patch->height - 0) * params->video->height) / 200 );
       else
-        bottom = video.y2lookup[y + patch->height - 1];
+        bottom = params->video->y2lookup[y + patch->height - 1];
+
+      left   += params->deltax1;
+      right  += params->deltax2;
+      top    += params->deltay1;
+      bottom += params->deltay1;
     }
 
     dcvars.texheight = patch->height;
@@ -506,7 +526,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
         int yoffset = 0;
 
         //e6y
-        if (!(flags & VPT_ANYSTRETCH))
+        if (!(flags & VPT_STRETCH_MASK))
         {
           dcvars.yl = y + post->topdelta;
           dcvars.yh = ((((y + post->topdelta + post->length) << 16) - (FRACUNIT>>1))>>FRACBITS);
@@ -518,8 +538,8 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
           // Predefined arrays are used instead of dynamic calculation 
           // of the top and bottom screen coordinates of a column.
           // Also, it should be faster.
-          dcvars.yl = video.y1lookup[y + post->topdelta];
-          dcvars.yh = video.y2lookup[y + post->topdelta + post->length - 1];
+          dcvars.yl = params->video->y1lookup[y + post->topdelta] + params->deltay1;
+          dcvars.yh = params->video->y2lookup[y + post->topdelta + post->length - 1] + params->deltay1;
         }
         dcvars.edgeslope = post->slope;
 
@@ -529,7 +549,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
           continue;
 
         if (dcvars.yh >= bottom) {
-          dcvars.yh = bottom-1;
+          //dcvars.yh = bottom-1;
           dcvars.edgeslope &= ~RDRAW_EDGESLOPE_BOT_MASK;
         }
         if (dcvars.yh >= SCREENHEIGHT) {
@@ -1175,11 +1195,12 @@ void V_FillBorder(int lump, byte color)
   int Width = SCREENWIDTH;
   int Height = SCREENHEIGHT;
 
+  // This is a 4:3 display, so no border to show
   if (wide_ratio == 0)
-  {
-    // This is a 4:3 display, so no border to show
     return;
-  }
+
+  if (render_stretch_hud == patch_stretch_full)
+    return;
 
   if (wide_ratio & 4)
   {
@@ -1219,5 +1240,94 @@ void V_FillBorder(int lump, byte color)
     V_FillRect(0, Width - bordright, bordtop, bordright, Height - bordbottom - bordtop, color);
     // Bottom
     V_FillRect(0, 0, Width - bordbottom, Width, bordbottom, color);
+  }
+}
+
+// Tries to guess the physical dimensions of the screen based on the
+// screen's pixel dimensions. Can return:
+// 0: 4:3
+// 1: 16:9
+// 2: 16:10
+// 4: 5:4
+void CheckRatio (int width, int height)
+{
+  // Assume anything else is 4:3.
+  wide_ratio = 0;
+
+  if ((render_aspect >= 1) && (render_aspect <= 4))
+  {
+    // [SP] User wants to force aspect ratio; let them.
+    wide_ratio = (render_aspect == 3 ? 0 : (int)render_aspect);
+  }
+  else
+  {
+    // If the size is approximately 16:9, consider it so.
+    if (abs (height * 16/9 - width) < 10)
+    {
+      wide_ratio = 1;
+    }
+    else
+    {
+      // 16:10 has more variance in the pixel dimensions. Grr.
+      if (abs (height * 16/10 - width) < 60)
+      {
+        // 320x200 and 640x400 are always 4:3, not 16:10
+        if ((width == 320 && height == 200) || (width == 640 && height == 400))
+        {
+          wide_ratio = 0;
+        }
+        else
+        {
+          wide_ratio = 2;
+        }
+      }
+    }
+  }
+
+  if (wide_ratio & 4)
+  {
+    WIDE_SCREENWIDTH = SCREENWIDTH;
+  }
+  else
+  {
+    WIDE_SCREENWIDTH = SCREENWIDTH * BaseRatioSizes[wide_ratio].multiplier / 48;
+  }
+
+  ST_SCALED_HEIGHT = ST_HEIGHT;
+  ST_SCALED_WIDTH  = ST_WIDTH;
+
+  while (ST_SCALED_WIDTH * 2 <= SCREENWIDTH && ST_SCALED_HEIGHT * 2 <= SCREENHEIGHT)
+  {
+    ST_SCALED_HEIGHT <<= 1;
+    ST_SCALED_WIDTH <<= 1;
+  }
+
+  patches_scalex = ST_SCALED_HEIGHT / ST_HEIGHT;
+  patches_scaley = ST_SCALED_WIDTH / ST_WIDTH;
+
+  switch (render_stretch_hud)
+  {
+  case patch_stretch_16x10:
+    ST_SCALED_Y = (200 * patches_scaley - ST_SCALED_HEIGHT);
+
+    wide_offsetx = (SCREENWIDTH - patches_scalex * 320) / 2;
+    wide_offsety = (SCREENHEIGHT - patches_scaley * 200) / 2;
+    break;
+  case patch_stretch_4x3:
+    ST_SCALED_HEIGHT = ST_HEIGHT * SCREENHEIGHT / 200;
+    ST_SCALED_WIDTH  = WIDE_SCREENWIDTH;
+
+    ST_SCALED_Y = SCREENHEIGHT - ST_SCALED_HEIGHT;
+    wide_offsetx = (SCREENWIDTH - WIDE_SCREENWIDTH) / 2;
+    wide_offsety = 0;
+    break;
+  case patch_stretch_full:
+    ST_SCALED_HEIGHT = ST_HEIGHT * SCREENHEIGHT / 200;
+    ST_SCALED_WIDTH  = SCREENWIDTH;
+
+    ST_SCALED_Y = SCREENHEIGHT - ST_SCALED_HEIGHT;
+    wide_offsetx = 0;
+    wide_offsety = 0;
+    break;
   }
 }

@@ -578,69 +578,24 @@ float render_fovratio;
 float render_fovy = FOV90;
 float render_multiplier;
 
-// Tries to guess the physical dimensions of the screen based on the
-// screen's pixel dimensions. Can return:
-// 0: 4:3
-// 1: 16:9
-// 2: 16:10
-// 4: 5:4
-void CheckRatio (int width, int height)
-{
-  // Assume anything else is 4:3.
-  wide_ratio = 0;
-
-  if ((render_aspect >= 1) && (render_aspect <= 4))
-  {
-    // [SP] User wants to force aspect ratio; let them.
-    wide_ratio = (render_aspect == 3 ? 0 : (int)render_aspect);
-  }
-  else
-  {
-    // If the size is approximately 16:9, consider it so.
-    if (abs (height * 16/9 - width) < 10)
-    {
-      wide_ratio = 1;
-    }
-    else
-    {
-      // 16:10 has more variance in the pixel dimensions. Grr.
-      if (abs (height * 16/10 - width) < 60)
-      {
-        // 320x200 and 640x400 are always 4:3, not 16:10
-        if ((width == 320 && height == 200) || (width == 640 && height == 400))
-        {
-          wide_ratio = 0;
-        }
-        else
-        {
-          wide_ratio = 2;
-        }
-      }
-    }
-  }
-
-  if (wide_ratio & 4)
-  {
-    wide_centerx = centerx;
-    WIDE_SCREENWIDTH = SCREENWIDTH;
-    wide_offsetx = 0;
-  }
-  else
-  {
-    wide_centerx = centerx * BaseRatioSizes[wide_ratio].multiplier / 48;
-    WIDE_SCREENWIDTH = SCREENWIDTH * BaseRatioSizes[wide_ratio].multiplier / 48;
-    wide_offsetx = (SCREENWIDTH - WIDE_SCREENWIDTH) / 2;
-  }
-}
-
 void M_ChangeAspectRatio(void)
 {
+  extern int screenblocks;
+
 #ifdef GL_DOOM
   M_ChangeFOV();
 #endif
-  R_ExecuteSetViewSize();
-  // draw the pattern into the back screen
-  R_FillBackScreen ();
+
+  R_SetViewSize(screenblocks);
+}
+
+void M_ChangeStretch(void)
+{
+  extern int screenblocks;
+
+  render_stretch_hud = render_stretch_hud_default;
+
+  R_SetViewSize(screenblocks);
 }
 
 #ifdef GL_DOOM

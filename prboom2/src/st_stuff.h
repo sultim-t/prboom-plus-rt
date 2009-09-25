@@ -47,9 +47,11 @@
 #define ST_HEIGHT 32
 #define ST_WIDTH  320
 #define ST_Y      (200 - ST_HEIGHT)
-#define ST_SCALED_HEIGHT (ST_HEIGHT*SCREENHEIGHT/200)
-#define ST_SCALED_WIDTH  SCREENWIDTH
-#define ST_SCALED_Y      (SCREENHEIGHT - ST_SCALED_HEIGHT)
+
+// e6y: wide-res
+extern int ST_SCALED_HEIGHT;
+extern int ST_SCALED_WIDTH;
+extern int ST_SCALED_Y;
 
 //
 // STATUS BAR

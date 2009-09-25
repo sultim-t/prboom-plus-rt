@@ -473,7 +473,7 @@ static void D_PageDrawer(void)
   // proff - added M_DrawCredits
   if (pagename)
   {
-    V_DrawNamePatch(0, 0, 0, pagename, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNamePatch(0, 0, 0, pagename, CR_DEFAULT, VPT_STRETCH | VPT_ALIGN_WIDE);
     // e6y: wide-res
     V_FillBorder(-1, 0);
   }

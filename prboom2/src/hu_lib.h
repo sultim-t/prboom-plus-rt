@@ -53,13 +53,6 @@
 /*jff 2/26/98 maximum number of messages allowed in refresh list */
 #define HU_MAXMESSAGES 16
 
-typedef enum patch_flags_s
-{
-  PATCH_ALIGNX_NONE   = 0,
-  PATCH_ALIGNX_MIDDLE = 1,
-  PATCH_ALIGNX_RIGHT  = 2,
-} patch_flags_e;
-
 /*
  * Typedefs of widgets
  */
@@ -89,7 +82,7 @@ typedef struct
   int   needsupdate;
 
   // e6y: wide-res
-  patch_flags_e flags;
+  enum patch_translation_e flags;
 } hu_textline_t;
 
 
@@ -162,7 +155,8 @@ void HUlib_initTextLine
   int y,
   const patchnum_t *f,
   int sc,
-  int cm    //jff 2/16/98 add color range parameter
+  int cm,    //jff 2/16/98 add color range parameter
+  enum patch_translation_e flags
 );
 
 // returns success
@@ -188,6 +182,7 @@ void HUlib_initSText
   const patchnum_t* font,
   int   startchar,
   int cm,   //jff 2/16/98 add color range parameter
+  enum patch_translation_e flags,
   dboolean*  on );
 
 // add a text message to an stext widget
@@ -202,7 +197,7 @@ void HUlib_eraseSText(hu_stext_t* s);
 //jff 2/26/98 message refresh widget
 // initialize refresh text widget
 void HUlib_initMText(hu_mtext_t *m, int x, int y, int w, int h, const patchnum_t* font,
-         int startchar, int cm, const patchnum_t* bgfont, dboolean *on);
+         int startchar, int cm, const patchnum_t* bgfont, enum patch_translation_e flags, dboolean *on);
 
 //jff 2/26/98 message refresh widget
 // add a text message to refresh text widget
@@ -233,6 +228,7 @@ void HUlib_initIText
   const patchnum_t* font,
   int   startchar,
   int cm,   //jff 2/16/98 add color range parameter
+  enum patch_translation_e flags,
   dboolean*  on );
 
 // resets line and left margin

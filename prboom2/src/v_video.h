@@ -46,12 +46,21 @@
 // VIDEO
 //
 
+typedef enum
+{
+  patch_stretch_16x10,
+  patch_stretch_4x3,
+  patch_stretch_full,
+  
+  patch_stretch_max
+} patch_stretch_t;
+
 typedef struct
 {
    fixed_t     xscale, yscale;
    fixed_t     xstep, ystep;
 
-   int strech_offsetx[(VPT_STRETCH | VPT_STRETCH_RIGHT) + 1];
+   int width, height;
 
    // SoM 1-31-04: This will insure that scaled patches and such are put in the right places
    int x1lookup[321];
@@ -60,7 +69,31 @@ typedef struct
    int y2lookup[201];
 } cb_video_t;
 
+typedef struct stretch_param_s
+{
+  cb_video_t *video;
+  int deltax1;
+  int deltay1;
+  int deltax2;
+  int deltay2;
+} stretch_param_t;
+
+extern stretch_param_t stretch_params_table[3][VPT_ALIGN_MAX];
+extern stretch_param_t *stretch_params;
+
 extern cb_video_t video;
+extern cb_video_t video_stretch;
+extern cb_video_t video_full;
+extern int patches_scalex;
+extern int patches_scaley;
+
+extern const char *render_aspects_list[];
+extern const char *render_stretch_list[];
+
+extern int render_stretch_hud;
+extern int render_stretch_hud_default;
+
+void CheckRatio(int width, int height);
 
 #define CENTERY     (SCREENHEIGHT/2)
 

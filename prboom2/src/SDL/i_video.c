@@ -557,7 +557,6 @@ void I_InitBuffersRes(void)
 #define MAX_RESOLUTIONS_COUNT 128
 const char *screen_resolutions_list[MAX_RESOLUTIONS_COUNT] = {NULL};
 const char *screen_resolution = NULL;
-const char *render_aspects_list[5] = {"auto", "16:9", "16:10", "4:3", "5:4"};
 
 //
 // I_GetScreenResolution
@@ -927,7 +926,7 @@ void I_InitScreenResolution(void)
 
   // statusbar
   screens[4].width = REAL_SCREENWIDTH;
-  screens[4].height = (ST_SCALED_HEIGHT+1);
+  screens[4].height = (ST_HEIGHT * SCREENHEIGHT / 200 + 1);
   screens[4].byte_pitch = REAL_SCREENPITCH;
   screens[4].short_pitch = REAL_SCREENPITCH / V_GetModePixelDepth(VID_MODE16);
   screens[4].int_pitch = REAL_SCREENPITCH / V_GetModePixelDepth(VID_MODE32);

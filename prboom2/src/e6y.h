@@ -161,8 +161,8 @@ extern float render_ratio;
 extern float render_fovratio;
 extern float render_fovy;
 extern float render_multiplier;
-void CheckRatio(int width, int height);
 void M_ChangeAspectRatio(void);
+void M_ChangeStretch(void);
 
 extern int misc_fastexit;
 

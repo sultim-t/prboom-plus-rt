@@ -63,6 +63,7 @@ extern fixed_t  projection;
 extern int wide_centerx;
 extern int wide_ratio;
 extern int wide_offsetx;
+extern int wide_offsety;
 #define RMUL (1.6f/1.333333f)
 typedef struct base_ratio_s
 {

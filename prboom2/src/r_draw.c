@@ -1056,10 +1056,21 @@ void R_FillBackScreen (void)
   int automap = ((automapmode & am_active) && !(automapmode & am_overlay));
 
   // e6y: wide-res
-  if (wide_ratio)
+  if (wide_ratio || wide_offsety)
   {
     extern int screenblocks;
-    int only_stbar = (automap ? screenblocks >= 10 : screenblocks == 10);
+    int only_stbar;
+
+#ifdef GL_DOOM
+    if (V_GetMode() == VID_MODEGL)
+    {
+      only_stbar = (automap ? screenblocks >= 10 : screenblocks == 10);
+    }
+    else
+#endif
+    {
+      only_stbar = screenblocks >= 10;
+    }
 
     if (only_stbar)
     {
@@ -1136,7 +1147,7 @@ void R_DrawViewBorder(void)
   }
 
   // e6y: wide-res
-  if (wide_ratio &&
+  if ((wide_ratio || wide_offsety) &&
      ((SCREENHEIGHT != viewheight) ||
      ((automapmode & am_active) && ! (automapmode & am_overlay))))
   {

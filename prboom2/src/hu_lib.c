@@ -85,7 +85,7 @@ void HUlib_clearTextLine(hu_textline_t* t)
 // Returns nothing
 //
 void HUlib_initTextLine(hu_textline_t* t, int x, int y,
-      const patchnum_t* f, int sc, int cm  )
+      const patchnum_t* f, int sc, int cm, enum patch_translation_e flags )
   //jff 2/16/98 add color range parameter
 {
   t->x = x;
@@ -93,6 +93,7 @@ void HUlib_initTextLine(hu_textline_t* t, int x, int y,
   t->f = f;
   t->sc = sc;
   t->cm = cm;
+  t->flags = flags;
   HUlib_clearTextLine(t);
 }
 
@@ -163,7 +164,6 @@ void HUlib_drawTextLine
   unsigned char c;
   int oc = l->cm; //jff 2/17/98 remember default color
   int y = l->y;           // killough 1/18/98 -- support multiple lines
-  int stretch_flags = (l->flags == PATCH_ALIGNX_RIGHT ? VPT_STRETCH_RIGHT : VPT_STRETCH_LEFT);
 
   // draw the new stuff
   x = l->x;
@@ -188,7 +188,7 @@ void HUlib_drawTextLine
         break;
       // killough 1/18/98 -- support multiple lines:
       // CPhipps - patch drawing updated
-      V_DrawNumPatch(x, y, FG, l->f[c - l->sc].lumpnum, l->cm, VPT_TRANS | stretch_flags);
+      V_DrawNumPatch(x, y, FG, l->f[c - l->sc].lumpnum, l->cm, VPT_TRANS | l->flags);
       x += w;
     }
     else
@@ -205,7 +205,7 @@ void HUlib_drawTextLine
   {
     // killough 1/18/98 -- support multiple lines
     // CPhipps - patch drawing updated
-    V_DrawNumPatch(x, y, FG, l->f['_' - l->sc].lumpnum, CR_DEFAULT, VPT_NONE | stretch_flags);
+    V_DrawNumPatch(x, y, FG, l->f['_' - l->sc].lumpnum, CR_DEFAULT, VPT_NONE | l->flags);
   }
 }
 
@@ -270,6 +270,7 @@ void HUlib_initSText
   const patchnum_t* font,
   int   startchar,
   int cm,       //jff 2/16/98 add color range parameter
+  enum patch_translation_e flags,
   dboolean*  on )
 {
 
@@ -287,7 +288,8 @@ void HUlib_initSText
       y - i*(font[0].height+1),
       font,
       startchar,
-      cm
+      cm,
+      flags
     );
 }
 
@@ -405,7 +407,7 @@ void HUlib_eraseSText(hu_stext_t* s)
 //
 void HUlib_initMText(hu_mtext_t *m, int x, int y, int w, int h,
          const patchnum_t* font, int startchar, int cm,
-         const patchnum_t* bgfont, dboolean *on)
+         const patchnum_t* bgfont, enum patch_translation_e flags, dboolean *on)
 {
   int i;
 
@@ -427,7 +429,8 @@ void HUlib_initMText(hu_mtext_t *m, int x, int y, int w, int h,
       y + (hud_list_bgon? i+1 : i)*HU_REFRESHSPACING,
       font,
       startchar,
-      cm
+      cm,
+      flags
     );
   }
 }
@@ -640,12 +643,13 @@ void HUlib_initIText
   const patchnum_t* font,
   int   startchar,
   int cm,   //jff 2/16/98 add color range parameter
+  enum patch_translation_e flags,
   dboolean*  on )
 {
   it->lm = 0; // default left margin is start of text
   it->on = on;
   it->laston = true;
-  HUlib_initTextLine(&it->l, x, y, font, startchar, cm);
+  HUlib_initTextLine(&it->l, x, y, font, startchar, cm, flags);
 }
 
 // The following deletion routines adhere to the left margin restriction
@@ -781,7 +785,8 @@ void HUlib_setTextXCenter(hu_textline_t* t)
   t->x = 320 + wide_offsetx;
   while (*s)
   {
-    t->x -= t->f[toupper(*(s++))-HU_FONTSTART].width;
+    int c = toupper(*(s++)) - HU_FONTSTART;
+    t->x -= (c < 0 || c > HU_FONTSIZE ? 4 : t->f[c].width);
   }
   t->x >>= 1;
 }

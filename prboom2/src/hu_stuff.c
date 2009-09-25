@@ -420,6 +420,7 @@ void HU_Start(void)
     hu_font,
     HU_FONTSTART,
     hudcolor_mesg,
+    VPT_ALIGN_LEFT_TOP,
     &message_on
   );
 
@@ -432,7 +433,8 @@ void HU_Start(void)
     HU_TITLEY,
     hu_font,
     HU_FONTSTART,
-    hudcolor_titl
+    hudcolor_titl,
+    VPT_ALIGN_LEFT_BOTTOM
   );
 
   // create the hud health widget
@@ -445,7 +447,8 @@ void HU_Start(void)
     hud_distributed? HU_HEALTHY_D : HU_HEALTHY,
     hu_font2,
     HU_FONTSTART,
-    CR_GREEN
+    CR_GREEN,
+    VPT_NONE
   );
 
   // create the hud armor widget
@@ -458,7 +461,8 @@ void HU_Start(void)
     hud_distributed? HU_ARMORY_D : HU_ARMORY,
     hu_font2,
     HU_FONTSTART,
-    CR_GREEN
+    CR_GREEN,
+    VPT_NONE
   );
 
   // create the hud ammo widget
@@ -471,7 +475,8 @@ void HU_Start(void)
     hud_distributed? HU_AMMOY_D : HU_AMMOY,
     hu_font2,
     HU_FONTSTART,
-    CR_GOLD
+    CR_GOLD,
+    VPT_NONE
   );
 
   // create the hud weapons widget
@@ -484,7 +489,8 @@ void HU_Start(void)
     hud_distributed? HU_WEAPY_D : HU_WEAPY,
     hu_font2,
     HU_FONTSTART,
-    CR_GRAY
+    CR_GRAY,
+    VPT_NONE
   );
 
   // create the hud keys widget
@@ -497,7 +503,8 @@ void HU_Start(void)
     hud_distributed? HU_KEYSY_D : HU_KEYSY,
     hu_font2,
     HU_FONTSTART,
-    CR_GRAY
+    CR_GRAY,
+    VPT_NONE
   );
 
   // create the hud graphic keys widget
@@ -510,7 +517,8 @@ void HU_Start(void)
     hud_distributed? HU_KEYSY_D : HU_KEYSY,
     hu_fontk,
     HU_FONTSTART,
-    CR_RED
+    CR_RED,
+    VPT_NONE
   );
 
   // create the hud monster/secret widget
@@ -523,7 +531,8 @@ void HU_Start(void)
     hud_distributed? HU_MONSECY_D : HU_MONSECY,
     hu_font2,
     HU_FONTSTART,
-    CR_GRAY
+    CR_GRAY,
+    VPT_NONE
   );
 
   // create the hud text refresh widget
@@ -545,6 +554,7 @@ void HU_Start(void)
     HU_FONTSTART,
     hudcolor_list,
     hu_msgbg,
+    VPT_ALIGN_LEFT_TOP,
     &message_list
   );
 
@@ -578,7 +588,8 @@ void HU_Start(void)
     HU_COORDX_Y,
     hu_font,
     HU_FONTSTART,
-    hudcolor_xyco
+    hudcolor_xyco,
+    VPT_ALIGN_RIGHT_TOP
   );
   HUlib_initTextLine
   (
@@ -587,7 +598,8 @@ void HU_Start(void)
     HU_COORDY_Y,
     hu_font,
     HU_FONTSTART,
-    hudcolor_xyco
+    hudcolor_xyco,
+    VPT_ALIGN_RIGHT_TOP
   );
   HUlib_initTextLine
   (
@@ -596,7 +608,8 @@ void HU_Start(void)
     HU_COORDZ_Y,
     hu_font,
     HU_FONTSTART,
-    hudcolor_xyco
+    hudcolor_xyco,
+    VPT_ALIGN_RIGHT_TOP
   );
 //e6y
   HUlib_initTextLine
@@ -606,7 +619,8 @@ void HU_Start(void)
     hud_distributed? HU_HUDADDY_D : HU_HUDADDY,
     hu_font2,
     HU_FONTSTART,
-    CR_GRAY
+    CR_GRAY,
+    VPT_NONE
   );
   HUlib_initTextLine
   (
@@ -615,7 +629,8 @@ void HU_Start(void)
     HU_CENTERMSGY,
     hu_font,
     HU_FONTSTART,
-    hudcolor_titl
+    hudcolor_titl,
+    VPT_ALIGN_LEFT
   );
   HUlib_initTextLine
   (
@@ -624,7 +639,8 @@ void HU_Start(void)
     HU_HUDY_UR+0*HU_GAPY,
     hu_font2,
     HU_FONTSTART,
-    CR_GRAY
+    CR_GRAY,
+    VPT_ALIGN_LEFT_TOP
   );
   HUlib_initTextLine
   (
@@ -633,7 +649,8 @@ void HU_Start(void)
     HU_HUDY_UR+1*HU_GAPY,
     hu_font2,
     HU_FONTSTART,
-    CR_GRAY
+    CR_GRAY,
+    VPT_ALIGN_LEFT_TOP
   );
   HUlib_initTextLine
   (
@@ -642,7 +659,8 @@ void HU_Start(void)
     HU_HUDY_UR+2*HU_GAPY,
     hu_font2,
     HU_FONTSTART,
-    CR_GRAY
+    CR_GRAY,
+    VPT_ALIGN_LEFT_TOP
   );
   HUlib_initTextLine
   (
@@ -651,7 +669,8 @@ void HU_Start(void)
     186,
     hu_font,
     HU_FONTSTART,
-    CR_RED
+    CR_RED,
+    VPT_ALIGN_LEFT_BOTTOM
   );
   strcpy(hud_add,"");
   s = hud_add;
@@ -739,6 +758,7 @@ void HU_Start(void)
     hu_font,
     HU_FONTSTART,
     hudcolor_chat,
+    VPT_NONE,
     &chat_on
   );
 
@@ -752,11 +772,14 @@ void HU_Start(void)
       0,
       0,
       hudcolor_chat,
+      VPT_NONE,
       &always_off
     );
 
   // now allow the heads-up display to run
   headsupactive = true;
+
+  HU_MoveHud(true);
 }
 
 //
@@ -769,39 +792,64 @@ void HU_Start(void)
 //jff 3/9/98 create this externally callable to avoid glitch
 // when menu scatter's HUD due to delay in change of position
 //
-void HU_MoveHud(void)
+void HU_MoveHud(int force)
 {
+  typedef struct hud_coords_s
+  {
+    hu_textline_t *name;
+    int x[2];
+    int y[2];
+    int flags[2];
+  } hud_coords_t;
+
   static int ohud_distributed=-1;
+  int i;
+
+  static hud_coords_t hud[8] =
+  {
+    {&w_gkeys,  {-1, -1},  {HU_KEYSY, HU_KEYSY_D},     
+     {VPT_ALIGN_LEFT_BOTTOM, VPT_ALIGN_LEFT_BOTTOM}},
+
+    {&w_ammo,   {HU_AMMOX,   HU_AMMOX_D},   {HU_AMMOY, HU_AMMOY_D},     
+    {VPT_ALIGN_LEFT_BOTTOM, VPT_ALIGN_RIGHT_BOTTOM}},
+
+    {&w_weapon, {HU_WEAPX,   HU_WEAPX_D},   {HU_WEAPY, HU_WEAPY_D},     
+    {VPT_ALIGN_LEFT_BOTTOM, VPT_ALIGN_RIGHT_BOTTOM}},
+
+    {&w_keys,   {HU_KEYSX,   HU_KEYSX_D},   {HU_KEYSY, HU_KEYSY_D},     
+    {VPT_ALIGN_LEFT_BOTTOM, VPT_ALIGN_LEFT_BOTTOM}},
+
+    {&w_monsec, {HU_MONSECX, HU_MONSECX_D}, {HU_MONSECY, HU_MONSECY_D}, 
+    {VPT_ALIGN_LEFT_BOTTOM, VPT_ALIGN_LEFT_BOTTOM}},
+
+    {&w_health, {HU_HEALTHX, HU_HEALTHX_D}, {HU_HEALTHY, HU_HEALTHY_D}, 
+    {VPT_ALIGN_LEFT_BOTTOM, VPT_ALIGN_RIGHT_TOP}},
+
+    {&w_armor,  {HU_ARMORX,  HU_ARMORX_D},  {HU_ARMORY, HU_ARMORY_D},   
+     {VPT_ALIGN_LEFT_BOTTOM, VPT_ALIGN_RIGHT_TOP}},
+
+    {&w_hudadd, {HU_HUDADDX, HU_HUDADDX_D}, {HU_HUDADDY, HU_HUDADDY_D}, 
+     {VPT_ALIGN_LEFT_BOTTOM, VPT_ALIGN_LEFT_BOTTOM}},
+  };
+
+  if (hud[0].x[0] == -1)
+  {
+    hud[0].x[0] = HU_KEYSGX;
+    hud[0].x[1] = HU_KEYSGX_D;
+  }
 
   //jff 3/4/98 move displays around on F5 changing hud_distributed
-  if (hud_distributed!=ohud_distributed)
+  if (force || hud_distributed != ohud_distributed)
   {
-    int alignx;
-    w_ammo.x =    hud_distributed? HU_AMMOX_D   : HU_AMMOX;
-    w_ammo.y =    hud_distributed? HU_AMMOY_D   : HU_AMMOY;
-    w_weapon.x =  hud_distributed? HU_WEAPX_D   : HU_WEAPX;
-    w_weapon.y =  hud_distributed? HU_WEAPY_D   : HU_WEAPY;
-    w_keys.x =    hud_distributed? HU_KEYSX_D   : HU_KEYSX;
-    w_keys.y =    hud_distributed? HU_KEYSY_D   : HU_KEYSY;
-    w_gkeys.x =   hud_distributed? HU_KEYSGX_D  : HU_KEYSGX;
-    w_gkeys.y =   hud_distributed? HU_KEYSY_D   : HU_KEYSY;
-    w_monsec.x =  hud_distributed? HU_MONSECX_D : HU_MONSECX;
-    w_monsec.y =  hud_distributed? HU_MONSECY_D : HU_MONSECY;
-    w_health.x =  hud_distributed? HU_HEALTHX_D : HU_HEALTHX;
-    w_health.y =  hud_distributed? HU_HEALTHY_D : HU_HEALTHY;
-    w_armor.x =   hud_distributed? HU_ARMORX_D  : HU_ARMORX;
-    w_armor.y =   hud_distributed? HU_ARMORY_D  : HU_ARMORY;
-    //e6y
-    w_hudadd.x =  hud_distributed? HU_HUDADDX_D : HU_HUDADDX;
-    w_hudadd.y =  hud_distributed? HU_HUDADDY_D : HU_HUDADDY;
-
     // e6y: wide-res
-    alignx = hud_distributed ? PATCH_ALIGNX_RIGHT : PATCH_ALIGNX_NONE;
-    w_health.flags =  alignx;
-    w_armor.flags  =  alignx;
-    w_weapon.flags =  alignx;
-    w_ammo.flags   =  alignx;
+    for (i = 0; i < 8; i++)
+    {
+      hud[i].name->x = hud[i].x[!!hud_distributed];
+      hud[i].name->y = hud[i].y[!!hud_distributed];
+      hud[i].name->flags = hud[i].flags[!!hud_distributed];
+    }
   }
+
   ohud_distributed = hud_distributed;
 }
 
@@ -892,11 +940,11 @@ void HU_Drawer(void)
     !(automapmode & am_active)       // automap is not active
   )
   {
+    HU_MoveHud(false);                  // insure HUD display coords are correct
+
     if (doit)            //jff 8/7/98 update every time, avoid lag in update
     {
       int fullammo = plr->maxammo[weaponinfo[plr->readyweapon].ammo];
-
-      HU_MoveHud();                  // insure HUD display coords are correct
 
       // do the hud ammo display
       // clear the widgets internal line
