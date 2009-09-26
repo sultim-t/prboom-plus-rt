@@ -447,7 +447,9 @@ static void GenLookup(int *lookup1, int *lookup2, int size, int max, int step)
   int i;
   fixed_t frac, lastfrac;
 
-  lookup1[0] = 0;
+  memset(lookup1, 0, max * sizeof(lookup1[0]));
+  memset(lookup2, 0, max * sizeof(lookup2[0]));
+
   lastfrac = frac = 0;
   for(i = 0; i < size; i++)
   {
@@ -462,6 +464,18 @@ static void GenLookup(int *lookup1, int *lookup2, int size, int max, int step)
   }
   lookup2[max - 1] = size - 1;
   lookup1[max] = lookup2[max] = size;
+
+  for(i = 1; i < max; i++)
+  {
+    if (lookup1[i] == 0 && lookup1[i - 1] != 0)
+    {
+      lookup1[i] = lookup1[i - 1];
+    }
+    if (lookup2[i] == 0 && lookup2[i - 1] != 0)
+    {
+      lookup2[i] = lookup2[i - 1];
+    }
+  }
 }
 
 static void InitStretchParam(stretch_param_t* offsets, int stretch, enum patch_translation_e flags)
