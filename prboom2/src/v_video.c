@@ -330,7 +330,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
 
   // CPhipps - auto-no-stretch if not high-res
   if (flags & VPT_STRETCH_MASK)
-    if ((SCREENWIDTH==320) && (SCREENHEIGHT==200))
+    if ((SCREENWIDTH==320) && (SCREENHEIGHT==200) && (SCREENWIDTH==WIDE_SCREENWIDTH))
       flags &= ~VPT_STRETCH_MASK;
 
   // e6y: wide-res
