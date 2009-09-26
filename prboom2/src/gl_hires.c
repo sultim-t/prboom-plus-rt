@@ -1191,6 +1191,14 @@ static int gld_HiRes_LoadFromFile(GLTexture* gltexture, int* texid, const char* 
 
     if (surf)
     {
+      if (SDL_LockSurface(surf) >= 0)
+      {
+        if (SmoothEdges(surf->pixels, surf->pitch / 4, surf->h))
+          gltexture->flags |= GLTEXTURE_HASHOLES;
+        else
+          gltexture->flags &= ~GLTEXTURE_HASHOLES;
+        SDL_UnlockSurface(surf);
+      }
       gld_HiRes_Bind(gltexture, texid);
       result = gld_BuildTexture(gltexture, surf->pixels, true, surf->w, surf->h);
 
@@ -1236,6 +1244,14 @@ int* gld_LoadHiresTex(GLTexture *gltexture, int cm)
 
               if (surf)
               {
+                if (SDL_LockSurface(surf) >= 0)
+                {
+                  if (SmoothEdges(surf->pixels, surf->pitch / 4, surf->h))
+                    gltexture->flags |= GLTEXTURE_HASHOLES;
+                  else
+                    gltexture->flags &= ~GLTEXTURE_HASHOLES;
+                  SDL_UnlockSurface(surf);
+                }
                 gld_HiRes_Bind(gltexture, texid);
                 gld_BuildTexture(gltexture, surf->pixels, true, surf->w, surf->h);
 
