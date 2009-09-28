@@ -169,7 +169,7 @@ static void R_DRAWCOLUMN_FUNCNAME(draw_column_vars_t *dcvars)
     frac = dcvars->texturemid - (FRACUNIT>>1) + (dcvars->yl-centery)*fracstep;
   #else
     if (dcvars->flags & DRAW_COLUMN_ISPATCH)
-      frac = (dcvars->yl * fracstep) & 0xFFFF;
+      frac = ((dcvars->yl - dcvars->dy) * fracstep) & 0xFFFF;
     else
       frac = dcvars->texturemid + (dcvars->yl-centery)*fracstep;
   #endif

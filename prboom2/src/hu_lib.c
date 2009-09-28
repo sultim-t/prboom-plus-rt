@@ -782,11 +782,14 @@ void HUlib_eraseIText(hu_itext_t* it)
 void HUlib_setTextXCenter(hu_textline_t* t)
 {
   char *s = t->l;
-  t->x = 320 + wide_offsetx;
+  t->x = 320;
   while (*s)
   {
     int c = toupper(*(s++)) - HU_FONTSTART;
     t->x -= (c < 0 || c > HU_FONTSIZE ? 4 : t->f[c].width);
   }
+  if (t->x < 0)
+    t->x = 0;
+
   t->x >>= 1;
 }

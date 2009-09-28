@@ -575,6 +575,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
         dcvars.texturemid = -((dcvars.yl-centery)*dcvars.iscale);
 
         //e6y
+        dcvars.dy = params->deltay1;
         dcvars.flags |= DRAW_COLUMN_ISPATCH; 
 
         colfunc(&dcvars);

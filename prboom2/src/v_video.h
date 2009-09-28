@@ -57,7 +57,6 @@ typedef enum
 
 typedef struct
 {
-   fixed_t     xscale, yscale;
    fixed_t     xstep, ystep;
 
    int width, height;

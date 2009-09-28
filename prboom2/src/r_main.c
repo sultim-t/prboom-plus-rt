@@ -552,9 +552,6 @@ void R_SetupViewScaling(void)
   // Moved stuff, reformatted a bit
   // haleyjd 04/03/05: removed unnecessary FixedDiv calls
 
-  video.xscale  = (SCREENWIDTH << FRACBITS) / 320;
-  video.yscale  = (SCREENHEIGHT << FRACBITS) / 200;
-
   video.xstep = ((320 << FRACBITS) / 320 / patches_scalex) + 1;
   video.ystep = ((200 << FRACBITS) / 200 / patches_scaley) + 1;
   video_stretch.xstep   = ((320 << FRACBITS) / WIDE_SCREENWIDTH) + 1;

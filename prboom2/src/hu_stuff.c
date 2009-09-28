@@ -630,7 +630,7 @@ void HU_Start(void)
     hu_font,
     HU_FONTSTART,
     hudcolor_titl,
-    VPT_ALIGN_LEFT
+    VPT_STRETCH
   );
   HUlib_initTextLine
   (

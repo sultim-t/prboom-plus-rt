@@ -75,6 +75,7 @@ typedef struct {
   int                 x;
   int                 yl;
   int                 yh;
+  int                 dy;
   fixed_t             z; // the current column z coord
   fixed_t             iscale;
   fixed_t             texturemid;
