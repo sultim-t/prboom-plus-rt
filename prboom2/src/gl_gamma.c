@@ -216,7 +216,7 @@ void gld_ResetGammaRamp(void)
 
 void gld_ApplyGammaRamp(byte *buf, int pitch, int width, int height)
 {
-  if (gl_lightmode != gl_lightmode_glboom)
+  if (gl_hardware_gamma)
   {
     int w, h;
     byte *pixel;

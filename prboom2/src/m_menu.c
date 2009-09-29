@@ -4507,7 +4507,7 @@ dboolean M_Responder (event_t* ev) {
       {
 //e6y
 #ifdef GL_DOOM
-        if (V_GetMode() == VID_MODEGL && gl_lightmode != gl_lightmode_glboom)
+        if (V_GetMode() == VID_MODEGL && gl_hardware_gamma)
         {
           static char str[200];
           useglgamma++;

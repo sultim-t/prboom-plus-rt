@@ -1290,7 +1290,7 @@ static void UpdateFocus(void)
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
-    if (gl_lightmode != gl_lightmode_glboom)
+    if (gl_hardware_gamma)
     {
       if (!window_focused)
       {
