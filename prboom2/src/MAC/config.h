@@ -85,7 +85,7 @@
 /* causes a duplicate define warning
 #define HAVE_NETINET_IN_H
 */
-#define SYS_SIGLIST_DECLARED
+#define HAVE_DECL_SYS_SIGLIST
 
 /**/
 #ifdef __BIG_ENDIAN__
