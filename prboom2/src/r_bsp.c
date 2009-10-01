@@ -293,10 +293,10 @@ sector_t *R_FakeFlat(sector_t *sec, sector_t *tempsec,
 
 static dboolean CheckClip(seg_t * seg, sector_t * frontsector, sector_t * backsector)
 {
-  if (backsector->heightsec != -1)
-    backsector = &sectors[backsector->heightsec];
-  if (frontsector->heightsec != -1)
-    frontsector = &sectors[frontsector->heightsec];
+  static sector_t tempsec;
+
+  backsector = R_FakeFlat(backsector, &tempsec, NULL, NULL, true);
+  frontsector = R_FakeFlat(frontsector, &tempsec, NULL, NULL, false);
 
   // check for closed sectors!
   if (backsector->ceilingheight <= frontsector->floorheight) 
