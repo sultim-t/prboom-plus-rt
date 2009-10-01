@@ -837,7 +837,7 @@ void I_CalculateRes(int width, int height)
 void I_InitScreenResolution(void)
 {
   int i, p, w, h;
-  char c;
+  char c, x;
   video_mode_t mode;
 
   //e6y: ability to change screen resolution from GUI
@@ -882,22 +882,24 @@ void I_InitScreenResolution(void)
 
   if (p && p + 1 < myargc)
   {
-    int count = sscanf(myargv[p+1], "%dx%d%c", &w, &h, &c);
+    int count = sscanf(myargv[p+1], "%d%c%d%c", &w, &x, &h, &c);
 
     // at least width and height must be specified
     // restoring original values if not
-    if (count < 2)
+    if (count < 3 || tolower(x) != 'x')
     {
       w = desired_screenwidth;
       h = desired_screenheight;
     }
-
-    if (count >= 3)
+    else
     {
-      if (tolower(c) == 'w')
-        desired_fullscreen = 0;
-      if (tolower(c) == 'f')
-        desired_fullscreen = 1;
+      if (count >= 4)
+      {
+        if (tolower(c) == 'w')
+          desired_fullscreen = 0;
+        if (tolower(c) == 'f')
+          desired_fullscreen = 1;
+      }
     }
   }
 
