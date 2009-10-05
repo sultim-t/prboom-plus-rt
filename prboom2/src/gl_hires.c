@@ -1180,9 +1180,7 @@ static int gld_HiRes_LoadFromFile(GLTexture* gltexture, int* texid, const char* 
 
   if (!surf_tmp)
   {
-    lprintf(LO_ERROR, "gld_HiRes_LoadExternal: ");
-    lprintf(LO_ERROR, SDL_GetError());
-    lprintf(LO_ERROR, "\n");
+    lprintf(LO_WARN, "gld_HiRes_LoadExternal: %s\n", SDL_GetError());
   }
   else
   {
@@ -1235,9 +1233,21 @@ int* gld_LoadHiresTex(GLTexture *gltexture, int cm)
           if (lump != -1)
           {
             SDL_RWops *rw_data = SDL_RWFromMem((void*)W_CacheLumpNum(lump), W_LumpLength(lump));
-            SDL_Surface *surf_tmp = IMG_Load_RW(rw_data, true);
+            SDL_Surface *surf_tmp = IMG_Load_RW(rw_data, false);
+            
+            // SDL can't load some TGA with common method
+            if (!surf_tmp)
+            {
+              surf_tmp = IMG_LoadTyped_RW(rw_data, false, "TGA");
+            }
 
-            if (surf_tmp)
+            SDL_FreeRW(rw_data);
+
+            if (!surf_tmp)
+            {
+              lprintf(LO_WARN, "gld_LoadHiresTex: %s\n", SDL_GetError());
+            }
+            else
             {
               SDL_Surface *surf = SDL_ConvertSurface(surf_tmp, &RGBAFormat, surf_tmp->flags);
               SDL_FreeSurface(surf_tmp);
