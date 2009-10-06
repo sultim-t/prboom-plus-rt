@@ -2959,7 +2959,7 @@ setup_menu_t* gen_settings[] =
   NULL
 };
 
-#define G_X 230
+#define G_X 226
 #define GF_X 76
 #define G_Y 23
 #define G_X2 284
@@ -3116,8 +3116,8 @@ setup_menu_t gen_settings5[] = { // General Settings screen3
   {0,S_SKIP|S_END,m_null}
 };
 
-static const char *gltexfilters[] = {
-  "None", "Linear", "Mipmap", "Bilinear", "Trilinear", NULL};
+static const char *gltexfilters[filter_count + 1] = {
+  "None", "Linear", "Nearest Mipmap", "Linear Mipmap", "Bilinear", "Trilinear", NULL};
 
 static const char *gltexfilters_anisotropics[] = 
   {"Off", "2x", "4x", "8x", "16x", NULL};
