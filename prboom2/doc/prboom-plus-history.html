@@ -43,6 +43,41 @@
 
 <h1>Change Log</h1>
 
+<br><span class="ver">2.5.0.4</span>
+<span class="date">&nbsp;@&nbsp;2009-Oct-07</span>
+<table>
+<tr><td class="aaa">[+]</td><td>Full support for wide resolutions. Aspect will be detected automaticaly, but you can force any ratio from the GUI.
+<tr><td class="aaa">[+]</td><td>Options\General\Status Bar and Menu Appearance: Not Adjusted / Doom Format / Fit to Width.
+<tr><td class="aaa">[+]</td><td>Added a -nocheats command line parameter and a deh_apply_cheats config variable to disable applying cheats from dehacked files.
+
+<tr><td class="aaa">[+]</td><td>Added a key binding option for mouse look.
+<tr><td class="aaa">[+]</td><td>Added a "map_grid_size" config variable.
+<tr><td class="aaa">[+]</td><td>Added a "linear mipmap" texture filtering mode.
+<tr><td class="aaa">[*]</td><td>Less aggressive patch correctness checks. Makes sense for OBITUARY, where for some patches there is no column beginning exactly at the end of the column directory.
+<tr><td class="aaa">[*]</td><td>More permissive cheats handler for non-Boom complevels. The following DEH cheats now work:
+<pre class="code">
+    No Clipping 1 = !@#$%^&*() - you can't move in Boom with such a cheat
+    No Clipping 1 = bb - works incorrectly in Boom
+    No Clipping 1 = b/b - does not work at all in Boom, but works in vanilla
+</pre>
+    Making a short sequence on a cheat with parameters (idclevXX) will not work in vanilla (0-6) and lxdoom (10) complevels, as in the respective engines.
+
+<tr><td class="aaa">[*]</td><td>Ignores sprite lumps smaller than 8 bytes (the smallest possible) in size - this was used by some dmadds wads to mark 'empty' graphic resources. Now you can play <a href="http://www.doomworld.com/idgames/index.php?id=2849">22ventry.wad</a>.
+<tr><td class="aaa">[*]</td><td>The Boom DEH parser has been restored. You can force it only for demo playback with -boom_deh_parser command line switch.
+<tr><td class="aaa">[-]</td><td>Fixed a crash on wads with incomplete REJECT table. (introduced in 2.5.0.2)
+<tr><td class="aaa">[-]</td><td>Fixed an incompatibility with Boom if you have player_bobbing 0 in cfg. (introduced in PrBoom 2.2.2) As a result, there is now a desynch on <a href="http://www.doomworld.com/vb/showthread.php?s=&postid=790596#post790596">sewv12r-2135.lmp</a>. Use -emulate 2.2.2 .. 2.5.0.2 for the old buggy behavior when playing such demos.
+<tr><td class="aaa">[-]</td><td>Fixed a crash related to A_BFGSpray with NULL target when using dehacked patches - discovered with <a href="http://www.doomworld.com/idgames/index.php?id=4442">insaned2.deh</a> (thanks CSonicGo and fraggle). Certain functions assume that a mobj_t pointer is non-NULL, causing a crash in some situations where it is NULL. Vanilla Doom did not crash because it lacked proper memory protection.
+
+<tr><td class="aaa">[-]</td><td>Fixed a crash (division by zero) in Boom HUD code for "Max ammo = 0" in a DEH.
+<tr><td class="aaa">[-]</td><td>Fixed flats drawing on a Mac in case of render_precise 1.
+<tr><td class="aaa">[-]</td><td>Fixed an overflow of the mapnames array (-iwad tnt.wad -file ht.wad -warp 33)
+<tr><td class="aaa">[-]</td><td>Avoids z-fighting between grid and walls on automap in GL mode. (introduced in 2.5.0.3)
+<tr><td class="aaa">[-]</td><td>Fixed a vanilla automap grid bug: losing grid lines near the map boundary. (from EE)
+<tr><td class="aaa">[-]</td><td>Fixed an issue where walls look full-bright from close up. Added a "render_old_lightmaps" config variable for 16 (old) or 32 (new) lighting levels.
+<tr><td class="aaa">[-]</td><td>Fixed an issue with fake floors. See the colored room in boomedit.wad, as an example. (introduced in 2.5.0.2)
+<tr><td class="aaa">[-]</td><td>Hi-res textures in TGA format are now loaded from PWADs.
+</table>
+
 <br><span class="ver">2.5.0.3</span>
 <span class="date">&nbsp;@&nbsp;2009-Jul-11</span>
 <table>

@@ -1,5 +1,39 @@
 Change Log
 
+2.5.0.4 @ 2009.10.07
+[+] Full support for wide resolutions. Aspect will be detected automaticaly, but you can force any ratio from the GUI.
+[+] Options\General\Status Bar and Menu Appearance: Not Adjusted / Doom Format / Fit to Width.
+[+] Added a -nocheats command line parameter and a deh_apply_cheats config variable to disable applying cheats from dehacked files.
+[+] Added a key binding option for mouse look.
+[+] Added a "map_grid_size" config variable.
+[+] Added a "linear mipmap" texture filtering mode.
+[*] Less aggressive patch correctness checks. Makes sense for OBITUARY, where for some patches there is no column beginning exactly at the end of the column directory.
+[*] More permissive cheats handler for non-Boom complevels. The following DEH cheats now work:
+
+    No Clipping 1 = !@#$%^&*() - you can't move in Boom with such a cheat
+    No Clipping 1 = bb - works incorrectly in Boom
+    No Clipping 1 = b/b - does not work at all in Boom, but works in vanilla
+
+    Making a short sequence on a cheat with parameters (idclevXX) will not work in vanilla (0-6) and lxdoom (10) complevels, as in the respective engines.
+[*] Ignores sprite lumps smaller than 8 bytes (the smallest possible) in size - this was used by some dmadds wads to mark 'empty' graphic resources. Now you can play 22ventry.wad.
+[*] The Boom DEH parser has been restored. You can force it only for demo playback with -boom_deh_parser command line switch.
+[-] Fixed a crash on wads with incomplete REJECT table. (introduced in 2.5.0.2)
+[-] Fixed an incompatibility with Boom if you have player_bobbing 0 in cfg. (introduced in PrBoom 2.2.2) As a result, there is now a desynch on sewv12r-2135.lmp. Use -emulate 2.2.2 .. 2.5.0.2 for the old buggy behavior when playing such demos.
+[-] Fixed a crash related to A_BFGSpray with NULL target when using dehacked patches - discovered with insaned2.deh (thanks CSonicGo and fraggle). Certain functions assume that a mobj_t pointer is non-NULL, causing a crash in some situations where it is NULL. Vanilla Doom did not crash because it lacked proper memory protection.
+[-] Fixed a crash (division by zero) in Boom HUD code for "Max ammo = 0" in a DEH.
+[-] Fixed flats drawing on a Mac in case of render_precise 1.
+[-] Fixed an overflow of the mapnames array (-iwad tnt.wad -file ht.wad -warp 33)
+[-] Avoids z-fighting between grid and walls on automap in GL mode. (introduced in 2.5.0.3)
+[-] Fixed a vanilla automap grid bug: losing grid lines near the map boundary. (from EE)
+[-] Fixed an issue where walls look full-bright from close up. Added a "render_old_lightmaps" config variable for 16 (old) or 32 (new) lighting levels.
+[-] Fixed an issue with fake floors. See the colored room in boomedit.wad, as an example. (introduced in 2.5.0.2)
+[-] Hi-res textures in TGA format are now loaded from PWADs.
+
+Links for the demos, wads and topics referred to above:
+http://www.doomworld.com/vb/showthread.php?s=&postid=790596#post790596 (sewv12r-2135.lmp)
+http://www.doomworld.com/idgames/index.php?id=4442 (insane2.deh)
+http://www.doomworld.com/idgames/index.php?id=2849 (22ventry.wad)
+
 2.5.0.3 @ 2009.07.11
 [+] Simple shadows, from Doomsday.
 [+] New "Fog Based" sector light mode which is very similar to software mode. If it doesn't work correctly, try updating your drivers or replacing your ATI, because per-pixel fog (GL_NICEST) doesn't work with some ATI cards or their drivers.
