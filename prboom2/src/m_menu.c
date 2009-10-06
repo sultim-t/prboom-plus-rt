@@ -3116,7 +3116,7 @@ setup_menu_t gen_settings5[] = { // General Settings screen3
   {0,S_SKIP|S_END,m_null}
 };
 
-static const char *gltexfilters[filter_count + 1] = {
+static const char *gltexfilters[] = {
   "None", "Linear", "Nearest Mipmap", "Linear Mipmap", "Bilinear", "Trilinear", NULL};
 
 static const char *gltexfilters_anisotropics[] = 
