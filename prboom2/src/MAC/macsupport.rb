@@ -21,9 +21,9 @@ require 'rake/loaders/makefile'
 
 begin
 	unless NOT_UNIVERSAL
-		ENV['MACOSX_DEPLOYMENT_TARGET'] = '10.5'
-		@commonflags += ' -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.5.sdk '
-		@ldflags += ' -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.5.sdk '
+		ENV['MACOSX_DEPLOYMENT_TARGET'] = '10.6'
+		@commonflags += ' -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.6.sdk '
+		@ldflags += ' -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.6.sdk '
 	end
 rescue NameError
 	NOT_UNIVERSAL = false
