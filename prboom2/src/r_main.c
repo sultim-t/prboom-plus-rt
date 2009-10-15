@@ -529,7 +529,7 @@ static void InitStretchParam(stretch_param_t* offsets, int stretch, enum patch_t
     offsets->deltay1 = wide_offsety * 2;
   }
 
-  if (flags == VPT_ALIGN_WIDE || flags == VPT_ALIGN_LEFT_TOP || flags == VPT_ALIGN_RIGHT_TOP)
+  if (flags == VPT_ALIGN_WIDE || flags == VPT_ALIGN_TOP || flags == VPT_ALIGN_LEFT_TOP || flags == VPT_ALIGN_RIGHT_TOP)
   {
     offsets->deltay1 = 0;
   }

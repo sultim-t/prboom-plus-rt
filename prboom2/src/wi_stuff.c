@@ -542,7 +542,7 @@ WI_drawOnLnode  // draw stuff at a location by episode/map#
   {
     // CPhipps - patch drawing updated
     V_DrawNamePatch(lnodes[wbs->epsd][n].x, lnodes[wbs->epsd][n].y,
-       FB, c[i], CR_DEFAULT, VPT_STRETCH);
+       FB, c[i], CR_DEFAULT, VPT_STRETCH | VPT_ALIGN_WIDE);
   }
   else
   {
@@ -670,7 +670,7 @@ void WI_drawAnimatedBack(void)
 
     if (a->ctr >= 0)
       // CPhipps - patch drawing updated
-      V_DrawNumPatch(a->loc.x, a->loc.y, FB, a->p[a->ctr].lumpnum, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNumPatch(a->loc.x, a->loc.y, FB, a->p[a->ctr].lumpnum, CR_DEFAULT, VPT_STRETCH | VPT_ALIGN_WIDE);
   }
 }
 

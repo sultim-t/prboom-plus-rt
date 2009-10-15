@@ -566,7 +566,9 @@ void F_CastDrawer (void)
 
   // erase the entire screen to a background
   // CPhipps - patch drawing updated
-  V_DrawNamePatch(0,0,0, bgcastcall, CR_DEFAULT, VPT_STRETCH); // Ty 03/30/98 bg texture extern
+  V_DrawNamePatch(0,0,0, bgcastcall, CR_DEFAULT, VPT_STRETCH | VPT_ALIGN_WIDE); // Ty 03/30/98 bg texture extern
+  // e6y: wide-res
+  V_FillBorder(-1, 0);
 
   F_CastPrint (*(castorder[castnum].name));
 
