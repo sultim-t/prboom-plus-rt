@@ -53,6 +53,7 @@ typedef enum overrun_list_s
   OVERFLOW_REJECT,
   OVERFLOW_INTERCEPT,
   OVERFLOW_PLYERINGAME,
+  OVERFLOW_DONUT,
 
   OVERFLOW_MAX //last
 } overrun_list_t;
@@ -119,5 +120,11 @@ void SpechitOverrun(spechit_overrun_param_t *params);
 //
 
 void RejectOverrun(int rejectlump, const byte **rejectmatrix, int totallines);
+
+//
+// donut overrun emulation (linedef action 9)
+//
+
+int DonutOverrun(fixed_t *s3_floorheight, short *s3_floorpic, line_t *line, sector_t *pillar_sector);
 
 #endif // __G_OVERFLOW__

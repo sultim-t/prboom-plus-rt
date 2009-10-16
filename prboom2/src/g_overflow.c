@@ -55,6 +55,7 @@ const char *overflow_cfgname[OVERFLOW_MAX] =
   "overrun_reject_emulate",
   "overrun_intercept_emulate",
   "overrun_playeringame_emulate"
+  "overrun_donut_emulate"
 };
 
 static void ShowOverflowWarning(overrun_list_t overflow, int fatal, const char *params, ...)
@@ -66,7 +67,8 @@ static void ShowOverflowWarning(overrun_list_t overflow, int fatal, const char *
     va_list argptr;
     char buffer[1024];
 
-    static const char *name[OVERFLOW_MAX] = {"SPECHIT", "REJECT", "INTERCEPT", "PLYERINGAME"};
+    static const char *name[OVERFLOW_MAX] = {
+      "SPECHIT", "REJECT", "INTERCEPT", "PLYERINGAME", "DONUT"};
 
     static const char str1[] =
       "Too big or not supported %s overflow has been detected. "
@@ -381,4 +383,77 @@ void RejectOverrun(int rejectlump, const byte **rejectmatrix, int totallines)
 
     lprintf(LO_WARN, "P_LoadReject: REJECT too short (%u<%u) - padded\n", length, required);
   }
+}
+
+//
+// donut overrun emulation (linedef action #9)
+//
+
+#define DONUT_FLOORHEIGHT_DEFAULT 0x00000000
+#define DONUT_FLOORPIC_DEFAULT 0x16
+int DonutOverrun(fixed_t *s3_floorheight, short *s3_floorpic, line_t *line, sector_t *pillar_sector)
+{
+  if (demo_compatibility && PROCESS(OVERFLOW_DONUT))
+  {
+    static int first = 0;
+
+    long tmp_s3_floorheight;
+    long tmp_s3_floorpic;
+
+    if (first == 0)
+    {
+      int p;
+
+      // This is the first time we have had an overrun.
+      first = 1;
+
+      // Default values
+      tmp_s3_floorheight = DONUT_FLOORHEIGHT_DEFAULT;
+      tmp_s3_floorpic = DONUT_FLOORPIC_DEFAULT;
+
+      // Allow floorheight and floorpic values to be specified with command line.
+      p = M_CheckParm("-donut");
+      if (p > 0 && p < myargc - 2)
+      {
+        // Dump of needed memory: (fixed_t)0000:0000 and (short)0000:0008
+        //
+        // C:\>debug
+        // -d 0:0
+        //
+        // DOS 6.22:
+        // 0000:0000  (57 92 19 00) F4 06 70 00-(16 00)
+        // DOS 7.1:
+        // 0000:0000  (9E 0F C9 00) 65 04 70 00-(16 00)
+        // Win98:
+        // 0000:0000  (00 00 00 00) 65 04 70 00-(16 00)
+        // DOSBox under XP:
+        // 0000:0000  (00 00 00 F1) ?? ?? ?? 00-(07 00)
+
+        StrToInt(myargv[p + 1], &tmp_s3_floorheight);
+        StrToInt(myargv[p + 2], &tmp_s3_floorpic);
+        if ((tmp_s3_floorpic <= 0) || (tmp_s3_floorpic >= numflats))
+        {
+          lprintf(LO_INFO, "DonutOverrun: The second parameter for \"-donut\" switch "
+            "should be greater than 0 and less than number of flats (%d). "
+            "Using default value (%d) instead. \n", numflats, DONUT_FLOORPIC_DEFAULT);
+          tmp_s3_floorpic = DONUT_FLOORPIC_DEFAULT;
+        }
+      }
+    }
+
+    ShowOverflowWarning(OVERFLOW_DONUT, 0,
+      "\n\nLinedef: %d; Sector: %d; New floor height: %d; New floor pic: %d",
+      line->iLineID, pillar_sector->iSectorID, tmp_s3_floorheight >> 16, tmp_s3_floorpic);
+
+    if (EMULATE(OVERFLOW_DONUT))
+    {
+      if (s3_floorheight)
+        *s3_floorheight = (fixed_t) tmp_s3_floorheight;
+      if (s3_floorpic )
+        *s3_floorpic = (short) tmp_s3_floorpic;
+
+      return true;
+    }
+  }
+  return false;
 }

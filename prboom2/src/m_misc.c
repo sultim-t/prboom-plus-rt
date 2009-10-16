@@ -937,6 +937,10 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"overrun_playeringame_emulate", {&overflows[OVERFLOW_PLYERINGAME].emulate},  {1},0,1,
    def_bool,ss_stat},
+  {"overrun_donut_warn", {&overflows[OVERFLOW_DONUT].warn},  {0},0,1,
+   def_bool,ss_stat},
+  {"overrun_donut_emulate", {&overflows[OVERFLOW_DONUT].emulate},  {0},0,1,
+   def_bool,ss_stat},
 
   {"Prboom-plus 'bad' compatibility settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"comperr_zerotag", {&comperr_zerotag},  {0},0,1,

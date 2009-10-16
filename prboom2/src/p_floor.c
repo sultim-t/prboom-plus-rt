@@ -39,7 +39,8 @@
 #include "p_tick.h"
 #include "s_sound.h"
 #include "sounds.h"
-#include "lprintf.h"//e6y
+#include "lprintf.h"
+#include "g_overflow.h"
 #include "e6y.h"//e6y
 
 //e6y
@@ -948,6 +949,10 @@ int EV_DoDonut(line_t*  line)
   int       rtn;
   int       i;
   floormove_t* floor;
+  
+  //e6y
+  fixed_t s3_floorheight;
+  short s3_floorpic;
 
   secnum = -1;
   rtn = 0;
@@ -961,8 +966,25 @@ int EV_DoDonut(line_t*  line)
       continue;
 
     s2 = getNextSector(s1->lines[0],s1);  // s2 is pool's sector
-    if (!s2) continue;                    // note lowest numbered line around
-                                          // pillar must be two-sided
+    
+    // note lowest numbered line around
+    // pillar must be two-sided
+    if (!s2)
+    {
+      if (demo_compatibility)
+      {
+        lprintf(LO_ERROR,
+          "EV_DoDonut: lowest numbered line (linedef: %d) "
+          "around pillar (sector: %d) must be two-sided. "
+          "Unexpected behavior may occur in Vanilla Doom.\n",
+          s1->lines[0]->iLineID, s1->iSectorID);
+        continue;
+      }
+      else
+      {
+        continue;
+      }
+    }
 
     /* do not start the donut if the pool is already moving
      * cph - DEMOSYNC - was !compatibility */
@@ -986,6 +1008,30 @@ int EV_DoDonut(line_t*  line)
       rtn = 1; //jff 1/26/98 no donut action - no switch change on return
 
       s3 = s2->lines[i]->backsector;      // s3 is model sector for changes
+      
+      if (!s3)
+      {
+        // e6y
+        // s3 is NULL, so
+        // s3->floorheight is an int at 0000:0000
+        // s3->floorpic is a short at 0000:0008
+        // Trying to emulate
+        lprintf(LO_ERROR, "EV_DoDonut: Model sector for changes is NULL.\n");
+        if (DonutOverrun(&s3_floorheight, &s3_floorpic, line, s1))
+        {
+          lprintf(LO_ERROR, "EV_DoDonut: Emulated.\n");
+        }
+        else
+        {
+          lprintf(LO_ERROR, "EV_DoDonut: Not emulated.\n");
+          break;
+        }
+      }
+      else
+      {
+        s3_floorheight = s3->floorheight;
+        s3_floorpic = s3->floorpic;
+      }
 
       //  Spawn rising slime
       floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
@@ -998,9 +1044,9 @@ int EV_DoDonut(line_t*  line)
       floor->direction = 1;
       floor->sector = s2;
       floor->speed = FLOORSPEED / 2;
-      floor->texture = s3->floorpic;
+      floor->texture = s3_floorpic;
       floor->newspecial = 0;
-      floor->floordestheight = s3->floorheight;
+      floor->floordestheight = s3_floorheight;
 
       //  Spawn lowering donut-hole pillar
       floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
@@ -1013,7 +1059,7 @@ int EV_DoDonut(line_t*  line)
       floor->direction = -1;
       floor->sector = s1;
       floor->speed = FLOORSPEED / 2;
-      floor->floordestheight = s3->floorheight;
+      floor->floordestheight = s3_floorheight;
       break;
     }
   }
