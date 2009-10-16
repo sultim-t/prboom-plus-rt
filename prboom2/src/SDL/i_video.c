@@ -83,6 +83,9 @@ static SDL_Cursor* cursors[2] = {NULL, NULL};
 
 dboolean window_focused;
 
+char *sdl_videodriver;
+char *sdl_video_window_pos;
+
 static void ActivateMouse(void);
 static void DeactivateMouse(void);
 //static int AccelerateMouse(int val);
@@ -1074,6 +1077,14 @@ void I_UpdateVideoMode(void)
 
   if ( desired_fullscreen )
     init_flags |= SDL_FULLSCREEN;
+
+  if (sdl_video_window_pos && sdl_video_window_pos[0])
+  {
+    char buf[80];
+    strcpy(buf, "SDL_VIDEO_WINDOW_POS=");
+    strncat(buf, sdl_video_window_pos, sizeof(buf) - sizeof(buf[0]) - strlen(buf));
+    putenv(buf);
+  }
 
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)

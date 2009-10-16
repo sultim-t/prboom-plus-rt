@@ -166,7 +166,6 @@ void M_ChangeStretch(void);
 
 extern int misc_fastexit;
 
-extern char *sdl_videodriver;
 extern int palette_ondamage;
 extern int palette_onbonus;
 extern int palette_onpowers;

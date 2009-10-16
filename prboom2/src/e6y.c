@@ -148,7 +148,6 @@ int demo_overwriteexisting;
 
 int misc_fastexit;
 
-char *sdl_videodriver;
 int palette_ondamage;
 int palette_onbonus;
 int palette_onpowers;
@@ -1426,39 +1425,6 @@ int levelstarttic;
 
 void I_AfterUpdateVideoMode(void)
 {
-#ifdef _WIN32
-  // Move the window to the screen center if SDL create it in not working area.
-  if (!desired_fullscreen)
-  {
-    struct SDL_SysWMinfo wmInfo;
-    SDL_VERSION(&wmInfo.version);
-    
-    if(SDL_GetWMInfo(&wmInfo))
-    {
-      int SDL_width, SDL_height;
-      RECT rectSDL, rectSCR;
-      HWND hwndSDL = wmInfo.window;
-      
-      GetWindowRect(hwndSDL, &rectSDL);
-      SDL_width = rectSDL.right - rectSDL.left;
-      SDL_height = rectSDL.bottom - rectSDL.top;
-      
-      SystemParametersInfo(SPI_GETWORKAREA, 0, &rectSCR, 0);
-      
-      if (rectSDL.left < rectSCR.left || rectSDL.right > rectSCR.right || 
-        rectSDL.top < rectSCR.top  || rectSDL.bottom > rectSCR.bottom)
-      {
-        MoveWindow(hwndSDL,
-          MAX(rectSCR.left, rectSCR.left + (rectSCR.right - rectSCR.left - SDL_width) / 2),
-          MAX(rectSCR.top, rectSCR.top + (rectSCR.bottom - rectSCR.top - SDL_height) / 2),
-          SDL_width, SDL_height, TRUE);
-      }
-    }
-  }
-
-  I_SwitchToWindow(WIN32_GetHWND());
-#endif
-
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL) {
     M_ChangeFOV();

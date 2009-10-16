@@ -44,6 +44,9 @@
 extern const char *screen_resolutions_list[];
 extern const char *screen_resolution;
 
+extern char *sdl_videodriver;
+extern char *sdl_video_window_pos;
+
 void I_PreInitGraphics(void); /* CPhipps - do stuff immediately on start */
 void I_InitScreenResolution(void); /* init resolution */
 void I_SetWindowCaption(void); /* Set the window caption */
