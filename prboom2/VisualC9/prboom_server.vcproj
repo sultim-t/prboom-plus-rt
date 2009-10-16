@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9,00"
 	Name="prboom_server"
-	ProjectGUID="{E1B3AF4D-8DF5-48a5-8A18-E1CC6176F1CE}"
+	ProjectGUID="{E1B3AF4D-8DF5-48A5-8A18-E1CC6176F1CE}"
 	RootNamespace="prboom_server"
 	TargetFrameworkVersion="131072"
 	>
