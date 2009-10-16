@@ -397,8 +397,8 @@ int DonutOverrun(fixed_t *s3_floorheight, short *s3_floorpic, line_t *line, sect
   {
     static int first = 0;
 
-    long tmp_s3_floorheight;
-    long tmp_s3_floorpic;
+    static long tmp_s3_floorheight;
+    static long tmp_s3_floorpic;
 
     if (first == 0)
     {
