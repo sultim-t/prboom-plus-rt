@@ -48,6 +48,7 @@
 #include "d_think.h"
 #include "w_wad.h"
 #include "m_argv.h"
+#include "m_misc.h"
 #include "e6y.h"//e6y
 
 // CPhipps - modify to use logical output routine
@@ -3086,19 +3087,6 @@ char *ptr_lstrip(char *p)  // point past leading whitespace
   return p;
 }
 
-// e6y: Correction of wrong processing of Bits parameter if its value is equal to zero
-// No more desync on HACX demos.
-// FIXME!!! (lame)
-dboolean StrToInt(const char *s, long *l)
-{      
-  return (
-    (sscanf(s, " 0x%lx", l) == 1) ||
-    (sscanf(s, " 0X%lx", l) == 1) ||
-    (sscanf(s, " 0%lo", l) == 1) ||
-    (sscanf(s, " %ld", l) == 1)
-  );
-}
-
 // ====================================================================
 // deh_GetData
 // Purpose: Get a key and data pair from a passed string
@@ -3146,7 +3134,7 @@ dboolean deh_GetData(char *s, char *k, uint_64_t *l, char **strval, FILE *fpout)
       // e6y: Correction of wrong processing of Bits parameter if its value is equal to zero
       // No more desync on HACX demos.
       // Old code: e6y val = strtol(t,NULL,0);  // killough 8/9/98: allow hex or octal input
-      if (!StrToInt(t,&val))
+      if (!M_StrToInt(t,&val))
       {
         val = 0;
         okrc = 2;

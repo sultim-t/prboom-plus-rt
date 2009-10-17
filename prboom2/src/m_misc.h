@@ -116,4 +116,6 @@ typedef struct default_s
 
 #define UL (-123456789) /* magic number for no min or max for parameter */
 
+int M_StrToInt(const char *s, long *l);
+
 #endif

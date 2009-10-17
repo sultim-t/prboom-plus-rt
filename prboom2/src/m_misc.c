@@ -1490,3 +1490,13 @@ void M_ScreenShot(void)
   doom_printf ("M_ScreenShot: Couldn't create screenshot");
   return;
 }
+
+int M_StrToInt(const char *s, long *l)
+{      
+  return (
+    (sscanf(s, " 0x%lx", l) == 1) ||
+    (sscanf(s, " 0X%lx", l) == 1) ||
+    (sscanf(s, " 0%lo", l) == 1) ||
+    (sscanf(s, " %ld", l) == 1)
+  );
+}

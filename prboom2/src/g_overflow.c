@@ -43,6 +43,7 @@
 #include "doomstat.h"
 #include "lprintf.h"
 #include "m_argv.h"
+#include "m_misc.h"
 #include "e6y.h"
 
 #define EMULATE(overflow) (overflows[overflow].emulate || overflows[overflow].tmp_emulate)
@@ -246,7 +247,7 @@ void SpechitOverrun(spechit_overrun_param_t *params)
         if (p > 0)
         {
           //baseaddr = atoi(myargv[p+1]);
-          StrToInt(myargv[p+1], (long*)&spechit_baseaddr);
+          M_StrToInt(myargv[p+1], (long*)&spechit_baseaddr);
         }
         else
         {
@@ -424,9 +425,9 @@ int DonutOverrun(fixed_t *pfloorheight, short *pfloorpic)
         // 0000:0000  (00 00 00 F1) ?? ?? ?? 00-(07 00)
 
         if (p < myargc - 1)
-          StrToInt(myargv[p + 1], &floorheight);
+          M_StrToInt(myargv[p + 1], &floorheight);
         if (p < myargc - 2)
-          StrToInt(myargv[p + 2], &floorpic);
+          M_StrToInt(myargv[p + 2], &floorpic);
 
         // bounds-check floorpic
         if (floorpic <= 0 || floorpic >= numflats)

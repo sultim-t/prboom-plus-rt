@@ -328,7 +328,7 @@ void e6y_InitCommandLine(void)
       traces[i].trace->count = 0;
       if ((p = M_CheckParm(traces[i].cmd)) && (p < myargc-1))
       {
-        while (count < 3 && p + count < myargc-1 && StrToInt(myargv[p+1+count], &value))
+        while (count < 3 && p + count < myargc-1 && M_StrToInt(myargv[p+1+count], &value))
         {
           sprintf(traces[i].trace->items[count].value, "\x1b\x36%ld\x1b\x33 0", value);
           traces[i].trace->items[count].index = value;
