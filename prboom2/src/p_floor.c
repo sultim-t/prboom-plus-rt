@@ -1022,7 +1022,7 @@ int EV_DoDonut(line_t*  line)
         if (DonutOverrun(&s3_floorheight, &s3_floorpic))
         {
           lprintf(LO_WARN, "EV_DoDonut: Emulated with floorheight %d, floor pic %d.\n",
-            s3_floorheight, s3_floorpic);
+            s3_floorheight >> 16, s3_floorpic);
         }
         else
         {
