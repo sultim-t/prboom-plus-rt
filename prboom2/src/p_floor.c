@@ -1012,18 +1012,21 @@ int EV_DoDonut(line_t*  line)
       if (!s3)
       {
         // e6y
-        // s3 is NULL, so
         // s3->floorheight is an int at 0000:0000
         // s3->floorpic is a short at 0000:0008
         // Trying to emulate
-        lprintf(LO_ERROR, "EV_DoDonut: Model sector for changes is NULL.\n");
-        if (DonutOverrun(&s3_floorheight, &s3_floorpic, line, s1))
+        lprintf(LO_ERROR,
+          "EV_DoDonut: Access violation at linedef %d, sector %d. "
+          "Unexpected behavior may occur in Vanilla Doom.\n",
+          line->iLineID, s1->iSectorID);
+        if (DonutOverrun(&s3_floorheight, &s3_floorpic))
         {
-          lprintf(LO_ERROR, "EV_DoDonut: Emulated.\n");
+          lprintf(LO_WARN, "EV_DoDonut: Emulated with floorheight %d, floor pic %d.\n",
+            s3_floorheight, s3_floorpic);
         }
         else
         {
-          lprintf(LO_ERROR, "EV_DoDonut: Not emulated.\n");
+          lprintf(LO_WARN, "EV_DoDonut: Not emulated.\n");
           break;
         }
       }

@@ -391,29 +391,23 @@ void RejectOverrun(int rejectlump, const byte **rejectmatrix, int totallines)
 
 #define DONUT_FLOORHEIGHT_DEFAULT 0x00000000
 #define DONUT_FLOORPIC_DEFAULT 0x16
-int DonutOverrun(fixed_t *s3_floorheight, short *s3_floorpic, line_t *line, sector_t *pillar_sector)
+
+int DonutOverrun(fixed_t *pfloorheight, short *pfloorpic)
 {
   if (demo_compatibility && PROCESS(OVERFLOW_DONUT))
   {
-    static int first = 0;
+    static int firsttime    = true;
+    static long floorheight = DONUT_FLOORHEIGHT_DEFAULT;
+    static long floorpic    = DONUT_FLOORPIC_DEFAULT;
 
-    static long tmp_s3_floorheight;
-    static long tmp_s3_floorpic;
-
-    if (first == 0)
+    if (firsttime)
     {
       int p;
 
-      // This is the first time we have had an overrun.
-      first = 1;
-
-      // Default values
-      tmp_s3_floorheight = DONUT_FLOORHEIGHT_DEFAULT;
-      tmp_s3_floorpic = DONUT_FLOORPIC_DEFAULT;
+      firsttime = false;
 
       // Allow floorheight and floorpic values to be specified with command line.
-      p = M_CheckParm("-donut");
-      if (p > 0 && p < myargc - 2)
+      if ((p = M_CheckParm("-donut")))
       {
         // Dump of needed memory: (fixed_t)0000:0000 and (short)0000:0008
         //
@@ -429,31 +423,29 @@ int DonutOverrun(fixed_t *s3_floorheight, short *s3_floorpic, line_t *line, sect
         // DOSBox under XP:
         // 0000:0000  (00 00 00 F1) ?? ?? ?? 00-(07 00)
 
-        StrToInt(myargv[p + 1], &tmp_s3_floorheight);
-        StrToInt(myargv[p + 2], &tmp_s3_floorpic);
-        if ((tmp_s3_floorpic <= 0) || (tmp_s3_floorpic >= numflats))
-        {
-          lprintf(LO_INFO, "DonutOverrun: The second parameter for \"-donut\" switch "
-            "should be greater than 0 and less than number of flats (%d). "
-            "Using default value (%d) instead. \n", numflats, DONUT_FLOORPIC_DEFAULT);
-          tmp_s3_floorpic = DONUT_FLOORPIC_DEFAULT;
-        }
+        if (p < myargc - 1)
+          StrToInt(myargv[p + 1], &floorheight);
+        if (p < myargc - 2)
+          StrToInt(myargv[p + 2], &floorpic);
+
+        // bounds-check floorpic
+        if (floorpic <= 0 || floorpic >= numflats)
+          floorpic = MIN(numflats, DONUT_FLOORPIC_DEFAULT);
       }
     }
 
-    ShowOverflowWarning(OVERFLOW_DONUT, 0,
-      "\n\nLinedef: %d; Sector: %d; New floor height: %d; New floor pic: %d",
-      line->iLineID, pillar_sector->iSectorID, tmp_s3_floorheight >> 16, tmp_s3_floorpic);
+    ShowOverflowWarning(OVERFLOW_DONUT, 0, "");
 
     if (EMULATE(OVERFLOW_DONUT))
     {
-      if (s3_floorheight)
-        *s3_floorheight = (fixed_t) tmp_s3_floorheight;
-      if (s3_floorpic )
-        *s3_floorpic = (short) tmp_s3_floorpic;
+      if (pfloorheight)
+        *pfloorheight = (fixed_t)floorheight;
+      if (pfloorpic)
+        *pfloorpic = (short)floorpic;
 
       return true;
     }
   }
+
   return false;
 }
