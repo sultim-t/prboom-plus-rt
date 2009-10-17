@@ -430,7 +430,7 @@ int DonutOverrun(fixed_t *pfloorheight, short *pfloorpic)
 
         // bounds-check floorpic
         if (floorpic <= 0 || floorpic >= numflats)
-          floorpic = MIN(numflats, DONUT_FLOORPIC_DEFAULT);
+          floorpic = MIN(numflats - 1, DONUT_FLOORPIC_DEFAULT);
       }
     }
 
