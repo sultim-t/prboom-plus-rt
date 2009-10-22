@@ -176,6 +176,7 @@ extern int gl_patch_filter;
 extern int gl_texture_filter_anisotropic;
 extern char *gl_tex_format_string;
 extern int gl_drawskys;
+extern int gl_stretchsky;
 extern int gl_sky_detail;
 extern int gl_sortbytexture;
 extern int gl_use_paletted_texture;
@@ -435,6 +436,8 @@ default_t defaults[] =
    def_str,ss_none},
   {"gl_drawskys",{(int*)&gl_drawskys},
   {skytype_standard}, skytype_none, skytype_count - 1, def_int,ss_none},
+  {"gl_stretchsky",{&gl_stretchsky},{1},0,1,
+   def_bool,ss_none},
   {"gl_sky_detail",{&gl_sky_detail},{16},1,32,
    def_int,ss_none},
   {"gl_sortbytexture",{&gl_sortbytexture},{1},0,1,

@@ -69,6 +69,7 @@ typedef struct
 } GLSkyVBO;
 
 int gl_drawskys;
+int gl_stretchsky;
 
 static PalEntry_t *SkyColor;
 
@@ -554,6 +555,11 @@ static void SkyVertex(vbo_vertex_t *vbo, int r, int c)
     }
   }
 
+  if (r != 4)
+  {
+    y += FRACUNIT * 300;
+  }
+
   // And finally the vertex.
   vbo->x =-(float)x/(float)MAP_SCALE;	// Doom mirrors the sky vertically!
   vbo->y = (float)y/(float)MAP_SCALE + delta;
@@ -588,13 +594,13 @@ static void gld_BuildSky(int row_count, int col_count, SkyBoxParams_t *sky)
   sky_vbo->rows = row_count;
 
   texh = sky->wall.gltexture->buffer_height;
-  if (texh > 190)
+  if (texh > 190 && gl_stretchsky)
     texh = 190;
   texw = sky->wall.gltexture->buffer_width;
 
   vertex_p = &sky_vbo[0].data[0];
   sky_vbo[0].loopcount = 0;
-  for(yflip = 0; yflip < 2; yflip++)
+  for (yflip = 0; yflip < 2; yflip++)
   {
     sky_vbo[0].loops[sky_vbo[0].loopcount].mode = GL_TRIANGLE_FAN;
     sky_vbo[0].loops[sky_vbo[0].loopcount].vertexindex = vertex_p - &sky_vbo[0].data[0];
@@ -611,7 +617,7 @@ static void gld_BuildSky(int row_count, int col_count, SkyBoxParams_t *sky)
     else
     {
       SkyColor = &sky->FloorSkyColor;
-      if (texh <= 180) yMult = 1.0f; else yAdd += 180.0f/texh;
+      if (texh <= 180) yMult = 1.0f; else yAdd += 180.0f / texh;
     }
 
     delta = 0.0f;
@@ -723,13 +729,23 @@ static void RenderDome(SkyBoxParams_t *sky)
   glEnableClientState(GL_COLOR_ARRAY);
 #endif
 
-  for(j = 0; j < 2; j++)
+  if (!gl_stretchsky)
   {
-    if (j == 0 && !HaveMouseLook())
-    {
-      continue;
-    }
+    int texh = sky->wall.gltexture->buffer_height;
 
+    if (texh <= 180)
+    {
+      glScalef(1.0f, (float)texh / 230.0f, 1.0f);
+    }
+    else
+    {
+      if (texh > 190)
+        glScalef(1.0f, 230.0f / 240.0f, 1.0f);
+    }
+  }
+
+  for(j = (HaveMouseLook() || !gl_stretchsky ? 0 : 1); j < 2; j++)
+  {
     gld_EnableTexture2D(GL_TEXTURE0_ARB, j != 0);
 
     for(i = 0; i < sky_vbo[0].loopcount; i++)
@@ -760,6 +776,8 @@ static void RenderDome(SkyBoxParams_t *sky)
 #endif
     }
   }
+
+  glScalef(1.0f, 1.0f, 1.0f);
 
   // current color is undefined after glDrawArrays
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -835,7 +853,7 @@ void gld_DrawDomeSkyBox(void)
     glRotatef(pitch, 1.0f, 0.0f, 0.0f);
     glRotatef(yaw,   0.0f, 1.0f, 0.0f);
     glScalef(-2.0f, 2.0f, 2.0f);
-    glTranslatef(0.f, -1000.0f/128.0f, 0.f);
+    glTranslatef(0.f, -1250.0f/128.0f, 0.f);
 
     RenderDome(&SkyBox);
 
