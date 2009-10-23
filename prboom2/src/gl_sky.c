@@ -75,6 +75,11 @@ static PalEntry_t *SkyColor;
 
 SkyBoxParams_t SkyBox;
 
+void M_ChangeSky(void)
+{
+  gld_InitSky();
+}
+
 void gld_InitSky(void)
 {
   memset(&SkyBox, 0, sizeof(SkyBox));

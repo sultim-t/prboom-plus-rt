@@ -67,6 +67,8 @@ typedef enum
 
   gl_lightmode_last
 } gl_lightmode_t;
+extern int gl_drawskys;
+extern int gl_stretchsky;
 extern int gl_hardware_gamma;
 extern gl_lightmode_t gl_lightmode;
 extern const char *gl_lightmodes[];
@@ -77,6 +79,7 @@ void gld_CheckHardwareGamma(void);
 void gld_FlushTextures(void);
 void gld_ApplyGammaRamp(byte *buf, int pitch, int width, int height);
 void M_ChangeLightMode(void);
+void M_ChangeSky(void);
 
 extern int gl_seamless;
 extern int render_canusedetail;

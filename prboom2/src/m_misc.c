@@ -175,8 +175,6 @@ extern int gl_sprite_filter;
 extern int gl_patch_filter;
 extern int gl_texture_filter_anisotropic;
 extern char *gl_tex_format_string;
-extern int gl_drawskys;
-extern int gl_stretchsky;
 extern int gl_sky_detail;
 extern int gl_sortbytexture;
 extern int gl_use_paletted_texture;
