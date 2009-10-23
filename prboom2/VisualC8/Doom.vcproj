@@ -76,6 +76,7 @@
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="../src/PCRELIB/VisualC8/Lib"
 				GenerateDebugInformation="true"
+				GenerateMapFile="true"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -264,6 +265,7 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="../src/PCRELIB/VisualC8/Lib"
+				GenerateMapFile="true"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -357,6 +359,7 @@
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="../src/PCRELIB/VisualC8/Lib"
 				GenerateDebugInformation="true"
+				GenerateMapFile="true"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -450,6 +453,7 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="../src/PCRELIB/VisualC8/Lib"
+				GenerateMapFile="true"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -638,6 +642,7 @@
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="../src/PCRELIB/VisualC8/Lib"
 				GenerateDebugInformation="true"
+				GenerateMapFile="true"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -731,6 +736,7 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="../src/PCRELIB/VisualC8/Lib"
+				GenerateMapFile="true"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
