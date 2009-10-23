@@ -36,6 +36,10 @@
 #include "config.h"
 #endif
 
+#ifdef GL_DOOM
+#include "gl_opengl.h"
+#endif
+
 #include "doomstat.h"
 #include "st_stuff.h"
 #include "r_main.h"
@@ -49,10 +53,6 @@
 #include "d_deh.h"    // Ty 03/27/98 - externalizations
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "g_game.h"
-
-#ifdef GL_DOOM
-#include "gl_opengl.h"
-#endif
 
 //jff 1/7/98 default automap colors added
 int mapcolor_back;    // map background

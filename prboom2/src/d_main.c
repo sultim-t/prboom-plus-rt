@@ -39,6 +39,8 @@
 #include "config.h"
 #endif
 
+#include "SDL_timer.h"
+
 #ifdef _MSC_VER
 #include <io.h>
 #include <direct.h>

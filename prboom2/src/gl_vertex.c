@@ -70,6 +70,12 @@
 
 // Adapted for prboom(-plus) by entryway
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "gl_opengl.h"
+
 #include "z_zone.h"
 #include <SDL_opengl.h>
 #include "v_video.h"

@@ -31,6 +31,12 @@
  *---------------------------------------------------------------------
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "gl_opengl.h"
+
 #include "z_zone.h"
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN

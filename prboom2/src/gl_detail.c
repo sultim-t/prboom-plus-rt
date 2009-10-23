@@ -31,6 +31,12 @@
  *---------------------------------------------------------------------
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "gl_opengl.h"
+
 #include "z_zone.h"
 #include <SDL.h>
 #include <SDL_opengl.h>

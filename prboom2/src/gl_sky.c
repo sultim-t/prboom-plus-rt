@@ -41,6 +41,8 @@
 #include "config.h"
 #endif
 
+#include "gl_opengl.h"
+
 #include <SDL.h>
 #include <SDL_opengl.h>
 

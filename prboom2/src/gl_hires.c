@@ -35,6 +35,8 @@
 #include "config.h"
 #endif
 
+#include "gl_opengl.h"
+
 #ifdef _MSC_VER
 //#include <ddraw.h> /* needed for DirectX's DDSURFACEDESC2 structure definition */
 #include <io.h>

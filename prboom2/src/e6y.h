@@ -34,13 +34,7 @@
 #ifndef __E6Y__
 #define __E6Y__
 
-#include <stdarg.h>
-
 #include "hu_lib.h"
-#include "SDL_timer.h"
-#include "SDL_events.h"
-#include "p_maputl.h"
-#include "w_wad.h"
 #include "r_demo.h"
 
 #define HU_HUDADDX (HU_HUDX)
