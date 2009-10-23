@@ -133,6 +133,12 @@ typedef struct
   seg_t *seg;
 } GLWall;
 
+typedef enum
+{
+  GLFLAT_CEILING      = 0x00000001,
+  GLFLAT_HAVE_OFFSET  = 0x00000002,
+} GLFlat_flag_t;
+
 typedef struct
 {
   int sectornum;
@@ -141,7 +147,7 @@ typedef struct
   float uoffs,voffs; // the texture coordinates
   float z; // the z position of the flat (height)
   GLTexture *gltexture;
-  dboolean ceiling;
+  unsigned int flags;
 } GLFlat;
 
 /* GLLoopDef is the struct for one loop. A loop is a list of vertexes

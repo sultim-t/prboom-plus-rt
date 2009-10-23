@@ -2676,43 +2676,52 @@ static void gld_DrawFlat(GLFlat *flat)
   int loopnum; // current loop number
   GLLoopDef *currentloop; // the current loop
   dboolean arb_detail;
+  int has_offset;
 
   rendered_visplanes++;
 
   gld_BindFlat(flat->gltexture);
   gld_StaticLight(flat->light);
+
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glTranslatef(0.0f,flat->z,0.0f);
 #endif
-  glMatrixMode(GL_TEXTURE);
-  glPushMatrix();
-  glTranslatef(flat->uoffs/64.0f,flat->voffs/64.0f,0.0f);
+
+  arb_detail = gl_arb_multitexture && render_detailedflats && !(flat->gltexture->flags & GLTEXTURE_HIRES);
+  has_offset = (arb_detail || (flat->flags & GLFLAT_HAVE_OFFSET));
+
+  if (has_offset)
+  {
+    glMatrixMode(GL_TEXTURE);
+    glPushMatrix();
+    glTranslatef(flat->uoffs, flat->voffs, 0.0f);
+  }
   
   //e6y
-  arb_detail = gl_arb_multitexture && render_detailedflats && !(flat->gltexture->flags & GLTEXTURE_HIRES);
   gld_EnableDetail(arb_detail && !(flat->gltexture->flags & GLTEXTURE_HIRES));
   if (arb_detail)
   {
-    float s;
     TAnimItemParam *animitem = &anim_flats[flat->gltexture->index - firstflat];
 
     GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
     gld_StaticLight(flat->light);
     
+    glPushMatrix();
+
     if (!animitem->anim)
     {
-      s = 0.0f;
+      if (flat->flags & GLFLAT_HAVE_OFFSET)
+        glTranslatef(flat->uoffs * 4.0f, flat->voffs * 4.0f, 0.0f);
     }
     else
     {
-      s = 1.0f / animitem->anim->numpics * animitem->index;
+      float s = 1.0f / animitem->anim->numpics * animitem->index;
       if (s < 0.001) s = 0.0f;
+      glTranslatef(s + flat->uoffs * 4.0f, flat->voffs * 4.0f, 0.0f);
     }
 
-    glPushMatrix();
-    glTranslatef(s + flat->uoffs/16.0f,flat->voffs/16.0f,0.0f);
     glScalef(4.0f, 4.0f, 1.0f);
   }
 
@@ -2789,7 +2798,11 @@ static void gld_DrawFlat(GLFlat *flat)
     GLEXT_glActiveTextureARB(GL_TEXTURE0_ARB);
   }
 
-  glPopMatrix();
+  if (has_offset)
+  {
+    glPopMatrix();
+  }
+
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
@@ -2814,7 +2827,8 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
   flat.sectornum=sectornum;
   sector=&sectors[sectornum]; // get the sector
   sector=R_FakeFlat(sector, &tempsec, &floorlightlevel, &ceilinglightlevel, false); // for boom effects
-  flat.ceiling=ceiling;
+  flat.flags = (ceiling ? GLFLAT_CEILING : 0);
+
   if (!ceiling) // if it is a floor ...
   {
     if (sector->floorpic == skyflatnum) // don't draw if sky
@@ -2828,8 +2842,17 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
     flat.light=gld_CalcLightLevel(plane->lightlevel+(extralight<<5));
     flat.fogdensity = gld_CalcFogDensity(sector, plane->lightlevel, GLDIT_FLOOR);
     // calculate texture offsets
-    flat.uoffs=(float)sector->floor_xoffs/(float)FRACUNIT;
-    flat.voffs=(float)sector->floor_yoffs/(float)FRACUNIT;
+    if (sector->floor_xoffs | sector->floor_yoffs)
+    {
+      flat.flags |= GLFLAT_HAVE_OFFSET;
+      flat.uoffs=(float)sector->floor_xoffs/(float)(FRACUNIT*64);
+      flat.voffs=(float)sector->floor_yoffs/(float)(FRACUNIT*64);
+    }
+    else
+    {
+      flat.uoffs=0.0f;
+      flat.voffs=0.0f;
+    }
   }
   else // if it is a ceiling ...
   {
@@ -2844,14 +2867,23 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
     flat.light=gld_CalcLightLevel(plane->lightlevel+(extralight<<5));
     flat.fogdensity = gld_CalcFogDensity(sector, plane->lightlevel, GLDIT_CEILING);
     // calculate texture offsets
-    flat.uoffs=(float)sector->ceiling_xoffs/(float)FRACUNIT;
-    flat.voffs=(float)sector->ceiling_yoffs/(float)FRACUNIT;
+    if (sector->ceiling_xoffs | sector->ceiling_yoffs)
+    {
+      flat.flags |= GLFLAT_HAVE_OFFSET;
+      flat.uoffs=(float)sector->ceiling_xoffs/(float)(FRACUNIT*64);
+      flat.voffs=(float)sector->ceiling_yoffs/(float)(FRACUNIT*64);
+    }
+    else
+    {
+      flat.uoffs=0.0f;
+      flat.voffs=0.0f;
+    }
   }
 
   // get height from plane
   flat.z=(float)plane->height/MAP_SCALE;
 
-  gld_AddDrawItem((flat.ceiling ? GLDIT_CEILING : GLDIT_FLOOR), &flat);
+  gld_AddDrawItem(((flat.flags & GLFLAT_CEILING) ? GLDIT_CEILING : GLDIT_FLOOR), &flat);
 }
 
 void gld_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling)

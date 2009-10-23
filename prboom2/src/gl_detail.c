@@ -311,11 +311,28 @@ void gld_DrawWallDetail_NoARB(GLWall *wall, int from_index, int to_index)
         w = wall->gltexture->realtexwidth / 18.0f;
         h = wall->gltexture->realtexheight / 18.0f;
         gld_StaticLightAlpha(wall->light, wall->alpha);
-        glBegin(GL_TRIANGLE_STRIP);
-        glTexCoord2f(wall->ul*w,wall->vt*h); glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
+        glBegin(GL_TRIANGLE_FAN);
+
+        // lower left corner
         glTexCoord2f(wall->ul*w,wall->vb*h); glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
+
+        // split left edge of wall
+        if (gl_seamless && !wall->glseg->fracleft)
+          gld_SplitLeftEdge(wall, true, w, h);
+
+        // upper left corner
+        glTexCoord2f(wall->ul*w,wall->vt*h); glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
+
+        // upper right corner
         glTexCoord2f(wall->ur*w,wall->vt*h); glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
+
+        // split right edge of wall
+        if (gl_seamless && !wall->glseg->fracright)
+          gld_SplitRightEdge(wall, true, w, h);
+
+        // lower right corner
         glTexCoord2f(wall->ur*w,wall->vb*h); glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
+
         glEnd();
       }
     }
@@ -333,7 +350,8 @@ void gld_DrawFlatDetail_NoARB(GLFlat *flat)
   glTranslatef(0.0f,flat->z,0.0f);
   glMatrixMode(GL_TEXTURE);
   glPushMatrix();
-  glTranslatef(flat->uoffs/16.0f,flat->voffs/16.0f,0.0f);
+  if (flat->flags & GLFLAT_HAVE_OFFSET)
+    glTranslatef(flat->uoffs * 4.0f, flat->voffs * 4.0f, 0.0f);
   glScalef(4.0f, 4.0f, 1.0f);
 
   if (flat->sectornum>=0)
