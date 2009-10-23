@@ -55,7 +55,7 @@ const char *overflow_cfgname[OVERFLOW_MAX] =
   "overrun_spechit_emulate",
   "overrun_reject_emulate",
   "overrun_intercept_emulate",
-  "overrun_playeringame_emulate"
+  "overrun_playeringame_emulate",
   "overrun_donut_emulate"
 };
 
