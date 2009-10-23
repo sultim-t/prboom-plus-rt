@@ -2681,9 +2681,11 @@ static void gld_DrawFlat(GLFlat *flat)
 
   gld_BindFlat(flat->gltexture);
   gld_StaticLight(flat->light);
+#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glTranslatef(0.0f,flat->z,0.0f);
+#endif
   glMatrixMode(GL_TEXTURE);
   glPushMatrix();
   glTranslatef(flat->uoffs/64.0f,flat->voffs/64.0f,0.0f);
@@ -2771,7 +2773,8 @@ static void gld_DrawFlat(GLFlat *flat)
           glTexCoord2fv((GLfloat*)&flats_vbo[vertexnum].u);
         }
         // set vertex coordinate
-        glVertex3fv((GLfloat*)&flats_vbo[vertexnum].x);
+        //glVertex3fv((GLfloat*)&flats_vbo[vertexnum].x);
+        glVertex3f(flats_vbo[vertexnum].x, flat->z, flats_vbo[vertexnum].z);
       }
       // end of loop
       glEnd();
@@ -2787,8 +2790,10 @@ static void gld_DrawFlat(GLFlat *flat)
   }
 
   glPopMatrix();
+#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
+#endif
 }
 
 // gld_AddFlat
