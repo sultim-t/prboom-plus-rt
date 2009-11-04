@@ -2414,6 +2414,11 @@ void A_BrainSpit(mobj_t *mo)
 
   // spawn brain missile
   newmobj = P_SpawnMissile(mo, targ, MT_SPAWNSHOT);
+  
+  // e6y: do not crash with 'incorrect' DEHs
+  if (!newmobj || !newmobj->state || newmobj->momy == 0 || newmobj->state->tics == 0)
+    I_Error("A_BrainSpit: can't spawn brain missile (incorrect DEH)");
+
   P_SetTarget(&newmobj->target, targ);
   newmobj->reactiontime = (short)(((targ->y-mo->y)/newmobj->momy)/newmobj->state->tics);
 
