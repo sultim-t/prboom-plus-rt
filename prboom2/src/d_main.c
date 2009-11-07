@@ -166,6 +166,17 @@ void D_PostEvent(event_t *ev)
   // Moved to I_StartTic()
   // if (gametic < 3) return;
 
+  // Allow only sensible keys during skipping
+  if (doSkip)
+  {
+    if ((ev->type == ev_keydown || ev->type == ev_keyup) &&
+      (ev->data1 != key_quit &&
+       ev->data1 != key_use))
+    {
+      return;
+    }
+  }
+
   M_Responder(ev) ||
 	  (gamestate == GS_LEVEL && (
 				     HU_Responder(ev) ||
