@@ -169,11 +169,21 @@ void D_PostEvent(event_t *ev)
   // Allow only sensible keys during skipping
   if (doSkip)
   {
-    if ((ev->type == ev_keydown || ev->type == ev_keyup) &&
-      (ev->data1 != key_quit &&
-       ev->data1 != key_use))
+    if (ev->type == ev_keydown || ev->type == ev_keyup)
     {
-      return;
+      if (ev->data1 == key_quit)
+      {
+        // Immediate exit if key_quit is pressed in skip mode
+        I_SafeExit(0);
+      }
+      else
+      {
+        // key_use is used for seeing the current frame
+        if (ev->data1 != key_use)
+        {
+          return;
+        }
+      }
     }
   }
 
