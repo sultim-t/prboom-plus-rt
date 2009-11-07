@@ -1695,8 +1695,6 @@ static void D_DoomMainSetup(void)
   lprintf(LO_INFO,"ST_Init: Init status bar.\n");
   ST_Init();
 
-  idmusnum = -1; //jff 3/17/98 insure idmus number is blank
-
   // CPhipps - auto screenshots
   if ((p = M_CheckParm("-autoshot")) && (p < myargc-2))
     if ((auto_shot_count = auto_shot_time = atoi(myargv[p+1])))

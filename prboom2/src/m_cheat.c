@@ -368,8 +368,6 @@ static void cheat_clev(char buf[3])
 
   // So be it.
 
-  idmusnum = -1; //jff 3/17/98 revert to normal level music on IDCLEV
-
   plyr->message = s_STSTR_CLEV; // Ty 03/27/98 - externalized
 
   G_DeferedInitNew(gameskill, epsd, map);

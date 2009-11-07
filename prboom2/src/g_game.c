@@ -2264,6 +2264,9 @@ void G_ReloadDefaults(void)
 
 void G_DoNewGame (void)
 {
+  // e6y: allow new level's music to be loaded
+  idmusnum = -1;
+
   G_ReloadDefaults();            // killough 3/1/98
   netgame = false;               // killough 3/29/98
   deathmatch = false;

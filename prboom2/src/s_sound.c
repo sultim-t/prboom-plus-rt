@@ -119,6 +119,8 @@ static int S_getChannel(void *origin, sfxinfo_t *sfxinfo, int is_pickup);
 
 void S_Init(int sfxVolume, int musicVolume)
 {
+  idmusnum = -1; //jff 3/17/98 insure idmus number is blank
+
   //jff 1/22/98 skip sound init if sound not enabled
   numChannels = default_numChannels;
   if (snd_card && !nosfxparm)
