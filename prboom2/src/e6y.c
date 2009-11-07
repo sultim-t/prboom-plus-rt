@@ -409,6 +409,8 @@ void G_SkipDemoStart(void)
   saved_nosfxparm = nosfxparm;
   saved_nomusicparm = nomusicparm;
   saved_render_precise = render_precise;
+
+  paused = false;
   
   doSkip = true;
 
