@@ -183,7 +183,7 @@ static void R_InitSpriteDefs(const char * const * namelist)
 
   numsprites = i;
 
-  sprites = Z_Malloc(numsprites *sizeof(*sprites), PU_STATIC, NULL);
+  sprites = Z_Calloc(numsprites, sizeof(*sprites), PU_STATIC, NULL);
 
   // Create hash table based on just the first four letters of each sprite
   // killough 1/31/98
