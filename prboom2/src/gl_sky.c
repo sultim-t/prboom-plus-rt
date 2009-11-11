@@ -79,6 +79,7 @@ int gl_stretchsky = false;
 static PalEntry_t *SkyColor;
 
 SkyBoxParams_t SkyBox;
+float y_offset_saved;
 
 void M_ChangeSky(void)
 {
@@ -89,6 +90,7 @@ void gld_InitSky(void)
 {
   memset(&SkyBox, 0, sizeof(SkyBox));
   SkyBox.index = -1;
+  y_offset_saved = 0;
 }
 
 void gld_InitFrameSky(void)
@@ -694,10 +696,16 @@ static void RenderDome(SkyBoxParams_t *sky)
 
   vbosize = 2 * rows * (columns * 2 + 2) + columns * 2;
 
-  if (sky->wall.gltexture->index != sky->index)
+  if (sky->y_offset != y_offset_saved ||
+      sky->wall.gltexture->index != sky->index)
   {
-    sky->index = sky->wall.gltexture->index;
-    gld_GetSkyCapColors();
+    y_offset_saved = sky->y_offset;
+    
+    if (sky->wall.gltexture->index != sky->index)
+    {
+      sky->index = sky->wall.gltexture->index;
+      gld_GetSkyCapColors();
+    }
 
     gld_BuildSky(rows, columns, sky);
 
