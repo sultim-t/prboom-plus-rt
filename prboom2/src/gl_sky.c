@@ -565,6 +565,9 @@ static void SkyVertex(vbo_vertex_t *vbo, int r, int c)
       vbo->u = (-timesRepeat * c / (float)columns) ;
       vbo->v = ((rows-r)/(float)rows) * 1.f * yMult + yAdd;
     }
+
+    if (!(SkyBox.wall.flag & GLDWF_SKYFLIP))
+      vbo->u = -vbo->u;
   }
 
   if (r != 4)
