@@ -71,7 +71,9 @@ typedef struct
 } GLSkyVBO;
 
 int gl_drawskys;
-int gl_stretchsky;
+// Sky stretching is rather pointless with the GL renderer
+// now that it can handle all sky heights.
+int gl_stretchsky = false;
 
 static PalEntry_t *SkyColor;
 
