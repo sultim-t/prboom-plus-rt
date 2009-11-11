@@ -495,6 +495,11 @@ void M_ChangeSpeed(void)
 void M_ChangeMouseLook(void)
 {
   viewpitch = 0;
+
+  if (gl_skymode == skytype_auto)
+    gl_drawskys = (movement_mouselook ? skytype_skydome : skytype_standard);
+  else
+    gl_drawskys = gl_skymode;
 }
 
 void M_ChangeMouseInvert(void)

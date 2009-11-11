@@ -50,6 +50,7 @@ typedef enum {
 } filter_texture_mode_t;
 
 typedef enum {
+  skytype_auto,
   skytype_none,
   skytype_standard,
   skytype_skydome,
@@ -67,6 +68,7 @@ typedef enum
 
   gl_lightmode_last
 } gl_lightmode_t;
+extern int gl_skymode;
 extern int gl_drawskys;
 extern int gl_stretchsky;
 extern int gl_hardware_gamma;

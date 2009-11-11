@@ -430,7 +430,6 @@ typedef struct SkyBoxParams_s
   PalEntry_t FloorSkyColor;
   PalEntry_t CeilingSkyColor;
 } SkyBoxParams_t;
-extern int gl_drawskys;
 extern SkyBoxParams_t SkyBox;
 extern GLfloat gl_whitecolor[];
 void gld_InitSky(void);
