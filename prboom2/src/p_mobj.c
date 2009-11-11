@@ -1335,10 +1335,10 @@ void P_SpawnMapThing (const mapthing_t* mthing, int index)//e6y
   // warning message for the player.
 
   if (i == NUMMOBJTYPES)
-    {
-    lprintf(LO_INFO, "Unknown Thing type %i at (%i, %i)", mthing->type, mthing->x, mthing->y);
+  {
+    lprintf(LO_INFO, "P_SpawnMapThing: Unknown Thing type %i at (%i, %i)\n", mthing->type, mthing->x, mthing->y);
     return;
-    }
+  }
 
   // don't spawn keycards and players in deathmatch
 
