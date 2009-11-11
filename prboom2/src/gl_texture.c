@@ -211,26 +211,20 @@ GLuint* gld_GetTextureTexID(GLTexture *gltexture, int cm)
      2
   };
 
+  gltexture->cm = cm;
+  gltexture->player_cm = 0;
+
   if (!gl_boom_colormaps)
+  {
     return &gltexture->glTexExID[cm][0][0];
-
-  if (gltexture->flags & GLTEXTURE_HIRES)
-  {
-    gltexture->player_cm = 0;
   }
-  else
-  {
-    if (data[frame_fixedcolormap] == -1)
-    {
-      I_Error("gld_GetFixedColormapIndex: Unknown player->fixedcolormap?");
-    }
 
+  if (!(gltexture->flags & GLTEXTURE_HIRES))
+  {
     gltexture->player_cm = data[frame_fixedcolormap];
   }
 
-  gltexture->cm = cm;
-
-  return &gltexture->glTexExID[cm][gltexture->player_cm][(gl_boom_colormaps ? boom_cm : 0)];
+  return &gltexture->glTexExID[cm][gltexture->player_cm][boom_cm];
 }
 
 // e6y

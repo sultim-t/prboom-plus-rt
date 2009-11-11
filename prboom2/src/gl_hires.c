@@ -732,6 +732,7 @@ static void gld_HiRes_Bind(GLTexture *gltexture, int *glTexID)
     (gltexture->textype == GLDT_FLAT));
 
   gltexture->flags |= GLTEXTURE_HIRES;
+  gltexture->texflags[CR_DEFAULT][0] |= GLTEXTURE_HIRES;
 
   if (gltexture->textype == GLDT_PATCH)
   {
