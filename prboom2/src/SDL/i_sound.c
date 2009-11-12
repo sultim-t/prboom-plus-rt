@@ -734,7 +734,8 @@ void I_ResumeSong (int handle)
 void I_StopSong(int handle)
 {
 #ifdef HAVE_MIXER
-    Mix_FadeOutMusic(500);
+  // halt music playback
+  Mix_HaltMusic();
 #endif
 }
 
