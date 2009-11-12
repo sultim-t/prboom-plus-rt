@@ -390,7 +390,7 @@ void RejectOverrun(int rejectlump, const byte **rejectmatrix, int totallines)
 // donut overrun emulation (linedef action #9)
 //
 
-#define DONUT_FLOORHEIGHT_DEFAULT 0x00000000
+#define DONUT_FLOORHEIGHT_DEFAULT 0x00C90F9E
 #define DONUT_FLOORPIC_DEFAULT 0x16
 
 int DonutOverrun(fixed_t *pfloorheight, short *pfloorpic)
@@ -420,7 +420,7 @@ int DonutOverrun(fixed_t *pfloorheight, short *pfloorpic)
         // DOS 7.1:
         // 0000:0000  (9E 0F C9 00) 65 04 70 00-(16 00)
         // Win98:
-        // 0000:0000  (00 00 00 00) 65 04 70 00-(16 00)
+        // 0000:0000  (9E 0F C9 00) 65 04 70 00-(16 00)
         // DOSBox under XP:
         // 0000:0000  (00 00 00 F1) ?? ?? ?? 00-(07 00)
 
