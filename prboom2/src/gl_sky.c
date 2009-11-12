@@ -107,7 +107,7 @@ void gld_GetScreenSkyScale(GLWall *wall, float *scale_x, float *scale_y)
 {
   float sx, sy;
 
-  sx = ((wall->flag & GLDWF_SKYFLIP) == GLDWF_SKYFLIP ? -128.0f : 128.0f);
+  sx = (wall->flag == GLDWF_SKYFLIP ? -128.0f : 128.0f);
 
   if (!mlook_or_fov)
   {
@@ -161,7 +161,7 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, int skytype)
         wall->skyyaw  = -2.0f*(((270.0f-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)+90.0f)/(float)render_fov);
         wall->skyymid = skyYShift+(((float)s->rowoffset/(float)FRACUNIT)/100.0f);
       }
-      wall->flag = (l->special == 272 ? GLDWF_SKYFLIP : GLDWF_SKY);
+      wall->flag = (l->special == 272 ? GLDWF_SKY : GLDWF_SKYFLIP);
     }
   }
   else
@@ -446,7 +446,7 @@ void gld_DrawScreenSkybox(void)
     k = MAX(wall->gltexture->buffer_width, 256) / 256;
     angle = ((viewangle - ANG45) / k) % WRAPANGLE;
 
-    if ((wall->flag & GLDWF_SKYFLIP) == GLDWF_SKYFLIP)
+    if (wall->flag == GLDWF_SKYFLIP)
     {
       fU1 = -((float)angle + SkyBox.x_offset) / (WRAPANGLE - 1);
       fU2 = fU1 + 1.0f / k;
@@ -566,7 +566,7 @@ static void SkyVertex(vbo_vertex_t *vbo, int r, int c)
       vbo->v = ((rows-r)/(float)rows) * 1.f * yMult + yAdd;
     }
 
-    if (!(SkyBox.wall.flag & GLDWF_SKYFLIP))
+    if (SkyBox.wall.flag == GLDWF_SKYFLIP)
       vbo->u = -vbo->u;
   }
 
