@@ -43,6 +43,27 @@
 
 <h1>Change Log</h1>
 
+<br><span class="ver">2.5.0.5</span>
+<span class="date">&nbsp;@&nbsp;2009-Nov-14</span>
+<table>
+<tr><td class="aaa">[+]</td><td>Added an "sdl_video_window_pos" config variable. Syntax:
+<pre class="code">
+    sdl_video_window_pos "center"
+    sdl_video_window_pos "100,100"
+    sdl_video_window_pos ""
+</pre>
+<tr><td class="aaa">[+]</td><td>Access violation emulation for the "S1 Floor Raise Donut (changes texture) (9)" action in demo compatibility mode. "-donut floorheight floorpic" - takes custom values, overriding the program's default values ("-donut 0xF1000000 7", for DOSBox behavior). Disabled by default.
+<tr><td class="aaa">[*]</td><td>Updated to newest SDL libraries: SDL.dll v1.2.14, SDL_net.dll v1.2.9.
+<tr><td class="aaa">[*]</td><td>The "Sky Mode" GUI setting and "gl_drawskys" config variable have been removed. Now "SkyBox" is used if mouse look is enabled, "Standard Sky" otherwise. There is no more sky stretching with "SkyBox" mode.
+<tr><td class="aaa">[-]</td><td>Fixed stat screen animation for The Ultimate Doom and the Doom II cast BOSSBACK after MAP30 when using 'not adjusted' rendering.
+<tr><td class="aaa">[-]</td><td>Fixed detail walls when "GL_ARB_multitexture" extension is not supported or gl_compatibility is used.
+<tr><td class="aaa">[-]</td><td>Fixed bug where music doesn't change after IDMUS is used and a New Game is started.
+<tr><td class="aaa">[-]</td><td>Fixed bug where using the "End Level" key while a demo is paused breaks the "End Level" feature.
+<tr><td class="aaa">[-]</td><td>Fixed vertical scrolling of sky texture in SkyBox mode.
+<tr><td class="aaa">[-]</td><td>Now the mirror flag for MBF skies is used in SkyBox mode.
+<tr><td class="aaa">[-]</td><td>Fixed music playback on Windows Vista and 7.
+</table>
+
 <br><span class="ver">2.5.0.4</span>
 <span class="date">&nbsp;@&nbsp;2009-Oct-07</span>
 <table>

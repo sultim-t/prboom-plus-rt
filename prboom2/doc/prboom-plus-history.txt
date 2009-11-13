@@ -1,5 +1,21 @@
 Change Log
 
+2.5.0.5 @ 2009.11.14
+[+] Added an "sdl_video_window_pos" config variable. Syntax:
+    sdl_video_window_pos "center"
+    sdl_video_window_pos "100,100"
+    sdl_video_window_pos ""
+[+] Access violation emulation for the "S1 Floor Raise Donut (changes texture) (9)" action in demo compatibility mode. "-donut floorheight floorpic" - takes custom values, overriding the program's default values ("-donut 0xF1000000 7", for DOSBox behavior). Disabled by default.
+[*] Updated to newest SDL libraries: SDL.dll v1.2.14, SDL_net.dll v1.2.9.
+[*] The "Sky Mode" GUI setting and "gl_drawskys" config variable have been removed. Now "SkyBox" is used if mouse look is enabled, "Standard Sky" otherwise. There is no more sky stretching with "SkyBox" mode.
+[-] Fixed stat screen animation for The Ultimate Doom and the Doom II cast BOSSBACK after MAP30 when using 'not adjusted' rendering.
+[-] Fixed detail walls when "GL_ARB_multitexture" extension is not supported or gl_compatibility is used.
+[-] Fixed bug where music doesn't change after IDMUS is used and a New Game is started.
+[-] Fixed bug where using the "End Level" key while a demo is paused breaks the "End Level" feature.
+[-] Fixed vertical scrolling of sky texture in SkyBox mode.
+[-] Now the mirror flag for MBF skies is used in SkyBox mode.
+[-] Fixed music playback on Windows Vista and 7.
+
 2.5.0.4 @ 2009.10.07
 [+] Full support for wide resolutions. Aspect will be detected automaticaly, but you can force any ratio from the GUI.
 [+] Options\General\Status Bar and Menu Appearance: Not Adjusted / Doom Format / Fit to Width.
