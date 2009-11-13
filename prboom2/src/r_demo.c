@@ -538,7 +538,9 @@ static void R_DemoEx_GetParams(const byte *pwad_p, waddata_t *waddata)
         {
           while (++p != paramscount && *params[p] != '-')
           {
-            char *filename = I_FindFile(params[p], ".wad");
+            //something is wrong here
+            //char *filename = I_FindFile(params[p], ".wad");
+            char *filename = strdup(params[p]);
             WadDataAddItem(waddata, filename, files[i].source, 0);
             free(filename);
           }

@@ -524,6 +524,7 @@ static dboolean L_GUISelect(waddata_t *waddata)
     }
   }
 
+  //no iwad?
   if (!processed)
     return false;
 
@@ -562,8 +563,8 @@ static dboolean L_GUISelect(waddata_t *waddata)
         break;
       }
     }
-    else
-      return false;
+    //else
+    //  return false;
   }
   
   if (topindex == -1)
