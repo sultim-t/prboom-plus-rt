@@ -146,8 +146,13 @@ static void FUNC_V_CopyRect(int srcx, int srcy, int srcscrn, int width,
 #if 1
     srcx   = params->video->x1lookup[srcx];
     srcy   = params->video->y1lookup[srcy];
+#if 0
     width  = params->video->x1lookup[sx + w] - srcx;
     height = params->video->y1lookup[sy + h] - srcy;
+#else
+    width  = params->video->x2lookup[sx + w - 1] - srcx;
+    height = params->video->y2lookup[sy + h - 1] - srcy;
+#endif
     destx  = params->video->x1lookup[destx] + params->deltax1;
     desty  = params->video->y1lookup[desty] + params->deltay1;
 #else
