@@ -393,6 +393,7 @@ void gld_SetupFloodedPlaneCoords(GLWall *wall, gl_strip_coords_t *c);
 void gld_SetupFloodedPlaneLight(GLWall *wall);
 
 //light
+extern int gl_rellight;
 void gld_StaticLightAlpha(float light, float alpha);
 #define gld_StaticLight(light) gld_StaticLightAlpha(light, 1.0f)
 void gld_InitLightTable(void);

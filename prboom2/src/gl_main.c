@@ -2368,13 +2368,12 @@ void gld_AddWall(seg_t *seg)
   // for walls exactly vertical/horizontal on the map
   if (fake_contrast)
   {
-    if (gl_lightmode == gl_lightmode_gzdoom)
-      rellight = seg->linedef->dx == 0 ? +8 : seg->linedef->dy==0 ? -8 : 0;
-    else
-      rellight = seg->linedef->dx == 0 ? +16 : seg->linedef->dy == 0 ? -16 : 0;
+    rellight = seg->linedef->dx == 0 ? +gl_rellight : seg->linedef->dy==0 ? -gl_rellight : 0;
   }
   wall.light=gld_CalcLightLevel(frontsector->lightlevel+rellight+(extralight<<5));
-  wall.fogdensity = gld_CalcFogDensity(frontsector, frontsector->lightlevel, GLDIT_WALL);
+  wall.fogdensity = gld_CalcFogDensity(frontsector,
+    frontsector->lightlevel + (gl_lightmode == gl_lightmode_fogbased ? rellight : 0),
+    GLDIT_WALL);
   wall.alpha=1.0f;
   wall.gltexture=NULL;
   wall.seg = seg; //e6y

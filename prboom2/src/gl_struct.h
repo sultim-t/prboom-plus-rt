@@ -70,7 +70,6 @@ typedef enum
 } gl_lightmode_t;
 extern int gl_skymode;
 extern int gl_drawskys;
-extern int gl_stretchsky;
 extern int gl_hardware_gamma;
 extern gl_lightmode_t gl_lightmode;
 extern const char *gl_lightmodes[];
