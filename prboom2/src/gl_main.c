@@ -587,7 +587,8 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   x2=x1+(int)((float)gltexture->realtexwidth*pspritexscale_f);
   y1=viewwindowy+centery-(int)(((float)vis->texturemid/(float)FRACUNIT)*pspriteyscale_f);
   y2=y1+(int)((float)gltexture->realtexheight*pspriteyscale_f)+1;
-  light=gld_Calc2DLightLevel(lightlevel);
+  // e6y: don't do the gamma table correction on the lighting
+  light = (float)lightlevel / 255.0f;
 
   // e6y
   // Fix of no warning (flashes between shadowed and solid)
