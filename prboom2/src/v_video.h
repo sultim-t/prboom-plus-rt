@@ -185,9 +185,9 @@ void V_InitColorTranslation(void);
 void V_Init (void);
 
 // V_CopyRect
-typedef void (*V_CopyRect_f)(int srcx,  int srcy,  int srcscrn,
+typedef void (*V_CopyRect_f)(int srcscrn, int destscrn,
+                             int x, int y,
                              int width, int height,
-                             int destx, int desty, int destscrn,
                              enum patch_translation_e flags);
 extern V_CopyRect_f V_CopyRect;
 

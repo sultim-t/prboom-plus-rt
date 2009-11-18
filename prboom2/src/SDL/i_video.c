@@ -931,7 +931,7 @@ void I_InitScreenResolution(void)
 
   // statusbar
   screens[4].width = REAL_SCREENWIDTH;
-  screens[4].height = (ST_HEIGHT * SCREENHEIGHT / 200 + 1);
+  screens[4].height = REAL_SCREENHEIGHT;
   screens[4].byte_pitch = REAL_SCREENPITCH;
   screens[4].short_pitch = REAL_SCREENPITCH / V_GetModePixelDepth(VID_MODE16);
   screens[4].int_pitch = REAL_SCREENPITCH / V_GetModePixelDepth(VID_MODE32);

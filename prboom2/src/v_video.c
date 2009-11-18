@@ -126,134 +126,122 @@ void V_InitColorTranslation(void)
 //
 // No return.
 //
-static void FUNC_V_CopyRect(int srcx, int srcy, int srcscrn, int width,
-                int height, int destx, int desty, int destscrn,
+static void FUNC_V_CopyRect(int srcscrn, int destscrn,
+                int x, int y, int width, int height,
                 enum patch_translation_e flags)
 {
   byte *src;
   byte *dest;
+  int pixel_depth = V_GetPixelDepth();
 
   if (flags & VPT_STRETCH_MASK)
   {
     stretch_param_t *params;
-    int sx = srcx;
-    int w = width;
-    int sy = srcy;
-    int h = height;
+    int sx = x;
+    int sy = y;
 
     params = &stretch_params[flags & VPT_ALIGN_MASK];
 
-#if 1
-    srcx   = params->video->x1lookup[srcx];
-    srcy   = params->video->y1lookup[srcy];
-#if 0
-    width  = params->video->x1lookup[sx + w] - srcx;
-    height = params->video->y1lookup[sy + h] - srcy;
-#else
-    width  = params->video->x2lookup[sx + w - 1] - srcx;
-    height = params->video->y2lookup[sy + h - 1] - srcy;
-#endif
-    destx  = params->video->x1lookup[destx] + params->deltax1;
-    desty  = params->video->y1lookup[desty] + params->deltay1;
-#else
-    srcx=srcx*WIDE_SCREENWIDTH/320 + deltax;
-    srcy=srcy*SCREENHEIGHT/200;
-    width=width*WIDE_SCREENWIDTH/320;
-    height=height*SCREENHEIGHT/200;
-    destx=destx*WIDE_SCREENWIDTH/320 + deltax;
-    desty=desty*SCREENHEIGHT/200;
-#endif
+    x  = params->video->x1lookup[x];
+    y  = params->video->y1lookup[y];
+    width  = params->video->x2lookup[sx + width - 1] - x + 1;
+    height = params->video->y2lookup[sy + height - 1] - y + 1;
+    x += params->deltax1;
+    y += params->deltay1;
   }
 
 #ifdef RANGECHECK
-  if (srcx<0
-      ||srcx+width >SCREENWIDTH
-      || srcy<0
-      || srcy+height>SCREENHEIGHT
-      ||destx<0||destx+width >SCREENWIDTH
-      || desty<0
-      || desty+height>SCREENHEIGHT)
+  if (x < 0 || x + width > SCREENWIDTH ||
+      y < 0 || y + height > SCREENHEIGHT)
     I_Error ("V_CopyRect: Bad arguments");
 #endif
 
-  src = screens[srcscrn].data+screens[srcscrn].byte_pitch*srcy+srcx*V_GetPixelDepth();
-  dest = screens[destscrn].data+screens[destscrn].byte_pitch*desty+destx*V_GetPixelDepth();
+  src = screens[srcscrn].data + screens[srcscrn].byte_pitch * y + x * pixel_depth;
+  dest = screens[destscrn].data + screens[destscrn].byte_pitch * y + x * pixel_depth;
 
   for ( ; height>0 ; height--)
     {
-      memcpy (dest, src, width*V_GetPixelDepth());
+      memcpy (dest, src, width * pixel_depth);
       src += screens[srcscrn].byte_pitch;
       dest += screens[destscrn].byte_pitch;
     }
 }
 
+#define FILL_FLAT(dest_type, dest_pitch, pal_func)\
+{\
+  const byte *src, *src_p;\
+  dest_type *dest, *dest_p;\
+  for (sy = y ; sy < y + height; sy += 64)\
+  {\
+    h = (y + height - sy < 64 ? y + height - sy : 64);\
+    dest = (dest_type *)screens[scrn].data + dest_pitch * sy + x;\
+    src = data + 64 * ((sy - y) % 64);\
+    for (sx = x; sx < x + width; sx += 64)\
+    {\
+      src_p = src;\
+      dest_p = dest;\
+      w = (x + width - sx < 64 ? x + width - sx : 64);\
+      for (j = 0; j < h; j++)\
+      {\
+        for (i = 0; i < w; i++)\
+        {\
+          dest_p[i] = pal_func(src_p[i], VID_COLORWEIGHTMASK);\
+        }\
+        dest_p += dest_pitch;\
+        src_p += 64;\
+      }\
+      dest += 64;\
+    }\
+  }\
+}\
+
 static void FUNC_V_FillFlat(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags)
 {
   /* erase the entire screen to a tiled background */
-  const byte *src;
-  int         sx, sy;
-  int         w, h;
+  const byte *data;
+  int sx, sy, w, h;
+  int i, j, pitch;
 
   lump += firstflat;
 
   // killough 4/17/98:
-  src = W_CacheLumpNum(lump);
+  data = W_CacheLumpNum(lump);
 
-  w = h = 64;
   if (V_GetMode() == VID_MODE8) {
-    byte *dest = screens[scrn].data;
+    const byte *src, *src_p;
+    byte *dest, *dest_p;
+    pitch = screens[scrn].byte_pitch;
 
-    while (h--) {
-      memcpy (dest, src, w);
-      src += w;
-      dest += screens[scrn].byte_pitch;
+    for (sy = y ; sy < y + height; sy += 64)
+    {
+      h = (y + height - sy < 64 ? y + height - sy : 64);
+      dest = screens[scrn].data + pitch * sy + x;
+      src = data + 64 * ((sy - y) % 64);
+      for (sx = x; sx < x + width; sx += 64)
+      {
+        src_p = src;
+        dest_p = dest;
+        w = (x + width - sx < 64 ? x + width - sx : 64);
+        for (j = 0; j < h; j++)
+        {
+          memcpy (dest_p, src_p, w);
+          dest_p += pitch;
+          src_p += 64;
+        }
+        dest += 64;
+      }
     }
   } else if (V_GetMode() == VID_MODE15) {
-    unsigned short *dest = (unsigned short *)screens[scrn].data;
-
-    while (h--) {
-      int i;
-      for (i=0; i<w; i++) {
-        dest[i] = VID_PAL15(src[i], VID_COLORWEIGHTMASK);
-      }
-      src += w;
-      dest += screens[scrn].short_pitch;
-    }
+    pitch = screens[scrn].short_pitch;
+    FILL_FLAT(unsigned short, pitch, VID_PAL15);
   } else if (V_GetMode() == VID_MODE16) {
-    unsigned short *dest = (unsigned short *)screens[scrn].data;
-
-    while (h--) {
-      int i;
-      for (i=0; i<w; i++) {
-        dest[i] = VID_PAL16(src[i], VID_COLORWEIGHTMASK);
-      }
-      src += w;
-      dest += screens[scrn].short_pitch;
-    }
+    pitch = screens[scrn].short_pitch;
+    FILL_FLAT(unsigned short, pitch, VID_PAL16);
   } else if (V_GetMode() == VID_MODE32) {
-    unsigned int *dest = (unsigned int *)screens[scrn].data;
-
-    while (h--) {
-      int i;
-      for (i=0; i<w; i++) {
-        dest[i] = VID_PAL32(src[i], VID_COLORWEIGHTMASK);
-      }
-      src += w;
-      dest += screens[scrn].int_pitch;
-    }
+    pitch = screens[scrn].int_pitch;
+    FILL_FLAT(unsigned int, pitch, VID_PAL32);
   }
-  /* end V_DrawBlock */
 
-  for (sy = y ; sy < y + height; sy += 64)
-  {
-    for (sx = x/*sy ? x : x + 64*/; sx < x + width; sx += 64)
-    {
-      V_CopyRect(0, 0, scrn,
-      (x + width - sx < 64 ? x + width - sx : 64),
-      (y + height - sy < 64 ? y + height - sy : 64),
-      sx, sy, scrn, VPT_NONE);
-    }
-  }
   W_UnlockLumpNum(lump);
 }
 
@@ -859,7 +847,7 @@ static void WRAP_gld_FillRect(int scrn, int x, int y, int width, int height, byt
 {
   gld_FillBlock(x,y,width,height,colour);
 }
-static void WRAP_gld_CopyRect(int srcx, int srcy, int srcscrn, int width, int height, int destx, int desty, int destscrn, enum patch_translation_e flags)
+static void WRAP_gld_CopyRect(int srcscrn, int destscrn, int x, int y, int width, int height, enum patch_translation_e flags)
 {
 }
 static void WRAP_gld_DrawBackground(const char *flatname, int n)
@@ -892,7 +880,7 @@ static void WRAP_gld_DrawLine(fline_t* fl, int color)
 #endif
 
 static void NULL_FillRect(int scrn, int x, int y, int width, int height, byte colour) {}
-static void NULL_CopyRect(int srcx, int srcy, int srcscrn, int width, int height, int destx, int desty, int destscrn, enum patch_translation_e flags) {}
+static void NULL_CopyRect(int srcscrn, int destscrn, int x, int y, int width, int height, enum patch_translation_e flags) {}
 static void NULL_FillFlat(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags) {}
 static void NULL_FillPatch(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags) {}
 static void NULL_DrawBackground(const char *flatname, int n) {}

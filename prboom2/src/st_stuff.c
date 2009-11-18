@@ -393,17 +393,13 @@ static void ST_Stop(void);
 
 static void ST_refreshBackground(void)
 {
-  int y=0;
+  int y = ST_Y;
   enum patch_translation_e flags = VPT_ALIGN_LEFT_TOP;
   
   if (st_statusbaron)
     {
-      // proff 05/17/2000: draw to the frontbuffer in OpenGL
-      if (V_GetMode() == VID_MODEGL)
-      {
-        y=ST_Y;
-        flags = VPT_ALIGN_BOTTOM;
-      }
+      flags = VPT_ALIGN_BOTTOM;
+
       V_DrawNumPatch(ST_X, y, BG, stbarbg.lumpnum, CR_DEFAULT, flags);
       if (!deathmatch)
       {
@@ -417,7 +413,7 @@ static void ST_refreshBackground(void)
            displayplayer ? CR_LIMIT+displayplayer : CR_DEFAULT,
            displayplayer ? (VPT_TRANS | VPT_STRETCH) : flags);
       }
-      V_CopyRect(ST_X, y, BG, ST_SCALED_WIDTH, ST_SCALED_HEIGHT, ST_X + wide_offsetx, ST_SCALED_Y + 2 * wide_offsety, FG, VPT_NONE);
+      V_CopyRect(BG, FG, ST_X + wide_offsetx, ST_SCALED_Y + 2 * wide_offsety, ST_SCALED_WIDTH, ST_SCALED_HEIGHT, VPT_NONE);
     }
 }
 
