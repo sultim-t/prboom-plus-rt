@@ -4559,19 +4559,22 @@ dboolean M_Responder (event_t* ev) {
     {
       realtic_clock_rate = StepwiseSum(realtic_clock_rate, 0, speed_step, 3, 10000, 100);
       I_Init2();
-      return true;
+      // Don't eat the keypress in this case.
+      // return true;
     }
     if (ch == key_speed_up && (!netgame||demoplayback))
     {
       realtic_clock_rate = StepwiseSum(realtic_clock_rate, 1, speed_step, 3, 10000, 100);
       I_Init2();
-      return true;
+      // Don't eat the keypress in this case.
+      // return true;
     }
     if (ch == key_speed_down && (!netgame||demoplayback))
     {
       realtic_clock_rate = StepwiseSum(realtic_clock_rate, -1, speed_step, 3, 10000, 100);
       I_Init2();
-      return true;
+      // Don't eat the keypress in this case.
+      // return true;
     }
     if (demoplayback && !doSkip && singledemo)
     {
@@ -4597,7 +4600,8 @@ dboolean M_Responder (event_t* ev) {
         R_ResetViewInterpolation ();
         if (walkcamera.type==0)
           R_SmoothPlaying_Reset(NULL);
-        return true;
+        // Don't eat the keypress in this case.
+        // return true;
       }
     }
 
@@ -4615,7 +4619,8 @@ dboolean M_Responder (event_t* ev) {
       {
         movement_mouselook = !movement_mouselook;
         M_ChangeMouseLook();
-        return true;
+        // Don't eat the keypress in this case.
+        // return true;
       }
     }
 #endif
