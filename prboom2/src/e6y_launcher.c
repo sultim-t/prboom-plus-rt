@@ -96,7 +96,7 @@ typedef struct
 launcher_t launcher;
 
 launcher_enable_t launcher_enable;
-const char *launcher_enable_states[] = {"never", "smart", "always"};
+const char *launcher_enable_states[launcher_enable_count] = {"never", "smart", "always"};
 char *launcher_history[LAUNCHER_HISTORY_SIZE];
 
 static char launchercachefile[PATH_MAX];
@@ -1434,11 +1434,14 @@ static dboolean L_LauncherIsNeeded(void)
 //  if (GetAsyncKeyState(VK_SHIFT) ? launcher_enable : !launcher_enable)
 //    return false;
 
+  if ((GetKeyState(VK_SHIFT) & 0x8000))
+    return true;
+
   if (launcher_enable == launcher_enable_always)
     return true;
 
-  if ((GetKeyState(VK_SHIFT) & 0x8000))
-    return true;
+  if (launcher_enable == launcher_enable_never)
+    return false;
 
   i = M_CheckParm("-iwad");
   if (i && (++i < myargc))
