@@ -95,7 +95,7 @@ typedef struct
 
 launcher_t launcher;
 
-spriteclipmode_t launcher_enable;
+launcher_enable_t launcher_enable;
 const char *launcher_enable_states[] = {"never", "smart", "always"};
 char *launcher_history[LAUNCHER_HISTORY_SIZE];
 
@@ -283,6 +283,36 @@ static void L_HistoryOnChange(void)
   }
 }
 
+static DWORD L_Associate(const char *Name, const char *Ext, const char *cmdline)
+{
+  HKEY hKeyRoot, hKey;
+  DWORD result;
+
+  hKeyRoot = HKEY_CLASSES_ROOT;
+
+  // This creates a Root entry called 'Name'
+  result = RegCreateKey(hKeyRoot, Name, &hKey);
+  if (result != ERROR_SUCCESS) return result;
+  result = RegSetValue(hKey, "", REG_SZ, "PrBoom-Plus", 0);
+  if (result != ERROR_SUCCESS) return result;
+  RegCloseKey(hKey);
+
+  // This creates a Root entry called 'Ext' associated with 'Name'
+  result = RegCreateKey(hKeyRoot, Ext, &hKey);
+  if (result != ERROR_SUCCESS) return result;
+  result = RegSetValue(hKey, "", REG_SZ, Name, 0);
+  if (result != ERROR_SUCCESS) return result;
+  RegCloseKey(hKey);
+
+  // This sets the command line for 'Name'
+  result = RegCreateKey(hKeyRoot, Name, &hKey);
+  if (result != ERROR_SUCCESS) return result;
+  result = RegSetValue(hKey, "shell\\open\\command", REG_SZ, cmdline, strlen(cmdline) + 1);
+  if (result != ERROR_SUCCESS) return result;
+  RegCloseKey(hKey);
+
+  return result;
+}
 static void L_CommandOnChange(void)
 {
   int index;
@@ -341,55 +371,67 @@ static void L_CommandOnChange(void)
     break;
 
   case 2:
+  case 3:
+  case 4:
     {
-      HKEY hKeyRoot, hKey;
-      DWORD Disposition;
       DWORD result;
       char *msg;
+      char *cmdline;
 
-      if ((int)GetVersion() < 0)
+      cmdline = malloc(strlen(*myargv) + 100);
+
+      if (cmdline)
       {
-        hKeyRoot = HKEY_LOCAL_MACHINE; // win9x
-      }
-      else
-      {
-        hKeyRoot = HKEY_CURRENT_USER;
-      }
+        sprintf(cmdline, "\"%s\" \"%%1\"", *myargv);
 
-      result = RegCreateKeyEx(hKeyRoot, 
-        "software\\classes\\.lmp\\shell\\open\\command", 
-        0, NULL, 0, KEY_WRITE, NULL, &hKey, &Disposition);
-      
-      if (result == ERROR_SUCCESS)
-      {
-        char str[PATH_MAX];
-        sprintf(str, "\"%s\" \"%%1\"", *myargv);
-        
-        result = RegSetValueEx(hKey, NULL, 0, REG_SZ, str, strlen(str) + 1);
+        result = 0;
+        if (index == 2)
+          result = L_Associate("PrBoomPlusWadFiles", ".wad", cmdline);
+        if (index == 3)
+          result = L_Associate("PrBoomPlusLmpFiles", ".lmp", cmdline);
+        if (index == 4)
+        {
+          strcat(cmdline, " -auto");
+          result = L_Associate("PrBoomPlusLmpFiles", ".lmp", cmdline);
+        }
 
-        RegCloseKey(hKey);
-      }
+        free(cmdline);
 
-      if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+        if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
           NULL, result, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (char *)&msg, 512, NULL))
-      {
-        MessageBox(launcher.HWNDServer, msg, LAUNCHER_CAPTION,
-          MB_OK | (result == ERROR_SUCCESS ? MB_ICONASTERISK : MB_ICONEXCLAMATION));
-
-        LocalFree(msg);
+        {
+          MessageBox(launcher.HWNDServer, msg, LAUNCHER_CAPTION,
+            MB_OK | (result == ERROR_SUCCESS ? MB_ICONASTERISK : MB_ICONEXCLAMATION));
+          LocalFree(msg);
+        }
       }
     }
     break;
 
-  case 3:
+  case 5:
     {
-      char buf[128];
-      sprintf(buf, "Do you really want to %s the Launcher?", (launcher_enable ? "disable" : "enable"));
+      char buf[128], next_mode[100];
+      launcher_enable_t launcher_next_mode = (launcher_enable + 1) % launcher_enable_count;
+      
+      if (launcher_next_mode == launcher_enable_never)
+        strcpy(next_mode, "disable");
+      if (launcher_next_mode == launcher_enable_smart)
+        strcpy(next_mode, "enable ('smart' mode)");
+      if (launcher_next_mode == launcher_enable_always)
+        strcpy(next_mode, "enable ('always' mode)");
+
+      sprintf(buf, "Do you really want to %s the Launcher?", next_mode);
       if (MessageBox(launcher.HWNDServer, buf, LAUNCHER_CAPTION, MB_YESNO|MB_ICONQUESTION) == IDYES)
       {
-        launcher_enable = !launcher_enable;
+        launcher_enable = launcher_next_mode;
+
+        SendMessage(launcher.listCMD, CB_DELETESTRING, index, (LPARAM)buf);
+        strcpy(buf, ((launcher_enable + 1) % launcher_enable_count == launcher_enable_never ? "Disable" : "Enable"));
+        strcat(buf, " this Launcher for future use");
+        SendMessage(launcher.listCMD, CB_INSERTSTRING, index, (LPARAM)buf);
+
         M_SaveDefaults();
-        sprintf(buf, "Successfully %s", (launcher_enable ? "enabled" : "disabled"));
+        sprintf(buf, "Successfully %s", (launcher_enable != launcher_enable_never ? "enabled" : "disabled"));
         MessageBox(launcher.HWNDServer, buf, LAUNCHER_CAPTION, MB_OK|MB_ICONEXCLAMATION);
       }
     }
@@ -1082,11 +1124,13 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
 
       SendMessage(launcher.listCMD, CB_ADDSTRING, 0, (LPARAM)"Rebuild the "PACKAGE_TITLE" cache");
       SendMessage(launcher.listCMD, CB_ADDSTRING, 0, (LPARAM)"Clear all Launcher's history");
-      SendMessage(launcher.listCMD, CB_ADDSTRING, 0, (LPARAM)"Associate the current EXE with DOOM demos");
+      SendMessage(launcher.listCMD, CB_ADDSTRING, 0, (LPARAM)"Associate the current EXE with DOOM wads");
+      SendMessage(launcher.listCMD, CB_ADDSTRING, 0, (LPARAM)"... with DOOM demos");
+      SendMessage(launcher.listCMD, CB_ADDSTRING, 0, (LPARAM)"... with DOOM demos (-auto mode)");
 
       {
         char buf[128];
-        strcpy(buf, (launcher_enable ? "Disable" : "Enable"));
+        strcpy(buf, ((launcher_enable + 1) % launcher_enable_count == launcher_enable_never ? "Disable" : "Enable"));
         strcat(buf, " this Launcher for future use");
         SendMessage(launcher.listCMD, CB_ADDSTRING, 0, (LPARAM)buf);
       }
@@ -1393,8 +1437,8 @@ static dboolean L_LauncherIsNeeded(void)
   if (launcher_enable == launcher_enable_always)
     return true;
 
-  if (!launcher_enable && !(GetKeyState(VK_SHIFT) & 0x8000))
-    return false;
+  if ((GetKeyState(VK_SHIFT) & 0x8000))
+    return true;
 
   i = M_CheckParm("-iwad");
   if (i && (++i < myargc))

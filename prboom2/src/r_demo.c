@@ -538,9 +538,13 @@ static void R_DemoEx_GetParams(const byte *pwad_p, waddata_t *waddata)
         {
           while (++p != paramscount && *params[p] != '-')
           {
+            char *filename;
             //something is wrong here
-            //char *filename = I_FindFile(params[p], ".wad");
-            char *filename = strdup(params[p]);
+            filename = I_FindFile(params[p], ".wad");
+            if (!filename)
+            {
+              filename = strdup(params[p]);
+            }
             WadDataAddItem(waddata, filename, files[i].source, 0);
             free(filename);
           }
@@ -1418,7 +1422,7 @@ dboolean D_TryGetWad(const char* name)
   if (!getwad_cmdline || !name || !(*getwad_cmdline) || !(*name))
     return false;
 
-  strncpy(wadname, name, sizeof(wadname) - 4);
+  strncpy(wadname, PathFindFileName(name), sizeof(wadname) - 4);
   AddDefaultExtension(wadname, ".wad");
 
   cmdline = malloc(strlen(getwad_cmdline) + strlen(wadname) + 2);
