@@ -1066,7 +1066,9 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   // It is necessary for textures that are not power of two
   // to avoid the lines (boxes) around the elements that change
   // on the intermission screens in Doom1 (E2, E3)
-  if (gltexture->flags & GLTEXTURE_HASHOLES)
+  
+  if ((gltexture->flags & (GLTEXTURE_HASHOLES | GLTEXTURE_SPRITE)) ==
+    (GLTEXTURE_HASHOLES | GLTEXTURE_SPRITE))
   {
     SmoothEdges(buffer, gltexture->buffer_width, gltexture->buffer_height);
   }

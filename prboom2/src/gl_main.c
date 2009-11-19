@@ -312,6 +312,7 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
   float fU1,fU2,fV1,fV2;
   float width,height;
   float xpos, ypos;
+  int cmap;
 
   //e6y
   dboolean bFakeColormap;
@@ -330,16 +331,10 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
     {1.00f ,1.00f, 1.00f, 1.00f}, //CR_LIMIT
   };
 
-  if (flags & VPT_TRANS)
-  {
-    gltexture=gld_RegisterPatch(lump,cm);
-    gld_BindPatch(gltexture, cm);
-  }
-  else
-  {
-    gltexture=gld_RegisterPatch(lump,CR_DEFAULT);
-    gld_BindPatch(gltexture, CR_DEFAULT);
-  }
+  cmap = ((flags & VPT_TRANS) ? cm : CR_DEFAULT);
+  gltexture=gld_RegisterPatch(lump, cmap);
+  gld_BindPatch(gltexture, cmap);
+
   if (!gltexture)
     return;
   fV1=0.0f;
