@@ -111,8 +111,14 @@ int gl_sprite_filter;
 int gl_patch_filter;
 int gl_sortbytexture=true;
 int gl_texture_filter_anisotropic = 0;
-//e6y: moved to globals
-//int gl_sprite_offset;	// item out of floor offset Mead 8/13/03
+
+//sprites
+spriteclipmode_t gl_spriteclip;
+const char *gl_spriteclipmodes[] = {"constant","always", "smart"};
+int gl_sprite_offset;	// item out of floor offset Mead 8/13/03
+int gl_sprite_blend;  // e6y: smooth sprite edges
+int gl_mask_sprite_threshold;
+float gl_mask_sprite_threshold_f;
 
 GLuint gld_DisplayList=0;
 int fog_density=200;
@@ -1830,6 +1836,7 @@ void gld_StartDrawScene(void)
   }
   cos_paperitems_pitch = (float)cos(paperitems_pitch * M_PI / 180.f);
   sin_paperitems_pitch = (float)sin(paperitems_pitch * M_PI / 180.f);
+  gl_mask_sprite_threshold_f = (float)gl_mask_sprite_threshold / 100.0f;
 
   gld_InitFrameSky();
   
@@ -2917,6 +2924,7 @@ static void gld_DrawSprite(GLSprite *sprite)
 {
   float offsety;
   GLint blend_src, blend_dst;
+  int restore = 0;
 
   rendered_vissprites++;
 
@@ -2932,6 +2940,7 @@ static void gld_DrawSprite(GLSprite *sprite)
       //glColor4f(0.2f,0.2f,0.2f,(float)tran_filter_pct/100.0f);
       glAlphaFunc(GL_GEQUAL,0.1f);
       glColor4f(0.2f,0.2f,0.2f,0.33f);
+      restore = 1;
     }
     else
     {
@@ -3000,13 +3009,10 @@ static void gld_DrawSprite(GLSprite *sprite)
     glEnd();
   }
 
-  if (!(sprite->flags & MF_NO_DEPTH_TEST))
+  if (restore)
   {
-    if(sprite->flags & MF_SHADOW)
-    {
-      glBlendFunc(blend_src, blend_dst);
-      glAlphaFunc(GL_GEQUAL,0.5f);
-    }
+    glBlendFunc(blend_src, blend_dst);
+    glAlphaFunc(GL_GEQUAL, gl_mask_sprite_threshold_f);
   }
 }
 
@@ -3086,7 +3092,7 @@ void gld_AddSprite(vissprite_t *vspr)
   }
   else
   {
-    gld_AddDrawItem(((sprite.flags&(MF_SHADOW|MF_TRANSLUCENT)) ? GLDIT_TSPRITE : GLDIT_SPRITE), &sprite);
+    gld_AddDrawItem((gl_sprite_blend || (sprite.flags & (MF_SHADOW | MF_TRANSLUCENT)) ? GLDIT_TSPRITE : GLDIT_SPRITE), &sprite);
     gld_ProcessThingShadow(pSpr);
   }
 }
@@ -3180,10 +3186,37 @@ static void gld_DrawItemsSortByTexture(GLDrawItemType itemtype)
   }
 }
 
+static int C_DECL dicmp_sprite_scale (const void *a, const void *b)
+{
+  GLSprite *sprite1 = ((const GLDrawItem *)a)->item.sprite;
+  GLSprite *sprite2 = ((const GLDrawItem *)b)->item.sprite;
+
+  if (sprite1->scale != sprite2->scale)
+  {
+    return sprite2->scale - sprite1->scale;
+  }
+  else
+  {
+    if (sprite1->gltexture != sprite2->gltexture)
+    {
+      return sprite1->gltexture - sprite2->gltexture;
+    }
+    else
+    {
+      return 0;
+    }
+  }
+}
+
+static void gld_DrawItemsSortSprites(GLDrawItemType itemtype)
+{
+  qsort(gld_drawinfo.items[itemtype], gld_drawinfo.num_items[itemtype],
+    sizeof(gld_drawinfo.items[itemtype]), dicmp_sprite_scale);
+}
+
 void gld_DrawScene(player_t *player)
 {
-  int i,j,k;
-  fixed_t max_scale;
+  int i;
 
   //e6y: must call it twice for correct initialisation
   glEnable(GL_ALPHA_TEST);
@@ -3323,12 +3356,14 @@ void gld_DrawScene(player_t *player)
   }
 
   // opaque sprites
+  glAlphaFunc(GL_GEQUAL, gl_mask_sprite_threshold_f);
   gld_DrawItemsSortByTexture(GLDIT_SPRITE);
   for (i = gld_drawinfo.num_items[GLDIT_SPRITE] - 1; i >= 0; i--)
   {
     gld_SetFog(gld_drawinfo.items[GLDIT_SPRITE][i].item.sprite->fogdensity);
     gld_DrawSprite(gld_drawinfo.items[GLDIT_SPRITE][i].item.sprite);
   }
+  glAlphaFunc(GL_GEQUAL, 0.5f);
 
   // mode for viewing all the alive monsters
   if (show_alive)
@@ -3377,28 +3412,15 @@ void gld_DrawScene(player_t *player)
     }
 
     glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_GEQUAL, gl_mask_sprite_threshold_f);
 
     // transparent sprites
+    // sorting is necessary only for transparent sprites.
+    // from back to front
+    gld_DrawItemsSortSprites(GLDIT_TSPRITE);
     for (i = gld_drawinfo.num_items[GLDIT_TSPRITE] - 1; i >= 0; i--)
     {
-      // sorting is necessary only for transparent sprites.
-      // from back to front
-      do
-      {
-        max_scale = INT_MAX;
-        k = -1;
-        for (j = gld_drawinfo.num_items[GLDIT_TSPRITE] - 1; j >= 0; j--)
-          if (gld_drawinfo.items[GLDIT_TSPRITE][j].item.sprite->scale < max_scale)
-          {
-            max_scale = gld_drawinfo.items[GLDIT_TSPRITE][j].item.sprite->scale;
-            k = j;
-          }
-          if (k >= 0)
-          {
-            gld_DrawSprite(gld_drawinfo.items[GLDIT_TSPRITE][k].item.sprite);
-            gld_drawinfo.items[GLDIT_TSPRITE][k].item.sprite->scale=INT_MAX;
-          }
-      } while (max_scale!=INT_MAX);
+      gld_DrawSprite(gld_drawinfo.items[GLDIT_TSPRITE][i].item.sprite);
     }
 
     // restoration of an original condition

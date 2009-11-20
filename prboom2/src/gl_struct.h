@@ -192,4 +192,12 @@ void gld_DrawMapLines(void);
 void gld_BeginLines(void);
 void gld_EndLines(void);
 
+//sprites
+typedef enum { spriteclip_const, spriteclip_always, spriteclip_smart } spriteclipmode_t;
+extern spriteclipmode_t gl_spriteclip;
+extern const char *gl_spriteclipmodes[];
+extern int gl_sprite_offset;
+extern int gl_sprite_blend;
+extern int gl_mask_sprite_threshold;
+
 #endif // _GL_STRUCT_H

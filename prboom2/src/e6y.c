@@ -85,10 +85,6 @@
 #include "e6y.h"
 #include "./../ICONS/resource.h"
 
-spriteclipmode_t gl_spriteclip;
-const char *gl_spriteclipmodes[] = {"constant","always", "smart"};
-int gl_sprite_offset;
-
 int REAL_SCREENWIDTH;
 int REAL_SCREENHEIGHT;
 int REAL_SCREENPITCH;

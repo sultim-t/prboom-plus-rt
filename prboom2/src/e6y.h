@@ -86,11 +86,6 @@ typedef struct camera_s
   int type;
 } camera_t;
 
-typedef enum { spriteclip_const, spriteclip_always, spriteclip_smart } spriteclipmode_t;
-extern spriteclipmode_t gl_spriteclip;
-extern const char *gl_spriteclipmodes[];
-extern int gl_sprite_offset;
-
 extern int REAL_SCREENWIDTH;
 extern int REAL_SCREENHEIGHT;
 extern int REAL_SCREENPITCH;

@@ -74,6 +74,7 @@
 #include "r_main.h"
 
 //e6y
+#include "gl_struct.h"
 #include "g_overflow.h"
 #include "r_screenmultiply.h"
 #include "e6y.h"
@@ -179,7 +180,6 @@ extern int gl_sky_detail;
 extern int gl_sortbytexture;
 extern int gl_use_paletted_texture;
 extern int gl_use_shared_texture_palette;
-extern int gl_sprite_offset;
 extern int gl_seamless;
 extern int gl_invul_bw_method;
 
@@ -432,6 +432,12 @@ default_t defaults[] =
    {gl_anisotropic_8x}, gl_anisotropic_off, gl_anisotropic_16x, def_int,ss_none},
   {"gl_tex_format_string", {NULL,&gl_tex_format_string}, {0,"GL_RGBA"},UL,UL,
    def_str,ss_none},
+  {"gl_sprite_offset",{&gl_sprite_offset},{0}, 0, 5,
+   def_int,ss_none}, // amount to bring items out of floor (GL) Mead 8/13/03
+  {"gl_sprite_blend",{&gl_sprite_blend},{0},0,1,
+   def_bool,ss_none},
+  {"gl_mask_sprite_threshold",{&gl_mask_sprite_threshold},{50},0,100,
+   def_int,ss_none},
   {"gl_skymode",{(int*)&gl_skymode},
   {skytype_auto}, skytype_auto, skytype_count - 1, def_int,ss_none},
   {"gl_sky_detail",{&gl_sky_detail},{16},1,32,
@@ -443,10 +449,6 @@ default_t defaults[] =
   {"gl_use_shared_texture_palette",{&gl_use_shared_texture_palette},{0},0,1,
    def_bool,ss_none},
 #endif
-
-  //e6y: removed from #ifdef GL_DOOM
-  {"gl_sprite_offset",{&gl_sprite_offset},{0}, 0, 5,
-   def_int,ss_none}, // amount to bring items out of floor (GL) Mead 8/13/03
 
   {"Mouse settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"use_mouse",{&usemouse},{1},0,1,
