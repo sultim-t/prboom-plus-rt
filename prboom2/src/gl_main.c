@@ -2052,6 +2052,7 @@ void gld_EndDrawScene(void)
 
   glColor3f(1.0f,1.0f,1.0f);
   glDisable(GL_SCISSOR_TEST);
+  glDisable(GL_ALPHA_TEST);
   if (gl_shared_texture_palette)
     glDisable(GL_SHARED_TEXTURE_PALETTE_EXT);
 }
