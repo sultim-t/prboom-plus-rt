@@ -1950,7 +1950,7 @@ void gld_EndDrawScene(void)
   glDisable(GL_POLYGON_SMOOTH);
 
   glViewport(0, 0, SCREENWIDTH, SCREENHEIGHT);
-  glDisable(GL_FOG);
+  gl_EnableFog(false);
   gld_Set2DMode();
 
   if (viewangleoffset <= 1024<<ANGLETOFINESHIFT ||
