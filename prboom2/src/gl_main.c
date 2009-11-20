@@ -3421,6 +3421,7 @@ void gld_DrawScene(player_t *player)
     gld_DrawItemsSortSprites(GLDIT_TSPRITE);
     for (i = gld_drawinfo.num_items[GLDIT_TSPRITE] - 1; i >= 0; i--)
     {
+      gld_SetFog(gld_drawinfo.items[GLDIT_TSPRITE][i].item.sprite->fogdensity);
       gld_DrawSprite(gld_drawinfo.items[GLDIT_TSPRITE][i].item.sprite);
     }
 

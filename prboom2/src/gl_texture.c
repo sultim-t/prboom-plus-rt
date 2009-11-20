@@ -1067,8 +1067,9 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   // to avoid the lines (boxes) around the elements that change
   // on the intermission screens in Doom1 (E2, E3)
   
-  if ((gltexture->flags & (GLTEXTURE_HASHOLES | GLTEXTURE_SPRITE)) ==
-    (GLTEXTURE_HASHOLES | GLTEXTURE_SPRITE))
+//  if ((gltexture->flags & (GLTEXTURE_HASHOLES | GLTEXTURE_SPRITE)) ==
+//    (GLTEXTURE_HASHOLES | GLTEXTURE_SPRITE))
+  if ((gltexture->flags & GLTEXTURE_HASHOLES))
   {
     SmoothEdges(buffer, gltexture->buffer_width, gltexture->buffer_height);
   }

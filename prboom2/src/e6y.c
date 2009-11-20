@@ -1565,10 +1565,15 @@ dboolean SmoothEdges(unsigned char * buffer,int w, int h)
                                 // that only contain transparent pixels.
   unsigned char * l1;
 
-  if (h<=1 || w<=1) return false;  // makes (a) no sense and (b) doesn't work with this code!
+  // makes (a) no sense and (b) doesn't work with this code!
+  // if (h<=1 || w<=1)
+  // e6y: Do not smooth small patches.
+  // Makes sense for HUD small digits
+  // 2 and 7 still look ugly
+  if (h<=8 || w<=8)
+    return false;
 
   l1=buffer;
-
 
   if (l1[MSB]==0 && !CHKPIX(1)) CHKPIX(w);
   l1+=4;
