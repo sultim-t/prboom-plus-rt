@@ -200,6 +200,7 @@ extern int joybspeed;
 int mapcolor_me;    // cph
 
 extern int map_point_coordinates; // killough 10/98
+extern int map_level_stat;
 
 extern char* chat_macros[];  // chat macros
 extern const char* shiftxform;
@@ -2665,15 +2666,34 @@ void M_DrawStatusHUD(void)
 
 setup_menu_t auto_settings1[];
 setup_menu_t auto_settings2[];
+setup_menu_t auto_settings3[];
 
 setup_menu_t* auto_settings[] =
 {
   auto_settings1,
   auto_settings2,
+  auto_settings3,
   NULL
 };
 
 setup_menu_t auto_settings1[] =  // 1st AutoMap Settings screen
+{
+  {"Show Kills/Secrts/Items statistic",       S_YESNO,m_null,AU_X,AU_Y+0*8, {"map_level_stat"}},
+  {"Show coordinates of automap pointer",     S_YESNO,m_null,AU_X,AU_Y+1*8, {"map_point_coord"}},  // killough 10/98
+  {"Show Secrets only after entering",        S_YESNO,m_null,AU_X,AU_Y+2*8, {"map_secret_after"}},
+  {"Update unexplored parts in automap mode", S_YESNO,m_null,AU_X,AU_Y+3*8, {"map_always_updates"}},
+  {"Grid cell size (8..256)",                 S_NUM,  m_null,AU_X,AU_Y+4*8, {"map_grid_size"}},
+
+  // Button for resetting to defaults
+  {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
+
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,AU_NEXT,AU_Y+20*8, {auto_settings2}},
+
+  // Final entry
+  {0,S_SKIP|S_END,m_null}
+};
+
+setup_menu_t auto_settings2[] =  // 2st AutoMap Settings screen
 {
   {"background", S_COLOR, m_null, AU_X, AU_Y, {"mapcolor_back"}},
   {"grid lines", S_COLOR, m_null, AU_X, AU_Y + 1*8, {"mapcolor_grid"}},
@@ -2691,23 +2711,18 @@ setup_menu_t auto_settings1[] =  // 1st AutoMap Settings screen
   {"AUTOMAP LEVEL TITLE COLOR"      ,S_CRITEM,m_null,AU_X,AU_Y+12*8, {"hudcolor_titl"}},
   {"AUTOMAP COORDINATES COLOR"      ,S_CRITEM,m_null,AU_X,AU_Y+13*8, {"hudcolor_xyco"}},
 
-  {"Show Secrets only after entering",S_YESNO,m_null,AU_X,AU_Y+14*8, {"map_secret_after"}},
-
-  {"Show coordinates of automap pointer",S_YESNO,m_null,AU_X,AU_Y+15*8, {"map_point_coord"}},  // killough 10/98
-  {"Update unexplored parts in automap mode",S_YESNO,m_null,AU_X,AU_Y+16*8, {"map_always_updates"}},
-  {"Grid cell size (8..256)",S_NUM,m_null,AU_X,AU_Y+17*8, {"map_grid_size"}},
-
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
 
-  {"NEXT ->",S_SKIP|S_NEXT,m_null,AU_NEXT,AU_Y+20*8, {auto_settings2}},
+  {"<- PREV",S_SKIP|S_PREV,m_null,AU_PREV,AU_Y+20*8, {auto_settings1}},
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,AU_NEXT,AU_Y+20*8, {auto_settings3}},
 
   // Final entry
   {0,S_SKIP|S_END,m_null}
 
 };
 
-setup_menu_t auto_settings2[] =  // 2nd AutoMap Settings screen
+setup_menu_t auto_settings3[] =  // 3nd AutoMap Settings screen
 {
   {"teleporter line"                ,S_COLOR ,m_null,AU_X,AU_Y, {"mapcolor_tele"}},
   {"secret sector boundary"         ,S_COLOR ,m_null,AU_X,AU_Y+ 1*8, {"mapcolor_secr"}},
@@ -2724,7 +2739,7 @@ setup_menu_t auto_settings2[] =  // 2nd AutoMap Settings screen
 
   {"friends"                        ,S_COLOR ,m_null,AU_X,AU_Y+12*8, {"mapcolor_frnd"}},        // killough 8/8/98
 
-  {"<- PREV",S_SKIP|S_PREV,m_null,AU_PREV,AU_Y+20*8, {auto_settings1}},
+  {"<- PREV",S_SKIP|S_PREV,m_null,AU_PREV,AU_Y+20*8, {auto_settings2}},
 
   // Final entry
 

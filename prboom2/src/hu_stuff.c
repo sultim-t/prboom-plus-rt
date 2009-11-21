@@ -79,6 +79,13 @@ int hud_graph_keys=1; //jff 3/7/98 display HUD keys as graphics
 #define HU_COORDY_Y (2 + 1*hu_font['A'-HU_FONTSTART].height)
 #define HU_COORDZ_Y (3 + 2*hu_font['A'-HU_FONTSTART].height)
 
+#define HU_MAP_STAT_X (0)
+#define HU_MAP_MONSTERS_Y  (1 + 0*hu_font['A'-HU_FONTSTART].height)
+#define HU_MAP_SECRETS_Y   (2 + 1*hu_font['A'-HU_FONTSTART].height)
+#define HU_MAP_ITEMS_Y     (3 + 2*hu_font['A'-HU_FONTSTART].height)
+#define HU_MAP_TIME_Y      (5 + 4*hu_font['A'-HU_FONTSTART].height)
+#define HU_MAP_TOTALTIME_Y (6 + 5*hu_font['A'-HU_FONTSTART].height)
+
 //jff 2/16/98 add ammo, health, armor widgets, 2/22/98 less gap
 #define HU_GAPY 8
 #define HU_HUDHEIGHT (6*HU_GAPY)
@@ -186,6 +193,12 @@ static hu_textline_t  w_gkeys;  //jff 3/7/98 graphic keys widget for hud
 static hu_textline_t  w_monsec; //jff 2/16/98 new kill/secret widget for hud
 static hu_mtext_t     w_rtext;  //jff 2/26/98 text message refresh widget
 
+static hu_textline_t  w_map_monsters;  //e6y monsters widget for automap
+static hu_textline_t  w_map_secrets;   //e6y secrets widgets automap
+static hu_textline_t  w_map_items;     //e6y items widgets automap
+static hu_textline_t  w_map_time;      //e6y level time widgets automap
+static hu_textline_t  w_map_totaltime; //e6y total time widgets automap
+
 static dboolean    always_off = false;
 static char       chat_dest[MAXPLAYERS];
 dboolean           chat_on;
@@ -234,6 +247,7 @@ extern char **mapnamesp[];
 extern char **mapnamest[];
 
 extern int map_point_coordinates;
+extern int map_level_stat;
 
 // key tables
 // jff 5/10/98 french support removed,
@@ -614,6 +628,56 @@ void HU_Start(void)
 //e6y
   HUlib_initTextLine
   (
+    &w_map_monsters,
+    HU_MAP_STAT_X,
+    HU_MAP_MONSTERS_Y,
+    hu_font,
+    HU_FONTSTART,
+    CR_RED,
+    VPT_ALIGN_LEFT_TOP
+  );
+  HUlib_initTextLine
+  (
+    &w_map_secrets,
+    HU_MAP_STAT_X,
+    HU_MAP_SECRETS_Y,
+    hu_font,
+    HU_FONTSTART,
+    CR_RED,
+    VPT_ALIGN_LEFT_TOP
+  );
+  HUlib_initTextLine
+  (
+    &w_map_items,
+    HU_MAP_STAT_X,
+    HU_MAP_ITEMS_Y,
+    hu_font,
+    HU_FONTSTART,
+    CR_RED,
+    VPT_ALIGN_LEFT_TOP
+  );
+  HUlib_initTextLine
+  (
+    &w_map_time,
+    HU_MAP_STAT_X,
+    HU_MAP_TIME_Y,
+    hu_font,
+    HU_FONTSTART,
+    CR_GRAY,
+    VPT_ALIGN_LEFT_TOP
+  );
+  HUlib_initTextLine
+  (
+    &w_map_totaltime,
+    HU_MAP_STAT_X,
+    HU_MAP_TOTALTIME_Y,
+    hu_font,
+    HU_FONTSTART,
+    CR_GRAY,
+    VPT_ALIGN_LEFT_TOP
+  );
+  HUlib_initTextLine
+  (
     &w_hudadd,
     hud_distributed? HU_HUDADDX_D : HU_HUDADDX,  //3/4/98 distribute
     hud_distributed? HU_HUDADDY_D : HU_HUDADDY,
@@ -925,6 +989,51 @@ void HU_Drawer(void)
         while (*s)
           HUlib_addCharToTextLine(&w_coordz, *(s++));
         HUlib_drawTextLine(&w_coordz, false);
+      }
+    }
+
+    if (map_level_stat)
+    {
+      static char str[32];
+      int time = leveltime / TICRATE;
+      int ttime = (totalleveltimes + leveltime) / TICRATE;
+
+      sprintf(str, "Monsters: \x1b\x32%d/%d", players[consoleplayer].killcount - players[consoleplayer].resurectedkillcount, totalkills);
+      HUlib_clearTextLine(&w_map_monsters);
+      s = str;
+      while (*s)
+        HUlib_addCharToTextLine(&w_map_monsters, *(s++));
+      HUlib_drawTextLine(&w_map_monsters, false);
+
+      sprintf(str, "Secrets: \x1b\x32%d/%d", players[consoleplayer].secretcount, totalsecret);
+      HUlib_clearTextLine(&w_map_secrets);
+      s = str;
+      while (*s)
+        HUlib_addCharToTextLine(&w_map_secrets, *(s++));
+      HUlib_drawTextLine(&w_map_secrets, false);
+
+      sprintf(str, "Items: \x1b\x32%d/%d", players[consoleplayer].itemcount, totalitems);
+      HUlib_clearTextLine(&w_map_items);
+      s = str;
+      while (*s)
+        HUlib_addCharToTextLine(&w_map_items, *(s++));
+      HUlib_drawTextLine(&w_map_items, false);
+
+      sprintf(str, "%02d:%02d:%02d", time/3600, (time%3600)/60, time%60);
+      HUlib_clearTextLine(&w_map_time);
+      s = str;
+      while (*s)
+        HUlib_addCharToTextLine(&w_map_time, *(s++));
+      HUlib_drawTextLine(&w_map_time, false);
+
+      if (totalleveltimes > 0)
+      {
+        sprintf(str, "%02d:%02d:%02d", ttime/3600, (ttime%3600)/60, ttime%60);
+        HUlib_clearTextLine(&w_map_totaltime);
+        s = str;
+        while (*s)
+          HUlib_addCharToTextLine(&w_map_totaltime, *(s++));
+        HUlib_drawTextLine(&w_map_totaltime, false);
       }
     }
   }

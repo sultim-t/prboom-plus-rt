@@ -222,6 +222,7 @@ extern const char* S_music_files[]; // cournia
  * killough 10/98
  */
 int map_point_coordinates;
+int map_level_stat;
 
 default_t defaults[] =
 {
@@ -707,6 +708,8 @@ default_t defaults[] =
   {"map_secret_after", {&map_secret_after}, {0},0,1, // show secret after gotten
    def_bool,ss_auto}, // prevents showing secret sectors till after entered
   {"map_point_coord", {&map_point_coordinates}, {0},0,1,
+   def_bool,ss_auto},
+  {"map_level_stat", {&map_level_stat}, {0},0,1,
    def_bool,ss_auto},
   //jff 1/7/98 end additions for automap
   {"automapmode", {(int*)&automapmode}, {0}, 0, 31, // CPhipps - remember automap mode
