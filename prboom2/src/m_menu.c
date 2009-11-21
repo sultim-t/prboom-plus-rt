@@ -2678,7 +2678,7 @@ setup_menu_t* auto_settings[] =
 
 setup_menu_t auto_settings1[] =  // 1st AutoMap Settings screen
 {
-  {"Show Kills/Secrts/Items statistic",       S_YESNO,m_null,AU_X,AU_Y+0*8, {"map_level_stat"}},
+  {"Show Kills/Secrts/Items statistics",      S_YESNO,m_null,AU_X,AU_Y+0*8, {"map_level_stat"}},
   {"Show coordinates of automap pointer",     S_YESNO,m_null,AU_X,AU_Y+1*8, {"map_point_coord"}},  // killough 10/98
   {"Show Secrets only after entering",        S_YESNO,m_null,AU_X,AU_Y+2*8, {"map_secret_after"}},
   {"Update unexplored parts in automap mode", S_YESNO,m_null,AU_X,AU_Y+3*8, {"map_always_updates"}},
