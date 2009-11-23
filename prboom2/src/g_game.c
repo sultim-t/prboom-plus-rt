@@ -3551,7 +3551,15 @@ void P_WalkTicker()
   if (gamekeydown[key_strafeleft])
     side -= sidemove[speed];
 
-  angturn -= mousex;
+  //mouse
+  if (mousebuttons[mousebforward])
+    forward += forwardmove[speed];
+
+  forward += mousey;
+  if (strafe)
+    side += mousex / 4;       /* mead  Don't want to strafe as fast as turns.*/
+  else
+    angturn -= mousex; /* mead now have enough dynamic range 2-10-00 */
 
   walkcamera.angle += ((angturn / 8) << ANGLETOFINESHIFT);
   if(GetMouseLook())
@@ -3568,6 +3576,15 @@ void P_WalkTicker()
     walkcamera.angle = players[0].mo->angle;
     walkcamera.pitch = players[0].mo->pitch;
   }
+
+  if (forward > MAXPLMOVE)
+    forward = MAXPLMOVE;
+  else if (forward < -MAXPLMOVE)
+    forward = -MAXPLMOVE;
+  if (side > MAXPLMOVE)
+    side = MAXPLMOVE;
+  else if (side < -MAXPLMOVE)
+    side = -MAXPLMOVE;
 
   // moving forward
   walkcamera.x += FixedMul ((ORIG_FRICTION / 4) * forward,
