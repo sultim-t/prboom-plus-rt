@@ -141,6 +141,8 @@ char saveOldString[SAVESTRINGSIZE];
 
 dboolean inhelpscreens; // indicates we are in or just left a help screen
 
+dboolean BorderNeedRefresh;
+
 dboolean menuactive;    // The menus are up
 
 #define SKULLXOFF  -32
@@ -5604,6 +5606,8 @@ void M_ClearMenus (void)
   print_warning_about_changes = 0;     // killough 8/15/98
   default_verify = 0;                  // killough 10/98
 
+  BorderNeedRefresh = true;
+
   // if (!netgame && usergame && paused)
   //     sendpause = true;
 }
@@ -5615,6 +5619,8 @@ void M_SetupNextMenu(menu_t *menudef)
 {
   currentMenu = menudef;
   itemOn = currentMenu->lastOn;
+
+  BorderNeedRefresh = true;
 }
 
 /////////////////////////////

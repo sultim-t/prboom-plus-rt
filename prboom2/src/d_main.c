@@ -117,6 +117,7 @@ dboolean nomusicparm;
 
 //jff 4/18/98
 extern dboolean inhelpscreens;
+extern dboolean BorderNeedRefresh;
 
 skill_t startskill;
 int     startepisode;
@@ -355,7 +356,8 @@ void D_Display (void)
     if (automapmode & am_active)
       AM_Drawer();
 
-    ST_Drawer((viewheight != SCREENHEIGHT) || ((automapmode & am_active) && !(automapmode & am_overlay)), redrawborderstuff);
+    ST_Drawer((viewheight != SCREENHEIGHT) || ((automapmode & am_active) && !(automapmode & am_overlay)), redrawborderstuff || BorderNeedRefresh);
+    BorderNeedRefresh = false;
     if (V_GetMode() != VID_MODEGL)
       R_DrawViewBorder();
     HU_Drawer();
