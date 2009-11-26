@@ -1514,6 +1514,47 @@ int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t Buff
 }
 #endif
 
+#ifdef _WIN32
+
+#include <Mmsystem.h>
+#pragma comment( lib, "winmm.lib" )
+int mus_extend_volume;
+void I_midiOutSetVolumes(int volume)
+{
+  MMRESULT result;
+  int calcVolume;
+  MIDIOUTCAPS capabilities;
+  unsigned int i;
+
+  if (volume > 128)
+    volume = 128;
+  if (volume < 0)
+    volume = 0;
+  calcVolume = (65535 * volume / 128);
+
+  SDL_LockAudio();
+
+  //Device loop
+  for (i = 0; i < midiOutGetNumDevs(); i++)
+  {
+    //Get device capabilities
+    result = midiOutGetDevCaps(i, &capabilities, sizeof(capabilities));
+
+    if (result == MMSYSERR_NOERROR)
+    {
+      //Adjust volume on this candidate
+      if ((capabilities.dwSupport & MIDICAPS_VOLUME))
+      {
+        midiOutSetVolume((HMIDIOUT)i, MAKELONG(calcVolume, calcVolume));
+      }
+    }
+  }
+
+  SDL_UnlockAudio();
+}
+#endif
+
+
 //Begin of GZDoom code
 /*
 **---------------------------------------------------------------------------

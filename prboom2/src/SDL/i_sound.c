@@ -906,6 +906,13 @@ void I_SetMusicVolume(int volume)
 {
 #ifdef HAVE_MIXER
   Mix_VolumeMusic(volume*8);
+
+#ifdef _WIN32
+  // e6y: workaround
+  if (mus_extend_volume && Mix_GetMusicType(NULL) == MUS_MID)
+    I_midiOutSetVolumes(volume*8);
+#endif
+
 #endif
 }
 

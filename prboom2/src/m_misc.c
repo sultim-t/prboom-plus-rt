@@ -361,6 +361,9 @@ default_t defaults[] =
    def_int, ss_none}, // 0 = kill music when paused, 1 = pause music, 2 = let music continue
   {"snd_channels",{&default_numChannels},{8},1,32,
    def_int,ss_none}, // number of audio events simultaneously // killough
+  {"mus_extend_volume",{&mus_extend_volume},{0},0,1,
+   def_bool,ss_none}, // e6y: apply midi volume to all midi devices
+   
 
   {"Video settings",{NULL},{0},UL,UL,def_none,ss_none},
 #ifdef GL_DOOM
