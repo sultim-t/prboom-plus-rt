@@ -914,7 +914,7 @@ default_t defaults[] =
    def_int,ss_stat},
   {"gl_lightmode",{(int*)&gl_lightmode},{gl_lightmode_glboom},
    gl_lightmode_glboom, gl_lightmode_last-1, def_int,ss_none},
-  {"gl_light_ambient", {&gl_light_ambient},  {20},0,255,
+  {"gl_light_ambient", {&gl_light_ambient},  {20},1,255,
    def_int,ss_stat},
   {"gl_fog", {&gl_fog},  {1},0,1,
    def_bool,ss_stat},
