@@ -187,6 +187,8 @@ static void gld_InitLightTable_gzdoom(void)
 
     lighttable_gzdoom[i] = light / 255.0f;
   }
+
+  lighttable_gzdoom[0] = 0.0f;
 }
 
 static void gld_InitLightTable_fogbased(void)
