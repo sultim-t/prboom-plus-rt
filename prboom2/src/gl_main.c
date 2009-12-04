@@ -1836,7 +1836,7 @@ void gld_StartDrawScene(void)
   }
   cos_paperitems_pitch = (float)cos(paperitems_pitch * M_PI / 180.f);
   sin_paperitems_pitch = (float)sin(paperitems_pitch * M_PI / 180.f);
-  gl_mask_sprite_threshold_f = (float)gl_mask_sprite_threshold / 100.0f;
+  gl_mask_sprite_threshold_f = (gl_sprite_blend ? (float)gl_mask_sprite_threshold / 100.0f : 0.5f);
 
   gld_InitFrameSky();
   
