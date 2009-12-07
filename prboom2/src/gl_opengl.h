@@ -46,6 +46,10 @@
 
 #include "doomtype.h"
 
+#if !defined(GL_DEPTH_STENCIL_EXT)
+#define GL_DEPTH_STENCIL_EXT              0x84F9
+#endif
+
 #define isExtensionSupported(ext) strstr(extensions, ext)
 
 //e6y: OpenGL version
@@ -76,6 +80,7 @@ extern dboolean gl_arb_texture_non_power_of_two;
 extern dboolean gl_arb_multitexture;
 extern dboolean gl_arb_texture_compression;
 extern dboolean gl_ext_framebuffer_object;
+extern dboolean gl_ext_packed_depth_stencil;
 extern dboolean gl_ext_blend_color;
 extern dboolean gl_use_stencil;
 extern dboolean gl_ext_arb_vertex_buffer_object;

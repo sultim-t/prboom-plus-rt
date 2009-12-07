@@ -62,6 +62,7 @@ dboolean gl_arb_texture_non_power_of_two = false;
 dboolean gl_arb_multitexture = false;
 dboolean gl_arb_texture_compression = false;
 dboolean gl_ext_framebuffer_object = false;
+dboolean gl_ext_packed_depth_stencil = false;
 dboolean gl_ext_blend_color = false;
 dboolean gl_use_stencil = false;
 dboolean gl_ext_arb_vertex_buffer_object = false;
@@ -223,6 +224,10 @@ void gld_InitOpenGL(dboolean compatibility_mode)
   if (gl_ext_framebuffer_object)
     lprintf(LO_INFO,"using GL_EXT_framebuffer_object\n");
 
+  gl_ext_packed_depth_stencil = isExtensionSupported("GL_EXT_packed_depth_stencil") != NULL;
+  if (gl_ext_packed_depth_stencil)
+    lprintf(LO_INFO,"using GL_EXT_packed_depth_stencil\n");
+
   //
   // Blending
   //
@@ -284,6 +289,7 @@ void gld_InitOpenGL(dboolean compatibility_mode)
     gl_arb_multitexture = false;
     gl_arb_texture_compression = false;
     gl_ext_framebuffer_object = false;
+    gl_ext_packed_depth_stencil = false;
     gl_ext_blend_color = false;
     gl_use_stencil = false;
     gl_ext_arb_vertex_buffer_object = false;

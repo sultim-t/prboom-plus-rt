@@ -93,6 +93,7 @@ void gld_InitFBO(void)
     }
     else
     {
+      gld_FreeScreenSizeFBO();
       gl_use_FBO = false;
       gl_ext_framebuffer_object = false;
     }
@@ -102,6 +103,8 @@ void gld_InitFBO(void)
 static dboolean gld_CreateScreenSizeFBO(void)
 {
   int status = 0;
+  GLenum internalFormat;
+  dboolean attach_stencil = gl_ext_packed_depth_stencil && gl_use_motionblur;
 
   if (!gl_ext_framebuffer_object)
     return false;
@@ -112,8 +115,17 @@ static dboolean gld_CreateScreenSizeFBO(void)
   GLEXT_glGenRenderbuffersEXT(1, &glDepthBufferFBOTexID);
   GLEXT_glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, glDepthBufferFBOTexID);
 
-  GLEXT_glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, SCREENWIDTH, SCREENHEIGHT);
+  internalFormat = (attach_stencil ? GL_DEPTH_STENCIL_EXT : GL_DEPTH_COMPONENT);
+  GLEXT_glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, internalFormat, SCREENWIDTH, SCREENHEIGHT);
+  
+  // attach a renderbuffer to depth attachment point
   GLEXT_glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, glDepthBufferFBOTexID);
+
+  if (attach_stencil)
+  {
+    // attach a renderbuffer to stencil attachment point
+    GLEXT_glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, glDepthBufferFBOTexID);
+  }
   
   glGenTextures(1, &glSceneImageTextureFBOTexID);
   glBindTexture(GL_TEXTURE_2D, glSceneImageTextureFBOTexID);
@@ -143,7 +155,6 @@ static dboolean gld_CreateScreenSizeFBO(void)
   else
   {
     lprintf(LO_ERROR, "gld_CreateScreenSizeFBO: Cannot create framebuffer object (error code: %d)\n", status);
-    gl_ext_framebuffer_object = false;
   }
 
   return (status == GL_FRAMEBUFFER_COMPLETE_EXT);
