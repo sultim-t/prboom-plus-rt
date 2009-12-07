@@ -187,6 +187,7 @@ typedef struct shadow_params_s
 } simple_shadow_params_t;
 
 extern simple_shadow_params_t simple_shadows;
+extern int gl_shadows_maxdist;
 
 void gld_DrawMapLines(void);
 void gld_BeginLines(void);

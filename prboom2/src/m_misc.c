@@ -927,6 +927,8 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"gl_shadows", {&simple_shadows.enable},  {0},0,1,
    def_bool,ss_stat},
+  {"gl_shadows_maxdist",{&gl_shadows_maxdist},{1000},0,32767,
+   def_int,ss_none},
 #endif
   {"Prboom-plus emulation settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"overrun_spechit_warn", {&overflows[OVERFLOW_SPECHIT].warn},  {0},0,1,

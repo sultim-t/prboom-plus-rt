@@ -40,6 +40,8 @@
 #include "r_sky.h"
 #include "lprintf.h"
 
+int gl_shadows_maxdist;
+
 simple_shadow_params_t simple_shadows =
 {
   0, 0,
@@ -62,7 +64,7 @@ void gld_InitShadows(void)
   simple_shadows.height = 0;
 
   simple_shadows.max_radius = 80;
-  simple_shadows.max_dist = 1000;
+  simple_shadows.max_dist = gl_shadows_maxdist;
   simple_shadows.factor = 0.5f;
   simple_shadows.bias = 0.0044f;
   
@@ -206,7 +208,7 @@ void gld_ProcessThingShadow(mobj_t *mo)
   shadow.radius = radius / MAP_COEFF;
   shadow.x = -mo->x / MAP_SCALE;
   shadow.y = mo->y / MAP_SCALE;
-  shadow.z = mo->subsector->sector->floorheight / MAP_SCALE + 0.5f / MAP_COEFF;
+  shadow.z = mo->subsector->sector->floorheight / MAP_SCALE + 0.2f / MAP_COEFF;
 
   gld_AddDrawItem(GLDIT_SHADOW, &shadow);
 }
@@ -229,8 +231,19 @@ void gld_RenderShadows(void)
     glDepthRange(simple_shadows.bias, 1);
   }
 
+  gl_EnableFog(false);
+
   glDepthMask(GL_FALSE);
   glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
+
+  // Apply a modelview shift.
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+
+  // Scale towards the viewpoint to avoid Z-fighting.
+  glTranslatef(xCamera, zCamera, yCamera);
+  glScalef(0.99f, 0.99f, 0.99f);
+  glTranslatef(-xCamera, -zCamera, -yCamera);
 
   glBindTexture(GL_TEXTURE_2D, simple_shadows.tex_id);
   gld_ResetLastTexture();
@@ -245,6 +258,7 @@ void gld_RenderShadows(void)
     glDepthRange(0, 1);
   }
 
+  glPopMatrix();
   glDepthMask(GL_TRUE);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
