@@ -3408,7 +3408,7 @@ void gld_DrawScene(player_t *player)
     // transparent walls
     for (i = gld_drawinfo.num_items[GLDIT_TWALL] - 1; i >= 0; i--)
     {
-      //gld_SetFog(gld_drawinfo.items[GLDIT_TWALL][i].item.wall->fogdensity);
+      gld_SetFog(gld_drawinfo.items[GLDIT_TWALL][i].item.wall->fogdensity);
       gld_ProcessWall(gld_drawinfo.items[GLDIT_TWALL][i].item.wall);
     }
 
