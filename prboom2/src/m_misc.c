@@ -74,7 +74,6 @@
 #include "r_main.h"
 
 //e6y
-#include "gl_opengl.h"
 #include "gl_struct.h"
 #include "g_overflow.h"
 #include "r_screenmultiply.h"
@@ -186,6 +185,17 @@ extern int gl_invul_bw_method;
 
 //e6y: all OpenGL extentions will be disabled with TRUE
 extern int gl_compatibility;
+
+//cfg values
+extern int gl_ext_texture_filter_anisotropic_default;
+extern int gl_arb_texture_non_power_of_two_default;
+extern int gl_arb_multitexture_default;
+extern int gl_arb_texture_compression_default;
+extern int gl_ext_framebuffer_object_default;
+extern int gl_ext_packed_depth_stencil_default;
+extern int gl_ext_blend_color_default;
+extern int gl_use_stencil_default;
+extern int gl_ext_arb_vertex_buffer_object_default;
 
 //e6y: motion bloor
 extern int gl_motionblur;

@@ -85,17 +85,6 @@ extern dboolean gl_ext_blend_color;
 extern dboolean gl_use_stencil;
 extern dboolean gl_ext_arb_vertex_buffer_object;
 
-// cfg values
-extern int gl_ext_texture_filter_anisotropic_default;
-extern int gl_arb_texture_non_power_of_two_default;
-extern int gl_arb_multitexture_default;
-extern int gl_arb_texture_compression_default;
-extern int gl_ext_framebuffer_object_default;
-extern int gl_ext_packed_depth_stencil_default;
-extern int gl_ext_blend_color_default;
-extern int gl_use_stencil_default;
-extern int gl_ext_arb_vertex_buffer_object_default;
-
 // obsolete?
 extern PFNGLCOLORTABLEEXTPROC              GLEXT_glColorTableEXT;
 
