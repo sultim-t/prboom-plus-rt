@@ -67,6 +67,18 @@ dboolean gl_ext_blend_color = false;
 dboolean gl_use_stencil = false;
 dboolean gl_ext_arb_vertex_buffer_object = false;
 
+// cfg values
+int gl_ext_texture_filter_anisotropic_default;
+int gl_arb_texture_non_power_of_two_default;
+int gl_arb_multitexture_default;
+int gl_arb_texture_compression_default;
+int gl_ext_framebuffer_object_default;
+int gl_ext_packed_depth_stencil_default;
+int gl_ext_blend_color_default;
+int gl_use_stencil_default;
+int gl_ext_arb_vertex_buffer_object_default;
+
+
 // obsolete?
 PFNGLCOLORTABLEEXTPROC              GLEXT_glColorTableEXT              = NULL;
 
@@ -128,12 +140,14 @@ void gld_InitOpenGL(dboolean compatibility_mode)
 
   gld_InitOpenGLVersion();
 
-  gl_ext_texture_filter_anisotropic = isExtensionSupported("GL_EXT_texture_filter_anisotropic") != NULL;
+  gl_ext_texture_filter_anisotropic = gl_ext_texture_filter_anisotropic_default &&
+    isExtensionSupported("GL_EXT_texture_filter_anisotropic") != NULL;
   if (gl_ext_texture_filter_anisotropic)
     lprintf(LO_INFO, "using GL_EXT_texture_filter_anisotropic\n");
 
   // Any textures sizes are allowed
-  gl_arb_texture_non_power_of_two = isExtensionSupported("GL_ARB_texture_non_power_of_two") != NULL;
+  gl_arb_texture_non_power_of_two = gl_arb_texture_non_power_of_two_default &&
+    isExtensionSupported("GL_ARB_texture_non_power_of_two") != NULL;
   if (gl_arb_texture_non_power_of_two)
     lprintf(LO_INFO, "using GL_ARB_texture_non_power_of_two\n");
 
@@ -167,7 +181,8 @@ void gld_InitOpenGL(dboolean compatibility_mode)
   // ARB_multitexture command function pointers
   //
 
-  gl_arb_multitexture = isExtensionSupported("GL_ARB_multitexture") != NULL;
+  gl_arb_multitexture = gl_arb_multitexture_default &&
+    isExtensionSupported("GL_ARB_multitexture") != NULL;
   if (gl_arb_multitexture)
   {
     GLEXT_glActiveTextureARB        = SDL_GL_GetProcAddress("glActiveTextureARB");
@@ -186,7 +201,8 @@ void gld_InitOpenGL(dboolean compatibility_mode)
   // ARB_texture_compression
   //
 
-  gl_arb_texture_compression = isExtensionSupported("GL_ARB_texture_compression") != NULL;
+  gl_arb_texture_compression = gl_arb_texture_compression_default &&
+    isExtensionSupported("GL_ARB_texture_compression") != NULL;
   if (gl_arb_texture_compression)
   {
     GLEXT_glCompressedTexImage2DARB = SDL_GL_GetProcAddress("glCompressedTexImage2DARB");
@@ -200,7 +216,8 @@ void gld_InitOpenGL(dboolean compatibility_mode)
   //
   // EXT_framebuffer_object
   //
-  gl_ext_framebuffer_object = isExtensionSupported("GL_EXT_framebuffer_object") != NULL;
+  gl_ext_framebuffer_object = gl_ext_framebuffer_object_default &&
+    isExtensionSupported("GL_EXT_framebuffer_object") != NULL;
   if (gl_ext_framebuffer_object)
   {
     GLEXT_glGenFramebuffersEXT         = SDL_GL_GetProcAddress("glGenFramebuffersEXT");
@@ -224,7 +241,8 @@ void gld_InitOpenGL(dboolean compatibility_mode)
   if (gl_ext_framebuffer_object)
     lprintf(LO_INFO,"using GL_EXT_framebuffer_object\n");
 
-  gl_ext_packed_depth_stencil = isExtensionSupported("GL_EXT_packed_depth_stencil") != NULL;
+  gl_ext_packed_depth_stencil = gl_ext_packed_depth_stencil_default &&
+    isExtensionSupported("GL_EXT_packed_depth_stencil") != NULL;
   if (gl_ext_packed_depth_stencil)
     lprintf(LO_INFO,"using GL_EXT_packed_depth_stencil\n");
 
@@ -232,7 +250,8 @@ void gld_InitOpenGL(dboolean compatibility_mode)
   // Blending
   //
 
-  gl_ext_blend_color = isExtensionSupported("GL_EXT_blend_color") != NULL;
+  gl_ext_blend_color = gl_ext_blend_color_default &&
+    isExtensionSupported("GL_EXT_blend_color") != NULL;
   if (gl_ext_blend_color)
   {
     GLEXT_glBlendColorEXT = SDL_GL_GetProcAddress("glBlendColorEXT");
@@ -245,7 +264,8 @@ void gld_InitOpenGL(dboolean compatibility_mode)
 
   // VBO
 #ifdef USE_VBO
-  gl_ext_arb_vertex_buffer_object = isExtensionSupported("GL_ARB_vertex_buffer_object") != NULL;
+  gl_ext_arb_vertex_buffer_object = gl_ext_arb_vertex_buffer_object_default &&
+    isExtensionSupported("GL_ARB_vertex_buffer_object") != NULL;
   if (gl_ext_arb_vertex_buffer_object)
   {
     GLEXT_glGenBuffersARB = SDL_GL_GetProcAddress("glGenBuffersARB");
@@ -267,7 +287,7 @@ void gld_InitOpenGL(dboolean compatibility_mode)
   // Stencil support
   //
 
-  gl_use_stencil = true;
+  gl_use_stencil = gl_use_stencil_default;
 
   // GL_CLAMP_TO_EDGE
   GLEXT_CLAMP_TO_EDGE = (gl_version >= OPENGL_VERSION_1_2 ? GL_CLAMP_TO_EDGE : GL_CLAMP);

@@ -74,6 +74,7 @@
 #include "r_main.h"
 
 //e6y
+#include "gl_opengl.h"
 #include "gl_struct.h"
 #include "g_overflow.h"
 #include "r_screenmultiply.h"
@@ -415,6 +416,26 @@ default_t defaults[] =
   {"OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"gl_compatibility", {&gl_compatibility},  {0},0,1,
    def_bool,ss_stat},
+
+  {"gl_arb_multitexture", {&gl_arb_multitexture_default}, {1},0,1,
+   def_bool,ss_stat},
+  {"gl_arb_texture_compression", {&gl_arb_texture_compression_default}, {1},0,1,
+   def_bool,ss_stat},
+  {"gl_arb_texture_non_power_of_two", {&gl_arb_texture_non_power_of_two_default}, {1},0,1,
+   def_bool,ss_stat},
+  {"gl_ext_arb_vertex_buffer_object", {&gl_ext_arb_vertex_buffer_object_default}, {1},0,1,
+   def_bool,ss_stat},
+  {"gl_ext_blend_color", {&gl_ext_blend_color_default}, {1},0,1,
+   def_bool,ss_stat},
+  {"gl_ext_framebuffer_object", {&gl_ext_framebuffer_object_default}, {1},0,1,
+   def_bool,ss_stat},
+  {"gl_ext_packed_depth_stencil", {&gl_ext_packed_depth_stencil_default}, {1},0,1,
+   def_bool,ss_stat},
+  {"gl_ext_texture_filter_anisotropic", {&gl_ext_texture_filter_anisotropic_default}, {1},0,1,
+   def_bool,ss_stat},
+  {"gl_use_stencil", {&gl_use_stencil_default}, {1},0,1,
+   def_bool,ss_stat},
+
   {"gl_vsync",{&gl_vsync},{1},0,1,
    def_bool,ss_none},
   {"gl_clear",{&gl_clear},{0},0,1,
