@@ -75,16 +75,18 @@ int hud_graph_keys=1; //jff 3/7/98 display HUD keys as graphics
 // proff - changed to SCREENWIDTH to 320 for stretching
 #define HU_COORDX (320 - 13*hu_font2['A'-HU_FONTSTART].width)
 //jff 3/3/98 split coord widget into three lines in upper right of screen
-#define HU_COORDX_Y (1 + 0*hu_font['A'-HU_FONTSTART].height)
-#define HU_COORDY_Y (2 + 1*hu_font['A'-HU_FONTSTART].height)
-#define HU_COORDZ_Y (3 + 2*hu_font['A'-HU_FONTSTART].height)
+#define HU_COORDXYZ_Y (1 * hu_font['A'-HU_FONTSTART].height + 1)
+#define HU_COORDX_Y (0 + 0*hu_font['A'-HU_FONTSTART].height + HU_COORDXYZ_Y)
+#define HU_COORDY_Y (1 + 1*hu_font['A'-HU_FONTSTART].height + HU_COORDXYZ_Y)
+#define HU_COORDZ_Y (2 + 2*hu_font['A'-HU_FONTSTART].height + HU_COORDXYZ_Y)
 
 #define HU_MAP_STAT_X (0)
-#define HU_MAP_MONSTERS_Y  (1 + 0*hu_font['A'-HU_FONTSTART].height)
-#define HU_MAP_SECRETS_Y   (2 + 1*hu_font['A'-HU_FONTSTART].height)
-#define HU_MAP_ITEMS_Y     (3 + 2*hu_font['A'-HU_FONTSTART].height)
-#define HU_MAP_TIME_Y      (5 + 4*hu_font['A'-HU_FONTSTART].height)
-#define HU_MAP_TOTALTIME_Y (6 + 5*hu_font['A'-HU_FONTSTART].height)
+#define HU_MAP_STAT_Y (1 * hu_font['A'-HU_FONTSTART].height + 1)
+#define HU_MAP_MONSTERS_Y  (0 + 0*hu_font['A'-HU_FONTSTART].height + HU_MAP_STAT_Y)
+#define HU_MAP_SECRETS_Y   (1 + 1*hu_font['A'-HU_FONTSTART].height + HU_MAP_STAT_Y)
+#define HU_MAP_ITEMS_Y     (2 + 2*hu_font['A'-HU_FONTSTART].height + HU_MAP_STAT_Y)
+#define HU_MAP_TIME_Y      (4 + 4*hu_font['A'-HU_FONTSTART].height + HU_MAP_STAT_Y)
+#define HU_MAP_TOTALTIME_Y (5 + 5*hu_font['A'-HU_FONTSTART].height + HU_MAP_STAT_Y)
 
 //jff 2/16/98 add ammo, health, armor widgets, 2/22/98 less gap
 #define HU_GAPY 8
