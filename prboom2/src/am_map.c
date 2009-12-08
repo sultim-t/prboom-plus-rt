@@ -87,6 +87,7 @@ int map_secret_after;
 
 int map_always_updates;
 int map_grid_size;
+int map_use_multisamling;
 
 //jff 4/3/98 add symbols for "no-color" for disable and "black color" for black
 #define NC 0

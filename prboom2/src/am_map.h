@@ -121,5 +121,6 @@ extern int map_secret_after;  // secrets do not appear til after bagged
 
 extern int map_always_updates;
 extern int map_grid_size;
+extern int map_use_multisamling;
 
 #endif

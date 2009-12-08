@@ -2685,6 +2685,9 @@ setup_menu_t auto_settings1[] =  // 1st AutoMap Settings screen
   {"Show Secrets only after entering",        S_YESNO,m_null,AU_X,AU_Y+2*8, {"map_secret_after"}},
   {"Update unexplored parts in automap mode", S_YESNO,m_null,AU_X,AU_Y+3*8, {"map_always_updates"}},
   {"Grid cell size (8..256)",                 S_NUM,  m_null,AU_X,AU_Y+4*8, {"map_grid_size"}},
+#ifdef GL_DOOM
+  {"Use mutlisampling",                       S_YESNO,m_null,AU_X,AU_Y+5*8, {"map_use_multisamling"}},
+#endif
 
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},

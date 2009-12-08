@@ -76,6 +76,7 @@
 #include "r_screenmultiply.h"
 #include "r_main.h"
 #include "r_things.h"
+#include "am_map.h"
 #ifdef GL_DOOM
 #include "gl_struct.h"
 #include "gl_intern.h"
@@ -752,9 +753,10 @@ void gld_MultisamplingSet(void)
 #ifdef GL_DOOM
   if (render_multisampling)
   {
-    int viewactive = (!(automapmode & am_active) || (automapmode & am_overlay));
+    int use_multisampling = map_use_multisamling ||
+      (!(automapmode & am_active) || (automapmode & am_overlay));
 
-    if (viewactive)
+    if (use_multisampling)
     {
       glEnable(GL_MULTISAMPLE_ARB);
     }
