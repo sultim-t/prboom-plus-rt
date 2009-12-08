@@ -36,6 +36,8 @@
 #include "config.h"
 #endif
 
+#include <math.h>
+
 #ifdef GL_DOOM
 #include "gl_opengl.h"
 #endif
@@ -257,6 +259,8 @@ int markpointnum_max = 0;       // killough 2/22/98
 
 static dboolean stopped = true;
 
+static void AM_rotate(fixed_t* x,  fixed_t* y, angle_t a, fixed_t xorig, fixed_t yorig);
+
 //
 // AM_activateNewScale()
 //
@@ -397,24 +401,37 @@ static void AM_findMinMaxBoundaries(void)
 //
 static void AM_changeWindowLoc(void)
 {
+  fixed_t incx, incy;
+
   if (m_paninc.x || m_paninc.y)
   {
     automapmode &= ~am_follow;
     f_oldloc.x = INT_MAX;
   }
 
-  m_x += m_paninc.x;
-  m_y += m_paninc.y;
+  incx = m_paninc.x;
+  incy = m_paninc.y;
 
-  if (m_x + m_w/2 > max_x)
-    m_x = max_x - m_w/2;
-  else if (m_x + m_w/2 < min_x)
-    m_x = min_x - m_w/2;
+  if (automapmode & am_rotate)
+  {
+    AM_rotate(&incx, &incy, plr->mo->angle - ANG90, 0, 0);
+  }
 
-  if (m_y + m_h/2 > max_y)
-    m_y = max_y - m_h/2;
-  else if (m_y + m_h/2 < min_y)
-    m_y = min_y - m_h/2;
+  m_x += incx;
+  m_y += incy;
+
+  if (!(automapmode & am_rotate))
+  {
+    if (m_x + m_w/2 > max_x)
+      m_x = max_x - m_w/2;
+    else if (m_x + m_w/2 < min_x)
+      m_x = min_x - m_w/2;
+
+    if (m_y + m_h/2 > max_y)
+      m_y = max_y - m_h/2;
+    else if (m_y + m_h/2 < min_y)
+      m_y = min_y - m_h/2;
+  }
 
   m_x2 = m_x + m_w;
   m_y2 = m_y + m_h;
@@ -784,6 +801,18 @@ static void AM_rotate(fixed_t* x,  fixed_t* y, angle_t a, fixed_t xorig, fixed_t
   *x = tmpx + xorig;
 }
 
+void AM_rotatePoint (fixed_t *x, fixed_t *y)
+{
+  fixed_t pivotx = m_x + m_w/2;
+  fixed_t pivoty = m_y + m_h/2;
+  *x -= pivotx;
+  *y -= pivoty;
+  AM_rotate(x, y, ANG90 - plr->mo->angle, 0, 0);
+  *x += pivotx;
+  *y += pivoty;
+}
+
+
 //
 // AM_changeWindowScale()
 //
@@ -1027,7 +1056,18 @@ static void AM_drawGrid(int color)
   fixed_t x, y;
   fixed_t start, end;
   mline_t ml;
+  fixed_t minlen, extx, exty;
+  fixed_t minx, miny;
   int gridsize = map_grid_size << MAPBITS;
+
+  // [RH] Calculate a minimum for how long the grid lines should be so that
+  // they cover the screen at any rotation.
+  minlen = (fixed_t)sqrtf ((float)m_w*(float)m_w + (float)m_h*(float)m_h);
+  extx = (minlen - m_w) / 2;
+  exty = (minlen - m_h) / 2;
+
+  minx = m_x;
+  miny = m_y;
 
   // Fix vanilla automap grid bug: losing grid lines near the map boundary
   // due to unnecessary addition of MAPBLOCKUNITS to start
@@ -1035,34 +1075,44 @@ static void AM_drawGrid(int color)
   // of clipping if an extra line is offscreen.
 
   // Figure out start of vertical gridlines
-  start = m_x;
+  start = minx - extx;
   if ((start - bmaporgx) % gridsize)
     start -= ((start - bmaporgx) % gridsize);
-  end = m_x + m_w;
+  end = minx + minlen - extx;
 
   // draw vertical gridlines
-  ml.a.y = m_y;
-  ml.b.y = m_y+m_h;
   for (x = start; x < end; x += gridsize)
   {
     ml.a.x = x;
     ml.b.x = x;
+    ml.a.y = miny - exty;
+    ml.b.y = ml.a.y + minlen;
+    if (automapmode & am_rotate)
+    {
+      AM_rotatePoint (&ml.a.x, &ml.a.y);
+      AM_rotatePoint (&ml.b.x, &ml.b.y);
+    }
     AM_drawMline(&ml, color);
   }
 
   // Figure out start of horizontal gridlines
-  start = m_y;
+  start = miny - exty;
   if ((start - bmaporgy) % gridsize)
     start -= ((start - bmaporgy) % gridsize);
-  end = m_y + m_h;
+  end = miny + minlen - exty;
 
   // draw horizontal gridlines
-  ml.a.x = m_x;
-  ml.b.x = m_x + m_w;
   for (y = start; y < end; y += gridsize)
   {
+    ml.a.x = minx - extx;
+    ml.b.x = ml.a.x + minlen;
     ml.a.y = y;
     ml.b.y = y;
+    if (automapmode & am_rotate)
+    {
+      AM_rotatePoint (&ml.a.x, &ml.a.y);
+      AM_rotatePoint (&ml.b.x, &ml.b.y);
+    }
     AM_drawMline(&ml, color);
   }
 }
@@ -1137,8 +1187,8 @@ static void AM_drawWalls(void)
     l.b.y = lines[i].v2->y >> FRACTOMAPBITS;//e6y
 
     if (automapmode & am_rotate) {
-      AM_rotate(&l.a.x, &l.a.y, ANG90-plr->mo->angle, plr->mo->x, plr->mo->y);
-      AM_rotate(&l.b.x, &l.b.y, ANG90-plr->mo->angle, plr->mo->x, plr->mo->y);
+      AM_rotatePoint(&l.a.x, &l.a.y);
+      AM_rotatePoint(&l.b.x, &l.b.y);
     }
 
     // if line has been seen or IDDT has been used
@@ -1376,30 +1426,24 @@ static void AM_drawLineCharacter
 static void AM_drawPlayers(void)
 {
   int   i;
+  angle_t angle;
+  mpoint_t pt;
 
   if (!netgame)
   {
+    pt.x = plr->mo->x >> FRACTOMAPBITS;
+    pt.y = plr->mo->y >> FRACTOMAPBITS;
+    angle = plr->mo->angle;
+    if (automapmode & am_rotate)
+    {
+      //angle = ANG90;
+      AM_rotatePoint(&pt.x, &pt.y);
+    }
+
     if (ddt_cheating)
-      AM_drawLineCharacter
-      (
-        cheat_player_arrow,
-        NUMCHEATPLYRLINES,
-        0,
-        plr->mo->angle,
-        mapcolor_sngl,      //jff color
-        plr->mo->x >> FRACTOMAPBITS,//e6y
-        plr->mo->y >> FRACTOMAPBITS//e6y
-      );
+      AM_drawLineCharacter(cheat_player_arrow, NUMCHEATPLYRLINES, 0, angle, mapcolor_sngl, pt.x, pt.y);
     else
-      AM_drawLineCharacter
-      (
-        player_arrow,
-        NUMPLYRLINES,
-        0,
-        plr->mo->angle,
-        mapcolor_sngl,      //jff color
-        plr->mo->x >> FRACTOMAPBITS,//e6y
-        plr->mo->y >> FRACTOMAPBITS);//e6y
+      AM_drawLineCharacter(player_arrow, NUMPLYRLINES, 0, angle, mapcolor_sngl, pt.x, pt.y);
     return;
   }
 
@@ -1409,15 +1453,21 @@ static void AM_drawPlayers(void)
     if ( (deathmatch && !demoplayback) && p != plr)
       continue;
 
-    if (playeringame[i]) {
-      fixed_t x = p->mo->x >> FRACTOMAPBITS, y = p->mo->y >> FRACTOMAPBITS;//e6y
+    if (playeringame[i])
+    {
+      pt.x = p->mo->x >> FRACTOMAPBITS;
+      pt.y = p->mo->y >> FRACTOMAPBITS;
+      angle = p->mo->angle;
       if (automapmode & am_rotate)
-        AM_rotate(&x, &y, ANG90-plr->mo->angle, plr->mo->x, plr->mo->y);
+      {
+        AM_rotatePoint(&pt.x, &pt.y);
+        //angle -= plr->mo->angle - ANG90;
+      }
 
-      AM_drawLineCharacter (player_arrow, NUMPLYRLINES, 0, p->mo->angle,
+      AM_drawLineCharacter (player_arrow, NUMPLYRLINES, 0, angle,
           p->powers[pw_invisibility] ? 246 /* *close* to black */
           : mapcolor_plyr[i], //jff 1/6/98 use default color
-          x, y);
+          pt.x, pt.y);
     }
   }
 }
@@ -1464,7 +1514,9 @@ static void AM_drawThings(void)
       }
 
       if (automapmode & am_rotate)
-  AM_rotate(&x, &y, ANG90-plr->mo->angle, plr->mo->x, plr->mo->y);
+      {
+        AM_rotatePoint (&x, &y);
+      }
 
       //jff 1/5/98 case over doomednum of thing being drawn
       if (mapcolor_rkey || mapcolor_ykey || mapcolor_bkey)
