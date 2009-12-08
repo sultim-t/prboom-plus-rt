@@ -831,6 +831,8 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"movement_strafe50onturns", {&movement_strafe50onturns},  {0},0,1,
    def_bool,ss_stat},
+  {"movement_shorttics", {&movement_shorttics},  {0},0,1,
+   def_bool,ss_stat},
   {"interpolation_maxobjects", {&interpolation_maxobjects},  {0},0,UL,
    def_int,ss_stat},
 

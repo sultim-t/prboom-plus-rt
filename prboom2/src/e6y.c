@@ -127,6 +127,7 @@ int hudadd_secretarea;
 int hudadd_smarttotals;
 int hudadd_demoprogressbar;
 int movement_strafe50;
+int movement_shorttics;
 int movement_strafe50onturns;
 int movement_mouselook;
 int movement_mouseinvert;
@@ -337,7 +338,7 @@ void e6y_InitCommandLine(void)
     }
   }
 
-  shorttics = M_CheckParm("-shorttics");
+  shorttics = movement_shorttics || M_CheckParm("-shorttics");
 
   // What hacked exe are we emulating?
   game_exe = EXE_NONE;

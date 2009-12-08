@@ -129,6 +129,7 @@ extern int hudadd_secretarea;
 extern int hudadd_smarttotals;
 extern int hudadd_demoprogressbar;
 extern int movement_strafe50;
+extern int movement_shorttics;
 extern int movement_strafe50onturns;
 extern int movement_mouselook;
 extern int movement_mouseinvert;
