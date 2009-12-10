@@ -41,6 +41,7 @@
 #include "sounds.h"
 #include "st_stuff.h"
 #include "hu_stuff.h"
+#include "hu_tracers.h"
 #include "s_sound.h"
 #include "info.h"
 #include "g_game.h"
@@ -713,6 +714,7 @@ static void P_NightmareRespawn(mobj_t* mobj)
   mo = P_SpawnMobj (x,y,z, mobj->type);
   mo->spawnpoint = mobj->spawnpoint;
   mo->angle = ANG45 * (mthing->angle/45);
+  mo->index = mobj->index;
 
   if (mthing->options & MTF_AMBUSH)
     mo->flags |= MF_AMBUSH;
@@ -1117,6 +1119,12 @@ void P_SpawnPlayer (int n, const mapthing_t* mthing)
   z    = ONFLOORZ;
   mobj = P_SpawnMobj (x,y,z, MT_PLAYER);
 
+  if (deathmatch)
+    mobj->index = TracerGetDeathmatchStart(n);
+  else
+    mobj->index = TracerGetPlayerStart(mthing->type - 1);
+
+
   // set color translations for player sprites
 
   mobj->flags |= playernumtotrans[n]<<MF_TRANSSHIFT;
@@ -1253,6 +1261,9 @@ void P_SpawnMapThing (const mapthing_t* mthing, int index)//e6y
       }
     memcpy(deathmatch_p++, mthing, sizeof(*mthing));
     (deathmatch_p-1)->options = 1;
+
+    TracerAddDeathmatchStart(deathmatch_p - deathmatchstarts - 1, index);
+
     return;
 	}
     }
@@ -1297,6 +1308,8 @@ void P_SpawnMapThing (const mapthing_t* mthing, int index)//e6y
      * in, in effect). Also note that the call below to P_SpawnPlayer must use
      * the playerstarts version with this field set */
     playerstarts[mthing->type-1].options = 1;
+
+    TracerAddPlayerStart(mthing->type - 1, index);
 
     if (!deathmatch)
       P_SpawnPlayer (mthing->type-1, &playerstarts[mthing->type-1]);

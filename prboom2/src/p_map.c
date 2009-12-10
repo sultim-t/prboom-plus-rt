@@ -47,6 +47,7 @@
 #include "lprintf.h"
 #include "m_argv.h"
 #include "g_overflow.h"
+#include "hu_tracers.h"
 #include "e6y.h"//e6y
 
 static mobj_t    *tmthing;

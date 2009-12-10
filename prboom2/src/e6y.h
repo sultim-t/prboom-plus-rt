@@ -366,49 +366,6 @@ void AbbreviateName(char* lpszCanon, int cchMax, int bAtLeastName);
 
 //extern int viewMaxY;
 
-#define MAXTRACEITEMS 8
-
-typedef struct
-{
-  int index;
-  char value[16];
-  int data1;
-} traceitem_t;
-
-typedef struct
-{
-  traceitem_t items[MAXTRACEITEMS];
-  int count;
-} trace_t;
-
-typedef struct
-{
-  trace_t *trace;
-  char *hudstr;
-  char cmd[32];
-  char prefix[32];
-} traceslist_t;
-
-extern trace_t things_health;
-extern trace_t things_pickup;
-extern trace_t lines_cross;
-
-extern traceslist_t traces[];
-extern dboolean traces_present;
-
-extern hu_textline_t  w_traces[];
-
-extern char hud_trace_things_health[80];
-extern char hud_trace_things_pickup[80];
-extern char hud_trace_lines_cross[80];
-
-extern int clevfromrecord;
-
-void CheckThingsPickupTracer(mobj_t *mobj);
-void CheckThingsHealthTracer(mobj_t *mobj);
-void CheckLinesCrossTracer(line_t *line);
-void ClearLinesCrossTracer(void);
-
 extern dboolean isskytexture;
 
 void D_AddDehFile (const char *file, wad_source_t source);

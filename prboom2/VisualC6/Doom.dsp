@@ -484,6 +484,14 @@ SOURCE=..\src\hu_stuff.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\hu_tracers.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\hu_tracers.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\SDL\i_joy.c
 # End Source File
 # Begin Source File

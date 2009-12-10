@@ -36,6 +36,7 @@
 #include "doomstat.h"
 #include "hu_stuff.h"
 #include "hu_lib.h"
+#include "hu_tracers.h"
 #include "st_stuff.h" /* jff 2/16/98 need loc of status bar */
 #include "w_wad.h"
 #include "s_sound.h"
@@ -136,6 +137,9 @@ int hud_graph_keys=1; //jff 3/7/98 display HUD keys as graphics
 #define HU_INPUTY (HU_MSGY + HU_MSGHEIGHT*(hu_font[0].height) +1)
 #define HU_INPUTWIDTH 64
 #define HU_INPUTHEIGHT  1
+
+#define HU_TRACERX (2)
+#define HU_TRACERY (hu_font['A'-HU_FONTSTART].height)
 
 #define key_alt KEYD_RALT
 #define key_shift KEYD_RSHIFT
@@ -700,36 +704,6 @@ void HU_Start(void)
   );
   HUlib_initTextLine
   (
-    &w_traces[0],
-    HU_HUDX_LL,
-    HU_HUDY_UR+0*HU_GAPY,
-    hu_font2,
-    HU_FONTSTART,
-    CR_GRAY,
-    VPT_ALIGN_LEFT_TOP
-  );
-  HUlib_initTextLine
-  (
-    &w_traces[1],
-    HU_HUDX_LL,
-    HU_HUDY_UR+1*HU_GAPY,
-    hu_font2,
-    HU_FONTSTART,
-    CR_GRAY,
-    VPT_ALIGN_LEFT_TOP
-  );
-  HUlib_initTextLine
-  (
-    &w_traces[2],
-    HU_HUDX_LL,
-    HU_HUDY_UR+2*HU_GAPY,
-    hu_font2,
-    HU_FONTSTART,
-    CR_GRAY,
-    VPT_ALIGN_LEFT_TOP
-  );
-  HUlib_initTextLine
-  (
     &w_precache,
     16,
     186,
@@ -742,9 +716,20 @@ void HU_Start(void)
   s = hud_add;
   while (*s)
     HUlib_addCharToTextLine(&w_hudadd, *(s++));
-  for(i=0;i<3;i++)
+
+  for(i = 0; i < NUMTRACES; i++)
   {
-    strcpy(traces[i].hudstr,"");
+    HUlib_initTextLine(
+      &w_traces[i],
+      HU_TRACERX,
+      HU_TRACERY+i*HU_GAPY,
+      hu_font2,
+      HU_FONTSTART,
+      CR_GRAY,
+      VPT_ALIGN_LEFT_BOTTOM
+    );
+
+    strcpy(traces[i].hudstr, "");
     s = traces[i].hudstr;
     while (*s)
       HUlib_addCharToTextLine(&w_traces[i], *(s++));
@@ -868,10 +853,11 @@ void HU_MoveHud(int force)
     int flags[2];
   } hud_coords_t;
 
-  static int ohud_distributed=-1;
+  static int ohud_distributed = -1;
+  static int ohud_active = -1;
   int i;
 
-  static hud_coords_t hud[8] =
+  static hud_coords_t hud[] =
   {
     {&w_gkeys,  {-1, -1},  {HU_KEYSY, HU_KEYSY_D},     
      {VPT_ALIGN_LEFT_BOTTOM, VPT_ALIGN_LEFT_BOTTOM}},
@@ -905,18 +891,51 @@ void HU_MoveHud(int force)
   }
 
   //jff 3/4/98 move displays around on F5 changing hud_distributed
-  if (force || hud_distributed != ohud_distributed)
+  if (force || hud_distributed != ohud_distributed || hud_active != ohud_active)
   {
-    // e6y: wide-res
-    for (i = 0; i < 8; i++)
+    int y;
+    int hudnum = hud_distributed * 3 + hud_active;
+
+    for (i = 0; i < sizeof(hud) /  sizeof(hud[0]); i++)
     {
-      hud[i].name->x = hud[i].x[!!hud_distributed];
-      hud[i].name->y = hud[i].y[!!hud_distributed];
-      hud[i].name->flags = hud[i].flags[!!hud_distributed];
+      int index = (hud_distributed ? 1 : 0);
+      hud[i].name->x = hud[i].x[index];
+      hud[i].name->y = hud[i].y[index];
+      hud[i].name->flags = hud[i].flags[index];
+    }
+
+    y = 0;
+    switch (hudnum)
+    {
+    case 1:
+      y = w_weapon.y;
+      break;
+    case 2:
+    case 5:
+      y = w_monsec.y;
+      break;
+    case 4:
+      y = 200;
+      break;
+    }
+
+    if (hudadd_gamespeed || hudadd_leveltime)
+    {
+      y = y - 1 * HU_GAPY;
+      w_hudadd.y = y;
+    }
+    
+    if (traces_present)
+    {
+      for (i = 0; i < NUMTRACES; i++)
+      {
+        w_traces[i].y = y - (i + 1) * HU_GAPY;
+      }
     }
   }
 
   ohud_distributed = hud_distributed;
+  ohud_active = hud_active;
 }
 
 //
@@ -1592,48 +1611,51 @@ void HU_Drawer(void)
     }
     
     //e6y
-    if (traces_present)
+    if (hud_active)
     {
-      int k,num=0;
-      for(k=0;k<3;k++)
+      if (traces_present)
       {
-        if (traces[k].trace->count)
+        int k, num = 0;
+        for(k = 0; k < NUMTRACES; k++)
         {
-          if (realframe)
+          if (traces[k].count)
           {
-            strcpy(traces[k].hudstr, traces[k].prefix);
-            for (i=0;i<traces[k].trace->count;i++)
-              sprintf(traces[k].hudstr+strlen(traces[k].hudstr),
-              "\x1b\x33%s ", traces[k].trace->items[i].value);
-            HUlib_clearTextLine(&w_traces[num]);
-            s = traces[k].hudstr;
-            while (*s)
-              HUlib_addCharToTextLine(&w_traces[num], *(s++));
+            if (realframe)
+            {
+              if (traces[k].ApplyFunc)
+                traces[k].ApplyFunc(k);
+
+              HUlib_clearTextLine(&w_traces[num]);
+              s = traces[k].hudstr;
+              while (*s)
+                HUlib_addCharToTextLine(&w_traces[num], *(s++));
+
+              if (traces[k].ResetFunc)
+                traces[k].ResetFunc(k);
+            }
+            HUlib_drawTextLine(&w_traces[num], false);
+            num++;
           }
-          HUlib_drawTextLine(&w_traces[num], false);
-          num++;
         }
       }
-    }
-    if (hud_active>1)
-    {
-      if (hudadd_gamespeed||hudadd_leveltime)
+
+      if (hudadd_gamespeed || hudadd_leveltime)
       {
         if (realframe)
         {
           hud_add[0] = 0;
           if (hudadd_gamespeed)
-            sprintf(hud_add,"\x1b\x31speed \x1b\x33%.2d ", realtic_clock_rate);
+            sprintf(hud_add,"\x1b\x32speed \x1b\x33%.2d ", realtic_clock_rate);
           if ((hudadd_leveltime) || (demoplayback && hudadd_demotime))
           {
             static char demo_len_null[1]={0};
             char *demo_len = demoplayback && hudadd_demotime ? demo_len_st : demo_len_null;
             if (totalleveltimes)
-              sprintf(hud_add+strlen(hud_add),"\x1b\x31time \x1b\x35%d:%02d%s \x1b\x33%d:%05.2f ", 
+              sprintf(hud_add+strlen(hud_add),"\x1b\x32time \x1b\x35%d:%02d%s \x1b\x33%d:%05.2f ", 
                 (totalleveltimes+leveltime)/35/60, ((totalleveltimes+leveltime)%(60*35))/35, demo_len, 
                 leveltime/35/60, (float)(leveltime%(60*35))/35);
             else
-              sprintf(hud_add+strlen(hud_add),"\x1b\x31time \x1b\x33%d:%05.2f%s ", 
+              sprintf(hud_add+strlen(hud_add),"\x1b\x32time \x1b\x33%d:%05.2f%s ", 
                 leveltime/35/60, (float)(leveltime%(60*35))/35, demo_len);
           }
           HUlib_clearTextLine(&w_hudadd);

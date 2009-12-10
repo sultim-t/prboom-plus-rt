@@ -44,6 +44,7 @@
 
 #include "p_inter.h"
 #include "p_enemy.h"
+#include "hu_tracers.h"
 
 #ifdef __GNUG__
 #pragma implementation "p_inter.h"
@@ -903,6 +904,11 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
       if (player->damagecount > 100)
         player->damagecount = 100;  // teleport stomp does 10k points...
     }
+
+  if (source && target)
+  {
+    CheckGivenDamageTracer(source, damage);
+  }
 
   // do the damage
   target->health -= damage;

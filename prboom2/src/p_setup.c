@@ -52,6 +52,7 @@
 #include "v_video.h"
 #include "r_demo.h"
 #include "r_fps.h"
+#include "hu_tracers.h"
 #include "g_overflow.h"
 #include "e6y.h"//e6y
 
@@ -1814,6 +1815,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   deathmatch_p = deathmatchstarts;
   for (i = 0; i < MAXPLAYERS; i++)
     players[i].mo = NULL;
+  TracerClearStarts();
 
   P_MapStart();
 

@@ -77,6 +77,7 @@
 #include "r_main.h"
 #include "r_things.h"
 #include "am_map.h"
+#include "hu_tracers.h"
 #ifdef GL_DOOM
 #include "gl_struct.h"
 #include "gl_intern.h"
@@ -316,27 +317,7 @@ void e6y_InitCommandLine(void)
   use_wrong_fixeddiv = &(prboom_comp[PC_WRONG_FIXEDDIV].state);
 
   // TAS-tracers
-  {
-    long value, count;
-    traces_present = false;
-
-    for (i=0;i<3;i++)
-    {
-      count = 0;
-      traces[i].trace->count = 0;
-      if ((p = M_CheckParm(traces[i].cmd)) && (p < myargc-1))
-      {
-        while (count < 3 && p + count < myargc-1 && M_StrToInt(myargv[p+1+count], &value))
-        {
-          sprintf(traces[i].trace->items[count].value, "\x1b\x36%ld\x1b\x33 0", value);
-          traces[i].trace->items[count].index = value;
-          traces_present = true;
-          count++;
-        }
-        traces[i].trace->count = count;
-      }
-    }
-  }
+  InitTracers();
 
   shorttics = movement_shorttics || M_CheckParm("-shorttics");
 
@@ -1341,92 +1322,6 @@ void AbbreviateName(char* lpszCanon, int cchMax, int bAtLeastName)
   strcat(lpszCanon, lpszCur);
 }
 
-trace_t things_health;
-trace_t things_pickup;
-trace_t lines_cross;
-
-hu_textline_t  w_traces[3];
-
-char hud_trace_things_health[80];
-char hud_trace_things_pickup[80];
-char hud_trace_lines_cross[80];
-
-int clevfromrecord = false;
-
-char hud_trace_things_health[80];
-char hud_trace_things_pickup[80];
-char hud_trace_lines_cross[80];
-
-dboolean traces_present;
-traceslist_t traces[3] = {
-  {&things_health, hud_trace_things_health, "-trace_thingshealth", "\x1b\x31health "},
-  {&things_pickup, hud_trace_things_pickup, "-trace_thingspickup", "\x1b\x31pickup "},
-  {&lines_cross,   hud_trace_lines_cross,   "-trace_linescross"  , "\x1b\x31lcross "},
-};
-
-void CheckThingsPickupTracer(mobj_t *mobj)
-{
-  if (things_pickup.count)
-  {
-    int i;
-    for (i=0;i<things_pickup.count;i++)
-    {
-      if (mobj->index == things_pickup.items[i].index)
-        sprintf(things_pickup.items[i].value, "\x1b\x36%d \x1b\x33%05.2f", things_pickup.items[i].index, (float)(leveltime)/35);
-    }
-  }
-}
-
-void CheckThingsHealthTracer(mobj_t *mobj)
-{
-   if (things_health.count)
-  {
-    int i;
-    for (i=0;i<things_health.count;i++)
-    {
-      if (mobj->index == things_health.items[i].index)
-        sprintf(things_health.items[i].value, "\x1b\x36%d \x1b\x33%d", mobj->index, mobj->health);
-    }
-  }
-}
-
-int crossed_lines_count = 0;
-void CheckLinesCrossTracer(line_t *line)
-{
-  if (lines_cross.count)
-  {
-    int i;
-    crossed_lines_count++;
-    for (i=0;i<lines_cross.count;i++)
-    {
-      if (line->iLineID == lines_cross.items[i].index)
-      {
-        if (!lines_cross.items[i].data1)
-        {
-          sprintf(lines_cross.items[i].value, "\x1b\x36%d \x1b\x33%05.2f", lines_cross.items[i].index, (float)(leveltime)/35);
-          lines_cross.items[i].data1 = 1;
-        }
-      }
-    }
-  }
-}
-
-void ClearLinesCrossTracer(void)
-{
-  if (lines_cross.count)
-  {
-    if (!crossed_lines_count)
-    {
-      int i;
-      for (i=0;i<lines_cross.count;i++)
-      {
-        lines_cross.items[i].data1 = 0;
-      }
-    }
-    crossed_lines_count = 0;
-  }
-}
-
 int levelstarttic;
 
 void I_AfterUpdateVideoMode(void)
@@ -1556,7 +1451,6 @@ void I_midiOutSetVolumes(int volume)
   SDL_UnlockAudio();
 }
 #endif
-
 
 //Begin of GZDoom code
 /*

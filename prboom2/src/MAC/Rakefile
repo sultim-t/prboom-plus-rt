@@ -105,6 +105,7 @@ gl_sky.c
 gl_fbo.c
 hu_lib.c
 hu_stuff.c
+hu_tracers.c
 icon.c
 info.c
 lprintf.c
