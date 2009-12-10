@@ -1932,6 +1932,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\hu_tracers.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\hu_tracers.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\SDL\i_joy.c"
 				>
 				<FileConfiguration
