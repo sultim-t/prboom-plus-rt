@@ -56,6 +56,8 @@
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "g_game.h"
 
+extern dboolean gamekeydown[];
+
 //jff 1/7/98 default automap colors added
 int mapcolor_back;    // map background
 int mapcolor_grid;    // grid lines color
@@ -87,6 +89,7 @@ int map_secret_after;
 
 int map_always_updates;
 int map_grid_size;
+int map_scroll_speed;
 int map_use_multisamling;
 
 //jff 4/3/98 add symbols for "no-color" for disable and "black color" for black
@@ -100,13 +103,13 @@ int map_use_multisamling;
 #define INITSCALEMTOF (.2*FRACUNIT)
 // how much the automap moves window per tic in frame-buffer coordinates
 // moves 140 pixels in 1 second
-#define F_PANINC  4
+#define F_PANINC  (gamekeydown[key_speed] ? map_scroll_speed * 2 : map_scroll_speed)
 // how much zoom-in per tic
 // goes to 2x in 1 second
-#define M_ZOOMIN        ((int) (1.02*FRACUNIT))
+#define M_ZOOMIN        ((int) ((float)FRACUNIT * (1.00f + F_PANINC / 200.0f)))
 // how much zoom-out per tic
 // pulls out to 0.5x in 1 second
-#define M_ZOOMOUT       ((int) (FRACUNIT/1.02))
+#define M_ZOOMOUT       ((int) ((float)FRACUNIT / (1.00f + F_PANINC / 200.0f)))
 
 #define PLAYERRADIUS    (16*(1<<MAPBITS)) // e6y
 
