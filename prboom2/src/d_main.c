@@ -1649,12 +1649,14 @@ static void D_DoomMainSetup(void)
   D_InitNetGame();
 
   //e6y
+  {
+    int demo_footer = CheckDemoExDemo();
 #ifdef USE_WINDOWS_LAUNCHER
-  LauncherShow(CheckDemoExDemo());
-#else
-  CheckDemoExDemo();
+    LauncherShow(demo_footer);
 #endif
-  CheckAutoDemo();
+    if (!demo_footer)
+      CheckAutoDemo();
+  }
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"W_Init: Init WADfiles.\n");
