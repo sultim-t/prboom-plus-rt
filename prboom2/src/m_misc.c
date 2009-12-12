@@ -766,6 +766,12 @@ default_t defaults[] =
    def_int,ss_auto}, // color range used for automap level title
   {"hudcolor_xyco", {&hudcolor_xyco}, {3},0,9,  // green range
    def_int,ss_auto}, // color range used for automap coordinates
+   {"hudcolor_mapstat_title", {&hudcolor_mapstat_title}, {6},0,9, // red range
+   def_int,ss_auto}, // color range used for automap statistics for titles
+  {"hudcolor_mapstat_value", {&hudcolor_mapstat_value}, {2},0,9,    // gray range
+   def_int,ss_auto}, // color range used for automap statistics for data
+  {"hudcolor_mapstat_time", {&hudcolor_mapstat_time}, {2},0,9,    // gray range
+   def_int,ss_auto}, // color range used for automap statistics for level time and total time
   {"hudcolor_mesg", {&hudcolor_mesg}, {6},0,9,  // red range
    def_int,ss_mess}, // color range used for messages during play
   {"hudcolor_chat", {&hudcolor_chat}, {5},0,9,  // gold range

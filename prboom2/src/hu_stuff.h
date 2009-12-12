@@ -73,6 +73,9 @@ void HU_MoveHud(int force); // jff 3/9/98 avoid glitch in HUD display
 /* jff 2/16/98 hud supported automap colors added */
 extern int hudcolor_titl;   /* color range of automap level title   */
 extern int hudcolor_xyco;   /* color range of new coords on automap */
+extern int hudcolor_mapstat_title;
+extern int hudcolor_mapstat_value;
+extern int hudcolor_mapstat_time;
 /* jff 2/16/98 hud text colors, controls added */
 extern int hudcolor_mesg;   /* color range of scrolling messages    */
 extern int hudcolor_chat;   /* color range of chat lines            */

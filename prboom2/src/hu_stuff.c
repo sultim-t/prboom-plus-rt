@@ -220,6 +220,9 @@ static dboolean    headsupactive = false;
 //jff 2/16/98 hud supported automap colors added
 int hudcolor_titl;  // color range of automap level title
 int hudcolor_xyco;  // color range of new coords on automap
+int hudcolor_mapstat_title;
+int hudcolor_mapstat_value;
+int hudcolor_mapstat_time;
 //jff 2/16/98 hud text colors, controls added
 int hudcolor_mesg;  // color range of scrolling messages
 int hudcolor_chat;  // color range of chat lines
@@ -639,7 +642,7 @@ void HU_Start(void)
     HU_MAP_MONSTERS_Y,
     hu_font,
     HU_FONTSTART,
-    CR_RED,
+    hudcolor_mapstat_title,
     VPT_ALIGN_LEFT_TOP
   );
   HUlib_initTextLine
@@ -649,7 +652,7 @@ void HU_Start(void)
     HU_MAP_SECRETS_Y,
     hu_font,
     HU_FONTSTART,
-    CR_RED,
+    hudcolor_mapstat_title,
     VPT_ALIGN_LEFT_TOP
   );
   HUlib_initTextLine
@@ -659,7 +662,7 @@ void HU_Start(void)
     HU_MAP_ITEMS_Y,
     hu_font,
     HU_FONTSTART,
-    CR_RED,
+    hudcolor_mapstat_title,
     VPT_ALIGN_LEFT_TOP
   );
   HUlib_initTextLine
@@ -669,7 +672,7 @@ void HU_Start(void)
     HU_MAP_TIME_Y,
     hu_font,
     HU_FONTSTART,
-    CR_GRAY,
+    hudcolor_mapstat_time,
     VPT_ALIGN_LEFT_TOP
   );
   HUlib_initTextLine
@@ -679,7 +682,7 @@ void HU_Start(void)
     HU_MAP_TOTALTIME_Y,
     hu_font,
     HU_FONTSTART,
-    CR_GRAY,
+    hudcolor_mapstat_time,
     VPT_ALIGN_LEFT_TOP
   );
   HUlib_initTextLine
@@ -1019,21 +1022,25 @@ void HU_Drawer(void)
       int time = leveltime / TICRATE;
       int ttime = (totalleveltimes + leveltime) / TICRATE;
 
-      sprintf(str, "Monsters: \x1b\x32%d/%d", players[consoleplayer].killcount - players[consoleplayer].resurectedkillcount, totalkills);
+      sprintf(str, "Monsters: \x1b%c%d/%d", '0' + hudcolor_mapstat_value,
+        players[consoleplayer].killcount - players[consoleplayer].resurectedkillcount,
+        totalkills);
       HUlib_clearTextLine(&w_map_monsters);
       s = str;
       while (*s)
         HUlib_addCharToTextLine(&w_map_monsters, *(s++));
       HUlib_drawTextLine(&w_map_monsters, false);
 
-      sprintf(str, "Secrets: \x1b\x32%d/%d", players[consoleplayer].secretcount, totalsecret);
+      sprintf(str, "Secrets: \x1b%c%d/%d", '0' + hudcolor_mapstat_value,
+        players[consoleplayer].secretcount, totalsecret);
       HUlib_clearTextLine(&w_map_secrets);
       s = str;
       while (*s)
         HUlib_addCharToTextLine(&w_map_secrets, *(s++));
       HUlib_drawTextLine(&w_map_secrets, false);
 
-      sprintf(str, "Items: \x1b\x32%d/%d", players[consoleplayer].itemcount, totalitems);
+      sprintf(str, "Items: \x1b%c%d/%d", '0' + hudcolor_mapstat_value,
+        players[consoleplayer].itemcount, totalitems);
       HUlib_clearTextLine(&w_map_items);
       s = str;
       while (*s)
