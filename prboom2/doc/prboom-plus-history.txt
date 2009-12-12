@@ -1,5 +1,30 @@
 Change Log
 
+2.5.0.6 @ 2009.12.13
+[+] Added the ability to smooth sprites edges ("Options\General\OpenGL Options\Smooth Sprite Edges"). Might noticeably reduce frame rate. Includes a "gl_mask_sprite_threshold" config variable for the intensity of smoothing (0-100).
+[+] Ability to see kills/secrets/items/time statistics in automap mode. Available in the menu at "Options\Setup\Automap\".
+[+] Added a "map_use_multisamling" config variable to apply multisampling to the automap.
+[+] Added a "movement_shorttics" config variable in addition to the "-shorttics" command line switch.
+[+] Added a "gl_shadows_maxdist" config variable.
+[+] Added the ability to disable any OpenGL extension via the config instead of disabling all of them with "gl_compatibility" in case your drivers can't work properly with specific features. The extensions which can be disabled are: gl_arb_multitexture, gl_arb_texture_compression, gl_arb_texture_non_power_of_two, gl_ext_arb_vertex_buffer_object, gl_ext_blend_color, gl_ext_framebuffer_object, gl_ext_packed_depth_stencil, gl_ext_texture_filter_anisotropic, gl_use_stencil.
+[+] Added a "-trace_givendamage" command line parameter to trace the latest and total damage inflicted by any specific monsters or players in a level. Available with the Boom HUD only. Usage:
+    -trace_givendamage ThingID [ThingID] [ThingID]
+[+] Added a "map_scroll_speed" cfg variable and GUI setting. "key_speed" doubles the speed.
+[*] Mouselook key and keys bound to game speed change commands do not break cheats being typed.
+[*] Midi volume is applied to all midi devices when mus_extend_volume is 1.
+[*] Light level 0 will now be truly lightless with GZDoom lighting mode.
+[*] Automap grid can now rotate with map (from ZDoom).
+[-] Fixed a crash in software mode at some resolutions when using 'Doom Format' or 'Fit to Width' for 'Status Bar and Menu Appearance'.
+[-] Now applies fake contrast when using "Fog Based" sector light mode.
+[-] Fixed Player's weapon lighting, that was too dark in GL mode.
+[-] Fixed small glitches on Boom HUD graphics in GL mode.
+[-] Mouse button now moves camera forward if you have it assigned to move forward.
+[-] Fixed software mode bug: if you played a wad with menu graphics big enough to go over the status bar, entering and exiting the menu left a trace of the menu graphic over the status bar. See HR2final.wad, for example.
+[-] Flat bleeding on walls won't incorrectly bleed through walls and floors when motion blur is in effect anymore. This fix requires support of the "GL_EXT_packed_depth_stencil" extension.
+[-] Simple shadows and transparent textures don't sometimes flicker anymore when fog-based lighting is used.
+[-] Shadows don't disappear in some situations anymore.
+[-] "-trace_thingshealth 0" now works.
+
 2.5.0.5 @ 2009.11.14
 [+] Added an "sdl_video_window_pos" config variable. Syntax:
     sdl_video_window_pos "center"

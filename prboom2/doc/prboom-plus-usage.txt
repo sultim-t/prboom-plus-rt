@@ -212,6 +212,7 @@ Additional command-line parameters for cheating/TAS functions:
 "-trace_thingshealth ThingID [ThingID] [ThingID]" - displays the current health of the specified Things (in the HUD)
 "-trace_thingspickup ThingID [ThingID] [ThingID]" - shows if the specified Things have been picked up (in the HUD)
 "-trace_linescross   LineID  [LineID]  [LineID]" - shows if the specified Lines have been crossed (in the HUD)
+"-trace_givendamage  ThingID [ThingID] [ThingID]" - shows the latest and total damage inflicted by any specific monsters or players (in the HUD)
 
 Examples:
   glboom-plus -iwad doom2.wad -solo-net -playdemo 30fanet1
