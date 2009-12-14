@@ -563,6 +563,36 @@ static void R_DemoEx_GetParams(const byte *pwad_p, waddata_t *waddata)
       }
     }
 
+    // for doom 1.2
+    if (!M_CheckParm("-respawn"))
+    {
+      p = M_CheckParmEx("-respawn", params, paramscount);
+      if (p >= 0)
+      {
+        M_AddParam("-respawn");
+      }
+    }
+
+    // for doom 1.2
+    if (!M_CheckParm("-fast"))
+    {
+      p = M_CheckParmEx("-fast", params, paramscount);
+      if (p >= 0)
+      {
+        M_AddParam("-fast");
+      }
+    }
+
+    // for doom 1.2
+    if (!M_CheckParm("-nomonsters"))
+    {
+      p = M_CheckParmEx("-nomonsters", params, paramscount);
+      if (p >= 0)
+      {
+        M_AddParam("-nomonsters");
+      }
+    }
+
     p = M_CheckParmEx("-spechit", params, paramscount);
     if (p >= 0 && p < (int)paramscount - 1)
     {
@@ -685,6 +715,26 @@ static void R_DemoEx_AddParams(wadtbl_t *wadtbl)
   {
     sprintf(buf, "-complevel %d ", compatibility_level);
     AddString(&files, buf);
+  }
+
+  // doom 1.2 does not store these params in header
+  if (compatibility_level == doom_12_compatibility)
+  {
+    if (M_CheckParm("-respawn"))
+    {
+      sprintf(buf, "-respawn ");
+      AddString(&files, buf);
+    }
+    if (M_CheckParm("-fast"))
+    {
+      sprintf(buf, "-fast ");
+      AddString(&files, buf);
+    }
+    if (M_CheckParm("-nomonsters"))
+    {
+      sprintf(buf, "-nomonsters ");
+      AddString(&files, buf);
+    }
   }
 
   if (spechit_baseaddr != 0 && spechit_baseaddr != DEFAULT_SPECHIT_MAGIC)

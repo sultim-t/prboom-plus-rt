@@ -3171,6 +3171,7 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
           // prboom -iwad doom.wad -file mesh.wad -playdemo mesh.lmp -nomonsters
           // http://www.doomworld.com/idgames/index.php?id=13976
           respawnparm = M_CheckParm("-respawn");
+          fastparm = M_CheckParm("-fast");
           nomonsters = M_CheckParm("-nomonsters");
 
           // e6y: detection of more unsupported demo formats
