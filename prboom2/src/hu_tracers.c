@@ -232,11 +232,7 @@ void GivenDamageReset(tracertype_t index)
 }
 
 typedef struct {
-  short x;
-  short y;
-  short angle;
-  short type;
-  short options;
+  int init_index;
   int index;
 } PACKEDATTR tracer_mapthing_t;
 
@@ -260,7 +256,19 @@ void TracerAddDeathmatchStart(int num, int index)
 
 void TracerAddPlayerStart(int num, int index)
 {
-  playerstarts_indexes[num].index = index;
+  if (traces[TRACE_DAMAGE].count)
+  {
+    //init
+    if (gametic == 0)
+    {
+      playerstarts_indexes[num].init_index = index;
+      playerstarts_indexes[num].index = index;
+    }
+    else
+    {
+      playerstarts_indexes[num].index = playerstarts_indexes[num].init_index;
+    }
+  }
 }
 
 int TracerGetDeathmatchStart(int index)
@@ -281,7 +289,12 @@ int TracerGetPlayerStart(int index)
 
 void TracerClearStarts(void)
 {
-  memset(playerstarts_indexes, 0, sizeof(playerstarts_indexes));
+  int i;
+
+  for (i = 0; i < sizeof(playerstarts_indexes) / sizeof(playerstarts_indexes[0]); i++)
+  {
+    playerstarts_indexes[i].index = 0;
+  }
 
   num_deathmatchstarts_indexes = 0;
   if (deathmatchstarts_indexes)
