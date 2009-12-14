@@ -188,7 +188,8 @@ void gld_clipper_SafeAddClipRange(angle_t startangle, angle_t endangle)
 
 static void gld_clipper_AddClipRange(angle_t start, angle_t end)
 {
-  clipnode_t *node, *temp, *prevNode;
+  clipnode_t *node, *temp, *prevNode, *node2, *delnode;
+
   if (cliphead)
   {
     //check to see if range contains any old ranges
@@ -213,32 +214,41 @@ static void gld_clipper_AddClipRange(angle_t start, angle_t end)
         }
       }
     }
+
     //check to see if range overlaps a range (or possibly 2)
     node = cliphead;
-    while (node != NULL)
+    while (node != NULL && node->start <= end)
     {
-      if (node->start >= start && node->start <= end)
+      if (node->end >= start)
       {
-        node->start = start;
-        return;
-      }
-      if (node->end >= start && node->end <= end)
-      {
-        // check for possible merger
-        if (node->next && node->next->start <= end)
+        // we found the first overlapping node
+        if (node->start > start)
         {
-          node->end = node->next->end;
-          gld_clipper_RemoveRange(node->next);
+          // the new range overlaps with this node's start point
+          node->start = start;
         }
-        else
+        if (node->end < end)
         {
           node->end = end;
         }
 
+        node2 = node->next;
+        while (node2 && node2->start <= node->end)
+        {
+          if (node2->end > node->end)
+          {
+            node->end = node2->end;
+          }
+
+          delnode = node2;
+          node2 = node2->next;
+          gld_clipper_RemoveRange(delnode);
+        }
         return;
       }
       node = node->next;
     }
+
     //just add range
     node = cliphead;
     prevNode = NULL;
