@@ -680,10 +680,8 @@ static void R_DemoEx_AddParams(wadtbl_t *wadtbl)
     AddString(&files, dehs);
   }
 
-  //complevel for 'm' demos
-  if (compatibility_level == doom2_19_compatibility ||
-      compatibility_level == ultdoom_compatibility ||
-      compatibility_level == finaldoom_compatibility)
+  //add complevel for formats which do not have it in header
+  if (demo_compatibility)
   {
     sprintf(buf, "-complevel %d ", compatibility_level);
     AddString(&files, buf);
