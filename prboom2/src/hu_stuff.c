@@ -1780,7 +1780,7 @@ void HU_Ticker(void)
   //e6y
   if (messagecenter_counter)
     messagecenter_counter--;
-  if (showMessages && plr->centermessage)
+  if (/*showMessages && */plr->centermessage)
   {
     const char *s = plr->centermessage; 
     HUlib_clearTextLine(&w_centermsg);
