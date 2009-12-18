@@ -1791,6 +1791,8 @@ void HU_Ticker(void)
     HUlib_setTextXCenter(&w_centermsg);
     plr->centermessage = NULL;
     messagecenter_counter = HU_MSGCENTERTIMEOUT;
+
+    S_StartSound(NULL, sfx_secret);
   }
 
   // check for incoming chat characters

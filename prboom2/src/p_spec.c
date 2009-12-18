@@ -2347,7 +2347,6 @@ void P_PlayerInSpecialSector (player_t* player)
         if (hudadd_secretarea)
         {
           player->centermessage = STSTR_SECRETFOUND;
-          S_StartSound(NULL,sfx_secret);
         }
 
         break;
@@ -2404,7 +2403,6 @@ void P_PlayerInSpecialSector (player_t* player)
       if (hudadd_secretarea)
       {
         player->centermessage = STSTR_SECRETFOUND;
-        S_StartSound(NULL,sfx_secret);
       }
     }
 
