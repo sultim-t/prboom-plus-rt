@@ -727,7 +727,11 @@ unsigned char *gld_ReadScreen(void)
     scr = malloc(SCREENWIDTH * SCREENHEIGHT * 3);
     if (scr)
     {
+      GLint pack_aligment;
+      glGetIntegerv(GL_PACK_ALIGNMENT, &pack_aligment);
+      glPixelStorei(GL_PACK_ALIGNMENT, 1);
       glReadPixels(0, 0, SCREENWIDTH, SCREENHEIGHT, GL_RGB, GL_UNSIGNED_BYTE, scr);
+      glPixelStorei(GL_PACK_ALIGNMENT, pack_aligment);
 
       gld_ApplyGammaRamp(scr, SCREENWIDTH * 3, SCREENWIDTH, SCREENHEIGHT);
 
