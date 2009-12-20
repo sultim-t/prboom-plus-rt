@@ -87,6 +87,8 @@ int gl_clear;
 
 int gl_preprocessed = false;
 
+int gl_spriteindex;
+
 // e6y
 // This variables toggles the use of a trick to prevent the clearning of the 
 // z-buffer between frames. When this variable is set to "1", the game will not 
@@ -1812,6 +1814,8 @@ void gld_StartDrawScene(void)
   cos_inv_yaw = (float)cos(inv_yaw * M_PI / 180.f);
   sin_inv_yaw = (float)sin(inv_yaw * M_PI / 180.f);
 
+  gl_spriteindex = 0;
+
   //e6y: fog in frame
   gl_use_fog = !gl_compatibility &&
     (gl_fog || gl_lightmode == gl_lightmode_fogbased) &&
@@ -3044,6 +3048,8 @@ void gld_AddSprite(vissprite_t *vspr)
     return;
   sprite.flags = pSpr->flags;
   sprite.thing = vspr->thing;//e6y
+  sprite.index = gl_spriteindex++;
+  sprite.xy = vspr->thing->x + (vspr->thing->y >> 16); 
   if (movement_smooth)
   {
     sprite.x = (float)(-pSpr->PrevX + FixedMul (tic_vars.frac, -pSpr->x - (-pSpr->PrevX)))/MAP_SCALE;
@@ -3154,44 +3160,26 @@ void gld_ProcessWall(GLWall *wall)
   gld_DrawWall(wall);
 }
 
-static int C_DECL dicmp_wall (const void *a, const void *b)
+static int C_DECL dicmp_wall(const void *a, const void *b)
 {
   GLTexture *tx1 = ((const GLDrawItem *)a)->item.wall->gltexture;
   GLTexture *tx2 = ((const GLDrawItem *)b)->item.wall->gltexture;
-  return (tx1 != tx2 ? tx1 - tx2 : 0);
+  return tx1 - tx2;
 }
-static int C_DECL dicmp_flat (const void *a, const void *b)
+static int C_DECL dicmp_flat(const void *a, const void *b)
 {
   GLTexture *tx1 = ((const GLDrawItem *)a)->item.flat->gltexture;
   GLTexture *tx2 = ((const GLDrawItem *)b)->item.flat->gltexture;
-  return (tx1 != tx2 ? tx1 - tx2 : 0);
+  return tx1 - tx2;
 }
-static int C_DECL dicmp_sprite (const void *a, const void *b)
+static int C_DECL dicmp_sprite(const void *a, const void *b)
 {
   GLTexture *tx1 = ((const GLDrawItem *)a)->item.sprite->gltexture;
   GLTexture *tx2 = ((const GLDrawItem *)b)->item.sprite->gltexture;
-  return (tx1 != tx2 ? tx1 - tx2 : 0);
-}
-static void gld_DrawItemsSortByTexture(GLDrawItemType itemtype)
-{
-  typedef int(C_DECL *DICMP_ITEM)(const void *a, const void *b);
-
-  static DICMP_ITEM itemfuncs[GLDIT_TYPES] = {
-    0,
-    dicmp_wall, dicmp_wall, dicmp_wall, dicmp_wall, dicmp_wall,
-    dicmp_flat, dicmp_flat,
-    dicmp_sprite, dicmp_sprite, dicmp_sprite,
-    0,
-  };
-
-  if (gl_sortbytexture && itemfuncs[itemtype] && gld_drawinfo.num_items[itemtype] > 2)
-  {
-    qsort(gld_drawinfo.items[itemtype], gld_drawinfo.num_items[itemtype],
-      sizeof(gld_drawinfo.items[itemtype]), itemfuncs[itemtype]);
-  }
+  return tx1 - tx2;
 }
 
-static int C_DECL dicmp_sprite_scale (const void *a, const void *b)
+static int C_DECL dicmp_sprite_scale(const void *a, const void *b)
 {
   GLSprite *sprite1 = ((const GLDrawItem *)a)->item.sprite;
   GLSprite *sprite2 = ((const GLDrawItem *)b)->item.sprite;
@@ -3202,21 +3190,113 @@ static int C_DECL dicmp_sprite_scale (const void *a, const void *b)
   }
   else
   {
-    if (sprite1->gltexture != sprite2->gltexture)
-    {
-      return sprite1->gltexture - sprite2->gltexture;
-    }
-    else
-    {
-      return 0;
-    }
+    return sprite1->gltexture - sprite2->gltexture;
   }
+}
+
+static void gld_DrawItemsSortByTexture(GLDrawItemType itemtype)
+{
+  typedef int(C_DECL *DICMP_ITEM)(const void *a, const void *b);
+
+  static DICMP_ITEM itemfuncs[GLDIT_TYPES] = {
+    0,
+    dicmp_wall, dicmp_wall, dicmp_wall, dicmp_wall, dicmp_wall,
+    dicmp_flat, dicmp_flat,
+    dicmp_sprite, dicmp_sprite_scale, dicmp_sprite,
+    0,
+  };
+
+  if (gl_sortbytexture && itemfuncs[itemtype] && gld_drawinfo.num_items[itemtype] > 1)
+  {
+    qsort(gld_drawinfo.items[itemtype], gld_drawinfo.num_items[itemtype],
+      sizeof(gld_drawinfo.items[itemtype]), itemfuncs[itemtype]);
+  }
+}
+
+static int doom_order_complete;
+static int C_DECL dicmp_sprite_by_distance(const void *a, const void *b)
+{
+  GLSprite *s1 = ((const GLDrawItem *)a)->item.sprite;
+  GLSprite *s2 = ((const GLDrawItem *)b)->item.sprite;
+  int res = s2->xy - s1->xy;
+  doom_order_complete &= res;
+  return res;
+}
+
+static int C_DECL dicmp_sprite_by_texture_doom_order(const void *a, const void *b)
+{
+  GLSprite *s1 = ((const GLDrawItem *)a)->item.sprite;
+  GLSprite *s2 = ((const GLDrawItem *)b)->item.sprite;
+  
+  if (s1->index == gl_spriteindex || s2->index == gl_spriteindex)
+  {
+    return s1->index - s2->index;
+  }
+  else
+  {
+    return s1->gltexture - s2->gltexture;
+  }
+}
+
+static void gld_DrawItemsSort(GLDrawItemType itemtype, int (C_DECL *PtFuncCompare)(const void *, const void *))
+{
+  qsort(gld_drawinfo.items[itemtype], gld_drawinfo.num_items[itemtype],
+    sizeof(gld_drawinfo.items[itemtype]), PtFuncCompare);
 }
 
 static void gld_DrawItemsSortSprites(GLDrawItemType itemtype)
 {
-  qsort(gld_drawinfo.items[itemtype], gld_drawinfo.num_items[itemtype],
-    sizeof(gld_drawinfo.items[itemtype]), dicmp_sprite_scale);
+  if (sprites_doom_order)
+  {
+    doom_order_complete = true;
+    gld_DrawItemsSort(itemtype, dicmp_sprite_by_distance); // back to front
+
+    if (!doom_order_complete)
+    {
+      // there are overlapped sprites
+      int i = 1, count = gld_drawinfo.num_items[itemtype];
+      static const float delta = 0.2f / MAP_COEFF;
+
+      while (i < count)
+      {
+        GLSprite *sprite1 = gld_drawinfo.items[itemtype][i - 1].item.sprite;
+        GLSprite *sprite2 = gld_drawinfo.items[itemtype][i - 0].item.sprite;
+
+        if (sprite1->xy == sprite2->xy)
+        {
+          GLSprite *sprite = (sprite1->index > sprite2->index ? sprite1 : sprite2);
+          i++;
+          while (i < count && gld_drawinfo.items[itemtype][i].item.sprite->xy == sprite1->xy)
+          {
+            if (gld_drawinfo.items[itemtype][i].item.sprite->index > sprite->index)
+            {
+              sprite = gld_drawinfo.items[itemtype][i].item.sprite;
+            }
+            i++;
+          }
+
+          // 'nearest'
+          sprite->index = gl_spriteindex;
+          sprite->x -= delta * sin_inv_yaw;
+          sprite->z -= delta * cos_inv_yaw;
+        }
+        i++;
+      }
+
+      if (gl_sortbytexture && itemtype != GLDIT_TSPRITE)
+      {
+        gld_DrawItemsSort(itemtype, dicmp_sprite_by_texture_doom_order);
+      }
+    }
+    else
+    {
+      gld_DrawItemsSortByTexture(itemtype);
+    }
+  }
+  else
+  {
+    gld_DrawItemsSortByTexture(itemtype);
+  }
 }
 
 void gld_DrawScene(player_t *player)
@@ -3362,7 +3442,7 @@ void gld_DrawScene(player_t *player)
 
   // opaque sprites
   glAlphaFunc(GL_GEQUAL, gl_mask_sprite_threshold_f);
-  gld_DrawItemsSortByTexture(GLDIT_SPRITE);
+  gld_DrawItemsSortSprites(GLDIT_SPRITE);
   for (i = gld_drawinfo.num_items[GLDIT_SPRITE] - 1; i >= 0; i--)
   {
     gld_SetFog(gld_drawinfo.items[GLDIT_SPRITE][i].item.sprite->fogdensity);

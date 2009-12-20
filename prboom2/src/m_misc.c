@@ -72,6 +72,7 @@
 #include "r_demo.h"
 #include "r_fps.h"
 #include "r_main.h"
+#include "r_things.h"
 
 //e6y
 #include "gl_struct.h"
@@ -906,6 +907,8 @@ default_t defaults[] =
    def_bool,ss_stat}, /* cph - allow crappy fake contrast to be disabled */
    {"render_stretch_hud", {&render_stretch_hud_default},{patch_stretch_4x3},0,patch_stretch_max - 1,
    def_int,ss_stat},
+  {"sprites_doom_order", {&sprites_doom_order},  {1},0,1,
+   def_bool,ss_stat},
 
 #ifdef GL_DOOM
   {"Prboom-plus OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},

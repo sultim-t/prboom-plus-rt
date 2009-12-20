@@ -73,6 +73,8 @@ static const lighttable_t **spritelights;        // killough 1/25/98 made static
 float pspriteyscale_f;
 float pspritexscale_f;
 
+int sprites_doom_order;
+
 // constant arrays
 //  used for psprite clipping and initializing clipping
 
@@ -1067,8 +1069,16 @@ void R_SortVisSprites (void)
                                   * sizeof *vissprite_ptrs);
         }
 
-      while (--i>=0)
-        vissprite_ptrs[i] = vissprites+i;
+      if (sprites_doom_order)
+      {
+        while (--i>=0)
+          vissprite_ptrs[num_vissprite-i-1] = vissprites+i;
+      }
+      else
+      {
+        while (--i>=0)
+          vissprite_ptrs[i] = vissprites+i;
+      }
 
       // killough 9/22/98: replace qsort with merge sort, since the keys
       // are roughly in order to begin with, due to BSP rendering.

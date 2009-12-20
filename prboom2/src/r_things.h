@@ -60,6 +60,8 @@ extern fixed_t pspriteyscale;
 extern float pspritexscale_f;
 extern float pspriteyscale_f;
 
+extern int sprites_doom_order;
+
 void R_DrawMaskedColumn(const rpatch_t *patch,
                         R_DrawColumn_f colfunc,
                         draw_column_vars_t *dcvars,
