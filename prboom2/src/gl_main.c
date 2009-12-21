@@ -111,7 +111,6 @@ int gl_nearclip=5;
 int gl_texture_filter;
 int gl_sprite_filter;
 int gl_patch_filter;
-int gl_sortbytexture=true;
 int gl_texture_filter_anisotropic = 0;
 
 //sprites
@@ -3206,7 +3205,7 @@ static void gld_DrawItemsSortByTexture(GLDrawItemType itemtype)
     0,
   };
 
-  if (gl_sortbytexture && itemfuncs[itemtype] && gld_drawinfo.num_items[itemtype] > 1)
+  if (itemfuncs[itemtype] && gld_drawinfo.num_items[itemtype] > 1)
   {
     qsort(gld_drawinfo.items[itemtype], gld_drawinfo.num_items[itemtype],
       sizeof(gld_drawinfo.items[itemtype]), itemfuncs[itemtype]);
@@ -3214,28 +3213,13 @@ static void gld_DrawItemsSortByTexture(GLDrawItemType itemtype)
 }
 
 static int doom_order_complete;
-static int C_DECL dicmp_sprite_by_distance(const void *a, const void *b)
+static int C_DECL dicmp_sprite_by_pos(const void *a, const void *b)
 {
   GLSprite *s1 = ((const GLDrawItem *)a)->item.sprite;
   GLSprite *s2 = ((const GLDrawItem *)b)->item.sprite;
   int res = s2->xy - s1->xy;
   doom_order_complete &= res;
   return res;
-}
-
-static int C_DECL dicmp_sprite_by_texture_doom_order(const void *a, const void *b)
-{
-  GLSprite *s1 = ((const GLDrawItem *)a)->item.sprite;
-  GLSprite *s2 = ((const GLDrawItem *)b)->item.sprite;
-  
-  if (s1->index == gl_spriteindex || s2->index == gl_spriteindex)
-  {
-    return s1->index - s2->index;
-  }
-  else
-  {
-    return s1->gltexture - s2->gltexture;
-  }
 }
 
 static void gld_DrawItemsSort(GLDrawItemType itemtype, int (C_DECL *PtFuncCompare)(const void *, const void *))
@@ -3249,7 +3233,7 @@ static void gld_DrawItemsSortSprites(GLDrawItemType itemtype)
   if (sprites_doom_order)
   {
     doom_order_complete = true;
-    gld_DrawItemsSort(itemtype, dicmp_sprite_by_distance); // back to front
+    gld_DrawItemsSort(itemtype, dicmp_sprite_by_pos); // back to front
 
     if (!doom_order_complete)
     {
@@ -3282,21 +3266,10 @@ static void gld_DrawItemsSortSprites(GLDrawItemType itemtype)
         }
         i++;
       }
+    }
+  }
 
-      if (gl_sortbytexture && itemtype != GLDIT_TSPRITE)
-      {
-        gld_DrawItemsSort(itemtype, dicmp_sprite_by_texture_doom_order);
-      }
-    }
-    else
-    {
-      gld_DrawItemsSortByTexture(itemtype);
-    }
-  }
-  else
-  {
-    gld_DrawItemsSortByTexture(itemtype);
-  }
+  gld_DrawItemsSortByTexture(itemtype);
 }
 
 void gld_DrawScene(player_t *player)

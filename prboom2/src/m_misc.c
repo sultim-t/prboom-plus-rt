@@ -178,7 +178,6 @@ extern int gl_patch_filter;
 extern int gl_texture_filter_anisotropic;
 extern char *gl_tex_format_string;
 extern int gl_sky_detail;
-extern int gl_sortbytexture;
 extern int gl_use_paletted_texture;
 extern int gl_use_shared_texture_palette;
 extern int gl_seamless;
@@ -479,8 +478,6 @@ default_t defaults[] =
   {skytype_auto}, skytype_auto, skytype_count - 1, def_int,ss_none},
   {"gl_sky_detail",{&gl_sky_detail},{16},1,32,
    def_int,ss_none},
-  {"gl_sortbytexture",{&gl_sortbytexture},{1},0,1,
-   def_bool,ss_none},
   {"gl_use_paletted_texture",{&gl_use_paletted_texture},{0},0,1,
    def_bool,ss_none},
   {"gl_use_shared_texture_palette",{&gl_use_shared_texture_palette},{0},0,1,
