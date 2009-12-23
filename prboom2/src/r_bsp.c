@@ -514,30 +514,30 @@ static const int checkcoord[12][4] = // killough -- static const
 static dboolean R_CheckBBox(const fixed_t *bspcoord)
 {
   angle_t angle1, angle2;
+  int        boxpos;
+  const int* check;
 
-  {
-    int        boxpos;
-    const int* check;
+  // Find the corners of the box
+  // that define the edges from current viewpoint.
+  boxpos = (viewx <= bspcoord[BOXLEFT] ? 0 : viewx < bspcoord[BOXRIGHT ] ? 1 : 2) +
+    (viewy >= bspcoord[BOXTOP ] ? 0 : viewy > bspcoord[BOXBOTTOM] ? 4 : 8);
 
-    // Find the corners of the box
-    // that define the edges from current viewpoint.
-    boxpos = (viewx <= bspcoord[BOXLEFT] ? 0 : viewx < bspcoord[BOXRIGHT ] ? 1 : 2) +
-      (viewy >= bspcoord[BOXTOP ] ? 0 : viewy > bspcoord[BOXBOTTOM] ? 4 : 8);
+  if (boxpos == 5)
+    return true;
 
-    if (boxpos == 5)
-      return true;
-
-    check = checkcoord[boxpos];
-    angle1 = R_PointToAngleEx (bspcoord[check[0]], bspcoord[check[1]]) - viewangle;
-    angle2 = R_PointToAngleEx (bspcoord[check[2]], bspcoord[check[3]]) - viewangle;
-  }
+  check = checkcoord[boxpos];
 
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
-    return gld_clipper_SafeCheckRange(angle2 + viewangle, angle1 + viewangle);
+    angle1 = R_PointToAngleEx (bspcoord[check[0]], bspcoord[check[1]]);
+    angle2 = R_PointToAngleEx (bspcoord[check[2]], bspcoord[check[3]]);
+    return gld_clipper_SafeCheckRange(angle2, angle1);
   }
 #endif
+
+  angle1 = R_PointToAngleEx (bspcoord[check[0]], bspcoord[check[1]]) - viewangle;
+  angle2 = R_PointToAngleEx (bspcoord[check[2]], bspcoord[check[3]]) - viewangle;
 
   // cph - replaced old code, which was unclear and badly commented
   // Much more efficient code now
