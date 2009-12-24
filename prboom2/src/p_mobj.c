@@ -1197,7 +1197,7 @@ dboolean P_IsDoomnumAllowed(int doomnum)
 // already be in host byte order.
 //
 
-void P_SpawnMapThing (const mapthing_t* mthing, int index)//e6y
+mobj_t* P_SpawnMapThing (const mapthing_t* mthing, int index)
   {
   int     i;
   //int     bit;
@@ -1217,7 +1217,7 @@ void P_SpawnMapThing (const mapthing_t* mthing, int index)//e6y
   case DEN_PLAYER6:
   case DEN_PLAYER7:
   case DEN_PLAYER8:
-    return;
+    return NULL;
     }
 
   // killough 11/98: clear flags unused by Doom
@@ -1243,13 +1243,14 @@ void P_SpawnMapThing (const mapthing_t* mthing, int index)//e6y
   if (mthing->type == 11) // e6y
     {
     if (!(!compatibility || deathmatch_p-deathmatchstarts < 10)) {
-		return;
+		return NULL;
 	} else {
     // 1/11/98 killough -- new code removes limit on deathmatch starts:
 
     size_t offset = deathmatch_p - deathmatchstarts;
 
-    if (compatibility && deathmatch_p-deathmatchstarts >= 10) return; //e6y
+    if (compatibility && deathmatch_p-deathmatchstarts >= 10)
+      return NULL; //e6y
     if (offset >= num_deathmatchstarts)
       {
       num_deathmatchstarts = num_deathmatchstarts ?
@@ -1264,7 +1265,7 @@ void P_SpawnMapThing (const mapthing_t* mthing, int index)//e6y
 
     TracerAddDeathmatchStart(deathmatch_p - deathmatchstarts - 1, index);
 
-    return;
+    return NULL;
 	}
     }
 
@@ -1313,31 +1314,31 @@ void P_SpawnMapThing (const mapthing_t* mthing, int index)//e6y
 
     if (!deathmatch)
       P_SpawnPlayer (mthing->type-1, &playerstarts[mthing->type-1]);
-    return;
+    return NULL;
     }
 
   // check for apropriate skill level
 
   /* jff "not single" thing flag */
   if (!netgame && options & MTF_NOTSINGLE)
-    return;
+    return NULL;
 
   //jff 3/30/98 implement "not deathmatch" thing flag
 
   if (netgame && deathmatch && options & MTF_NOTDM)
-    return;
+    return NULL;
 
   //jff 3/30/98 implement "not cooperative" thing flag
 
   if (netgame && !deathmatch && options & MTF_NOTCOOP)
-    return;
+    return NULL;
 
   // killough 11/98: simplify
   if (gameskill == sk_baby || gameskill == sk_easy ?
       !(options & MTF_EASY) :
       gameskill == sk_hard || gameskill == sk_nightmare ?
       !(options & MTF_HARD) : !(options & MTF_NORMAL))
-    return;
+    return NULL;
 
   // find which type to spawn
 
@@ -1351,18 +1352,18 @@ void P_SpawnMapThing (const mapthing_t* mthing, int index)//e6y
   if (i == NUMMOBJTYPES)
   {
     lprintf(LO_INFO, "P_SpawnMapThing: Unknown Thing type %i at (%i, %i)\n", mthing->type, mthing->x, mthing->y);
-    return;
+    return NULL;
   }
 
   // don't spawn keycards and players in deathmatch
 
   if (deathmatch && mobjinfo[i].flags & MF_NOTDMATCH)
-    return;
+    return NULL;
 
   // don't spawn any monsters if -nomonsters
 
   if (nomonsters && (i == MT_SKULL || (mobjinfo[i].flags & MF_COUNTKILL)))
-    return;
+    return NULL;
 
   // spawn it
 #ifdef DOGS
@@ -1415,7 +1416,8 @@ spawnit:
         "%d,%d (type=%d)\n", mthing->x, mthing->y, mthing->type);
   }
 
-  }
+  return mobj;
+}
 
 //
 // GAME SPAWN FUNCTIONS

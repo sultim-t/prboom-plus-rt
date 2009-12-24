@@ -3212,13 +3212,13 @@ static void gld_DrawItemsSortByTexture(GLDrawItemType itemtype)
   }
 }
 
-static int doom_order_complete;
+static int no_overlapped_sprites;
 static int C_DECL dicmp_sprite_by_pos(const void *a, const void *b)
 {
   GLSprite *s1 = ((const GLDrawItem *)a)->item.sprite;
   GLSprite *s2 = ((const GLDrawItem *)b)->item.sprite;
   int res = s2->xy - s1->xy;
-  doom_order_complete &= res;
+  no_overlapped_sprites &= res;
   return res;
 }
 
@@ -3230,17 +3230,34 @@ static void gld_DrawItemsSort(GLDrawItemType itemtype, int (C_DECL *PtFuncCompar
 
 static void gld_DrawItemsSortSprites(GLDrawItemType itemtype)
 {
-  if (sprites_doom_order)
+  static const float delta = 0.2f / MAP_COEFF;
+  int i;
+
+  if (sprites_doom_order == DOOM_ORDER_STATIC)
   {
-    doom_order_complete = true;
+    for (i = 0; i < gld_drawinfo.num_items[itemtype]; i++)
+    {
+      GLSprite *sprite = gld_drawinfo.items[itemtype][i].item.sprite;
+      if (sprite->thing->flags & MF_FOREGROUND)
+      {
+        sprite->index = gl_spriteindex;
+        sprite->x -= delta * sin_inv_yaw;
+        sprite->z -= delta * cos_inv_yaw;
+      }
+    }
+  }
+
+  if (sprites_doom_order == DOOM_ORDER_DYNAMIC)
+  {
+    no_overlapped_sprites = true;
     gld_DrawItemsSort(itemtype, dicmp_sprite_by_pos); // back to front
 
-    if (!doom_order_complete)
+    if (!no_overlapped_sprites)
     {
       // there are overlapped sprites
-      int i = 1, count = gld_drawinfo.num_items[itemtype];
-      static const float delta = 0.2f / MAP_COEFF;
+      int count = gld_drawinfo.num_items[itemtype];
 
+      i = 1;
       while (i < count)
       {
         GLSprite *sprite1 = gld_drawinfo.items[itemtype][i - 1].item.sprite;
