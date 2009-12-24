@@ -3474,32 +3474,40 @@ void gld_DrawScene(player_t *player)
 
   if (gld_drawinfo.num_items[GLDIT_TWALL] > 0 || gld_drawinfo.num_items[GLDIT_TSPRITE] > 0)
   {
-    // if translucency percentage is less than 50,
-    // then all translucent textures and sprites disappear completely
-    // without this line
-    glAlphaFunc(GL_GREATER, 0.0f);
-
-    // transparent walls
-    for (i = gld_drawinfo.num_items[GLDIT_TWALL] - 1; i >= 0; i--)
+    if (gld_drawinfo.num_items[GLDIT_TWALL] > 0)
     {
-      gld_SetFog(gld_drawinfo.items[GLDIT_TWALL][i].item.wall->fogdensity);
-      gld_ProcessWall(gld_drawinfo.items[GLDIT_TWALL][i].item.wall);
+      // if translucency percentage is less than 50,
+      // then all translucent textures and sprites disappear completely
+      // without this line
+      glAlphaFunc(GL_GREATER, 0.0f);
+
+      // transparent walls
+      for (i = gld_drawinfo.num_items[GLDIT_TWALL] - 1; i >= 0; i--)
+      {
+        gld_SetFog(gld_drawinfo.items[GLDIT_TWALL][i].item.wall->fogdensity);
+        gld_ProcessWall(gld_drawinfo.items[GLDIT_TWALL][i].item.wall);
+      }
     }
 
     glEnable(GL_ALPHA_TEST);
-    glAlphaFunc(GL_GEQUAL, gl_mask_sprite_threshold_f);
 
     // transparent sprites
     // sorting is necessary only for transparent sprites.
     // from back to front
-    gld_DrawItemsSortSprites(GLDIT_TSPRITE);
-    for (i = gld_drawinfo.num_items[GLDIT_TSPRITE] - 1; i >= 0; i--)
+    if (gld_drawinfo.num_items[GLDIT_TSPRITE] > 0)
     {
-      gld_SetFog(gld_drawinfo.items[GLDIT_TSPRITE][i].item.sprite->fogdensity);
-      gld_DrawSprite(gld_drawinfo.items[GLDIT_TSPRITE][i].item.sprite);
+      glAlphaFunc(GL_GEQUAL, gl_mask_sprite_threshold_f);
+      glDepthMask(GL_FALSE);
+      gld_DrawItemsSortSprites(GLDIT_TSPRITE);
+      for (i = gld_drawinfo.num_items[GLDIT_TSPRITE] - 1; i >= 0; i--)
+      {
+        gld_SetFog(gld_drawinfo.items[GLDIT_TSPRITE][i].item.sprite->fogdensity);
+        gld_DrawSprite(gld_drawinfo.items[GLDIT_TSPRITE][i].item.sprite);
+      }
+      glDepthMask(GL_TRUE);
     }
 
-    // restoration of an original condition
+    // restoring
     glAlphaFunc(GL_GEQUAL, 0.5f);
   }
 
