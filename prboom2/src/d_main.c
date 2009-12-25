@@ -286,7 +286,10 @@ void D_Display (void)
 
   // save the current screen if about to wipe
   if (wipe = gamestate != wipegamestate)
+  {
     wipe_StartScreen();
+    R_ResetViewInterpolation();
+  }
 
   if (gamestate != GS_LEVEL) { // Not a level
     switch (oldgamestate) {
