@@ -153,6 +153,7 @@ prboom2/data/sounds/dsdgatk.wav -text
 prboom2/data/sounds/dsdgdth.wav -text
 prboom2/data/sounds/dsdgpain.wav -text
 prboom2/data/sounds/dsdgsit.wav -text
+prboom2/data/sounds/dssecret.wav -text
 prboom2/data/sprites/dogsa1.ppm -text
 prboom2/data/sprites/dogsa2a8.ppm -text
 prboom2/data/sprites/dogsa3a7.ppm -text
