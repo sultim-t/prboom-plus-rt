@@ -338,6 +338,10 @@ int lprintf(OutputLevels pri, const char *s, ...)
 
   if (lvl&cons_output_mask)               /* mask output as specified */
   {
+#ifdef _WIN32
+    // do not crash with unicode dirs
+    if (fileno(stdout) != -1)
+#endif
     r=fprintf(stdout,"%s",msg);
 #ifdef _WIN32
     I_ConPrintString(msg);
