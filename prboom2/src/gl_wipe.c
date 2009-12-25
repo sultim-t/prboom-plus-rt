@@ -147,6 +147,7 @@ int gld_wipe_StartScreen(void)
 
 int gld_wipe_EndScreen(void)
 {
+  glFlush();
   wipe_scr_end_tex = CaptureScreenAsTexID();
 
   return 0;
