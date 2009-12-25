@@ -186,13 +186,9 @@ void W_InitCache(void)
         }
 #endif
 
-        mapped_wad[wad_index].hnd =
-          (HANDLE)OpenFile(
-            wadfiles[wad_index].name,
-            &mapped_wad[wad_index].fileinfo,
-            OF_READ
-          );
-        if (mapped_wad[wad_index].hnd==(HANDLE)HFILE_ERROR)
+        mapped_wad[wad_index].hnd = CreateFile(wadfiles[wad_index].name,
+          GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL);
+        if (mapped_wad[wad_index].hnd==INVALID_HANDLE_VALUE)
           I_Error("W_InitCache: OpenFile for memory mapping failed (LastError %i)",GetLastError());
         mapped_wad[wad_index].hnd_map =
           CreateFileMapping(
