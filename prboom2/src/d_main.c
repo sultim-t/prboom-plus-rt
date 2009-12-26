@@ -1654,11 +1654,11 @@ static void D_DoomMainSetup(void)
   //e6y
   {
     int demo_footer = CheckDemoExDemo();
+    if (!demo_footer)
+      demo_footer = CheckAutoDemo();
 #ifdef USE_WINDOWS_LAUNCHER
     LauncherShow(demo_footer);
 #endif
-    if (!demo_footer)
-      CheckAutoDemo();
   }
 
   //jff 9/3/98 use logical output routine

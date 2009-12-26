@@ -96,7 +96,7 @@ int WadDataAddItem(waddata_t *waddata, const char *filename, wad_source_t source
 void WadDataFree(waddata_t *wadfiles);
 
 int CheckDemoExDemo(void);
-void CheckAutoDemo(void);
+int CheckAutoDemo(void);
 int ParseDemoPattern(const char *str, waddata_t* waddata, char **missed, dboolean trytodownload);
 int DemoNameToWadData(const char * demoname, waddata_t *waddata, patterndata_t *patterndata);
 void WadDataToWadFiles(waddata_t *waddata);

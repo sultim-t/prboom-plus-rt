@@ -1405,8 +1405,9 @@ int CheckDemoExDemo(void)
   return result;
 }
 
-void CheckAutoDemo(void)
+int CheckAutoDemo(void)
 {
+  int result = false;
   if (M_CheckParm("-auto"))
 #ifndef HAVE_LIBPCREPOSIX
     I_Error("Cannot process -auto - "
@@ -1429,6 +1430,7 @@ void CheckAutoDemo(void)
         
         if (waddata.numwadfiles)
         {
+          result = true;
           if ((size_t)numwadfiles_required + 1 != waddata.numwadfiles && patterndata.missed)
           {
             I_Warning(
@@ -1449,6 +1451,8 @@ void CheckAutoDemo(void)
     }
   }
 #endif // HAVE_LIBPCREPOSIX
+
+  return result;
 }
 
 char *getwad_cmdline = NULL;
