@@ -790,7 +790,7 @@ void I_CalculateRes(int width, int height)
     SCREENHEIGHT = height;
     SCREENPITCH = SCREENWIDTH;
   } else {
-    unsigned int t1, t2;
+    unsigned int count1, count2;
     int pitch1, pitch2;
 
     SCREENWIDTH = (width+15) & ~15;
@@ -807,16 +807,16 @@ void I_CalculateRes(int width, int height)
       pitch1 = SCREENWIDTH * V_GetPixelDepth();
       pitch2 = SCREENWIDTH * V_GetPixelDepth() + 32;
 
-      t1 = I_TestCPUCacheMisses(pitch1, SCREENHEIGHT, mintime);
-      t2 = I_TestCPUCacheMisses(pitch2, SCREENHEIGHT, mintime);
+      count1 = I_TestCPUCacheMisses(pitch1, SCREENHEIGHT, mintime);
+      count2 = I_TestCPUCacheMisses(pitch2, SCREENHEIGHT, mintime);
 
-      lprintf(LO_INFO, "I_CalculateRes: trying to optimise screen pitch\n");
-      lprintf(LO_INFO, " test case for pitch=%d is processed %d times for %d msec\n", pitch1, t1, mintime);
-      lprintf(LO_INFO, " test case for pitch=%d is processed %d times for %d msec\n", pitch2, t2, mintime);
+      lprintf(LO_INFO, "I_CalculateRes: trying to optimize screen pitch\n");
+      lprintf(LO_INFO, " test case for pitch=%d is processed %d times for %d msec\n", pitch1, count1, mintime);
+      lprintf(LO_INFO, " test case for pitch=%d is processed %d times for %d msec\n", pitch2, count2, mintime);
 
-      SCREENPITCH = (t1 <= t2 ? pitch1 : pitch2);
+      SCREENPITCH = (count2 > count1 ? pitch2 : pitch1);
 
-      lprintf(LO_INFO, " optimised screen pitch is %d\n", SCREENPITCH);
+      lprintf(LO_INFO, " optimized screen pitch is %d\n", SCREENPITCH);
     }
     else
     {
