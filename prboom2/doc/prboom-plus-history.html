@@ -44,7 +44,7 @@
 <h1>Change Log</h1>
 
 <br><span class="ver">2.5.0.6</span>
-<span class="date">&nbsp;@&nbsp;2009-Dec-21</span>
+<span class="date">&nbsp;@&nbsp;2009-Dec-27</span>
 <table>
 <tr><td class="aaa">[+]</td><td>Added the ability to smooth sprites edges ("Options\General\OpenGL Options\Smooth Sprite Edges"). Might noticeably reduce frame rate. Includes a "gl_mask_sprite_threshold" config variable for the intensity of smoothing (0-100).
 <tr><td class="aaa">[+]</td><td>Ability to see kills/secrets/items/time statistics in automap mode. Available in the menu at "Options\Setup\Automap\".
@@ -56,8 +56,8 @@
 <pre class="code">
     -trace_givendamage ThingID [ThingID] [ThingID]
 </pre>
-<tr><td class="aaa">[+]</td><td>Added a "sprites_doom_order" config variable for correct sprite sorting. See sectors 99, 115, and so on in Strain.wad map13, for example. This also fixes z-fighting between overlapped sprites in GL mode. Might noticeably reduce frame rate in GL mode because there's some additional processing (~6% slower on nuts.wad).
 <tr><td class="aaa">[+]</td><td>Added a "map_scroll_speed" cfg variable and GUI setting. "key_speed" doubles the speed.
+<tr><td class="aaa">[+]</td><td>Added a "sprites_doom_order" config variable for correct sprite sorting. See sectors 99, 115, and so on in Strain.wad map13, for example. This also fixes z-fighting between overlapped sprites in GL mode.
 <tr><td class="aaa">[*]</td><td>Mouselook key and keys bound to game speed change commands do not break cheats being typed.
 <tr><td class="aaa">[*]</td><td>Midi volume is applied to all midi devices when mus_extend_volume is 1.
 <tr><td class="aaa">[*]</td><td>Light level 0 will now be truly lightless with GZDoom lighting mode.
@@ -74,6 +74,7 @@
 <tr><td class="aaa">[-]</td><td>Shadows don't disappear in some situations anymore.
 <tr><td class="aaa">[-]</td><td>"-trace_thingshealth 0" now works.
 <tr><td class="aaa">[-]</td><td>Fixed screen shots at resolutions where width is not a multiple of 4.
+<tr><td class="aaa">[-]</td><td>Fixed slowdowns on Pentium 4 at 1024x768 (introduced in 2.5.0.3).
 </table>
 
 <br><span class="ver">2.5.0.5</span>

@@ -1,6 +1,6 @@
 Change Log
 
-2.5.0.6 @ 2009.12.21
+2.5.0.6 @ 2009.12.27
 [+] Added the ability to smooth sprites edges ("Options\General\OpenGL Options\Smooth Sprite Edges"). Might noticeably reduce frame rate. Includes a "gl_mask_sprite_threshold" config variable for the intensity of smoothing (0-100).
 [+] Ability to see kills/secrets/items/time statistics in automap mode. Available in the menu at "Options\Setup\Automap\".
 [+] Added a "map_use_multisamling" config variable to apply multisampling to the automap.
@@ -10,7 +10,7 @@ Change Log
 [+] Added a "-trace_givendamage" command line parameter to trace the latest and total damage inflicted by any specific monsters or players in a level. If a player is selected, its data will be tracked across multiple levels. Available with the Boom HUD only. Usage:
     -trace_givendamage ThingID [ThingID] [ThingID]
 [+] Added a "map_scroll_speed" cfg variable and GUI setting. "key_speed" doubles the speed.
-[+] Added a "sprites_doom_order" config variable for correct sprite sorting. See sectors 99, 115, and so on in Strain.wad map13, for example. This also fixes z-fighting between overlapped sprites in GL mode. Might noticeably reduce frame rate in GL mode because there's some additional processing (~6% slower on nuts.wad).
+[+] Added a "sprites_doom_order" config variable for correct sprite sorting. See sectors 99, 115, and so on in Strain.wad map13, for example. This also fixes z-fighting between overlapped sprites in GL mode.
 [*] Mouselook key and keys bound to game speed change commands do not break cheats being typed.
 [*] Midi volume is applied to all midi devices when mus_extend_volume is 1.
 [*] Light level 0 will now be truly lightless with GZDoom lighting mode.
@@ -27,6 +27,7 @@ Change Log
 [-] Shadows don't disappear in some situations anymore.
 [-] "-trace_thingshealth 0" now works.
 [-] Fixed screen shots at resolutions where width is not a multiple of 4.
+[-] Fixed slowdowns on Pentium 4 at 1024x768 (introduced in 2.5.0.3).
 
 2.5.0.5 @ 2009.11.14
 [+] Added an "sdl_video_window_pos" config variable. Syntax:
