@@ -422,6 +422,8 @@ default_t defaults[] =
    0,MAX_KEY,def_key,ss_keys}, // key to leave a menu      ,   // phares 3/7/98
   {"key_menu_enter",  {&key_menu_enter},     {KEYD_ENTER}     ,
    0,MAX_KEY,def_key,ss_keys}, // key to select from menu
+  {"key_setup",       {&key_setup},          {KEYD_HOME},
+   0,MAX_KEY,def_key,ss_keys}, //e6y: key for entering setup menu
   {"key_strafeleft",  {&key_strafeleft},     {','}           ,
    0,MAX_KEY,def_key,ss_keys}, // key to strafe left
   {"key_straferight", {&key_straferight},    {'.'}           ,

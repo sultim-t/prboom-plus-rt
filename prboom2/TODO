@@ -1410,7 +1410,7 @@ x   r2488 | Has made compatible my correction of par times (r2486) with "-au
     r2786 | The latest column of patches was not drawn. Introduced in r2779
 +   r2787 | The level of compatibility at which fix for comp_stairs should b
     r2788 | fixed stupid mistake in chex stuff (r2785)
-    r2789 | key_setup was not saved in cfg
++   r2789 | key_setup was not saved in cfg
     r2790 | detection of more unsupported demo formats
     r2791 | Texture bug. GL only. Example in ksutra.wad map15, "COOL!" area.
     r2792 | videodriver name now saved in cfg
