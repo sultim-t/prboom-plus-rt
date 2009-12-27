@@ -187,7 +187,8 @@ void W_InitCache(void)
 #endif
 
         mapped_wad[wad_index].hnd = CreateFile(wadfiles[wad_index].name,
-          GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL);
+          GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
+          NULL, OPEN_EXISTING, 0, NULL);
         if (mapped_wad[wad_index].hnd==INVALID_HANDLE_VALUE)
           I_Error("W_InitCache: CreateFile for memory mapping failed (LastError %i)",GetLastError());
         mapped_wad[wad_index].hnd_map =
