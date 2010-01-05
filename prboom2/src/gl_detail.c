@@ -95,14 +95,16 @@ void gld_InitDetail(void)
     const unsigned char *memDetail=W_CacheLumpNum(gldetail_lumpnum);
     SDL_PixelFormat fmt;
     SDL_Surface *surf = NULL;
+    SDL_Surface *surf_raw;
     
-    surf = SDL_LoadBMP_RW(SDL_RWFromMem((unsigned char *)memDetail, W_LumpLength(gldetail_lumpnum)), 1);
+    surf_raw = SDL_LoadBMP_RW(SDL_RWFromMem((unsigned char *)memDetail, W_LumpLength(gldetail_lumpnum)), 1);
     W_UnlockLumpNum(gldetail_lumpnum);
     
-    fmt = *surf->format;
+    fmt = *surf_raw->format;
     fmt.BitsPerPixel = 24;
     fmt.BytesPerPixel = 3;
-    surf = SDL_ConvertSurface(surf, &fmt, surf->flags);
+    surf = SDL_ConvertSurface(surf_raw, &fmt, surf_raw->flags);
+    SDL_FreeSurface(surf_raw);
     if (surf)
     {
       if (gl_arb_multitexture)

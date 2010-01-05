@@ -74,14 +74,16 @@ void gld_InitShadows(void)
     const unsigned char *data = W_CacheLumpNum(lump);
     SDL_PixelFormat fmt;
     SDL_Surface *surf = NULL;
-    surf = SDL_LoadBMP_RW(SDL_RWFromMem((unsigned char *)data, W_LumpLength(lump)), 1);
+    SDL_Surface *surf_raw;
+    surf_raw = SDL_LoadBMP_RW(SDL_RWFromMem((unsigned char *)data, W_LumpLength(lump)), 1);
     W_UnlockLumpNum(lump);
 
-    fmt = *surf->format;
+    fmt = *surf_raw->format;
     fmt.BitsPerPixel = 24;
     fmt.BytesPerPixel = 3;
 
-    surf = SDL_ConvertSurface(surf, &fmt, surf->flags);
+    surf = SDL_ConvertSurface(surf_raw, &fmt, surf_raw->flags);
+    SDL_FreeSurface(surf_raw);
     if (surf)
     {
       glGenTextures(1, &simple_shadows.tex_id);
