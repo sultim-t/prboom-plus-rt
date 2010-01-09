@@ -907,6 +907,11 @@ static void P_LoadLineDefs (int lump)
         
         if ((ld->sidenum[1] == NO_INDEX) && (ld->flags & ML_TWOSIDED)) {
           ld->flags &= ~ML_TWOSIDED;  // Clear 2s flag for missing left side
+          // Mark such lines and do not draw them only in demo_compatibility,
+          // because Boom's behaviour is different
+          // See OTTAWAU.WAD E1M1, sectors 226 and 300
+          // http://www.doomworld.com/idgames/index.php?id=1651
+          ld->r_flags = RF_IGNORE_COMPAT;
           // cph - print a warning about the bug
           lprintf(LO_WARN, "P_LoadLineDefs: linedef %d has two-sided flag set, but no second sidedef\n",numlines-i-1);
         }

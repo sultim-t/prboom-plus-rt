@@ -1197,6 +1197,10 @@ void e6y_G_Compatibility(void)
   }
 
   M_ChangeCompTranslucency();
+
+  RF_IGNORE_CURRENT = RF_IGNORE;
+  if (demo_compatibility)
+    RF_IGNORE_CURRENT |= RF_IGNORE_COMPAT;
 }
 
 dboolean zerotag_manual;

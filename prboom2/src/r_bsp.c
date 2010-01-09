@@ -113,9 +113,14 @@ void R_ClearClipSegs (void)
 // cph - converted to R_RecalcLineFlags. This recalculates all the flags for
 // a line, including closure and texture tiling.
 
-static void R_RecalcLineFlags(void)
+static void R_RecalcLineFlags(line_t *linedef)
 {
   linedef->r_validcount = gametic;
+
+  // See OTTAWAU.WAD E1M1, sectors 226 and 300
+  // http://www.doomworld.com/idgames/index.php?id=1651
+  if ((linedef->r_flags & RF_IGNORE_COMPAT) && demo_compatibility)
+    return;
 
   /* First decide if the line is closed, normal, or invisible */
   if (!(linedef->flags & ML_TWOSIDED)
@@ -371,6 +376,9 @@ static void R_AddLine (seg_t *line)
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
+    if (curline->linedef->r_flags & RF_IGNORE_CURRENT)
+      return;
+
     // Back side, i.e. backface culling	- read: endAngle >= startAngle!
     if (angle2 - angle1 < ANG180 || !line->linedef)  
     {
@@ -478,9 +486,9 @@ static void R_AddLine (seg_t *line)
 
   /* cph - roll up linedef properties in flags */
   if ((linedef = curline->linedef)->r_validcount != gametic)
-    R_RecalcLineFlags();
+    R_RecalcLineFlags(linedef);
 
-  if (linedef->r_flags & RF_IGNORE)
+  if (linedef->r_flags & RF_IGNORE_CURRENT)
   {
     return;
   }
