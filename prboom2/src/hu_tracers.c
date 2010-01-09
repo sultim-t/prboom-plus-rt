@@ -256,7 +256,7 @@ void TracerAddDeathmatchStart(int num, int index)
 
 void TracerAddPlayerStart(int num, int index)
 {
-  if (traces[TRACE_DAMAGE].count)
+  if (traces_present)
   {
     //init
     if (gametic == 0)
