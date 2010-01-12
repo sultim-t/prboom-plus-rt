@@ -450,6 +450,8 @@ void R_DemoEx_WriteMLook(angle_t pitch)
   {
     int ticks = mlook_lump.maxtick;
     mlook_lump.maxtick = (mlook_lump.maxtick ? mlook_lump.maxtick * 2 : 8192);
+    if (mlook_lump.tick >= mlook_lump.maxtick)
+      mlook_lump.maxtick = mlook_lump.tick * 2; 
     mlook_lump.data = realloc(mlook_lump.data, mlook_lump.maxtick * sizeof(mlook_lump.data[0]));
     memset(mlook_lump.data + ticks, 0, (mlook_lump.maxtick - ticks) * sizeof(mlook_lump.data[0]));
   }
