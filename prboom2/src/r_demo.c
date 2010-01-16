@@ -686,8 +686,9 @@ static void R_DemoEx_AddParams(wadtbl_t *wadtbl)
       if ((file = I_FindFile(myargv[p], ".bex")) ||
           (file = I_FindFile(myargv[p], ".deh")))
       {
+        filename_p = PathFindFileName(file);
         AddString(&dehs, "\"");
-        AddString(&dehs, file);
+        AddString(&dehs, filename_p);
         AddString(&dehs, "\" ");
         free(file);
       }
