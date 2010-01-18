@@ -2965,7 +2965,7 @@ static void gld_DrawSprite(GLSprite *sprite)
   // Bring items up out of floor by configurable amount times .01 Mead 8/13/03
   // e6y: adjust sprite clipping
   offsety = (gl_spriteclip != spriteclip_const ? sprite->y : sprite->y + (.01f * (float)gl_sprite_offset));
-  if (!render_paperitems && !(sprite->thing->flags & (MF_SOLID | MF_SPAWNCEILING)))
+  if (!render_paperitems && !(sprite->flags & (MF_SOLID | MF_SPAWNCEILING)))
   {
     float x1, x2, x3, x4, z1, z2, z3, z4;
     float y1, y2, cy, ycenter, y1c, y2c;
@@ -3049,7 +3049,6 @@ void gld_AddSprite(vissprite_t *vspr)
   if (!sprite.gltexture)
     return;
   sprite.flags = pSpr->flags;
-  sprite.thing = vspr->thing;//e6y
   sprite.index = gl_spriteindex++;
   sprite.xy = vspr->thing->x + (vspr->thing->y >> 16); 
   if (movement_smooth)
@@ -3099,7 +3098,7 @@ void gld_AddSprite(vissprite_t *vspr)
   }
 
   //e6y: support for transparent sprites
-  if (sprite.thing->flags & MF_NO_DEPTH_TEST)
+  if (sprite.flags & MF_NO_DEPTH_TEST)
   {
     gld_AddDrawItem(GLDIT_ASPRITE, &sprite);
   }
@@ -3241,7 +3240,7 @@ static void gld_DrawItemsSortSprites(GLDrawItemType itemtype)
     for (i = 0; i < gld_drawinfo.num_items[itemtype]; i++)
     {
       GLSprite *sprite = gld_drawinfo.items[itemtype][i].item.sprite;
-      if (sprite->thing->flags & MF_FOREGROUND)
+      if (sprite->flags & MF_FOREGROUND)
       {
         sprite->index = gl_spriteindex;
         sprite->x -= delta * sin_inv_yaw;

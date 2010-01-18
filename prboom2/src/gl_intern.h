@@ -220,7 +220,6 @@ typedef struct
   fixed_t scale;
   GLTexture *gltexture;
   uint_64_t flags;
-  mobj_t *thing;//e6y
   int index;
   int xy;
 } GLSprite;
