@@ -729,7 +729,7 @@ static int C_DECL dicmp_sprite_by_pos(const void *a, const void *b)
   mobj_t *m2 = (*((mobj_t **)b));
   
   int res = GETXY(m2) - GETXY(m1);
-  no_overlapped_sprites &= res;
+  no_overlapped_sprites = no_overlapped_sprites && res;
   return res;
 }
 

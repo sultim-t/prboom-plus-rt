@@ -88,6 +88,7 @@ int gl_clear;
 int gl_preprocessed = false;
 
 int gl_spriteindex;
+int scene_has_overlapped_sprites;
 
 // e6y
 // This variables toggles the use of a trick to prevent the clearning of the 
@@ -1918,6 +1919,7 @@ void gld_StartDrawScene(void)
 
   rendermarker++;
   gld_ResetDrawInfo();
+  scene_has_overlapped_sprites = false;
 }
 
 //e6y
@@ -3049,6 +3051,10 @@ void gld_AddSprite(vissprite_t *vspr)
   if (!sprite.gltexture)
     return;
   sprite.flags = pSpr->flags;
+
+  if (pSpr->flags & MF_FOREGROUND)
+    scene_has_overlapped_sprites = true;
+
   sprite.index = gl_spriteindex++;
   sprite.xy = vspr->thing->x + (vspr->thing->y >> 16); 
   if (movement_smooth)
@@ -3220,7 +3226,7 @@ static int C_DECL dicmp_sprite_by_pos(const void *a, const void *b)
   GLSprite *s1 = ((const GLDrawItem *)a)->item.sprite;
   GLSprite *s2 = ((const GLDrawItem *)b)->item.sprite;
   int res = s2->xy - s1->xy;
-  no_overlapped_sprites &= res;
+  no_overlapped_sprites = no_overlapped_sprites && res;
   return res;
 }
 
@@ -3235,7 +3241,7 @@ static void gld_DrawItemsSortSprites(GLDrawItemType itemtype)
   static const float delta = 0.2f / MAP_COEFF;
   int i;
 
-  if (sprites_doom_order == DOOM_ORDER_STATIC)
+  if (scene_has_overlapped_sprites && sprites_doom_order == DOOM_ORDER_STATIC)
   {
     for (i = 0; i < gld_drawinfo.num_items[itemtype]; i++)
     {
