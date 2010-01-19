@@ -701,7 +701,18 @@ static void R_Subsector(int num)
   // real sector, or you must account for the lighting in some other way,
   // like passing it as an argument.
 
-  R_AddSprites(sub, (floorlightlevel+ceilinglightlevel)/2);
+  if (sub->sector->validcount != validcount)
+  {
+    sub->sector->validcount = validcount;
+
+    R_AddSprites(sub, (floorlightlevel+ceilinglightlevel)/2);
+
+#ifdef GL_DOOM
+    if (V_GetMode() == VID_MODEGL)
+      gld_AddPlane(num, floorplane, ceilingplane);
+#endif
+  }
+
   while (count--)
   {
     if (line->miniseg == false)
@@ -709,10 +720,6 @@ static void R_Subsector(int num)
     line++;
     curline = NULL; /* cph 2001/11/18 - must clear curline now we're done with it, so R_ColourMap doesn't try using it for other things */
   }
-#ifdef GL_DOOM
-  if (V_GetMode() == VID_MODEGL)
-    gld_AddPlane(num, floorplane, ceilingplane);
-#endif
 }
 
 //

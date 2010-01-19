@@ -813,7 +813,6 @@ static void gld_AddDrawRange(int size);
 GLSector *sectorloops;
 
 byte rendermarker=0;
-static byte *sectorrendered; // true if sector rendered (only here for malloc)
 static byte *segrendered; // true if sector rendered (only here for malloc)
 static byte *linerendered[2]; // true if linedef rendered (only here for malloc)
 
@@ -1587,11 +1586,6 @@ void gld_PreprocessSectors(void)
   if (!sectorloops)
     I_Error("gld_PreprocessSectors: Not enough memory for array sectorloops");
   memset(sectorloops, 0, sizeof(GLSector)*numsectors);
-
-  sectorrendered=Z_Malloc(numsectors*sizeof(byte),PU_STATIC,0);
-  if (!sectorrendered)
-    I_Error("gld_PreprocessSectors: Not enough memory for array sectorrendered");
-  memset(sectorrendered, 0, numsectors*sizeof(byte));
 
   segrendered=calloc(numsegs, sizeof(byte));
   if (!segrendered)
@@ -2907,24 +2901,16 @@ void gld_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling)
 {
   subsector_t *subsector;
 
-  // check if all arrays are allocated
-  if (!sectorrendered)
-    return;
-
   subsector = &subsectors[subsectornum];
   if (!subsector)
     return;
-  if (sectorrendered[subsector->sector->iSectorID]!=rendermarker) // if not already rendered
-  {
-    // render the floor
-    if (floor && floor->height < viewz)
-      gld_AddFlat(subsector->sector->iSectorID, false, floor);
-    // render the ceiling
-    if (ceiling && ceiling->height > viewz)
-      gld_AddFlat(subsector->sector->iSectorID, true, ceiling);
-    // set rendered true
-    sectorrendered[subsector->sector->iSectorID]=rendermarker;
-  }
+
+  // render the floor
+  if (floor && floor->height < viewz)
+    gld_AddFlat(subsector->sector->iSectorID, false, floor);
+  // render the ceiling
+  if (ceiling && ceiling->height > viewz)
+    gld_AddFlat(subsector->sector->iSectorID, true, ceiling);
 }
 
 /*****************
@@ -3552,7 +3538,6 @@ void gld_PreprocessLevel(void)
     free(segrendered);
     free(linerendered[0]);
     free(linerendered[1]);
-    free(sectorrendered);
     
     for (i = 0; i < numsectors_prev; i++)
     {
@@ -3571,7 +3556,6 @@ void gld_PreprocessLevel(void)
   {
     gld_PreprocessFakeSectors();
 
-    memset(sectorrendered, 0, numsectors*sizeof(sectorrendered[0]));
     memset(segrendered, 0, numsegs*sizeof(segrendered[0]));
     memset(linerendered[0], 0, numlines*sizeof(linerendered[0][0]));
     memset(linerendered[1], 0, numlines*sizeof(linerendered[1][0]));
