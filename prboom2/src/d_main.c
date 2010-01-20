@@ -1795,6 +1795,9 @@ static void D_DoomMainSetup(void)
       else
   D_StartTitle();                 // start up intro loop
     }
+
+  // do not try to interpolate during timedemo
+  movement_smooth = (singletics ? false : movement_smooth_default);
 }
 
 //

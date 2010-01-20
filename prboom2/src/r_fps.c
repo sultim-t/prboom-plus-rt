@@ -40,7 +40,8 @@
 #include "r_fps.h"
 #include "e6y.h"
 
-int movement_smooth = false;
+int movement_smooth_default;
+int movement_smooth;
 
 typedef enum
 {

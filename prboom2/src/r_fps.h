@@ -37,6 +37,7 @@
 
 #include "doomstat.h"
 
+extern int movement_smooth_default;
 extern int movement_smooth;
 
 typedef struct {
