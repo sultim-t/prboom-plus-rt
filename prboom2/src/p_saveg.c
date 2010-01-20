@@ -320,28 +320,6 @@ void P_ArchiveThinkers (void)
         *save_p++ = tc_mobj;
         PADSAVEP();
         mobj = (mobj_t *)save_p;
-	/* cph 2006/07/30 - 
-	 * The end of mobj_t changed from
-	 *  dboolean invisible;
-	 *  mobj_t* lastenemy;
-	 *  mobj_t* above_monster;
-	 *  mobj_t* below_monster;
-	 *  void* touching_sectorlist;
-	 * to
-	 *  mobj_t* lastenemy;
-	 *  void* touching_sectorlist;
-         *  fixed_t PrevX, PrevY, PrevZ, padding;
-	 * at prboom 2.4.4. There is code here to preserve the savegame format.
-	 *
-	 * touching_sectorlist is reconstructed anyway, so we now leave off the
-	 * last 2 words of mobj_t, write 5 words of 0 and then write lastenemy
-	 * into the second of these.
-	 */
-        /*e6y   
-        memcpy (mobj, th, sizeof(*mobj) - 2*sizeof(void*));
-        save_p += sizeof(*mobj) - 2*sizeof(void*) - 4*sizeof(fixed_t);
-        memset (save_p, 0, 5*sizeof(void*));
-        */
 
         //e6y
         memcpy (mobj, th, sizeof(*mobj));
@@ -369,12 +347,6 @@ void P_ArchiveThinkers (void)
         // monsters from going to sleep after killing monsters and not
         // seeing player anymore.
 
-        //e6y
-        /*
-        if (((mobj_t*)th)->lastenemy && ((mobj_t*)th)->lastenemy->thinker.function == P_MobjThinker) {
-          memcpy (save_p + sizeof(void*), &(((mobj_t*)th)->lastenemy->thinker.prev), sizeof(void*));
-	     }
-       */
         if (mobj->lastenemy)
           mobj->lastenemy = mobj->lastenemy->thinker.function ==
             P_MobjThinker ?
@@ -382,8 +354,6 @@ void P_ArchiveThinkers (void)
 
 
         // killough 2/14/98: end changes
-
-//e6y        save_p += 5*sizeof(void*);
 
         if (mobj->player)
           mobj->player = (player_t *)((mobj->player-players) + 1);
