@@ -116,8 +116,9 @@ int gl_texture_filter_anisotropic = 0;
 
 //sprites
 spriteclipmode_t gl_spriteclip;
-const char *gl_spriteclipmodes[] = {"constant","always", "smart"};
-int gl_sprite_offset;	// item out of floor offset Mead 8/13/03
+const char *gl_spriteclipmodes[] = {"constant", "full", "smart"};
+int gl_sprite_offset_default;	// item out of floor offset Mead 8/13/03
+float gl_sprite_offset;       // precalcilated float value for gl_sprite_offset_default
 int gl_sprite_blend;  // e6y: smooth sprite edges
 int gl_mask_sprite_threshold;
 float gl_mask_sprite_threshold_f;
@@ -2921,7 +2922,6 @@ void gld_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling)
 
 static void gld_DrawSprite(GLSprite *sprite)
 {
-  float offsety;
   GLint blend_src, blend_dst;
   int restore = 0;
 
@@ -2950,9 +2950,6 @@ static void gld_DrawSprite(GLSprite *sprite)
     }
   }
 
-  // Bring items up out of floor by configurable amount times .01 Mead 8/13/03
-  // e6y: adjust sprite clipping
-  offsety = (gl_spriteclip != spriteclip_const ? sprite->y : sprite->y + (.01f * (float)gl_sprite_offset));
   if (!render_paperitems && !(sprite->flags & (MF_SOLID | MF_SPAWNCEILING)))
   {
     float x1, x2, x3, x4, z1, z2, z3, z4;
@@ -2962,7 +2959,7 @@ static void gld_DrawSprite(GLSprite *sprite)
     ycenter = (float)fabs(sprite->y1 - sprite->y2) * 0.5f;
     y1c = sprite->y1 - ycenter;
     y2c = sprite->y2 - ycenter;
-    cy = offsety + ycenter;
+    cy = sprite->y + ycenter;
 
     y1z2_y = -(y1c * sin_paperitems_pitch);
     y2z2_y = -(y2c * sin_paperitems_pitch);
@@ -2994,8 +2991,8 @@ static void gld_DrawSprite(GLSprite *sprite)
     x1 = +(sprite->x1 * cos_inv_yaw) + sprite->x;
     x2 = +(sprite->x2 * cos_inv_yaw) + sprite->x;
 
-    y1 = offsety + sprite->y1;
-    y2 = offsety + sprite->y2;
+    y1 = sprite->y + sprite->y1;
+    y2 = sprite->y + sprite->y2;
 
     z2 = -(sprite->x1 * sin_inv_yaw) + sprite->z;
     z1 = -(sprite->x2 * sin_inv_yaw) + sprite->z;
@@ -3054,6 +3051,9 @@ void gld_AddSprite(vissprite_t *vspr)
     sprite.y= (float)pSpr->z/MAP_SCALE;
     sprite.z= (float)pSpr->y/MAP_SCALE;
   }
+
+  // Bring items up out of floor by configurable amount times .01 Mead 8/13/03
+  sprite.y += gl_sprite_offset;
 
   sprite.vt=0.0f;
   sprite.vb=sprite.gltexture->scaleyfac;

@@ -468,7 +468,7 @@ default_t defaults[] =
    {gl_anisotropic_8x}, gl_anisotropic_off, gl_anisotropic_16x, def_int,ss_none},
   {"gl_tex_format_string", {NULL,&gl_tex_format_string}, {0,"GL_RGBA"},UL,UL,
    def_str,ss_none},
-  {"gl_sprite_offset",{&gl_sprite_offset},{0}, 0, 5,
+  {"gl_sprite_offset",{&gl_sprite_offset_default},{0}, 0, 5,
    def_int,ss_none}, // amount to bring items out of floor (GL) Mead 8/13/03
   {"gl_sprite_blend",{&gl_sprite_blend},{0},0,1,
    def_bool,ss_none},

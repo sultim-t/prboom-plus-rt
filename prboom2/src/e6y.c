@@ -645,6 +645,7 @@ void M_ChangeUseDetail(void)
 
 void M_ChangeSpriteClip(void)
 {
+  gl_sprite_offset = (gl_spriteclip != spriteclip_const ? 0 : (.01f * (float)gl_sprite_offset_default));
 }
 
 void ResolveColormapsHiresConflict(dboolean prefer_colormap)
