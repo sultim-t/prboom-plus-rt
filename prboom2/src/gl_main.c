@@ -3019,7 +3019,6 @@ void gld_AddSprite(vissprite_t *vspr)
 {
   mobj_t *pSpr=vspr->thing;
   GLSprite sprite;
-  float voff,hoff;
 
   sprite.scale=vspr->scale;
   if ((pSpr->frame & FF_FULLBRIGHT) || show_alive)
@@ -3068,25 +3067,20 @@ void gld_AddSprite(vissprite_t *vspr)
     sprite.ul=sprite.gltexture->scalexfac;
     sprite.ur=0.0f;
   }
-  hoff=(float)sprite.gltexture->leftoffset/(float)(MAP_COEFF);
-  voff=(float)sprite.gltexture->topoffset/(float)(MAP_COEFF);
-  sprite.x1=hoff-((float)sprite.gltexture->realtexwidth/(float)(MAP_COEFF));
-  sprite.x2=hoff;
-  sprite.y1=voff;
-  sprite.y2=voff-((float)sprite.gltexture->realtexheight/(float)(MAP_COEFF));
+  sprite.x2=(float)sprite.gltexture->leftoffset/(float)(MAP_COEFF);
+  sprite.x1=sprite.x2-((float)sprite.gltexture->realtexwidth/(float)(MAP_COEFF));
+  sprite.y1=(float)sprite.gltexture->topoffset/(float)(MAP_COEFF);
+  sprite.y2=sprite.y1-((float)sprite.gltexture->realtexheight/(float)(MAP_COEFF));
   
   // e6y
   // if the sprite is below the floor, and it's not a hanger/floater/missile, 
   // and it's not a fully dead corpse, move it up
-  if (gl_spriteclip != spriteclip_const)
+  if ((gl_spriteclip != spriteclip_const) && (sprite.y2 < 0) &&
+      !(pSpr->flags & (MF_SPAWNCEILING|MF_FLOAT|MF_MISSILE|MF_NOGRAVITY)) &&
+      ((gl_spriteclip == spriteclip_always) || !((pSpr->flags & MF_CORPSE) && vspr->thing->tics == -1)))
   {
-    uint_64_t flags = vspr->thing->flags;
-    if (sprite.y2 < 0 && !(flags & (MF_SPAWNCEILING|MF_FLOAT|MF_MISSILE|MF_NOGRAVITY)) && 
-      ((gl_spriteclip == spriteclip_always) || !(flags & MF_CORPSE && vspr->thing->tics == -1)))
-    {
-      sprite.y1 -= sprite.y2;
-      sprite.y2 = 0.0f;
-    }
+    sprite.y1 -= sprite.y2;
+    sprite.y2 = 0.0f;
   }
 
   //e6y: support for transparent sprites
