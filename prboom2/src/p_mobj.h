@@ -256,10 +256,26 @@ typedef struct mobj_s
     // List: thinker links.
     thinker_t           thinker;
 
+    // Interaction info, by BLOCKMAP.
+    // Links in blocks (if needed).
+    struct mobj_s*      bnext;
+    struct mobj_s**     bprev; // killough 8/11/98: change to ptr-to-ptr
+
+    uint_64_t           flags;
+
+    // For movement checking.
+    fixed_t             radius;
+    fixed_t             height;
+    int                 health;
+
     // Info for drawing: position.
     fixed_t             x;
     fixed_t             y;
     fixed_t             z;
+
+    fixed_t             PrevX;
+    fixed_t             PrevY;
+    fixed_t             PrevZ;
 
     // More list: links in sector (if needed)
     struct mobj_s*      snext;
@@ -267,13 +283,10 @@ typedef struct mobj_s
 
     //More drawing info: to determine current sprite.
     angle_t             angle;  // orientation
+    state_t*            state;
     spritenum_t         sprite; // used to find patch_t and flip value
     int                 frame;  // might be ORed with FF_FULLBRIGHT
-
-    // Interaction info, by BLOCKMAP.
-    // Links in blocks (if needed).
-    struct mobj_s*      bnext;
-    struct mobj_s**     bprev; // killough 8/11/98: change to ptr-to-ptr
+    int                 tics;   // state tic counter
 
     struct subsector_s* subsector;
 
@@ -284,26 +297,15 @@ typedef struct mobj_s
     // killough 11/98: the lowest floor over all contacted Sectors.
     fixed_t             dropoffz;
 
-    // For movement checking.
-    fixed_t             radius;
-    fixed_t             height;
-
     // Momentums, used to update position.
     fixed_t             momx;
     fixed_t             momy;
     fixed_t             momz;
 
-    // If == validcount, already checked.
-    int                 validcount;
-
     mobjtype_t          type;
     mobjinfo_t*         info;   // &mobjinfo[mobj->type]
 
-    int                 tics;   // state tic counter
-    state_t*            state;
-    uint_64_t           flags;
     int                 intflags;  // killough 9/15/98: internal flags
-    int                 health;
 
     // Movement direction, movement generation (zig-zagging).
     short               movedir;        // 0-7
@@ -353,16 +355,12 @@ typedef struct mobj_s
     // a linked list of sectors where this object appears
     struct msecnode_s* touching_sectorlist;                 // phares 3/14/98
 
-    fixed_t             PrevX;
-    fixed_t             PrevY;
-    fixed_t             PrevZ;
-
     //e6y
     angle_t             pitch;  // orientation
     int index;
     short patch_width;
 
-    fixed_t             pad; // cph - needed so I can get the size unambiguously on amd64
+    fixed_t             pad[3]; // cph - needed so I can get the size unambiguously on amd64
 
     // SEE WARNING ABOVE ABOUT POINTER FIELDS!!!
 } mobj_t;
