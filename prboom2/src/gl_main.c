@@ -3039,18 +3039,10 @@ void gld_AddSprite(vissprite_t *vspr)
 
   sprite.index = gl_spriteindex++;
   sprite.xy = vspr->thing->x + (vspr->thing->y >> 16); 
-  if (movement_smooth)
-  {
-    sprite.x = (float)(-pSpr->PrevX + FixedMul (tic_vars.frac, -pSpr->x - (-pSpr->PrevX)))/MAP_SCALE;
-    sprite.y = (float)(pSpr->PrevZ + FixedMul (tic_vars.frac, pSpr->z - pSpr->PrevZ))/MAP_SCALE;
-    sprite.z = (float)(pSpr->PrevY + FixedMul (tic_vars.frac, pSpr->y - pSpr->PrevY))/MAP_SCALE;
-  }
-  else
-  {
-    sprite.x=-(float)pSpr->x/MAP_SCALE;
-    sprite.y= (float)pSpr->z/MAP_SCALE;
-    sprite.z= (float)pSpr->y/MAP_SCALE;
-  }
+
+  sprite.x =-(float)vspr->gx / MAP_SCALE;
+  sprite.y = (float)vspr->gz / MAP_SCALE;
+  sprite.z = (float)vspr->gy / MAP_SCALE;
 
   // Bring items up out of floor by configurable amount times .01 Mead 8/13/03
   sprite.y += gl_sprite_offset;

@@ -663,6 +663,10 @@ static void R_ProjectSprite (mobj_t* thing)
   // store information in a vissprite
   vis = R_NewVisSprite ();
 
+  vis->gx = fx;
+  vis->gy = fy;
+  vis->gz = fz;
+
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
@@ -685,9 +689,6 @@ static void R_ProjectSprite (mobj_t* thing)
   vis->mobjflags = thing->flags;
 // proff 11/06/98: Changed for high-res
   vis->scale = FixedDiv(projectiony, tz);
-  vis->gx = fx;
-  vis->gy = fy;
-  vis->gz = fz;
   vis->gzt = gzt;                          // killough 3/27/98
   vis->texturemid = vis->gzt - viewz;
   vis->x1 = x1 < 0 ? 0 : x1;
