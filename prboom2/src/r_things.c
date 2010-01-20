@@ -80,8 +80,8 @@ typedef struct drawsegs_xrange_s
   int x1;
   int x2;
 } drawsegs_xrange_t;
-drawsegs_xrange_t *drawsegs_xrange = NULL;
-int drawsegs_xrange_size = 0;
+static drawsegs_xrange_t *drawsegs_xrange = NULL;
+static int drawsegs_xrange_size = 0;
 
 // constant arrays
 //  used for psprite clipping and initializing clipping
