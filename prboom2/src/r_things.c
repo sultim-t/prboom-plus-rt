@@ -1235,15 +1235,18 @@ void R_DrawMasked(void)
   // Reducing of cache misses in the following R_DrawSprite()
   // Makes sense for scenes with huge amount of drawsegs.
   // ~9% of speed improvement on epic.wad map05
-  if (drawsegs_xrange_size <= ds_p - drawsegs)
+  if (num_vissprite > 0)
   {
-    drawsegs_xrange_size = (ds_p - drawsegs) * 2;
-    drawsegs_xrange = realloc(drawsegs_xrange, drawsegs_xrange_size * sizeof(drawsegs_xrange[0]));
-  }
-  for (i = 0, ds = ds_p; ds-- > drawsegs; i++)
-  {
-    drawsegs_xrange[i].x1 = ds->x1;
-    drawsegs_xrange[i].x2 = ds->x2;
+    if (drawsegs_xrange_size <= maxdrawsegs)
+    {
+      drawsegs_xrange_size = maxdrawsegs;
+      drawsegs_xrange = realloc(drawsegs_xrange, drawsegs_xrange_size * sizeof(drawsegs_xrange[0]));
+    }
+    for (i = 0, ds = ds_p; ds-- > drawsegs; i++)
+    {
+      drawsegs_xrange[i].x1 = ds->x1;
+      drawsegs_xrange[i].x2 = ds->x2;
+    }
   }
 
   // draw all vissprites back to front
