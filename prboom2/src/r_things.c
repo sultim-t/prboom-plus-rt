@@ -76,7 +76,7 @@ float pspritexscale_f;
 int sprites_doom_order;
 
 static int *drawsegs_xrange;
-static int drawsegs_xrange_size = 0;
+static unsigned int drawsegs_xrange_size = 0;
 
 // constant arrays
 //  used for psprite clipping and initializing clipping
