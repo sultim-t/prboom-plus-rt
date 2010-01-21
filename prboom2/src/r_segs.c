@@ -90,7 +90,7 @@ static fixed_t  topfrac;
 static fixed_t  topstep;
 static fixed_t  bottomfrac;
 static fixed_t  bottomstep;
-static int      *maskedtexturecol; // dropoff overflow
+static short *maskedtexturecol; // dropoff overflow
 
 const lighttable_t** GetLightTable(int lightlevel)
 {
@@ -215,7 +215,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 
   // draw the columns
   for (dcvars.x = x1 ; dcvars.x <= x2 ; dcvars.x++, spryscale += rw_scalestep)
-    if (maskedtexturecol[dcvars.x] != INT_MAX) // dropoff overflow
+    if (maskedtexturecol[dcvars.x] != SHRT_MAX) // dropoff overflow
       {
         // calculate texture offset - POPE
         angle = (ds->rw_centerangle + xtoviewangle[dcvars.x]) >> ANGLETOFINESHIFT;
@@ -280,7 +280,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
           R_GetPatchColumnWrapped(patch, maskedtexturecol[dcvars.x]+1)
         );
 
-        maskedtexturecol[dcvars.x] = INT_MAX; // dropoff overflow
+        maskedtexturecol[dcvars.x] = SHRT_MAX; // dropoff overflow
       }
 
   // Except for main_tranmap, mark others purgable at this point
@@ -584,15 +584,15 @@ void R_StoreWallRange(const int start, const int stop)
   rw_stopx = stop+1;
 
   {     // killough 1/6/98, 2/1/98: remove limit on openings
-    extern int *openings; // dropoff overflow
+    extern short *openings; // dropoff overflow
     extern size_t maxopenings;
     size_t pos = lastopening - openings;
     size_t need = (rw_stopx - start)*4 + pos;
     if (need > maxopenings)
       {
         drawseg_t *ds;                //jff 8/9/98 needed for fix from ZDoom
-        int *oldopenings = openings; // dropoff overflow
-        int *oldlast = lastopening; // dropoff overflow
+        short *oldopenings = openings; // dropoff overflow
+        short *oldlast = lastopening; // dropoff overflow
 
         do
           maxopenings = maxopenings ? maxopenings*2 : 16384;

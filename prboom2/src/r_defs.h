@@ -337,7 +337,7 @@ typedef byte  lighttable_t;
 typedef struct drawseg_s
 {
   seg_t *curline;
-  int x1, x2;
+  short x1, x2;
   fixed_t scale1, scale2, scalestep;
   int silhouette;                       // 0=none, 1=bottom, 2=top, 3=both
   fixed_t bsilheight;                   // do not clip sprites above this
@@ -349,7 +349,7 @@ typedef struct drawseg_s
   // Pointers to lists for sprite clipping,
   // all three adjusted so [x1] is first value.
 
-  int *sprtopclip, *sprbottomclip, *maskedtexturecol; // dropoff overflow
+  short *sprtopclip, *sprbottomclip, *maskedtexturecol; // dropoff overflow
 } drawseg_t;
 
 // proff: Added for OpenGL

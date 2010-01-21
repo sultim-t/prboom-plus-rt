@@ -75,7 +75,7 @@ visplane_t *floorplane, *ceilingplane;
   ((unsigned)((picnum)*3+(lightlevel)+(height)*7) & (MAXVISPLANES-1))
 
 size_t maxopenings;
-int *openings,*lastopening; // dropoff overflow
+short *openings,*lastopening; // dropoff overflow
 
 // Clip values are the solid pixel bounding the range.
 //  floorclip starts out SCREENHEIGHT

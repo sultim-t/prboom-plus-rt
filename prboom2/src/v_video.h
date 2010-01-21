@@ -62,10 +62,10 @@ typedef struct
    int width, height;
 
    // SoM 1-31-04: This will insure that scaled patches and such are put in the right places
-   int x1lookup[321];
-   int y1lookup[201];
-   int x2lookup[321];
-   int y2lookup[201];
+   short x1lookup[321];
+   short y1lookup[201];
+   short x2lookup[321];
+   short y2lookup[201];
 } cb_video_t;
 
 typedef struct stretch_param_s

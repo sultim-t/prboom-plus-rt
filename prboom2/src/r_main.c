@@ -446,7 +446,7 @@ void R_SetViewSize(int blocks)
   setblocks = blocks;
 }
 
-static void GenLookup(int *lookup1, int *lookup2, int size, int max, int step)
+static void GenLookup(short *lookup1, short *lookup2, int size, int max, int step)
 {
   int i;
   fixed_t frac, lastfrac;
