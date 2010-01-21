@@ -75,12 +75,7 @@ float pspritexscale_f;
 
 int sprites_doom_order;
 
-typedef struct drawsegs_xrange_s
-{
-  int x1;
-  int x2;
-} drawsegs_xrange_t;
-static drawsegs_xrange_t *drawsegs_xrange = NULL;
+static int *drawsegs_xrange;
 static int drawsegs_xrange_size = 0;
 
 // constant arrays
@@ -1108,7 +1103,9 @@ static void R_DrawSprite (vissprite_t* spr)
   }
 
   for (x = spr->x1 ; x<=spr->x2 ; x++)
-    clipbot[x] = cliptop[x] = -2;
+    clipbot[x] = -2;
+  for (x = spr->x1 ; x<=spr->x2 ; x++)
+    cliptop[x] = -2;
 
   // Scan drawsegs from end to start for obscuring segs.
   // The first drawseg that has a greater scale is the clip seg.
@@ -1119,33 +1116,35 @@ static void R_DrawSprite (vissprite_t* spr)
 
   //    for (ds=ds_p-1 ; ds >= drawsegs ; ds--)    old buggy code
 
-  for (i = 0, ds = ds_p; ds-- > drawsegs; i++)  // new -- killough
+  if (drawsegs_xrange_size)
+  {
+    for (i = 0, ds = ds_p; ds-- > drawsegs; i += 2)  // new -- killough
     {      // determine if the drawseg obscures the sprite
-      if (drawsegs_xrange[i].x1 > spr->x2 || drawsegs_xrange[i].x2 < spr->x1 ||
-          (!ds->silhouette && !ds->maskedtexturecol))
+      if (drawsegs_xrange[i + 0] > spr->x2 || drawsegs_xrange[i + 1] < spr->x1 ||
+        (!ds->silhouette && !ds->maskedtexturecol))
         continue;      // does not cover sprite
 
       r1 = ds->x1 < spr->x1 ? spr->x1 : ds->x1;
       r2 = ds->x2 > spr->x2 ? spr->x2 : ds->x2;
 
       if (ds->scale1 > ds->scale2)
-        {
-          lowscale = ds->scale2;
-          scale = ds->scale1;
-        }
+      {
+        lowscale = ds->scale2;
+        scale = ds->scale1;
+      }
       else
-        {
-          lowscale = ds->scale1;
-          scale = ds->scale2;
-        }
+      {
+        lowscale = ds->scale1;
+        scale = ds->scale2;
+      }
 
       if (scale < spr->scale || (lowscale < spr->scale &&
-                    !R_PointOnSegSide (spr->gx, spr->gy, ds->curline)))
-        {
-          if (ds->maskedtexturecol)       // masked mid texture?
-            R_RenderMaskedSegRange(ds, r1, r2);
-          continue;               // seg is behind sprite
-        }
+        !R_PointOnSegSide (spr->gx, spr->gy, ds->curline)))
+      {
+        if (ds->maskedtexturecol)       // masked mid texture?
+          R_RenderMaskedSegRange(ds, r1, r2);
+        continue;               // seg is behind sprite
+      }
 
       // clip this piece of the sprite
       // killough 3/27/98: optimized and made much shorter
@@ -1160,6 +1159,51 @@ static void R_DrawSprite (vissprite_t* spr)
           if (cliptop[x] == -2)
             cliptop[x] = ds->sprtopclip[x];
     }
+  }
+  else
+  {
+    for (ds = ds_p; ds-- > drawsegs; )  // new -- killough
+    {      // determine if the drawseg obscures the sprite
+      if (ds->x1 > spr->x2 || ds->x2 < spr->x1 ||
+        (!ds->silhouette && !ds->maskedtexturecol))
+        continue;      // does not cover sprite
+
+      r1 = ds->x1 < spr->x1 ? spr->x1 : ds->x1;
+      r2 = ds->x2 > spr->x2 ? spr->x2 : ds->x2;
+
+      if (ds->scale1 > ds->scale2)
+      {
+        lowscale = ds->scale2;
+        scale = ds->scale1;
+      }
+      else
+      {
+        lowscale = ds->scale1;
+        scale = ds->scale2;
+      }
+
+      if (scale < spr->scale || (lowscale < spr->scale &&
+        !R_PointOnSegSide (spr->gx, spr->gy, ds->curline)))
+      {
+        if (ds->maskedtexturecol)       // masked mid texture?
+          R_RenderMaskedSegRange(ds, r1, r2);
+        continue;               // seg is behind sprite
+      }
+
+      // clip this piece of the sprite
+      // killough 3/27/98: optimized and made much shorter
+
+      if (ds->silhouette&SIL_BOTTOM && spr->gz < ds->bsilheight) //bottom sil
+        for (x=r1 ; x<=r2 ; x++)
+          if (clipbot[x] == -2)
+            clipbot[x] = ds->sprbottomclip[x];
+
+      if (ds->silhouette&SIL_TOP && spr->gzt > ds->tsilheight)   // top sil
+        for (x=r1 ; x<=r2 ; x++)
+          if (cliptop[x] == -2)
+            cliptop[x] = ds->sprtopclip[x];
+    }
+  }
 
   // killough 3/27/98:
   // Clip the sprite against deep water and/or fake ceilings.
@@ -1226,6 +1270,7 @@ static void R_DrawSprite (vissprite_t* spr)
 
 void R_DrawMasked(void)
 {
+  extern int try_to_reduce_cpu_cache_misses;
   int i;
   drawseg_t *ds;
 
@@ -1235,17 +1280,17 @@ void R_DrawMasked(void)
   // Reducing of cache misses in the following R_DrawSprite()
   // Makes sense for scenes with huge amount of drawsegs.
   // ~9% of speed improvement on epic.wad map05
-  if (num_vissprite > 0)
+  if (try_to_reduce_cpu_cache_misses && num_vissprite > 0)
   {
     if (drawsegs_xrange_size <= maxdrawsegs)
     {
       drawsegs_xrange_size = maxdrawsegs;
-      drawsegs_xrange = realloc(drawsegs_xrange, drawsegs_xrange_size * sizeof(drawsegs_xrange[0]));
+      drawsegs_xrange = realloc(drawsegs_xrange, 2 * drawsegs_xrange_size * sizeof(drawsegs_xrange[0]));
     }
-    for (i = 0, ds = ds_p; ds-- > drawsegs; i++)
+    for (i = 0, ds = ds_p; ds-- > drawsegs; i += 2)
     {
-      drawsegs_xrange[i].x1 = ds->x1;
-      drawsegs_xrange[i].x2 = ds->x2;
+      drawsegs_xrange[i + 0] = ds->x1;
+      drawsegs_xrange[i + 1] = ds->x2;
     }
   }
 
