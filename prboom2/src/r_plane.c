@@ -83,8 +83,8 @@ short *openings,*lastopening; // dropoff overflow
 
 // dropoff overflow
 // e6y: resolution limitation is removed
-int *floorclip = NULL;
-int *ceilingclip = NULL;
+short *floorclip = NULL;
+short *ceilingclip = NULL;
 
 // spanstart holds the start of a plane span; initialized to 0 at start
 
@@ -110,6 +110,16 @@ static fixed_t xoffs,yoffs;    // killough 2/28/98: flat offsets
 // e6y: resolution limitation is removed
 fixed_t *yslope = NULL;
 fixed_t *distscale = NULL;
+
+inline static CONSTFUNC void clearbufshort(void *buff, unsigned int count, unsigned short clear)
+{
+  unsigned int i;
+  short *b2 = (short *)buff;
+  for (i = 0; i != count; i++)
+  {
+    b2[i] = clear;
+  }
+}
 
 void R_InitPlanesRes(void)
 {
@@ -313,7 +323,7 @@ visplane_t *R_DupPlane(const visplane_t *pl, int start, int stop)
       new_pl->yoffs = pl->yoffs;
       new_pl->minx = start;
       new_pl->maxx = stop;
-      memset(new_pl->top, 0xff, sizeof(*new_pl->top) * SCREENWIDTH);
+      clearbufshort(new_pl->top, SCREENWIDTH, SHRT_MAX);
       return new_pl;
 }
 //
@@ -351,7 +361,7 @@ visplane_t *R_FindPlane(fixed_t height, int picnum, int lightlevel,
   check->xoffs = xoffs;               // killough 2/28/98: Save offsets
   check->yoffs = yoffs;
 
-  memset (check->top, 0xff, sizeof(*check->top) * SCREENWIDTH);
+  clearbufshort(check->top, SCREENWIDTH, SHRT_MAX);
 
   return check;
 }
@@ -373,7 +383,7 @@ visplane_t *R_CheckPlane(visplane_t *pl, int start, int stop)
   else
     unionh  = pl->maxx, intrh  = stop;
 
-  for (x=intrl ; x <= intrh && pl->top[x] == 0xffffu; x++) // dropoff overflow
+  for (x=intrl ; x <= intrh && pl->top[x] == SHRT_MAX; x++) // dropoff overflow
     ;
 
   if (x > intrh) { /* Can use existing plane; extend range */
@@ -514,7 +524,7 @@ static void R_DoDrawPlane(visplane_t *pl)
 
       stop = pl->maxx + 1;
       planezlight = zlight[light];
-      pl->top[pl->minx-1] = pl->top[stop] = 0xffffu; // dropoff overflow
+      pl->top[pl->minx-1] = pl->top[stop] = SHRT_MAX; // dropoff overflow
 
       for (x = pl->minx ; x <= stop ; x++)
          R_MakeSpans(x,pl->top[x-1],pl->bottom[x-1],

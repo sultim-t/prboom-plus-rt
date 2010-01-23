@@ -47,7 +47,7 @@
 extern short *lastopening; // dropoff overflow
 
 // e6y: resolution limitation is removed
-extern int *floorclip, *ceilingclip; // dropoff overflow
+extern short *floorclip, *ceilingclip; // dropoff overflow
 extern fixed_t *yslope, *distscale;
 
 void R_InitPlanesRes(void);

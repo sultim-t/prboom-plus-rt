@@ -587,7 +587,7 @@ void R_StoreWallRange(const int start, const int stop)
     extern short *openings; // dropoff overflow
     extern size_t maxopenings;
     size_t pos = lastopening - openings;
-    size_t need = (rw_stopx - start)*4 + pos;
+    size_t need = (rw_stopx - start)*sizeof(*lastopening) + pos;
     if (need > maxopenings)
       {
         drawseg_t *ds;                //jff 8/9/98 needed for fix from ZDoom
@@ -894,13 +894,13 @@ void R_StoreWallRange(const int start, const int stop)
   // save sprite clipping info
   if ((ds_p->silhouette & SIL_TOP || maskedtexture) && !ds_p->sprtopclip)
     {
-      memcpy (lastopening, ceilingclip+start, sizeof(int)*(rw_stopx-start)); // dropoff overflow
+      memcpy (lastopening, ceilingclip+start, sizeof(*lastopening)*(rw_stopx-start)); // dropoff overflow
       ds_p->sprtopclip = lastopening - start;
       lastopening += rw_stopx - start;
     }
   if ((ds_p->silhouette & SIL_BOTTOM || maskedtexture) && !ds_p->sprbottomclip)
     {
-      memcpy (lastopening, floorclip+start, sizeof(int)*(rw_stopx-start)); // dropoff overflow
+      memcpy (lastopening, floorclip+start, sizeof(*lastopening)*(rw_stopx-start)); // dropoff overflow
       ds_p->sprbottomclip = lastopening - start;
       lastopening += rw_stopx - start;
     }
