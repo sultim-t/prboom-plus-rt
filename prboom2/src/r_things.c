@@ -75,8 +75,15 @@ float pspritexscale_f;
 
 int sprites_doom_order;
 
-static int *drawsegs_xrange;
+typedef struct drawsegs_xrange_s
+{
+  int x1;
+  int x2;
+  drawseg_t *user;
+} drawsegs_xrange_t;
+static drawsegs_xrange_t *drawsegs_xrange;
 static unsigned int drawsegs_xrange_size = 0;
+static int drawsegs_xrange_count = 0;
 
 // constant arrays
 //  used for psprite clipping and initializing clipping
@@ -1114,18 +1121,18 @@ static void R_DrawSprite (vissprite_t* spr)
   // (pointer check was originally nonportable
   // and buggy, by going past LEFT end of array):
 
-  //    for (ds=ds_p-1 ; ds >= drawsegs ; ds--)    old buggy code
+  // e6y: optimization
 
   if (drawsegs_xrange_size)
   {
-    for (i = 0, ds = ds_p; ds-- > drawsegs; i += 2)  // new -- killough
-    {      // determine if the drawseg obscures the sprite
-      if (drawsegs_xrange[i + 0] > spr->x2 || drawsegs_xrange[i + 1] < spr->x1 ||
-        (!ds->silhouette && !ds->maskedtexturecol))
+    // drawsegs_xrange is sorted by ::x1
+    for (i = 0; i < drawsegs_xrange_count; i++)
+    {
+      // determine if the drawseg obscures the sprite
+      if (drawsegs_xrange[i].x1 > spr->x2 || drawsegs_xrange[i].x2 < spr->x1)
         continue;      // does not cover sprite
 
-      r1 = ds->x1 < spr->x1 ? spr->x1 : ds->x1;
-      r2 = ds->x2 > spr->x2 ? spr->x2 : ds->x2;
+      ds = drawsegs_xrange[i].user;
 
       if (ds->scale1 > ds->scale2)
       {
@@ -1142,9 +1149,16 @@ static void R_DrawSprite (vissprite_t* spr)
         !R_PointOnSegSide (spr->gx, spr->gy, ds->curline)))
       {
         if (ds->maskedtexturecol)       // masked mid texture?
+        {
+          r1 = ds->x1 < spr->x1 ? spr->x1 : ds->x1;
+          r2 = ds->x2 > spr->x2 ? spr->x2 : ds->x2;
           R_RenderMaskedSegRange(ds, r1, r2);
+        }
         continue;               // seg is behind sprite
       }
+
+      r1 = ds->x1 < spr->x1 ? spr->x1 : ds->x1;
+      r2 = ds->x2 > spr->x2 ? spr->x2 : ds->x2;
 
       // clip this piece of the sprite
       // killough 3/27/98: optimized and made much shorter
@@ -1168,9 +1182,6 @@ static void R_DrawSprite (vissprite_t* spr)
         (!ds->silhouette && !ds->maskedtexturecol))
         continue;      // does not cover sprite
 
-      r1 = ds->x1 < spr->x1 ? spr->x1 : ds->x1;
-      r2 = ds->x2 > spr->x2 ? spr->x2 : ds->x2;
-
       if (ds->scale1 > ds->scale2)
       {
         lowscale = ds->scale2;
@@ -1186,9 +1197,16 @@ static void R_DrawSprite (vissprite_t* spr)
         !R_PointOnSegSide (spr->gx, spr->gy, ds->curline)))
       {
         if (ds->maskedtexturecol)       // masked mid texture?
+        {
+          r1 = ds->x1 < spr->x1 ? spr->x1 : ds->x1;
+          r2 = ds->x2 > spr->x2 ? spr->x2 : ds->x2;
           R_RenderMaskedSegRange(ds, r1, r2);
+        }
         continue;               // seg is behind sprite
       }
+
+      r1 = ds->x1 < spr->x1 ? spr->x1 : ds->x1;
+      r2 = ds->x2 > spr->x2 ? spr->x2 : ds->x2;
 
       // clip this piece of the sprite
       // killough 3/27/98: optimized and made much shorter
@@ -1251,13 +1269,13 @@ static void R_DrawSprite (vissprite_t* spr)
   // all clipping has been performed, so draw the sprite
   // check for unclipped columns
 
-  for (x = spr->x1 ; x<=spr->x2 ; x++) {
+  for (x = spr->x1 ; x<=spr->x2 ; x++)
     if (clipbot[x] == -2)
       clipbot[x] = viewheight;
 
+  for (x = spr->x1 ; x<=spr->x2 ; x++)
     if (cliptop[x] == -2)
       cliptop[x] = -1;
-  }
 
   mfloorclip = clipbot;
   mceilingclip = cliptop;
@@ -1279,7 +1297,8 @@ void R_DrawMasked(void)
   // e6y
   // Reducing of cache misses in the following R_DrawSprite()
   // Makes sense for scenes with huge amount of drawsegs.
-  // ~9% of speed improvement on epic.wad map05
+  // ~12% of speed improvement on epic.wad map05
+  drawsegs_xrange_count = 0;
   if (try_to_reduce_cpu_cache_misses && num_vissprite > 0)
   {
     if (drawsegs_xrange_size <= maxdrawsegs)
@@ -1287,10 +1306,15 @@ void R_DrawMasked(void)
       drawsegs_xrange_size = maxdrawsegs;
       drawsegs_xrange = realloc(drawsegs_xrange, 2 * drawsegs_xrange_size * sizeof(drawsegs_xrange[0]));
     }
-    for (i = 0, ds = ds_p; ds-- > drawsegs; i += 2)
+    for (ds = ds_p; ds-- > drawsegs;)
     {
-      drawsegs_xrange[i + 0] = ds->x1;
-      drawsegs_xrange[i + 1] = ds->x2;
+      if (ds->silhouette || ds->maskedtexturecol)
+      {
+        drawsegs_xrange[drawsegs_xrange_count].x1 = ds->x1;
+        drawsegs_xrange[drawsegs_xrange_count].x2 = ds->x2;
+        drawsegs_xrange[drawsegs_xrange_count].user = ds;
+        drawsegs_xrange_count++;
+      }
     }
   }
 
