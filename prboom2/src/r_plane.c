@@ -111,16 +111,6 @@ static fixed_t xoffs,yoffs;    // killough 2/28/98: flat offsets
 fixed_t *yslope = NULL;
 fixed_t *distscale = NULL;
 
-inline static CONSTFUNC void clearbufshort(void *buff, unsigned int count, unsigned short clear)
-{
-  unsigned int i;
-  short *b2 = (short *)buff;
-  for (i = 0; i != count; i++)
-  {
-    b2[i] = clear;
-  }
-}
-
 void R_InitPlanesRes(void)
 {
   if (floorclip) free(floorclip);
@@ -313,6 +303,7 @@ static visplane_t *new_visplane(unsigned hash)
  */
 visplane_t *R_DupPlane(const visplane_t *pl, int start, int stop)
 {
+      int i;
       unsigned hash = visplane_hash(pl->picnum, pl->lightlevel, pl->height);
       visplane_t *new_pl = new_visplane(hash);
 
@@ -323,7 +314,8 @@ visplane_t *R_DupPlane(const visplane_t *pl, int start, int stop)
       new_pl->yoffs = pl->yoffs;
       new_pl->minx = start;
       new_pl->maxx = stop;
-      clearbufshort(new_pl->top, SCREENWIDTH, SHRT_MAX);
+      for (i = 0; i != SCREENWIDTH; i++)
+        new_pl->top[i] = SHRT_MAX;
       return new_pl;
 }
 //
@@ -336,6 +328,7 @@ visplane_t *R_FindPlane(fixed_t height, int picnum, int lightlevel,
 {
   visplane_t *check;
   unsigned hash;                      // killough
+  int i;
 
   if (picnum == skyflatnum || picnum & PL_SKYFLAT)
     height = lightlevel = 0;         // killough 7/19/98: most skies map together
@@ -361,7 +354,8 @@ visplane_t *R_FindPlane(fixed_t height, int picnum, int lightlevel,
   check->xoffs = xoffs;               // killough 2/28/98: Save offsets
   check->yoffs = yoffs;
 
-  clearbufshort(check->top, SCREENWIDTH, SHRT_MAX);
+  for (i = 0; i != SCREENWIDTH; i++)
+    check->top[i] = SHRT_MAX;
 
   return check;
 }
