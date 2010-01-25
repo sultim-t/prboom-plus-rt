@@ -77,8 +77,7 @@ int sprites_doom_order;
 
 typedef struct drawsegs_xrange_s
 {
-  int x1;
-  int x2;
+  short x1, x2;
   drawseg_t *user;
 } drawsegs_xrange_t;
 static drawsegs_xrange_t *drawsegs_xrange;
@@ -407,7 +406,7 @@ void R_DrawMaskedColumn(
 //  mfloorclip and mceilingclip should also be set.
 //
 // CPhipps - new wad lump handling, *'s to const*'s
-static void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
+static void R_DrawVisSprite(vissprite_t *vis)
 {
   int      texturecolumn;
   fixed_t  frac;
@@ -937,7 +936,7 @@ static void R_DrawPSprite (pspdef_t *psp)
   // proff 11/99: don't use software stuff in OpenGL
   if (V_GetMode() != VID_MODEGL)
   {
-    R_DrawVisSprite(vis, vis->x1, vis->x2);
+    R_DrawVisSprite(vis);
   }
 #ifdef GL_DOOM
   else
@@ -1279,7 +1278,7 @@ static void R_DrawSprite (vissprite_t* spr)
 
   mfloorclip = clipbot;
   mceilingclip = cliptop;
-  R_DrawVisSprite (spr, spr->x1, spr->x2);
+  R_DrawVisSprite (spr);
 }
 
 //
