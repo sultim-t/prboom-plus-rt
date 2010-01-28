@@ -103,6 +103,34 @@ static byte mus2midi_translation[] =
   0x40, 0x43, 0x78, 0x7B, 0x7E, 0x7F, 0x79
 };
 
+//
+// FirstChannelAvailable()
+//
+// Return the next unassigned MIDI channel number
+//
+// The assignment for MUS channel 15 is not counted in the caculation, that
+// being percussion and always assigned to MIDI channel 9 (base 0).
+//
+// Passed the array of MIDI channels assigned to MUS channels
+// Returns the maximum channel number unassigned unless that is 9 in which
+// case 10 is returned.
+//
+// killough 10/7/98: changed char parameter, return values to int
+
+#define MIDI_TRACKS 32
+static int FirstChannelAvailable(int MUS2MIDchannel[])
+{
+  int i ;
+  int max = -1 ;
+
+  // find the largest MIDI channel assigned so far
+  for (i = 0; i < 15; i++)
+    if (MUS2MIDchannel[i] > max)
+      max = MUS2MIDchannel[i];
+
+  return (max == 8 ? 10 : max+1); // skip MIDI channel 9 (percussion)
+}
+
 // Write timestamp to a MIDI file.
 
 static dboolean midi_writetime(unsigned int time, MEMFILE *midioutput)
@@ -380,6 +408,8 @@ static dboolean read_musheader(MEMFILE *file, musheader *header)
 
 dboolean mus2mid(MEMFILE *musinput, MEMFILE *midioutput)
 {
+  int i;
+
   // Header for the MUS file
   musheader musfileheader;
 
@@ -404,6 +434,13 @@ dboolean mus2mid(MEMFILE *musinput, MEMFILE *midioutput)
   byte working;
   // Used in building up time delays
   unsigned int timedelay;
+
+  int MUS2MIDchannel[MIDI_TRACKS];    // killough 10/7/98: fix too small array
+
+  for (i = 0; i < MIDI_TRACKS; i++)   // init the track structure's tracks
+  {
+    MUS2MIDchannel[i] = -1;       // flag for channel not used yet
+  }
 
   // Grab the header
 
@@ -452,6 +489,7 @@ dboolean mus2mid(MEMFILE *musinput, MEMFILE *midioutput)
       channel = eventdescriptor & 0x0F;
       event = eventdescriptor & 0x70;
 
+#if 0
       // Swap channels 15 and 9.
       // MIDI channel 9 = percussion.
       // MUS channel 15 = percussion.
@@ -464,6 +502,22 @@ dboolean mus2mid(MEMFILE *musinput, MEMFILE *midioutput)
       {
         channel = 15;
       }
+#else
+      // fix issue with timidity on doom2 map05
+      // music goes wrong from 1:15
+
+      // if this channel not initialized, do so
+      if (MUS2MIDchannel[channel] == -1)
+      {
+        // set MIDIchannel and MIDItrack
+        channel = MUS2MIDchannel[channel] =
+          (channel == 15 ? 9 : FirstChannelAvailable(MUS2MIDchannel));
+      }
+      else // channel already allocated as a track, use those values
+      {
+        channel = MUS2MIDchannel[channel];
+      }
+#endif
 
       switch (event)
       {
