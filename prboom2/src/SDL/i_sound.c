@@ -709,7 +709,19 @@ void I_PauseSong (int handle)
       I_StopSong(handle);
     break;
   case 1:
+    switch (Mix_GetMusicType(NULL))
+    {
+    case MUS_NONE:
+      break;
+    case MUS_MID:
+      // SDL_mixer's native MIDI music playing does not pause properly.
+      // As a workaround, set the volume to 0 when paused.
+      I_SetMusicVolume(0);
+      break;
+    default:
       Mix_PauseMusic();
+      break;
+    }
     break;
   }
 #endif
@@ -724,7 +736,17 @@ void I_ResumeSong (int handle)
       I_PlaySong(handle,1);
     break;
   case 1:
+    switch (Mix_GetMusicType(NULL))
+    {
+    case MUS_NONE:
+      break;
+    case MUS_MID:
+      I_SetMusicVolume(snd_MusicVolume);
+      break;
+    default:
       Mix_ResumeMusic();
+      break;
+    }
     break;
   }
 #endif
