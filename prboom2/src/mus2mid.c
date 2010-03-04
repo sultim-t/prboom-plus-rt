@@ -453,7 +453,7 @@ dboolean mus2mid(MEMFILE *musinput, MEMFILE *midioutput)
 
   // Descriptor for the current MUS event
   byte eventdescriptor;
-  int channel; // Channel number
+  byte channel; // Channel number
   musevent event;
 
 
