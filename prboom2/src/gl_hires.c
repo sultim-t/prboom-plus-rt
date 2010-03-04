@@ -1323,11 +1323,19 @@ int* gld_LoadHiresTex(GLTexture *gltexture, int cm)
               int w, h;
               unsigned char *buf;
 
-              buf = gld_GetTextureBuffer(*texid, 0, &w, &h);
-              gld_HiRes_Bind(gltexture, glTexID);
-              gld_HiRes_ProcessColormap(buf, w * h * 4);
-              if (gld_BuildTexture(gltexture, buf, true, w, h))
+              if (*glTexID == 0)
               {
+                buf = gld_GetTextureBuffer(*texid, 0, &w, &h);
+                gld_HiRes_Bind(gltexture, glTexID);
+                gld_HiRes_ProcessColormap(buf, w * h * 4);
+                if (gld_BuildTexture(gltexture, buf, true, w, h))
+                {
+                  result = glTexID;
+                }
+              }
+              else
+              {
+                gld_HiRes_Bind(gltexture, glTexID);
                 result = glTexID;
               }
             }
