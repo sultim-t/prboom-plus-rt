@@ -39,7 +39,6 @@
 #endif
 
 #include <stdlib.h>
-
 #include "doomtype.h"
 
 /*
@@ -69,78 +68,21 @@ typedef int fixed_t;
 //
 // btw, GCC generates code without nonsenses
 
-#define D_abs abs
-
 #if 0
-#ifdef _MSC_VER
-# ifdef I386_ASM
-#pragma warning( disable : 4035 )
-__inline static int D_abs(int x)
-{
-    __asm
-    {
-        mov eax,x
-        cdq
-        xor eax,edx
-        sub eax,edx
-    }
-}
-# else /* I386_ASM */
-inline static const int D_abs(x)
+inline static CONSTFUNC fixed_t D_abs(fixed_t x)
 {
   fixed_t _t = (x),_s;
   _s = _t >> (8*sizeof _t-1);
   return (_t^_s)-_s;
 }
-# endif /* I386_ASM */
-#else /* _MSC_VER */
-#define D_abs(x) ({fixed_t _t = (x), _s = _t >> (8*sizeof _t-1); (_t^_s)-_s;})
-#endif /* _MSC_VER */
-#endif //0
+#else
+#define D_abs abs
+#endif
 
 /*
  * Fixed Point Multiplication
  */
 
-#ifdef I386_ASM
-# ifdef _MSC_VER
-#pragma warning( disable : 4035 )
-__inline static fixed_t FixedMul(fixed_t a, fixed_t b)
-{
-//    return (fixed_t)((longlong) a*b >> FRACBITS);
-    __asm
-    {
-        mov  eax,a
-        imul b
-        shrd eax,edx,16
-    }
-}
-#pragma warning( default : 4035 )
-# else /* _MSC_VER */
-/* killough 5/10/98: In djgpp, use inlined assembly for performance
- * CPhipps - made __inline__ to inline, as specified in the gcc docs
- * Also made const. Also __asm__ to asm, as in docs. 
- * Replaced inline asm with Julian's version for Eternity dated 6/7/2001
- */
-inline
-static CONSTFUNC fixed_t FixedMul(fixed_t a, fixed_t b)
-{
-  fixed_t result;
-
-  asm (
-      "  imull %2 ;"
-      "  shrdl $16,%%edx,%0 ;"
-      : "=a" (result)           /* eax is always the result */
-      : "0" (a),                /* eax is also first operand */
-        "rm" (b)                /* second operand can be reg or mem */
-      : "%edx", "%cc"           /* edx and condition codes clobbered */
-      );
-
-  return result;
-}
-# endif /* _MSC_VER */
-
-#else /* I386_ASM */
 
 /* CPhipps - made __inline__ to inline, as specified in the gcc docs
  * Also made const */
@@ -150,14 +92,10 @@ inline static CONSTFUNC fixed_t FixedMul(fixed_t a, fixed_t b)
   return (fixed_t)((int_64_t) a*b >> FRACBITS);
 }
 
-#endif /* I386_ASM */
-
 /*
  * Fixed Point Division
  */
 
-#if 1
-// e6y: do not use ASM version of FixedDiv at all, because it is unsafe.
 inline static CONSTFUNC fixed_t FixedDiv(fixed_t a, fixed_t b)
 {
   extern dboolean *use_wrong_fixeddiv;
@@ -173,86 +111,6 @@ inline static CONSTFUNC fixed_t FixedDiv(fixed_t a, fixed_t b)
       (fixed_t)(((int_64_t) a << FRACBITS) / b);
   }
 }
-#else // code below is unsafe
-#ifdef I386_ASM
-
-# ifdef _MSC_VER
-#pragma warning( disable : 4035 )
-__inline static fixed_t FixedDiv(fixed_t a, fixed_t b)
-{
-    // e6y
-    // zg is a master of engineer science.
-    //
-    // Fixed crash with FixedDiv(-2147483648,x)
-    // Exception Number : EXCEPTION_INT_OVERFLOW(C0000095)
-    //
-    // Some other ports (Eternity, Chocolate) return wrong value instead of MAXINT.
-    // For example FixedDiv(-2147483648,-30576) should return INT_MAX instead of 307907126
-    // 307907126 is truncated correct int64 value: 4602874423 - 2^32 = 307907126
-    //
-    // rollback, because of desynch on longdays.wad
-    // if ((unsigned)D_abs(a) >> 14 >= (unsigned)D_abs(b))
-    if (D_abs(a) >> 14 >= D_abs(b))
-        return (a^b)<0 ? INT_MIN : INT_MAX;
-    __asm
-    {
-        mov  eax,a
-        mov  ebx,b
-        mov  edx,eax
-        shl  eax,16     // proff 11/06/98: Changed from sal to shl, I think
-                        // this is better
-        sar  edx,16
-        idiv ebx        // This is needed, because when I used 'idiv b' the
-                        // compiler produced wrong code in a different place
-    }
-}
-#pragma warning( default : 4035 )
-# else /* _MSC_VER */
-/* killough 5/10/98: In djgpp, use inlined assembly for performance
- * killough 9/5/98: optimized to reduce the number of branches
- * CPhipps - made __inline__ to inline, as specified in the gcc docs
- * Also made const, also __asm__ to asm as in docs.
- * Replaced inline asm with Julian's version for Eternity dated 6/7/2001
- */
-inline
-static CONSTFUNC fixed_t FixedDiv(fixed_t a, fixed_t b)
-{
-  // e6y: zg is a master of engineer science
-  //
-  // rollback, because of desynch on longdays.wad
-  // if ((unsigned)D_abs(a) >> 14 < (unsigned)D_abs(b))
-  if (D_abs(a) >> 14 < D_abs(b))
-    {
-      fixed_t result;
-      asm (
-          " idivl %3 ;"
-	  : "=a" (result)
-	  : "0" (a<<16),
-	    "d" (a>>16),
-	    "rm" (b)
-	  : "%cc"
-	  );
-      return result;
-    }
-  return ((a^b)>>31) ^ INT_MAX;
-}
-# endif /* _MSC_VER */
-
-#else /* I386_ASM */
-/* CPhipps - made __inline__ to inline, as specified in the gcc docs
- * Also made const */
-
-inline static CONSTFUNC fixed_t FixedDiv(fixed_t a, fixed_t b)
-{
-  // rollback, because of desynch on longdays.wad
-  // return ((unsigned)D_abs(a)>>14) >= (unsigned)D_abs(b) ? ((a^b)>>31) ^ INT_MAX :
-  return (D_abs(a)>>14) >= D_abs(b) ? ((a^b)>>31) ^ INT_MAX :
-    (fixed_t)(((int_64_t) a << FRACBITS) / b);
-}
-
-#endif /* I386_ASM */
-
-#endif
 
 /* CPhipps -
  * FixedMod - returns a % b, guaranteeing 0<=a<b
