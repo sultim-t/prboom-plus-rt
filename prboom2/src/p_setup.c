@@ -1345,6 +1345,65 @@ static void P_CreateBlockMap(void)
 // End new code added to speed up calculation of internal blockmap
 
 //
+// P_VerifyBlockMap
+//
+// haleyjd 03/04/10: do verification on validity of blockmap.
+//
+static dboolean P_VerifyBlockMap(int count)
+{
+  int x, y;
+  int *maxoffs = blockmaplump + count;
+
+  for(y = 0; y < bmapheight; y++)
+  {
+    for(x = 0; x < bmapwidth; x++)
+    {
+      int offset;
+      int *list, *tmplist;
+      int *blockoffset;
+
+      offset = y * bmapwidth + x;
+      blockoffset = blockmaplump + offset + 4;
+
+      // check that block offset is in bounds
+      if(blockoffset >= maxoffs)
+      {
+        lprintf(LO_ERROR, "P_VerifyBlockMap: offset overflow");
+        return false;
+      }
+
+      offset = *blockoffset;         
+      list   = blockmaplump + offset;
+
+      // scan forward for a -1 terminator before maxoffs
+      for(tmplist = list; ; tmplist++)
+      {
+        // we have overflowed the lump?
+        if(tmplist >= maxoffs)
+        {
+          lprintf(LO_ERROR, "P_VerifyBlockMap: open blocklist");
+          return false;
+        }
+        if(*tmplist == -1) // found -1
+          break;
+      }
+
+      // scan the list for out-of-range linedef indicies in list
+      for(tmplist = list; *tmplist != -1; tmplist++)
+      {
+        if(*tmplist < 0 || *tmplist >= numlines)
+        {
+          lprintf(LO_ERROR, "P_VerifyBlockMap: index >= numlines");
+          return false;
+        }
+      }
+    }
+  }
+
+  return true;
+}
+
+//
 // P_LoadBlockMap
 //
 // killough 3/1/98: substantially modified to work
@@ -1389,6 +1448,10 @@ static void P_LoadBlockMap (int lump)
       bmaporgy = blockmaplump[1]<<FRACBITS;
       bmapwidth = blockmaplump[2];
       bmapheight = blockmaplump[3];
+
+      // haleyjd 03/04/10: check for blockmap problems
+      // http://www.doomworld.com/idgames/index.php?id=12935
+      P_VerifyBlockMap(count);
     }
 
   // clear out mobj chains - CPhipps - use calloc
