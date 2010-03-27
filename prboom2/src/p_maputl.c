@@ -40,6 +40,7 @@
 #include "p_maputl.h"
 #include "p_map.h"
 #include "p_setup.h"
+#include "lprintf.h"
 #include "g_overflow.h"
 #include "e6y.h"//e6y
 
@@ -379,7 +380,12 @@ dboolean P_BlockLinesIterator(int x, int y, dboolean func(line_t*))
     list++;     // skip 0 starting delimiter                      // phares
   for ( ; *list != -1 ; list++)                                   // phares
     {
-      line_t *ld = &lines[*list];
+      line_t *ld;
+#ifdef RANGECHECK
+      if(*list < 0 || *list >= numlines)
+        I_Error("P_BlockLinesIterator: index >= numlines");
+#endif
+      ld = &lines[*list];
       if (ld->validcount == validcount)
         continue;       // line has already been checked
       ld->validcount = validcount;
