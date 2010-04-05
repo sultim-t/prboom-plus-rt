@@ -849,6 +849,31 @@ int I_RegisterSong(const void *data, size_t len)
     // This plays back a lot of music closer to Vanilla Doom - eg. tnt.wad map02
     result = mus2mid(instream, outstream);
 
+    if (result != 0)
+    {
+      size_t muslen = len;
+      const unsigned char *musptr = data;
+
+      // haleyjd 04/04/10: scan forward for a MUS header. Evidently DMX was 
+      // capable of doing this, and would skip over any intervening data. That, 
+      // or DMX doesn't use the MUS header at all somehow.
+      while (musptr < (unsigned char*)data + len - sizeof(musheader))
+      {
+        // if we found a likely header start, reset the mus pointer to that location,
+        // otherwise just leave it alone and pray.
+        if (!strncmp((const char*)musptr, "MUS\x1a", 4))
+        {
+          mem_fclose(instream);
+          instream = mem_fopen_read((void*)musptr, muslen);
+          result = mus2mid(instream, outstream);
+          break;
+        }
+
+        musptr++;
+        muslen--;
+      }
+    }
+
     if (result == 0)
     {
       mem_get_buf(outstream, &outbuf, &outbuf_len);

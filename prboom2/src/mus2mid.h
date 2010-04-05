@@ -34,6 +34,17 @@
 #include "doomtype.h"
 #include "memio.h"
 
+// Structure to hold MUS file header
+typedef struct
+{
+  byte id[4];
+  unsigned short scorelength;
+  unsigned short scorestart;
+  unsigned short primarychannels;
+  unsigned short secondarychannels;
+  unsigned short instrumentcount;
+} musheader;
+
 dboolean mus2mid(MEMFILE *musinput, MEMFILE *midioutput);
 
 #endif /* #ifndef MUS2MID_H */
