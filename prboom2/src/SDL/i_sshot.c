@@ -54,6 +54,15 @@
 
 #ifdef HAVE_LIBPNG
 
+#ifndef png_error_ptr_NULL
+#define png_error_ptr_NULL        NULL
+#endif
+
+#ifndef png_infopp_NULL
+#define png_infopp_NULL           NULL
+#endif
+
+
 //
 // Error functions needed by libpng
 //
