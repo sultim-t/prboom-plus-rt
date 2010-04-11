@@ -413,7 +413,7 @@ unsigned char mem_dump_dosbox[DOS_MEM_DUMP_SIZE] = {
 
 unsigned char *dos_mem_dump = mem_dump_dos622;
 
-int GetMemoryValue(unsigned int offset, void *value, int size)
+static int GetMemoryValue(unsigned int offset, void *value, int size)
 {
   static int firsttime = true;
 
