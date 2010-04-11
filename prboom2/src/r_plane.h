@@ -44,10 +44,10 @@
 #define PL_SKYFLAT (0x80000000)
 
 /* Visplane related. */
-extern short *lastopening; // dropoff overflow
+extern int *lastopening; // dropoff overflow
 
 // e6y: resolution limitation is removed
-extern short *floorclip, *ceilingclip; // dropoff overflow
+extern int *floorclip, *ceilingclip; // dropoff overflow
 extern fixed_t *yslope, *distscale;
 
 void R_InitPlanesRes(void);

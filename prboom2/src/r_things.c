@@ -88,8 +88,8 @@ static int drawsegs_xrange_count = 0;
 //  used for psprite clipping and initializing clipping
 
 // e6y: resolution limitation is removed
-short *negonearray;        // killough 2/8/98: // dropoff overflow
-short *screenheightarray;  // change to MAX_* // dropoff overflow
+int *negonearray;        // killough 2/8/98: // dropoff overflow
+int *screenheightarray;  // change to MAX_* // dropoff overflow
 
 //
 // INITIALIZATION FUNCTIONS
@@ -345,8 +345,8 @@ static vissprite_t *R_NewVisSprite(void)
 //  in posts/runs of opaque pixels.
 //
 
-short *mfloorclip;   // dropoff overflow
-short *mceilingclip; // dropoff overflow
+int   *mfloorclip;   // dropoff overflow
+int   *mceilingclip; // dropoff overflow
 fixed_t spryscale;
 fixed_t sprtopscreen;
 
@@ -1093,8 +1093,8 @@ void R_SortVisSprites (void)
 static void R_DrawSprite (vissprite_t* spr)
 {
   drawseg_t *ds;
-  static short *clipbot = NULL; // killough 2/8/98: // dropoff overflow
-  static short *cliptop = NULL; // change to MAX_*  // dropoff overflow
+  static int     *clipbot = NULL; // killough 2/8/98: // dropoff overflow
+  static int     *cliptop = NULL; // change to MAX_*  // dropoff overflow
   int     x;
   int     r1;
   int     r2;

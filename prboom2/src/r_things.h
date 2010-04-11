@@ -43,13 +43,13 @@
 /* Constant arrays used for psprite clipping and initializing clipping. */
 
 // e6y: resolution limitation is removed
-extern short *negonearray;       /* killough 2/8/98: */ // dropoff overflow
-extern short *screenheightarray; /* change to MAX_*  */ // dropoff overflow
+extern int *negonearray;       /* killough 2/8/98: */ // dropoff overflow
+extern int *screenheightarray; /* change to MAX_*  */ // dropoff overflow
 
 /* Vars for R_DrawMaskedColumn */
 
-extern short *mfloorclip;    // dropoff overflow
-extern short *mceilingclip;  // dropoff overflow
+extern int     *mfloorclip;    // dropoff overflow
+extern int     *mceilingclip;  // dropoff overflow
 extern fixed_t spryscale;
 extern fixed_t sprtopscreen;
 extern fixed_t pspriteiscale;

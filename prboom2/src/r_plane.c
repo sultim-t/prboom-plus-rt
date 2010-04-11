@@ -75,7 +75,7 @@ visplane_t *floorplane, *ceilingplane;
   ((unsigned)((picnum)*3+(lightlevel)+(height)*7) & (MAXVISPLANES-1))
 
 size_t maxopenings;
-short *openings,*lastopening; // dropoff overflow
+int *openings,*lastopening; // dropoff overflow
 
 // Clip values are the solid pixel bounding the range.
 //  floorclip starts out SCREENHEIGHT
@@ -83,8 +83,8 @@ short *openings,*lastopening; // dropoff overflow
 
 // dropoff overflow
 // e6y: resolution limitation is removed
-short *floorclip = NULL;
-short *ceilingclip = NULL;
+int *floorclip = NULL;
+int *ceilingclip = NULL;
 
 // spanstart holds the start of a plane span; initialized to 0 at start
 
@@ -483,7 +483,7 @@ static void R_DoDrawPlane(visplane_t *pl)
 
   // killough 10/98: Use sky scrolling offset, and possibly flip picture
         for (x = pl->minx; (dcvars.x = x) <= pl->maxx; x++)
-          if ((dcvars.yl = pl->top[x]) != -1 && dcvars.yl <= (dcvars.yh = pl->bottom[x])) // dropoff overflow
+          if ((dcvars.yl = pl->top[x]) != SHRT_MAX && dcvars.yl <= (dcvars.yh = pl->bottom[x])) // dropoff overflow
             {
               dcvars.source = R_GetTextureColumn(tex_patch, ((an + xtoviewangle[x])^flip) >> ANGLETOSKYSHIFT);
               dcvars.prevsource = R_GetTextureColumn(tex_patch, ((an + xtoviewangle[x-1])^flip) >> ANGLETOSKYSHIFT);

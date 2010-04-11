@@ -349,7 +349,7 @@ typedef struct drawseg_s
   // Pointers to lists for sprite clipping,
   // all three adjusted so [x1] is first value.
 
-  short *sprtopclip, *sprbottomclip, *maskedtexturecol; // dropoff overflow
+  int *sprtopclip, *sprbottomclip, *maskedtexturecol; // dropoff overflow
 } drawseg_t;
 
 // proff: Added for OpenGL
