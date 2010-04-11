@@ -81,6 +81,7 @@
 #include "d_player.h"
 #include "m_fixed.h"
 #include "r_fps.h"
+#include "e6y.h"
 #endif
 #include "i_system.h"
 
@@ -147,6 +148,9 @@ void I_EndDisplay(void)
   InDisplay = false;
 }
 
+static int subframe = 0;
+static int prevsubframe = 0;
+int interpolation_method;
 fixed_t I_GetTimeFrac (void)
 {
   unsigned long now;
@@ -154,17 +158,28 @@ fixed_t I_GetTimeFrac (void)
 
   now = SDL_GetTicks();
 
+  subframe++;
+
   if (tic_vars.step == 0)
-    return FRACUNIT;
+  {
+    frac = FRACUNIT;
+  }
   else
   {
-    frac = (fixed_t)((now - tic_vars.start + displaytime) * FRACUNIT / tic_vars.step);
-    if (frac < 0)
-      frac = 0;
-    if (frac > FRACUNIT)
-      frac = FRACUNIT;
-    return frac;
+    extern int renderer_fps;
+    if ((interpolation_method == 0) || (prevsubframe <= 0) || (renderer_fps <= 0))
+    {
+      frac = (fixed_t)((now - tic_vars.start + displaytime) * FRACUNIT / tic_vars.step);
+    }
+    else
+    {
+      frac = (fixed_t)((now - tic_vars.start) * FRACUNIT / tic_vars.step);
+      frac = (unsigned int)((float)FRACUNIT * TICRATE * subframe / renderer_fps);
+    }
+    frac = BETWEEN(0, FRACUNIT, frac);
   }
+
+  return frac;
 }
 
 void I_GetTime_SaveMS(void)
@@ -175,6 +190,8 @@ void I_GetTime_SaveMS(void)
   tic_vars.start = SDL_GetTicks();
   tic_vars.next = (unsigned int) ((tic_vars.start * tic_vars.msec + 1.0f) / tic_vars.msec);
   tic_vars.step = tic_vars.next - tic_vars.start;
+  prevsubframe = subframe;
+  subframe = 0;
 }
 #endif
 
