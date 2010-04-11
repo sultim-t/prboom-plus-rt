@@ -1401,7 +1401,7 @@ static dboolean P_VerifyBlockMap(int count)
       // check that block offset is in bounds
       if(blockoffset >= maxoffs)
       {
-        lprintf(LO_ERROR, "P_VerifyBlockMap: offset overflow");
+        lprintf(LO_ERROR, "P_VerifyBlockMap: offset overflow\n");
         return false;
       }
 
@@ -1414,7 +1414,7 @@ static dboolean P_VerifyBlockMap(int count)
         // we have overflowed the lump?
         if(tmplist >= maxoffs)
         {
-          lprintf(LO_ERROR, "P_VerifyBlockMap: open blocklist");
+          lprintf(LO_ERROR, "P_VerifyBlockMap: open blocklist\n");
           return false;
         }
         if(*tmplist == -1) // found -1
@@ -1426,7 +1426,7 @@ static dboolean P_VerifyBlockMap(int count)
       {
         if(*tmplist < 0 || *tmplist >= numlines)
         {
-          lprintf(LO_ERROR, "P_VerifyBlockMap: index >= numlines");
+          lprintf(LO_ERROR, "P_VerifyBlockMap: index >= numlines\n");
           return false;
         }
       }
