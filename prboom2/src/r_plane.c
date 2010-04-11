@@ -476,8 +476,13 @@ static void R_DoDrawPlane(visplane_t *pl)
 
       //dcvars.texturemid = skytexturemid;
       dcvars.texheight = textureheight[skytexture]>>FRACBITS; // killough
+      
       // proff 09/21/98: Changed for high-res
-      dcvars.iscale = FRACUNIT*200/viewheight;
+      
+      // e6y
+      // disable sky texture scaling if status bar is used
+      // old code: dcvars.iscale = FRACUNIT*200/viewheight;
+      dcvars.iscale = skyiscale;
 
       tex_patch = R_CacheTextureCompositePatchNum(texture);
 

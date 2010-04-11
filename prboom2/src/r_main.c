@@ -110,6 +110,7 @@ fixed_t  viewheightfrac; //e6y: for correct cliping of things
 fixed_t  projection;
 // proff 11/06/98: Added for high-res
 fixed_t  projectiony;
+fixed_t  skyiscale;
 fixed_t  viewx, viewy, viewz;
 angle_t  viewangle;
 fixed_t  viewcos, viewsin;
@@ -663,6 +664,8 @@ void R_ExecuteSetViewSize (void)
   //e6y: added for GL
   pspritexscale_f = (float)wide_centerx/160.0f;
   pspriteyscale_f = (((float)SCREENHEIGHT*viewwidth)/(float)SCREENWIDTH) / 200.0f;
+
+  skyiscale = (fixed_t)(((uint64_t)FRACUNIT * SCREENWIDTH * 200) / (viewwidth * SCREENHEIGHT));
 
   // thing clipping
   for (i=0 ; i<viewwidth ; i++)

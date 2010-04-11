@@ -59,6 +59,7 @@ extern fixed_t  centerxfrac;
 extern fixed_t  centeryfrac;
 extern fixed_t  viewheightfrac; //e6y: for correct cliping of things
 extern fixed_t  projection;
+extern fixed_t  skyiscale;
 // e6y: wide-res
 extern int wide_centerx;
 extern int wide_ratio;
