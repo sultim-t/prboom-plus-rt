@@ -387,64 +387,107 @@ void RejectOverrun(int rejectlump, const byte **rejectmatrix, int totallines)
 }
 
 //
+// Read Access Violation emulation.
+//
+
+// C:\>debug
+// -d 0:0
+//
+// DOS 6.22:
+// 0000:0000  (57 92 19 00) F4 06 70 00-(16 00)
+// DOS 7.1:
+// 0000:0000  (9E 0F C9 00) 65 04 70 00-(16 00)
+// Win98:
+// 0000:0000  (9E 0F C9 00) 65 04 70 00-(16 00)
+// DOSBox under XP:
+// 0000:0000  (00 00 00 F1) ?? ?? ?? 00-(07 00)
+
+#define DOS_MEM_DUMP_SIZE 10
+
+unsigned char mem_dump_dos622[DOS_MEM_DUMP_SIZE] = {
+  0x57, 0x92, 0x19, 0x00, 0xF4, 0x06, 0x70, 0x00, 0x16, 0x00};
+unsigned char mem_dump_win98[DOS_MEM_DUMP_SIZE] = {
+  0x9E, 0x0F, 0xC9, 0x00, 0x65, 0x04, 0x70, 0x00, 0x16, 0x00};
+unsigned char mem_dump_dosbox[DOS_MEM_DUMP_SIZE] = {
+  0x00, 0x00, 0x00, 0xF1, 0x00, 0x00, 0x00, 0x00, 0x07, 0x00};
+
+unsigned char *dos_mem_dump = mem_dump_dos622;
+
+int GetMemoryValue(unsigned int offset, void *value, int size)
+{
+  static int firsttime = true;
+
+  if (firsttime)
+  {
+    int p, i, val;
+
+    firsttime = false;
+    i = 0;
+
+    if ((p = M_CheckParm("-setmem")) && (p < myargc-1))
+    {
+      if (!strcasecmp(myargv[p + 1], "dos622"))
+        dos_mem_dump = mem_dump_dos622;
+      if (!strcasecmp(myargv[p + 1], "dos71"))
+        dos_mem_dump = mem_dump_win98;
+      else if (!strcasecmp(myargv[p + 1], "dosbox"))
+        dos_mem_dump = mem_dump_dosbox;
+      else
+      {
+        while (++p != myargc && *myargv[p] != '-' && i < DOS_MEM_DUMP_SIZE)
+        {
+          M_StrToInt(myargv[p], &val);
+          dos_mem_dump[i++] = (unsigned char)val;
+        }
+      }
+    }
+  }
+
+  if (value)
+  {
+    switch (size)
+    {
+    case 1:
+      *((unsigned char*)value) = *((unsigned char*)(&dos_mem_dump[offset]));
+      return true;
+    case 2:
+      *((unsigned short*)value) = *((unsigned short*)(&dos_mem_dump[offset]));
+      return true;
+    case 4:
+      *((unsigned int*)value) = *((unsigned int*)(&dos_mem_dump[offset]));
+      return true;
+    }
+  }
+
+  return false;
+}
+
+//
 // donut overrun emulation (linedef action #9)
 //
 
-#define DONUT_FLOORHEIGHT_DEFAULT 0x00C90F9E
 #define DONUT_FLOORPIC_DEFAULT 0x16
-
 int DonutOverrun(fixed_t *pfloorheight, short *pfloorpic)
 {
   if (demo_compatibility && PROCESS(OVERFLOW_DONUT))
   {
-    static int firsttime    = true;
-    static long floorheight = DONUT_FLOORHEIGHT_DEFAULT;
-    static long floorpic    = DONUT_FLOORPIC_DEFAULT;
-
-    if (firsttime)
-    {
-      int p;
-
-      firsttime = false;
-
-      // Allow floorheight and floorpic values to be specified with command line.
-      if ((p = M_CheckParm("-donut")))
-      {
-        // Dump of needed memory: (fixed_t)0000:0000 and (short)0000:0008
-        //
-        // C:\>debug
-        // -d 0:0
-        //
-        // DOS 6.22:
-        // 0000:0000  (57 92 19 00) F4 06 70 00-(16 00)
-        // DOS 7.1:
-        // 0000:0000  (9E 0F C9 00) 65 04 70 00-(16 00)
-        // Win98:
-        // 0000:0000  (9E 0F C9 00) 65 04 70 00-(16 00)
-        // DOSBox under XP:
-        // 0000:0000  (00 00 00 F1) ?? ?? ?? 00-(07 00)
-
-        if (p < myargc - 1)
-          M_StrToInt(myargv[p + 1], &floorheight);
-        if (p < myargc - 2)
-          M_StrToInt(myargv[p + 2], &floorpic);
-
-        // bounds-check floorpic
-        if (floorpic <= 0 || floorpic >= numflats)
-          floorpic = MIN(numflats - 1, DONUT_FLOORPIC_DEFAULT);
-      }
-    }
-
     ShowOverflowWarning(OVERFLOW_DONUT, 0, "");
 
     if (EMULATE(OVERFLOW_DONUT))
     {
-      if (pfloorheight)
-        *pfloorheight = (fixed_t)floorheight;
-      if (pfloorpic)
-        *pfloorpic = (short)floorpic;
+      if (pfloorheight && pfloorpic)
+      {
+        GetMemoryValue(0, pfloorheight, 4);
+        GetMemoryValue(8, pfloorpic, 2);
+        
+        // bounds-check floorpic
+        if ((*pfloorpic) <= 0 || (*pfloorpic) >= numflats)
+        {
+          *pfloorpic = MIN(numflats - 1, DONUT_FLOORPIC_DEFAULT);
+        }
 
-      return true;
+        return true;
+      }
     }
   }
 
