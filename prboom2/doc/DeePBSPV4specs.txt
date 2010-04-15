@@ -1,0 +1,101 @@
+
+Description of DeePBSP v4 Extended nodes for developers
+-------------------------------------------------------
+
+This information is intended for any port author that wishes to extend the size
+of level the port can play.  It's suggested to change the standard level structures
+to also have unsigned value to support large levels.  For example, change the sidedef
+reference to unsigned short for the linedef struct.  Then use 0xFFFF (#define this) to
+check for no sidedef and store -1 in an internal format as int for the sidedef.
+
+Other versions can easily be made if somebody has a reason for a change that 
+reflects the real world.  
+
+CAUTION : Be sure to turn of struct alignment in the compiler, otherwise
+          it may add data to the structs.
+
+Terminology is per Intel processors.
+
+ --- V4 Standard nodes only ---
+
+struct Segment4
+{
+           int   vstart;    // from this vertex ... (allows for over 64k verts which
+           int   vend;      // ... to this vertex   (can occur during node building with packed sidedefs
+  unsigned short angle;     // angle (0 = east, 16384 = north, ...)
+  unsigned short linedef;   // linedef that this seg goes along (allows for 64k linedefs)
+           short  flip;     // true if not the same direction as linedef
+  unsigned short dist;      // distance from starting point
+};
+
+--  BOTH standard V4 nodes and V4 GLNodes --
+
+struct Pnode4
+{
+  short  X, Y;	           // x,y coordinates
+  short  dX, dY;           // offsets
+  short  bbox[2][4];       // bounding rectangles
+  int    chright, chleft;  // Node or SubSector (if bit 31 is set)
+};
+
+
+struct SubSector4                   
+{
+  unsigned short segcount;    // number of Segs in this SubSector. 64k is plenty, hence no int
+  int            firstseg;    // first Seg
+};
+
+ --- GL nodes only--- 
+
+struct GLSeg4
+{
+  int      vstart;            // bit 31 set= GL vert
+  int      vend;              // ...                
+  unsigned short linedef;     // linedef that this seg goes along (allows for for 64k linedefs)
+  unsigned short side;        // 0 if on right of linedef, 1 if on left 
+}
+
+
+--- detection the version for V4 STANDARD nodes
+
+The NODES lump at offset 0 contains "xNd4\0\0\0\0" if V4 nodes are stored. The 0x000000 is pretty
+much an impossible value in the stock node structure, so this is very reliable.
+
+Use the above structures to decode and map the information into the ports internal format.
+
+Please note that the information is identical to the stock node format with the 
+changes only in sign and size.  
+
+To use extended V4 nodes, the internal structure of a port should have int values for 
+linedefs, sidedefs and vertices. Afer that change it becomes pretty easy to support both 
+the old and new formats as well as levels with more than 32k sidedefs or vertices. 
+
+The only major change is for sidedefs.  When a level is read, check the linedef sidedef 
+reference for 0xFFFF and then store a -1 in the internal format (depends on compiler used).
+
+Other internal formats need to be made either unsigned short (vs short) or made int.  
+
+--- detecting the version for V4 GLNODES
+
+Vertexs are the same format as GL version 2, however, the "magic" is different so you can tell
+the format of the other lumps.  There is no need to store a "magic" number in the other lumps
+and this also prevents GL2 only ports from misinterpreting.
+
+Thus if the Nodes are V4 then at location 0 is "gNd4" vs "gNd2" in the the VERTEX lump. This
+avoids the accidental confusion that can occur with V3 GL nodes that still has "gNd2" even
+though the other parts are different.
+
+The same comments apply as for STANDARD nodes.  Some ports have all the right stuff, it's just
+a matter of changing a few level structures from signed to unsigned and check for 0xFFFF as a 
+sidedef value and then storing -1 in the internal structure.
+
+The old v2 "partner" value in segs is not stored in v4 since neither JDOOM, PRBOOM or VAVOOM used this 
+value. Same thing goes for linedef references.  I think 64k is plenty considering that the sidedefs 
+really hit the limit way before. 
+
+The only way to get more than 64k sidedefs is to pack the sidedefs, but then the
+level becomes basically uneditable.  A level like that can't be saved as is without packing it 
+again. 
+
+Vertex limit of 64k is also plenty.  The GLnodes only need int so they can distinquish the vertex type.
+
