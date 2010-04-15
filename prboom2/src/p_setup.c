@@ -542,38 +542,10 @@ static void P_LoadSegs (int lump)
       //e6y: now we can calculate it
       li->length  = GetDistance(li->v2->x - li->v1->x, li->v2->y - li->v1->y);
 
-      // [kb] recalculate seg offsets that are sometimes incorrect
+      // Recalculate seg offsets that are sometimes incorrect
       // with certain nodebuilders. Fixes among others, line 20365
       // of DV.wad, map 5
-      if (1)
-      {
-        vertex_t *start_vertex;
-
-        start_vertex = side ? ldef->v2 : ldef->v1;
-
-        if (start_vertex == li->v1)
-        {
-          li->offset = 0;
-        }
-        else
-        {
-          int dx = (start_vertex->x - li->v1->x) >> FRACBITS;
-          int dy = (start_vertex->y - li->v1->y) >> FRACBITS;
-
-          if (dx)
-          {
-            if (dy)
-              li->offset = ((int)(sqrt(dx * dx + dy * dy) + 0.5)) << FRACBITS;
-            else
-              li->offset = D_abs(dx) << FRACBITS;
-          }
-          else
-          {
-            li->offset = D_abs(dy) << FRACBITS;
-          }
-        }
-      }
-
+      li->offset = GetOffset(li->v1, (ml->side ? ldef->v2 : ldef->v1));
     }
 
   W_UnlockLumpNum(lump); // cph - release the data
@@ -689,37 +661,10 @@ static void P_LoadSegs_V4(int lump)
     //e6y: now we can calculate it
     li->length  = GetDistance(li->v2->x - li->v1->x, li->v2->y - li->v1->y);
 
-    // [kb] recalculate seg offsets that are sometimes incorrect
+    // Recalculate seg offsets that are sometimes incorrect
     // with certain nodebuilders. Fixes among others, line 20365
     // of DV.wad, map 5
-    if (1)
-    {
-      vertex_t *start_vertex;
-
-      start_vertex = side ? ldef->v2 : ldef->v1;
-
-      if (start_vertex == li->v1)
-      {
-        li->offset = 0;
-      }
-      else
-      {
-        int dx = (start_vertex->x - li->v1->x) >> FRACBITS;
-        int dy = (start_vertex->y - li->v1->y) >> FRACBITS;
-
-        if (dx)
-        {
-          if (dy)
-            li->offset = ((int)(sqrt(dx * dx + dy * dy) + 0.5)) << FRACBITS;
-          else
-            li->offset = D_abs(dx) << FRACBITS;
-        }
-        else
-        {
-          li->offset = D_abs(dy) << FRACBITS;
-        }
-      }
-    }
+    li->offset = GetOffset(li->v1, (ml->side ? ldef->v2 : ldef->v1));
   }
 
   W_UnlockLumpNum(lump); // cph - release the data
