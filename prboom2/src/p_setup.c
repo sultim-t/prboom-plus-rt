@@ -91,7 +91,6 @@ side_t   *sides;
 #define gNd5            0x35644E67
 #define ZNOD            0x444F4E5A
 #define ZGLN            0x4E4C475A
-#define xNd4            0x34644E78
 #define GL_VERT_OFFSET  4
 
 int     firstglvertex = 0;
@@ -229,7 +228,7 @@ static dboolean P_CheckForDeePBSPv4Nodes(int lumpnum, int gl_lumpnum)
   const void *data;
 
   data = W_CacheLumpNum(lumpnum + ML_NODES);
-  if (*(const int *)data == xNd4)
+  if (!memcmp(data, "xNd4\0\0\0\0", 8))
   {
     lprintf(LO_WARN, "P_CheckForDeePBSPv4Nodes: DeePBSP v4 Extended nodes are detected\n");
     return true;
