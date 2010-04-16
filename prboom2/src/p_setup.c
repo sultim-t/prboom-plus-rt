@@ -477,6 +477,13 @@ static void P_LoadSegs (int lump)
       li->linedef = ldef;
       side = LittleShort(ml->side);
 
+      //e6y: fix wrong side index
+      if (side != 0 && side != 1)
+      {
+        lprintf(LO_WARN, "P_LoadSegs: seg %d contains wrong side index %d. Replaced with 1.\n", i, side);
+        side = 1;
+      }
+
       //e6y: check for wrong indexes
       if ((unsigned)ldef->sidenum[side] >= (unsigned)numsides)
       {
@@ -592,6 +599,13 @@ static void P_LoadSegs_V4(int lump)
     ldef = &lines[linedef];
     li->linedef = ldef;
     side = LittleShort(ml->side);
+
+    //e6y: fix wrong side index
+    if (side != 0 && side != 1)
+    {
+      lprintf(LO_WARN, "P_LoadSegs_V4: seg %d contains wrong side index %d. Replaced with 1.\n", i, side);
+      side = 1;
+    }
 
     //e6y: check for wrong indexes
     if ((unsigned)ldef->sidenum[side] >= (unsigned)numsides)
