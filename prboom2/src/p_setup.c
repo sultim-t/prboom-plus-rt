@@ -226,16 +226,38 @@ static dboolean P_CheckForZDoomNodes(int lumpnum, int gl_lumpnum)
 static dboolean P_CheckForDeePBSPv4Nodes(int lumpnum, int gl_lumpnum)
 {
   const void *data;
+  int result = false;
 
   data = W_CacheLumpNum(lumpnum + ML_NODES);
   if (!memcmp(data, "xNd4\0\0\0\0", 8))
   {
-    lprintf(LO_WARN, "P_CheckForDeePBSPv4Nodes: DeePBSP v4 Extended nodes are detected\n");
-    return true;
+    lprintf(LO_INFO, "P_CheckForDeePBSPv4Nodes: DeePBSP v4 Extended nodes are detected\n");
+    result = true;
   }
   W_UnlockLumpNum(lumpnum + ML_NODES);
 
-  return false;
+  return result;
+}
+
+//
+// P_CheckForZDoomUncompressedNodes
+// http://zdoom.org/wiki/ZDBSP#Compressed_Nodes
+//
+
+static int P_CheckForZDoomUncompressedNodes(int lumpnum, int gl_lumpnum)
+{
+  const void *data;
+  int result = false;
+
+  data = W_CacheLumpNum(lumpnum + ML_NODES);
+  if (!memcmp(data, "XNOD", 4))
+  {
+    lprintf(LO_INFO, "P_CheckForZDoomUncompressedNodes: ZDoom uncompressed normal nodes are detected\n");
+    result = true;
+  }
+  W_UnlockLumpNum(lumpnum + ML_NODES);
+
+  return result;
 }
 
 //
@@ -936,7 +958,7 @@ static void P_LoadNodes_V4(int lump)
       I_Error("P_LoadNodes_V4: no nodes in level");
   }
 
-  for (i=0; i<numnodes; i++)
+  for (i = 0; i < numnodes; i++)
     {
       node_t *no = nodes + i;
       const mapnode_v4_t *mn = (const mapnode_v4_t *) data + i;
@@ -956,6 +978,240 @@ static void P_LoadNodes_V4(int lump)
             no->bbox[j][k] = LittleShort(mn->bbox[j][k])<<FRACBITS;
         }
     }
+
+  W_UnlockLumpNum(lump); // cph - release the data
+}
+
+static void CheckZNodesOverflow(int *size, int count)
+{
+  (*size) -= count;
+
+  if ((*size) < 0)
+  {
+    I_Error("P_LoadZNodes: incorrect nodes");
+  }
+}
+
+static void P_LoadZSegs (const byte *data)
+{
+  int i;
+
+  for (i = 0; i < numsegs; i++)
+  {
+    line_t *ldef;
+    unsigned int v1, v2;
+    unsigned int linedef;
+    unsigned char side;
+    seg_t *li = segs+i;
+    const mapseg_znod_t *ml = (const mapseg_znod_t *) data + i;
+
+    v1 = ml->v1;
+    v2 = ml->v2;
+
+    li->iSegID = i; // proff 11/05/2000: needed for OpenGL
+    li->miniseg = false;
+
+    linedef = (unsigned short)LittleShort(ml->linedef);
+
+    //e6y: check for wrong indexes
+    if ((unsigned int)linedef >= (unsigned int)numlines)
+    {
+      I_Error("P_LoadZSegs: seg %d references a non-existent linedef %d",
+        i, (unsigned)linedef);
+    }
+
+    ldef = &lines[linedef];
+    li->linedef = ldef;
+    side = ml->side;
+
+    //e6y: fix wrong side index
+    if (side != 0 && side != 1)
+    {
+      lprintf(LO_WARN, "P_LoadZSegs: seg %d contains wrong side index %d. Replaced with 1.\n", i, side);
+      side = 1;
+    }
+
+    //e6y: check for wrong indexes
+    if ((unsigned)ldef->sidenum[side] >= (unsigned)numsides)
+    {
+      I_Error("P_LoadZSegs: linedef %d for seg %d references a non-existent sidedef %d",
+        linedef, i, (unsigned)ldef->sidenum[side]);
+    }
+
+    li->sidedef = &sides[ldef->sidenum[side]];
+
+    /* cph 2006/09/30 - our frontsector can be the second side of the
+    * linedef, so must check for NO_INDEX in case we are incorrectly
+    * referencing the back of a 1S line */
+    if (ldef->sidenum[side] != NO_INDEX)
+    {
+      li->frontsector = sides[ldef->sidenum[side]].sector;
+    }
+    else
+    {
+      li->frontsector = 0;
+      lprintf(LO_WARN, "P_LoadZSegs: front of seg %i has no sidedef\n", i);
+    }
+
+    if ((ldef->flags & ML_TWOSIDED) && (ldef->sidenum[side^1] != NO_INDEX))
+      li->backsector = sides[ldef->sidenum[side^1]].sector;
+    else
+      li->backsector = 0;
+
+    li->v1 = &vertexes[v1];
+    li->v2 = &vertexes[v2];
+
+    li->length = GetDistance(li->v2->x - li->v1->x, li->v2->y - li->v1->y);
+    li->offset = GetOffset(li->v1, (side ? ldef->v2 : ldef->v1));
+    li->angle = R_PointToAngle2(segs[i].v1->x, segs[i].v1->y, segs[i].v2->x, segs[i].v2->y);
+    //li->angle = (int)((float)atan2(li->v2->y - li->v1->y,li->v2->x - li->v1->x) * (ANG180 / M_PI));
+  }
+}
+
+static void P_LoadZNodes(int lump, int glnodes)
+{
+  const byte *data;
+  unsigned int i, len;
+
+  unsigned int orgVerts, newVerts;
+  unsigned int numSubs, currSeg;
+  unsigned int numSegs;
+  unsigned int numNodes;
+  vertex_t *newvertarray = NULL;
+
+  data = W_CacheLumpNum(lump);
+  len =  W_LumpLength(lump);
+  
+  // skip header
+  CheckZNodesOverflow(&len, 4);
+  data += 4;
+
+  // Read extra vertices added during node building
+  CheckZNodesOverflow(&len, sizeof(orgVerts));
+  orgVerts = *((unsigned int*)data);
+  data += sizeof(orgVerts);
+
+  CheckZNodesOverflow(&len, sizeof(newVerts));
+  newVerts = *((unsigned int*)data);
+  data += sizeof(newVerts);
+
+  if (!samelevel)
+  {
+    if (orgVerts + newVerts == (unsigned int)numvertexes)
+    {
+      newvertarray = vertexes;
+    }
+    else
+    {
+      newvertarray = calloc(orgVerts + newVerts, sizeof(vertex_t));
+      memcpy (newvertarray, vertexes, orgVerts * sizeof(vertex_t));
+    }
+
+    CheckZNodesOverflow(&len, newVerts * (sizeof(newvertarray[0].x) + sizeof(newvertarray[0].y)));
+    for (i = 0; i < newVerts; i++)
+    {
+      newvertarray[i + orgVerts].x = *((unsigned int*)data);
+      data += sizeof(newvertarray[0].x);
+
+      newvertarray[i + orgVerts].y = *((unsigned int*)data);
+      data += sizeof(newvertarray[0].y);
+    }
+
+    if (vertexes != newvertarray)
+    {
+      for (i = 0; i < (unsigned int)numlines; i++)
+      {
+        lines[i].v1 = lines[i].v1 - vertexes + newvertarray;
+        lines[i].v2 = lines[i].v2 - vertexes + newvertarray;
+      }
+      free(vertexes);
+      vertexes = newvertarray;
+      numvertexes = orgVerts + newVerts;
+    }
+  }
+  else
+  {
+    int size = newVerts * (sizeof(newvertarray[0].x) + sizeof(newvertarray[0].y));
+    CheckZNodesOverflow(&len, size);
+    data += size;
+  }
+
+  // Read the subsectors
+  CheckZNodesOverflow(&len, sizeof(numSubs));
+  numSubs = *((unsigned int*)data);
+  data += sizeof(numSubs);
+
+  numsubsectors = numSubs;
+  if (numsubsectors <= 0)
+    I_Error("P_LoadZNodes: no subsectors in level");
+  subsectors = calloc_IfSameLevel(subsectors, numsubsectors, sizeof(subsector_t));
+
+  CheckZNodesOverflow(&len, numSubs * sizeof(mapsubsector_znod_t));
+  for (i = currSeg = 0; i < numSubs; i++)
+  {
+    const mapsubsector_znod_t *mseg = (const mapsubsector_znod_t *) data + i;
+
+    subsectors[i].firstline = currSeg;
+    subsectors[i].numlines = mseg->numsegs;
+    currSeg += mseg->numsegs;
+  }
+  data += numSubs * sizeof(mapsubsector_znod_t);
+
+  // Read the segs
+  CheckZNodesOverflow(&len, sizeof(numSegs));
+  numSegs = *((unsigned int*)data);
+  data += sizeof(numSegs);
+
+  // The number of segs stored should match the number of
+  // segs used by subsectors.
+  if (numSegs != currSeg)
+  {
+    I_Error("P_LoadZNodes: Incorrect number of segs in nodes.");
+  }
+
+  numsegs = numSegs;
+  segs = calloc_IfSameLevel(segs, numsegs, sizeof(seg_t));
+
+  if (glnodes == 0)
+  {
+    CheckZNodesOverflow(&len, numsegs * sizeof(mapseg_znod_t));
+    P_LoadZSegs(data);
+    data += numsegs * sizeof(mapseg_znod_t);
+  }
+  else
+  {
+    //P_LoadGLZSegs (data, glnodes);
+    I_Error("P_LoadZNodes: GL segs are not supported.");
+  }
+
+  // Read nodes
+  CheckZNodesOverflow(&len, sizeof(numNodes));
+  numNodes = *((unsigned int*)data);
+  data += sizeof(numNodes);
+
+  numnodes = numNodes;
+  nodes = calloc_IfSameLevel(nodes, numNodes, sizeof(node_t));
+
+  CheckZNodesOverflow(&len, numNodes * sizeof(mapnode_znod_t));
+  for (i = 0; i < numNodes; i++)
+  {
+    int j, k;
+    node_t *no = nodes + i;
+    const mapnode_znod_t *mn = (const mapnode_znod_t *) data + i;
+
+    no->x = LittleShort(mn->x)<<FRACBITS;
+    no->y = LittleShort(mn->y)<<FRACBITS;
+    no->dx = LittleShort(mn->dx)<<FRACBITS;
+    no->dy = LittleShort(mn->dy)<<FRACBITS;
+
+    for (j = 0; j < 2; j++)
+    {
+      no->children[j] = (unsigned int)(mn->children[j]);
+
+      for (k = 0; k < 4; k++)
+        no->bbox[j][k] = LittleShort(mn->bbox[j][k])<<FRACBITS;
+    }
+  }
 
   W_UnlockLumpNum(lump); // cph - release the data
 }
@@ -2145,7 +2401,11 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   }
   else
   {
-    if (P_CheckForDeePBSPv4Nodes(lumpnum, gl_lumpnum))
+    if (P_CheckForZDoomUncompressedNodes(lumpnum, gl_lumpnum))
+    {
+      P_LoadZNodes(lumpnum + ML_NODES, 0);
+    }
+    else if (P_CheckForDeePBSPv4Nodes(lumpnum, gl_lumpnum))
     {
       P_LoadSubsectors_V4(lumpnum + ML_SSECTORS);
       P_LoadNodes_V4(lumpnum + ML_NODES);
