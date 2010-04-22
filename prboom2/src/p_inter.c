@@ -652,8 +652,8 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
   target->flags |= MF_CORPSE|MF_DROPOFF;
   target->height >>= 2;
 
-  if (compatibility_level == mbf_compatibility || 
-      prboom_comp[PC_MBF_REMOVE_THINKER_IN_KILLMOBJ].state)
+  if (compatibility_level == mbf_compatibility && 
+      !prboom_comp[PC_MBF_REMOVE_THINKER_IN_KILLMOBJ].state)
   {
     // killough 8/29/98: remove from threaded list
     P_UpdateThinker(&target->thinker);
