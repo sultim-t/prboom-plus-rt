@@ -236,6 +236,7 @@ typedef enum
   GLDIT_SWALL,   // sky walls
 
   GLDIT_AWALL,   // animated wall
+  GLDIT_FAWALL,  // animated projected wall
   
   GLDIT_CEILING, // ceiling
   GLDIT_FLOOR,   // floor

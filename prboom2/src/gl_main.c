@@ -2144,7 +2144,7 @@ void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata)
   static int itemsizes[GLDIT_TYPES] = {
     0,
     sizeof(GLWall), sizeof(GLWall), sizeof(GLWall), sizeof(GLWall), sizeof(GLWall),
-    sizeof(GLWall),
+    sizeof(GLWall), sizeof(GLWall),
     sizeof(GLFlat), sizeof(GLFlat),
     sizeof(GLFlat), sizeof(GLFlat),
     sizeof(GLSprite), sizeof(GLSprite), sizeof(GLSprite),
@@ -2208,7 +2208,7 @@ static void gld_AddDrawWallItem(GLDrawItemType itemtype, void *itemdata)
       if (anim)
       {
         wall->alpha = 1.0f - ((float)tic_vars.frac + ((leveltime - 1) % anim->speed) * 65536.0f) / (65536.0f * anim->speed);
-        gld_AddDrawItem(GLDIT_AWALL, itemdata);
+        gld_AddDrawItem(GLDIT_FAWALL, itemdata);
 
         currpic = wall->gltexture->index - firstflat - anim->basepic;
         nextpic = anim->basepic + (currpic + 1) % anim->numpics;
@@ -3249,7 +3249,7 @@ static void gld_DrawItemsSortByTexture(GLDrawItemType itemtype)
   static DICMP_ITEM itemfuncs[GLDIT_TYPES] = {
     0,
     dicmp_wall, dicmp_wall, dicmp_wall, dicmp_wall, dicmp_wall,
-    dicmp_wall,
+    dicmp_wall, dicmp_wall,
     dicmp_flat, dicmp_flat,
     dicmp_flat, dicmp_flat,
     dicmp_sprite, dicmp_sprite_scale, dicmp_sprite,
@@ -3338,6 +3338,46 @@ static void gld_DrawItemsSortSprites(GLDrawItemType itemtype)
   }
 
   gld_DrawItemsSortByTexture(itemtype);
+}
+
+//
+// projected walls
+//
+void gld_DrawProjectedWalls(GLDrawItemType itemtype)
+{
+  int i;
+
+  if (gl_use_stencil && gld_drawinfo.num_items[itemtype] > 0)
+  {
+    // Push bleeding floor/ceiling textures back a little in the z-buffer
+    // so they don't interfere with overlapping mid textures.
+    glPolygonOffset(1.0f, 128.0f);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+
+    glEnable(GL_STENCIL_TEST);
+    gld_DrawItemsSortByTexture(itemtype);
+    for (i = gld_drawinfo.num_items[itemtype] - 1; i >= 0; i--)
+    {
+      GLWall *wall = gld_drawinfo.items[itemtype][i].item.wall;
+
+      if (gl_use_fog)
+      {
+        // calculation of fog density for flooded walls
+        if (((wall->flag == GLDWF_TOPFLUD) || (wall->flag == GLDWF_BOTFLUD)) && (wall->seg->backsector))
+        {
+          wall->fogdensity = gld_CalcFogDensity(frontsector, wall->seg->backsector->lightlevel, itemtype);
+        }
+
+        gld_SetFog(wall->fogdensity);
+      }
+
+      gld_ProcessWall(wall);
+    }
+    glDisable(GL_STENCIL_TEST);
+
+    glPolygonOffset(0.0f, 0.0f);
+    glDisable(GL_POLYGON_OFFSET_FILL);
+  }
 }
 
 void gld_DrawScene(player_t *player)
@@ -3438,37 +3478,7 @@ void gld_DrawScene(player_t *player)
   gld_EnableDetail(false);
 
   // projected walls
-  if (gl_use_stencil && gld_drawinfo.num_items[GLDIT_FWALL] > 0)
-  {
-    // Push bleeding floor/ceiling textures back a little in the z-buffer
-    // so they don't interfere with overlapping mid textures.
-    glPolygonOffset(1.0f, 128.0f);
-    glEnable(GL_POLYGON_OFFSET_FILL);
-
-    glEnable(GL_STENCIL_TEST);
-    gld_DrawItemsSortByTexture(GLDIT_FWALL);
-    for (i = gld_drawinfo.num_items[GLDIT_FWALL] - 1; i >= 0; i--)
-    {
-      GLWall *wall = gld_drawinfo.items[GLDIT_FWALL][i].item.wall;
-      
-      if (gl_use_fog)
-      {
-        // calculation of fog density for flooded walls
-        if (((wall->flag == GLDWF_TOPFLUD) || (wall->flag == GLDWF_BOTFLUD)) && (wall->seg->backsector))
-        {
-          wall->fogdensity = gld_CalcFogDensity(frontsector, wall->seg->backsector->lightlevel, GLDIT_FWALL);
-        }
-
-        gld_SetFog(wall->fogdensity);
-      }
-
-      gld_ProcessWall(wall);
-    }
-    glDisable(GL_STENCIL_TEST);
-
-    glPolygonOffset(0.0f, 0.0f);
-    glDisable(GL_POLYGON_OFFSET_FILL);
-  }
+  gld_DrawProjectedWalls(GLDIT_FWALL);
 
   gl_EnableFog(false);
   glEnable(GL_ALPHA_TEST);
@@ -3557,6 +3567,9 @@ void gld_DrawScene(player_t *player)
       gld_SetFog(gld_drawinfo.items[GLDIT_AWALL][i].item.wall->fogdensity);
       gld_ProcessWall(gld_drawinfo.items[GLDIT_AWALL][i].item.wall);
     }
+
+    // projected animated walls
+    gld_DrawProjectedWalls(GLDIT_FAWALL);
   }
 
   if (gld_drawinfo.num_items[GLDIT_TWALL] > 0 || gld_drawinfo.num_items[GLDIT_TSPRITE] > 0)
