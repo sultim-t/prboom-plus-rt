@@ -90,6 +90,9 @@ int gl_preprocessed = false;
 int gl_spriteindex;
 int scene_has_overlapped_sprites;
 
+int gl_blend_animated_flats;
+int gl_blend_animated_walls;
+
 // e6y
 // This variables toggles the use of a trick to prevent the clearning of the 
 // z-buffer between frames. When this variable is set to "1", the game will not 
@@ -2141,6 +2144,8 @@ void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata)
   static int itemsizes[GLDIT_TYPES] = {
     0,
     sizeof(GLWall), sizeof(GLWall), sizeof(GLWall), sizeof(GLWall), sizeof(GLWall),
+    sizeof(GLWall),
+    sizeof(GLFlat), sizeof(GLFlat),
     sizeof(GLFlat), sizeof(GLFlat),
     sizeof(GLSprite), sizeof(GLSprite), sizeof(GLSprite),
     sizeof(GLShadow),
@@ -2186,6 +2191,53 @@ void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata)
   gld_drawinfo.num_items[itemtype]++;
 }
 #undef NEWSIZE
+
+static void gld_AddDrawWallItem(GLDrawItemType itemtype, void *itemdata)
+{
+  if (gl_blend_animated_walls)
+  {
+    anim_t *anim;
+    int currpic, nextpic;
+    GLWall *wall = (GLWall*)itemdata;
+    float oldalpha = wall->alpha;
+
+    switch (itemtype)
+    {
+    case GLDIT_FWALL:
+      anim = anim_flats[wall->gltexture->index - firstflat].anim;
+      if (anim)
+      {
+        wall->alpha = 1.0f - ((float)tic_vars.frac + ((leveltime - 1) % anim->speed) * 65536.0f) / (65536.0f * anim->speed);
+        gld_AddDrawItem(GLDIT_AWALL, itemdata);
+
+        currpic = wall->gltexture->index - firstflat - anim->basepic;
+        nextpic = anim->basepic + (currpic + 1) % anim->numpics;
+        wall->alpha = oldalpha;
+        wall->gltexture = gld_RegisterFlat(nextpic, true);
+      }
+      break;
+    case GLDIT_WALL:
+    case GLDIT_MWALL:
+      anim = anim_textures[wall->gltexture->index].anim;
+      if (anim)
+      {
+        if (itemtype == GLDIT_WALL || itemtype == GLDIT_MWALL)
+        {
+          wall->alpha = 1.0f - ((float)tic_vars.frac + ((leveltime - 1) % anim->speed) * 65536.0f) / (65536.0f * anim->speed);
+          gld_AddDrawItem(GLDIT_AWALL, itemdata);
+
+          currpic = wall->gltexture->index - anim->basepic;
+          nextpic = anim->basepic + (currpic + 1) % anim->numpics;
+          wall->alpha = oldalpha;
+          wall->gltexture = gld_RegisterTexture(nextpic, true, false);
+        }
+      }
+      break;
+    }
+  }
+
+  gld_AddDrawItem(itemtype, itemdata);
+}
 
 /*****************
  *               *
@@ -2412,7 +2464,7 @@ void gld_AddWall(seg_t *seg)
         wall, seg, backseg, (LINE->flags & ML_DONTPEGBOTTOM)>0,
         linelength, lineheight
       );
-      gld_AddDrawItem(GLDIT_WALL, &wall);
+      gld_AddDrawWallItem(GLDIT_WALL, &wall);
     }
   }
   else /* twosided */
@@ -2482,7 +2534,7 @@ void gld_AddWall(seg_t *seg)
             wall.flag=GLDWF_TOPFLUD;
             temptex=gld_RegisterFlat(flattranslation[seg->backsector->ceilingpic], true);
             wall.gltexture=temptex;
-            gld_AddDrawItem(GLDIT_FWALL, &wall);
+            gld_AddDrawWallItem(GLDIT_FWALL, &wall);
           }
         }
         else
@@ -2494,7 +2546,7 @@ void gld_AddWall(seg_t *seg)
             wall, seg, backseg, (LINE->flags & (/*e6y ML_DONTPEGBOTTOM | */ML_DONTPEGTOP))==0,
             linelength, lineheight
           );
-          gld_AddDrawItem(GLDIT_WALL, &wall);
+          gld_AddDrawWallItem(GLDIT_WALL, &wall);
         }
       }
     }
@@ -2577,7 +2629,7 @@ void gld_AddWall(seg_t *seg)
 
       if (seg->linedef->tranlump >= 0 && general_translucency)
         wall.alpha=(float)tran_filter_pct/100.0f;
-      gld_AddDrawItem((wall.alpha == 1.0f ? GLDIT_MWALL : GLDIT_TWALL), &wall);
+      gld_AddDrawWallItem((wall.alpha == 1.0f ? GLDIT_MWALL : GLDIT_TWALL), &wall);
       wall.alpha=1.0f;
     }
 bottomtexture:
@@ -2625,7 +2677,7 @@ bottomtexture:
           wall.flag = GLDWF_BOTFLUD;
           temptex=gld_RegisterFlat(flattranslation[seg->backsector->floorpic], true);
           wall.gltexture=temptex;
-          gld_AddDrawItem(GLDIT_FWALL, &wall);
+          gld_AddDrawWallItem(GLDIT_FWALL, &wall);
         }
       }
       else
@@ -2638,7 +2690,7 @@ bottomtexture:
           linelength, lineheight,
           floor_height-frontsector->ceilingheight
         );
-        gld_AddDrawItem(GLDIT_WALL, &wall);
+        gld_AddDrawWallItem(GLDIT_WALL, &wall);
       }
     }
   }
@@ -2693,7 +2745,7 @@ static void gld_DrawFlat(GLFlat *flat)
   rendered_visplanes++;
 
   gld_BindFlat(flat->gltexture);
-  gld_StaticLight(flat->light);
+  gld_StaticLightAlpha(flat->light, flat->alpha);
 
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
   glMatrixMode(GL_MODELVIEW);
@@ -2718,7 +2770,7 @@ static void gld_DrawFlat(GLFlat *flat)
     TAnimItemParam *animitem = &anim_flats[flat->gltexture->index - firstflat];
 
     GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
-    gld_StaticLight(flat->light);
+    gld_StaticLightAlpha(flat->light, flat->alpha);
     
     glPushMatrix();
 
@@ -2895,6 +2947,23 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
   // get height from plane
   flat.z=(float)plane->height/MAP_SCALE;
 
+  if (gl_blend_animated_flats)
+  {
+    anim_t *anim = anim_flats[flat.gltexture->index - firstflat].anim;
+    if (anim)
+    {
+      int currpic, nextpic;
+
+      flat.alpha = 1.0f - ((float)tic_vars.frac + ((leveltime - 1) % anim->speed) * 65536.0f) / (65536.0f * anim->speed);
+      gld_AddDrawItem(((flat.flags & GLFLAT_CEILING) ? GLDIT_ACEILING : GLDIT_AFLOOR), &flat);
+
+      currpic = flat.gltexture->index - firstflat - anim->basepic;
+      nextpic = anim->basepic + (currpic + 1) % anim->numpics;
+      flat.gltexture = gld_RegisterFlat(nextpic, true);
+    }
+  }
+
+  flat.alpha = 1.0;
   gld_AddDrawItem(((flat.flags & GLFLAT_CEILING) ? GLDIT_CEILING : GLDIT_FLOOR), &flat);
 }
 
@@ -3180,6 +3249,8 @@ static void gld_DrawItemsSortByTexture(GLDrawItemType itemtype)
   static DICMP_ITEM itemfuncs[GLDIT_TYPES] = {
     0,
     dicmp_wall, dicmp_wall, dicmp_wall, dicmp_wall, dicmp_wall,
+    dicmp_wall,
+    dicmp_flat, dicmp_flat,
     dicmp_flat, dicmp_flat,
     dicmp_sprite, dicmp_sprite_scale, dicmp_sprite,
     0,
@@ -3451,6 +3522,42 @@ void gld_DrawScene(player_t *player)
   //
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  if (gl_blend_animated_flats)
+  {
+    // enable backside removing
+    glEnable(GL_CULL_FACE);
+
+    // animated floors
+    glCullFace(GL_FRONT);
+    gld_DrawItemsSortByTexture(GLDIT_AFLOOR);
+    for (i = gld_drawinfo.num_items[GLDIT_AFLOOR] - 1; i >= 0; i--)
+    {
+      gld_SetFog(gld_drawinfo.items[GLDIT_AFLOOR][i].item.flat->fogdensity);
+      gld_DrawFlat(gld_drawinfo.items[GLDIT_AFLOOR][i].item.flat);
+    }
+
+    glCullFace(GL_BACK);
+    gld_DrawItemsSortByTexture(GLDIT_ACEILING);
+    for (i = gld_drawinfo.num_items[GLDIT_ACEILING] - 1; i >= 0; i--)
+    {
+      gld_SetFog(gld_drawinfo.items[GLDIT_ACEILING][i].item.flat->fogdensity);
+      gld_DrawFlat(gld_drawinfo.items[GLDIT_ACEILING][i].item.flat);
+    }
+
+    // disable backside removing
+    glDisable(GL_CULL_FACE);
+  }
+
+  if (gl_blend_animated_walls)
+  {
+    gld_DrawItemsSortByTexture(GLDIT_AWALL);
+    for (i = gld_drawinfo.num_items[GLDIT_AWALL] - 1; i >= 0; i--)
+    {
+      gld_SetFog(gld_drawinfo.items[GLDIT_AWALL][i].item.wall->fogdensity);
+      gld_ProcessWall(gld_drawinfo.items[GLDIT_AWALL][i].item.wall);
+    }
+  }
 
   if (gld_drawinfo.num_items[GLDIT_TWALL] > 0 || gld_drawinfo.num_items[GLDIT_TSPRITE] > 0)
   {

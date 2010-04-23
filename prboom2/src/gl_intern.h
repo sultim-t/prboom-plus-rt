@@ -147,6 +147,7 @@ typedef struct
   float z; // the z position of the flat (height)
   GLTexture *gltexture;
   unsigned int flags;
+  float alpha;
 } GLFlat;
 
 /* GLLoopDef is the struct for one loop. A loop is a list of vertexes
@@ -233,9 +234,14 @@ typedef enum
   GLDIT_FWALL,   // projected wall
   GLDIT_TWALL,   // transparent walls
   GLDIT_SWALL,   // sky walls
+
+  GLDIT_AWALL,   // animated wall
   
   GLDIT_CEILING, // ceiling
   GLDIT_FLOOR,   // floor
+
+  GLDIT_ACEILING, // animated ceiling
+  GLDIT_AFLOOR,   // animated floor
 
   GLDIT_SPRITE,  // opaque sprite
   GLDIT_TSPRITE, // transparent sprites

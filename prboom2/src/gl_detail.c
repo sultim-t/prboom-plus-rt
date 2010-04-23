@@ -352,7 +352,7 @@ void gld_DrawFlatDetail_NoARB(GLFlat *flat)
   int loopnum;
   GLLoopDef *currentloop;
 
-  gld_StaticLight(flat->light);
+  gld_StaticLightAlpha(flat->light, flat->alpha);
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glTranslatef(0.0f,flat->z,0.0f);
