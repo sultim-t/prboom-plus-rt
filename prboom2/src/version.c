@@ -35,4 +35,4 @@
 
 #include "version.h"
 
-const char version_date[] = __DATE__;
+const char version_date[] = __DATE__ " " __TIME__;

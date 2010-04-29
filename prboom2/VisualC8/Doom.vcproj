@@ -201,6 +201,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="del $(IntDir)\version.obj"
 			/>
 		</Configuration>
 		<Configuration
@@ -766,6 +767,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="del $(IntDir)\version.obj"
 			/>
 		</Configuration>
 	</Configurations>
