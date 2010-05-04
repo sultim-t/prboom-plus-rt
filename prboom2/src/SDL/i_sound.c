@@ -690,8 +690,8 @@ void I_PlaySong(int handle, int looping)
 {
 #ifdef HAVE_MIXER
   if ( music[handle] ) {
-    Mix_FadeInMusic(music[handle], looping ? -1 : 0, 500);
-    //Mix_PlayMusic(music[handle], looping ? -1 : 0);
+    //Mix_FadeInMusic(music[handle], looping ? -1 : 0, 500);
+    Mix_PlayMusic(music[handle], looping ? -1 : 0);
 
     // haleyjd 10/28/05: make sure volume settings remain consistent
     I_SetMusicVolume(snd_MusicVolume);
