@@ -665,7 +665,7 @@ void R_ExecuteSetViewSize (void)
   pspritexscale_f = (float)wide_centerx/160.0f;
   pspriteyscale_f = (((float)SCREENHEIGHT*viewwidth)/(float)SCREENWIDTH) / 200.0f;
 
-  skyiscale = (fixed_t)(((uint64_t)FRACUNIT * SCREENWIDTH * 200) / (viewwidth * SCREENHEIGHT));
+  skyiscale = (fixed_t)(((uint_64_t)FRACUNIT * SCREENWIDTH * 200) / (viewwidth * SCREENHEIGHT));
 
   // thing clipping
   for (i=0 ; i<viewwidth ; i++)
