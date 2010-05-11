@@ -543,7 +543,7 @@ static void I_SetAffinityMask(void)
 
       if (SetAffinity)
       {
-        ok = SetProcessAffinityMask(GetCurrentProcess(), process_affinity_mask);
+        ok = SetAffinity(GetCurrentProcess(), process_affinity_mask);
       }
     }
 
