@@ -5459,6 +5459,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\sc_man.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\sc_man.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\sounds.c"
 				>
 				<FileConfiguration

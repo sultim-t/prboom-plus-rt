@@ -51,6 +51,8 @@
 #include "gl_intern.h"
 #include "r_plane.h"
 #include "r_sky.h"
+#include "sc_man.h"
+#include "lprintf.h"
 
 #include "e6y.h"
 
@@ -81,6 +83,12 @@ static PalEntry_t *SkyColor;
 SkyBoxParams_t SkyBox;
 float y_offset_saved;
 
+// skybox
+box_skybox_t *BoxSkybox = NULL;
+int BoxSkyboxCount = 0;
+
+box_skybox_t *BoxSkybox_default;
+
 void M_ChangeSky(void)
 {
   gld_InitSky();
@@ -101,6 +109,48 @@ void gld_InitFrameSky(void)
   SkyBox.y_scale = 0;
   SkyBox.x_offset = 0;
   SkyBox.y_offset = 0;
+  SkyBox.side = NULL;
+}
+
+void gld_DrawFakeSkyStrips(void)
+{
+  int i;
+
+  // This draws a valid z-buffer into the stencil's contents to ensure it
+  // doesn't get overwritten by the level's geometry.
+
+  // Because some of outdated hardware has no support for
+  // glColorMask(0, 0, 0, 0) or something, 
+  // I need to render fake strips of sky before dome with using
+  // full clearing of color buffer (only in compatibility mode)
+
+  if (!gl_compatibility)
+  {
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // no graphics
+  }
+  gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
+
+  for (i = gld_drawinfo.num_items[GLDIT_SWALL] - 1; i >= 0; i--)
+  {
+    GLWall* wall = gld_drawinfo.items[GLDIT_SWALL][i].item.wall;
+
+    glBegin(GL_TRIANGLE_STRIP);
+    glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
+    glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
+    glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
+    glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
+    glEnd();
+  }
+
+  gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
+  if (!gl_compatibility)
+  {
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  }
+  else
+  {
+    glClear(GL_COLOR_BUFFER_BIT);
+  }
 }
 
 void gld_GetScreenSkyScale(GLWall *wall, float *scale_x, float *scale_y)
@@ -147,6 +197,7 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, int skytype)
   if (l)
   {
     s = *l->sidenum + sides;
+    SkyBox.side = s;
     wall->gltexture = gld_RegisterTexture(texturetranslation[s->toptexture], false,
       texturetranslation[s->toptexture] == skytexture || l->special == 271 || l->special == 272);
     if (wall->gltexture)
@@ -293,7 +344,6 @@ void gld_DrawSkyCaps(void)
 {
   if (SkyBox.type && SkyBox.wall.gltexture)
   {             
-    float maxcoord = 255.0f;
     dboolean mlook = GetMouseLook();
 
     if (mlook)
@@ -309,20 +359,20 @@ void gld_DrawSkyCaps(void)
       if (SkyBox.type & SKY_CEILING)
       {
         glBegin(GL_TRIANGLE_STRIP);
-        glVertex3f(-maxcoord,+maxcoord,+maxcoord);
-        glVertex3f(+maxcoord,+maxcoord,+maxcoord);
-        glVertex3f(-maxcoord,+maxcoord,-maxcoord);
-        glVertex3f(+maxcoord,+maxcoord,-maxcoord);
+        glVertex3f(-MAXCOORD,+MAXCOORD,+MAXCOORD);
+        glVertex3f(+MAXCOORD,+MAXCOORD,+MAXCOORD);
+        glVertex3f(-MAXCOORD,+MAXCOORD,-MAXCOORD);
+        glVertex3f(+MAXCOORD,+MAXCOORD,-MAXCOORD);
         glEnd();
       }
 
       if (SkyBox.type & SKY_FLOOR)
       {
         glBegin(GL_TRIANGLE_STRIP);
-        glVertex3f(-maxcoord,-maxcoord,+maxcoord);
-        glVertex3f(+maxcoord,-maxcoord,+maxcoord);
-        glVertex3f(-maxcoord,-maxcoord,-maxcoord);
-        glVertex3f(+maxcoord,-maxcoord,-maxcoord);
+        glVertex3f(-MAXCOORD,-MAXCOORD,+MAXCOORD);
+        glVertex3f(+MAXCOORD,-MAXCOORD,+MAXCOORD);
+        glVertex3f(-MAXCOORD,-MAXCOORD,-MAXCOORD);
+        glVertex3f(+MAXCOORD,-MAXCOORD,-MAXCOORD);
         glEnd();
       }
 
@@ -818,44 +868,9 @@ void gld_DrawDomeSkyBox(void)
 {
   if (SkyBox.wall.gltexture)
   {
-    int i;
     GLint shading_mode = GL_FLAT;
-    
-    // This draws a valid z-buffer into the stencil's contents to ensure it
-    // doesn't get overwritten by the level's geometry.
 
-    // Because some of outdated hardware has no support for
-    // glColorMask(0, 0, 0, 0) or something, 
-    // I need to render fake strips of sky before dome with using
-    // full clearing of color buffer (only in compatibility mode)
-    
-    if (!gl_compatibility)
-    {
-      glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // no graphics
-    }
-    gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
-
-    for (i = gld_drawinfo.num_items[GLDIT_SWALL] - 1; i >= 0; i--)
-    {
-      GLWall* wall = gld_drawinfo.items[GLDIT_SWALL][i].item.wall;
-
-      glBegin(GL_TRIANGLE_STRIP);
-      glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
-      glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
-      glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
-      glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
-      glEnd();
-    }
-
-    gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
-    if (!gl_compatibility)
-    {
-      glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    }
-    else
-    {
-      glClear(GL_COLOR_BUFFER_BIT);
-    }
+    gld_DrawFakeSkyStrips();
 
     glGetIntegerv(GL_SHADE_MODEL, &shading_mode);
     glShadeModel(GL_SMOOTH);
@@ -886,4 +901,338 @@ void gld_DrawDomeSkyBox(void)
 
     glShadeModel(shading_mode);
   }
+}
+
+int R_BoxSkyboxNumForName(const char *name)
+{
+  int i;
+
+  for (i = 0; i < BoxSkyboxCount; i++)
+  {
+    if (!strcasecmp(BoxSkybox[i].name, name))
+    {
+      return i;
+    }
+  }
+
+  return -1;
+}
+
+void R_SetBoxSkybox(int texture)
+{
+  int i;
+
+  BoxSkybox_default = NULL;
+
+  for (i = 0; i < BoxSkyboxCount; i++)
+  {
+    if (BoxSkybox[i].texnum == texture)
+    {
+      BoxSkybox_default = &BoxSkybox[i];
+      return;
+    }
+  }
+}
+
+box_skybox_t* R_GetBoxSkybox(int index)
+{
+  if (index >= 0 && index < BoxSkyboxCount)
+    return &BoxSkybox[index];
+  else
+    return NULL;
+}
+
+void gld_ParseSkybox(void)
+{
+  box_skybox_t *sb;
+  int facecount = 0;
+
+  SC_MustGetString();
+
+  BoxSkyboxCount++;
+  BoxSkybox = realloc(BoxSkybox, BoxSkyboxCount * sizeof(BoxSkybox[0]));
+  sb = &BoxSkybox[BoxSkyboxCount - 1];
+
+  strncpy(sb->name, sc_String, 8);
+  sb->name[8] = 0;
+  strupr(sb->name);
+
+  sb->texnum = R_CheckTextureNumForName(sb->name);
+  
+  if (SC_Check())
+  {
+    SC_GetString();
+    if (SC_Compare("fliptop"))
+    {
+      sb->fliptop = true;
+    }
+  }
+
+  SC_MustGetStringName("{");
+
+  while (true)
+  {
+    SC_MustGetString();
+
+    if (SC_Compare("}"))
+      break;
+
+    if (facecount < 6) 
+    {
+      strcpy(sb->faces[facecount], sc_String);
+    }
+    facecount++;
+  }
+
+  if (facecount != 3 && facecount != 6)
+  {
+    SC_ScriptError("%s: Skybox definition requires either 3 or 6 faces");
+  }
+}
+
+int gld_BindFace(box_skybox_t *sb, int index)
+{
+  int lump;
+  GLTexture *gltexture;
+  char *name = sb->faces[index];
+
+  lump = W_CheckNumForName(name);
+  if (lump != -1)
+  {
+    gltexture = gld_RegisterPatch(lump, CR_DEFAULT);
+    gltexture->wrap_mode = GLEXT_CLAMP_TO_EDGE;
+    gld_BindPatch(gltexture, CR_DEFAULT);
+    return true;
+  }
+
+  //lump = R_FlatNumForName(name);
+  lump = (W_CheckNumForName)(name, ns_flats);
+  if (lump != -1)
+  {
+    lump -= firstflat;
+    gltexture = gld_RegisterFlat(lump, true);
+    gltexture->wrap_mode = GLEXT_CLAMP_TO_EDGE;
+    gld_BindFlat(gltexture);
+    return true;
+  }
+
+  lump = R_CheckTextureNumForName(name);
+  if (lump != -1)
+  {
+    gltexture = gld_RegisterTexture(lump, false, false);
+    gltexture->wrap_mode = GLEXT_CLAMP_TO_EDGE;
+    gld_BindTexture(gltexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GLEXT_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GLEXT_CLAMP_TO_EDGE);
+    return true;
+  }
+
+  return false;
+}
+
+int gld_DrawBoxSkyBox(void)
+{
+  int faces;
+  box_skybox_t *sb;
+
+  if (BoxSkyboxCount == 0)
+    return false;
+
+  if (SkyBox.side)
+  {
+    sb = R_GetBoxSkybox(SkyBox.side->skybox_index);
+  }
+  else
+  {
+    sb = BoxSkybox_default;
+  }
+
+  if (!sb)
+  {
+    return false;
+  }
+
+  gld_DrawFakeSkyStrips();
+
+  glDepthMask(false);
+
+  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_ALPHA_TEST);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+
+  glLoadIdentity();
+
+  glRotatef(roll,  0.0f, 0.0f, 1.0f);
+  glRotatef(pitch, 1.0f, 0.0f, 0.0f);
+  glRotatef(yaw,   0.0f, 1.0f, 0.0f);
+  glScalef(-2.0f, 2.0f, 2.0f);
+
+  glRotatef(-180.0f + SkyBox.x_offset, 0.0f, 1.0f, 0.0f);
+
+  if (sb->faces[5]) 
+  {
+    faces = 4;
+
+    // north
+    gld_BindFace(sb, 0);
+
+    glBegin(GL_TRIANGLE_FAN);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(+MAXCOORD, MAXCOORD, -MAXCOORD);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(-MAXCOORD, +MAXCOORD, -MAXCOORD);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(-MAXCOORD, -MAXCOORD, -MAXCOORD);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(+MAXCOORD, -MAXCOORD, -MAXCOORD);
+    glEnd();
+
+    // east
+    gld_BindFace(sb, 1);
+
+    glBegin(GL_TRIANGLE_FAN);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(-MAXCOORD, +MAXCOORD, -MAXCOORD);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(-MAXCOORD, +MAXCOORD, +MAXCOORD);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(-MAXCOORD, -MAXCOORD, +MAXCOORD);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(-MAXCOORD, -MAXCOORD, -MAXCOORD);
+    glEnd();
+
+    // south
+    gld_BindFace(sb, 2);
+
+    glBegin(GL_TRIANGLE_FAN);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(-MAXCOORD, +MAXCOORD, +MAXCOORD);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(+MAXCOORD, +MAXCOORD, +MAXCOORD);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(+MAXCOORD, -MAXCOORD, +MAXCOORD);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(-MAXCOORD, -MAXCOORD, +MAXCOORD);
+    glEnd();
+
+    // west
+    gld_BindFace(sb, 3);
+
+    glBegin(GL_TRIANGLE_FAN);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(+MAXCOORD, +MAXCOORD, +MAXCOORD);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(+MAXCOORD, +MAXCOORD, -MAXCOORD);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(+MAXCOORD, -MAXCOORD, -MAXCOORD);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(+MAXCOORD, -MAXCOORD, +MAXCOORD);
+    glEnd();
+  }
+  else
+  {
+    faces = 1;
+
+    // all 4 sides
+    gld_BindFace(sb, 0);
+
+    glBegin(GL_TRIANGLE_FAN);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(+MAXCOORD, +MAXCOORD, -MAXCOORD);
+    glTexCoord2f(.25f, 0);
+    glVertex3f(-MAXCOORD, +MAXCOORD, -MAXCOORD);
+    glTexCoord2f(.25f, 1);
+    glVertex3f(-MAXCOORD, -MAXCOORD, -MAXCOORD);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(+MAXCOORD, -MAXCOORD, -MAXCOORD);
+    glEnd();
+
+    // east
+    glBegin(GL_TRIANGLE_FAN);
+    glTexCoord2f(.25f, 0);
+    glVertex3f(-MAXCOORD, +MAXCOORD, -MAXCOORD);
+    glTexCoord2f(.5f, 0);
+    glVertex3f(-MAXCOORD, +MAXCOORD, +MAXCOORD);
+    glTexCoord2f(.5f, 1);
+    glVertex3f(-MAXCOORD, -MAXCOORD, +MAXCOORD);
+    glTexCoord2f(.25f, 1);
+    glVertex3f(-MAXCOORD, -MAXCOORD, -MAXCOORD);
+    glEnd();
+
+    // south
+    glBegin(GL_TRIANGLE_FAN);
+    glTexCoord2f(.5f, 0);
+    glVertex3f(-MAXCOORD, +MAXCOORD, +MAXCOORD);
+    glTexCoord2f(.75f, 0);
+    glVertex3f(+MAXCOORD, +MAXCOORD, +MAXCOORD);
+    glTexCoord2f(.75f, 1);
+    glVertex3f(+MAXCOORD, -MAXCOORD, +MAXCOORD);
+    glTexCoord2f(.5f, 1);
+    glVertex3f(-MAXCOORD, -MAXCOORD, +MAXCOORD);
+    glEnd();
+
+    // west
+    glBegin(GL_TRIANGLE_FAN);
+    glTexCoord2f(.75f, 0);
+    glVertex3f(+MAXCOORD, +MAXCOORD, +MAXCOORD);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(+MAXCOORD, +MAXCOORD, -MAXCOORD);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(+MAXCOORD, -MAXCOORD, -MAXCOORD);
+    glTexCoord2f(.75f, 1);
+    glVertex3f(+MAXCOORD, -MAXCOORD, +MAXCOORD);
+    glEnd();
+  }
+
+  // top
+  gld_BindFace(sb, faces);
+  glBegin(GL_TRIANGLE_FAN);
+  if (!sb->fliptop)
+  {
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(+MAXCOORD, +MAXCOORD, -MAXCOORD);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(-MAXCOORD, +MAXCOORD, -MAXCOORD);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(-MAXCOORD, +MAXCOORD, +MAXCOORD);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(+MAXCOORD, +MAXCOORD, +MAXCOORD);
+  }
+  else
+  {
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(+MAXCOORD, +MAXCOORD, +MAXCOORD);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(-MAXCOORD, +MAXCOORD, +MAXCOORD);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(-MAXCOORD, +MAXCOORD, -MAXCOORD);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(+MAXCOORD, +MAXCOORD, -MAXCOORD);
+  }
+  glEnd();
+
+  // bottom
+  gld_BindFace(sb, faces + 1);
+
+  glBegin(GL_TRIANGLE_FAN);
+  glTexCoord2f(0.0f, 0.0f);
+  glVertex3f(+MAXCOORD, -MAXCOORD, -MAXCOORD);
+  glTexCoord2f(1.0f, 0.0f);
+  glVertex3f(-MAXCOORD, -MAXCOORD, -MAXCOORD);
+  glTexCoord2f(1.0f, 1.0f);
+  glVertex3f(-MAXCOORD, -MAXCOORD, +MAXCOORD);
+  glTexCoord2f(0.0f, 1.0f);
+  glVertex3f(+MAXCOORD, -MAXCOORD, +MAXCOORD);
+  glEnd();
+
+  glPopMatrix();
+
+  glEnable(GL_ALPHA_TEST);
+  glEnable(GL_DEPTH_TEST);
+  glDepthMask(true);
+
+  return true;
 }

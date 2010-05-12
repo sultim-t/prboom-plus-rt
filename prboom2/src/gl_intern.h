@@ -36,6 +36,8 @@
 
 #include "v_video.h"
 
+#define MAXCOORD 256.0f
+
 #define MAP_COEFF 128.0f
 #define MAP_SCALE (MAP_COEFF*(float)FRACUNIT)
 
@@ -438,6 +440,8 @@ typedef struct SkyBoxParams_s
   float x_offset, y_offset;
   PalEntry_t FloorSkyColor;
   PalEntry_t CeilingSkyColor;
+  // for BoxSkybox
+  side_t *side;
 } SkyBoxParams_t;
 extern SkyBoxParams_t SkyBox;
 extern GLfloat gl_whitecolor[];
@@ -450,6 +454,7 @@ void gld_DrawScreenSkybox(void);
 void gld_GetScreenSkyScale(GLWall *wall, float *scale_x, float *scale_y);
 void gld_DrawDomeSkyBox(void);
 void gld_DrawSkyCaps(void);
+int gld_DrawBoxSkyBox(void);
 
 // shadows
 void gld_InitShadows(void);
@@ -477,5 +482,18 @@ extern vbo_xyz_uv_t *flats_vbo;
 #define NULL_VBO_XYZ_UV ((vbo_xyz_uv_t*)NULL)
 #define flats_vbo_x (gl_ext_arb_vertex_buffer_object ? &NULL_VBO_XYZ_UV->x : &flats_vbo[0].x)
 #define flats_vbo_u (gl_ext_arb_vertex_buffer_object ? &NULL_VBO_XYZ_UV->u : &flats_vbo[0].u)
+
+//BoxSkybox
+typedef struct box_skybox_s
+{
+  char name[9];
+  int fliptop;
+  int texnum;
+  char faces[6][9];
+  GLTexture texture[6];
+} box_skybox_t;
+box_skybox_t* R_GetBoxSkybox(int index);
+void gld_ParseSkybox(void);
+extern box_skybox_t *BoxSkybox_default;
 
 #endif // _GL_INTERN_H

@@ -153,6 +153,7 @@ r_segs.c
 r_sky.c
 r_things.c
 s_sound.c
+sc_man.c
 sounds.c
 st_lib.c
 st_stuff.c

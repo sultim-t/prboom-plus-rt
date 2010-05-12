@@ -1266,6 +1266,7 @@ void gld_Precache(void)
   byte *hitlist;
   int hit, hitcount;
   GLTexture *gltexture;
+  box_skybox_t *sb;
 
   unsigned int tics = SDL_GetTicks();
 
@@ -1340,16 +1341,35 @@ void gld_Precache(void)
   for (i = numsides; --i >= 0;)
   {
     int j, k;
+    int bottomtexture, toptexture, midtexture;
+    anim_t *textureanims[3];
+
+    if (sides[i].special == 271 || sides[i].special == 272)
+    {
+      sb = R_GetBoxSkybox(sides[i].skybox_index);
+      if (sb)
+      {
+        int texture;
+        int face = 0;
+        while (face < 6 && sb->faces[face])
+        {
+          texture = R_CheckTextureNumForName(sb->faces[face]);
+          if (texture != -1)
+          {
+            hitlist[texture] = 1;
+          }
+          face++;
+        }
+      }
+    }
+
+    bottomtexture = sides[i].bottomtexture;
+    toptexture = sides[i].toptexture;
+    midtexture = sides[i].midtexture;
     
-    int bottomtexture = sides[i].bottomtexture;
-    int toptexture = sides[i].toptexture;
-    int midtexture = sides[i].midtexture;
-    
-    anim_t *textureanims[3] = {
-      anim_textures[bottomtexture].anim,
-      anim_textures[toptexture].anim,
-      anim_textures[midtexture].anim
-    };
+    textureanims[0] = anim_textures[bottomtexture].anim;
+    textureanims[1] = anim_textures[toptexture].anim;
+    textureanims[2] = anim_textures[midtexture].anim;
 
     hitlist[bottomtexture] =
       hitlist[toptexture] =
@@ -1383,6 +1403,22 @@ void gld_Precache(void)
 
   if (hitlist)
     hitlist[skytexture] = usehires ? 1 : 0;
+
+  sb = BoxSkybox_default;
+  if (sb)
+  {
+    int texture;
+    int face = 0;
+    while (face < 6 && sb->faces[face])
+    {
+      texture = R_CheckTextureNumForName(sb->faces[face]);
+      if (texture != -1)
+      {
+        hitlist[texture] = 1;
+      }
+      face++;
+    }
+  }
 
   CalcHitsCount(hitlist, numtextures, &hit, &hitcount);
 

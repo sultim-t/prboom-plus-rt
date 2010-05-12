@@ -77,6 +77,7 @@
 #include "i_video.h"
 #include "i_main.h"
 #include "am_map.h"
+#include "sc_man.h"
 #include "e6y.h"//e6y
 
 // All OpenGL extentions will be disabled in gl_compatibility mode
@@ -202,6 +203,50 @@ void gld_InitTextureParams(void)
   }
 }
 
+void gld_LoadGLDefs(const char * defsLump)
+{
+  // these are the core types available in the *DEFS lump
+  static const char *CoreKeywords[]=
+  {
+    "skybox",
+
+    NULL
+  };
+  typedef enum
+  {
+    TAG_SKYBOX,
+  };
+
+  int lumpnum;
+  int type;
+
+  lumpnum = W_CheckNumForName(defsLump);
+
+  if (lumpnum != -1)
+  {
+    SC_OpenLump(defsLump);
+
+    // Get actor class name.
+    while (true)
+    {
+      if (!SC_GetString())
+        break;
+
+      type = SC_MatchString(CoreKeywords);
+      switch (type)
+      {
+      case TAG_SKYBOX:
+        gld_ParseSkybox();
+        break;
+      }
+    }
+
+    SC_Close();
+  }
+}
+
+
+
 void gld_Init(int width, int height)
 {
   GLfloat params[4]={0.0f,0.0f,1.0f,0.0f};
@@ -291,6 +336,8 @@ void gld_Init(int width, int height)
   gld_InitFBO();
   atexit(gld_FreeScreenSizeFBO);
 #endif
+
+  gld_LoadGLDefs("GLDEFS");
 
   atexit(gld_CleanMemory); //e6y
 }
@@ -3400,14 +3447,17 @@ void gld_DrawScene(player_t *player)
   rendered_visplanes = rendered_segs = rendered_vissprites = 0;
 
   //e6y: skybox
-  if (gl_drawskys == skytype_skydome)
+  if (!gld_DrawBoxSkyBox())
   {
-    gld_DrawDomeSkyBox();
-  }
-  //e6y: 3d emulation of screen quad
-  if (gl_drawskys == skytype_screen)
-  {
-    gld_DrawScreenSkybox();
+    if (gl_drawskys == skytype_skydome)
+    {
+      gld_DrawDomeSkyBox();
+    }
+    //e6y: 3d emulation of screen quad
+    if (gl_drawskys == skytype_screen)
+    {
+      gld_DrawScreenSkybox();
+    }
   }
 
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)

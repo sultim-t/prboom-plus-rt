@@ -189,7 +189,9 @@ typedef struct
   int special;
 
   int INTERP_WallPanning;
-
+#ifdef GL_DOOM
+  int skybox_index;
+#endif
 } side_t;
 
 //

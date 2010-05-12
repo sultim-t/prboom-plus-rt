@@ -924,6 +924,14 @@ SOURCE=..\src\s_sound.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\sc_man.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\sc_man.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\sounds.c
 # End Source File
 # Begin Source File

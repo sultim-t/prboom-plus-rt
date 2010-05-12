@@ -1514,6 +1514,19 @@ static void P_LoadSideDefs2(int lump)
           sd->bottomtexture = R_TextureNumForName(msd->bottomtexture);
           break;
 
+#ifdef GL_DOOM
+        case 271:
+        case 272:
+          if (R_CheckTextureNumForName(msd->toptexture) == -1)
+          {
+            int i = R_BoxSkyboxNumForName(msd->toptexture);
+            if (i != -1)
+            {
+              sd->skybox_index = i;
+            }
+          }
+#endif
+
         default:                        // normal cases
           sd->midtexture = R_SafeTextureNumForName(msd->midtexture, i);
           sd->toptexture = R_SafeTextureNumForName(msd->toptexture, i);

@@ -657,6 +657,10 @@ static void G_DoLoadLevel (void)
         break;
       }//jff 3/27/98 end sky setting fix
 
+#ifdef GL_DOOM
+  R_SetBoxSkybox(skytexture);
+#endif
+
   levelstarttic = gametic;        // for time calculation
 
   if (!demo_compatibility && !mbf_features)   // killough 9/29/98
