@@ -217,23 +217,14 @@ void gld_LoadGLDefs(const char * defsLump)
     TAG_SKYBOX,
   };
 
-  int lumpnum;
-  int type;
-
-  lumpnum = W_CheckNumForName(defsLump);
-
-  if (lumpnum != -1)
+  if (W_CheckNumForName(defsLump) != -1)
   {
     SC_OpenLump(defsLump);
 
     // Get actor class name.
-    while (true)
+    while (SC_GetString())
     {
-      if (!SC_GetString())
-        break;
-
-      type = SC_MatchString(CoreKeywords);
-      switch (type)
+      switch (SC_MatchString(CoreKeywords))
       {
       case TAG_SKYBOX:
         gld_ParseSkybox();

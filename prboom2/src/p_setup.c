@@ -1519,11 +1519,7 @@ static void P_LoadSideDefs2(int lump)
         case 272:
           if (R_CheckTextureNumForName(msd->toptexture) == -1)
           {
-            int i = R_BoxSkyboxNumForName(msd->toptexture);
-            if (i != -1)
-            {
-              sd->skybox_index = i;
-            }
+            sd->skybox_index = R_BoxSkyboxNumForName(msd->toptexture);
           }
 #endif
 

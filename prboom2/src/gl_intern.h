@@ -488,7 +488,6 @@ typedef struct box_skybox_s
 {
   char name[9];
   int fliptop;
-  int texnum;
   char faces[6][9];
   GLTexture texture[6];
 } box_skybox_t;

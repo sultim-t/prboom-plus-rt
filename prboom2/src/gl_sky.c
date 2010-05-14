@@ -926,7 +926,7 @@ void R_SetBoxSkybox(int texture)
 
   for (i = 0; i < BoxSkyboxCount; i++)
   {
-    if (BoxSkybox[i].texnum == texture)
+    if (R_CheckTextureNumForName(BoxSkybox[i].name) == texture)
     {
       BoxSkybox_default = &BoxSkybox[i];
       return;
@@ -944,49 +944,44 @@ box_skybox_t* R_GetBoxSkybox(int index)
 
 void gld_ParseSkybox(void)
 {
-  box_skybox_t *sb;
-  int facecount = 0;
-
-  SC_MustGetString();
-
-  BoxSkyboxCount++;
-  BoxSkybox = realloc(BoxSkybox, BoxSkyboxCount * sizeof(BoxSkybox[0]));
-  sb = &BoxSkybox[BoxSkyboxCount - 1];
-
-  strncpy(sb->name, sc_String, 8);
-  sb->name[8] = 0;
-  strupr(sb->name);
-
-  sb->texnum = R_CheckTextureNumForName(sb->name);
-  
-  if (SC_Check())
+  if (SC_GetString())
   {
-    SC_GetString();
-    if (SC_Compare("fliptop"))
+    box_skybox_t sb;
+    memset(&sb, 0, sizeof(sb));
+
+    strncpy(sb.name, sc_String, 8);
+    sb.name[8] = 0;
+    strupr(sb.name);
+
+    while (SC_Check())
     {
-      sb->fliptop = true;
+      SC_GetString();
+      if (SC_Compare("fliptop"))
+      {
+        sb.fliptop = true;
+      }
     }
-  }
 
-  SC_MustGetStringName("{");
-
-  while (true)
-  {
-    SC_MustGetString();
-
-    if (SC_Compare("}"))
-      break;
-
-    if (facecount < 6) 
+    if (SC_GetString() && SC_Compare("{"))
     {
-      strcpy(sb->faces[facecount], sc_String);
-    }
-    facecount++;
-  }
+      int facecount = 0;
 
-  if (facecount != 3 && facecount != 6)
-  {
-    SC_ScriptError("%s: Skybox definition requires either 3 or 6 faces");
+      while (SC_GetString() && !SC_Compare("}"))
+      {
+        if (facecount < 6) 
+        {
+          strcpy(sb.faces[facecount], sc_String);
+        }
+        facecount++;
+      }
+
+      if (SC_Compare("}") && (facecount == 3 || facecount == 6))
+      {
+        BoxSkyboxCount++;
+        BoxSkybox = realloc(BoxSkybox, BoxSkyboxCount * sizeof(BoxSkybox[0]));
+        memcpy(&BoxSkybox[BoxSkyboxCount - 1], &sb, sizeof(sb));
+      }
+    }
   }
 }
 
