@@ -768,26 +768,38 @@ void gld_SetTexClamp(GLTexture *gltexture, unsigned int flags)
     int has_clamp_x = (gltexture->flags & GLTEXTURE_CLAMPX);
     int has_clamp_y = (gltexture->flags & GLTEXTURE_CLAMPY);
 
-    if (need_clamp_x && !has_clamp_x)
+    if (need_clamp_x)
     {
-      gltexture->flags |= GLTEXTURE_CLAMPX;
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GLEXT_CLAMP_TO_EDGE);
+      if (!has_clamp_x)
+      {
+        gltexture->flags |= GLTEXTURE_CLAMPX;
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GLEXT_CLAMP_TO_EDGE);
+      }
     }
-    if (!need_clamp_x && has_clamp_x)
+    else
     {
-      gltexture->flags &= ~GLTEXTURE_CLAMPX;
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+      if (has_clamp_x)
+      {
+        gltexture->flags &= ~GLTEXTURE_CLAMPX;
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+      }
     }
 
-    if (need_clamp_y && !has_clamp_y)
+    if (need_clamp_y)
     {
-      gltexture->flags |= GLTEXTURE_CLAMPY;
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GLEXT_CLAMP_TO_EDGE);
+      if (!has_clamp_y)
+      {
+        gltexture->flags |= GLTEXTURE_CLAMPY;
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GLEXT_CLAMP_TO_EDGE);
+      }
     }
-    if (!need_clamp_y && has_clamp_y)
+    else
     {
-      gltexture->flags &= ~GLTEXTURE_CLAMPY;
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+      if (has_clamp_y)
+      {
+        gltexture->flags &= ~GLTEXTURE_CLAMPY;
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+      }
     }
   }
 }
