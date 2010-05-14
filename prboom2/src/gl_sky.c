@@ -991,6 +991,7 @@ int gld_BindFace(box_skybox_t *sb, int index)
   GLTexture *gltexture;
   char *name = sb->faces[index];
 
+#if 0
   lump = W_CheckNumForName(name);
   if (lump != -1)
   {
@@ -1010,6 +1011,7 @@ int gld_BindFace(box_skybox_t *sb, int index)
     gld_BindFlat(gltexture);
     return true;
   }
+#endif
 
   lump = R_CheckTextureNumForName(name);
   if (lump != -1)
