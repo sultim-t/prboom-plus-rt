@@ -732,7 +732,6 @@ static void gld_HiRes_Bind(GLTexture *gltexture, int *glTexID)
     (gltexture->textype == GLDT_FLAT));
 
   gltexture->flags |= GLTEXTURE_HIRES;
-  gltexture->texflags[CR_DEFAULT][0] |= GLTEXTURE_HIRES;
 
   if (gltexture->textype == GLDT_PATCH)
   {
@@ -1071,8 +1070,6 @@ static int gld_HiRes_LoadDDSTexture(GLTexture* gltexture, int* texid, const char
           ddsimage->height >>= 1;
         }
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, gltexture->wrap_mode);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gltexture->wrap_mode);
         gld_SetTexFilters(gltexture);
         
         free(ddsimage->pixels);

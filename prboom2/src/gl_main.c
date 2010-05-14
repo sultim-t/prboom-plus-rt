@@ -459,14 +459,7 @@ void gld_FillFlat(int lump, int x, int y, int width, int height, enum patch_tran
   boom_cm = 0;
 
   gltexture = gld_RegisterFlat(lump, false);
-  gld_BindFlat(gltexture);
-  
-  if (gltexture->texflags[gltexture->cm][gltexture->player_cm] & GLTEXTURE_CLAMPXY)
-  {
-    gltexture->texflags[gltexture->cm][gltexture->player_cm] &= ~GLTEXTURE_CLAMPXY;
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, gltexture->wrap_mode);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gltexture->wrap_mode);
-  }
+  gld_BindFlat(gltexture, 0);
 
   //e6y
   boom_cm = saved_boom_cm;
@@ -2286,6 +2279,7 @@ static void gld_AddDrawWallItem(GLDrawItemType itemtype, void *itemdata)
 static void gld_DrawWall(GLWall *wall)
 {
   int need_detail;
+  unsigned int flags;
 
   rendered_segs++;
 
@@ -2299,27 +2293,14 @@ static void gld_DrawWall(GLWall *wall)
 
   gld_EnableDetail(need_detail);
 
-  gld_BindTexture(wall->gltexture);
-
-  // e6y
   // Do not repeat middle texture vertically
   // to avoid visual glitches for textures with holes
-  if (wall->gltexture)
-  {
-    int *flags = &wall->gltexture->texflags[wall->gltexture->cm][wall->gltexture->player_cm];
-    dboolean need_clamp_y = (wall->flag == GLDWF_M2S) && (wall->flag < GLDWF_SKY);
-    dboolean has_clamp_y = (*flags & GLTEXTURE_CLAMPY);
-    if (need_clamp_y && !has_clamp_y)
-    {
-      *flags |= GLTEXTURE_CLAMPY;
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GLEXT_CLAMP_TO_EDGE);
-    }
-    if (!need_clamp_y && has_clamp_y)
-    {
-      *flags &= ~GLTEXTURE_CLAMPY;
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wall->gltexture->wrap_mode);
-    }
-  }
+  if ((wall->flag == GLDWF_M2S) && (wall->flag < GLDWF_SKY))
+    flags = GLTEXTURE_CLAMPY;
+  else
+    flags = 0;
+
+  gld_BindTexture(wall->gltexture, flags);
 
   if (!wall->gltexture)
   {
@@ -2336,7 +2317,7 @@ static void gld_DrawWall(GLWall *wall)
     {
       gl_strip_coords_t c;
 
-      gld_BindFlat(wall->gltexture);
+      gld_BindFlat(wall->gltexture, 0);
 
       gld_SetupFloodStencil(wall);
       gld_SetupFloodedPlaneCoords(wall, &c);
@@ -2779,10 +2760,21 @@ static void gld_DrawFlat(GLFlat *flat)
   GLLoopDef *currentloop; // the current loop
   dboolean arb_detail;
   int has_offset;
+  unsigned int flags;
 
   rendered_visplanes++;
+  
+  arb_detail = gl_arb_multitexture && render_detailedflats && !(flat->gltexture->flags & GLTEXTURE_HIRES);
+  has_offset = (arb_detail || (flat->flags & GLFLAT_HAVE_OFFSET));
 
-  gld_BindFlat(flat->gltexture);
+  if ((sectorloops[flat->sectornum].flags & SECTOR_CLAMPXY) && (!arb_detail) &&
+      ((tex_filter[MIP_TEXTURE].mag_filter == GL_NEAREST) ||
+       (flat->gltexture->flags & GLTEXTURE_HIRES)))
+    flags = GLTEXTURE_CLAMPXY;
+  else
+    flags = 0;
+  
+  gld_BindFlat(flat->gltexture, flags);
   gld_StaticLightAlpha(flat->light, flat->alpha);
 
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
@@ -2790,9 +2782,6 @@ static void gld_DrawFlat(GLFlat *flat)
   glPushMatrix();
   glTranslatef(0.0f,flat->z,0.0f);
 #endif
-
-  arb_detail = gl_arb_multitexture && render_detailedflats && !(flat->gltexture->flags & GLTEXTURE_HIRES);
-  has_offset = (arb_detail || (flat->flags & GLFLAT_HAVE_OFFSET));
 
   if (has_offset)
   {
@@ -2829,29 +2818,6 @@ static void gld_DrawFlat(GLFlat *flat)
 
   if (flat->sectornum>=0)
   {
-    int *flags = &flat->gltexture->texflags[flat->gltexture->cm][flat->gltexture->player_cm];
-    dboolean need_clamp_y, has_clamp_y;
-    if (!arb_detail && 
-      (tex_filter[MIP_TEXTURE].mag_filter == GL_NEAREST ||
-      (*flags & GLTEXTURE_HIRES)))
-    {
-      need_clamp_y = (sectorloops[flat->sectornum].flags & SECTOR_CLAMPXY);
-      has_clamp_y = (*flags & GLTEXTURE_CLAMPXY);
-
-      if (need_clamp_y && !has_clamp_y)
-      {
-        *flags |= GLTEXTURE_CLAMPXY;
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GLEXT_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GLEXT_CLAMP_TO_EDGE);
-      }
-      if (!need_clamp_y && has_clamp_y)
-      {
-        *flags &= ~GLTEXTURE_CLAMPXY;
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, flat->gltexture->wrap_mode);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, flat->gltexture->wrap_mode);
-      }
-    }
-
     // go through all loops of this sector
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
     for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)

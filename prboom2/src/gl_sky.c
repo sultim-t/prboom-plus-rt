@@ -291,7 +291,7 @@ void gld_DrawStripsSky(void)
     GLWall *wall = gld_drawinfo.items[GLDIT_SWALL][i].item.wall;
 
     gltexture = (gl_drawskys == skytype_none ? NULL : wall->gltexture);
-    gld_BindTexture(gltexture);
+    gld_BindTexture(gltexture, 0);
 
     if (!gltexture)
     {
@@ -348,7 +348,7 @@ void gld_DrawSkyCaps(void)
 
     if (mlook)
     {
-      gld_BindTexture(SkyBox.wall.gltexture);
+      gld_BindTexture(SkyBox.wall.gltexture, 0);
 
       glMatrixMode(GL_TEXTURE);
       glPushMatrix();
@@ -515,7 +515,7 @@ void gld_DrawScreenSkybox(void)
     glLoadIdentity();
 
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    gld_BindTexture(wall->gltexture);
+    gld_BindTexture(wall->gltexture, 0);
     w = 160.0f * SCREENWIDTH / WIDE_SCREENWIDTH;
     glBegin(GL_TRIANGLE_STRIP);
       glTexCoord2f(fU1, fV1); glVertex3f(-w, +100.5f, -screen_skybox_zplane);
@@ -740,7 +740,7 @@ static void RenderDome(SkyBoxParams_t *sky)
   gld_EnableDetail(false);
 #endif
 
-  gld_BindTexture(sky->wall.gltexture);
+  gld_BindTexture(sky->wall.gltexture, 0);
 
   glRotatef(-180.0f + sky->x_offset, 0.f, 1.f, 0.f);
 
@@ -1017,10 +1017,7 @@ int gld_BindFace(box_skybox_t *sb, int index)
   if (lump != -1)
   {
     gltexture = gld_RegisterTexture(lump, false, false);
-    gltexture->wrap_mode = GLEXT_CLAMP_TO_EDGE;
-    gld_BindTexture(gltexture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GLEXT_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GLEXT_CLAMP_TO_EDGE);
+    gld_BindTexture(gltexture, GLTEXTURE_CLAMPXY);
     return true;
   }
 

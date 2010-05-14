@@ -77,7 +77,7 @@ typedef enum
   GLTEXTURE_HASNOHIRES= 0x00000020,
   GLTEXTURE_CLAMPX    = 0x00000040,
   GLTEXTURE_CLAMPY    = 0x00000080,
-  GLTEXTURE_CLAMPXY   = 0x00000100,
+  GLTEXTURE_CLAMPXY   = (GLTEXTURE_CLAMPX | GLTEXTURE_CLAMPY),
 } GLTexture_flag_t;
 
 typedef struct gl_strip_coords_s
@@ -101,14 +101,12 @@ typedef struct
   
   //e6y: support for Boom colormaps
   GLuint ***glTexExID;
-  int texflags[CR_LIMIT+MAXPLAYERS][PLAYERCOLORMAP_COUNT];
   int cm;
   int player_cm;
 
   GLTexType textype;
   dboolean mipmap;
-  GLint wrap_mode;//e6y
-  unsigned int flags;//e6y
+  unsigned int flags;
   float scalexfac, scaleyfac; //e6y: right/bottom UV coordinates for patch drawing
 } GLTexture;
 
@@ -319,11 +317,11 @@ void gld_InitDetail(void);
 
 extern GLuint* last_glTexID;
 GLTexture *gld_RegisterTexture(int texture_num, dboolean mipmap, dboolean force);
-void gld_BindTexture(GLTexture *gltexture);
+void gld_BindTexture(GLTexture *gltexture, unsigned int flags);
 GLTexture *gld_RegisterPatch(int lump, int cm);
 void gld_BindPatch(GLTexture *gltexture, int cm);
 GLTexture *gld_RegisterFlat(int lump, dboolean mipmap);
-void gld_BindFlat(GLTexture *gltexture);
+void gld_BindFlat(GLTexture *gltexture, unsigned int flags);
 void gld_InitPalettedTextures(void);
 int gld_GetTexDimension(int value);
 void gld_SetTexturePalette(GLenum target);

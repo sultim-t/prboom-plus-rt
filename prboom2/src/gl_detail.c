@@ -222,7 +222,7 @@ void gld_DrawWallWithDetail(GLWall *wall)
     gl_strip_coords_t c1;
     gl_strip_coords_t c2;
 
-    gld_BindFlat(wall->gltexture);
+    gld_BindFlat(wall->gltexture, 0);
 
     animitem = &anim_flats[wall->gltexture->index - firstflat];
     if (!animitem->anim)
