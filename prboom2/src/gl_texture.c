@@ -842,7 +842,6 @@ int gld_BuildTexture(GLTexture *gltexture, void *data, dboolean readonly, int wi
       tex_buffer = malloc(tex_buffer_size);
       if (!tex_buffer)
       {
-        result = false;
         goto l_exit;
       }
 
@@ -899,6 +898,11 @@ int gld_BuildTexture(GLTexture *gltexture, void *data, dboolean readonly, int wi
   }
 
 l_exit:
+  if (result)
+  {
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  }
 
   if (tex_buffer && tex_buffer != data)
   {
