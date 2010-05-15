@@ -70,6 +70,7 @@
 #include "r_draw.h"
 #include "lprintf.h"
 #include "r_patch.h"
+#include "v_video.h"
 #include <assert.h>
 
 // posts are runs of non masked source pixels
@@ -306,25 +307,18 @@ static void createPatch(int id) {
   if (getPatchIsNotTileable(oldPatch))
     patch->flags |= PATCH_ISNOTTILEABLE;
 
-  // e6y
-  // fix wrong (with holes) drawing of the background 
-  // for the loadgame and savegame entries
+#ifdef GL_DOOM
+  // Width of M_THERMM patch is 9, but Doom interprets it as 8-columns lump
+  // during drawing. It is not a problem for software mode and GL_NEAREST,
+  // but looks wrong with filtering. So I need to patch it during loading.
+  if (V_GetMode() == VID_MODEGL)
   {
-    static const char *list[] = {
-      "M_LSLEFT", "M_LSCNTR", "M_LSRGHT",
-      //"M_THERML", "M_THERMM", "M_THERMR",
-    };
-    int i;
-    patches[id].flags &= ~PATCH_REPEAT;
-    for (i = 0; i < sizeof(list) / sizeof(list[0]); i++)
+    if (!strncasecmp(lumpinfo[id].name, "M_THERMM", 8) && patch->width > 8)
     {
-      if (!strncasecmp(list[i], lumpinfo[id].name, 8))
-      {
-        patches[id].flags |= PATCH_REPEAT;
-        break;
-      }
+      patch->width--;
     }
   }
+#endif
 
   // work out how much memory we need to allocate for this patch's data
   pixelDataSize = (patch->width * patch->height + 4) & ~3;
