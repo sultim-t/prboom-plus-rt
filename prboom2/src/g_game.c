@@ -2112,7 +2112,7 @@ void G_Compatibility(void)
     // comp_floors - fixes for moving floors bugs
     { boom_compatibility_compatibility, mbf_compatibility },
     // comp_skymap
-    { boom_compatibility, mbf_compatibility },
+    { mbf_compatibility, mbf_compatibility },
     // comp_pursuit - MBF AI change, limited pursuit?
     { mbf_compatibility, mbf_compatibility },
     // comp_doorstuck - monsters stuck in doors fix
