@@ -1216,6 +1216,7 @@ static void P_LoadZNodes(int lump, int glnodes)
   W_UnlockLumpNum(lump); // cph - release the data
 }
 
+#ifdef GL_DOOM
 static int no_overlapped_sprites;
 #define GETXY(mobj) (mobj->x + (mobj->y >> 16))
 static int C_DECL dicmp_sprite_by_pos(const void *a, const void *b)
@@ -1227,6 +1228,7 @@ static int C_DECL dicmp_sprite_by_pos(const void *a, const void *b)
   no_overlapped_sprites = no_overlapped_sprites && res;
   return res;
 }
+#endif
 
 /*
  * P_LoadThings
@@ -1269,35 +1271,41 @@ static void P_LoadThings (int lump)
 
   W_UnlockLumpNum(lump); // cph - release the data
 
-  no_overlapped_sprites = true;
-  qsort(mobjlist, mobjcount, sizeof(mobjlist[0]), dicmp_sprite_by_pos);
-  if (!no_overlapped_sprites)
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL)
   {
-    i = 1;
-    while (i < mobjcount)
+    no_overlapped_sprites = true;
+    qsort(mobjlist, mobjcount, sizeof(mobjlist[0]), dicmp_sprite_by_pos);
+    if (!no_overlapped_sprites)
     {
-      mobj_t *m1 = mobjlist[i - 1];
-      mobj_t *m2 = mobjlist[i - 0];
-
-      if (GETXY(m1) == GETXY(m2))
+      i = 1;
+      while (i < mobjcount)
       {
-        mobj_t *mo = (m1->index < m2->index ? m1 : m2);
-        i++;
-        while (i < mobjcount && GETXY(mobjlist[i]) == GETXY(m1))
-        {
-          if (mobjlist[i]->index < mo->index)
-          {
-            mo = mobjlist[i];
-          }
-          i++;
-        }
+        mobj_t *m1 = mobjlist[i - 1];
+        mobj_t *m2 = mobjlist[i - 0];
 
-        // 'nearest'
-        mo->flags |= MF_FOREGROUND;
+        if (GETXY(m1) == GETXY(m2))
+        {
+          mobj_t *mo = (m1->index < m2->index ? m1 : m2);
+          i++;
+          while (i < mobjcount && GETXY(mobjlist[i]) == GETXY(m1))
+          {
+            if (mobjlist[i]->index < mo->index)
+            {
+              mo = mobjlist[i];
+            }
+            i++;
+          }
+
+          // 'nearest'
+          mo->flags |= MF_FOREGROUND;
+        }
+        i++;
       }
-      i++;
     }
   }
+#endif
+
   free(mobjlist);
 }
 
