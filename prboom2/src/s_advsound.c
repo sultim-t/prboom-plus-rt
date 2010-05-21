@@ -26,12 +26,9 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
- * DESCRIPTION:  Platform-independent sound code
+ * DESCRIPTION:  Support MUSINFO lump (dynamic music changing)
  *
  *-----------------------------------------------------------------------------*/
-
-// killough 3/7/98: modified to allow arbitrary listeners in spy mode
-// killough 5/2/98: reindented, removed useless code, beautified
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"

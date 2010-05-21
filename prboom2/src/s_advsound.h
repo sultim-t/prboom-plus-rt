@@ -27,7 +27,7 @@
  *  02111-1307, USA.
  *
  * DESCRIPTION:
- *      The not so system specific sound interface.
+ *      Support MUSINFO lump (dynamic music changing)
  *
  *-----------------------------------------------------------------------------*/
 
