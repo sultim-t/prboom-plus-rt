@@ -176,7 +176,7 @@ static int samelevel = false;
 // Do nothing if level is the same
 static void *malloc_IfSameLevel(void* p, size_t size)
 {
-  if (!samelevel)
+  if (!samelevel || !p)
   {
     return malloc(size);
   }
@@ -1963,7 +1963,16 @@ static void P_LoadBlockMap (int lump)
 
       // haleyjd 03/04/10: check for blockmap problems
       // http://www.doomworld.com/idgames/index.php?id=12935
-      P_VerifyBlockMap(count);
+      if (!P_VerifyBlockMap(count))
+      {
+        if (!demorecording && !demoplayback)
+        {
+          lprintf(LO_INFO, "P_LoadBlockMap: Rebuilding blockmap\n");
+          free(blockmaplump);
+          blockmaplump = NULL;
+          P_CreateBlockMap();
+        }
+      }
     }
 
   // clear out mobj chains - CPhipps - use calloc
