@@ -1419,6 +1419,8 @@ typedef enum {
   MT_DOGS,    /* killough 7/19/98: Marine's best friend */
 #endif
 
+  MT_MUSICSOURCE, /* MUSINFO lump */
+
   /* proff 11/22/98: Andy Baker's stealth monsters (next 12)
    * cph - moved below the MBF stuff, no need to displace them */
   MT_STEALTHBABY,

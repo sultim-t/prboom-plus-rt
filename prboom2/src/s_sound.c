@@ -39,6 +39,7 @@
 
 #include "doomstat.h"
 #include "s_sound.h"
+#include "s_advsound.h"
 #include "i_sound.h"
 #include "i_system.h"
 #include "d_main.h"
@@ -46,6 +47,7 @@
 #include "m_random.h"
 #include "w_wad.h"
 #include "lprintf.h"
+#include "sc_man.h"
 
 // when to clip out sounds
 // Does not fit the large outdoor areas.
@@ -519,8 +521,43 @@ void S_ChangeMusic(int musicnum, int looping)
   I_PlaySong(music->handle, looping);
 
   mus_playing = music;
+
+  musinfo.current_item = -1;
 }
 
+void S_ChangeMusInfoMusic(int lumpnum, int looping)
+{
+  musicinfo_t *music;
+
+  //jff 1/22/98 return if music is not enabled
+  if (!mus_card || nomusicparm)
+    return;
+
+  if (mus_playing && mus_playing->lumpnum == lumpnum)
+    return;
+
+  music = &S_music[NUMMUSIC];
+
+  if (music->lumpnum == lumpnum)
+    return;
+
+  // shutdown old music
+  S_StopMusic();
+
+  // save lumpnum
+  music->lumpnum = lumpnum;
+
+  // load & register it
+  music->data = W_CacheLumpNum(music->lumpnum);
+  music->handle = I_RegisterSong(music->data, W_LumpLength(music->lumpnum));
+
+  // play it
+  I_PlaySong(music->handle, looping);
+
+  mus_playing = music;
+
+  musinfo.current_item = lumpnum;
+}
 
 void S_StopMusic(void)
 {

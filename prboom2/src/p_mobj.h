@@ -362,6 +362,8 @@ typedef struct mobj_s
     int index;
     short patch_width;
 
+    int iden_nums;		// hi word stores thing num, low word identifier num
+
     fixed_t             pad; // cph - needed so I can get the size unambiguously on amd64
 
     // SEE WARNING ABOVE ABOUT POINTER FIELDS!!!

@@ -37,6 +37,7 @@
 #include "p_tick.h"
 #include "p_map.h"
 #include "r_fps.h"
+#include "s_advsound.h"
 
 int leveltime;
 
@@ -250,6 +251,9 @@ static void P_RunThinkers (void)
       currentthinker->function(currentthinker);
   }
   newthinkerpresent = false;
+
+  // Dedicated thinkers
+  T_MAPMusic();
 }
 
 //

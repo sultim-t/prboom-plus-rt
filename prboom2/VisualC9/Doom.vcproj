@@ -5379,6 +5379,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\s_advsound.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\s_advsound.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\s_sound.c"
 				>
 				<FileConfiguration

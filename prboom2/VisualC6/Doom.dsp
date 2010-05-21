@@ -916,6 +916,14 @@ SOURCE=..\src\r_things.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\s_advsound.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\s_advsound.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\s_sound.c
 # End Source File
 # Begin Source File

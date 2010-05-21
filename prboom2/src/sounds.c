@@ -114,6 +114,9 @@ musicinfo_t S_music[] = {
   { "read_m", 0 },
   { "dm2ttl", 0 },
   { "dm2int", 0 },
+
+  // custom music from MUSINFO lump
+  { "musinfo", 0 }
 };
 
 

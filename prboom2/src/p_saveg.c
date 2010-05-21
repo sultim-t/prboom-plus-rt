@@ -41,6 +41,7 @@
 #include "am_map.h"
 #include "p_enemy.h"
 #include "lprintf.h"
+#include "s_advsound.h"
 #include "e6y.h"//e6y
 
 byte *save_p;
@@ -118,7 +119,7 @@ void P_ArchiveWorld (void)
   // killough 10/98: adjust size for changes below
   size_t size =
     (sizeof(short)*5 + sizeof sec->floorheight + sizeof sec->ceilingheight)
-    * numsectors + sizeof(short)*3*numlines + 4;
+    * numsectors + sizeof(short)*3*numlines + 4 + 2;
 
   for (i=0; i<numlines; i++)
     {
@@ -179,6 +180,9 @@ void P_ArchiveWorld (void)
             *put++ = si->midtexture;
           }
     }
+
+  *put++ = musinfo.current_item;
+
   save_p = (byte *) put;
 }
 
@@ -244,6 +248,9 @@ void P_UnArchiveWorld (void)
             si->midtexture = *get++;
           }
     }
+
+  musinfo.current_item = *get++;
+
   save_p = (byte *) get;
 }
 

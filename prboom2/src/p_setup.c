@@ -48,6 +48,7 @@
 #include "p_tick.h"
 #include "p_enemy.h"
 #include "s_sound.h"
+#include "s_advsound.h"
 #include "lprintf.h" //jff 10/6/98 for debug outputs
 #include "v_video.h"
 #include "r_demo.h"
@@ -2499,6 +2500,11 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   // killough 3/26/98: Spawn icon landings:
   if (gamemode==commercial)
     P_SpawnBrainTargets();
+
+  if (gamemode != shareware)
+  {
+    S_ParseMusInfo(lumpname);
+  }
 
   // clear special respawning que
   iquehead = iquetail = 0;

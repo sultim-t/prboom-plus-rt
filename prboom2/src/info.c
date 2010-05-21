@@ -4896,4 +4896,32 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = {
     S_DOGS_RAISE1   // raisestate
   },
 #endif
+
+  // MUSINFO lump
+  {   // MT_MUSICSOURCE
+    14164,           // doomednum
+    S_TNT1,         // spawnstate
+    1000,           // spawnhealth
+    S_NULL,         // seestate
+    sfx_None,       // seesound
+    8,              // reactiontime
+    sfx_None,       // attacksound
+    S_NULL,         // painstate
+    0,              // painchance
+    sfx_None,       // painsound
+    S_NULL,         // meleestate
+    S_NULL,         // missilestate
+    S_NULL,         // deathstate
+    S_NULL,         // xdeathstate
+    sfx_None,       // deathsound
+    0,              // speed
+    16,             // radius
+    16,             // height
+    100,            // mass
+    0,              // damage
+    sfx_None,       // activesound
+    MF_NOBLOCKMAP,  // flags
+    S_NULL          // raisestate
+  },
+
 };

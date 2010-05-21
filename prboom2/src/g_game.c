@@ -71,6 +71,7 @@
 #include "r_draw.h"
 #include "p_map.h"
 #include "s_sound.h"
+#include "s_advsound.h"
 #include "dstrings.h"
 #include "sounds.h"
 #include "r_data.h"
@@ -1840,6 +1841,11 @@ void G_DoLoadGame(void)
   P_MapEnd();
   R_ActivateSectorInterpolations();//e6y
   R_SmoothPlaying_Reset(NULL); // e6y
+
+  if (musinfo.current_item != -1)
+  {
+    S_ChangeMusInfoMusic(musinfo.current_item, true);
+  }
 
   if (*save_p != 0xe6)
     I_Error ("G_DoLoadGame: Bad savegame");
