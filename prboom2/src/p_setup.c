@@ -1880,11 +1880,19 @@ static dboolean P_VerifyBlockMap(int count)
       // check that block offset is in bounds
       if(blockoffset >= maxoffs)
       {
-        lprintf(LO_ERROR, "P_VerifyBlockMap: offset overflow\n");
+        lprintf(LO_ERROR, "P_VerifyBlockMap: block offset overflow\n");
         return false;
       }
 
-      offset = *blockoffset;         
+      offset = *blockoffset;
+
+      // check that list offset is in bounds
+      if(offset < 4 || offset >= count)
+      {
+        lprintf(LO_ERROR, "P_VerifyBlockMap: list offset overflow\n");
+        return false;
+      }
+
       list   = blockmaplump + offset;
 
       // scan forward for a -1 terminator before maxoffs
