@@ -187,7 +187,7 @@ void gld_ProgressUpdate(const char * text, int progress, int total)
 
 static const char* gld_HiRes_GetInternalName(GLTexture *gltexture);
 static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char *dds_path);
-static void gld_HiRes_Bind(GLTexture *gltexture, int *glTexID);
+static void gld_HiRes_Bind(GLTexture *gltexture, GLuint *glTexID);
 
 #define DDRAW_H_MAKEFOURCC(ch0, ch1, ch2, ch3) \
   ((unsigned long)(unsigned char)(ch0) | ((unsigned long)(unsigned char)(ch1) << 8) | \
@@ -712,7 +712,7 @@ static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char 
   return false;
 }
 
-static void gld_HiRes_Bind(GLTexture *gltexture, int *glTexID)
+static void gld_HiRes_Bind(GLTexture *gltexture, GLuint *glTexID)
 {
   switch (gltexture->textype)
   {
@@ -1024,7 +1024,7 @@ void gld_InitHiRes(void)
   gld_PrecacheGUIPatches();
 }
 
-static int gld_HiRes_LoadDDSTexture(GLTexture* gltexture, int* texid, const char* dds_path)
+static int gld_HiRes_LoadDDSTexture(GLTexture* gltexture, GLuint* texid, const char* dds_path)
 {
   int result = false;
   int tex_width, tex_height;
@@ -1083,7 +1083,7 @@ static int gld_HiRes_LoadDDSTexture(GLTexture* gltexture, int* texid, const char
   return result;
 }
 
-static int gld_HiRes_LoadFromCache(GLTexture* gltexture, int* texid, const char* img_path)
+static int gld_HiRes_LoadFromCache(GLTexture* gltexture, GLuint* texid, const char* img_path)
 {
   int result = false;
   int tex_width = 0;
@@ -1133,7 +1133,7 @@ static int gld_HiRes_LoadFromCache(GLTexture* gltexture, int* texid, const char*
   return result;
 }
 
-static int gld_HiRes_WriteCache(GLTexture* gltexture, int* texid, const char* img_path)
+static int gld_HiRes_WriteCache(GLTexture* gltexture, GLuint* texid, const char* img_path)
 {
   int result = false;
   int w, h;
@@ -1170,7 +1170,7 @@ static int gld_HiRes_WriteCache(GLTexture* gltexture, int* texid, const char* im
   return result;
 }
 
-static int gld_HiRes_LoadFromFile(GLTexture* gltexture, int* texid, const char* img_path)
+static int gld_HiRes_LoadFromFile(GLTexture* gltexture, GLuint* texid, const char* img_path)
 {
   int result = false;
   SDL_Surface *surf = NULL;
@@ -1210,7 +1210,7 @@ static int gld_HiRes_LoadFromFile(GLTexture* gltexture, int* texid, const char* 
 int* gld_LoadHiresTex(GLTexture *gltexture, int cm)
 {
   int *result = NULL;
-  int *texid, *glTexID;
+  GLuint *texid, *glTexID;
 
   // do we need it?
   if ((gl_texture_external_hires || gl_texture_internal_hires) &&
