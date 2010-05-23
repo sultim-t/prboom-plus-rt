@@ -3680,5 +3680,6 @@ void G_CheckDemoContinue(void)
     autostart = true;
     G_RecordDemo(democontinuename);
     G_BeginRecording();
+    usergame = true;
   }
 }
