@@ -48,6 +48,7 @@
 #include "w_wad.h"
 #include "lprintf.h"
 #include "sc_man.h"
+#include "e6y.h"
 
 // when to clip out sounds
 // Does not fit the large outdoor areas.
@@ -258,7 +259,7 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume)
   // Check to see if it is audible, modify the params
   // killough 3/7/98, 4/25/98: code rearranged slightly
 
-  if (!origin || origin == players[displayplayer].mo) {
+  if (!origin || (origin == players[displayplayer].mo && walkcamera.type < 2)) {
     sep = NORM_SEP;
     volume *= 8;
   } else
@@ -644,8 +645,16 @@ int S_AdjustSoundParams(mobj_t *listener, mobj_t *source,
 
   // calculate the distance to sound origin
   //  and clip it if necessary
-  adx = D_abs(listener->x - source->x);
-  ady = D_abs(listener->y - source->y);
+  if (walkcamera.type > 1)
+  {
+    adx = D_abs(walkcamera.x - source->x);
+    ady = D_abs(walkcamera.y - source->y);
+  }
+  else
+  {
+    adx = D_abs(listener->x - source->x);
+    ady = D_abs(listener->y - source->y);
+  }
 
   // From _GG1_ p.428. Appox. eucledian distance fast.
   approx_dist = adx + ady - ((adx < ady ? adx : ady)>>1);
