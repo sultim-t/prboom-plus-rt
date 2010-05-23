@@ -727,9 +727,10 @@ static void gld_HiRes_Bind(GLTexture *gltexture, GLuint *glTexID)
     break;
   }
 
-  gltexture->mipmap = 
-    ((gltexture->textype == GLDT_TEXTURE) || 
-    (gltexture->textype == GLDT_FLAT));
+  if ((gltexture->textype == GLDT_TEXTURE) || (gltexture->textype == GLDT_FLAT))
+    gltexture->flags |= GLTEXTURE_MIPMAP;
+  else
+    gltexture->flags &= ~GLTEXTURE_MIPMAP;
 
   gltexture->flags |= GLTEXTURE_HIRES;
 
@@ -1045,7 +1046,10 @@ static int gld_HiRes_LoadDDSTexture(GLTexture* gltexture, GLuint* texid, const c
 
         gld_HiRes_Bind(gltexture, texid);
 
-        gltexture->mipmap = numMipmaps > 1; 
+        if (numMipmaps > 1)
+          gltexture->flags |= GLTEXTURE_MIPMAP;
+        else
+          gltexture->flags &= ~GLTEXTURE_MIPMAP;
 
         offset = 0;
         blockSize = (ddsimage->format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;

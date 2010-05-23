@@ -583,7 +583,8 @@ GLTexture *gld_RegisterTexture(int texture_num, dboolean mipmap, dboolean force)
     
     //e6y
     gltexture->flags = 0;
-    gltexture->mipmap=mipmap && tex_filter[MIP_TEXTURE].mipmap;
+    if (mipmap && tex_filter[MIP_TEXTURE].mipmap)
+      gltexture->flags |= GLTEXTURE_MIPMAP;
 
     gltexture->realtexwidth=texture->width;
     gltexture->realtexheight=texture->height;
@@ -601,7 +602,7 @@ GLTexture *gld_RegisterTexture(int texture_num, dboolean mipmap, dboolean force)
     gltexture->buffer_width=gltexture->realtexwidth;
     gltexture->buffer_height=gltexture->realtexheight;
 #endif
-    if (gltexture->mipmap)
+    if (gltexture->flags & GLTEXTURE_MIPMAP)
     {
       gltexture->width=gltexture->tex_width;
       gltexture->height=gltexture->tex_height;
@@ -744,7 +745,7 @@ void gld_SetTexFilters(GLTexture *gltexture)
 
   mag_filter = tex_filter[mip].mag_filter;
 
-  if (gltexture->mipmap && tex_filter[mip].mipmap)
+  if ((gltexture->flags & GLTEXTURE_MIPMAP) && tex_filter[mip].mipmap)
   {
     min_filter = tex_filter[mip].min_filter;
     if (gl_ext_texture_filter_anisotropic)
@@ -822,7 +823,7 @@ int gld_BuildTexture(GLTexture *gltexture, void *data, dboolean readonly, int wi
   //your video is modern
   if (gl_arb_texture_non_power_of_two)
   {
-    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, gltexture->mipmap);
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, (gltexture->flags & GLTEXTURE_MIPMAP));
 
     glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
       tex_width, tex_height,
@@ -837,7 +838,7 @@ int gld_BuildTexture(GLTexture *gltexture, void *data, dboolean readonly, int wi
   }
 
 #ifdef USE_GLU_MIPMAP
-  if (gltexture->mipmap)
+  if (gltexture->flags & GLTEXTURE_MIPMAP)
   {
     gluBuild2DMipmaps(GL_TEXTURE_2D, gl_tex_format,
       width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -908,7 +909,7 @@ int gld_BuildTexture(GLTexture *gltexture, void *data, dboolean readonly, int wi
       }
     }
 
-    gltexture->mipmap = false;
+    gltexture->flags &= ~GLTEXTURE_MIPMAP;
     gld_SetTexFilters(gltexture);
     result = true;
   }
@@ -975,13 +976,13 @@ void gld_BindTexture(GLTexture *gltexture, unsigned int flags)
   }
 
   buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
-  if (!gltexture->mipmap && gl_paletted_texture)
+  if (!(gltexture->flags & GLTEXTURE_MIPMAP) && gl_paletted_texture)
     memset(buffer,transparent_pal_index,gltexture->buffer_size);
   else
     memset(buffer,0,gltexture->buffer_size);
   patch=R_CacheTextureCompositePatchNum(gltexture->index);
   gld_AddPatchToTexture(gltexture, buffer, patch, 0, 0,
-                        CR_DEFAULT, !gltexture->mipmap && gl_paletted_texture);
+                        CR_DEFAULT, !(gltexture->flags & GLTEXTURE_MIPMAP) && gl_paletted_texture);
   R_UnlockTextureCompositePatchNum(gltexture->index);
   if (*gltexture->texid_p == 0)
     glGenTextures(1, gltexture->texid_p);
@@ -1020,11 +1021,13 @@ GLTexture *gld_RegisterPatch(int lump, int cm)
     if (lump >= firstspritelump && lump > (firstspritelump + numsprites))
     {
       gltexture->flags |= GLTEXTURE_SPRITE;
-      gltexture->mipmap = tex_filter[MIP_SPRITE].mipmap;
+      if (tex_filter[MIP_SPRITE].mipmap)
+        gltexture->flags |= GLTEXTURE_MIPMAP;
     }
     else
     {
-      gltexture->mipmap = tex_filter[MIP_PATCH].mipmap;
+      if (tex_filter[MIP_PATCH].mipmap)
+        gltexture->flags |= GLTEXTURE_MIPMAP;
     }
     //gltexture->wrap_mode = (patch->flags & PATCH_REPEAT ? GL_REPEAT : GLEXT_CLAMP_TO_EDGE);
 
@@ -1044,7 +1047,7 @@ GLTexture *gld_RegisterPatch(int lump, int cm)
     gltexture->buffer_width=MAX(gltexture->realtexwidth, gltexture->tex_width);
     gltexture->buffer_height=MAX(gltexture->realtexheight, gltexture->tex_height);
 #endif
-    if (gltexture->mipmap)
+    if (gltexture->flags & GLTEXTURE_MIPMAP)
     {
       gltexture->width=gltexture->tex_width;
       gltexture->height=gltexture->tex_height;
@@ -1159,7 +1162,8 @@ GLTexture *gld_RegisterFlat(int lump, dboolean mipmap)
 
     //e6y
     gltexture->flags = 0;
-    gltexture->mipmap=mipmap && tex_filter[MIP_TEXTURE].mipmap;
+    if (mipmap && tex_filter[MIP_TEXTURE].mipmap)
+      gltexture->flags |= GLTEXTURE_MIPMAP;
 
     gltexture->realtexwidth=64;
     gltexture->realtexheight=64;
@@ -1177,7 +1181,7 @@ GLTexture *gld_RegisterFlat(int lump, dboolean mipmap)
     gltexture->buffer_width=gltexture->realtexwidth;
     gltexture->buffer_height=gltexture->realtexheight;
 #endif
-    if (gltexture->mipmap)
+    if (gltexture->flags & GLTEXTURE_MIPMAP)
     {
       gltexture->width=gltexture->tex_width;
       gltexture->height=gltexture->tex_height;
@@ -1240,11 +1244,11 @@ void gld_BindFlat(GLTexture *gltexture, unsigned int flags)
 
   flat=W_CacheLumpNum(gltexture->index);
   buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
-  if (!gltexture->mipmap && gl_paletted_texture)
+  if (!(gltexture->flags & GLTEXTURE_MIPMAP) && gl_paletted_texture)
     memset(buffer,transparent_pal_index,gltexture->buffer_size);
   else
     memset(buffer,0,gltexture->buffer_size);
-  gld_AddFlatToTexture(gltexture, buffer, flat, !gltexture->mipmap && gl_paletted_texture);
+  gld_AddFlatToTexture(gltexture, buffer, flat, !(gltexture->flags & GLTEXTURE_MIPMAP) && gl_paletted_texture);
   if (*gltexture->texid_p == 0)
     glGenTextures(1, gltexture->texid_p);
   glBindTexture(GL_TEXTURE_2D, *gltexture->texid_p);

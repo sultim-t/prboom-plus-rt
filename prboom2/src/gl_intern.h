@@ -78,6 +78,7 @@ typedef enum
   GLTEXTURE_CLAMPX    = 0x00000040,
   GLTEXTURE_CLAMPY    = 0x00000080,
   GLTEXTURE_CLAMPXY   = (GLTEXTURE_CLAMPX | GLTEXTURE_CLAMPY),
+  GLTEXTURE_MIPMAP    = 0x00000100,
 } GLTexture_flag_t;
 
 typedef struct gl_strip_coords_s
@@ -109,7 +110,6 @@ typedef struct
   int player_cm;
 
   GLTexType textype;
-  dboolean mipmap;
   unsigned int flags;
   float scalexfac, scaleyfac; //e6y: right/bottom UV coordinates for patch drawing
 } GLTexture;
