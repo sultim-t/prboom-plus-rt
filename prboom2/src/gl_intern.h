@@ -101,6 +101,10 @@ typedef struct
   
   //e6y: support for Boom colormaps
   GLuint ***glTexExID;
+  unsigned int texflags[CR_LIMIT+MAXPLAYERS][PLAYERCOLORMAP_COUNT];
+  GLuint *texid_p;
+  unsigned int *texflags_p;
+
   int cm;
   int player_cm;
 
@@ -353,8 +357,8 @@ int gld_BuildTexture(GLTexture *gltexture, void *data, dboolean readonly, int wi
 extern unsigned int gl_has_hires;
 int gld_HiRes_BuildTables(void);
 void gld_InitHiRes(void);
-int* gld_LoadHiresTex(GLTexture *gltexture, int cm);
-GLuint* gld_GetTextureTexID(GLTexture *gltexture, int cm);
+int gld_LoadHiresTex(GLTexture *gltexture, int cm);
+void gld_GetTextureTexID(GLTexture *gltexture, int cm);
 GLuint CaptureScreenAsTexID(void);
 void gld_ProgressUpdate(const char * text, int progress, int total);
 int gld_ProgressStart(void);

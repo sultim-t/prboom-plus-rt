@@ -201,7 +201,7 @@ void* NewIntDynArray(int dimCount, int *dims)
 // Get index of player->fixedcolormap for GLTexture().glTexExID array
 // There are three known values for player->fixedcolormap: 0, 1 and 32
 // 0 (normal) -> 0; 1 (pw_infrared) -> 1; 32 (pw_invulnerability) -> 2
-GLuint* gld_GetTextureTexID(GLTexture *gltexture, int cm)
+void gld_GetTextureTexID(GLTexture *gltexture, int cm)
 {
   static int data[NUMCOLORMAPS+1] = {
      0,  1, -1, -1, -1, -1, -1, -1,
@@ -216,7 +216,9 @@ GLuint* gld_GetTextureTexID(GLTexture *gltexture, int cm)
 
   if (!gl_boom_colormaps)
   {
-    return &gltexture->glTexExID[cm][0][0];
+    gltexture->texflags_p = &gltexture->texflags[cm][0];
+    gltexture->texid_p = &gltexture->glTexExID[cm][0][0];
+    return;
   }
 
   if (!(gltexture->flags & GLTEXTURE_HIRES))
@@ -224,7 +226,9 @@ GLuint* gld_GetTextureTexID(GLTexture *gltexture, int cm)
     gltexture->player_cm = data[frame_fixedcolormap];
   }
 
-  return &gltexture->glTexExID[cm][gltexture->player_cm][boom_cm];
+  gltexture->texflags_p = &gltexture->texflags[cm][gltexture->player_cm];
+  gltexture->texid_p = &gltexture->glTexExID[cm][gltexture->player_cm][boom_cm];
+  return;
 }
 
 // e6y
@@ -761,18 +765,18 @@ void gld_SetTexClamp(GLTexture *gltexture, unsigned int flags)
 {
   //if ((gltexture->flags & GLTEXTURE_CLAMPXY) != (flags & GLTEXTURE_CLAMPXY))
   /* sp1n0za 05/2010: simplify */
-  if ((gltexture->flags ^ flags) & GLTEXTURE_CLAMPXY)
+  if ((*gltexture->texflags_p ^ flags) & GLTEXTURE_CLAMPXY)
   {
     int need_clamp_x = (flags & GLTEXTURE_CLAMPX);
     int need_clamp_y = (flags & GLTEXTURE_CLAMPY);
-    int has_clamp_x = (gltexture->flags & GLTEXTURE_CLAMPX);
-    int has_clamp_y = (gltexture->flags & GLTEXTURE_CLAMPY);
+    int has_clamp_x = (*gltexture->texflags_p & GLTEXTURE_CLAMPX);
+    int has_clamp_y = (*gltexture->texflags_p & GLTEXTURE_CLAMPY);
 
     if (need_clamp_x)
     {
       if (!has_clamp_x)
       {
-        gltexture->flags |= GLTEXTURE_CLAMPX;
+        *gltexture->texflags_p |= GLTEXTURE_CLAMPX;
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GLEXT_CLAMP_TO_EDGE);
       }
     }
@@ -780,7 +784,7 @@ void gld_SetTexClamp(GLTexture *gltexture, unsigned int flags)
     {
       if (has_clamp_x)
       {
-        gltexture->flags &= ~GLTEXTURE_CLAMPX;
+        *gltexture->texflags_p &= ~GLTEXTURE_CLAMPX;
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
       }
     }
@@ -789,7 +793,7 @@ void gld_SetTexClamp(GLTexture *gltexture, unsigned int flags)
     {
       if (!has_clamp_y)
       {
-        gltexture->flags |= GLTEXTURE_CLAMPY;
+        *gltexture->texflags_p |= GLTEXTURE_CLAMPY;
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GLEXT_CLAMP_TO_EDGE);
       }
     }
@@ -797,7 +801,7 @@ void gld_SetTexClamp(GLTexture *gltexture, unsigned int flags)
     {
       if (has_clamp_y)
       {
-        gltexture->flags &= ~GLTEXTURE_CLAMPY;
+        *gltexture->texflags_p &= ~GLTEXTURE_CLAMPY;
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
       }
     }
@@ -935,7 +939,6 @@ void gld_BindTexture(GLTexture *gltexture, unsigned int flags)
 {
   const rpatch_t *patch;
   unsigned char *buffer;
-  GLuint *glTexID;
   int w, h;
 
   if (!gltexture || gltexture->textype != GLDT_TEXTURE)
@@ -946,27 +949,27 @@ void gld_BindTexture(GLTexture *gltexture, unsigned int flags)
   }
 
 #ifdef HAVE_LIBSDL_IMAGE
-  if ((glTexID = gld_LoadHiresTex(gltexture, CR_DEFAULT)))
+  if (gld_LoadHiresTex(gltexture, CR_DEFAULT))
   {
     gld_SetTexClamp(gltexture, flags);
-    last_glTexID = glTexID;
+    last_glTexID = gltexture->texid_p;
     return;
   }
 #endif
 
-  glTexID = gld_GetTextureTexID(gltexture, CR_DEFAULT);
+  gld_GetTextureTexID(gltexture, CR_DEFAULT);
 
-  if (last_glTexID == glTexID)
+  if (last_glTexID == gltexture->texid_p)
   {
     gld_SetTexClamp(gltexture, flags);
     return;
   }
 
-  last_glTexID = glTexID;
+  last_glTexID = gltexture->texid_p;
 
-  if (*glTexID != 0)
+  if (*gltexture->texid_p != 0)
   {
-    glBindTexture(GL_TEXTURE_2D, *glTexID);
+    glBindTexture(GL_TEXTURE_2D, *gltexture->texid_p);
     gld_SetTexClamp(gltexture, flags);
     return;
   }
@@ -980,9 +983,9 @@ void gld_BindTexture(GLTexture *gltexture, unsigned int flags)
   gld_AddPatchToTexture(gltexture, buffer, patch, 0, 0,
                         CR_DEFAULT, !gltexture->mipmap && gl_paletted_texture);
   R_UnlockTextureCompositePatchNum(gltexture->index);
-  if (*glTexID==0)
-    glGenTextures(1,glTexID);
-  glBindTexture(GL_TEXTURE_2D, *glTexID);
+  if (*gltexture->texid_p == 0)
+    glGenTextures(1, gltexture->texid_p);
+  glBindTexture(GL_TEXTURE_2D, *gltexture->texid_p);
   
   if (gltexture->flags & GLTEXTURE_HASHOLES)
   {
@@ -1068,7 +1071,6 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
 {
   const rpatch_t *patch;
   unsigned char *buffer;
-  GLuint *glTexID;
   int w, h;
 
   if (!gltexture || gltexture->textype != GLDT_PATCH)
@@ -1079,27 +1081,27 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   }
 
 #ifdef HAVE_LIBSDL_IMAGE
-  if ((glTexID = gld_LoadHiresTex(gltexture, cm)))
+  if (gld_LoadHiresTex(gltexture, cm))
   {
     gld_SetTexClamp(gltexture, GLTEXTURE_CLAMPXY);
-    last_glTexID = glTexID;
+    last_glTexID = gltexture->texid_p;
     return;
   }
 #endif
 
-  glTexID = gld_GetTextureTexID(gltexture, cm); 
+  gld_GetTextureTexID(gltexture, cm);
 
-  if (last_glTexID == glTexID)
+  if (last_glTexID == gltexture->texid_p)
   {
     gld_SetTexClamp(gltexture, GLTEXTURE_CLAMPXY);
     return;
   }
 
-  last_glTexID = glTexID;
+  last_glTexID = gltexture->texid_p;
 
-  if (*glTexID != 0)
+  if (*gltexture->texid_p != 0)
   {
-    glBindTexture(GL_TEXTURE_2D, *glTexID);
+    glBindTexture(GL_TEXTURE_2D, *gltexture->texid_p);
     gld_SetTexClamp(gltexture, GLTEXTURE_CLAMPXY);
     return;
   }
@@ -1130,9 +1132,9 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
     SmoothEdges(buffer, gltexture->buffer_width, gltexture->buffer_height);
   }
 
-  if (*glTexID==0)
-    glGenTextures(1,glTexID);
-  glBindTexture(GL_TEXTURE_2D, *glTexID);
+  if (*gltexture->texid_p == 0)
+    glGenTextures(1, gltexture->texid_p);
+  glBindTexture(GL_TEXTURE_2D, *gltexture->texid_p);
 
   buffer = gld_HQResize(gltexture, buffer, gltexture->buffer_width, gltexture->buffer_height, &w, &h);
 
@@ -1201,7 +1203,6 @@ void gld_BindFlat(GLTexture *gltexture, unsigned int flags)
 {
   const unsigned char *flat;
   unsigned char *buffer;
-  GLuint *glTexID;
   int w, h;
 
   if (!gltexture || gltexture->textype != GLDT_FLAT)
@@ -1212,27 +1213,27 @@ void gld_BindFlat(GLTexture *gltexture, unsigned int flags)
   }
 
 #ifdef HAVE_LIBSDL_IMAGE
-  if ((glTexID = gld_LoadHiresTex(gltexture, CR_DEFAULT)))
+  if (gld_LoadHiresTex(gltexture, CR_DEFAULT))
   {
     gld_SetTexClamp(gltexture, flags);
-    last_glTexID = glTexID;
+    last_glTexID = gltexture->texid_p;
     return;
   }
 #endif
 
-  glTexID = gld_GetTextureTexID(gltexture, CR_DEFAULT); 
+  gld_GetTextureTexID(gltexture, CR_DEFAULT); 
 
-  if (last_glTexID == glTexID)
+  if (last_glTexID == gltexture->texid_p)
   {
     gld_SetTexClamp(gltexture, flags);
     return;
   }
 
-  last_glTexID = glTexID;
+  last_glTexID = gltexture->texid_p;
 
-  if (*glTexID != 0)
+  if (*gltexture->texid_p != 0)
   {
-    glBindTexture(GL_TEXTURE_2D, *glTexID);
+    glBindTexture(GL_TEXTURE_2D, *gltexture->texid_p);
     gld_SetTexClamp(gltexture, flags);
     return;
   }
@@ -1244,9 +1245,9 @@ void gld_BindFlat(GLTexture *gltexture, unsigned int flags)
   else
     memset(buffer,0,gltexture->buffer_size);
   gld_AddFlatToTexture(gltexture, buffer, flat, !gltexture->mipmap && gl_paletted_texture);
-  if (*glTexID==0)
-    glGenTextures(1,glTexID);
-  glBindTexture(GL_TEXTURE_2D, *glTexID);
+  if (*gltexture->texid_p == 0)
+    glGenTextures(1, gltexture->texid_p);
+  glBindTexture(GL_TEXTURE_2D, *gltexture->texid_p);
 
   buffer = gld_HQResize(gltexture, buffer, gltexture->buffer_width, gltexture->buffer_height, &w, &h);
 

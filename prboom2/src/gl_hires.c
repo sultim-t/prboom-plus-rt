@@ -1207,10 +1207,10 @@ static int gld_HiRes_LoadFromFile(GLTexture* gltexture, GLuint* texid, const cha
   return result;
 }
 
-int* gld_LoadHiresTex(GLTexture *gltexture, int cm)
+int gld_LoadHiresTex(GLTexture *gltexture, int cm)
 {
-  int *result = NULL;
-  GLuint *texid, *glTexID;
+  int result = false;
+  GLuint *texid;
 
   // do we need it?
   if ((gl_texture_external_hires || gl_texture_internal_hires) &&
@@ -1298,18 +1298,18 @@ int* gld_LoadHiresTex(GLTexture *gltexture, int cm)
 
       if (*texid)
       {
-        glTexID = gld_GetTextureTexID(gltexture, cm);
+        gld_GetTextureTexID(gltexture, cm);
 
-        if (last_glTexID == glTexID)
+        if (last_glTexID == gltexture->texid_p)
         {
-          result = glTexID;
+          result = true;
         }
         else
         {
-          if (texid == glTexID)
+          if (texid == gltexture->texid_p)
           {
-            glBindTexture(GL_TEXTURE_2D, *glTexID);
-            result = glTexID;
+            glBindTexture(GL_TEXTURE_2D, *gltexture->texid_p);
+            result = true;
           }
           else
           {
@@ -1320,27 +1320,26 @@ int* gld_LoadHiresTex(GLTexture *gltexture, int cm)
               int w, h;
               unsigned char *buf;
 
-              if (*glTexID == 0)
+              if (*gltexture->texid_p == 0)
               {
                 buf = gld_GetTextureBuffer(*texid, 0, &w, &h);
-                gld_HiRes_Bind(gltexture, glTexID);
+                gld_HiRes_Bind(gltexture, gltexture->texid_p);
                 gld_HiRes_ProcessColormap(buf, w * h * 4);
                 if (gld_BuildTexture(gltexture, buf, true, w, h))
                 {
-                  result = glTexID;
+                  result = true;
                 }
               }
               else
               {
-                gld_HiRes_Bind(gltexture, glTexID);
-                result = glTexID;
+                gld_HiRes_Bind(gltexture, gltexture->texid_p);
+                result = true;
               }
             }
             else
             {
-              glTexID = texid;
-              gld_HiRes_Bind(gltexture, glTexID);
-              result = glTexID;
+              gld_HiRes_Bind(gltexture, gltexture->texid_p);
+              result = true;
             }
           }
         }
@@ -1350,7 +1349,7 @@ int* gld_LoadHiresTex(GLTexture *gltexture, int cm)
 
   if (result)
   {
-    last_glTexID = result;
+    last_glTexID = gltexture->texid_p;
   }
   else
   {
