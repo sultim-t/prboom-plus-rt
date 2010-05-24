@@ -84,7 +84,7 @@ void M_ChangeSky(void);
 
 //detail
 extern int gl_detail_maxdist;
-extern int render_allow_detail_textures;
+extern int gl_allow_detail_textures;
 
 extern int gl_seamless;
 void gld_InitVertexData();

@@ -911,7 +911,7 @@ default_t defaults[] =
 
 #ifdef GL_DOOM
   {"Prboom-plus OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
-  {"render_allow_detail_textures", {&render_allow_detail_textures},  {1},0,1,
+  {"gl_allow_detail_textures", {&gl_allow_detail_textures},  {1},0,1,
    def_bool,ss_stat},
   {"gl_detail_maxdist", {&gl_detail_maxdist},  {0},0,65535,
    def_int,ss_stat},
