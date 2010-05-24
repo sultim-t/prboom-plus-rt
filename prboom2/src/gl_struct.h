@@ -82,8 +82,11 @@ void gld_ApplyGammaRamp(byte *buf, int pitch, int width, int height);
 void M_ChangeLightMode(void);
 void M_ChangeSky(void);
 
+//detail
+extern int gl_detail_maxdist;
+extern int render_allow_detail_textures;
+
 extern int gl_seamless;
-extern int render_canusedetail;
 void gld_InitVertexData();
 void gld_CleanVertexData();
 void gld_UpdateSplitData(sector_t *sector);

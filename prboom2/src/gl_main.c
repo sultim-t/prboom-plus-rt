@@ -209,12 +209,16 @@ void gld_LoadGLDefs(const char * defsLump)
   static const char *CoreKeywords[]=
   {
     "skybox",
+    "detail",
 
     NULL
   };
   typedef enum
   {
     TAG_SKYBOX,
+    TAG_DETAIL,
+
+    TAG_MAX,
   };
 
   if (W_CheckNumForName(defsLump) != -1)
@@ -228,6 +232,9 @@ void gld_LoadGLDefs(const char * defsLump)
       {
       case TAG_SKYBOX:
         gld_ParseSkybox();
+        break;
+      case TAG_DETAIL:
+        gld_ParseDetail();
         break;
       }
     }
@@ -2278,20 +2285,18 @@ static void gld_AddDrawWallItem(GLDrawItemType itemtype, void *itemdata)
 
 static void gld_DrawWall(GLWall *wall)
 {
-  int need_detail;
+  int has_detail;
   unsigned int flags;
 
   rendered_segs++;
 
-  need_detail =
-    gl_arb_multitexture && render_detailedwalls &&
+  has_detail =
+    gl_arb_multitexture &&
     (wall->flag < GLDWF_SKY) &&
-    !(wall->gltexture->flags & GLTEXTURE_HIRES) &&
-    distance2piece(xCamera, yCamera, 
-    wall->glseg->x1, wall->glseg->z1,
-    wall->glseg->x2, wall->glseg->z2) < DETAIL_DISTANCE;
-
-  gld_EnableDetail(need_detail);
+    (wall->gltexture->detail_id != -1) &&
+    gld_IsDetailVisible(xCamera, yCamera, 
+      wall->glseg->x1, wall->glseg->z1,
+      wall->glseg->x2, wall->glseg->z2);
 
   // Do not repeat middle texture vertically
   // to avoid visual glitches for textures with holes
@@ -2301,13 +2306,14 @@ static void gld_DrawWall(GLWall *wall)
     flags = 0;
 
   gld_BindTexture(wall->gltexture, flags);
+  gld_BindDetail(wall->gltexture, has_detail);
 
   if (!wall->gltexture)
   {
     glColor4f(1.0f,0.0f,0.0f,1.0f);
   }
 
-  if (need_detail)
+  if (has_detail)
   {
     gld_DrawWallWithDetail(wall);
   }
@@ -2758,16 +2764,18 @@ static void gld_DrawFlat(GLFlat *flat)
 {
   int loopnum; // current loop number
   GLLoopDef *currentloop; // the current loop
-  dboolean arb_detail;
+  dboolean has_detail;
   int has_offset;
   unsigned int flags;
 
   rendered_visplanes++;
   
-  arb_detail = gl_arb_multitexture && render_detailedflats && !(flat->gltexture->flags & GLTEXTURE_HIRES);
-  has_offset = (arb_detail || (flat->flags & GLFLAT_HAVE_OFFSET));
+  has_detail = gl_arb_multitexture &&
+    flat->gltexture->detail_id != -1;
 
-  if ((sectorloops[flat->sectornum].flags & SECTOR_CLAMPXY) && (!arb_detail) &&
+  has_offset = (has_detail || (flat->flags & GLFLAT_HAVE_OFFSET));
+
+  if ((sectorloops[flat->sectornum].flags & SECTOR_CLAMPXY) && (!has_detail) &&
       ((tex_filter[MIP_TEXTURE].mag_filter == GL_NEAREST) ||
        (flat->gltexture->flags & GLTEXTURE_HIRES)))
     flags = GLTEXTURE_CLAMPXY;
@@ -2790,10 +2798,11 @@ static void gld_DrawFlat(GLFlat *flat)
     glTranslatef(flat->uoffs, flat->voffs, 0.0f);
   }
   
-  //e6y
-  gld_EnableDetail(arb_detail && !(flat->gltexture->flags & GLTEXTURE_HIRES));
-  if (arb_detail)
+  gld_BindDetail(flat->gltexture, has_detail);
+  if (has_detail)
   {
+    float w, h;
+    detail_t *detail = &details[flat->gltexture->detail_id];
     TAnimItemParam *animitem = &anim_flats[flat->gltexture->index - firstflat];
 
     GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
@@ -2801,19 +2810,23 @@ static void gld_DrawFlat(GLFlat *flat)
     
     glPushMatrix();
 
+    w = flat->gltexture->realtexwidth  / detail->kx;
+    h = flat->gltexture->realtexheight / detail->ky;
     if (!animitem->anim)
     {
       if (flat->flags & GLFLAT_HAVE_OFFSET)
-        glTranslatef(flat->uoffs * 4.0f, flat->voffs * 4.0f, 0.0f);
+      {
+        glTranslatef(flat->uoffs * w, flat->voffs * h, 0.0f);
+      }
     }
     else
     {
       float s = 1.0f / animitem->anim->numpics * animitem->index;
-      if (s < 0.001) s = 0.0f;
-      glTranslatef(s + flat->uoffs * 4.0f, flat->voffs * 4.0f, 0.0f);
+      if (s < 0.001f) s = 0.0f;
+      glTranslatef(s + flat->uoffs * w, s + flat->voffs * h, 0.0f);
     }
 
-    glScalef(4.0f, 4.0f, 1.0f);
+    glScalef(w, h, 1.0f);
   }
 
   if (flat->sectornum>=0)
@@ -2860,7 +2873,7 @@ static void gld_DrawFlat(GLFlat *flat)
   }
 
   //e6y
-  if (arb_detail)
+  if (has_detail)
   {
     glPopMatrix();
     GLEXT_glActiveTextureARB(GL_TEXTURE0_ARB);
@@ -3395,6 +3408,8 @@ void gld_DrawScene(player_t *player)
   gl_EnableFog(true);
   gl_EnableFog(false);
 
+  gld_EnableDetail(false);
+
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -3459,7 +3474,7 @@ void gld_DrawScene(player_t *player)
   // disable backside removing
   glDisable(GL_CULL_FACE);
 
-  // detail texture works only with flats nad walls
+  // detail texture works only with flats and walls
   gld_EnableDetail(false);
 
   // top, bottom, one-sided walls
@@ -3621,6 +3636,8 @@ void gld_DrawScene(player_t *player)
   // e6y: detail
   if (!gl_arb_multitexture && render_usedetail)
     gld_DrawDetail_NoARB();
+
+  gld_EnableDetail(false);
 
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
   if (gl_ext_arb_vertex_buffer_object)

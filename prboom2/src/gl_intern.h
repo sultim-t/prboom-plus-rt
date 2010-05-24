@@ -112,6 +112,9 @@ typedef struct
   GLTexType textype;
   unsigned int flags;
   float scalexfac, scaleyfac; //e6y: right/bottom UV coordinates for patch drawing
+
+  //detail
+  GLuint detail_id;
 } GLTexture;
 
 typedef struct
@@ -313,11 +316,33 @@ extern unsigned char gld_palmap[256];
 extern tex_filter_t tex_filter[];
 void gld_SetTexFilters(GLTexture *gltexture);
 
-//e6y
-#define DETAIL_DISTANCE 9
 extern float xCamera,yCamera,zCamera;
-float distance2piece(float x0, float y0, float x1, float y1, float x2, float y2);
+
+//
+//detail
+//
+
+typedef struct detail_s
+{
+  GLuint texid;
+  int texture_num;
+  float kx, ky;
+} detail_t;
+
+int gld_IsDetailVisible(float x0, float y0, float x1, float y1, float x2, float y2);
 void gld_InitDetail(void);
+void gld_ParseDetail(void);
+void gld_SetTexDetail(GLTexture *gltexture);
+
+void gld_PreprocessDetail(void);
+void gld_DrawDetail_NoARB(void);
+void gld_EnableDetail(int enable);
+void gld_DrawWallWithDetail(GLWall *wall);
+void gld_BindDetail(GLTexture *gltexture, int enable);
+
+extern int render_usedetail;
+extern detail_t *details;
+extern int details_count;
 
 extern GLuint* last_glTexID;
 GLTexture *gld_RegisterTexture(int texture_num, dboolean mipmap, dboolean force);
@@ -343,10 +368,6 @@ void gld_RecalcVertexHeights(const vertex_t *v);
 
 //e6y
 void gld_InitGLVersion(void);
-void gld_PreprocessDetail(void);
-void gld_DrawDetail_NoARB(void);
-void gld_EnableDetail(int enable);
-void gld_DrawWallWithDetail(GLWall *wall);
 void gld_ResetLastTexture(void);
 
 unsigned char* gld_GetTextureBuffer(int texid, int miplevel, int *width, int *height);

@@ -136,9 +136,6 @@ int movement_maxviewpitch;
 int mouse_handler;
 int mouse_doubleclick_as_use;
 int render_fov;
-int render_usedetail;
-int render_detailedwalls;
-int render_detailedflats;
 int render_multisampling;
 int render_paperitems;
 int render_wipescreen;
@@ -632,16 +629,6 @@ void M_ChangeFOV(void)
   skyUpShift = (float)tan(DEG2RAD(render_fovy)/2.0f);
 
   skyscale = 1.0f / (float)tan(DEG2RAD(render_fov / 2));
-}
-
-void M_ChangeUseDetail(void)
-{
-  if (V_GetMode() == VID_MODEGL)
-  {
-    render_usedetail = (render_canusedetail) && (render_detailedflats || render_detailedwalls);
-    gld_EnableDetail(true);
-    gld_EnableDetail(false);
-  }
 }
 
 void M_ChangeSpriteClip(void)

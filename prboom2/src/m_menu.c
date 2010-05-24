@@ -3168,8 +3168,7 @@ setup_menu_t gen_settings6[] = { // General Settings screen4
   {"Resize sprites",             S_CHOICE, m_null, G_X, G_Y+15*8, {"gl_texture_hqresize_sprites"}, 0, 0, M_ChangeTextureHQResize, gl_hqresizemodes},
   {"Resize patches",             S_CHOICE, m_null, G_X, G_Y+16*8, {"gl_texture_hqresize_patches"}, 0, 0, M_ChangeTextureHQResize, gl_hqresizemodes},
 
-  {"Detailed Walls",             S_YESNO,  m_null, G_X, G_Y+18*8, {"render_detailedwalls"}, 0, 0, M_ChangeUseDetail},
-  {"Detailed Flats",             S_YESNO,  m_null, G_X, G_Y+19*8, {"render_detailedflats"}, 0, 0, M_ChangeUseDetail},
+  {"Allow Detail Textures",      S_YESNO,  m_null, G_X, G_Y+18*8, {"render_allow_detail_textures"}, 0, 0, M_ChangeUseDetail},
 #endif //GL_DOOM
 
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {gen_settings5}},

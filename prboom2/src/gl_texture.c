@@ -619,7 +619,10 @@ GLTexture *gld_RegisterTexture(int texture_num, dboolean mipmap, dboolean force)
       return gltexture;
     if (gltexture->realtexheight>gltexture->buffer_height)
       return gltexture;
+
     gltexture->textype=GLDT_TEXTURE;
+
+    gld_SetTexDetail(gltexture);
   }
   return gltexture;
 }
@@ -1198,7 +1201,10 @@ GLTexture *gld_RegisterFlat(int lump, dboolean mipmap)
       return gltexture;
     if (gltexture->realtexheight>gltexture->buffer_height)
       return gltexture;
+
     gltexture->textype=GLDT_FLAT;
+
+    gld_SetTexDetail(gltexture);
   }
   return gltexture;
 }

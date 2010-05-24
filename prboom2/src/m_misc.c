@@ -911,10 +911,10 @@ default_t defaults[] =
 
 #ifdef GL_DOOM
   {"Prboom-plus OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
-  {"render_detailedwalls", {&render_detailedwalls},  {0},0,1,
+  {"render_allow_detail_textures", {&render_allow_detail_textures},  {1},0,1,
    def_bool,ss_stat},
-  {"render_detailedflats", {&render_detailedflats},  {0},0,1,
-   def_bool,ss_stat},
+  {"gl_detail_maxdist", {&gl_detail_maxdist},  {0},0,65535,
+   def_int,ss_stat},
   {"render_multisampling", {&render_multisampling},  {0},0,8,
    def_int,ss_stat},
   {"render_fov", {&render_fov},  {90},20,130,
@@ -1559,5 +1559,12 @@ int M_StrToInt(const char *s, long *l)
     (sscanf(s, " 0X%lx", l) == 1) ||
     (sscanf(s, " 0%lo", l) == 1) ||
     (sscanf(s, " %ld", l) == 1)
+  );
+}
+
+int M_StrToFloat(const char *s, float *f)
+{      
+  return (
+    (sscanf(s, " %f", f) == 1)
   );
 }
