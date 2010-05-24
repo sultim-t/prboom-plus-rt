@@ -976,9 +976,7 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"gl_shadows_maxdist",{&gl_shadows_maxdist},{1000},0,32767,
    def_int,ss_none},
-  {"gl_blend_animated_walls",{&gl_blend_animated_walls},{0},0,1,
-   def_bool,ss_none},
-  {"gl_blend_animated_flats",{&gl_blend_animated_flats},{0},0,1,
+  {"gl_blend_animations",{&gl_blend_animations},{0},0,1,
    def_bool,ss_none},
 #endif
   {"Prboom-plus emulation settings",{NULL},{0},UL,UL,def_none,ss_none},

@@ -3129,9 +3129,6 @@ setup_menu_t gen_settings5[] = { // General Settings screen3
   {"Smooth sprite edges",       S_YESNO,  m_null, G_X, G_Y+13*8, {"gl_sprite_blend"}},
   {"Adjust Sprite Clipping",    S_CHOICE, m_null, G_X, G_Y+14*8, {"gl_spriteclip"}, 0, 0, M_ChangeSpriteClip, gl_spriteclipmodes},
   {"Item out of Floor offset",  S_NUM,    m_null, G_X, G_Y+15*8, {"gl_sprite_offset"}, 0, 0, M_ChangeSpriteClip},
-
-  {"Blend walls animations",    S_YESNO,  m_null, G_X, G_Y+17*8, {"gl_blend_animated_walls"}},
-  {"Blend flats animations",    S_YESNO,  m_null, G_X, G_Y+18*8, {"gl_blend_animated_flats"}},
 #endif
 
   {"<- PREV",S_SKIP|S_PREV, m_null,KB_PREV, KB_Y+20*8, {gen_settings4}},
@@ -3169,6 +3166,7 @@ setup_menu_t gen_settings6[] = { // General Settings screen4
   {"Resize patches",             S_CHOICE, m_null, G_X, G_Y+16*8, {"gl_texture_hqresize_patches"}, 0, 0, M_ChangeTextureHQResize, gl_hqresizemodes},
 
   {"Allow Detail Textures",      S_YESNO,  m_null, G_X, G_Y+18*8, {"render_allow_detail_textures"}, 0, 0, M_ChangeUseDetail},
+  {"Blend Animations",           S_YESNO,  m_null, G_X, G_Y+19*8, {"gl_blend_animations"}},
 #endif //GL_DOOM
 
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {gen_settings5}},

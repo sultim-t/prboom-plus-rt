@@ -91,8 +91,7 @@ int gl_preprocessed = false;
 int gl_spriteindex;
 int scene_has_overlapped_sprites;
 
-int gl_blend_animated_flats;
-int gl_blend_animated_walls;
+int gl_blend_animations;
 
 // e6y
 // This variables toggles the use of a trick to prevent the clearning of the 
@@ -2232,7 +2231,7 @@ void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata)
 
 static void gld_AddDrawWallItem(GLDrawItemType itemtype, void *itemdata)
 {
-  if (gl_blend_animated_walls)
+  if (gl_blend_animations)
   {
     anim_t *anim;
     int currpic, nextpic;
@@ -2964,7 +2963,7 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
   // get height from plane
   flat.z=(float)plane->height/MAP_SCALE;
 
-  if (gl_blend_animated_flats)
+  if (gl_blend_animations)
   {
     anim_t *anim = anim_flats[flat.gltexture->index - firstflat].anim;
     if (anim)
@@ -3555,7 +3554,7 @@ void gld_DrawScene(player_t *player)
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  if (gl_blend_animated_flats)
+  if (gl_blend_animations)
   {
     // enable backside removing
     glEnable(GL_CULL_FACE);
@@ -3581,7 +3580,7 @@ void gld_DrawScene(player_t *player)
     glDisable(GL_CULL_FACE);
   }
 
-  if (gl_blend_animated_walls)
+  if (gl_blend_animations)
   {
     gld_DrawItemsSortByTexture(GLDIT_AWALL);
     for (i = gld_drawinfo.num_items[GLDIT_AWALL] - 1; i >= 0; i--)

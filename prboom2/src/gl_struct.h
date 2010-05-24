@@ -131,8 +131,7 @@ void gld_Finish();
 extern int gl_color_mip_levels;
 
 //blend animation from zdoomgl
-extern int gl_blend_animated_flats;
-extern int gl_blend_animated_walls;
+extern int gl_blend_animations;
 
 // wipe
 int gld_wipe_doMelt(int ticks, int *y_lookup);
