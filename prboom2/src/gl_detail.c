@@ -66,6 +66,20 @@ detail_t *details;
 int details_count;
 int details_size;
 
+typedef enum
+{
+  TAG_DETAIL_WALL,
+  TAG_DETAIL_FLAT,
+  TAG_DETAIL_MAX,
+} tag_detail_e;
+
+static const char *DetailItem_Keywords[TAG_DETAIL_MAX + 1] =
+{
+  "walls",
+  "flats",
+  NULL
+};
+
 static GLuint last_detail_texid = -1;
 
 float xCamera,yCamera,zCamera;
@@ -555,6 +569,21 @@ void gld_SetTexDetail(GLTexture *gltexture)
       break;
     }
   }
+
+  if (gltexture->detail_id == -1)
+  {
+    switch (gltexture->textype)
+    {
+    case GLDT_TEXTURE:
+      if (details[TAG_DETAIL_WALL].texid > 0)
+        gltexture->detail_id = TAG_DETAIL_WALL;
+      break;
+    case GLDT_FLAT:
+      if (details[TAG_DETAIL_FLAT].texid > 0)
+        gltexture->detail_id = TAG_DETAIL_FLAT;
+      break;
+    }
+  }
 }
 
 GLuint gld_LoadDetailName(const char *name)
@@ -616,37 +645,54 @@ GLuint gld_LoadDetailName(const char *name)
   return texid;
 }
 
-typedef enum
+int gld_ReadDetailParams(tag_detail_e item, detail_t *detail)
 {
-  TAG_DETAIL_WALL,
-  TAG_DETAIL_FLAT,
-  TAG_DETAIL_MAX,
-} tag_detail_e;
+  int result = false;
+  if (SC_Check())
+  {
+    // get detail texture name
+    SC_GetString();
 
-static const char *DetailItem_Keywords[TAG_DETAIL_MAX + 1] =
-{
-  "walls",
-  "flats",
-  NULL
-};
+    if (strlen(sc_String) < 9)
+    {
+      detail->texid = gld_LoadDetailName(sc_String);
+
+      if (detail->texid > 0)
+      {
+        float f;
+
+        if (SC_Check() && SC_GetString() && M_StrToFloat(sc_String, &f))
+          detail->kx = f;
+        if (SC_Check() && SC_GetString() && M_StrToFloat(sc_String, &f))
+          detail->ky = f;
+
+        result = true;
+      }
+    }
+    // skip the rest of unknown params
+    while (SC_Check())
+      SC_GetString();
+  }
+
+  return result;
+}
 
 void gld_ParseDetailItem(tag_detail_e item)
 {
-  // skip item's params
-  while (SC_Check() && !SC_Compare("{"))
-    SC_GetString();
+  // item's params
+  if (SC_Check() && !SC_Compare("{"))
+  {
+    details[item].kx = 16.0f;
+    details[item].ky = 16.0f;
+    gld_ReadDetailParams(item, &details[item]);
+  }
 
   if (SC_GetString() && SC_Compare("{"))
   {
     while (SC_GetString() && !SC_Compare("}"))
     {
+      int result;
       detail_t detail;
-
-      // default values
-      detail.texture_num = -1;
-      detail.texid = -1;
-      detail.kx = 16.0f;
-      detail.ky = 16.0f;
 
       if (strlen(sc_String) < 9)
       {
@@ -660,38 +706,17 @@ void gld_ParseDetailItem(tag_detail_e item)
           break;
         }
 
-        if (detail.texture_num != -1 && SC_Check())
+        result = gld_ReadDetailParams(item, &detail);
+
+        if (result || details[item].texid > 0)
         {
-          // get detail texture name
-          SC_GetString();
-
-          if (strlen(sc_String) < 9)
+          if (details_count + 1 > details_size)
           {
-            detail.texid = gld_LoadDetailName(sc_String);
-
-            if (detail.texid > 0)
-            {
-              float f;
-
-              if (SC_Check() && SC_GetString() && M_StrToFloat(sc_String, &f))
-                detail.kx = f;
-              if (SC_Check() && SC_GetString() && M_StrToFloat(sc_String, &f))
-                detail.ky = f;
-
-              // skip the rest of unknown params
-              while (SC_Check())
-                SC_GetString();
-
-              // detail entry is correct and can be added to the list.
-              if (details_count + 1 > details_size)
-              {
-                details_size = (details_size == 0 ? 128 : details_size * 2);
-                details = realloc(details, details_size * sizeof(details[0]));
-              }
-              details[details_count] = detail;
-              details_count++;
-            }
+            details_size = (details_size == 0 ? 128 : details_size * 2);
+            details = realloc(details, details_size * sizeof(details[0]));
           }
+          details[details_count] = detail;
+          details_count++;
         }
       }
     }
@@ -701,9 +726,9 @@ void gld_ParseDetailItem(tag_detail_e item)
 void gld_ParseDetail(void)
 {
   free(details);
-  details = NULL;
-  details_count = 0;
-  details_size = 0;
+  details_count = 2; // reserved for default wall and flat
+  details_size = 128;
+  details = calloc(details_size, sizeof(details[0]));
 
   // skip "Detail" params
   while (SC_Check() && !SC_Compare("{"))
