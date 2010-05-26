@@ -65,7 +65,8 @@ float gl_detail_maxdist_sqrt;
 detail_t *details;
 int details_count;
 int details_size;
-int level_has_details;
+int scene_has_wall_details;
+int scene_has_flat_details;
 
 typedef enum
 {
@@ -330,12 +331,15 @@ void gld_DrawWallWithDetail(GLWall *wall)
 void gld_DrawWallDetail_NoARB(GLWall *wall, int from_index, int to_index)
 {
   int k;
+
+  if (wall->gltexture->detail_id == -1)
+    return;
+
   for (k=from_index; k<to_index; k++)
   {
     if (wall->flag==k)
     {
-      if (wall->gltexture->detail_id != -1 &&
-          gld_IsDetailVisible(xCamera, yCamera, 
+      if (gld_IsDetailVisible(xCamera, yCamera, 
             wall->glseg->x1, wall->glseg->z1,
             wall->glseg->x2, wall->glseg->z2))
       {
@@ -482,7 +486,7 @@ void gld_DrawDetail_NoARB(void)
 {
   int i;
 
-  if (!level_has_details)
+  if (!scene_has_wall_details && !scene_has_flat_details)
     return;
 
   glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
@@ -492,37 +496,43 @@ void gld_DrawDetail_NoARB(void)
 
   // detail flats
 
-  // enable backside removing
-  glEnable(GL_CULL_FACE);
+  if (scene_has_flat_details)
+  {
+    // enable backside removing
+    glEnable(GL_CULL_FACE);
 
-  // floors
-  glCullFace(GL_FRONT);
-  gld_DrawItemsSortByDetail(GLDIT_FLOOR);
-  for (i = gld_drawinfo.num_items[GLDIT_FLOOR] - 1; i >= 0; i--)
-  {
-    gld_DrawFlatDetail_NoARB(gld_drawinfo.items[GLDIT_FLOOR][i].item.flat);
+    // floors
+    glCullFace(GL_FRONT);
+    gld_DrawItemsSortByDetail(GLDIT_FLOOR);
+    for (i = gld_drawinfo.num_items[GLDIT_FLOOR] - 1; i >= 0; i--)
+    {
+      gld_DrawFlatDetail_NoARB(gld_drawinfo.items[GLDIT_FLOOR][i].item.flat);
+    }
+    // ceilings
+    glCullFace(GL_BACK);
+    gld_DrawItemsSortByDetail(GLDIT_CEILING);
+    for (i = gld_drawinfo.num_items[GLDIT_CEILING] - 1; i >= 0; i--)
+    {
+      gld_DrawFlatDetail_NoARB(gld_drawinfo.items[GLDIT_CEILING][i].item.flat);
+    }
+    glDisable(GL_CULL_FACE);
   }
-  // ceilings
-  glCullFace(GL_BACK);
-  gld_DrawItemsSortByDetail(GLDIT_CEILING);
-  for (i = gld_drawinfo.num_items[GLDIT_CEILING] - 1; i >= 0; i--)
-  {
-    gld_DrawFlatDetail_NoARB(gld_drawinfo.items[GLDIT_CEILING][i].item.flat);
-  }
-  glDisable(GL_CULL_FACE);
 
   // detail walls
-  gld_DrawItemsSortByDetail(GLDIT_WALL);
-  for (i = gld_drawinfo.num_items[GLDIT_WALL] - 1; i >= 0; i--)
-    gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_WALL][i].item.wall, GLDWF_TOP, GLDWF_SKY-1);
+  if (scene_has_wall_details)
+  {
+    gld_DrawItemsSortByDetail(GLDIT_WALL);
+    for (i = gld_drawinfo.num_items[GLDIT_WALL] - 1; i >= 0; i--)
+      gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_WALL][i].item.wall, GLDWF_TOP, GLDWF_SKY-1);
 
-  gld_DrawItemsSortByDetail(GLDIT_MWALL);
-  for (i = gld_drawinfo.num_items[GLDIT_MWALL] - 1; i >= 0; i--)
-    gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_MWALL][i].item.wall, GLDWF_TOP, GLDWF_SKY-1);
+    gld_DrawItemsSortByDetail(GLDIT_MWALL);
+    for (i = gld_drawinfo.num_items[GLDIT_MWALL] - 1; i >= 0; i--)
+      gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_MWALL][i].item.wall, GLDWF_TOP, GLDWF_SKY-1);
 
-  gld_DrawItemsSortByDetail(GLDIT_TWALL);
-  for (i = gld_drawinfo.num_items[GLDIT_TWALL] - 1; i >= 0; i--)
-    gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_TWALL][i].item.wall, GLDWF_TOP, GLDWF_SKY-1);
+    gld_DrawItemsSortByDetail(GLDIT_TWALL);
+    for (i = gld_drawinfo.num_items[GLDIT_TWALL] - 1; i >= 0; i--)
+      gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_TWALL][i].item.wall, GLDWF_TOP, GLDWF_SKY-1);
+  }
 
   // restore
   glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
@@ -531,7 +541,7 @@ void gld_DrawDetail_NoARB(void)
 
 void gld_BindDetail(GLTexture *gltexture, int enable)
 {
-  if (render_usedetail && level_has_details)
+  if (render_usedetail && (scene_has_wall_details || scene_has_flat_details))
   {
     if (gl_arb_multitexture)
     {
@@ -594,9 +604,6 @@ void gld_SetTexDetail(GLTexture *gltexture)
         break;
       }
     }
-
-    if (gltexture->detail_id != -1)
-      level_has_details = true;
   }
 }
 
@@ -743,8 +750,6 @@ void gld_ParseDetail(void)
   details_count = 2; // reserved for default wall and flat
   details_size = 128;
   details = calloc(details_size, sizeof(details[0]));
-
-  level_has_details = false;
 
   // skip "Detail" params
   while (SC_Check() && !SC_Compare("{"))

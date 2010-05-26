@@ -344,6 +344,9 @@ extern int render_usedetail;
 extern detail_t *details;
 extern int details_count;
 
+extern int scene_has_wall_details;
+extern int scene_has_flat_details;
+
 extern GLuint* last_glTexID;
 GLTexture *gld_RegisterTexture(int texture_num, dboolean mipmap, dboolean force);
 void gld_BindTexture(GLTexture *gltexture, unsigned int flags);

@@ -1955,6 +1955,8 @@ void gld_StartDrawScene(void)
   rendermarker++;
   gld_ResetDrawInfo();
   scene_has_overlapped_sprites = false;
+  scene_has_wall_details = 0;
+  scene_has_flat_details = 0;
 }
 
 //e6y
@@ -2272,6 +2274,9 @@ static void gld_AddDrawWallItem(GLDrawItemType itemtype, void *itemdata)
       break;
     }
   }
+
+  if (((GLWall*)itemdata)->gltexture->detail_id != -1)
+    scene_has_wall_details++;
 
   gld_AddDrawItem(itemtype, itemdata);
 }
@@ -2980,6 +2985,10 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
   }
 
   flat.alpha = 1.0;
+
+  if (flat.gltexture->detail_id != -1)
+    scene_has_flat_details++;
+
   gld_AddDrawItem(((flat.flags & GLFLAT_CEILING) ? GLDIT_CEILING : GLDIT_FLOOR), &flat);
 }
 
