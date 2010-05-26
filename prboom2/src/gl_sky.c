@@ -977,9 +977,24 @@ void gld_ParseSkybox(void)
 
       if (SC_Compare("}") && (facecount == 3 || facecount == 6))
       {
-        BoxSkyboxCount++;
-        BoxSkybox = realloc(BoxSkybox, BoxSkyboxCount * sizeof(BoxSkybox[0]));
-        memcpy(&BoxSkybox[BoxSkyboxCount - 1], &sb, sizeof(sb));
+        int i;
+        int ok = true;
+
+        for (i = 0; i < facecount; i++)
+        {
+          if (R_CheckTextureNumForName(sb.faces[i]) == -1)
+          {
+            ok = false;
+            break;
+          }
+        }
+
+        if (ok)
+        {
+          BoxSkyboxCount++;
+          BoxSkybox = realloc(BoxSkybox, BoxSkyboxCount * sizeof(BoxSkybox[0]));
+          memcpy(&BoxSkybox[BoxSkyboxCount - 1], &sb, sizeof(sb));
+        }
       }
     }
   }
