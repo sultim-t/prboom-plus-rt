@@ -65,6 +65,7 @@ float gl_detail_maxdist_sqrt;
 detail_t *details;
 int details_count;
 int details_size;
+int level_has_details;
 
 typedef enum
 {
@@ -481,6 +482,9 @@ void gld_DrawDetail_NoARB(void)
 {
   int i;
 
+  if (!level_has_details)
+    return;
+
   glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
   glBlendFunc (GL_DST_COLOR, GL_SRC_COLOR);
 
@@ -527,7 +531,7 @@ void gld_DrawDetail_NoARB(void)
 
 void gld_BindDetail(GLTexture *gltexture, int enable)
 {
-  if (render_usedetail)
+  if (render_usedetail && gltexture->detail_id != -1)
   {
     if (gl_arb_multitexture)
     {
@@ -560,29 +564,35 @@ void gld_SetTexDetail(GLTexture *gltexture)
 
   gltexture->detail_id = -1;
 
-  // linear search
-  for (i = 0; i < details_count; i++)
+  if (details_count > 0)
   {
-    if (gltexture->index == details[i].texture_num)
+    // linear search
+    for (i = 0; i < details_count; i++)
     {
-      gltexture->detail_id = i;
-      break;
+      if (gltexture->index == details[i].texture_num)
+      {
+        gltexture->detail_id = i;
+        break;
+      }
     }
-  }
 
-  if (gltexture->detail_id == -1)
-  {
-    switch (gltexture->textype)
+    if (gltexture->detail_id == -1)
     {
-    case GLDT_TEXTURE:
-      if (details[TAG_DETAIL_WALL].texid > 0)
-        gltexture->detail_id = TAG_DETAIL_WALL;
-      break;
-    case GLDT_FLAT:
-      if (details[TAG_DETAIL_FLAT].texid > 0)
-        gltexture->detail_id = TAG_DETAIL_FLAT;
-      break;
+      switch (gltexture->textype)
+      {
+      case GLDT_TEXTURE:
+        if (details[TAG_DETAIL_WALL].texid > 0)
+          gltexture->detail_id = TAG_DETAIL_WALL;
+        break;
+      case GLDT_FLAT:
+        if (details[TAG_DETAIL_FLAT].texid > 0)
+          gltexture->detail_id = TAG_DETAIL_FLAT;
+        break;
+      }
     }
+
+    if (gltexture->detail_id != -1)
+      level_has_details = true;
   }
 }
 
@@ -729,6 +739,8 @@ void gld_ParseDetail(void)
   details_count = 2; // reserved for default wall and flat
   details_size = 128;
   details = calloc(details_size, sizeof(details[0]));
+
+  level_has_details = false;
 
   // skip "Detail" params
   while (SC_Check() && !SC_Compare("{"))
