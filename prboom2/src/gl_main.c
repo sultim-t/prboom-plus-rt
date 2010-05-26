@@ -2809,8 +2809,8 @@ static void gld_DrawFlat(GLFlat *flat)
     
     glPushMatrix();
 
-    w = flat->gltexture->realtexwidth  / detail->kx;
-    h = flat->gltexture->realtexheight / detail->ky;
+    w = (float)flat->gltexture->realtexwidth  / detail->kx;
+    h = (float)flat->gltexture->realtexheight / detail->ky;
     if (!animitem->anim)
     {
       if (flat->flags & GLFLAT_HAVE_OFFSET)
@@ -2852,7 +2852,7 @@ static void gld_DrawFlat(GLFlat *flat)
       for (vertexnum=currentloop->vertexindex; vertexnum<(currentloop->vertexindex+currentloop->vertexcount); vertexnum++)
       {
         // set texture coordinate of this vertex
-        if (gl_arb_multitexture && render_detailedflats)
+        if (has_detail)
         {
           GLEXT_glMultiTexCoord2fvARB(GL_TEXTURE0_ARB, (GLfloat*)&flats_vbo[vertexnum].u);
           GLEXT_glMultiTexCoord2fvARB(GL_TEXTURE1_ARB, (GLfloat*)&flats_vbo[vertexnum].u);

@@ -421,7 +421,7 @@ void gld_DrawFlatDetail_NoARB(GLFlat *flat)
       for (vertexnum=currentloop->vertexindex; vertexnum<(currentloop->vertexindex+currentloop->vertexcount); vertexnum++)
       {
         // set texture coordinate of this vertex
-        if (gl_arb_multitexture && render_detailedflats)
+        if (true)
         {
           GLEXT_glMultiTexCoord2fvARB(GL_TEXTURE0_ARB, (GLfloat*)&flats_vbo[vertexnum].u);
           GLEXT_glMultiTexCoord2fvARB(GL_TEXTURE1_ARB, (GLfloat*)&flats_vbo[vertexnum].u);
@@ -531,14 +531,16 @@ void gld_DrawDetail_NoARB(void)
 
 void gld_BindDetail(GLTexture *gltexture, int enable)
 {
-  if (render_usedetail && gltexture->detail_id != -1)
+  if (render_usedetail && level_has_details)
   {
     if (gl_arb_multitexture)
     {
       gld_EnableTexture2D(GL_TEXTURE1_ARB, enable);
       gld_EnableClientCoordArray(GL_TEXTURE1_ARB, enable);
 
-      if (enable && details[gltexture->detail_id].texid != last_detail_texid)
+      if (enable &&
+          gltexture->detail_id != -1 &&
+          details[gltexture->detail_id].texid != last_detail_texid)
       {
         last_detail_texid = details[gltexture->detail_id].texid;
 
@@ -549,7 +551,9 @@ void gld_BindDetail(GLTexture *gltexture, int enable)
     }
     else
     {
-      if (enable && details[gltexture->detail_id].texid != last_detail_texid)
+      if (enable &&
+          gltexture->detail_id != -1 &&
+          details[gltexture->detail_id].texid != last_detail_texid)
       {
         last_detail_texid = details[gltexture->detail_id].texid;
         glBindTexture(GL_TEXTURE_2D, details[gltexture->detail_id].texid);
