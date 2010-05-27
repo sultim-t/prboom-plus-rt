@@ -265,6 +265,7 @@ prboom_comp_t prboom_comp[PC_MAX] = {
   {0x02020200, 0x02050003, 0, "-force_incorrect_bobbing_in_boom"},
   {0xffffffff, 0x00000000, 0, "-boom_deh_parser"},
   {0x00000000, 0x02050007, 0, "-mbf_remove_thinker_in_killmobj"},
+  {0x00000000, 0x02050007, 0, "-do_not_inherit_friendlyness_flag_on_spawn"},
 };
 
 dboolean *use_wrong_fixeddiv;

@@ -2568,12 +2568,13 @@ void A_Spawn(mobj_t *mo)
 {
   if (mo->state->misc1)
     {
-      /* mobj_t *newmobj = */
+      mobj_t *newmobj = 
       P_SpawnMobj(mo->x, mo->y, (mo->state->misc2 << FRACBITS) + mo->z,
       mo->state->misc1 - 1);
-      /* CPhipps - no friendlyness (yet)
+      if (compatibility_level == mbf_compatibility && 
+          !prboom_comp[PC_DO_NOT_INHERIT_FRIENDLYNESS_FLAG_ON_SPAWN].state)
+      /* CPhipps - no friendlyness (yet)*/ //e6y: why not?
    newmobj->flags = (newmobj->flags & ~MF_FRIEND) | (mo->flags & MF_FRIEND);
-      */
     }
 }
 
