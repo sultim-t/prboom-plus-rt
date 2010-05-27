@@ -238,7 +238,7 @@ void gld_DrawWallWithDetail(GLWall *wall)
   float w, h, s;
   TAnimItemParam *animitem;
   dboolean fake = (wall->flag == GLDWF_TOPFLUD) || (wall->flag == GLDWF_BOTFLUD);
-  detail_t *detail = &details[wall->gltexture->detail_id];
+  detail_t *detail = wall->gltexture->detail;
   
   if (fake)
   {
@@ -332,7 +332,7 @@ void gld_DrawWallDetail_NoARB(GLWall *wall, int from_index, int to_index)
 {
   int k;
 
-  if (wall->gltexture->detail_id == -1)
+  if (!wall->gltexture->detail)
     return;
 
   for (k=from_index; k<to_index; k++)
@@ -346,7 +346,7 @@ void gld_DrawWallDetail_NoARB(GLWall *wall, int from_index, int to_index)
         detail_t *detail;
         float w, h;
 
-        detail = &details[wall->gltexture->detail_id];
+        detail = wall->gltexture->detail;
         gld_BindDetail(wall->gltexture, detail->texid);
 
         w = wall->gltexture->realtexwidth  / detail->kx;
@@ -386,10 +386,10 @@ void gld_DrawFlatDetail_NoARB(GLFlat *flat)
   GLLoopDef *currentloop;
   detail_t *detail;
 
-  if (flat->gltexture->detail_id == -1)
+  if (!flat->gltexture->detail)
     return;
 
-  detail = &details[flat->gltexture->detail_id];
+  detail = flat->gltexture->detail;
   gld_BindDetail(flat->gltexture, detail->texid);
 
   gld_StaticLightAlpha(flat->light, flat->alpha);
@@ -449,16 +449,16 @@ void gld_DrawFlatDetail_NoARB(GLFlat *flat)
 
 static int C_DECL dicmp_wall_detail(const void *a, const void *b)
 {
-  GLuint tx1 = ((const GLDrawItem *)a)->item.wall->gltexture->detail_id;
-  GLuint tx2 = ((const GLDrawItem *)b)->item.wall->gltexture->detail_id;
-  return tx1 - tx2;
+  detail_t *d1 = ((const GLDrawItem *)a)->item.wall->gltexture->detail;
+  detail_t *d2 = ((const GLDrawItem *)b)->item.wall->gltexture->detail;
+  return d1 - d2;
 }
 
 static int C_DECL dicmp_flat_detail(const void *a, const void *b)
 {
-  GLuint tx1 = ((const GLDrawItem *)a)->item.flat->gltexture->detail_id;
-  GLuint tx2 = ((const GLDrawItem *)b)->item.flat->gltexture->detail_id;
-  return tx1 - tx2;
+  detail_t *d1 = ((const GLDrawItem *)a)->item.flat->gltexture->detail;
+  detail_t *d2 = ((const GLDrawItem *)b)->item.flat->gltexture->detail;
+  return d1 - d2;
 }
 
 static void gld_DrawItemsSortByDetail(GLDrawItemType itemtype)
@@ -549,24 +549,24 @@ void gld_BindDetail(GLTexture *gltexture, int enable)
       gld_EnableClientCoordArray(GL_TEXTURE1_ARB, enable);
 
       if (enable &&
-          gltexture->detail_id != -1 &&
-          details[gltexture->detail_id].texid != last_detail_texid)
+          gltexture->detail &&
+          gltexture->detail->texid != last_detail_texid)
       {
-        last_detail_texid = details[gltexture->detail_id].texid;
+        last_detail_texid = gltexture->detail->texid;
 
         GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
-        glBindTexture(GL_TEXTURE_2D, details[gltexture->detail_id].texid);
+        glBindTexture(GL_TEXTURE_2D, gltexture->detail->texid);
         GLEXT_glActiveTextureARB(GL_TEXTURE0_ARB);
       }
     }
     else
     {
       if (enable &&
-          gltexture->detail_id != -1 &&
-          details[gltexture->detail_id].texid != last_detail_texid)
+          gltexture->detail &&
+          gltexture->detail->texid != last_detail_texid)
       {
-        last_detail_texid = details[gltexture->detail_id].texid;
-        glBindTexture(GL_TEXTURE_2D, details[gltexture->detail_id].texid);
+        last_detail_texid = gltexture->detail->texid;
+        glBindTexture(GL_TEXTURE_2D, gltexture->detail->texid);
       }
     }
   }
@@ -576,7 +576,7 @@ void gld_SetTexDetail(GLTexture *gltexture)
 {
   int i;
 
-  gltexture->detail_id = -1;
+  gltexture->detail = NULL;
 
   if (details_count > 0)
   {
@@ -585,22 +585,22 @@ void gld_SetTexDetail(GLTexture *gltexture)
     {
       if (gltexture->index == details[i].texture_num)
       {
-        gltexture->detail_id = i;
+        gltexture->detail = &details[i];
         break;
       }
     }
 
-    if (gltexture->detail_id == -1)
+    if (!gltexture->detail)
     {
       switch (gltexture->textype)
       {
       case GLDT_TEXTURE:
         if (details[TAG_DETAIL_WALL].texid > 0)
-          gltexture->detail_id = TAG_DETAIL_WALL;
+          gltexture->detail = &details[TAG_DETAIL_WALL];
         break;
       case GLDT_FLAT:
         if (details[TAG_DETAIL_FLAT].texid > 0)
-          gltexture->detail_id = TAG_DETAIL_FLAT;
+          gltexture->detail = &details[TAG_DETAIL_FLAT];
         break;
       }
     }

@@ -90,6 +90,13 @@ typedef struct gl_strip_coords_s
 
 #define PLAYERCOLORMAP_COUNT (3)
 
+typedef struct detail_s
+{
+  GLuint texid;
+  int texture_num;
+  float kx, ky;
+} detail_t;
+
 typedef struct
 {
   int index;
@@ -114,7 +121,7 @@ typedef struct
   float scalexfac, scaleyfac; //e6y: right/bottom UV coordinates for patch drawing
 
   //detail
-  GLuint detail_id;
+  detail_t *detail;
 } GLTexture;
 
 typedef struct
@@ -321,13 +328,6 @@ extern float xCamera,yCamera,zCamera;
 //
 //detail
 //
-
-typedef struct detail_s
-{
-  GLuint texid;
-  int texture_num;
-  float kx, ky;
-} detail_t;
 
 int gld_IsDetailVisible(float x0, float y0, float x1, float y1, float x2, float y2);
 void gld_InitDetail(void);

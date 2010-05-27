@@ -2275,7 +2275,7 @@ static void gld_AddDrawWallItem(GLDrawItemType itemtype, void *itemdata)
     }
   }
 
-  if (((GLWall*)itemdata)->gltexture->detail_id != -1)
+  if (((GLWall*)itemdata)->gltexture->detail)
     scene_has_wall_details++;
 
   gld_AddDrawItem(itemtype, itemdata);
@@ -2297,7 +2297,7 @@ static void gld_DrawWall(GLWall *wall)
   has_detail =
     gl_arb_multitexture &&
     (wall->flag < GLDWF_SKY) &&
-    (wall->gltexture->detail_id != -1) &&
+    (wall->gltexture->detail) &&
     gld_IsDetailVisible(xCamera, yCamera, 
       wall->glseg->x1, wall->glseg->z1,
       wall->glseg->x2, wall->glseg->z2);
@@ -2774,8 +2774,7 @@ static void gld_DrawFlat(GLFlat *flat)
 
   rendered_visplanes++;
   
-  has_detail = gl_arb_multitexture &&
-    flat->gltexture->detail_id != -1;
+  has_detail = gl_arb_multitexture && flat->gltexture->detail;
 
   has_offset = (has_detail || (flat->flags & GLFLAT_HAVE_OFFSET));
 
@@ -2806,7 +2805,7 @@ static void gld_DrawFlat(GLFlat *flat)
   if (has_detail)
   {
     float w, h;
-    detail_t *detail = &details[flat->gltexture->detail_id];
+    detail_t *detail = flat->gltexture->detail;
     TAnimItemParam *animitem = &anim_flats[flat->gltexture->index - firstflat];
 
     GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
@@ -2986,7 +2985,7 @@ static void gld_AddFlat(int sectornum, dboolean ceiling, visplane_t *plane)
 
   flat.alpha = 1.0;
 
-  if (flat.gltexture->detail_id != -1)
+  if (flat.gltexture->detail)
     scene_has_flat_details++;
 
   gld_AddDrawItem(((flat.flags & GLFLAT_CEILING) ? GLDIT_CEILING : GLDIT_FLOOR), &flat);
