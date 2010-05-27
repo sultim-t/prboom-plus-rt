@@ -65,6 +65,7 @@ float gl_detail_maxdist_sqrt;
 detail_t *details;
 int details_count;
 int details_size;
+int scene_has_details;
 int scene_has_wall_details;
 int scene_has_flat_details;
 
@@ -539,35 +540,45 @@ void gld_DrawDetail_NoARB(void)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
+void gld_InitFrameDetails(void)
+{
+  last_detail_texid = -1;
+
+  scene_has_details =
+    (render_usedetail) &&
+    (scene_has_wall_details || scene_has_flat_details);
+}
+
+void gld_BindDetailARB(GLTexture *gltexture, int enable)
+{
+  if (scene_has_details)
+  {
+    gld_EnableTexture2D(GL_TEXTURE1_ARB, enable);
+    gld_EnableClientCoordArray(GL_TEXTURE1_ARB, enable);
+
+    if (enable &&
+      gltexture->detail &&
+      gltexture->detail->texid != last_detail_texid)
+    {
+      last_detail_texid = gltexture->detail->texid;
+
+      GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
+      glBindTexture(GL_TEXTURE_2D, gltexture->detail->texid);
+      GLEXT_glActiveTextureARB(GL_TEXTURE0_ARB);
+    }
+  }
+}
+
 void gld_BindDetail(GLTexture *gltexture, int enable)
 {
-  if (render_usedetail && (scene_has_wall_details || scene_has_flat_details))
+  if (scene_has_details)
   {
-    if (gl_arb_multitexture)
+    if (enable &&
+        gltexture->detail &&
+        gltexture->detail->texid != last_detail_texid)
     {
-      gld_EnableTexture2D(GL_TEXTURE1_ARB, enable);
-      gld_EnableClientCoordArray(GL_TEXTURE1_ARB, enable);
-
-      if (enable &&
-          gltexture->detail &&
-          gltexture->detail->texid != last_detail_texid)
-      {
-        last_detail_texid = gltexture->detail->texid;
-
-        GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
-        glBindTexture(GL_TEXTURE_2D, gltexture->detail->texid);
-        GLEXT_glActiveTextureARB(GL_TEXTURE0_ARB);
-      }
-    }
-    else
-    {
-      if (enable &&
-          gltexture->detail &&
-          gltexture->detail->texid != last_detail_texid)
-      {
-        last_detail_texid = gltexture->detail->texid;
-        glBindTexture(GL_TEXTURE_2D, gltexture->detail->texid);
-      }
+      last_detail_texid = gltexture->detail->texid;
+      glBindTexture(GL_TEXTURE_2D, gltexture->detail->texid);
     }
   }
 }

@@ -2310,7 +2310,7 @@ static void gld_DrawWall(GLWall *wall)
     flags = 0;
 
   gld_BindTexture(wall->gltexture, flags);
-  gld_BindDetail(wall->gltexture, has_detail);
+  gld_BindDetailARB(wall->gltexture, has_detail);
 
   if (!wall->gltexture)
   {
@@ -2801,7 +2801,7 @@ static void gld_DrawFlat(GLFlat *flat)
     glTranslatef(flat->uoffs, flat->voffs, 0.0f);
   }
   
-  gld_BindDetail(flat->gltexture, has_detail);
+  gld_BindDetailARB(flat->gltexture, has_detail);
   if (has_detail)
   {
     float w, h;
@@ -3416,6 +3416,7 @@ void gld_DrawScene(player_t *player)
   gl_EnableFog(false);
 
   gld_EnableDetail(false);
+  gld_InitFrameDetails();
 
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);

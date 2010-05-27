@@ -331,6 +331,7 @@ extern float xCamera,yCamera,zCamera;
 
 int gld_IsDetailVisible(float x0, float y0, float x1, float y1, float x2, float y2);
 void gld_InitDetail(void);
+void gld_InitFrameDetails(void);
 void gld_ParseDetail(void);
 void gld_SetTexDetail(GLTexture *gltexture);
 
@@ -339,6 +340,7 @@ void gld_DrawDetail_NoARB(void);
 void gld_EnableDetail(int enable);
 void gld_DrawWallWithDetail(GLWall *wall);
 void gld_BindDetail(GLTexture *gltexture, int enable);
+void gld_BindDetailARB(GLTexture *gltexture, int enable);
 
 extern int render_usedetail;
 extern detail_t *details;
