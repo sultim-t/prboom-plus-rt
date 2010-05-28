@@ -41,6 +41,7 @@
 #include "lprintf.h"
 
 int gl_shadows_maxdist;
+int gl_shadows_factor;
 
 simple_shadow_params_t simple_shadows =
 {
@@ -65,7 +66,7 @@ void gld_InitShadows(void)
 
   simple_shadows.max_radius = 80;
   simple_shadows.max_dist = gl_shadows_maxdist;
-  simple_shadows.factor = 0.5f;
+  simple_shadows.factor = (float)gl_shadows_factor / 256.0f;
   simple_shadows.bias = 0.0044f;
   
   lump = (W_CheckNumForName)("GLSHADOW", ns_prboom);

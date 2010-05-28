@@ -976,6 +976,8 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"gl_shadows_maxdist",{&gl_shadows_maxdist},{1000},0,32767,
    def_int,ss_none},
+  {"gl_shadows_factor",{&gl_shadows_factor},{128},0,255,
+   def_int,ss_none},
   {"gl_blend_animations",{&gl_blend_animations},{0},0,1,
    def_bool,ss_none},
 #endif
