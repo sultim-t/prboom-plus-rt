@@ -1325,3 +1325,17 @@ void CheckRatio (int width, int height)
     break;
   }
 }
+
+void V_GetWideRect(int *x, int *y, int *w, int *h, enum patch_translation_e flags)
+{
+  stretch_param_t *params = &stretch_params[flags & VPT_ALIGN_MASK];
+  int sx = *x;
+  int sy = *y;
+
+  *x = params->video->x1lookup[*x];
+  *y = params->video->y1lookup[*y];
+  *w = params->video->x2lookup[sx + *w - 1] - *x + 1;
+  *h = params->video->y2lookup[sy + *h - 1] - *y + 1;
+  *x += params->deltax1;
+  *y += params->deltay1;
+}

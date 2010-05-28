@@ -267,6 +267,8 @@ void V_FreePlaypal(void);
 // e6y: wide-res
 void V_FillBorder(int lump, byte color);
 
+void V_GetWideRect(int *x, int *y, int *w, int *h, enum patch_translation_e flags);
+
 #ifdef GL_DOOM
 #include "gl_struct.h"
 #endif

@@ -1926,12 +1926,15 @@ static void M_DrawSetting(const setup_menu_t* s)
       ch = *s->var.def->location.pi;
       // proff 12/6/98: Drawing of colorchips completly changed for hi-res, it now uses a patch
       // draw the paint chip
-      V_FillRect(0, x*SCREENWIDTH/320, (y-1)*SCREENHEIGHT/200,
-                    8*SCREENWIDTH/320, 8*SCREENHEIGHT/200,
-                 PAL_BLACK);
-      V_FillRect(0, (x+1)*SCREENWIDTH/320, y*SCREENHEIGHT/200,
-                        6*SCREENWIDTH/320, 6*SCREENHEIGHT/200,
-                 (byte)ch);
+      // e6y: wide-res
+      {
+        int xx = x, yy = y - 1, ww = 8, hh = 8;
+        V_GetWideRect(&xx, &yy, &ww, &hh, VPT_STRETCH);
+        V_FillRect(0, xx, yy, ww, hh, PAL_BLACK);
+        xx = x + 1, yy = y, ww = 6, hh = 6;
+        V_GetWideRect(&xx, &yy, &ww, &hh, VPT_STRETCH);
+        V_FillRect(0, xx, yy, ww, hh, (byte)ch);
+      }
 
       if (!ch) // don't show this item in automap mode
   V_DrawNamePatch(x+1,y,0,"M_PALNO", CR_DEFAULT, VPT_STRETCH);
@@ -1978,8 +1981,12 @@ static void M_DrawSetting(const setup_menu_t* s)
 
       // Now draw the cursor
       // proff 12/6/98: Drawing of cursor changed for hi-res
-      V_FillRect(0, ((x+cursor_start-1)*SCREENWIDTH)/320, (y*SCREENHEIGHT)/200,
-      (char_width*SCREENWIDTH)/320, 9*SCREENHEIGHT/200, PAL_WHITE);
+      // e6y: wide-res
+      {
+        int xx = (x+cursor_start-1), yy = y, ww = char_width, hh = 9;
+        V_GetWideRect(&xx, &yy, &ww, &hh, VPT_STRETCH);
+        V_FillRect(0, xx, yy, ww, hh, PAL_WHITE);
+      }
     }
 
     // Draw the setting for the item
