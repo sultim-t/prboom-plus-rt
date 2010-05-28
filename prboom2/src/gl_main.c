@@ -3555,8 +3555,6 @@ void gld_DrawScene(player_t *player)
     glEnable(GL_DEPTH_TEST);
   }
 
-  gld_RenderShadows();
-
   //
   // transparent stuff
   //
@@ -3601,6 +3599,8 @@ void gld_DrawScene(player_t *player)
     // projected animated walls
     gld_DrawProjectedWalls(GLDIT_FAWALL);
   }
+
+  gld_RenderShadows();
 
   if (gld_drawinfo.num_items[GLDIT_TWALL] > 0 || gld_drawinfo.num_items[GLDIT_TSPRITE] > 0)
   {
