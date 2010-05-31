@@ -793,7 +793,7 @@ void I_CalculateRes(int width, int height)
     unsigned int count1, count2;
     int pitch1, pitch2;
 
-    SCREENWIDTH = (width+15) & ~15;
+    SCREENWIDTH = width;//(width+15) & ~15;
     SCREENHEIGHT = height;
 
     // e6y
@@ -804,8 +804,9 @@ void I_CalculateRes(int width, int height)
     if (try_to_reduce_cpu_cache_misses)
     {
       unsigned int mintime = 100;
-      pitch1 = SCREENWIDTH * V_GetPixelDepth();
-      pitch2 = SCREENWIDTH * V_GetPixelDepth() + 32;
+      int w = (width+15) & ~15;
+      pitch1 = w * V_GetPixelDepth();
+      pitch2 = w * V_GetPixelDepth() + 32;
 
       count1 = I_TestCPUCacheMisses(pitch1, SCREENHEIGHT, mintime);
       count2 = I_TestCPUCacheMisses(pitch2, SCREENHEIGHT, mintime);
