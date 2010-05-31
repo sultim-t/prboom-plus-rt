@@ -96,6 +96,7 @@ int wide_centerx;
 int wide_ratio;
 int wide_offsetx;
 int wide_offsety;
+int wide_offsety_x2;
 const base_ratio_t BaseRatioSizes[5] =
 {
 	{  960, 600, 0, 48 ,      RMUL*1.333333f }, // 4:3
@@ -531,7 +532,7 @@ static void InitStretchParam(stretch_param_t* offsets, int stretch, enum patch_t
 
   if (flags == VPT_ALIGN_BOTTOM || flags == VPT_ALIGN_LEFT_BOTTOM || flags == VPT_ALIGN_RIGHT_BOTTOM)
   {
-    offsets->deltay1 = wide_offsety * 2;
+    offsets->deltay1 = wide_offsety_x2;
   }
 
   if (flags == VPT_ALIGN_WIDE || flags == VPT_ALIGN_TOP || flags == VPT_ALIGN_LEFT_TOP || flags == VPT_ALIGN_RIGHT_TOP)

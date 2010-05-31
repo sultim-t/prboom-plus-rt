@@ -1306,6 +1306,7 @@ void CheckRatio (int width, int height)
 
     wide_offsetx = (SCREENWIDTH - patches_scalex * 320) / 2;
     wide_offsety = (SCREENHEIGHT - patches_scaley * 200) / 2;
+    wide_offsety_x2 = (SCREENHEIGHT - patches_scaley * 200);
     break;
   case patch_stretch_4x3:
     ST_SCALED_HEIGHT = ST_HEIGHT * SCREENHEIGHT / 200;
@@ -1314,6 +1315,7 @@ void CheckRatio (int width, int height)
     ST_SCALED_Y = SCREENHEIGHT - ST_SCALED_HEIGHT;
     wide_offsetx = (SCREENWIDTH - WIDE_SCREENWIDTH) / 2;
     wide_offsety = 0;
+    wide_offsety_x2 = 0;
     break;
   case patch_stretch_full:
     ST_SCALED_HEIGHT = ST_HEIGHT * SCREENHEIGHT / 200;
@@ -1322,6 +1324,7 @@ void CheckRatio (int width, int height)
     ST_SCALED_Y = SCREENHEIGHT - ST_SCALED_HEIGHT;
     wide_offsetx = 0;
     wide_offsety = 0;
+    wide_offsety_x2 = 0;
     break;
   }
 }
