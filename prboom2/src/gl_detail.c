@@ -262,8 +262,8 @@ void gld_DrawWallWithDetail(GLWall *wall)
 
     gld_SetupFloodStencil(wall);
 
-    w = s + wall->gltexture->realtexwidth  / detail->kx;
-    h = s + wall->gltexture->realtexheight / detail->ky;
+    w = s + wall->gltexture->realtexwidth  / detail->width;
+    h = s + wall->gltexture->realtexheight / detail->height;
 
     gld_SetupFloodedPlaneLight(wall);
     gld_SetupFloodedPlaneCoords(wall, &c1);
@@ -292,8 +292,8 @@ void gld_DrawWallWithDetail(GLWall *wall)
     s = 1.0f / animitem->anim->numpics * animitem->index;
     if (s < 0.001f) s = 0.0f;
   }
-  w = s + (float)wall->gltexture->realtexwidth  / detail->kx;
-  h = s + (float)wall->gltexture->realtexheight / detail->ky;
+  w = s + (float)wall->gltexture->realtexwidth  / detail->width;
+  h = s + (float)wall->gltexture->realtexheight / detail->height;
   gld_StaticLightAlpha(wall->light, wall->alpha);
 
   glBegin(GL_TRIANGLE_FAN);
@@ -350,8 +350,8 @@ void gld_DrawWallDetail_NoARB(GLWall *wall, int from_index, int to_index)
         detail = wall->gltexture->detail;
         gld_BindDetail(wall->gltexture, detail->texid);
 
-        w = wall->gltexture->realtexwidth  / detail->kx;
-        h = wall->gltexture->realtexheight / detail->ky;
+        w = wall->gltexture->realtexwidth  / detail->width;
+        h = wall->gltexture->realtexheight / detail->height;
         gld_StaticLightAlpha(wall->light, wall->alpha);
         glBegin(GL_TRIANGLE_FAN);
 
@@ -694,9 +694,9 @@ int gld_ReadDetailParams(tag_detail_e item, detail_t *detail)
         float f;
 
         if (SC_Check() && SC_GetString() && M_StrToFloat(sc_String, &f))
-          detail->kx = f;
+          detail->width = f;
         if (SC_Check() && SC_GetString() && M_StrToFloat(sc_String, &f))
-          detail->ky = f;
+          detail->height = f;
 
         result = true;
       }
@@ -712,8 +712,8 @@ int gld_ReadDetailParams(tag_detail_e item, detail_t *detail)
 void gld_ParseDetailItem(tag_detail_e item)
 {
   // item's default values
-  details[item].kx = 16.0f;
-  details[item].ky = 16.0f;
+  details[item].width = 16.0f;
+  details[item].height = 16.0f;
   if (SC_Check() && !SC_Compare("{"))
   {
     gld_ReadDetailParams(item, &details[item]);
@@ -728,8 +728,8 @@ void gld_ParseDetailItem(tag_detail_e item)
 
       // reset fields for next iteration
       detail.texid   = 0;
-      detail.kx      = 16.0f;
-      detail.ky      = 16.0f;
+      detail.width   = 16.0f;
+      detail.height  = 16.0f;
 
       if (strlen(sc_String) < 9)
       {

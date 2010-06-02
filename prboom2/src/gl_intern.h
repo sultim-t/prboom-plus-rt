@@ -94,7 +94,7 @@ typedef struct detail_s
 {
   GLuint texid;
   int texture_num;
-  float kx, ky;
+  float width, height;
 } detail_t;
 
 typedef struct

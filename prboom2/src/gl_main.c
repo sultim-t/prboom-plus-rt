@@ -2813,8 +2813,8 @@ static void gld_DrawFlat(GLFlat *flat)
     
     glPushMatrix();
 
-    w = (float)flat->gltexture->realtexwidth  / detail->kx;
-    h = (float)flat->gltexture->realtexheight / detail->ky;
+    w = (float)flat->gltexture->realtexwidth  / detail->width;
+    h = (float)flat->gltexture->realtexheight / detail->height;
     if (!animitem->anim)
     {
       if (flat->flags & GLFLAT_HAVE_OFFSET)
