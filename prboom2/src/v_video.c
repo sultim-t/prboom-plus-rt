@@ -1222,7 +1222,7 @@ void V_FillBorder(int lump, byte color)
     // Right
     V_FillFlat(lump, 0, Width - bordright, bordtop, bordright, Height - bordbottom - bordtop, VPT_NONE);
     // Bottom
-    V_FillFlat(lump, 0, 0, Width - bordbottom, Width, bordbottom, VPT_NONE);
+    V_FillFlat(lump, 0, 0, Height - bordbottom, Width, bordbottom, VPT_NONE);
   }
   else
   {
@@ -1233,7 +1233,7 @@ void V_FillBorder(int lump, byte color)
     // Right
     V_FillRect(0, Width - bordright, bordtop, bordright, Height - bordbottom - bordtop, color);
     // Bottom
-    V_FillRect(0, 0, Width - bordbottom, Width, bordbottom, color);
+    V_FillRect(0, 0, Height - bordbottom, Width, bordbottom, color);
   }
 }
 
