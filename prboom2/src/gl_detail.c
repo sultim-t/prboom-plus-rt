@@ -768,6 +768,8 @@ void gld_ParseDetailItem(tag_detail_e item)
   // item's default values
   details[item].width = 16.0f;
   details[item].height = 16.0f;
+  details[item].offsetx = 0.0f;
+  details[item].offsety = 0.0f;
   if (SC_Check() && !SC_Compare("{"))
   {
     gld_ReadDetailParams(item, &details[item]);
@@ -784,6 +786,8 @@ void gld_ParseDetailItem(tag_detail_e item)
       detail.texid   = 0;
       detail.width   = 16.0f;
       detail.height  = 16.0f;
+      detail.offsetx = 0.0f;
+      detail.offsety = 0.0f;
 
       if (strlen(sc_String) < 9)
       {
