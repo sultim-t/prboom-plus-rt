@@ -485,6 +485,7 @@ void gld_DrawDetail_NoARB(void)
     gld_DrawItemsSortByDetail(GLDIT_FLOOR);
     for (i = gld_drawinfo.num_items[GLDIT_FLOOR] - 1; i >= 0; i--)
     {
+      gld_SetFog(gld_drawinfo.items[GLDIT_FLOOR][i].item.flat->fogdensity);
       gld_DrawFlatDetail_NoARB(gld_drawinfo.items[GLDIT_FLOOR][i].item.flat);
     }
     // ceilings
@@ -492,6 +493,7 @@ void gld_DrawDetail_NoARB(void)
     gld_DrawItemsSortByDetail(GLDIT_CEILING);
     for (i = gld_drawinfo.num_items[GLDIT_CEILING] - 1; i >= 0; i--)
     {
+      gld_SetFog(gld_drawinfo.items[GLDIT_CEILING][i].item.flat->fogdensity);
       gld_DrawFlatDetail_NoARB(gld_drawinfo.items[GLDIT_CEILING][i].item.flat);
     }
     glDisable(GL_CULL_FACE);
@@ -502,15 +504,24 @@ void gld_DrawDetail_NoARB(void)
   {
     gld_DrawItemsSortByDetail(GLDIT_WALL);
     for (i = gld_drawinfo.num_items[GLDIT_WALL] - 1; i >= 0; i--)
+    {
+      gld_SetFog(gld_drawinfo.items[GLDIT_WALL][i].item.wall->fogdensity);
       gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_WALL][i].item.wall, GLDWF_TOP, GLDWF_SKY-1);
+    }
 
     gld_DrawItemsSortByDetail(GLDIT_MWALL);
     for (i = gld_drawinfo.num_items[GLDIT_MWALL] - 1; i >= 0; i--)
+    {
+      gld_SetFog(gld_drawinfo.items[GLDIT_MWALL][i].item.wall->fogdensity);
       gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_MWALL][i].item.wall, GLDWF_TOP, GLDWF_SKY-1);
+    }
 
     gld_DrawItemsSortByDetail(GLDIT_TWALL);
     for (i = gld_drawinfo.num_items[GLDIT_TWALL] - 1; i >= 0; i--)
+    {
+      gld_SetFog(gld_drawinfo.items[GLDIT_TWALL][i].item.wall->fogdensity);
       gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_TWALL][i].item.wall, GLDWF_TOP, GLDWF_SKY-1);
+    }
   }
 
   // restore
