@@ -882,13 +882,16 @@ void R_RenderPlayerView (player_t* player)
   R_ClearSprites ();
 
   rendered_segs = rendered_visplanes = 0;
-  if (V_GetMode() == VID_MODEGL && !automap)
+  if (V_GetMode() == VID_MODEGL)
   {
 #ifdef GL_DOOM
     // proff 11/99: clear buffers
     gld_InitDrawScene();
-    // proff 11/99: switch to perspective mode
-    gld_StartDrawScene();
+    if (!automap)
+    {
+      // proff 11/99: switch to perspective mode
+      gld_StartDrawScene();
+    }
 #endif
   } else {
     if (flashing_hom)

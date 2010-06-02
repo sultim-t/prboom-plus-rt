@@ -135,6 +135,14 @@ static float extra_alpha=0.0f;
 
 GLfloat gl_whitecolor[4]={1.0f,1.0f,1.0f,1.0f};
 
+// e6y
+// New memory manager for GL data.
+// It is more universal and much easier in use.
+GLDrawInfo gld_drawinfo;
+static void gld_FreeDrawInfo(void);
+static void gld_ResetDrawInfo(void);
+static void gld_AddDrawRange(int size);
+
 void gld_InitTextureParams(void)
 {
   typedef struct tex_filter_s
@@ -814,6 +822,7 @@ GLvoid gld_Set2DMode(void)
 
 void gld_InitDrawScene(void)
 {
+  gld_ResetDrawInfo();
 }
 
 void gld_Finish(void)
@@ -841,14 +850,6 @@ static void gld_AddGlobalVertexes(int count)
 
 GLSeg *gl_segs=NULL;
 GLSeg *gl_lines=NULL;
-
-// e6y
-// New memory manager for GL data.
-// It is more universal and much easier in use.
-GLDrawInfo gld_drawinfo;
-static void gld_FreeDrawInfo(void);
-static void gld_ResetDrawInfo(void);
-static void gld_AddDrawRange(int size);
 
 // this is the list for all sectors to the loops
 GLSector *sectorloops;
@@ -1953,7 +1954,6 @@ void gld_StartDrawScene(void)
   glTranslatef(-xCamera, -zCamera, -yCamera);
 
   rendermarker++;
-  gld_ResetDrawInfo();
   scene_has_overlapped_sprites = false;
   scene_has_wall_details = 0;
   scene_has_flat_details = 0;
