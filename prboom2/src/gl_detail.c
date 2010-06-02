@@ -516,6 +516,20 @@ void gld_DrawDetail_NoARB(void)
       gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_MWALL][i].item.wall, GLDWF_TOP, GLDWF_SKY-1);
     }
 
+    glPolygonOffset(1.0f, 128.0f);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glEnable(GL_STENCIL_TEST);
+
+    gld_DrawItemsSortByDetail(GLDIT_FWALL);
+    for (i = gld_drawinfo.num_items[GLDIT_FWALL] - 1; i >= 0; i--)
+    {
+      gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_FWALL][i].item.wall, GLDWF_TOPFLUD, GLDWF_SKY);
+    }
+
+    glDisable(GL_STENCIL_TEST);
+    glPolygonOffset(0.0f, 0.0f);
+    glDisable(GL_POLYGON_OFFSET_FILL);
+
     gld_DrawItemsSortByDetail(GLDIT_TWALL);
     for (i = gld_drawinfo.num_items[GLDIT_TWALL] - 1; i >= 0; i--)
     {
