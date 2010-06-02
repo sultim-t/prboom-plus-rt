@@ -2806,7 +2806,6 @@ static void gld_DrawFlat(GLFlat *flat)
   {
     float w, h;
     detail_t *detail = flat->gltexture->detail;
-    TAnimItemParam *animitem = &anim_flats[flat->gltexture->index - firstflat];
 
     GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
     gld_StaticLightAlpha(flat->light, flat->alpha);
@@ -2815,18 +2814,10 @@ static void gld_DrawFlat(GLFlat *flat)
 
     w = (float)flat->gltexture->realtexwidth  / detail->width;
     h = (float)flat->gltexture->realtexheight / detail->height;
-    if (!animitem->anim)
+
+    if (flat->flags & GLFLAT_HAVE_OFFSET)
     {
-      if (flat->flags & GLFLAT_HAVE_OFFSET)
-      {
-        glTranslatef(flat->uoffs * w, flat->voffs * h, 0.0f);
-      }
-    }
-    else
-    {
-      float s = 1.0f / animitem->anim->numpics * animitem->index;
-      if (s < 0.001f) s = 0.0f;
-      glTranslatef(s + flat->uoffs * w, s + flat->voffs * h, 0.0f);
+      glTranslatef(flat->uoffs * w, flat->voffs * h, 0.0f);
     }
 
     glScalef(w, h, 1.0f);

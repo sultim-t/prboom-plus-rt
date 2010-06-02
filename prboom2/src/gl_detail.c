@@ -236,8 +236,7 @@ void gld_EnableDetail(int enable)
 
 void gld_DrawWallWithDetail(GLWall *wall)
 {
-  float w, h, s;
-  TAnimItemParam *animitem;
+  float w, h;
   dboolean fake = (wall->flag == GLDWF_TOPFLUD) || (wall->flag == GLDWF_BOTFLUD);
   detail_t *detail = wall->gltexture->detail;
   
@@ -249,21 +248,10 @@ void gld_DrawWallWithDetail(GLWall *wall)
 
     gld_BindFlat(wall->gltexture, 0);
 
-    animitem = &anim_flats[wall->gltexture->index - firstflat];
-    if (!animitem->anim)
-    {
-      s = 0.0f;
-    }
-    else
-    {
-      s = 1.0f / animitem->anim->numpics * animitem->index;
-      if (s < 0.001) s = 0.0f;
-    }
-
     gld_SetupFloodStencil(wall);
 
-    w = s + wall->gltexture->realtexwidth  / detail->width;
-    h = s + wall->gltexture->realtexheight / detail->height;
+    w = wall->gltexture->realtexwidth  / detail->width;
+    h = wall->gltexture->realtexheight / detail->height;
 
     gld_SetupFloodedPlaneLight(wall);
     gld_SetupFloodedPlaneCoords(wall, &c1);
@@ -282,18 +270,8 @@ void gld_DrawWallWithDetail(GLWall *wall)
     return;
   }
 
-  animitem = &anim_textures[wall->gltexture->index];
-  if (!animitem->anim)
-  {
-    s = 0.0f;
-  }
-  else
-  {
-    s = 1.0f / animitem->anim->numpics * animitem->index;
-    if (s < 0.001f) s = 0.0f;
-  }
-  w = s + (float)wall->gltexture->realtexwidth  / detail->width;
-  h = s + (float)wall->gltexture->realtexheight / detail->height;
+  w = (float)wall->gltexture->realtexwidth  / detail->width;
+  h = (float)wall->gltexture->realtexheight / detail->height;
   gld_StaticLightAlpha(wall->light, wall->alpha);
 
   glBegin(GL_TRIANGLE_FAN);
