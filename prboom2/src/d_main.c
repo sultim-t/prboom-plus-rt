@@ -351,6 +351,16 @@ void D_Display (void)
     {
       R_RenderPlayerView (&players[displayplayer]);
     }
+#ifdef GL_DOOM
+    else
+    {
+      if (V_GetMode() == VID_MODEGL)
+      {
+        // do not use multisampling in automap mode if map_use_multisamling 0
+        gld_MultisamplingSet();
+      }
+    }
+#endif
 
     // e6y
     // but should NOT be applied for automap, statusbar and HUD
