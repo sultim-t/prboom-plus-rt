@@ -850,7 +850,7 @@ void gld_ParseDetail(void)
 
   if (SC_GetString() && SC_Compare("{"))
   {
-    while (SC_GetString())
+    while (SC_GetString() && !SC_Compare("}"))
     {
       switch (SC_MatchString(DetailItem_Keywords))
       {
