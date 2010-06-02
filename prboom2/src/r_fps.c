@@ -70,6 +70,11 @@ view_vars_t original_view_vars;
 extern int realtic_clock_rate;
 void D_Display(void);
 
+void M_ChangeUncappedFrameRate(void)
+{
+  movement_smooth = (singletics ? false : movement_smooth_default);
+}
+
 void R_InitInterpolation(void)
 {
   tic_vars.msec = realtic_clock_rate * TICRATE / 100000.0f;
