@@ -307,54 +307,84 @@ void gld_DrawWallWithDetail(GLWall *wall)
   glEnd();
 }
 
-void gld_DrawWallDetail_NoARB(GLWall *wall, int from_index, int to_index)
+void gld_DrawWallDetail_NoARB(GLWall *wall)
 {
-  int k;
-
   if (!wall->gltexture->detail)
     return;
 
-  for (k=from_index; k<to_index; k++)
+  if (wall->flag >= GLDWF_SKY)
+    return;
+
+  if (gld_IsDetailVisible(xCamera, yCamera, 
+      wall->glseg->x1, wall->glseg->z1,
+      wall->glseg->x2, wall->glseg->z2))
   {
-    if (wall->flag==k)
+    float w, h;
+    dboolean fake = (wall->flag == GLDWF_TOPFLUD) || (wall->flag == GLDWF_BOTFLUD);
+    detail_t *detail = wall->gltexture->detail;
+
+    w = wall->gltexture->realtexwidth  / detail->width;
+    h = wall->gltexture->realtexheight / detail->height;
+
+    gld_BindDetail(wall->gltexture, detail->texid);
+
+    if (fake)
     {
-      if (gld_IsDetailVisible(xCamera, yCamera, 
-            wall->glseg->x1, wall->glseg->z1,
-            wall->glseg->x2, wall->glseg->z2))
+      int i;
+      gl_strip_coords_t c;
+
+      if (gl_use_fog)
       {
-        detail_t *detail;
-        float w, h;
-
-        detail = wall->gltexture->detail;
-        gld_BindDetail(wall->gltexture, detail->texid);
-
-        w = wall->gltexture->realtexwidth  / detail->width;
-        h = wall->gltexture->realtexheight / detail->height;
-        gld_StaticLightAlpha(wall->light, wall->alpha);
-        glBegin(GL_TRIANGLE_FAN);
-
-        // lower left corner
-        glTexCoord2f(wall->ul*w,wall->vb*h); glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
-
-        // split left edge of wall
-        if (gl_seamless && !wall->glseg->fracleft)
-          gld_SplitLeftEdge(wall, true, w, h);
-
-        // upper left corner
-        glTexCoord2f(wall->ul*w,wall->vt*h); glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
-
-        // upper right corner
-        glTexCoord2f(wall->ur*w,wall->vt*h); glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
-
-        // split right edge of wall
-        if (gl_seamless && !wall->glseg->fracright)
-          gld_SplitRightEdge(wall, true, w, h);
-
-        // lower right corner
-        glTexCoord2f(wall->ur*w,wall->vb*h); glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
-
-        glEnd();
+        // calculation of fog density for flooded walls
+        if (((wall->flag == GLDWF_TOPFLUD) || (wall->flag == GLDWF_BOTFLUD)) && (wall->seg->backsector))
+        {
+          wall->fogdensity = gld_CalcFogDensity(wall->seg->frontsector,
+            wall->seg->backsector->lightlevel, GLDIT_FWALL);
+        }
+        gld_SetFog(wall->fogdensity);
       }
+
+      gld_SetupFloodStencil(wall);
+      gld_SetupFloodedPlaneLight(wall);
+      gld_SetupFloodedPlaneCoords(wall, &c);
+      for (i = 0; i < 4; i++)
+      {
+        c.t[i][0] = c.t[i][0] * w;
+        c.t[i][1] = c.t[i][1] * h;
+      }
+      gld_DrawTriangleStrip(wall, &c);
+      gld_ClearFloodStencil(wall);
+    }
+    else
+    {
+      gld_StaticLightAlpha(wall->light, wall->alpha);
+      glBegin(GL_TRIANGLE_FAN);
+
+      // lower left corner
+      glTexCoord2f(wall->ul*w,wall->vb*h);
+      glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
+
+      // split left edge of wall
+      if (gl_seamless && !wall->glseg->fracleft)
+        gld_SplitLeftEdge(wall, true, w, h);
+
+      // upper left corner
+      glTexCoord2f(wall->ul*w,wall->vt*h);
+      glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
+
+      // upper right corner
+      glTexCoord2f(wall->ur*w,wall->vt*h);
+      glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
+
+      // split right edge of wall
+      if (gl_seamless && !wall->glseg->fracright)
+        gld_SplitRightEdge(wall, true, w, h);
+
+      // lower right corner
+      glTexCoord2f(wall->ur*w,wall->vb*h);
+      glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
+
+      glEnd();
     }
   }
 }
@@ -506,14 +536,14 @@ void gld_DrawDetail_NoARB(void)
     for (i = gld_drawinfo.num_items[GLDIT_WALL] - 1; i >= 0; i--)
     {
       gld_SetFog(gld_drawinfo.items[GLDIT_WALL][i].item.wall->fogdensity);
-      gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_WALL][i].item.wall, GLDWF_TOP, GLDWF_SKY-1);
+      gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_WALL][i].item.wall);
     }
 
     gld_DrawItemsSortByDetail(GLDIT_MWALL);
     for (i = gld_drawinfo.num_items[GLDIT_MWALL] - 1; i >= 0; i--)
     {
       gld_SetFog(gld_drawinfo.items[GLDIT_MWALL][i].item.wall->fogdensity);
-      gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_MWALL][i].item.wall, GLDWF_TOP, GLDWF_SKY-1);
+      gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_MWALL][i].item.wall);
     }
 
     glPolygonOffset(1.0f, 128.0f);
@@ -523,7 +553,7 @@ void gld_DrawDetail_NoARB(void)
     gld_DrawItemsSortByDetail(GLDIT_FWALL);
     for (i = gld_drawinfo.num_items[GLDIT_FWALL] - 1; i >= 0; i--)
     {
-      gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_FWALL][i].item.wall, GLDWF_TOPFLUD, GLDWF_SKY);
+      gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_FWALL][i].item.wall);
     }
 
     glDisable(GL_STENCIL_TEST);
@@ -534,7 +564,7 @@ void gld_DrawDetail_NoARB(void)
     for (i = gld_drawinfo.num_items[GLDIT_TWALL] - 1; i >= 0; i--)
     {
       gld_SetFog(gld_drawinfo.items[GLDIT_TWALL][i].item.wall->fogdensity);
-      gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_TWALL][i].item.wall, GLDWF_TOP, GLDWF_SKY-1);
+      gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_TWALL][i].item.wall);
     }
   }
 
