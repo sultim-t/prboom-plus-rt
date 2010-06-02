@@ -2538,6 +2538,12 @@ void A_Mushroom(mobj_t *actor)
 {
   int i, j, n = actor->info->damage;
 
+  // Mushroom parameters are part of code pointer's state
+  dboolean mbf = (demo_compatibility == mbf_compatibility &&
+    !prboom_comp[PC_DO_NOT_USE_MISC12_FRAME_PARAMETERS_IN_A_MUSHROOM].state);
+  fixed_t misc1 = ((mbf && actor->state->misc1) ? actor->state->misc1 : FRACUNIT*4);
+  fixed_t misc2 = ((mbf && actor->state->misc2) ? actor->state->misc2 : FRACUNIT/2);
+
   A_Explode(actor);  // First make normal explosion
 
   // Now launch mushroom cloud
@@ -2547,11 +2553,11 @@ void A_Mushroom(mobj_t *actor)
   mobj_t target = *actor, *mo;
   target.x += i << FRACBITS;    // Aim in many directions from source
   target.y += j << FRACBITS;
-  target.z += P_AproxDistance(i,j) << (FRACBITS+2); // Aim up fairly high
+  target.z += P_AproxDistance(i,j) * misc1;         // Aim up fairly high
   mo = P_SpawnMissile(actor, &target, MT_FATSHOT);  // Launch fireball
-  mo->momx >>= 1;
-  mo->momy >>= 1;                                   // Slow it down a bit
-  mo->momz >>= 1;
+  mo->momx = FixedMul(mo->momx, misc2);
+  mo->momy = FixedMul(mo->momy, misc2);             // Slow down a bit
+  mo->momz = FixedMul(mo->momz, misc2);
   mo->flags &= ~MF_NOGRAVITY;   // Make debris fall under gravity
       }
 }
