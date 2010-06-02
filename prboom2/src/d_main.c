@@ -336,7 +336,8 @@ void D_Display (void)
       // e6y
       // I should do it because I call R_RenderPlayerView in all cases,
       // not only if viewactive is true
-      borderwillneedredraw |= ((automapmode & am_active) && !(automapmode & am_overlay));
+      borderwillneedredraw = (borderwillneedredraw) || 
+        (((automapmode & am_active) && !(automapmode & am_overlay)));
     }
     if (redrawborderstuff || (V_GetMode() == VID_MODEGL))
       R_DrawViewBorder();

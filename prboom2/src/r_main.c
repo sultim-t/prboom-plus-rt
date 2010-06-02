@@ -869,6 +869,8 @@ static void R_ShowStats(void)
 //
 void R_RenderPlayerView (player_t* player)
 {
+  dboolean automap = (automapmode & am_active) && !(automapmode & am_overlay);
+
   r_frame_count++;
 
   R_SetupFrame (player);
@@ -880,7 +882,7 @@ void R_RenderPlayerView (player_t* player)
   R_ClearSprites ();
 
   rendered_segs = rendered_visplanes = 0;
-  if (V_GetMode() == VID_MODEGL)
+  if (V_GetMode() == VID_MODEGL && !automap)
   {
 #ifdef GL_DOOM
     // proff 11/99: clear buffers
@@ -939,7 +941,7 @@ void R_RenderPlayerView (player_t* player)
   NetUpdate ();
 #endif
 
-  if (V_GetMode() == VID_MODEGL) {
+  if (V_GetMode() == VID_MODEGL && !automap) {
 #ifdef GL_DOOM
     // proff 11/99: draw the scene
     gld_DrawScene(player);
