@@ -336,7 +336,7 @@ void gld_DrawWallDetail_NoARB(GLWall *wall)
       if (gl_use_fog)
       {
         // calculation of fog density for flooded walls
-        if (((wall->flag == GLDWF_TOPFLUD) || (wall->flag == GLDWF_BOTFLUD)) && (wall->seg->backsector))
+        if (wall->seg->backsector)
         {
           wall->fogdensity = gld_CalcFogDensity(wall->seg->frontsector,
             wall->seg->backsector->lightlevel, GLDIT_FWALL);

@@ -3380,9 +3380,10 @@ void gld_DrawProjectedWalls(GLDrawItemType itemtype)
       if (gl_use_fog)
       {
         // calculation of fog density for flooded walls
-        if (((wall->flag == GLDWF_TOPFLUD) || (wall->flag == GLDWF_BOTFLUD)) && (wall->seg->backsector))
+        if (wall->seg->backsector)
         {
-          wall->fogdensity = gld_CalcFogDensity(frontsector, wall->seg->backsector->lightlevel, itemtype);
+          wall->fogdensity = gld_CalcFogDensity(wall->seg->frontsector,
+            wall->seg->backsector->lightlevel, itemtype);
         }
 
         gld_SetFog(wall->fogdensity);
