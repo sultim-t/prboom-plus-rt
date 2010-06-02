@@ -343,6 +343,8 @@ void gld_EnableDetail(int enable);
 void gld_DrawWallWithDetail(GLWall *wall);
 void gld_BindDetail(GLTexture *gltexture, int enable);
 void gld_BindDetailARB(GLTexture *gltexture, int enable);
+void gld_DrawItemsSortByDetail(GLDrawItemType itemtype);
+void gld_DrawWallDetail_NoARB(GLWall *wall);
 
 extern int render_usedetail;
 extern detail_t *details;

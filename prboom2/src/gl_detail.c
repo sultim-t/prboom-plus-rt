@@ -480,7 +480,7 @@ static int C_DECL dicmp_flat_detail(const void *a, const void *b)
   return d1 - d2;
 }
 
-static void gld_DrawItemsSortByDetail(GLDrawItemType itemtype)
+void gld_DrawItemsSortByDetail(GLDrawItemType itemtype)
 {
   typedef int(C_DECL *DICMP_ITEM)(const void *a, const void *b);
 
@@ -549,26 +549,45 @@ void gld_DrawDetail_NoARB(void)
       gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_WALL][i].item.wall);
     }
 
-    gld_DrawItemsSortByDetail(GLDIT_MWALL);
+    if (!gl_use_stencil)
+    {
+      gld_DrawItemsSortByDetail(GLDIT_MWALL);
+    }
+
     for (i = gld_drawinfo.num_items[GLDIT_MWALL] - 1; i >= 0; i--)
     {
-      gld_SetFog(gld_drawinfo.items[GLDIT_MWALL][i].item.wall->fogdensity);
-      gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_MWALL][i].item.wall);
+      GLWall *wall = gld_drawinfo.items[GLDIT_MWALL][i].item.wall;
+      if (gl_use_stencil)
+      {
+        if (!(wall->gltexture->flags & GLTEXTURE_HASHOLES))
+        {
+          gld_SetFog(wall->fogdensity);
+          gld_DrawWallDetail_NoARB(wall);
+        }
+      }
+      else
+      {
+        gld_SetFog(wall->fogdensity);
+        gld_DrawWallDetail_NoARB(wall);
+      }
     }
 
-    glPolygonOffset(1.0f, 128.0f);
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    glEnable(GL_STENCIL_TEST);
-
-    gld_DrawItemsSortByDetail(GLDIT_FWALL);
-    for (i = gld_drawinfo.num_items[GLDIT_FWALL] - 1; i >= 0; i--)
+    if (gld_drawinfo.num_items[GLDIT_FWALL] > 0)
     {
-      gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_FWALL][i].item.wall);
-    }
+      glPolygonOffset(1.0f, 128.0f);
+      glEnable(GL_POLYGON_OFFSET_FILL);
+      glEnable(GL_STENCIL_TEST);
 
-    glDisable(GL_STENCIL_TEST);
-    glPolygonOffset(0.0f, 0.0f);
-    glDisable(GL_POLYGON_OFFSET_FILL);
+      gld_DrawItemsSortByDetail(GLDIT_FWALL);
+      for (i = gld_drawinfo.num_items[GLDIT_FWALL] - 1; i >= 0; i--)
+      {
+        gld_DrawWallDetail_NoARB(gld_drawinfo.items[GLDIT_FWALL][i].item.wall);
+      }
+
+      glDisable(GL_STENCIL_TEST);
+      glPolygonOffset(0.0f, 0.0f);
+      glDisable(GL_POLYGON_OFFSET_FILL);
+    }
 
     gld_DrawItemsSortByDetail(GLDIT_TWALL);
     for (i = gld_drawinfo.num_items[GLDIT_TWALL] - 1; i >= 0; i--)

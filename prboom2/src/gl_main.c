@@ -3490,12 +3490,70 @@ void gld_DrawScene(player_t *player)
   // masked geometry
   glEnable(GL_ALPHA_TEST);
 
-  // opaque mid walls
   gld_DrawItemsSortByTexture(GLDIT_MWALL);
-  for (i = gld_drawinfo.num_items[GLDIT_MWALL] - 1; i >= 0; i--)
+
+  if (!gl_arb_multitexture && render_usedetail && gl_use_stencil &&
+      gld_drawinfo.num_items[GLDIT_MWALL] > 0)
   {
-    gld_SetFog(gld_drawinfo.items[GLDIT_MWALL][i].item.wall->fogdensity);
-    gld_ProcessWall(gld_drawinfo.items[GLDIT_MWALL][i].item.wall);
+    // opaque mid walls without holes
+    for (i = gld_drawinfo.num_items[GLDIT_MWALL] - 1; i >= 0; i--)
+    {
+      GLWall *wall = gld_drawinfo.items[GLDIT_MWALL][i].item.wall;
+      if (!(wall->gltexture->flags & GLTEXTURE_HASHOLES))
+      {
+        gld_SetFog(wall->fogdensity);
+        gld_ProcessWall(wall);
+      }
+    }
+
+    // opaque mid walls with holes
+
+    glEnable(GL_STENCIL_TEST);
+    glStencilFunc(GL_ALWAYS, 1, ~0);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+    for (i = gld_drawinfo.num_items[GLDIT_MWALL] - 1; i >= 0; i--)
+    {
+      GLWall *wall = gld_drawinfo.items[GLDIT_MWALL][i].item.wall;
+      if (wall->gltexture->flags & GLTEXTURE_HASHOLES)
+      {
+        gld_SetFog(wall->fogdensity);
+        gld_ProcessWall(wall);
+      }
+    }
+
+    glStencilFunc(GL_EQUAL, 1, ~0);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+    glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glBlendFunc (GL_DST_COLOR, GL_SRC_COLOR);
+
+    // details for opaque mid walls with holes
+    gld_DrawItemsSortByDetail(GLDIT_MWALL);
+    for (i = gld_drawinfo.num_items[GLDIT_MWALL] - 1; i >= 0; i--)
+    {
+      GLWall *wall = gld_drawinfo.items[GLDIT_MWALL][i].item.wall;
+      if (wall->gltexture->flags & GLTEXTURE_HASHOLES)
+      {
+        gld_SetFog(wall->fogdensity);
+        gld_DrawWallDetail_NoARB(wall);
+      }
+    }
+
+    //restoring
+    glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glClear(GL_STENCIL_BUFFER_BIT);
+    glDisable(GL_STENCIL_TEST);
+  }
+  else
+  {
+    // opaque mid walls
+    for (i = gld_drawinfo.num_items[GLDIT_MWALL] - 1; i >= 0; i--)
+    {
+      gld_SetFog(gld_drawinfo.items[GLDIT_MWALL][i].item.wall->fogdensity);
+      gld_ProcessWall(gld_drawinfo.items[GLDIT_MWALL][i].item.wall);
+    }
   }
 
   gl_EnableFog(false);
