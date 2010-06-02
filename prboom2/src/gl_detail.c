@@ -711,11 +711,11 @@ int gld_ReadDetailParams(tag_detail_e item, detail_t *detail)
 
 void gld_ParseDetailItem(tag_detail_e item)
 {
-  // item's params
+  // item's default values
+  details[item].kx = 16.0f;
+  details[item].ky = 16.0f;
   if (SC_Check() && !SC_Compare("{"))
   {
-    details[item].kx = 16.0f;
-    details[item].ky = 16.0f;
     gld_ReadDetailParams(item, &details[item]);
   }
 
@@ -725,6 +725,11 @@ void gld_ParseDetailItem(tag_detail_e item)
     {
       int result;
       detail_t detail;
+
+      // reset fields for next iteration
+      detail.texid   = 0;
+      detail.kx      = 16.0f;
+      detail.ky      = 16.0f;
 
       if (strlen(sc_String) < 9)
       {
