@@ -178,7 +178,7 @@ void gld_DrawTriangleStripARB(GLWall *wall, gl_strip_coords_t *c1, gl_strip_coor
 
   // split left edge of wall
   //if (gl_seamless && !wall->glseg->fracleft)
-  //  gld_SplitLeftEdge(wall, true, w, h);
+  //  gld_SplitLeftEdge(wall, true);
 
   // upper left corner
   GLEXT_glMultiTexCoord2fvARB(GL_TEXTURE0_ARB,(const GLfloat*)&c1->t[1]);
@@ -192,7 +192,7 @@ void gld_DrawTriangleStripARB(GLWall *wall, gl_strip_coords_t *c1, gl_strip_coor
 
   // split right edge of wall
   //if (gl_seamless && !wall->glseg->fracright)
-  //  gld_SplitRightEdge(wall, true, w, h);
+  //  gld_SplitRightEdge(wall, true);
 
   // lower right corner
   GLEXT_glMultiTexCoord2fvARB(GL_TEXTURE0_ARB,(const GLfloat*)&c1->t[3]); 
@@ -236,10 +236,15 @@ void gld_EnableDetail(int enable)
 
 void gld_DrawWallWithDetail(GLWall *wall)
 {
-  float w, h;
+  float w, h, dx, dy;
   dboolean fake = (wall->flag == GLDWF_TOPFLUD) || (wall->flag == GLDWF_BOTFLUD);
   detail_t *detail = wall->gltexture->detail;
   
+  w = wall->gltexture->detail_width;
+  h = wall->gltexture->detail_height;
+  dx = detail->offsetx;
+  dy = detail->offsety;
+
   if (fake)
   {
     int i;
@@ -249,16 +254,12 @@ void gld_DrawWallWithDetail(GLWall *wall)
     gld_BindFlat(wall->gltexture, 0);
 
     gld_SetupFloodStencil(wall);
-
-    w = wall->gltexture->realtexwidth  / detail->width;
-    h = wall->gltexture->realtexheight / detail->height;
-
     gld_SetupFloodedPlaneLight(wall);
     gld_SetupFloodedPlaneCoords(wall, &c1);
     for (i = 0; i < 4; i++)
     {
-      c2.t[i][0] = c1.t[i][0] * w;
-      c2.t[i][1] = c1.t[i][1] * h;
+      c2.t[i][0] = c1.t[i][0] * w + dx;
+      c2.t[i][1] = c1.t[i][1] * h + dy;
     }
 
     gld_EnableTexture2D(GL_TEXTURE1_ARB, true);
@@ -266,45 +267,42 @@ void gld_DrawWallWithDetail(GLWall *wall)
     gld_EnableTexture2D(GL_TEXTURE1_ARB, false);
 
     gld_ClearFloodStencil(wall);
-
-    return;
   }
+  else
+  {
+    gld_StaticLightAlpha(wall->light, wall->alpha);
+    glBegin(GL_TRIANGLE_FAN);
 
-  w = (float)wall->gltexture->realtexwidth  / detail->width;
-  h = (float)wall->gltexture->realtexheight / detail->height;
-  gld_StaticLightAlpha(wall->light, wall->alpha);
+    // lower left corner
+    GLEXT_glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ul,wall->vb); 
+    GLEXT_glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ul*w+dx,wall->vb*h+dy);
+    glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
 
-  glBegin(GL_TRIANGLE_FAN);
+    // split left edge of wall
+    if (gl_seamless && !wall->glseg->fracleft)
+      gld_SplitLeftEdge(wall, true);
 
-  // lower left corner
-  GLEXT_glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ul,wall->vb); 
-  GLEXT_glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ul*w,wall->vb*h);
-  glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
+    // upper left corner
+    GLEXT_glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ul,wall->vt);
+    GLEXT_glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ul*w+dx,wall->vt*h+dy);
+    glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
 
-  // split left edge of wall
-  if (gl_seamless && !wall->glseg->fracleft)
-    gld_SplitLeftEdge(wall, true, w, h);
+    // upper right corner
+    GLEXT_glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ur,wall->vt); 
+    GLEXT_glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ur*w+dx,wall->vt*h+dy);
+    glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
 
-  // upper left corner
-  GLEXT_glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ul,wall->vt);
-  GLEXT_glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ul*w,wall->vt*h);
-  glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
+    // split right edge of wall
+    if (gl_seamless && !wall->glseg->fracright)
+      gld_SplitRightEdge(wall, true);
 
-  // upper right corner
-  GLEXT_glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ur,wall->vt); 
-  GLEXT_glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ur*w,wall->vt*h);
-  glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
+    // lower right corner
+    GLEXT_glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ur,wall->vb); 
+    GLEXT_glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ur*w+dx,wall->vb*h+dy);
+    glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
 
-  // split right edge of wall
-  if (gl_seamless && !wall->glseg->fracright)
-    gld_SplitRightEdge(wall, true, w, h);
-
-  // lower right corner
-  GLEXT_glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ur,wall->vb); 
-  GLEXT_glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ur*w,wall->vb*h);
-  glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
-
-  glEnd();
+    glEnd();
+  }
 }
 
 void gld_DrawWallDetail_NoARB(GLWall *wall)
@@ -319,12 +317,14 @@ void gld_DrawWallDetail_NoARB(GLWall *wall)
       wall->glseg->x1, wall->glseg->z1,
       wall->glseg->x2, wall->glseg->z2))
   {
-    float w, h;
+    float w, h, dx, dy;
     dboolean fake = (wall->flag == GLDWF_TOPFLUD) || (wall->flag == GLDWF_BOTFLUD);
     detail_t *detail = wall->gltexture->detail;
 
-    w = wall->gltexture->realtexwidth  / detail->width;
-    h = wall->gltexture->realtexheight / detail->height;
+    w = wall->gltexture->detail_width;
+    h = wall->gltexture->detail_height;
+    dx = detail->offsetx; 
+    dy = detail->offsety;
 
     gld_BindDetail(wall->gltexture, detail->texid);
 
@@ -349,8 +349,8 @@ void gld_DrawWallDetail_NoARB(GLWall *wall)
       gld_SetupFloodedPlaneCoords(wall, &c);
       for (i = 0; i < 4; i++)
       {
-        c.t[i][0] = c.t[i][0] * w;
-        c.t[i][1] = c.t[i][1] * h;
+        c.t[i][0] = c.t[i][0] * w + dx;
+        c.t[i][1] = c.t[i][1] * h + dy;
       }
       gld_DrawTriangleStrip(wall, &c);
       gld_ClearFloodStencil(wall);
@@ -361,27 +361,27 @@ void gld_DrawWallDetail_NoARB(GLWall *wall)
       glBegin(GL_TRIANGLE_FAN);
 
       // lower left corner
-      glTexCoord2f(wall->ul*w,wall->vb*h);
+      glTexCoord2f(wall->ul*w+dx,wall->vb*h+dy);
       glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
 
       // split left edge of wall
       if (gl_seamless && !wall->glseg->fracleft)
-        gld_SplitLeftEdge(wall, true, w, h);
+        gld_SplitLeftEdge(wall, true);
 
       // upper left corner
-      glTexCoord2f(wall->ul*w,wall->vt*h);
+      glTexCoord2f(wall->ul*w+dx,wall->vt*h+dy);
       glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
 
       // upper right corner
-      glTexCoord2f(wall->ur*w,wall->vt*h);
+      glTexCoord2f(wall->ur*w+dx,wall->vt*h+dy);
       glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
 
       // split right edge of wall
       if (gl_seamless && !wall->glseg->fracright)
-        gld_SplitRightEdge(wall, true, w, h);
+        gld_SplitRightEdge(wall, true);
 
       // lower right corner
-      glTexCoord2f(wall->ur*w,wall->vb*h);
+      glTexCoord2f(wall->ur*w+dx,wall->vb*h+dy);
       glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
 
       glEnd();
@@ -391,6 +391,7 @@ void gld_DrawWallDetail_NoARB(GLWall *wall)
 
 void gld_DrawFlatDetail_NoARB(GLFlat *flat)
 {
+  float w, h, dx, dy;
   int loopnum;
   GLLoopDef *currentloop;
   detail_t *detail;
@@ -407,9 +408,18 @@ void gld_DrawFlatDetail_NoARB(GLFlat *flat)
   glTranslatef(0.0f,flat->z,0.0f);
   glMatrixMode(GL_TEXTURE);
   glPushMatrix();
-  if (flat->flags & GLFLAT_HAVE_OFFSET)
-    glTranslatef(flat->uoffs * 4.0f, flat->voffs * 4.0f, 0.0f);
-  glScalef(4.0f, 4.0f, 1.0f);
+
+  w = flat->gltexture->detail_width;
+  h = flat->gltexture->detail_height;
+  dx = detail->offsetx;
+  dy = detail->offsety;
+
+  if ((flat->flags & GLFLAT_HAVE_OFFSET) || dx || dy)
+  {
+    glTranslatef(flat->uoffs * w + dx, flat->voffs * h + dy, 0.0f);
+  }
+
+  glScalef(w, h, 1.0f);
 
   if (flat->sectornum>=0)
   {
@@ -648,6 +658,12 @@ void gld_SetTexDetail(GLTexture *gltexture)
         break;
       }
     }
+
+    if (gltexture->detail)
+    {
+      gltexture->detail_width  = (float)gltexture->realtexwidth  / gltexture->detail->width;
+      gltexture->detail_height = (float)gltexture->realtexheight / gltexture->detail->height;
+    }
   }
 }
 
@@ -730,6 +746,11 @@ int gld_ReadDetailParams(tag_detail_e item, detail_t *detail)
           detail->width = f;
         if (SC_Check() && SC_GetString() && M_StrToFloat(sc_String, &f))
           detail->height = f;
+
+        if (SC_Check() && SC_GetString() && M_StrToFloat(sc_String, &f))
+          detail->offsetx = f / detail->width;
+        if (SC_Check() && SC_GetString() && M_StrToFloat(sc_String, &f))
+          detail->offsety = f / detail->height;
 
         result = true;
       }

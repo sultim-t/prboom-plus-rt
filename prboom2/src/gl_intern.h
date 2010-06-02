@@ -95,6 +95,7 @@ typedef struct detail_s
   GLuint texid;
   int texture_num;
   float width, height;
+  float offsetx, offsety;
 } detail_t;
 
 typedef struct
@@ -122,6 +123,7 @@ typedef struct
 
   //detail
   detail_t *detail;
+  float detail_width, detail_height;
 } GLTexture;
 
 typedef struct
@@ -367,8 +369,8 @@ void gld_ResetGammaRamp(void);
 //e6y: from gl_vertex
 //extern int render_segs;
 #define render_segs 0
-void gld_SplitLeftEdge(const GLWall *wall, dboolean detail, float detail_w, float detail_h);
-void gld_SplitRightEdge(const GLWall *wall, dboolean detail, float detail_w, float detail_h);
+void gld_SplitLeftEdge(const GLWall *wall, dboolean detail);
+void gld_SplitRightEdge(const GLWall *wall, dboolean detail);
 void gld_RecalcVertexHeights(const vertex_t *v);
 
 //e6y

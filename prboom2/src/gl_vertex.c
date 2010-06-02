@@ -109,7 +109,7 @@ static splitsbysector_t * gl_splitsbysector = NULL;
 // Split left edge of wall
 //
 //==========================================================================
-void gld_SplitLeftEdge(const GLWall *wall, dboolean detail, float detail_w, float detail_h)
+void gld_SplitLeftEdge(const GLWall *wall, dboolean detail)
 {
   vertex_t *v;
   vertexsplit_info_t *vi;
@@ -130,11 +130,22 @@ void gld_SplitLeftEdge(const GLWall *wall, dboolean detail, float detail_w, floa
 
   if (vi->numheights)
   {
+    float w, h, dx, dy;
     int i = 0;
 
     float polyh1 = wall->ytop - wall->ybottom;
     float factv1 = (polyh1 ? (wall->vt - wall->vb) / polyh1 : 0);
     float factu1 = (polyh1 ? (wall->ul - wall->ul) / polyh1 : 0);
+
+    detail = detail && wall->gltexture->detail;
+
+    if (detail)
+    {
+      w = wall->gltexture->detail_width;
+      h = wall->gltexture->detail_height;
+      dx = wall->gltexture->detail->offsetx;
+      dy = wall->gltexture->detail->offsety;
+    }
 
     while (i < vi->numheights && vi->heightlist[i] <= wall->ybottom)
       i++;
@@ -143,16 +154,17 @@ void gld_SplitLeftEdge(const GLWall *wall, dboolean detail, float detail_w, floa
     {
       GLfloat s = factu1 * (vi->heightlist[i] - wall->ytop) + wall->ul;
       GLfloat t = factv1 * (vi->heightlist[i] - wall->ytop) + wall->vt;
+
       if (detail)
       {
         if (gl_arb_multitexture)
         {
           GLEXT_glMultiTexCoord2fARB(GL_TEXTURE0_ARB, s, t); 
-          GLEXT_glMultiTexCoord2fARB(GL_TEXTURE1_ARB, s * detail_w, t * detail_h);
+          GLEXT_glMultiTexCoord2fARB(GL_TEXTURE1_ARB, s * w + dx, t * h + dy);
         }
         else
         {
-          glTexCoord2f(s * detail_w, t * detail_h);
+          glTexCoord2f(s * w + dx, t * h + dy);
         }
       }
       else
@@ -170,7 +182,7 @@ void gld_SplitLeftEdge(const GLWall *wall, dboolean detail, float detail_w, floa
 // Split right edge of wall
 //
 //==========================================================================
-void gld_SplitRightEdge(const GLWall *wall, dboolean detail, float detail_w, float detail_h)
+void gld_SplitRightEdge(const GLWall *wall, dboolean detail)
 {
   vertex_t *v;
   vertexsplit_info_t * vi;
@@ -191,11 +203,22 @@ void gld_SplitRightEdge(const GLWall *wall, dboolean detail, float detail_w, flo
 
   if (vi->numheights)
   {
+    float w, h, dx, dy;
     int i = vi->numheights - 1;
 
     float polyh2 = wall->ytop - wall->ybottom;
     float factv2 = (polyh2 ? (wall->vt - wall->vb) / polyh2 : 0);
     float factu2 = (polyh2 ? (wall->ur - wall->ur) / polyh2 : 0);
+
+    detail = detail && wall->gltexture->detail;
+
+    if (detail)
+    {
+      w = wall->gltexture->detail_width;
+      h = wall->gltexture->detail_height;
+      dx = wall->gltexture->detail->offsetx;
+      dy = wall->gltexture->detail->offsety;
+    }
 
     while (i > 0 && vi->heightlist[i] >= wall->ytop)
       i--;
@@ -204,16 +227,17 @@ void gld_SplitRightEdge(const GLWall *wall, dboolean detail, float detail_w, flo
     {
       GLfloat s = factu2 * (vi->heightlist[i] - wall->ytop) + wall->ur;
       GLfloat t = factv2 * (vi->heightlist[i] - wall->ytop) + wall->vt;
+
       if (detail)
       {
         if (gl_arb_multitexture)
         {
           GLEXT_glMultiTexCoord2fARB(GL_TEXTURE0_ARB, s, t); 
-          GLEXT_glMultiTexCoord2fARB(GL_TEXTURE1_ARB, s * detail_w, t * detail_h);
+          GLEXT_glMultiTexCoord2fARB(GL_TEXTURE1_ARB, s * w + dx, t * h + dy);
         }
         else
         {
-          glTexCoord2f(s * detail_w, t * detail_h);
+          glTexCoord2f(s * w + dx, t * h + dy);
         }
       }
       else

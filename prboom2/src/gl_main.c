@@ -2347,7 +2347,7 @@ static void gld_DrawWall(GLWall *wall)
 
       // split left edge of wall
       if (gl_seamless && !wall->glseg->fracleft)
-        gld_SplitLeftEdge(wall, false, 0.0f, 0.0f);
+        gld_SplitLeftEdge(wall, false);
 
       // upper left corner
       glTexCoord2f(wall->ul,wall->vt); glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
@@ -2357,7 +2357,7 @@ static void gld_DrawWall(GLWall *wall)
 
       // split right edge of wall
       if (gl_seamless && !wall->glseg->fracright)
-        gld_SplitRightEdge(wall, false, 0.0f, 0.0f);
+        gld_SplitRightEdge(wall, false);
 
       // lower right corner
       glTexCoord2f(wall->ur,wall->vb); glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
@@ -2804,7 +2804,7 @@ static void gld_DrawFlat(GLFlat *flat)
   gld_BindDetailARB(flat->gltexture, has_detail);
   if (has_detail)
   {
-    float w, h;
+    float w, h, dx, dy;
     detail_t *detail = flat->gltexture->detail;
 
     GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
@@ -2812,12 +2812,14 @@ static void gld_DrawFlat(GLFlat *flat)
     
     glPushMatrix();
 
-    w = (float)flat->gltexture->realtexwidth  / detail->width;
-    h = (float)flat->gltexture->realtexheight / detail->height;
+    w = flat->gltexture->detail_width;
+    h = flat->gltexture->detail_height;
+    dx = detail->offsetx;
+    dy = detail->offsety;
 
-    if (flat->flags & GLFLAT_HAVE_OFFSET)
+    if ((flat->flags & GLFLAT_HAVE_OFFSET) || dx || dy)
     {
-      glTranslatef(flat->uoffs * w, flat->voffs * h, 0.0f);
+      glTranslatef(flat->uoffs * w + dx, flat->voffs * h + dy, 0.0f);
     }
 
     glScalef(w, h, 1.0f);
