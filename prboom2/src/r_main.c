@@ -95,8 +95,9 @@ int      centerx, centery;
 int wide_centerx;
 int wide_ratio;
 int wide_offsetx;
+int wide_offset2x;
 int wide_offsety;
-int wide_offsety_x2;
+int wide_offset2y;
 const base_ratio_t BaseRatioSizes[5] =
 {
 	{  960, 600, 0, 48 ,      RMUL*1.333333f }, // 4:3
@@ -532,10 +533,15 @@ static void InitStretchParam(stretch_param_t* offsets, int stretch, enum patch_t
 
   if (flags == VPT_ALIGN_BOTTOM || flags == VPT_ALIGN_LEFT_BOTTOM || flags == VPT_ALIGN_RIGHT_BOTTOM)
   {
-    offsets->deltay1 = wide_offsety_x2;
+    offsets->deltay1 = wide_offset2y;
   }
 
-  if (flags == VPT_ALIGN_WIDE || flags == VPT_ALIGN_TOP || flags == VPT_ALIGN_LEFT_TOP || flags == VPT_ALIGN_RIGHT_TOP)
+  if (flags == VPT_ALIGN_TOP || flags == VPT_ALIGN_LEFT_TOP || flags == VPT_ALIGN_RIGHT_TOP)
+  {
+    offsets->deltay1 = 0;
+  }
+
+  if (flags == VPT_ALIGN_WIDE && !(wide_ratio & 4))
   {
     offsets->deltay1 = 0;
   }
@@ -561,7 +567,7 @@ void R_SetupViewScaling(void)
   video.xstep = ((320 << FRACBITS) / 320 / patches_scalex) + 1;
   video.ystep = ((200 << FRACBITS) / 200 / patches_scaley) + 1;
   video_stretch.xstep   = ((320 << FRACBITS) / WIDE_SCREENWIDTH) + 1;
-  video_stretch.ystep   = ((200 << FRACBITS) / SCREENHEIGHT) + 1;
+  video_stretch.ystep   = ((200 << FRACBITS) / WIDE_SCREENHEIGHT) + 1;
   video_full.xstep   = ((320 << FRACBITS) / SCREENWIDTH) + 1;
   video_full.ystep   = ((200 << FRACBITS) / SCREENHEIGHT) + 1;
 
@@ -581,7 +587,7 @@ void R_SetupViewScaling(void)
   GenLookup(video.y1lookup, video.y2lookup, video.height, 200, video.ystep);
 
   video_stretch.width = WIDE_SCREENWIDTH;
-  video_stretch.height = SCREENHEIGHT;
+  video_stretch.height = WIDE_SCREENHEIGHT;
   GenLookup(video_stretch.x1lookup, video_stretch.x2lookup, video_stretch.width, 320, video_stretch.xstep);
   GenLookup(video_stretch.y1lookup, video_stretch.y2lookup, video_stretch.height, 200, video_stretch.ystep);
 

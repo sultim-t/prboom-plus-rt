@@ -419,7 +419,7 @@ static void WI_slamBackground(void)
     sprintf(name, "WIMAP%d", wbs->epsd);
 
   // background
-  V_DrawNamePatch(0, 0, FB, name, CR_DEFAULT, VPT_STRETCH | VPT_ALIGN_WIDE);
+  V_DrawNamePatch(0, 0, FB, name, CR_DEFAULT, VPT_STRETCH);
 
   // e6y: wide-res
   V_FillBorder(-1, 0);
@@ -542,7 +542,7 @@ WI_drawOnLnode  // draw stuff at a location by episode/map#
   {
     // CPhipps - patch drawing updated
     V_DrawNamePatch(lnodes[wbs->epsd][n].x, lnodes[wbs->epsd][n].y,
-       FB, c[i], CR_DEFAULT, VPT_STRETCH | VPT_ALIGN_WIDE);
+       FB, c[i], CR_DEFAULT, VPT_STRETCH);
   }
   else
   {
@@ -670,7 +670,7 @@ void WI_drawAnimatedBack(void)
 
     if (a->ctr >= 0)
       // CPhipps - patch drawing updated
-      V_DrawNumPatch(a->loc.x, a->loc.y, FB, a->p[a->ctr].lumpnum, CR_DEFAULT, VPT_STRETCH | VPT_ALIGN_WIDE);
+      V_DrawNumPatch(a->loc.x, a->loc.y, FB, a->p[a->ctr].lumpnum, CR_DEFAULT, VPT_STRETCH);
   }
 }
 

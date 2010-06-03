@@ -49,3 +49,4 @@ int SCREENPITCH=320;
 
 // e6y: wide-res
 int WIDE_SCREENWIDTH = 320;
+int WIDE_SCREENHEIGHT = 200;

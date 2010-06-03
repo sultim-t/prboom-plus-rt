@@ -1185,55 +1185,49 @@ void V_FreePlaypal(void)
 
 void V_FillBorder(int lump, byte color)
 {
-  int bordtop, bordbottom, bordleft, bordright, bord;
-  int Width = SCREENWIDTH;
-  int Height = SCREENHEIGHT;
-
-  // This is a 4:3 display, so no border to show
-  if (wide_ratio == 0)
-    return;
+  int bordtop, bordbottom, bordleft, bordright;
 
   if (render_stretch_hud == patch_stretch_full)
     return;
 
-  if (wide_ratio & 4)
-  {
-    // Screen is taller than it is wide
-    bordleft = bordright = 0;
-    bord = Height - Height * BaseRatioSizes[wide_ratio].multiplier / 48;
-    bordtop = bord / 2;
-    bordbottom = bord - bordtop;
-  }
-  else
-  {
-    // Screen is wider than it is tall
-    bordtop = bordbottom = 0;
-    bord = Width - Width * BaseRatioSizes[wide_ratio].multiplier / 48;
-    bordleft = bord / 2;
-    bordright = bord - bordleft;
-  }
+  bordleft = wide_offsetx;
+  bordright = wide_offset2x - wide_offsetx;
+  bordtop = wide_offsety;
+  bordbottom = wide_offset2y - wide_offsety;
 
   if (lump >= 0)
   {
-    // Top
-    V_FillFlat(lump, 0, 0, 0, Width, bordtop, VPT_NONE);
-    // Left
-    V_FillFlat(lump, 0, 0, bordtop, bordleft, Height - bordbottom - bordtop, VPT_NONE);
-    // Right
-    V_FillFlat(lump, 0, Width - bordright, bordtop, bordright, Height - bordbottom - bordtop, VPT_NONE);
-    // Bottom
-    V_FillFlat(lump, 0, 0, Height - bordbottom, Width, bordbottom, VPT_NONE);
+    if (bordtop > 0)
+    {
+      // Top
+      V_FillFlat(lump, 0, 0, 0, SCREENWIDTH, bordtop, VPT_NONE);
+      // Bottom
+      V_FillFlat(lump, 0, 0, SCREENHEIGHT - bordbottom, SCREENWIDTH, bordbottom, VPT_NONE);
+    }
+    if (bordleft > 0)
+    {
+      // Left
+      V_FillFlat(lump, 0, 0, bordtop, bordleft, SCREENHEIGHT - bordbottom - bordtop, VPT_NONE);
+      // Right
+      V_FillFlat(lump, 0, SCREENWIDTH - bordright, bordtop, bordright, SCREENHEIGHT - bordbottom - bordtop, VPT_NONE);
+    }
   }
   else
   {
-    // Top
-    V_FillRect(0, 0, 0, Width, bordtop, color);
-    // Left
-    V_FillRect(0, 0, bordtop, bordleft, Height - bordbottom - bordtop, color);
-    // Right
-    V_FillRect(0, Width - bordright, bordtop, bordright, Height - bordbottom - bordtop, color);
-    // Bottom
-    V_FillRect(0, 0, Height - bordbottom, Width, bordbottom, color);
+    if (bordtop > 0)
+    {
+      // Top
+      V_FillRect(0, 0, 0, SCREENWIDTH, bordtop, color);
+      // Bottom
+      V_FillRect(0, 0, SCREENHEIGHT - bordbottom, SCREENWIDTH, bordbottom, color);
+    }
+    if (bordleft > 0)
+    {
+      // Left
+      V_FillRect(0, 0, bordtop, bordleft, SCREENHEIGHT - bordbottom - bordtop, color);
+      // Right
+      V_FillRect(0, SCREENWIDTH - bordright, bordtop, bordright, SCREENHEIGHT - bordbottom - bordtop, color);
+    }
   }
 }
 
@@ -1281,10 +1275,12 @@ void CheckRatio (int width, int height)
   if (wide_ratio & 4)
   {
     WIDE_SCREENWIDTH = SCREENWIDTH;
+    WIDE_SCREENHEIGHT = SCREENHEIGHT * BaseRatioSizes[wide_ratio].multiplier / 48;
   }
   else
   {
     WIDE_SCREENWIDTH = SCREENWIDTH * BaseRatioSizes[wide_ratio].multiplier / 48;
+    WIDE_SCREENHEIGHT = SCREENHEIGHT;
   }
 
   ST_SCALED_HEIGHT = ST_HEIGHT;
@@ -1304,29 +1300,30 @@ void CheckRatio (int width, int height)
   case patch_stretch_16x10:
     ST_SCALED_Y = (200 * patches_scaley - ST_SCALED_HEIGHT);
 
-    wide_offsetx = (SCREENWIDTH - patches_scalex * 320) / 2;
-    wide_offsety = (SCREENHEIGHT - patches_scaley * 200) / 2;
-    wide_offsety_x2 = (SCREENHEIGHT - patches_scaley * 200);
+    wide_offset2x = (SCREENWIDTH - patches_scalex * 320);
+    wide_offset2y = (SCREENHEIGHT - patches_scaley * 200);
     break;
   case patch_stretch_4x3:
     ST_SCALED_HEIGHT = ST_HEIGHT * SCREENHEIGHT / 200;
+    ST_SCALED_HEIGHT = ST_HEIGHT * WIDE_SCREENHEIGHT / 200;
     ST_SCALED_WIDTH  = WIDE_SCREENWIDTH;
 
     ST_SCALED_Y = SCREENHEIGHT - ST_SCALED_HEIGHT;
-    wide_offsetx = (SCREENWIDTH - WIDE_SCREENWIDTH) / 2;
-    wide_offsety = 0;
-    wide_offsety_x2 = 0;
+    
+    wide_offset2x = (SCREENWIDTH - WIDE_SCREENWIDTH);
+    wide_offset2y = (SCREENHEIGHT - WIDE_SCREENHEIGHT);
     break;
   case patch_stretch_full:
     ST_SCALED_HEIGHT = ST_HEIGHT * SCREENHEIGHT / 200;
     ST_SCALED_WIDTH  = SCREENWIDTH;
 
     ST_SCALED_Y = SCREENHEIGHT - ST_SCALED_HEIGHT;
-    wide_offsetx = 0;
-    wide_offsety = 0;
-    wide_offsety_x2 = 0;
+    wide_offset2x = 0;
+    wide_offset2y = 0;
     break;
   }
+  wide_offsetx = wide_offset2x / 2;
+  wide_offsety = wide_offset2y / 2;
 }
 
 void V_GetWideRect(int *x, int *y, int *w, int *h, enum patch_translation_e flags)

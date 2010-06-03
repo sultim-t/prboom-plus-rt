@@ -566,7 +566,7 @@ void F_CastDrawer (void)
 
   // erase the entire screen to a background
   // CPhipps - patch drawing updated
-  V_DrawNamePatch(0,0,0, bgcastcall, CR_DEFAULT, VPT_STRETCH | VPT_ALIGN_WIDE); // Ty 03/30/98 bg texture extern
+  V_DrawNamePatch(0,0,0, bgcastcall, CR_DEFAULT, VPT_STRETCH); // Ty 03/30/98 bg texture extern
   // e6y: wide-res
   V_FillBorder(-1, 0);
 
@@ -598,12 +598,12 @@ static void F_BunnyScroll (void)
   {
     int scrolled = 320 - (finalecount-230)/2;
     if (scrolled <= 0) {
-      V_DrawNamePatch(0, 0, 0, pfub2, CR_DEFAULT, VPT_STRETCH | VPT_ALIGN_WIDE);
+      V_DrawNamePatch(0, 0, 0, pfub2, CR_DEFAULT, VPT_STRETCH);
     } else if (scrolled >= 320) {
-      V_DrawNamePatch(0, 0, 0, pfub1, CR_DEFAULT, VPT_STRETCH | VPT_ALIGN_WIDE);
+      V_DrawNamePatch(0, 0, 0, pfub1, CR_DEFAULT, VPT_STRETCH);
     } else {
-      V_DrawNamePatch(320-scrolled, 0, 0, pfub1, CR_DEFAULT, VPT_STRETCH | VPT_ALIGN_WIDE);
-      V_DrawNamePatch(-scrolled, 0, 0, pfub2, CR_DEFAULT, VPT_STRETCH | VPT_ALIGN_WIDE);
+      V_DrawNamePatch(320-scrolled, 0, 0, pfub1, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatch(-scrolled, 0, 0, pfub2, CR_DEFAULT, VPT_STRETCH);
     }
   }
 
@@ -652,18 +652,18 @@ void F_Drawer (void)
       // CPhipps - patch drawing updated
       case 1:
            if ( gamemode == retail )
-             V_DrawNamePatch(0, 0, 0, "CREDIT", CR_DEFAULT, VPT_STRETCH | VPT_ALIGN_WIDE);
+             V_DrawNamePatch(0, 0, 0, "CREDIT", CR_DEFAULT, VPT_STRETCH);
            else
-             V_DrawNamePatch(0, 0, 0, "HELP2", CR_DEFAULT, VPT_STRETCH | VPT_ALIGN_WIDE);
+             V_DrawNamePatch(0, 0, 0, "HELP2", CR_DEFAULT, VPT_STRETCH);
            break;
       case 2:
-           V_DrawNamePatch(0, 0, 0, "VICTORY2", CR_DEFAULT, VPT_STRETCH | VPT_ALIGN_WIDE);
+           V_DrawNamePatch(0, 0, 0, "VICTORY2", CR_DEFAULT, VPT_STRETCH);
            break;
       case 3:
            F_BunnyScroll ();
            break;
       case 4:
-           V_DrawNamePatch(0, 0, 0, "ENDPIC", CR_DEFAULT, VPT_STRETCH | VPT_ALIGN_WIDE);
+           V_DrawNamePatch(0, 0, 0, "ENDPIC", CR_DEFAULT, VPT_STRETCH);
            break;
     }
     // e6y: wide-res
