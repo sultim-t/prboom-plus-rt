@@ -1123,8 +1123,11 @@ void I_UpdateVideoMode(void)
   if(screen == NULL) {
     I_Error("Couldn't set %dx%d video mode [%s]", REAL_SCREENWIDTH, REAL_SCREENHEIGHT, SDL_GetError());
   }
+
+#ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
     gld_MultisamplingCheck();//e6y
+#endif
 
   lprintf(LO_INFO, "I_UpdateVideoMode: 0x%x, %s, %s\n", init_flags, screen->pixels ? "SDL buffer" : "own buffer", SDL_MUSTLOCK(screen) ? "lock-and-copy": "direct access");
 

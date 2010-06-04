@@ -721,66 +721,6 @@ void M_DemosBrowse(void)
 float viewPitch;
 dboolean transparentpresent;
 
-void gld_MultisamplingSet(void)
-{
-#ifdef GL_DOOM
-  if (render_multisampling)
-  {
-    int use_multisampling = map_use_multisamling ||
-      (!(automapmode & am_active) || (automapmode & am_overlay));
-
-    if (use_multisampling)
-    {
-      glEnable(GL_MULTISAMPLE_ARB);
-    }
-    else
-    {
-      glDisable(GL_MULTISAMPLE_ARB);
-    }
-  }
-#endif //GL_DOOM
-}
-void gld_MultisamplingCheck(void)
-{
-#ifdef GL_DOOM
-  if (render_multisampling)
-  {
-    int test = -1;
-    SDL_GL_GetAttribute (SDL_GL_MULTISAMPLESAMPLES, &test);
-    if (test!=render_multisampling)
-    {
-      void M_SaveDefaults (void);
-      void I_Error(const char *error, ...);
-      int i=render_multisampling;
-      render_multisampling = 0;
-      M_SaveDefaults ();
-      I_Error("Couldn't set %dX multisamples for %dx%d video mode", i, SCREENWIDTH, SCREENHEIGHT);
-    }
-  }
-#endif //GL_DOOM
-}
-
-void gld_MultisamplingInit(void)
-{
-#ifdef GL_DOOM
-  if (render_multisampling)
-  {
-    extern int gl_colorbuffer_bits;
-    extern int gl_depthbuffer_bits;
-    
-    gl_colorbuffer_bits = 32;
-    SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, gl_colorbuffer_bits );
-  
-    if (gl_depthbuffer_bits!=8 && gl_depthbuffer_bits!=16 && gl_depthbuffer_bits!=24)
-      gl_depthbuffer_bits = 16;
-    SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
-
-    SDL_GL_SetAttribute ( SDL_GL_MULTISAMPLESAMPLES, render_multisampling );
-    SDL_GL_SetAttribute ( SDL_GL_MULTISAMPLEBUFFERS, 1 );
-  }
-#endif //GL_DOOM
-}
-
 int StepwiseSum(int value, int direction, int step, int minval, int maxval, int defval)
 {
   static int prev_value = 0;
