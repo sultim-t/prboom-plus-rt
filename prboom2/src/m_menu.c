@@ -2694,7 +2694,7 @@ setup_menu_t auto_settings1[] =  // 1st AutoMap Settings screen
   {"Grid cell size (8..256)",                 S_NUM,  m_null,AU_X,AU_Y+4*8, {"map_grid_size"}},
   {"Scroll / Zoom speed  (1..32)",            S_NUM,  m_null,AU_X,AU_Y+5*8, {"map_scroll_speed"}},
 #ifdef GL_DOOM
-  {"Use mutlisampling",                       S_YESNO,m_null,AU_X,AU_Y+6*8, {"map_use_multisamling"}},
+  {"Apply multisampling",                       S_YESNO,m_null,AU_X,AU_Y+6*8, {"map_use_multisamling"}},
 #endif
 
   // Button for resetting to defaults
