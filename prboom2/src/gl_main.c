@@ -254,14 +254,7 @@ void gld_MultisamplingSet(void)
     int use_multisampling = map_use_multisamling ||
       (!(automapmode & am_active) || (automapmode & am_overlay));
 
-    if (use_multisampling)
-    {
-      glEnable(GL_MULTISAMPLE_ARB);
-    }
-    else
-    {
-      glDisable(GL_MULTISAMPLE_ARB);
-    }
+    gld_EnableMultisample(use_multisampling);
   }
 }
 

@@ -121,5 +121,6 @@ void gld_InitOpenGL(dboolean compatibility_mode);
 //states
 void gld_EnableTexture2D(GLenum texture, int enable);
 void gld_EnableClientCoordArray(GLenum texture, int enable);
+void gld_EnableMultisample(int enable);
 
 #endif // _GL_OPENGL_H

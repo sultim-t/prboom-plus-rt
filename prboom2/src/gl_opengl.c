@@ -316,6 +316,10 @@ void gld_InitOpenGL(dboolean compatibility_mode)
     GLEXT_CLAMP_TO_EDGE = GL_CLAMP;
     gl_version = OPENGL_VERSION_1_1;
   }
+
+  //init states manager
+  gld_EnableMultisample(true);
+  gld_EnableMultisample(false);
 }
 
 void gld_EnableTexture2D(GLenum texture, int enable)
@@ -408,4 +412,27 @@ void gld_EnableClientCoordArray(GLenum texture, int enable)
     }
   }
 #endif
+}
+
+void gld_EnableMultisample(int enable)
+{
+  static int multisample_is_enabled = 0;
+  if (enable)
+  {
+    if (!multisample_is_enabled)
+    {
+      glEnable(GL_MULTISAMPLE_ARB);
+
+      multisample_is_enabled = enable;
+    }
+  }
+  else
+  {
+    if (multisample_is_enabled)
+    {
+      glDisable(GL_MULTISAMPLE_ARB);
+
+      multisample_is_enabled = enable;
+    }
+  }
 }
