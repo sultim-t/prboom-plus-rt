@@ -1342,6 +1342,7 @@ int gld_LoadHiresTex(GLTexture *gltexture, int cm)
             }
             else
             {
+              *gltexture->texid_p = *texid;
               gld_HiRes_Bind(gltexture, gltexture->texid_p);
               result = true;
             }
