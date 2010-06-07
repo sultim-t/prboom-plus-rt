@@ -52,6 +52,7 @@
 #include "r_plane.h"
 #include "r_sky.h"
 #include "sc_man.h"
+#include "m_misc.h"
 #include "lprintf.h"
 
 #include "e6y.h"
@@ -951,7 +952,7 @@ void gld_ParseSkybox(void)
 
     strncpy(sb.name, sc_String, 8);
     sb.name[8] = 0;
-    strupr(sb.name);
+    M_Strupr(sb.name);
 
     while (SC_Check())
     {

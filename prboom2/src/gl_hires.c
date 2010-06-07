@@ -62,11 +62,8 @@
 #include "r_main.h"
 #include "r_sky.h"
 #include "m_argv.h"
+#include "m_misc.h"
 #include "e6y.h"
-
-#ifndef HAVE_STRLWR
-char* strlwr(char* str);
-#endif
 
 unsigned int gl_has_hires = 0;
 int gl_texture_external_hires = -1;
@@ -429,7 +426,7 @@ static const char* gld_HiRes_GetInternalName(GLTexture *gltexture)
 
   strncpy(texname, texname_p, 8);
   texname[8] = 0;
-  strlwr(texname);
+  M_Strlwr(texname);
 
   return texname;
 }
@@ -644,7 +641,7 @@ static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char 
 
   strncpy(texname, texname_p, 8);
   texname[8] = 0;
-  strlwr(texname);
+  M_Strlwr(texname);
 
   if (!hiresdir)
   {

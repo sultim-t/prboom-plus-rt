@@ -57,16 +57,6 @@
 #define TRUE 1
 #define FALSE 0
 
-#ifndef HAVE_STRLWR
-#include <ctype.h>
-char* strlwr(char* str)
-{
-  char* p;
-  for (p=str; *p; p++) *p = tolower(*p);
-  return str;
-}
-#endif
-
 // e6y: for compatibility with BOOM deh parser
 int deh_strcasecmp(const char *str1, const char *str2)
 {
@@ -2258,7 +2248,7 @@ static void deh_procPars(DEHFILE *fpin, FILE* fpout, char *line) // extension
   while (!dehfeof(fpin) && *inbuffer && (*inbuffer != ' '))
     {
       if (!dehfgets(inbuffer, sizeof(inbuffer), fpin)) break;
-      lfstrip(strlwr(inbuffer)); // lowercase it
+      lfstrip(M_Strlwr(inbuffer)); // lowercase it
       if (!*inbuffer) break;      // killough 11/98
       if (3 != sscanf(inbuffer,"par %i %i %i",&episode, &level, &partime))
         { // not 3

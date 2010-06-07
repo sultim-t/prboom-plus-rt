@@ -235,7 +235,7 @@ static void L_FilesOnChange(void)
 
       strcpy(path, launcher.files[index].name);
       NormalizeSlashes2(path);
-      strlwr(path);
+      M_Strlwr(path);
 
       hdc = GetDC(launcher.staticFileName);
       GetWindowRect(launcher.staticFileName, &rect);
@@ -764,7 +764,7 @@ static void L_ReadCacheData(void)
         if (3 == sscanf(p + 1, "%d, %d, %d", &item.source, &item.doom1, &item.doom2))
         {
           launcher.cache = realloc(launcher.cache, sizeof(*launcher.cache) * (launcher.cachesize + 1));
-          strcpy(launcher.cache[launcher.cachesize].name, strlwr(strrtrm(name)));
+          strcpy(launcher.cache[launcher.cachesize].name, M_Strlwr(strrtrm(name)));
           launcher.cache[launcher.cachesize].source = item.source;
           launcher.cache[launcher.cachesize].doom1 = item.doom1;
           launcher.cache[launcher.cachesize].doom2 = item.doom2;
@@ -890,7 +890,7 @@ static void L_FillFilesList(fileitem_t *iwad)
       (!item->doom1 && !item->doom2) ||
       item->source == source_deh)
     {
-      index = SendMessage(launcher.listPWAD, LB_ADDSTRING, 0, (LPARAM)strlwr(PathFindFileName(item->name)));
+      index = SendMessage(launcher.listPWAD, LB_ADDSTRING, 0, (LPARAM)M_Strlwr(PathFindFileName(item->name)));
       if (index >= 0)
       {
         SendMessage(launcher.listPWAD, LB_SETITEMDATA, index, i);
@@ -1022,20 +1022,20 @@ static char* L_HistoryGetStr(waddata_t *data)
   
   if (pwad)
   {
-    strcat(result, strlwr(pwad));
+    strcat(result, M_Strlwr(pwad));
     if (deh)
       strcat(result, " + ");
     free(pwad);
   }
   if (deh)
   {
-    strcat(result, strlwr(deh));
+    strcat(result, M_Strlwr(deh));
     free(deh);
   }
   if (iwad)
   {
     strcat(result, " @ ");
-    strcat(result, strupr(iwad));
+    strcat(result, M_Strupr(iwad));
     free(iwad);
   }
 

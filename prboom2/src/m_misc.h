@@ -119,4 +119,7 @@ typedef struct default_s
 int M_StrToInt(const char *s, long *l);
 int M_StrToFloat(const char *s, float *f);
 
+char* M_Strlwr(char* str);
+char* M_Strupr(char* str);
+
 #endif

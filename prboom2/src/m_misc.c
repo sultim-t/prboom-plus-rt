@@ -1568,3 +1568,17 @@ int M_StrToFloat(const char *s, float *f)
     (sscanf(s, " %f", f) == 1)
   );
 }
+
+char* M_Strlwr(char* str)
+{
+  char* p;
+  for (p=str; *p; p++) *p = tolower(*p);
+  return str;
+}
+
+char* M_Strupr(char* str)
+{
+  char* p;
+  for (p=str; *p; p++) *p = toupper(*p);
+  return str;
+}
