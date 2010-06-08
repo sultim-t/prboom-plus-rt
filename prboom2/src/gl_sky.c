@@ -1082,7 +1082,7 @@ int gld_DrawBoxSkyBox(void)
 
   glRotatef(-180.0f + SkyBox.x_offset, 0.0f, 1.0f, 0.0f);
 
-  if (sb->faces[5]) 
+  if (sb->faces[5][0]) 
   {
     faces = 4;
 
