@@ -322,9 +322,8 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
   x -= patch->leftoffset;
 
   // CPhipps - auto-no-stretch if not high-res
-  if (flags & VPT_STRETCH_MASK)
-    if ((SCREENWIDTH==320) && (SCREENHEIGHT==200) && (SCREENWIDTH==WIDE_SCREENWIDTH))
-      flags &= ~VPT_STRETCH_MASK;
+  if ((flags & VPT_STRETCH_MASK) && SCREEN_320x200)
+    flags &= ~VPT_STRETCH_MASK;
 
   // e6y: wide-res
   params = &stretch_params[flags & VPT_ALIGN_MASK];
@@ -1295,6 +1294,13 @@ void CheckRatio (int width, int height)
   patches_scalex = ST_SCALED_HEIGHT / ST_HEIGHT;
   patches_scaley = ST_SCALED_WIDTH / ST_WIDTH;
 
+  if (SCREENWIDTH < 320 || WIDE_SCREENWIDTH < 320 ||
+      SCREENHEIGHT < 200 || WIDE_SCREENHEIGHT < 200)
+  {
+    render_stretch_hud = patch_stretch_full; 
+    wide_ratio = 0;
+  }
+
   switch (render_stretch_hud)
   {
   case patch_stretch_16x10:
@@ -1304,7 +1310,6 @@ void CheckRatio (int width, int height)
     wide_offset2y = (SCREENHEIGHT - patches_scaley * 200);
     break;
   case patch_stretch_4x3:
-    ST_SCALED_HEIGHT = ST_HEIGHT * SCREENHEIGHT / 200;
     ST_SCALED_HEIGHT = ST_HEIGHT * WIDE_SCREENHEIGHT / 200;
     ST_SCALED_WIDTH  = WIDE_SCREENWIDTH;
 
@@ -1322,8 +1327,13 @@ void CheckRatio (int width, int height)
     wide_offset2y = 0;
     break;
   }
+
   wide_offsetx = wide_offset2x / 2;
   wide_offsety = wide_offset2y / 2;
+
+  SCREEN_320x200 =
+    (SCREENWIDTH == 320) && (SCREENHEIGHT == 200) &&
+    (WIDE_SCREENWIDTH == 320) && (WIDE_SCREENHEIGHT == 200);
 }
 
 void V_GetWideRect(int *x, int *y, int *w, int *h, enum patch_translation_e flags)
