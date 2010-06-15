@@ -1298,7 +1298,7 @@ void CheckRatio (int width, int height)
       SCREENHEIGHT < 200 || WIDE_SCREENHEIGHT < 200)
   {
     render_stretch_hud = patch_stretch_full; 
-    wide_ratio = 0;
+    //wide_ratio = 0;
   }
 
   switch (render_stretch_hud)
