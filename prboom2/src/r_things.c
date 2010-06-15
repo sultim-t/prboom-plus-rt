@@ -863,6 +863,10 @@ static void R_DrawPSprite (pspdef_t *psp)
    // killough 12/98: fix psprite positioning problem
   vis->texturemid = (BASEYCENTER<<FRACBITS) /* +  FRACUNIT/2 */ -
                     (psp->sy-topoffset);
+
+  // Move the weapon down for 1280x1024.
+  vis->texturemid -= BaseRatioSizes[wide_ratio].psprite_offset;
+
   vis->x1 = x1 < 0 ? 0 : x1;
   vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;
 // proff 11/06/98: Added for high-res

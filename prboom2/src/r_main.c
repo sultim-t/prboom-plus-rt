@@ -604,6 +604,7 @@ void R_SetupViewScaling(void)
 void R_ExecuteSetViewSize (void)
 {
   int i;
+  int cheight;
 
   setsizeneeded = false;
 
@@ -640,19 +641,21 @@ void R_ExecuteSetViewSize (void)
   if (wide_ratio & 4)
   {
     wide_centerx = centerx;
+    cheight = SCREENHEIGHT * BaseRatioSizes[wide_ratio].multiplier / 48;
   }
   else
   {
     wide_centerx = centerx * BaseRatioSizes[wide_ratio].multiplier / 48;
+    cheight = SCREENHEIGHT;
   }
 
   // e6y: wide-res
   projection = wide_centerx<<FRACBITS;
 
 // proff 11/06/98: Added for high-res
-  projectiony = ((SCREENHEIGHT * centerx * 320) / 200) / SCREENWIDTH * FRACUNIT;
+  projectiony = ((cheight * centerx * 320) / 200) / SCREENWIDTH * FRACUNIT;
   // e6y: this is a precalculated value for more precise flats drawing (see R_MapPlane)
-  viewfocratio = (1.6f * centerx / wide_centerx) / ((float)SCREENWIDTH / (float)SCREENHEIGHT);
+  viewfocratio = (1.6f * centerx / wide_centerx) / ((float)SCREENWIDTH / (float)cheight);
 
   R_SetupViewScaling();
 
@@ -665,12 +668,12 @@ void R_ExecuteSetViewSize (void)
   // proff 11/06/98: Added for high-res
   // e6y: wide-res
   pspritexscale = (wide_centerx << FRACBITS) / 160;
-  pspriteyscale = (((SCREENHEIGHT*viewwidth)/SCREENWIDTH) << FRACBITS) / 200;
+  pspriteyscale = (((cheight*viewwidth)/SCREENWIDTH) << FRACBITS) / 200;
   pspriteiscale = FixedDiv (FRACUNIT, pspritexscale);
 
   //e6y: added for GL
   pspritexscale_f = (float)wide_centerx/160.0f;
-  pspriteyscale_f = (((float)SCREENHEIGHT*viewwidth)/(float)SCREENWIDTH) / 200.0f;
+  pspriteyscale_f = (((float)cheight*viewwidth)/(float)SCREENWIDTH) / 200.0f;
 
   skyiscale = (fixed_t)(((uint_64_t)FRACUNIT * SCREENWIDTH * 200) / (viewwidth * SCREENHEIGHT));
 
