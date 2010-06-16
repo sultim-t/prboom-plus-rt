@@ -104,7 +104,7 @@ const base_ratio_t BaseRatioSizes[5] =
 	{ 1280, 450, 0, 48*3/4,   RMUL*1.777777f }, // 16:9
 	{ 1152, 500, 0, 48*5/6,   RMUL*1.6f      }, // 16:10
   {  960, 600, 0, 48,       RMUL*1.333333f },
-	{  960, 640, (int)(6.5*FRACUNIT), 48*15/16, RMUL*1.2f } // 5:4
+	{  960, 640, (int)(6.5*FRACUNIT), 48*15/16, RMUL*1.25f } // 5:4
 };
 
 fixed_t  centerxfrac, centeryfrac;
