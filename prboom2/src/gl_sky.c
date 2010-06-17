@@ -51,6 +51,7 @@
 #include "gl_intern.h"
 #include "r_plane.h"
 #include "r_sky.h"
+#include "r_main.h"
 #include "sc_man.h"
 #include "m_misc.h"
 #include "lprintf.h"
@@ -267,6 +268,7 @@ void gld_AddSkyTexture(GLWall *wall, int sky1, int sky2, int skytype)
 void gld_DrawStripsSky(void)
 {
   int i;
+  float skyymid_multiplier;
   GLTexture *gltexture = NULL;
 
   if (gl_drawskys == skytype_standard)
@@ -286,6 +288,13 @@ void gld_DrawStripsSky(void)
 
   gld_EnableDetail(false);
   glMatrixMode(GL_TEXTURE);
+
+  skyymid_multiplier = 1.0f;
+  if (wide_ratio & 4)
+  {
+    skyymid_multiplier = 48.0f / (float)BaseRatioSizes[wide_ratio].multiplier;
+  }
+
 
   for (i = gld_drawinfo.num_items[GLDIT_SWALL] - 1; i >= 0; i--)
   {
@@ -307,7 +316,7 @@ void gld_DrawStripsSky(void)
 
       gld_GetScreenSkyScale(wall, &sx, &sy);
       glScalef(sx, sy, 1.0f);
-      glTranslatef(wall->skyyaw, wall->skyymid, 0.0f);
+      glTranslatef(wall->skyyaw, wall->skyymid * skyymid_multiplier, 0.0f);
     }
 
     glBegin(GL_TRIANGLE_STRIP);
