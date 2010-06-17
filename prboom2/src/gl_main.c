@@ -3448,6 +3448,7 @@ void gld_DrawProjectedWalls(GLDrawItemType itemtype)
 void gld_DrawScene(player_t *player)
 {
   int i;
+  int skybox;
 
   //e6y: must call it twice for correct initialisation
   glEnable(GL_ALPHA_TEST);
@@ -3468,7 +3469,8 @@ void gld_DrawScene(player_t *player)
   rendered_visplanes = rendered_segs = rendered_vissprites = 0;
 
   //e6y: skybox
-  if (!gld_DrawBoxSkyBox())
+  skybox = gld_DrawBoxSkyBox();
+  if (!skybox)
   {
     if (gl_drawskys == skytype_skydome)
     {
@@ -3613,7 +3615,7 @@ void gld_DrawScene(player_t *player)
   glEnable(GL_ALPHA_TEST);
 
   // normal sky (not a skybox)
-  if (gl_drawskys == skytype_none || gl_drawskys == skytype_standard)
+  if (!skybox && (gl_drawskys == skytype_none || gl_drawskys == skytype_standard))
   {
     rendered_segs += gld_drawinfo.num_items[GLDIT_SWALL];
     // fake strips of sky
