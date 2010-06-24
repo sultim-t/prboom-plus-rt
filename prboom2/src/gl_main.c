@@ -3773,6 +3773,7 @@ void gld_PreprocessLevel(void)
     free(gl_lines);
 
     free(flats_vbo);
+    flats_vbo = NULL;
 
     free(segrendered);
     free(linerendered[0]);
@@ -3803,6 +3804,8 @@ void gld_PreprocessLevel(void)
   gld_FreeDrawInfo();
 
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
+  if (!gl_preprocessed)
+  {
     if (gl_ext_arb_vertex_buffer_object)
     {
       if (flats_vbo_id)
@@ -3828,6 +3831,7 @@ void gld_PreprocessLevel(void)
 
     glVertexPointer(3, GL_FLOAT, sizeof(flats_vbo[0]), flats_vbo_x);
     glTexCoordPointer(2, GL_FLOAT, sizeof(flats_vbo[0]), flats_vbo_u);
+  }
 #endif
 
   //e6y
