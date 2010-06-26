@@ -292,9 +292,8 @@ void gld_DrawStripsSky(void)
   skyymid_multiplier = 1.0f;
   if (wide_ratio & 4)
   {
-    skyymid_multiplier = 48.0f / (float)BaseRatioSizes[wide_ratio].multiplier;
+    skyymid_multiplier = (float)BaseRatioSizes[wide_ratio].multiplier / 48.0f;
   }
-
 
   for (i = gld_drawinfo.num_items[GLDIT_SWALL] - 1; i >= 0; i--)
   {
@@ -315,8 +314,8 @@ void gld_DrawStripsSky(void)
       glPushMatrix();
 
       gld_GetScreenSkyScale(wall, &sx, &sy);
-      glScalef(sx, sy, 1.0f);
-      glTranslatef(wall->skyyaw, wall->skyymid * skyymid_multiplier, 0.0f);
+      glScalef(sx, sy * skyymid_multiplier, 1.0f);
+      glTranslatef(wall->skyyaw, wall->skyymid / skyymid_multiplier, 0.0f);
     }
 
     glBegin(GL_TRIANGLE_STRIP);
