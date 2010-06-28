@@ -384,11 +384,7 @@ void P_PlayerThink (player_t* player)
     original_view_vars.viewpitch = player->mo->pitch;// + viewpitchoffset;
     if(walkcamera.type)
     {
-      walkcamera.PrevX = walkcamera.x;
-      walkcamera.PrevY = walkcamera.y;
-      walkcamera.PrevZ = walkcamera.z;
-      walkcamera.PrevAngle = walkcamera.angle;
-      walkcamera.PrevPitch = walkcamera.pitch;
+      P_ResetWalkcam();
     }
   }
 

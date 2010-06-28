@@ -105,11 +105,7 @@ void R_InterpolateView (player_t *player, fixed_t frac)
 
       if(walkcamera.type)
       {
-        walkcamera.PrevX = walkcamera.x;
-        walkcamera.PrevY = walkcamera.y;
-        walkcamera.PrevZ = walkcamera.z;
-        walkcamera.PrevAngle = walkcamera.angle;
-        walkcamera.PrevPitch = walkcamera.pitch;
+        P_ResetWalkcam();
       }
     }
 

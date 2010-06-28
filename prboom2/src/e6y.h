@@ -188,6 +188,7 @@ void e6y_InitCommandLine(void);
 
 void P_WalkTicker ();
 void P_SyncWalkcam(dboolean sync_coords, dboolean sync_sight);
+void P_ResetWalkcam(void);
 
 extern dboolean sound_inited_once;
 void e6y_I_uSleep(unsigned long usecs);
