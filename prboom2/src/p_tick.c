@@ -37,6 +37,7 @@
 #include "p_tick.h"
 #include "p_map.h"
 #include "r_fps.h"
+#include "e6y.h"
 #include "s_advsound.h"
 
 int leveltime;
@@ -275,7 +276,13 @@ void P_Ticker (void)
 
   if (paused || (menuactive && !demoplayback && !netgame &&
      players[consoleplayer].viewz != 1))
+  {
+    if (walkcamera.type)
+    {
+      P_ResetWalkcam();
+    }
     return;
+  }
 
   R_UpdateInterpolations ();
 

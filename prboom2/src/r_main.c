@@ -775,7 +775,7 @@ subsector_t *R_PointInSubsector(fixed_t x, fixed_t y)
 static void R_SetupFrame (player_t *player)
 {
   int i, cm;
-  dboolean NoInterpolate = paused || (menuactive && !demoplayback);
+  dboolean NoInterpolate = (paused && !walkcamera.type) || (menuactive && !demoplayback);
 
   viewplayer = player;
 
