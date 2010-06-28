@@ -4629,7 +4629,7 @@ dboolean M_Responder (event_t* ev) {
       if (demoplayback && gamestate == GS_LEVEL)
       {
         walkcamera.type = (walkcamera.type+1)%3;
-        P_ResetWalkcam (true, (walkcamera.type!=2));
+        P_SyncWalkcam (true, (walkcamera.type!=2));
         R_ResetViewInterpolation ();
         if (walkcamera.type==0)
           R_SmoothPlaying_Reset(NULL);

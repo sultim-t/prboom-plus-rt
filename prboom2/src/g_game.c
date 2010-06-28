@@ -3618,20 +3618,20 @@ void P_WalkTicker()
   mousex = mousey = 0;
 }
 
-void P_ResetWalkcam(dboolean ResetCoord, dboolean ResetSight)
+void P_SyncWalkcam(dboolean sync_coords, dboolean sync_sight)
 {
   if (!walkcamera.type)
     return;
 
   if (players[displayplayer].mo)
   {
-    if (ResetSight)
+    if (sync_sight)
     {
       walkcamera.angle = players[displayplayer].mo->angle;
       walkcamera.pitch = players[displayplayer].mo->pitch;
     }
 
-    if(ResetCoord)
+    if(sync_coords)
     {
       walkcamera.x = players[displayplayer].mo->x;
       walkcamera.y = players[displayplayer].mo->y;
