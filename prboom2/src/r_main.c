@@ -794,7 +794,10 @@ static void R_SetupFrame (player_t *player)
   viewsin = finesine[viewangle>>ANGLETOFINESHIFT];
   viewcos = finecosine[viewangle>>ANGLETOFINESHIFT];
 
-  R_DoInterpolations(tic_vars.frac);
+  if (!paused)
+  {
+    R_DoInterpolations(tic_vars.frac);
+  }
 
   // killough 3/20/98, 4/4/98: select colormap based on player status
 

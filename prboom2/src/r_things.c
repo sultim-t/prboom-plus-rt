@@ -527,7 +527,7 @@ static void R_ProjectSprite (mobj_t* thing)
   dboolean mlook = HaveMouseLook() || (render_fov > FOV90);
 #endif
 
-  if (movement_smooth)
+  if (!paused && movement_smooth)
   {
     fx = thing->PrevX + FixedMul (tic_vars.frac, thing->x - thing->PrevX);
     fy = thing->PrevY + FixedMul (tic_vars.frac, thing->y - thing->PrevY);
