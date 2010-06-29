@@ -1429,7 +1429,7 @@ void I_midiOutSetVolumes(int volume)
 #define SOME_MASK 0x00ffffff
 #endif
 
-#define CHKPIX(ofs) (l1[(ofs)*4+MSB]==255 ? (( ((long*)l1)[0] = ((long*)l1)[ofs]&SOME_MASK), trans=true ) : false)
+#define CHKPIX(ofs) (l1[(ofs)*4+MSB]==255 ? (( ((unsigned int*)l1)[0] = ((unsigned int*)l1)[ofs]&SOME_MASK), trans=true ) : false)
 
 dboolean SmoothEdges(unsigned char * buffer,int w, int h)
 {
