@@ -218,4 +218,7 @@ void gld_MultisamplingInit(void);
 void gld_MultisamplingCheck(void);
 void gld_MultisamplingSet(void);
 
+//display lists
+extern int gl_use_display_lists;
+
 #endif // _GL_STRUCT_H

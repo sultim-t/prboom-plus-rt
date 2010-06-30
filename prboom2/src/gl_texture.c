@@ -1582,5 +1582,6 @@ void gld_CleanMemory(void)
   gld_CleanVertexData();
   gld_CleanTexItems(numtextures, &gld_GLTextures);
   gld_CleanTexItems(numlumps, &gld_GLPatchTextures);
+  gld_CleanDisplayLists();
   gl_preprocessed = false;
 }

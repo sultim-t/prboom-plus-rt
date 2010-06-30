@@ -527,4 +527,8 @@ box_skybox_t* R_GetBoxSkybox(int index);
 void gld_ParseSkybox(void);
 extern box_skybox_t *BoxSkybox_default;
 
+// display lists
+void gld_InitDisplayLists(void);
+void gld_CleanDisplayLists(void);
+
 #endif // _GL_INTERN_H

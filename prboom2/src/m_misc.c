@@ -447,6 +447,8 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"gl_use_stencil", {&gl_use_stencil_default}, {1},0,1,
    def_bool,ss_stat},
+  {"gl_use_display_lists",{&gl_use_display_lists},{0},0,1,
+   def_bool,ss_none},
 
   {"gl_vsync",{&gl_vsync},{1},0,1,
    def_bool,ss_none},
