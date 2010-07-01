@@ -95,7 +95,9 @@ int gl_blend_animations;
 
 int gl_use_display_lists;
 int flats_display_list;
-int flats_display_list_size;
+int flats_display_list_size = 0;
+int flats_detail_display_list;
+int flats_detail_display_list_size = 0;
 
 // e6y
 // This variables toggles the use of a trick to prevent the clearning of the 
@@ -2882,7 +2884,8 @@ static void gld_DrawFlat(GLFlat *flat)
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
     if (gl_use_display_lists)
     {
-      glCallList(flats_display_list + flat->sectornum);
+      int display_list = (has_detail ? flats_detail_display_list : flats_display_list);
+      glCallList(display_list + flat->sectornum);
     }
     else
     {
@@ -3492,6 +3495,31 @@ void gld_InitDisplayLists(void)
       glEndList();
     }
 
+    // duplicated display list for flats with enabled detail ARB
+    if (details_count && gl_arb_multitexture)
+    {
+      flats_detail_display_list_size = numsectors;
+      flats_detail_display_list = glGenLists(flats_detail_display_list_size);
+
+      gld_EnableClientCoordArray(GL_TEXTURE1_ARB, true);
+
+      for (i = 0; i < flats_display_list_size; i++)
+      {
+        glNewList(flats_detail_display_list + i, GL_COMPILE);
+
+        for (loopnum = 0; loopnum < sectorloops[i].loopcount; loopnum++)
+        {
+          // set the current loop
+          currentloop = &sectorloops[i].loops[loopnum];
+          glDrawArrays(currentloop->mode, currentloop->vertexindex, currentloop->vertexcount);
+        }
+
+        glEndList();
+      }
+
+      gld_EnableClientCoordArray(GL_TEXTURE1_ARB, false);
+    }
+
     if (gl_ext_arb_vertex_buffer_object)
     {
       // bind with 0, so, switch back to normal pointer operation
@@ -3507,9 +3535,19 @@ void gld_CleanDisplayLists(void)
 {
   if (gl_use_display_lists)
   {
-    glDeleteLists(flats_display_list, flats_display_list_size);
-    flats_display_list = 0;
-    flats_display_list_size = 0;
+    if (flats_display_list_size > 0)
+    {
+      glDeleteLists(flats_display_list, flats_display_list_size);
+      flats_display_list = 0;
+      flats_display_list_size = 0;
+    }
+
+    if (flats_detail_display_list_size > 0)
+    {
+      glDeleteLists(flats_detail_display_list, flats_detail_display_list_size);
+      flats_detail_display_list = 0;
+      flats_detail_display_list_size = 0;
+    }
   }
 }
 

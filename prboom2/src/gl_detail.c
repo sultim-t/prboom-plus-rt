@@ -425,10 +425,17 @@ void gld_DrawFlatDetail_NoARB(GLFlat *flat)
   {
     // go through all loops of this sector
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
-    for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)
+    if (gl_use_display_lists)
     {
-      currentloop=&sectorloops[flat->sectornum].loops[loopnum];
-      glDrawArrays(currentloop->mode,currentloop->vertexindex,currentloop->vertexcount);
+      glCallList(flats_display_list + flat->sectornum);
+    }
+    else
+    {
+      for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)
+      {
+        currentloop=&sectorloops[flat->sectornum].loops[loopnum];
+        glDrawArrays(currentloop->mode,currentloop->vertexindex,currentloop->vertexcount);
+      }
     }
 #else
     for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)

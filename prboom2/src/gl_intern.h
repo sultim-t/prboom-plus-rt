@@ -530,5 +530,6 @@ extern box_skybox_t *BoxSkybox_default;
 // display lists
 void gld_InitDisplayLists(void);
 void gld_CleanDisplayLists(void);
+extern int flats_display_list;
 
 #endif // _GL_INTERN_H
