@@ -2396,24 +2396,28 @@ static void gld_DrawWall(GLWall *wall)
       glBegin(GL_TRIANGLE_FAN);
 
       // lower left corner
-      glTexCoord2f(wall->ul,wall->vb); glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
+      glTexCoord2f(wall->ul,wall->vb);
+      glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
 
       // split left edge of wall
       if (gl_seamless && !wall->glseg->fracleft)
         gld_SplitLeftEdge(wall, false);
 
       // upper left corner
-      glTexCoord2f(wall->ul,wall->vt); glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
+      glTexCoord2f(wall->ul,wall->vt);
+      glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
 
       // upper right corner
-      glTexCoord2f(wall->ur,wall->vt); glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
+      glTexCoord2f(wall->ur,wall->vt);
+      glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
 
       // split right edge of wall
       if (gl_seamless && !wall->glseg->fracright)
         gld_SplitRightEdge(wall, false);
 
       // lower right corner
-      glTexCoord2f(wall->ur,wall->vb); glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
+      glTexCoord2f(wall->ur,wall->vb);
+      glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
 
       glEnd();
     }
