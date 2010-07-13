@@ -1335,10 +1335,15 @@ void WadDataToWadFiles(waddata_t *waddata)
     }
     if (waddata->wadfiles[i].src == source_pwad)
     {
-      char *file = I_FindFile(waddata->wadfiles[i].name, ".wad");
+      const char *file = I_FindFile2(waddata->wadfiles[i].name, ".wad");
       if (!file && D_TryGetWad(waddata->wadfiles[i].name))
       {
-        file = I_FindFile(waddata->wadfiles[i].name, ".wad");
+        file = I_FindFile2(waddata->wadfiles[i].name, ".wad");
+        if (file)
+        {
+          free(waddata->wadfiles[i].name);
+          waddata->wadfiles[i].name = strdup(file); 
+        }
       }
       if (file)
       {
