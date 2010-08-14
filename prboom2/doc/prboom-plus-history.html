@@ -43,6 +43,80 @@
 
 <h1>Change Log</h1>
 
+<br><span class="ver">2.5.0.7</span>
+<span class="date">&nbsp;@&nbsp;2010-Aug-15</span>
+<table>
+<tr><td class="aaa">[+]</td><td>Added support for DeePBSP v4 extended nodes.
+<tr><td class="aaa">[+]</td><td>Added support for ZDoom's uncompressed extended nodes.
+<tr><td class="aaa">[+]</td><td>Blend animations.
+<tr><td class="aaa">[+]</td><td>Support for Quake2/Unreal style skyboxes. Their <a href="http://zdoom.org/wiki/GLDEFS#Skybox_definitions">definitions</a> (using GLDEFS lump) are GZDoom compatible.
+<tr><td class="aaa">[+]</td><td>Support for <a href="http://zdoom.org/wiki/MUSINFO">MUSINFO</a> lump (dynamic music changing) from Risen3D.
+<tr><td class="aaa">[+]</td><td>Support for custom per-texture detail textures. Syntax of definition using GLDEFS lump:
+<pre class="code">
+detail
+{
+  (walls | flats) [default_detail_name [width [height [offset_x [offset_y]]]]]
+  {
+    texture_name [detail_name [width [height [offset_x [offset_y]]]]]
+  }
+}
+</pre>
+
+Where detail_name is a bmp/png/tga/jpg/pcx/gif lump between the HI_START/HI_END markers. You don't need to add the texture to TEXTURES1.
+Default values are (width:16 height:16 offset_x:0 offset_y:0)
+
+<p>Example:
+<pre class="code">
+detail
+{
+  walls smooth01 32.0 //default detail for walls (width = 32, height = 16, offset_x/y = 0)
+  {
+    brick7  detstone 64.0 64 10.532
+    brick8  detail02 // detail02 16 16 0 0
+    water1 // do not apply default detail to water
+    water2
+    water3
+    water4
+  }
+  flats // no default detail for flats
+  {
+    grass1 Grass01 32 32
+    NUKAGE1 detslime 16 16 0 0 // different offsets for animated flats make sense
+    NUKAGE2 detslime 16 16 4 4
+    NUKAGE3 detslime 16 16 8 8
+  }
+}
+</pre>
+<tr><td class="aaa">[*]</td><td>Hacked SDL_mixer.dll to avoid music bugs on some tracks. (for example: music goes wrong from 1:15 with timidity on doom2.wad map05)
+<tr><td class="aaa">[*]</td><td>Recalculates seg offsets that are sometimes incorrect with certain nodebuilders. Fixes among others, line 20365 of DV.wad, map 5. Makes sense only for software renderer.
+<tr><td class="aaa">[*]</td><td>Scan forward for a MUS header signature at the beginning of a MUS lump, which apparently DMX was capable of doing vis-a-vis DIESCUM.WAD.
+<tr><td class="aaa">[*]</td><td>Verifies blockmap validity and reports it in stdout.txt.
+<tr><td class="aaa">[*]</td><td>Disables sky texture scaling if the status bar is used.
+<tr><td class="aaa">[*]</td><td>In Chex Quest, uses the radiation suit colormap instead of the red colormaps that are usually used when taking damage (or getting the berserk pack).  This matches Vanilla chex.exe behavior (from chocolate-doom).
+<tr><td class="aaa">[*]</td><td>Make -complevel 9 draw the sky normally during invulnerability. This is what Boom does. It was MBF that introduced the "negative" sky option.
+<tr><td class="aaa">[*]</td><td>No z-fighting in OpenGL mode for a killed mobj and its dropped weapon after death even with "sprites_doom_order 1".
+<tr><td class="aaa">[*]</td><td>The ability to render flats using draw lists. Can be noticeably faster on some levels. I have 9% boost on map05 @ epic.wad  on my 8800GTS (PCI Express 1.0 x16 @ x4). "gl_use_display_lists" in config.
+<tr><td class="aaa">[-]</td><td>Fixed HOM at sectors 226 and 300 on E1M1 @ OTTAWAU.WAD. Fix affects only vanilla compatibility levels, because Boom's behavior is different. Newtechn.wad is also fixed.
+<tr><td class="aaa">[-]</td><td>Fixed a -trace_thingshealth issue.
+<tr><td class="aaa">[-]</td><td>Fixed a crash when demo footer and re-record are used.
+<tr><td class="aaa">[-]</td><td>Full path should not be stored in demo footer for Dehacked patches.
+<tr><td class="aaa">[-]</td><td>SDL_mixer's native MIDI music playing does not pause properly. As a workaround, it sets the volume to 0 when paused and "mus_pause_opt 1".
+<tr><td class="aaa">[-]</td><td>Boom colormaps are not be applied twice for hires textures anymore.
+<tr><td class="aaa">[-]</td><td>Fixed the latest known incompatibility with MBF.
+<tr><td class="aaa">[-]</td><td>Fixed an incompatibility with Win95.
+<tr><td class="aaa">[-]</td><td>During demo playback when using the camera the sound was heard from the players position, instead of the camera position.
+<tr><td class="aaa">[-]</td><td>After joining a game using recordfromto it was not possible to save the game.
+<tr><td class="aaa">[-]</td><td>Inheriting of friendlyness during spawn, for MBF compatibility.
+<tr><td class="aaa">[-]</td><td>PrBoom did not use the misc1 and misc2 frame parameters in A_Mushroom for Boom compatibility. Normally those two should control the angle and speed factor of the fireballs, but it didn't happen here.
+<tr><td class="aaa">[-]</td><td>"map_use_multisamling 0" did not work with "map_always_updates 0"
+<tr><td class="aaa">[-]</td><td>Fixed crash in software mode with 5x4 aspect.
+<tr><td class="aaa">[-]</td><td>Fixed mismatches between sotware and GL modes at 5x4 aspect.
+<tr><td class="aaa">[-]</td><td>Walkcam did not interpolate when paused.
+<tr><td class="aaa">[-]</td><td>Color variables were misaligned in the automap settings menu with "not adjusted" format.
+<tr><td class="aaa">[-]</td><td>A string of garbage from the title picture was left on the bottom of the HUD when using "not adjusted" format at resolutions with odd height (700x525 as example).
+<tr><td class="aaa">[-]</td><td>Fixed corruption of graphics after smoothing edges on systems with LP64 data model. Most Unix (like Solaris) and Unix-like systems (like Linux).
+</table>
+
 <br><span class="ver">2.5.0.6</span>
 <span class="date">&nbsp;@&nbsp;2009-Dec-27</span>
 <table>

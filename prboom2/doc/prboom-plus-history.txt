@@ -1,5 +1,72 @@
 Change Log
 
+2.5.0.7 @ 2010-Aug-15
+[+] Added support for DeePBSP v4 extended nodes.
+[+] Added support for ZDoom's uncompressed extended nodes.
+[+] Blend animations.
+[+] Support for Quake2/Unreal style skyboxes. Their definitions (using GLDEFS lump) are GZDoom compatible. (http://zdoom.org/wiki/GLDEFS#Skybox_definitions)
+[+] Support for MUSINFO lump (dynamic music changing) from Risen3D.
+[+] Support for custom per-texture detail textures. Syntax of definition using GLDEFS lump:
+    detail
+    {
+      (walls | flats) [default_detail_name [width [height [offset_x [offset_y]]]]]
+      {
+        texture_name [detail_name [width [height [offset_x [offset_y]]]]]
+      }
+    }
+
+    Where detail_name is a bmp/png/tga/jpg/pcx/gif lump between the HI_START/HI_END markers. You don't need to add the texture to TEXTURES1. Default values are (width:16 height:16 offset_x:0 offset_y:0)
+
+    Example:
+
+    detail
+    {
+      walls smooth01 32.0 //default detail for walls (width = 32, height = 16, offset_x/y = 0)
+      {
+        brick7  detstone 64.0 64 10.532
+        brick8  detail02 // detail02 16 16 0 0
+        water1 // do not apply default detail to water
+        water2
+        water3
+        water4
+      }
+      flats // no default detail for flats
+      {
+        grass1 Grass01 32 32
+        NUKAGE1 detslime 16 16 0 0 // different offsets for animated flats make sense
+        NUKAGE2 detslime 16 16 4 4
+        NUKAGE3 detslime 16 16 8 8
+      }
+    }
+[*] Hacked SDL_mixer.dll to avoid music bugs on some tracks. (for example: music goes wrong from 1:15 with timidity on doom2.wad map05)
+[*] Recalculates seg offsets that are sometimes incorrect with certain nodebuilders. Fixes among others, line 20365 of DV.wad, map 5. Makes sense only for software renderer.
+[*] Scan forward for a MUS header signature at the beginning of a MUS lump, which apparently DMX was capable of doing vis-a-vis DIESCUM.WAD.
+[*] Verifies blockmap validity and reports it in stdout.txt.
+[*] Disables sky texture scaling if the status bar is used.
+[*] In Chex Quest, uses the radiation suit colormap instead of the red colormaps that are usually used when taking damage (or getting the berserk pack). This matches Vanilla chex.exe behavior (from chocolate-doom).
+[*] Make -complevel 9 draw the sky normally during invulnerability. This is what Boom does. It was MBF that introduced the "negative" sky option.
+[*] No z-fighting in OpenGL mode for a killed mobj and its dropped weapon after death even with "sprites_doom_order 1".
+[*] The ability to render flats using draw lists. Can be noticeably faster on some levels. I have 9% boost on map05 @ epic.wad on my 8800GTS (PCI Express 1.0 x16 @ x4). "gl_use_display_lists" in config.
+[-] Fixed HOM at sectors 226 and 300 on E1M1 @ OTTAWAU.WAD. Fix affects only vanilla compatibility levels, because Boom's behavior is different. Newtechn.wad is also fixed.
+[-] Fixed a -trace_thingshealth issue.
+[-] Fixed a crash when demo footer and re-record are used.
+[-] Full path should not be stored in demo footer for Dehacked patches.
+[-] SDL_mixer's native MIDI music playing does not pause properly. As a workaround, it sets the volume to 0 when paused and "mus_pause_opt 1".
+[-] Boom colormaps are not be applied twice for hires textures anymore.
+[-] Fixed the latest known incompatibility with MBF.
+[-] Fixed an incompatibility with Win95.
+[-] During demo playback when using the camera the sound was heard from the players position, instead of the camera position.
+[-] After joining a game using recordfromto it was not possible to save the game.
+[-] Inheriting of friendlyness during spawn, for MBF compatibility.
+[-] PrBoom did not use the misc1 and misc2 frame parameters in A_Mushroom for Boom compatibility. Normally those two should control the angle and speed factor of the fireballs, but it didn't happen here.
+[-] "map_use_multisamling 0" did not work with "map_always_updates 0"
+[-] Fixed crash in software mode with 5x4 aspect.
+[-] Fixed mismatches between sotware and GL modes at 5x4 aspect.
+[-] Walkcam did not interpolate when paused.
+[-] Color variables were misaligned in the automap settings menu with "not adjusted" format.
+[-] A string of garbage from the title picture was left on the bottom of the HUD when using "not adjusted" format at resolutions with odd height (700x525 as example).
+[-] Fixed corruption of graphics after smoothing edges on systems with LP64 data model. Most Unix (like Solaris) and Unix-like systems (like Linux). 
+
 2.5.0.6 @ 2009.12.27
 [+] Added the ability to smooth sprites edges ("Options\General\OpenGL Options\Smooth Sprite Edges"). Might noticeably reduce frame rate. Includes a "gl_mask_sprite_threshold" config variable for the intensity of smoothing (0-100).
 [+] Ability to see kills/secrets/items/time statistics in automap mode. Available in the menu at "Options\Setup\Automap\".
