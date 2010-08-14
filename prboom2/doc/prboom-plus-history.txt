@@ -5,7 +5,7 @@ Change Log
 [+] Added support for ZDoom's uncompressed extended nodes.
 [+] Blend animations.
 [+] Support for Quake2/Unreal style skyboxes. Their definitions (using GLDEFS lump) are GZDoom compatible. (http://zdoom.org/wiki/GLDEFS#Skybox_definitions)
-[+] Support for MUSINFO lump (dynamic music changing) from Risen3D.
+[+] Support for MUSINFO lump (dynamic music changing) from Risen3D. (http://zdoom.org/wiki/MUSINFO)
 [+] Support for custom per-texture detail textures. Syntax of definition using GLDEFS lump:
     detail
     {
@@ -46,7 +46,7 @@ Change Log
 [*] In Chex Quest, uses the radiation suit colormap instead of the red colormaps that are usually used when taking damage (or getting the berserk pack). This matches Vanilla chex.exe behavior (from chocolate-doom).
 [*] Make -complevel 9 draw the sky normally during invulnerability. This is what Boom does. It was MBF that introduced the "negative" sky option.
 [*] No z-fighting in OpenGL mode for a killed mobj and its dropped weapon after death even with "sprites_doom_order 1".
-[*] The ability to render flats using draw lists. Can be noticeably faster on some levels. I have 9% boost on map05 @ epic.wad on my 8800GTS (PCI Express 1.0 x16 @ x4). "gl_use_display_lists" in config.
+[*] The ability to render flats using draw lists. Can be noticeably faster on complex levels. "gl_use_display_lists" in config.
 [-] Fixed HOM at sectors 226 and 300 on E1M1 @ OTTAWAU.WAD. Fix affects only vanilla compatibility levels, because Boom's behavior is different. Newtechn.wad is also fixed.
 [-] Fixed a -trace_thingshealth issue.
 [-] Fixed a crash when demo footer and re-record are used.
