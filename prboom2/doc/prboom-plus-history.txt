@@ -3,7 +3,7 @@ Change Log
 2.5.0.7 @ 2010-Aug-15
 [+] Added support for DeePBSP v4 extended nodes.
 [+] Added support for ZDoom's uncompressed extended nodes.
-[+] Blend animations.
+[+] Animation blending. (Options \ General \ Texture Options \ Blend Animations)
 [+] Support for Quake2/Unreal style skyboxes. Their definitions (using GLDEFS lump) are GZDoom compatible. (http://zdoom.org/wiki/GLDEFS#Skybox_definitions)
 [+] Support for MUSINFO lump (dynamic music changing) from Risen3D. (http://zdoom.org/wiki/MUSINFO)
 [+] Support for custom per-texture detail textures. Syntax of definition using GLDEFS lump:
