@@ -826,7 +826,8 @@ int gld_BuildTexture(GLTexture *gltexture, void *data, dboolean readonly, int wi
   //your video is modern
   if (gl_arb_texture_non_power_of_two)
   {
-    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, (gltexture->flags & GLTEXTURE_MIPMAP));
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP,
+      ((gltexture->flags & GLTEXTURE_MIPMAP) ? GL_TRUE : GL_FALSE));
 
     glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
       tex_width, tex_height,
