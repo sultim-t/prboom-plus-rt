@@ -78,6 +78,8 @@ int gl_ext_blend_color_default;
 int gl_use_stencil_default;
 int gl_ext_arb_vertex_buffer_object_default;
 
+int active_texture_enabled[32];
+int clieant_active_texture_enabled[32];
 
 // obsolete?
 PFNGLCOLORTABLEEXTPROC              GLEXT_glColorTableEXT              = NULL;
@@ -136,6 +138,7 @@ void gld_InitOpenGLVersion(void)
 
 void gld_InitOpenGL(dboolean compatibility_mode)
 {
+  GLenum texture;
   const char *extensions = (const char*)glGetString(GL_EXTENSIONS);
 
   gld_InitOpenGLVersion();
@@ -320,11 +323,19 @@ void gld_InitOpenGL(dboolean compatibility_mode)
   //init states manager
   gld_EnableMultisample(true);
   gld_EnableMultisample(false);
+
+  for (texture = GL_TEXTURE0_ARB; texture <= GL_TEXTURE31_ARB; texture++)
+  {
+    gld_EnableTexture2D(texture, true);
+    gld_EnableTexture2D(texture, false);
+
+    gld_EnableClientCoordArray(texture, true);
+    gld_EnableClientCoordArray(texture, false);
+  }
 }
 
 void gld_EnableTexture2D(GLenum texture, int enable)
 {
-  static int arb_enabled[32];
   int arb;
 
   if (!gl_arb_multitexture && texture != GL_TEXTURE0_ARB)
@@ -339,7 +350,7 @@ void gld_EnableTexture2D(GLenum texture, int enable)
 
   if (enable)
   {
-    if (!arb_enabled[arb])
+    if (!active_texture_enabled[arb])
     {
       if (arb != 0)
       {
@@ -351,12 +362,12 @@ void gld_EnableTexture2D(GLenum texture, int enable)
       {
         glEnable(GL_TEXTURE_2D);
       }
-      arb_enabled[arb] = enable;
+      active_texture_enabled[arb] = enable;
     }
   }
   else
   {
-    if (arb_enabled[arb])
+    if (active_texture_enabled[arb])
     {
       if (arb != 0)
       {
@@ -368,7 +379,7 @@ void gld_EnableTexture2D(GLenum texture, int enable)
       {
         glDisable(GL_TEXTURE_2D);
       }
-      arb_enabled[arb] = enable;
+      active_texture_enabled[arb] = enable;
     }
   }
 }
@@ -376,7 +387,6 @@ void gld_EnableTexture2D(GLenum texture, int enable)
 void gld_EnableClientCoordArray(GLenum texture, int enable)
 {
 #ifdef USE_VERTEX_ARRAYS
-  static int arb_is_enabled[32];
   int arb;
 
   if (!gl_arb_multitexture)
@@ -391,24 +401,24 @@ void gld_EnableClientCoordArray(GLenum texture, int enable)
 
   if (enable)
   {
-    if (!arb_is_enabled[arb])
+    if (!clieant_active_texture_enabled[arb])
     {
       GLEXT_glClientActiveTextureARB(texture);
       glEnableClientState(GL_TEXTURE_COORD_ARRAY);
       GLEXT_glClientActiveTextureARB(GL_TEXTURE0_ARB);
 
-      arb_is_enabled[arb] = enable;
+      clieant_active_texture_enabled[arb] = enable;
     }
   }
   else
   {
-    if (arb_is_enabled[arb])
+    if (clieant_active_texture_enabled[arb])
     {
       GLEXT_glClientActiveTextureARB(texture);
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
       GLEXT_glClientActiveTextureARB(GL_TEXTURE0_ARB);
 
-      arb_is_enabled[arb] = enable;
+      clieant_active_texture_enabled[arb] = enable;
     }
   }
 #endif
