@@ -1413,7 +1413,7 @@ static void P_LoadLineDefs (int lump)
           // e6y
           // ML_TWOSIDED flag shouldn't be cleared for compatibility purposes
           // see CLNJ-506.LMP at http://doomedsda.us/wad1005.html
-          if (!overflows[OVERFLOW_MISSEDBACKSIDE].emulate)
+          if (demo_compatibility && !overflows[OVERFLOW_MISSEDBACKSIDE].emulate)
           {
             ld->flags &= ~ML_TWOSIDED;  // Clear 2s flag for missing left side
           }
