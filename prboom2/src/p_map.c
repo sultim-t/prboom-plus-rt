@@ -1477,14 +1477,17 @@ dboolean PTR_AimTraverse (intercept_t* in)
 
     dist = FixedMul (attackrange, in->frac);
 
-    if (li->frontsector->floorheight != li->backsector->floorheight)
+    // e6y: emulation of missed back side on two-sided lines.
+    // backsector can be NULL if overrun_missedbackside_emulate is 1
+    if (!li->backsector || li->frontsector->floorheight != li->backsector->floorheight)
       {
       slope = FixedDiv (openbottom - shootz , dist);
       if (slope > bottomslope)
         bottomslope = slope;
       }
 
-    if (li->frontsector->ceilingheight != li->backsector->ceilingheight)
+    // e6y: emulation of missed back side on two-sided lines.
+    if (!li->backsector || li->frontsector->ceilingheight != li->backsector->ceilingheight)
       {
       slope = FixedDiv (opentop - shootz , dist);
       if (slope < topslope)
@@ -1571,6 +1574,15 @@ dboolean PTR_ShootTraverse (intercept_t* in)
 
     // killough 11/98: simplify
 
+    // e6y: emulation of missed back side on two-sided lines.
+    // backsector can be NULL if overrun_missedbackside_emulate is 1
+    if (!li->backsector)
+    {
+      if ((slope = FixedDiv(openbottom - shootz , dist)) <= aimslope &&
+          (slope = FixedDiv(opentop - shootz , dist)) >= aimslope)
+        return true;      // shot continues
+    }
+    else
     if ((li->frontsector->floorheight==li->backsector->floorheight ||
          (slope = FixedDiv(openbottom - shootz , dist)) <= aimslope) &&
         (li->frontsector->ceilingheight==li->backsector->ceilingheight ||

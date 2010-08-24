@@ -1410,7 +1410,13 @@ static void P_LoadLineDefs (int lump)
         }
         
         if ((ld->sidenum[1] == NO_INDEX) && (ld->flags & ML_TWOSIDED)) {
-          ld->flags &= ~ML_TWOSIDED;  // Clear 2s flag for missing left side
+          // e6y
+          // ML_TWOSIDED flag shouldn't be cleared for compatibility purposes
+          // see CLNJ-506.LMP at http://doomedsda.us/wad1005.html
+          if (!overflows[OVERFLOW_MISSEDBACKSIDE].emulate)
+          {
+            ld->flags &= ~ML_TWOSIDED;  // Clear 2s flag for missing left side
+          }
           // Mark such lines and do not draw them only in demo_compatibility,
           // because Boom's behaviour is different
           // See OTTAWAU.WAD E1M1, sectors 226 and 300

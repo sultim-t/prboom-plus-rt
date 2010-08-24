@@ -343,3 +343,4 @@ prboom2/src/i_simd.h -text
 prboom2/tests/demo-testing.csv -text
 prboom2/tests/donut_av.wad -text
 prboom2/tests/heightlist_overflow.wad -text
+prboom2/tests/missed_back_side.zip -text

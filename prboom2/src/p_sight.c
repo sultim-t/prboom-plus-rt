@@ -38,6 +38,7 @@
 #include "p_setup.h"
 #include "m_bbox.h"
 #include "lprintf.h"
+#include "g_overflow.h"
 #include "e6y.h" //e6y
 
 //
@@ -119,11 +120,28 @@ static dboolean P_CrossSubsector(int num)
     // cph - do what we can before forced to check intersection
     if (line->flags & ML_TWOSIDED) {
 
+      // crosses a two sided line
+      front = seg->frontsector;
+      back = seg->backsector;
+
+      // e6y: emulation of missed back side on two-sided lines.
+      // backsector can be NULL if overrun_missedbackside_emulate is 1
+      if (!back)
+      {
+        static sector_t dummy_sector;
+        static int initialized = false;
+        if (!initialized)
+        {
+          initialized = true;
+          MissedBackSideOverrun(&dummy_sector, seg);
+        }
+        back = &dummy_sector;
+      }
+
       // no wall to block sight with?
-      if ((front = seg->frontsector)->floorheight ==
-    (back = seg->backsector)->floorheight   &&
-    front->ceilingheight == back->ceilingheight)
-  continue;
+      if (front->floorheight == back->floorheight
+        && front->ceilingheight == back->ceilingheight)
+        continue;	
 
       // possible occluder
       // because of ceiling height differences

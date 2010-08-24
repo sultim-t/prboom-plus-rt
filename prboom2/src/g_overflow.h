@@ -54,6 +54,7 @@ typedef enum overrun_list_s
   OVERFLOW_INTERCEPT,
   OVERFLOW_PLYERINGAME,
   OVERFLOW_DONUT,
+  OVERFLOW_MISSEDBACKSIDE,
 
   OVERFLOW_MAX //last
 } overrun_list_t;
@@ -126,5 +127,7 @@ void RejectOverrun(int rejectlump, const byte **rejectmatrix, int totallines);
 //
 
 int DonutOverrun(fixed_t *pfloorheight, short *pfloorpic);
+
+int MissedBackSideOverrun(sector_t *sector, seg_t *seg);
 
 #endif // __G_OVERFLOW__

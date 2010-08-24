@@ -56,7 +56,8 @@ const char *overflow_cfgname[OVERFLOW_MAX] =
   "overrun_reject_emulate",
   "overrun_intercept_emulate",
   "overrun_playeringame_emulate",
-  "overrun_donut_emulate"
+  "overrun_donut_emulate",
+  "overrun_missedbackside_emulate"
 };
 
 static void ShowOverflowWarning(overrun_list_t overflow, int fatal, const char *params, ...)
@@ -69,7 +70,7 @@ static void ShowOverflowWarning(overrun_list_t overflow, int fatal, const char *
     char buffer[1024];
 
     static const char *name[OVERFLOW_MAX] = {
-      "SPECHIT", "REJECT", "INTERCEPT", "PLYERINGAME", "DONUT"};
+      "SPECHIT", "REJECT", "INTERCEPT", "PLYERINGAME", "DONUT", "MISSEDBACKSIDE"};
 
     static const char str1[] =
       "Too big or not supported %s overflow has been detected. "
@@ -486,6 +487,39 @@ int DonutOverrun(fixed_t *pfloorheight, short *pfloorpic)
           *pfloorpic = MIN(numflats - 1, DONUT_FLOORPIC_DEFAULT);
         }
 
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+//
+// MissedBackSideOverrun
+//
+int MissedBackSideOverrun(sector_t *sector, seg_t *seg)
+{
+  if (demo_compatibility && PROCESS(OVERFLOW_MISSEDBACKSIDE))
+  {
+    if (seg)
+    {
+      ShowOverflowWarning(OVERFLOW_MISSEDBACKSIDE, 0,
+        "\n\nLinedef %d has two-sided flag set, but no second sidedef",
+        seg->linedef->iLineID);
+    }
+    else
+    {
+      ShowOverflowWarning(OVERFLOW_MISSEDBACKSIDE, 0, "");
+    }
+
+    if (EMULATE(OVERFLOW_MISSEDBACKSIDE))
+    {
+      if (sector)
+      {
+        GetMemoryValue(0, &sector->floorheight, 4);
+        GetMemoryValue(4, &sector->ceilingheight, 4);
+        
         return true;
       }
     }

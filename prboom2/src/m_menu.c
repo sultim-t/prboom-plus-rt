@@ -3194,11 +3194,13 @@ setup_menu_t gen_settings7[] =
   {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,G_X2,G_Y+ 9*8, {"overrun_playeringame_emulate"}},
   {"WARN ON DONUT OVERFLOW"            ,S_YESNO     ,m_null,G_X2,G_Y+10*8, {"overrun_donut_warn"}},
   {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,G_X2,G_Y+11*8, {"overrun_donut_emulate"}},
+  {"WARN ON MISSEDBACKSIDE OVERFLOW"   ,S_YESNO     ,m_null,G_X2,G_Y+12*8, {"overrun_missedbackside_warn"}},
+  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,G_X2,G_Y+13*8, {"overrun_missedbackside_emulate"}},
 
-  {"COMPATIBILITY WITH COMMON MAPPING ERRORS" ,S_SKIP|S_TITLE,m_null,G_X2,G_Y+13*8},
-  {"LINEDEFS W/O TAGS APPLY LOCALLY"   ,S_YESNO     ,m_null,G_X2,G_Y+14*8, {"comperr_zerotag"}},
-  {"USE PASSES THRU ALL SPECIAL LINES" ,S_YESNO     ,m_null,G_X2,G_Y+15*8, {"comperr_passuse"}},
-  {"WALK UNDER SOLID HANGING BODIES"   ,S_YESNO     ,m_null,G_X2,G_Y+16*8, {"comperr_hangsolid"}},
+  {"COMPATIBILITY WITH COMMON MAPPING ERRORS" ,S_SKIP|S_TITLE,m_null,G_X2,G_Y+15*8},
+  {"LINEDEFS W/O TAGS APPLY LOCALLY"   ,S_YESNO     ,m_null,G_X2,G_Y+16*8, {"comperr_zerotag"}},
+  {"USE PASSES THRU ALL SPECIAL LINES" ,S_YESNO     ,m_null,G_X2,G_Y+17*8, {"comperr_passuse"}},
+  {"WALK UNDER SOLID HANGING BODIES"   ,S_YESNO     ,m_null,G_X2,G_Y+18*8, {"comperr_hangsolid"}},
 
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
 #ifdef GL_DOOM
