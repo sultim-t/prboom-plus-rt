@@ -3400,12 +3400,14 @@ void G_DoPlayDemo(void)
   demobuffer = W_CacheLumpNum(demolumpnum);
   demolength = W_LumpLength(demolumpnum);
 
+  //e6y: it should be before G_ReadDemoHeaderEx
+  demoplayback = true;
+
   demo_p = G_ReadDemoHeaderEx(demobuffer, demolength, RDH_SAFE);
 
   gameaction = ga_nothing;
   usergame = false;
 
-  demoplayback = true;
   R_SmoothPlaying_Reset(NULL); // e6y
 }
 
