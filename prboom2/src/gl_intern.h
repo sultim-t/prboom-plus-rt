@@ -36,10 +36,9 @@
 
 #include "v_video.h"
 
-#define MAXCOORD 256.0f
-
 #define MAP_COEFF 128.0f
 #define MAP_SCALE (MAP_COEFF*(float)FRACUNIT)
+#define MAXCOORD (32767.0f / MAP_COEFF)
 
 #define SMALLDELTA 0.001f
 

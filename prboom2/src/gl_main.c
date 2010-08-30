@@ -2531,14 +2531,14 @@ void gld_AddWall(seg_t *seg)
   {
     if (frontsector->ceilingpic==skyflatnum)
     {
-      wall.ytop=255.0f;
+      wall.ytop=MAXCOORD;
       wall.ybottom=(float)frontsector->ceilingheight/MAP_SCALE;
       gld_AddSkyTexture(&wall, frontsector->sky, frontsector->sky, SKY_CEILING);
     }
     if (frontsector->floorpic==skyflatnum)
     {
       wall.ytop=(float)frontsector->floorheight/MAP_SCALE;
-      wall.ybottom=-255.0f;
+      wall.ybottom=-MAXCOORD;
       gld_AddSkyTexture(&wall, frontsector->sky, frontsector->sky, SKY_FLOOR);
     }
     temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->midtexture], true, false);
@@ -2565,7 +2565,7 @@ void gld_AddWall(seg_t *seg)
     floor_height=backsector->ceilingheight;
     if (frontsector->ceilingpic==skyflatnum)
     {
-      wall.ytop=255.0f;
+      wall.ytop= MAXCOORD;
       if (
           // e6y
           // There is no more HOM in the starting area on Memento Mori map29 and on map30.
@@ -2724,7 +2724,7 @@ bottomtexture:
     floor_height=frontsector->floorheight;
     if (frontsector->floorpic==skyflatnum)
     {
-      wall.ybottom=-255.0f;
+      wall.ybottom=-MAXCOORD;
       if (
           (backsector->ceilingheight==backsector->floorheight) &&
           (backsector->floorpic==skyflatnum)

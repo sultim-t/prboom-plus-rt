@@ -707,7 +707,7 @@ static void gld_BuildSky(int row_count, int col_count, SkyBoxParams_t *sky)
     }
     foglayer = false;
 
-    delta = (yflip ? 5.0f : -5.0f) / 128.0f;
+    delta = (yflip ? 5.0f : -5.0f) / MAP_COEFF;
 
     for(r = 0; r < row_count; r++)
     {
@@ -898,7 +898,7 @@ void gld_DrawDomeSkyBox(void)
     glRotatef(pitch, 1.0f, 0.0f, 0.0f);
     glRotatef(yaw,   0.0f, 1.0f, 0.0f);
     glScalef(-2.0f, 2.0f, 2.0f);
-    glTranslatef(0.f, -1250.0f/128.0f, 0.f);
+    glTranslatef(0.f, -1250.0f / MAP_COEFF, 0.f);
 
     RenderDome(&SkyBox);
 
