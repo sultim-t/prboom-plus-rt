@@ -80,6 +80,7 @@
 #include "sc_man.h"
 #include "e6y.h"//e6y
 
+int triangulate_subsectors = 0;
 // All OpenGL extentions will be disabled in gl_compatibility mode
 int gl_compatibility = 0;
 
@@ -148,6 +149,9 @@ GLDrawInfo gld_drawinfo;
 static void gld_FreeDrawInfo(void);
 static void gld_ResetDrawInfo(void);
 static void gld_AddDrawRange(int size);
+
+static void gld_CarveFlats(int bspnode, int numdivlines, divline_t *divlines);
+void gld_GetSubSectorVertices(void);
 
 void gld_InitTextureParams(void)
 {
@@ -403,6 +407,191 @@ void gld_Init(int width, int height)
 
 void gld_InitCommandLine(void)
 {
+}
+
+//
+// Textured automap
+//
+
+void AM_rotatePoint_f(float *x, float *y);
+void AM_rotatePoint (fixed_t *x, fixed_t *y);
+
+static int C_DECL dicmp_map_subsectors_by_pic(const void *a, const void *b)
+{
+  const subsector_t *sub1 = *((const subsector_t **)a);
+  const subsector_t *sub2 = *((const subsector_t **)b);
+  return sub1->sector->floorpic - sub2->sector->floorpic;
+}
+
+void gld_MapDrawSubsectors(player_t *plr, float fx, float fy, float mx, float my, float fh, float scale)
+{
+  extern int ddt_cheating;
+  
+  static subsector_t **map_subsectors = NULL;
+  static int map_subsectors_size = 0;
+  int map_subsectors_count;
+
+  int i;
+  int rotation;
+  float alpha;
+  float map_angle_cos, map_angle_sin;
+  GLTexture *gltexture;
+
+  const float scalefrac = scale / 65536.0f;
+  const float scalex = mx / 65536.0f * scale / 65536.0f;
+  const float scaley = my / 65536.0f * scale / 65536.0f;
+  #define CXMTOF_F(x)  (fx + (float)x / 65536.0f * scalefrac - scalex)
+  #define CYMTOF_F(x)  (fy + fh - ((float)x / 65536.0f * scalefrac - scaley))
+
+  alpha = 1.0f;
+  if (automapmode & am_overlay)
+  {
+    if (map_textured_overlay_trans == 0)
+      return;
+    else
+      alpha = (float)map_textured_overlay_trans / 100.0f;
+  }
+  else
+  {
+    if (map_textured_trans == 0)
+      return;
+    else
+      alpha = (float)map_textured_trans / 100.0f;
+  }
+
+  rotation = false;
+  if (automapmode & am_rotate)
+  {
+    float rot = (float)((ANG90 - plr->mo->angle) * M_PI / (float)(1u << 31));
+    map_angle_cos = (float)cos(rot);
+    map_angle_sin = (float)sin(rot);
+    rotation = true;
+  }
+
+  if (numsubsectors > map_subsectors_size)
+  {
+    map_subsectors_size = numsubsectors;
+    map_subsectors = realloc(map_subsectors, map_subsectors_size * sizeof(map_subsectors[0]));
+  }
+
+  map_subsectors_count = 0;
+  for (i = 0; i < numsubsectors; i++)
+  {
+    if ((subsectors[i].flags & SSECF_DRAWN) || ddt_cheating)
+    {
+      map_subsectors[map_subsectors_count++] = &subsectors[i];
+    }
+  }
+
+  // sort subsectors by texture
+  qsort(map_subsectors, map_subsectors_count,
+    sizeof(map_subsectors[0]), dicmp_map_subsectors_by_pic);
+
+  for (i = 0; i < map_subsectors_count; i++)
+  {
+    subsector_t *sub = map_subsectors[i];
+    int ssidx = sub - subsectors;
+
+    gltexture = gld_RegisterFlat(flattranslation[sub->sector->floorpic], true);
+    if (gltexture)
+    {
+      sector_t tempsec;
+      int floorlight;
+      float light;
+      float originx, originy;
+      float uscale = (float)(1<<FRACTOMAPBITS) / gltexture->tex_width  / scalefrac;
+      float vscale = (float)(1<<FRACTOMAPBITS) / gltexture->tex_height / scalefrac;
+      int sectornum = sub->sector->iSectorID;
+      int loopnum;
+      GLLoopDef *currentloop; // the current loop
+      int vertexnum;
+
+      // For lighting and texture determination
+      sector_t *sec = R_FakeFlat(sub->sector, &tempsec, &floorlight, NULL, false);
+
+      // If this subsector has not actually been seen yet (because you are cheating
+      // to see it on the map), tint and desaturate it.
+      if (!(sub->flags & SSECF_DRAWN))
+      {
+        //floorlight = (floorlight + 200*15) / 16;
+      }
+
+      gld_BindFlat(gltexture, 0);
+      light = gld_CalcLightLevel(floorlight);
+      gld_StaticLightAlpha(light, alpha);
+
+      // Find texture origin.
+      originx = (float)(-sec->floor_xoffs) / (float)(1 << FRACTOMAPBITS);
+      originy = (float)(+sec->floor_yoffs) / (float)(1 << FRACTOMAPBITS);
+
+      // Apply the automap's rotation to the texture origin.
+      if (rotation)
+      {
+        AM_rotatePoint_f(&originx, &originy);
+      }
+
+      originx = CXMTOF_F(originx);
+      originy = CYMTOF_F(originy);
+
+      for (loopnum = 0; loopnum < sectorloops[sectornum].ss_loopcount; loopnum++)
+      {
+        currentloop = &sectorloops[sectornum].ss_loops[loopnum];
+
+        if (!currentloop)
+          continue;
+
+        if (currentloop->ssidx == ssidx)
+        {
+          // set the mode (GL_TRIANGLE_FAN)
+          glBegin(currentloop->mode);
+          // go through all vertexes of this loop
+          for (vertexnum = currentloop->vertexindex; vertexnum < (currentloop->vertexindex + currentloop->vertexcount); vertexnum++)
+          {
+            int xx, yy;
+            float x, y, u, v;
+
+            xx = (int)(SCREENWIDTH - flats_vbo[vertexnum].x * MAP_SCALE) >> FRACTOMAPBITS;
+            yy = (int)(flats_vbo[vertexnum].z * MAP_SCALE) >> FRACTOMAPBITS;
+            if (rotation)
+            {
+              AM_rotatePoint(&xx, &yy);
+            }
+
+            x = CXMTOF_F(xx);
+            y = CYMTOF_F(yy);
+
+            u = x - originx;
+            v = y - originy;
+            if (rotation)
+            {
+              float t = u;
+              u = t * map_angle_cos - v * map_angle_sin;
+              v = v * map_angle_cos + t * map_angle_sin;
+            }
+            glTexCoord2f(u * uscale, v * vscale);
+            glVertex3f(x, y, 0);
+          }
+          // end of loop
+          glEnd();
+
+          //break;
+        }
+      }
+    }
+  }
+}
+
+void gld_ProcessTexturedMap(void)
+{
+  if (map_textured && sectorloops[0].ss_loops == NULL)
+  {
+    triangulate_subsectors = 1;
+    if (nodesVersion == 0)
+      gld_CarveFlats(numnodes-1, 0, 0);
+    else
+      gld_GetSubSectorVertices();
+    triangulate_subsectors = 0;
+  }
 }
 
 void gld_DrawTriangleStrip(GLWall *wall, gl_strip_coords_t *c)
@@ -1080,12 +1269,26 @@ static void gld_FlatConvexCarver(int ssidx, int num, divline_t *list)
       if (flats_vbo)
       {
         int currentsector=ssec->sector->iSectorID;
+        GLLoopDef **loop;
+        int *loopcount;
 
-        sectorloops[ currentsector ].loopcount++;
-        sectorloops[ currentsector ].loops=Z_Realloc(sectorloops[currentsector].loops,sizeof(GLLoopDef)*sectorloops[currentsector].loopcount, PU_STATIC, 0);
-        sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].mode=GL_TRIANGLE_FAN;
-        sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].vertexcount=numedgepoints;
-        sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].vertexindex=gld_num_vertexes;
+        if (triangulate_subsectors)
+        {
+          loop = &sectorloops[ currentsector ].ss_loops;
+          loopcount = &sectorloops[ currentsector ].ss_loopcount;
+        }
+        else
+        {
+          loop = &sectorloops[ currentsector ].loops;
+          loopcount = &sectorloops[ currentsector ].loopcount;
+        }
+
+        (*loopcount)++;
+        (*loop) = Z_Realloc((*loop), sizeof(GLLoopDef)*(*loopcount), PU_STATIC, 0);
+        ((*loop)[(*loopcount) - 1]).ssidx = (triangulate_subsectors ? ssidx : -1);
+        ((*loop)[(*loopcount) - 1]).mode = GL_TRIANGLE_FAN;
+        ((*loop)[(*loopcount) - 1]).vertexcount = numedgepoints;
+        ((*loop)[(*loopcount) - 1]).vertexindex = gld_num_vertexes;
 
         for(i = 0;  i < numedgepoints; i++)
         {
@@ -1119,7 +1322,7 @@ static void gld_CarveFlats(int bspnode, int numdivlines, divline_t *divlines)
     // special case for trivial maps (no nodes, single subsector)
     int ssidx = (numnodes != 0) ? bspnode & (~NF_SUBSECTOR) : 0;
 
-    if (!(subsectors[ssidx].sector->flags & SECTOR_IS_CLOSED))
+    if (!(subsectors[ssidx].sector->flags & SECTOR_IS_CLOSED) || triangulate_subsectors)
       gld_FlatConvexCarver(ssidx, numdivlines, divlines);
     return;
   }
@@ -1183,6 +1386,7 @@ static void CALLBACK ntessBegin( GLenum type )
   sectorloops[ currentsector ].loops=Z_Realloc(sectorloops[currentsector].loops,sizeof(GLLoopDef)*sectorloops[currentsector].loopcount, PU_STATIC, 0);
   // set initial values for current loop
   // currentloop is -> sectorloops[currentsector].loopcount-1
+  sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].ssidx=-1;
   sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].mode=type;
   sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].vertexcount=0;
   sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].vertexindex=gld_num_vertexes;
@@ -1542,7 +1746,7 @@ void gld_GetSubSectorVertices(void)
   {
     ssector = &subsectors[i];
 
-    if (ssector->sector->flags & SECTOR_IS_CLOSED)
+    if ((ssector->sector->flags & SECTOR_IS_CLOSED) && !triangulate_subsectors)
       continue;
 
     numedgepoints  = ssector->numlines;
@@ -1552,12 +1756,27 @@ void gld_GetSubSectorVertices(void)
     if (flats_vbo)
     {
       int currentsector = ssector->sector->iSectorID;
+      GLLoopDef **loop;
+      int *loopcount;
 
-      sectorloops[currentsector].loopcount++;
-      sectorloops[currentsector].loops = Z_Realloc(sectorloops[currentsector].loops,sizeof(GLLoopDef)*sectorloops[currentsector].loopcount, PU_STATIC, 0);
-      sectorloops[currentsector].loops[sectorloops[currentsector].loopcount-1].mode    = GL_TRIANGLE_FAN;
-      sectorloops[currentsector].loops[sectorloops[currentsector].loopcount-1].vertexcount = numedgepoints;
-      sectorloops[currentsector].loops[sectorloops[currentsector].loopcount-1].vertexindex = gld_num_vertexes;
+      if (triangulate_subsectors)
+      {
+        loop = &sectorloops[ currentsector ].ss_loops;
+        loopcount = &sectorloops[ currentsector ].ss_loopcount;
+      }
+      else
+      {
+        loop = &sectorloops[ currentsector ].loops;
+        loopcount = &sectorloops[ currentsector ].loopcount;
+      }
+
+      (*loopcount)++;
+      (*loop) = Z_Realloc((*loop), sizeof(GLLoopDef)*(*loopcount), PU_STATIC, 0);
+      ((*loop)[(*loopcount) - 1]).ssidx = (triangulate_subsectors ? i : -1);
+      ((*loop)[(*loopcount) - 1]).mode = GL_TRIANGLE_FAN;
+      ((*loop)[(*loopcount) - 1]).vertexcount = numedgepoints;
+      ((*loop)[(*loopcount) - 1]).vertexindex = gld_num_vertexes;
+
       for(j = 0;  j < numedgepoints; j++)
       {
         flats_vbo[gld_num_vertexes].u =( (float)(segs[ssector->firstline + j].v1->x)/FRACUNIT)/64.0f;
@@ -1784,6 +2003,8 @@ void gld_PreprocessSectors(void)
     gld_CarveFlats(numnodes-1, 0, 0);
   else
     gld_GetSubSectorVertices();
+
+  gld_ProcessTexturedMap();
 
   if (levelinfo) fclose(levelinfo);
 
@@ -3902,6 +4123,7 @@ void gld_PreprocessLevel(void)
     for (i = 0; i < numsectors_prev; i++)
     {
       free(sectorloops[i].loops);
+      free(sectorloops[i].ss_loops);
     }
     free(sectorloops);
 

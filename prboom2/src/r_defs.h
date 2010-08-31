@@ -303,12 +303,22 @@ typedef struct
 //  (all or some) sides of a convex BSP leaf.
 //
 
+enum
+{
+  SSECF_DRAWN = 1,
+};
+
 typedef struct subsector_s
 {
   sector_t *sector;
   // e6y: support for extended nodes
-  // make them an 'int' instead of a 'short'
+  // 'int' instead of 'short'
   int numlines, firstline;
+#ifdef GL_DOOM
+  // e6y: support for textured automap
+  // visible subsectors has SSECF_DRAWN flag
+  int flags;
+#endif
 } subsector_t;
 
 

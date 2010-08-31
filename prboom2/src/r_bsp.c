@@ -701,6 +701,10 @@ static void R_Subsector(int num)
   // real sector, or you must account for the lighting in some other way,
   // like passing it as an argument.
 
+#ifdef GL_DOOM
+  sub->flags |= SSECF_DRAWN;
+#endif
+
   if (sub->sector->validcount != validcount)
   {
     sub->sector->validcount = validcount;

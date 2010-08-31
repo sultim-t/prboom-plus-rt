@@ -760,6 +760,12 @@ default_t defaults[] =
 #ifdef GL_DOOM
   {"map_use_multisamling", {&map_use_multisamling}, {1},0,1,
    def_bool,ss_auto},
+  {"map_textured", {&map_textured}, {1},0,1,
+   def_bool,ss_auto},
+  {"map_textured_trans", {&map_textured_trans}, {100},0,100,
+   def_int,ss_auto},
+  {"map_textured_overlay_trans", {&map_textured_overlay_trans}, {50},0,100,
+   def_int,ss_auto},
 #endif
 
   {"Heads-up display settings",{NULL},{0},UL,UL,def_none,ss_none},

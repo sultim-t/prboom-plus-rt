@@ -91,6 +91,9 @@ int map_always_updates;
 int map_grid_size;
 int map_scroll_speed;
 int map_use_multisamling;
+int map_textured;
+int map_textured_trans;
+int map_textured_overlay_trans;
 
 //jff 4/3/98 add symbols for "no-color" for disable and "black color" for black
 #define NC 0
@@ -816,6 +819,27 @@ void AM_rotatePoint (fixed_t *x, fixed_t *y)
   *y += pivoty;
 }
 
+static void AM_rotate_f(float *x, float *y, angle_t a)
+{
+  float rot = (float)a / (float)(1u << 31) * (float)M_PI;
+  float sinrot = (float)sin(rot);
+  float cosrot = (float)cos(rot);
+  
+  float tmpx = ((*x) * cosrot) - ((*y) * sinrot);
+  *y = ((*x) * sinrot) + ((*y) * cosrot);
+  *x = tmpx;
+}
+
+void AM_rotatePoint_f(float *x, float *y)
+{
+  float pivotx = (float)m_x + (float)m_w/2.0f;
+  float pivoty = (float)m_y + (float)m_h/2.0f;
+  *x -= pivotx;
+  *y -= pivoty;
+  AM_rotate_f(x, y, ANG90 - plr->mo->angle);
+  *x += pivotx;
+  *y += pivoty;
+}
 
 //
 // AM_changeWindowScale()
@@ -1695,6 +1719,37 @@ void AM_EndLines(void)
 #endif
 }
 
+void M_ChangeMapTextured(void)
+{
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL)
+  {
+    gld_ProcessTexturedMap();
+  }
+#endif
+}
+
+//=============================================================================
+//
+// AM_drawSubsectors
+//
+//=============================================================================
+
+void AM_drawSubsectors(void)
+{
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL)
+  {
+    gld_MapDrawSubsectors(
+      plr,
+      (float)f_x, (float)f_y,
+      (float)m_x, (float)m_y,
+      (float)f_h,
+      (float)scale_mtof);
+  }
+#endif
+}
+
 //
 // AM_Drawer()
 //
@@ -1718,6 +1773,11 @@ void AM_Drawer (void)
 
   if (!(automapmode & am_overlay)) // cph - If not overlay mode, clear background for the automap
     V_FillRect(FB, f_x, f_y, f_w, f_h, (byte)mapcolor_back); //jff 1/5/98 background default color
+
+  if (map_textured)
+  {
+    AM_drawSubsectors();
+  }
 
   AM_BeginLines();
 

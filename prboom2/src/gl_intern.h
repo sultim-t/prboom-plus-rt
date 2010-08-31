@@ -171,6 +171,7 @@ typedef struct
  */
 typedef struct
 {
+  int ssidx;
   GLenum mode; // GL_TRIANGLES, GL_TRIANGLE_STRIP or GL_TRIANGLE_FAN
   int vertexcount; // number of vertexes in this loop
   int vertexindex; // index into vertex list
@@ -183,6 +184,8 @@ typedef struct
 {
   int loopcount; // number of loops for this sector
   GLLoopDef *loops; // the loops itself
+  int ss_loopcount; // number of loops for this sector
+  GLLoopDef *ss_loops; // the loops itself
   unsigned int flags;
 } GLSector;
 

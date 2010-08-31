@@ -124,4 +124,9 @@ extern int map_grid_size;
 extern int map_scroll_speed;
 extern int map_use_multisamling;
 
+extern int map_textured;
+extern int map_textured_trans;
+extern int map_textured_overlay_trans;
+void M_ChangeMapTextured(void);
+
 #endif

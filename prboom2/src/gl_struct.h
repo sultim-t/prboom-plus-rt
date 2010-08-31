@@ -221,4 +221,7 @@ void gld_MultisamplingSet(void);
 //display lists
 extern int gl_use_display_lists;
 
+void gld_ProcessTexturedMap(void);
+void gld_MapDrawSubsectors(player_t *plr, float fx, float fy, float mx, float my, float fh, float scale);
+
 #endif // _GL_STRUCT_H
