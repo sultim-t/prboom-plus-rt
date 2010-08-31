@@ -1740,12 +1740,7 @@ void AM_drawSubsectors(void)
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
-    gld_MapDrawSubsectors(
-      plr,
-      (float)f_x, (float)f_y,
-      (float)m_x, (float)m_y,
-      (float)f_h,
-      (float)scale_mtof);
+    gld_MapDrawSubsectors(plr, f_x, f_y, m_x, m_y, f_h, scale_mtof);
   }
 #endif
 }

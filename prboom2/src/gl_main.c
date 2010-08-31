@@ -78,6 +78,7 @@
 #include "i_main.h"
 #include "am_map.h"
 #include "sc_man.h"
+#include "st_stuff.h"
 #include "e6y.h"//e6y
 
 int triangulate_subsectors = 0;
@@ -423,7 +424,7 @@ static int C_DECL dicmp_map_subsectors_by_pic(const void *a, const void *b)
   return sub1->sector->floorpic - sub2->sector->floorpic;
 }
 
-void gld_MapDrawSubsectors(player_t *plr, float fx, float fy, float mx, float my, float fh, float scale)
+void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my, int fh, fixed_t scale)
 {
   extern int ddt_cheating;
   
@@ -437,12 +438,10 @@ void gld_MapDrawSubsectors(player_t *plr, float fx, float fy, float mx, float my
   float map_angle_cos, map_angle_sin;
   GLTexture *gltexture;
 
-  const float scalefrac = scale / 65536.0f;
-  const float scalex = mx / 65536.0f * scale / 65536.0f;
-  const float scaley = my / 65536.0f * scale / 65536.0f;
-  #define CXMTOF_F(x)  (fx + (float)x / 65536.0f * scalefrac - scalex)
-  #define CYMTOF_F(x)  (fy + fh - ((float)x / 65536.0f * scalefrac - scaley))
-
+  const float scalefrac = (float)scale / (float)FRACUNIT;
+  // translates between frame-buffer and screen
+  #define MAPTOSCREEN(x) ((float)x / (float)(1 << FRACTOMAPBITS) / (float)FRACUNIT * scalefrac)
+  
   alpha = 1.0f;
   if (automapmode & am_overlay)
   {
@@ -487,6 +486,33 @@ void gld_MapDrawSubsectors(player_t *plr, float fx, float fy, float mx, float my
   qsort(map_subsectors, map_subsectors_count,
     sizeof(map_subsectors[0]), dicmp_map_subsectors_by_pic);
 
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+
+  if (rotation)
+  {
+    float pivotx = (float)SCREENWIDTH / 2.0f;
+    float pivoty = ((float)SCREENHEIGHT - ST_SCALED_HEIGHT) / 2.0f;
+
+    float rot = -(float)(ANG90 - plr->mo->angle) / (float)(1u << 31) * 180.0f;
+
+    // Apply the automap's rotation to the vertexes.
+    glTranslatef(pivotx, pivoty, 0.0f);
+    glRotatef(rot, 0.0f, 0.0f, 1.0f);
+    glTranslatef(-pivotx, -pivoty, 0.0f);
+
+    // Apply the automap's rotation to the texture origin.
+    glMatrixMode(GL_TEXTURE);
+    glPushMatrix();
+    glRotatef(rot, 0.0f, 0.0f, 1.0f);
+  }
+
+  glMatrixMode(GL_MODELVIEW);
+  glTranslatef(
+    (float)fx - (float)mx / (float)FRACUNIT * (float)scale / (float)FRACUNIT, 
+    (float)fy + (float)fh + (float)my / (float)FRACUNIT * (float)scale / (float)FRACUNIT,
+    0);
+
   for (i = 0; i < map_subsectors_count; i++)
   {
     subsector_t *sub = map_subsectors[i];
@@ -507,29 +533,13 @@ void gld_MapDrawSubsectors(player_t *plr, float fx, float fy, float mx, float my
       // For lighting and texture determination
       sector_t *sec = R_FakeFlat(sub->sector, &tempsec, &floorlight, NULL, false);
 
-      // If this subsector has not actually been seen yet (because you are cheating
-      // to see it on the map), tint and desaturate it.
-      if (!(sub->flags & SSECF_DRAWN))
-      {
-        //floorlight = (floorlight + 200*15) / 16;
-      }
-
       gld_BindFlat(gltexture, 0);
       light = gld_CalcLightLevel(floorlight);
       gld_StaticLightAlpha(light, alpha);
 
       // Find texture origin.
-      originx = (float)(-sec->floor_xoffs) / (float)(1 << FRACTOMAPBITS);
-      originy = (float)(+sec->floor_yoffs) / (float)(1 << FRACTOMAPBITS);
-
-      // Apply the automap's rotation to the texture origin.
-      if (rotation)
-      {
-        AM_rotatePoint_f(&originx, &originy);
-      }
-
-      originx = CXMTOF_F(originx);
-      originy = CYMTOF_F(originy);
+      originx = MAPTOSCREEN(-sec->floor_xoffs);
+      originy = MAPTOSCREEN(-sec->floor_yoffs);
 
       for (loopnum = 0; loopnum < subsectorloops[ssidx].loopcount; loopnum++)
       {
@@ -544,18 +554,13 @@ void gld_MapDrawSubsectors(player_t *plr, float fx, float fy, float mx, float my
         // go through all vertexes of this loop
         for (vertexnum = currentloop->vertexindex; vertexnum < (currentloop->vertexindex + currentloop->vertexcount); vertexnum++)
         {
-          int xx, yy;
           float x, y, u, v;
 
-          xx = (int)(SCREENWIDTH - flats_vbo[vertexnum].x * MAP_SCALE) >> FRACTOMAPBITS;
-          yy = (int)(flats_vbo[vertexnum].z * MAP_SCALE) >> FRACTOMAPBITS;
-          if (rotation)
-          {
-            AM_rotatePoint(&xx, &yy);
-          }
-
-          x = CXMTOF_F(xx);
-          y = CYMTOF_F(yy);
+          x = (SCREENWIDTH - flats_vbo[vertexnum].x * MAP_SCALE);
+          y = (-flats_vbo[vertexnum].z * MAP_SCALE);
+          
+          x = MAPTOSCREEN(x);
+          y = MAPTOSCREEN(y);
 
           u = x - originx;
           v = y - originy;
@@ -573,6 +578,15 @@ void gld_MapDrawSubsectors(player_t *plr, float fx, float fy, float mx, float my
       }
     }
   }
+
+  if (rotation)
+  {
+    glMatrixMode(GL_TEXTURE);
+    glPopMatrix();
+  }
+
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
 }
 
 void gld_ProcessTexturedMap(void)
