@@ -230,9 +230,6 @@ dboolean HaveMouseLook(void);
 extern float viewPitch;
 extern dboolean transparentpresent;
 
-#define MAPBITS 12
-#define FRACTOMAPBITS (FRACBITS-MAPBITS)
-
 void R_ClearClipSegs (void);
 void R_RenderBSPNode(int bspnum);
 
