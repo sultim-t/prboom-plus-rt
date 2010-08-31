@@ -171,7 +171,7 @@ typedef struct
  */
 typedef struct
 {
-  int ssidx;
+  int index;   // subsector index
   GLenum mode; // GL_TRIANGLES, GL_TRIANGLE_STRIP or GL_TRIANGLE_FAN
   int vertexcount; // number of vertexes in this loop
   int vertexindex; // index into vertex list
@@ -184,10 +184,14 @@ typedef struct
 {
   int loopcount; // number of loops for this sector
   GLLoopDef *loops; // the loops itself
-  int ss_loopcount; // number of loops for this sector
-  GLLoopDef *ss_loops; // the loops itself
   unsigned int flags;
 } GLSector;
+
+typedef struct
+{
+  int loopcount; // number of loops for this sector
+  GLLoopDef *loops; // the loops itself
+} GLMapSubsector;
 
 typedef struct
 {
@@ -318,6 +322,7 @@ extern int gl_preprocessed; //e6y
 
 extern GLDrawInfo gld_drawinfo;
 extern GLSector *sectorloops;
+extern GLMapSubsector *subsectorloops;
 
 extern char *gl_tex_format_string;
 extern int gl_tex_format;

@@ -533,49 +533,45 @@ void gld_MapDrawSubsectors(player_t *plr, float fx, float fy, float mx, float my
       originx = CXMTOF_F(originx);
       originy = CYMTOF_F(originy);
 
-      for (loopnum = 0; loopnum < sectorloops[sectornum].ss_loopcount; loopnum++)
+      for (loopnum = 0; loopnum < subsectorloops[ssidx].loopcount; loopnum++)
       {
-        currentloop = &sectorloops[sectornum].ss_loops[loopnum];
+
+        currentloop = &subsectorloops[ssidx].loops[loopnum];
 
         if (!currentloop)
           continue;
 
-        if (currentloop->ssidx == ssidx)
+        // set the mode (GL_TRIANGLE_FAN)
+        glBegin(currentloop->mode);
+        // go through all vertexes of this loop
+        for (vertexnum = currentloop->vertexindex; vertexnum < (currentloop->vertexindex + currentloop->vertexcount); vertexnum++)
         {
-          // set the mode (GL_TRIANGLE_FAN)
-          glBegin(currentloop->mode);
-          // go through all vertexes of this loop
-          for (vertexnum = currentloop->vertexindex; vertexnum < (currentloop->vertexindex + currentloop->vertexcount); vertexnum++)
+          int xx, yy;
+          float x, y, u, v;
+
+          xx = (int)(SCREENWIDTH - flats_vbo[vertexnum].x * MAP_SCALE) >> FRACTOMAPBITS;
+          yy = (int)(flats_vbo[vertexnum].z * MAP_SCALE) >> FRACTOMAPBITS;
+          if (rotation)
           {
-            int xx, yy;
-            float x, y, u, v;
-
-            xx = (int)(SCREENWIDTH - flats_vbo[vertexnum].x * MAP_SCALE) >> FRACTOMAPBITS;
-            yy = (int)(flats_vbo[vertexnum].z * MAP_SCALE) >> FRACTOMAPBITS;
-            if (rotation)
-            {
-              AM_rotatePoint(&xx, &yy);
-            }
-
-            x = CXMTOF_F(xx);
-            y = CYMTOF_F(yy);
-
-            u = x - originx;
-            v = y - originy;
-            if (rotation)
-            {
-              float t = u;
-              u = t * map_angle_cos - v * map_angle_sin;
-              v = v * map_angle_cos + t * map_angle_sin;
-            }
-            glTexCoord2f(u * uscale, v * vscale);
-            glVertex3f(x, y, 0);
+            AM_rotatePoint(&xx, &yy);
           }
-          // end of loop
-          glEnd();
 
-          //break;
+          x = CXMTOF_F(xx);
+          y = CYMTOF_F(yy);
+
+          u = x - originx;
+          v = y - originy;
+          if (rotation)
+          {
+            float t = u;
+            u = t * map_angle_cos - v * map_angle_sin;
+            v = v * map_angle_cos + t * map_angle_sin;
+          }
+          glTexCoord2f(u * uscale, v * vscale);
+          glVertex3f(x, y, 0);
         }
+        // end of loop
+        glEnd();
       }
     }
   }
@@ -583,7 +579,7 @@ void gld_MapDrawSubsectors(player_t *plr, float fx, float fy, float mx, float my
 
 void gld_ProcessTexturedMap(void)
 {
-  if (map_textured && sectorloops[0].ss_loops == NULL)
+  if (map_textured && subsectorloops[0].loops == NULL)
   {
     triangulate_subsectors = 1;
     if (nodesVersion == 0)
@@ -1097,6 +1093,10 @@ GLSeg *gl_lines=NULL;
 // this is the list for all sectors to the loops
 GLSector *sectorloops;
 
+// this is the list for all subsectors to the loops
+// uses by textured automap
+GLMapSubsector *subsectorloops;
+
 byte rendermarker=0;
 static byte *segrendered; // true if sector rendered (only here for malloc)
 static byte *linerendered[2]; // true if linedef rendered (only here for malloc)
@@ -1274,8 +1274,8 @@ static void gld_FlatConvexCarver(int ssidx, int num, divline_t *list)
 
         if (triangulate_subsectors)
         {
-          loop = &sectorloops[ currentsector ].ss_loops;
-          loopcount = &sectorloops[ currentsector ].ss_loopcount;
+          loop = &subsectorloops[ ssidx ].loops;
+          loopcount = &subsectorloops[ ssidx ].loopcount;
         }
         else
         {
@@ -1285,7 +1285,7 @@ static void gld_FlatConvexCarver(int ssidx, int num, divline_t *list)
 
         (*loopcount)++;
         (*loop) = Z_Realloc((*loop), sizeof(GLLoopDef)*(*loopcount), PU_STATIC, 0);
-        ((*loop)[(*loopcount) - 1]).ssidx = (triangulate_subsectors ? ssidx : -1);
+        ((*loop)[(*loopcount) - 1]).index = ssidx;
         ((*loop)[(*loopcount) - 1]).mode = GL_TRIANGLE_FAN;
         ((*loop)[(*loopcount) - 1]).vertexcount = numedgepoints;
         ((*loop)[(*loopcount) - 1]).vertexindex = gld_num_vertexes;
@@ -1386,7 +1386,7 @@ static void CALLBACK ntessBegin( GLenum type )
   sectorloops[ currentsector ].loops=Z_Realloc(sectorloops[currentsector].loops,sizeof(GLLoopDef)*sectorloops[currentsector].loopcount, PU_STATIC, 0);
   // set initial values for current loop
   // currentloop is -> sectorloops[currentsector].loopcount-1
-  sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].ssidx=-1;
+  sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].index=-1;
   sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].mode=type;
   sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].vertexcount=0;
   sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].vertexindex=gld_num_vertexes;
@@ -1761,8 +1761,8 @@ void gld_GetSubSectorVertices(void)
 
       if (triangulate_subsectors)
       {
-        loop = &sectorloops[ currentsector ].ss_loops;
-        loopcount = &sectorloops[ currentsector ].ss_loopcount;
+        loop = &subsectorloops[ i ].loops;
+        loopcount = &subsectorloops[ i ].loopcount;
       }
       else
       {
@@ -1772,7 +1772,7 @@ void gld_GetSubSectorVertices(void)
 
       (*loopcount)++;
       (*loop) = Z_Realloc((*loop), sizeof(GLLoopDef)*(*loopcount), PU_STATIC, 0);
-      ((*loop)[(*loopcount) - 1]).ssidx = (triangulate_subsectors ? i : -1);
+      ((*loop)[(*loopcount) - 1]).index = i;
       ((*loop)[(*loopcount) - 1]).mode = GL_TRIANGLE_FAN;
       ((*loop)[(*loopcount) - 1]).vertexcount = numedgepoints;
       ((*loop)[(*loopcount) - 1]).vertexindex = gld_num_vertexes;
@@ -1901,6 +1901,11 @@ void gld_PreprocessSectors(void)
   if (!sectorloops)
     I_Error("gld_PreprocessSectors: Not enough memory for array sectorloops");
   memset(sectorloops, 0, sizeof(GLSector)*numsectors);
+
+  subsectorloops=Z_Malloc(sizeof(GLMapSubsector)*numsubsectors,PU_STATIC,0);
+  if (!subsectorloops)
+    I_Error("gld_PreprocessSectors: Not enough memory for array subsectorloops");
+  memset(subsectorloops, 0, sizeof(GLMapSubsector)*numsubsectors);
 
   segrendered=calloc(numsegs, sizeof(byte));
   if (!segrendered)
@@ -4109,6 +4114,7 @@ void gld_PreprocessLevel(void)
   {
     int i;
     static int numsectors_prev = 0;
+    static int numsubsectors_prev = 0;
 
     free(gl_segs);
     free(gl_lines);
@@ -4123,9 +4129,13 @@ void gld_PreprocessLevel(void)
     for (i = 0; i < numsectors_prev; i++)
     {
       free(sectorloops[i].loops);
-      free(sectorloops[i].ss_loops);
     }
     free(sectorloops);
+    for (i = 0; i < numsubsectors_prev; i++)
+    {
+      free(subsectorloops[i].loops);
+    }
+    free(subsectorloops);
 
     gld_Precache();
     gld_PreprocessSectors();
@@ -4133,6 +4143,7 @@ void gld_PreprocessLevel(void)
     gld_PreprocessSegs();
 
     numsectors_prev = numsectors;
+    numsubsectors_prev = numsubsectors;
   }
   else
   {
