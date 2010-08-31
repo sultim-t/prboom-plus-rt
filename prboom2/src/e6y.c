@@ -206,7 +206,6 @@ const char* WINError(void)
 //--------------------------------------------------
 #ifdef _WIN32
 HWND WIN32_GetHWND(void);
-//static void I_CenterMouse(void);
 #endif
 //--------------------------------------------------
 
@@ -771,7 +770,6 @@ void I_vWarning(const char *message, va_list argList)
   lprintf(LO_ERROR, "%s\n", msg);
 #ifdef _MSC_VER
   I_MessageBox(msg, PRB_MB_OK);
-  //I_SwitchToWindow(WIN32_GetHWND());
 #endif
 }
 
@@ -790,7 +788,6 @@ int I_MessageBox(const char* text, unsigned int type)
 #ifdef _WIN32
   {
     HWND current_hwnd = GetForegroundWindow();
-    //I_SwitchToWindow(GetDesktopWindow());
     result = MessageBox(GetDesktopWindow(), text, PACKAGE_TITLE, type|MB_TASKMODAL|MB_TOPMOST);
     I_SwitchToWindow(current_hwnd);
     return result;

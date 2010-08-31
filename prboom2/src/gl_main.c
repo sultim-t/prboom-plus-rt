@@ -503,8 +503,6 @@ void gld_MapDrawSubsectors(player_t *plr, float fx, float fy, float mx, float my
       float vscale = (float)(1<<FRACTOMAPBITS) / gltexture->tex_height / scalefrac;
       int sectornum = sub->sector->iSectorID;
       int loopnum;
-      GLLoopDef *currentloop; // the current loop
-      int vertexnum;
 
       // For lighting and texture determination
       sector_t *sec = R_FakeFlat(sub->sector, &tempsec, &floorlight, NULL, false);
@@ -535,8 +533,8 @@ void gld_MapDrawSubsectors(player_t *plr, float fx, float fy, float mx, float my
 
       for (loopnum = 0; loopnum < subsectorloops[ssidx].loopcount; loopnum++)
       {
-
-        currentloop = &subsectorloops[ssidx].loops[loopnum];
+        int vertexnum;
+        GLLoopDef *currentloop = &subsectorloops[ssidx].loops[loopnum];
 
         if (!currentloop)
           continue;
