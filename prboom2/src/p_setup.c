@@ -1980,13 +1980,8 @@ static void P_LoadBlockMap (int lump)
       // http://www.doomworld.com/idgames/index.php?id=12935
       if (!P_VerifyBlockMap(count))
       {
-        if (!demorecording && !demoplayback && !democontinue)
-        {
-          lprintf(LO_INFO, "P_LoadBlockMap: Rebuilding blockmap\n");
-          free(blockmaplump);
-          blockmaplump = NULL;
-          P_CreateBlockMap();
-        }
+        lprintf(LO_INFO, "P_LoadBlockMap: erroneous BLOCKMAP lump may cause crashes.\n");
+        lprintf(LO_INFO, "P_LoadBlockMap: use \"-blockmap\" command line switch for rebuilding\n");
       }
     }
 
