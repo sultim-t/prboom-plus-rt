@@ -764,7 +764,7 @@ default_t defaults[] =
    def_bool,ss_auto},
   {"map_textured_trans", {&map_textured_trans}, {100},0,100,
    def_int,ss_auto},
-  {"map_textured_overlay_trans", {&map_textured_overlay_trans}, {50},0,100,
+  {"map_textured_overlay_trans", {&map_textured_overlay_trans}, {66},0,100,
    def_int,ss_auto},
 #endif
 
