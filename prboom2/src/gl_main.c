@@ -437,10 +437,6 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
   float coord_scale;
   GLTexture *gltexture;
 
-  const float scalefrac = (float)scale / (float)FRACUNIT;
-  // translates between frame-buffer and screen
-  #define MAPTOSCREEN(x) ((float)x / (float)(1 << FRACTOMAPBITS) / (float)FRACUNIT * scalefrac)
-  
   alpha = (float)((automapmode & am_overlay) ? map_textured_overlay_trans : map_textured_trans) / 100.0f;
   if (alpha == 0)
     return;
@@ -484,7 +480,7 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
     (float)fx - (float)mx / (float)FRACUNIT * (float)scale / (float)FRACUNIT, 
     (float)fy + (float)fh + (float)my / (float)FRACUNIT * (float)scale / (float)FRACUNIT,
     0);
-  coord_scale = (float)scale / (float)(1<<12) / 2.0f;
+  coord_scale = (float)scale / (float)(1<<FRACTOMAPBITS) / (float)FRACUNIT * MAP_COEFF;
   glScalef(-coord_scale, -coord_scale, 1.0f);
   
   for (i = 0; i < map_subsectors_count; i++)
