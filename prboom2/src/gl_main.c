@@ -414,9 +414,6 @@ void gld_InitCommandLine(void)
 // Textured automap
 //
 
-void AM_rotatePoint_f(float *x, float *y);
-void AM_rotatePoint (fixed_t *x, fixed_t *y);
-
 static int C_DECL dicmp_map_subsectors_by_pic(const void *a, const void *b)
 {
   const subsector_t *sub1 = *((const subsector_t **)a);
