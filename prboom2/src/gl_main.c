@@ -534,7 +534,7 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
       sector_t *sec = R_FakeFlat(sub->sector, &tempsec, &floorlight, NULL, false);
 
       gld_BindFlat(gltexture, 0);
-      light = gld_CalcLightLevel(floorlight);
+      light = gld_Calc2DLightLevel(floorlight);
       gld_StaticLightAlpha(light, alpha);
 
       // Find texture origin.
