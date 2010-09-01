@@ -433,43 +433,21 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
   int map_subsectors_count;
 
   int i;
-  int rotation;
   float alpha;
-  float map_angle_cos, map_angle_sin;
+  float coord_scale;
   GLTexture *gltexture;
 
   const float scalefrac = (float)scale / (float)FRACUNIT;
   // translates between frame-buffer and screen
   #define MAPTOSCREEN(x) ((float)x / (float)(1 << FRACTOMAPBITS) / (float)FRACUNIT * scalefrac)
   
-  alpha = 1.0f;
-  if (automapmode & am_overlay)
-  {
-    if (map_textured_overlay_trans == 0)
-      return;
-    else
-      alpha = (float)map_textured_overlay_trans / 100.0f;
-  }
-  else
-  {
-    if (map_textured_trans == 0)
-      return;
-    else
-      alpha = (float)map_textured_trans / 100.0f;
-  }
-
-  rotation = false;
-  if (automapmode & am_rotate)
-  {
-    float rot = (float)((ANG90 - plr->mo->angle) * M_PI / (float)(1u << 31));
-    map_angle_cos = (float)cos(rot);
-    map_angle_sin = (float)sin(rot);
-    rotation = true;
-  }
+  alpha = (float)((automapmode & am_overlay) ? map_textured_overlay_trans : map_textured_trans) / 100.0f;
+  if (alpha == 0)
+    return;
 
   if (numsubsectors > map_subsectors_size)
   {
-    map_subsectors_size = numsubsectors;
+    map_subsectors_size = numsubsectors * 2; // *2 for reducing number of reallocations
     map_subsectors = realloc(map_subsectors, map_subsectors_size * sizeof(map_subsectors[0]));
   }
 
@@ -489,7 +467,7 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
 
-  if (rotation)
+  if (automapmode & am_rotate)
   {
     float pivotx = (float)SCREENWIDTH / 2.0f;
     float pivoty = ((float)SCREENHEIGHT - ST_SCALED_HEIGHT) / 2.0f;
@@ -500,19 +478,15 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
     glTranslatef(pivotx, pivoty, 0.0f);
     glRotatef(rot, 0.0f, 0.0f, 1.0f);
     glTranslatef(-pivotx, -pivoty, 0.0f);
-
-    // Apply the automap's rotation to the texture origin.
-    glMatrixMode(GL_TEXTURE);
-    glPushMatrix();
-    glRotatef(rot, 0.0f, 0.0f, 1.0f);
   }
 
-  glMatrixMode(GL_MODELVIEW);
   glTranslatef(
     (float)fx - (float)mx / (float)FRACUNIT * (float)scale / (float)FRACUNIT, 
     (float)fy + (float)fh + (float)my / (float)FRACUNIT * (float)scale / (float)FRACUNIT,
     0);
-
+  coord_scale = (float)scale / (float)(1<<12) / 2.0f;
+  glScalef(-coord_scale, -coord_scale, 1.0f);
+  
   for (i = 0; i < map_subsectors_count; i++)
   {
     subsector_t *sub = map_subsectors[i];
@@ -524,10 +498,7 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
       sector_t tempsec;
       int floorlight;
       float light;
-      float originx, originy;
-      float uscale = (float)(1<<FRACTOMAPBITS) / gltexture->tex_width  / scalefrac;
-      float vscale = (float)(1<<FRACTOMAPBITS) / gltexture->tex_height / scalefrac;
-      int sectornum = sub->sector->iSectorID;
+      float floor_uoffs, floor_voffs;
       int loopnum;
 
       // For lighting and texture determination
@@ -538,8 +509,8 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
       gld_StaticLightAlpha(light, alpha);
 
       // Find texture origin.
-      originx = MAPTOSCREEN(-sec->floor_xoffs);
-      originy = MAPTOSCREEN(-sec->floor_yoffs);
+      floor_uoffs = (float)sec->floor_xoffs/(float)(FRACUNIT*64);
+      floor_voffs = (float)sec->floor_yoffs/(float)(FRACUNIT*64);
 
       for (loopnum = 0; loopnum < subsectorloops[ssidx].loopcount; loopnum++)
       {
@@ -554,35 +525,12 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
         // go through all vertexes of this loop
         for (vertexnum = currentloop->vertexindex; vertexnum < (currentloop->vertexindex + currentloop->vertexcount); vertexnum++)
         {
-          float x, y, u, v;
-
-          x = (SCREENWIDTH - flats_vbo[vertexnum].x * MAP_SCALE);
-          y = (-flats_vbo[vertexnum].z * MAP_SCALE);
-          
-          x = MAPTOSCREEN(x);
-          y = MAPTOSCREEN(y);
-
-          u = x - originx;
-          v = y - originy;
-          if (rotation)
-          {
-            float t = u;
-            u = t * map_angle_cos - v * map_angle_sin;
-            v = v * map_angle_cos + t * map_angle_sin;
-          }
-          glTexCoord2f(u * uscale, v * vscale);
-          glVertex3f(x, y, 0);
+          glTexCoord2f(flats_vbo[vertexnum].u + floor_uoffs, flats_vbo[vertexnum].v + floor_voffs);
+          glVertex3f(flats_vbo[vertexnum].x, flats_vbo[vertexnum].z, 0);
         }
-        // end of loop
         glEnd();
       }
     }
-  }
-
-  if (rotation)
-  {
-    glMatrixMode(GL_TEXTURE);
-    glPopMatrix();
   }
 
   glMatrixMode(GL_MODELVIEW);
