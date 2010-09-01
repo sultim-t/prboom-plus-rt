@@ -1711,6 +1711,33 @@ unsigned int GetPackageVersion(void)
   return PACKAGEVERSION;
 }
 
+//==========================================================================
+//
+// RecalculateDrawnSubsectors
+//
+// In case the subsector data is unusable this function tries to reconstruct
+// if from the linedefs' ML_MAPPED info.
+//
+//==========================================================================
+
+void RecalculateDrawnSubsectors(void)
+{
+  int i, j;
+
+  for (i = 0; i < numsubsectors; i++)
+  {
+    subsector_t *sub = &subsectors[i];
+    seg_t *seg = &segs[sub->firstline];
+    for (j = 0; j < sub->numlines; j++, seg++)
+    {
+      if (seg->linedef->flags & ML_MAPPED)
+      {
+        sub->flags |= SSECF_DRAWN;
+      }
+    }
+  }
+}
+
 void G_DoLoadGame(void)
 {
   int  length, i;
@@ -1846,6 +1873,8 @@ void G_DoLoadGame(void)
   {
     S_ChangeMusInfoMusic(musinfo.current_item, true);
   }
+
+  RecalculateDrawnSubsectors();
 
   if (*save_p != 0xe6)
     I_Error ("G_DoLoadGame: Bad savegame");
