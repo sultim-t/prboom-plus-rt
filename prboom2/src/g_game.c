@@ -1722,6 +1722,7 @@ unsigned int GetPackageVersion(void)
 
 void RecalculateDrawnSubsectors(void)
 {
+#ifdef GL_DOOM
   int i, j;
 
   for (i = 0; i < numsubsectors; i++)
@@ -1736,6 +1737,7 @@ void RecalculateDrawnSubsectors(void)
       }
     }
   }
+#endif
 }
 
 void G_DoLoadGame(void)
