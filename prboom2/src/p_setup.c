@@ -83,6 +83,7 @@ line_t   *lines;
 int      numsides;
 side_t   *sides;
 
+byte     *map_subsectors;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // figgi 08/21/00 -- constants and globals for glBsp support
@@ -2397,6 +2398,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
     free(segs);
     free(nodes);
     free(subsectors);
+    free(map_subsectors);
 
     free(blocklinks);
     free(blockmaplump);
@@ -2454,6 +2456,9 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
       P_LoadSegs(lumpnum + ML_SEGS);
     }
   }
+
+  map_subsectors = calloc_IfSameLevel(map_subsectors,
+    numsubsectors, sizeof(map_subsectors[0]));
 
   // reject loading and underflow padding separated out into new function
   // P_GroupLines modified to return a number the underflow padding needs

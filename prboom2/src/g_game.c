@@ -1733,7 +1733,7 @@ void RecalculateDrawnSubsectors(void)
     {
       if (seg->linedef->flags & ML_MAPPED)
       {
-        sub->flags |= SSECF_DRAWN;
+        map_subsectors[i] = 1;
       }
     }
   }

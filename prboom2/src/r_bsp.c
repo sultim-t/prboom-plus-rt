@@ -702,7 +702,7 @@ static void R_Subsector(int num)
   // like passing it as an argument.
 
 #ifdef GL_DOOM
-  sub->flags |= SSECF_DRAWN;
+  map_subsectors[num] = 1;
 #endif
 
   if (sub->sector->validcount != validcount)

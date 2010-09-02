@@ -447,7 +447,7 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
   map_subsectors_count = 0;
   for (i = 0; i < numsubsectors; i++)
   {
-    if ((subsectors[i].flags & SSECF_DRAWN) || ddt_cheating)
+    if (map_subsectors[i] || ddt_cheating)
     {
       map_subsectors[map_subsectors_count++] = &subsectors[i];
     }

@@ -92,6 +92,7 @@ extern line_t           *lines;
 extern int              numsides;
 extern side_t           *sides;
 
+extern byte             *map_subsectors;
 
 //
 // POV data.
