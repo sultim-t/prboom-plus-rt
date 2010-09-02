@@ -529,9 +529,20 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
           // More accurate patch drawing from Eternity.
           // Predefined arrays are used instead of dynamic calculation 
           // of the top and bottom screen coordinates of a column.
-          // Also, it should be faster.
-          dcvars.yl = params->video->y1lookup[y + post->topdelta] + params->deltay1;
-          dcvars.yh = params->video->y2lookup[y + post->topdelta + post->length - 1] + params->deltay1;
+
+          int tmpy;
+          
+          tmpy = y + post->topdelta;
+          if (tmpy < 0 || tmpy > 200)
+            dcvars.yl = (tmpy * params->video->height) / 200 + params->deltay1;
+          else
+            dcvars.yl = params->video->y1lookup[tmpy] + params->deltay1;
+
+          tmpy = y + post->topdelta + post->length - 1;
+          if (tmpy < 0 || tmpy > 200)
+            dcvars.yh = (tmpy * params->video->height) / 200 + params->deltay1;
+          else
+            dcvars.yh = params->video->y2lookup[tmpy] + params->deltay1;
         }
         dcvars.edgeslope = post->slope;
 
