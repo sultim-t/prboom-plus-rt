@@ -414,7 +414,7 @@ void gld_InitCommandLine(void)
 // Textured automap
 //
 
-static int C_DECL dicmp_map_subsectors_by_pic(const void *a, const void *b)
+static int C_DECL dicmp_visible_subsectors_by_pic(const void *a, const void *b)
 {
   const subsector_t *sub1 = *((const subsector_t **)a);
   const subsector_t *sub2 = *((const subsector_t **)b);
@@ -425,9 +425,9 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
 {
   extern int ddt_cheating;
   
-  static subsector_t **map_subsectors = NULL;
-  static int map_subsectors_size = 0;
-  int map_subsectors_count;
+  static subsector_t **visible_subsectors = NULL;
+  static int visible_subsectors_size = 0;
+  int visible_subsectors_count;
 
   int i;
   float alpha;
@@ -438,24 +438,24 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
   if (alpha == 0)
     return;
 
-  if (numsubsectors > map_subsectors_size)
+  if (numsubsectors > visible_subsectors_size)
   {
-    map_subsectors_size = numsubsectors * 2; // *2 for reducing number of reallocations
-    map_subsectors = realloc(map_subsectors, map_subsectors_size * sizeof(map_subsectors[0]));
+    visible_subsectors_size = numsubsectors * 2; // *2 for reducing number of reallocations
+    visible_subsectors = realloc(visible_subsectors, visible_subsectors_size * sizeof(visible_subsectors[0]));
   }
 
-  map_subsectors_count = 0;
+  visible_subsectors_count = 0;
   for (i = 0; i < numsubsectors; i++)
   {
     if (map_subsectors[i] || ddt_cheating)
     {
-      map_subsectors[map_subsectors_count++] = &subsectors[i];
+      visible_subsectors[visible_subsectors_count++] = &subsectors[i];
     }
   }
 
   // sort subsectors by texture
-  qsort(map_subsectors, map_subsectors_count,
-    sizeof(map_subsectors[0]), dicmp_map_subsectors_by_pic);
+  qsort(visible_subsectors, visible_subsectors_count,
+    sizeof(visible_subsectors[0]), dicmp_visible_subsectors_by_pic);
 
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
@@ -480,9 +480,9 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
   coord_scale = (float)scale / (float)(1<<FRACTOMAPBITS) / (float)FRACUNIT * MAP_COEFF;
   glScalef(-coord_scale, -coord_scale, 1.0f);
   
-  for (i = 0; i < map_subsectors_count; i++)
+  for (i = 0; i < visible_subsectors_count; i++)
   {
-    subsector_t *sub = map_subsectors[i];
+    subsector_t *sub = visible_subsectors[i];
     int ssidx = sub - subsectors;
 
     gltexture = gld_RegisterFlat(flattranslation[sub->sector->floorpic], true);
