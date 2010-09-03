@@ -804,6 +804,10 @@ SOURCE=..\src\protocol.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\qsort.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\r_bsp.c
 # End Source File
 # Begin Source File

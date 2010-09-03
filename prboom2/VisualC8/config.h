@@ -169,6 +169,9 @@
 /* Define if you want to use PC Speaker */
 #define USE_WIN32_PCSOUND_DRIVER
 
+/* MSVC6' implementation of qsort is 2x slower than it should be */
+#define USE_CUSTOM_QSORT 1
+
 /* Shut up warnings */
 #ifdef __INTEL_COMPILER
   #pragma warning(disable : 94 144 177 186 188 556 589 810)

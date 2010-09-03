@@ -56,6 +56,9 @@
 #include "m_misc.h"
 #include "sc_man.h"
 #include "e6y.h"
+#ifdef USE_CUSTOM_QSORT
+#include "qsort.h"
+#endif
 
 int render_usedetail;
 int gl_allow_detail_textures;
@@ -473,6 +476,19 @@ void gld_DrawFlatDetail_NoARB(GLFlat *flat)
   glPopMatrix();
 }
 
+#ifdef USE_CUSTOM_QSORT
+void qsort_walls_by_detail(GLDrawItem *arr, unsigned int n)
+{
+  #define cmp_walls_by_detail(a, b) ((a)->item.wall->gltexture->detail > (b)->item.wall->gltexture->detail)
+  QSORT(GLDrawItem, arr, n, cmp_walls_by_detail);
+}
+
+void qsort_flats_by_detail(GLDrawItem *arr, unsigned int n)
+{
+  #define cmp_flats_by_detail(a, b) ((a)->item.flat->gltexture->detail > (b)->item.flat->gltexture->detail)
+  QSORT(GLDrawItem, arr, n, cmp_flats_by_detail);
+}
+#else
 static int C_DECL dicmp_wall_detail(const void *a, const void *b)
 {
   detail_t *d1 = ((const GLDrawItem *)a)->item.wall->gltexture->detail;
@@ -486,9 +502,28 @@ static int C_DECL dicmp_flat_detail(const void *a, const void *b)
   detail_t *d2 = ((const GLDrawItem *)b)->item.flat->gltexture->detail;
   return d1 - d2;
 }
+#endif
 
 void gld_DrawItemsSortByDetail(GLDrawItemType itemtype)
 {
+#ifdef USE_CUSTOM_QSORT
+  typedef void(*DICMP_ITEM)(GLDrawItem *arr, unsigned int n);
+
+  static DICMP_ITEM itemfuncs[GLDIT_TYPES] = {
+    0,
+    qsort_walls_by_detail, qsort_walls_by_detail, qsort_walls_by_detail, qsort_walls_by_detail, qsort_walls_by_detail,
+    qsort_walls_by_detail, qsort_walls_by_detail,
+    qsort_flats_by_detail, qsort_flats_by_detail,
+    qsort_flats_by_detail, qsort_flats_by_detail,
+    0, 0, 0,
+    0,
+  };
+
+  if (itemfuncs[itemtype] && gld_drawinfo.num_items[itemtype] > 1)
+  {
+    itemfuncs[itemtype](gld_drawinfo.items[itemtype], gld_drawinfo.num_items[itemtype]);
+  }
+#else
   typedef int(C_DECL *DICMP_ITEM)(const void *a, const void *b);
 
   static DICMP_ITEM itemfuncs[GLDIT_TYPES] = {
@@ -506,6 +541,7 @@ void gld_DrawItemsSortByDetail(GLDrawItemType itemtype)
     qsort(gld_drawinfo.items[itemtype], gld_drawinfo.num_items[itemtype],
       sizeof(gld_drawinfo.items[itemtype]), itemfuncs[itemtype]);
   }
+#endif
 }
 
 void gld_DrawDetail_NoARB(void)
