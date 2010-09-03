@@ -4690,6 +4690,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\qsort.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\r_bsp.c"
 				>
 				<FileConfiguration
