@@ -2398,7 +2398,9 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
     free(segs);
     free(nodes);
     free(subsectors);
+#ifdef GL_DOOM
     free(map_subsectors);
+#endif
 
     free(blocklinks);
     free(blockmaplump);
@@ -2457,8 +2459,10 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
     }
   }
 
+#ifdef GL_DOOM
   map_subsectors = calloc_IfSameLevel(map_subsectors,
     numsubsectors, sizeof(map_subsectors[0]));
+#endif
 
   // reject loading and underflow padding separated out into new function
   // P_GroupLines modified to return a number the underflow padding needs
