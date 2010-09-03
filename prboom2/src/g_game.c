@@ -1737,6 +1737,8 @@ void RecalculateDrawnSubsectors(void)
       }
     }
   }
+
+  gld_ResetTexturedAutomap();
 #endif
 }
 

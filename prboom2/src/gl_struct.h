@@ -222,6 +222,7 @@ void gld_MultisamplingSet(void);
 extern int gl_use_display_lists;
 
 void gld_ProcessTexturedMap(void);
+void gld_ResetTexturedAutomap(void);
 void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my, int fh, fixed_t scale);
 
 #endif // _GL_STRUCT_H

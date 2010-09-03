@@ -431,6 +431,12 @@ static int C_DECL dicmp_visible_subsectors_by_pic(const void *a, const void *b)
 }
 #endif
 
+static int visible_subsectors_count_prev = -1;
+void gld_ResetTexturedAutomap(void)
+{
+  visible_subsectors_count_prev = -1;
+}
+
 void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my, int fh, fixed_t scale)
 {
   extern int ddt_cheating;
@@ -450,26 +456,46 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
 
   if (numsubsectors > visible_subsectors_size)
   {
-    visible_subsectors_size = numsubsectors * 2; // *2 for reducing number of reallocations
+    visible_subsectors_size = numsubsectors;
     visible_subsectors = realloc(visible_subsectors, visible_subsectors_size * sizeof(visible_subsectors[0]));
   }
 
   visible_subsectors_count = 0;
-  for (i = 0; i < numsubsectors; i++)
+  if (ddt_cheating)
   {
-    if (map_subsectors[i] || ddt_cheating)
+    visible_subsectors_count = numsubsectors;
+  }
+  else
+  {
+    for (i = 0; i < numsubsectors; i++)
     {
-      visible_subsectors[visible_subsectors_count++] = &subsectors[i];
+      visible_subsectors_count += map_subsectors[i];
     }
   }
 
-  // sort subsectors by texture
+  // Do not sort static visible_subsectors array at all
+  // if there are no new visible subsectors.
+  if (visible_subsectors_count != visible_subsectors_count_prev)
+  {
+    visible_subsectors_count_prev = visible_subsectors_count;
+
+    visible_subsectors_count = 0;
+    for (i = 0; i < numsubsectors; i++)
+    {
+      if (map_subsectors[i] || ddt_cheating)
+      {
+        visible_subsectors[visible_subsectors_count++] = &subsectors[i];
+      }
+    }
+
+    // sort subsectors by texture
 #ifdef USE_CUSTOM_QSORT
-  qsort_subsectors_by_pic(visible_subsectors, visible_subsectors_count);
+    qsort_subsectors_by_pic(visible_subsectors, visible_subsectors_count);
 #else
-  qsort(visible_subsectors, visible_subsectors_count,
-    sizeof(visible_subsectors[0]), dicmp_visible_subsectors_by_pic);
+    qsort(visible_subsectors, visible_subsectors_count,
+      sizeof(visible_subsectors[0]), dicmp_visible_subsectors_by_pic);
 #endif
+  }
 
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
@@ -4167,6 +4193,8 @@ void gld_PreprocessLevel(void)
     memset(linerendered[0], 0, numlines*sizeof(linerendered[0][0]));
     memset(linerendered[1], 0, numlines*sizeof(linerendered[1][0]));
   }
+
+  gld_ResetTexturedAutomap();
 
   gld_FreeDrawInfo();
 
