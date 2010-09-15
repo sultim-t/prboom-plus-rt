@@ -115,10 +115,10 @@ extern dboolean demo_warp;
 extern int key_speed_up;
 extern int key_speed_down;
 extern int key_speed_default;
-extern int key_demo_jointogame;
-extern int key_demo_nextlevel;
-extern int key_demo_endlevel;
 extern int speed_step;
+extern int key_nextlevel;
+extern int key_demo_jointogame;
+extern int key_demo_endlevel;
 extern int key_walkcamera;
 extern int key_showalive;
 
@@ -195,6 +195,7 @@ void e6y_I_uSleep(unsigned long usecs);
 void G_SkipDemoStart(void);
 void G_SkipDemoStop(void);
 void G_SkipDemoCheck(void);
+int G_GotoNextLevel(void);
 
 #ifdef GL_DOOM
 void M_ChangeMouseLook(void);

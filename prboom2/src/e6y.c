@@ -114,10 +114,10 @@ dboolean demo_warp;
 int key_speed_up;
 int key_speed_down;
 int key_speed_default;
-int key_demo_jointogame;
-int key_demo_nextlevel;
-int key_demo_endlevel;
 int speed_step;
+int key_nextlevel;
+int key_demo_jointogame;
+int key_demo_endlevel;
 int key_walkcamera;
 int key_showalive;
 
@@ -450,6 +450,62 @@ void G_SkipDemoCheck(void)
        G_SkipDemoStop();
      }
   }
+}
+
+int G_GotoNextLevel(void)
+{
+  static byte doom2_next[32] = {
+    2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+    12, 13, 14, 15, 31, 17, 18, 19, 20, 21,
+    22, 23, 24, 25, 26, 27, 28, 29, 30, 1,
+    32, 16
+  };
+  static byte doom_next[4][9] = {
+    {12, 13, 19, 15, 16, 17, 18, 21, 14},
+    {22, 23, 24, 25, 29, 27, 28, 31, 26},
+    {32, 33, 34, 35, 36, 39, 38, 41, 37},
+    {42, 49, 44, 45, 46, 47, 48, 11, 43}
+  };
+
+  int changed = false;
+
+  // secret level
+  doom2_next[14] = (haswolflevels ? 31 : 16);
+  
+  // shareware doom has only episode 1
+  doom_next[0][7] = (gamemode == shareware ? 11 : 21);
+  
+  doom_next[2][7] = ((gamemode == registered) ||
+    // the fourth episode for pre-ultimate complevels is not allowed.
+    (compatibility_level < ultdoom_compatibility) ?
+    11 : 41);
+  
+  if ((gamestate == GS_LEVEL) &&
+      !deathmatch && !netgame &&
+      !demorecording && !demoplayback &&
+      !menuactive)
+  {
+    //doom2_next and doom_next are 0 biased, unlike gameepisode and gamemap
+    int epsd = gameepisode - 1;
+    int map = gamemap - 1;
+
+    if (gamemode == commercial)
+    {
+      epsd = 1;
+      map = doom2_next[BETWEEN(0, 31, map)];
+    }
+    else
+    {
+      int next = doom_next[BETWEEN(0, 3, epsd)][BETWEEN(0, 9, map)];
+      epsd = next / 10;
+      map = next % 10;
+    }
+
+    G_DeferedInitNew(gameskill, epsd, map);
+    changed = true;
+  }
+
+  return changed;
 }
 
 void M_ChangeSpeed(void)

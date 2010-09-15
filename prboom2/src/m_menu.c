@@ -2367,14 +2367,14 @@ setup_menu_t keys_settings5[] =  // Key Binding screen strings
   {"SPEED UP"             ,S_KEY     ,m_scrn,KB_X,KB_Y+ 1*8,{&key_speed_up}},
   {"SPEED DOWN"           ,S_KEY     ,m_scrn,KB_X,KB_Y+ 2*8,{&key_speed_down}},
   {"RESET TO DEFAULT"     ,S_KEY     ,m_scrn,KB_X,KB_Y+ 3*8,{&key_speed_default}},
-  {"STEP OF CHANGE (0-AUTO)" ,S_NUM     ,m_null,KB_X,KB_Y+ 4*8, {"speed_step"}},
+  {"STEP OF CHANGE (0-AUTO)" ,S_NUM  ,m_null,KB_X,KB_Y+ 4*8, {"speed_step"}},
   {"DEMOS"                ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y+5*8},
-  {"NEXT LEVEL"           ,S_KEY     ,m_scrn,KB_X,KB_Y+ 6*8,{&key_demo_nextlevel}},
-  {"END LEVEL"            ,S_KEY     ,m_scrn,KB_X,KB_Y+ 7*8,{&key_demo_endlevel}},
-  {"CAMERA MODE"          ,S_KEY     ,m_scrn,KB_X,KB_Y+ 8*8,{&key_walkcamera}},
-  {"JOIN"                 ,S_KEY     ,m_scrn,KB_X,KB_Y+ 9*8,{&key_demo_jointogame}},
+  {"END LEVEL"            ,S_KEY     ,m_scrn,KB_X,KB_Y+ 6*8,{&key_demo_endlevel}},
+  {"CAMERA MODE"          ,S_KEY     ,m_scrn,KB_X,KB_Y+ 7*8,{&key_walkcamera}},
+  {"JOIN"                 ,S_KEY     ,m_scrn,KB_X,KB_Y+ 8*8,{&key_demo_jointogame}},
+  {"MISC"                 ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y+9*8},
+  {"NEXT LEVEL"           ,S_KEY     ,m_scrn,KB_X,KB_Y+ 10*8,{&key_nextlevel}},
 #ifdef GL_DOOM
-  {"MISC"                 ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y+10*8},
   {"Show Alive Monsters"  ,S_KEY     ,m_scrn,KB_X,KB_Y+11*8,{&key_showalive}},
 #endif
 
@@ -4612,15 +4612,24 @@ dboolean M_Responder (event_t* ev) {
       // Don't eat the keypress in this case.
       // return true;
     }
-    if (demoplayback && !doSkip && singledemo)
+    if (ch == key_nextlevel)
     {
-      if (ch == key_demo_nextlevel)
+      if (demoplayback && !doSkip && singledemo)
       {
         demo_stoponnext = true;
         G_SkipDemoStart();
         return true;
       }
-      if (ch == key_demo_endlevel)
+      else
+      {
+        if (G_GotoNextLevel())
+          return true;
+      }
+    }
+
+    if (ch == key_demo_endlevel)
+    {
+      if (demoplayback && !doSkip && singledemo)
       {
         demo_stoponend = true;
         G_SkipDemoStart();
