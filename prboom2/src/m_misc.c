@@ -612,6 +612,10 @@ default_t defaults[] =
    0,MAX_KEY,def_key,ss_keys}, // key to toggle rotating the automap to match the player's orientation
   {"key_map_overlay", {&key_map_overlay},     {'o'}           ,
    0,MAX_KEY,def_key,ss_keys}, // key to toggle overlaying the automap on the rendered display
+#ifdef GL_DOOM
+  {"key_map_textured", {&key_map_textured},   {0}             ,
+   0,MAX_KEY,def_key,ss_keys}, // key to toggle textured automap
+#endif
   {"key_reverse",     {&key_reverse},         {'/'}           ,
    0,MAX_KEY,def_key,ss_keys}, // key to spin 180 instantly
   {"key_zoomin",      {&key_zoomin},          {'='}           ,

@@ -2182,6 +2182,7 @@ setup_menu_t keys_settings3[];
 setup_menu_t keys_settings4[];
 setup_menu_t keys_settings5[];
 setup_menu_t keys_settings6[];
+setup_menu_t keys_settings7[];
 
 // The table which gets you from one screen table to the next.
 
@@ -2191,7 +2192,9 @@ setup_menu_t* keys_settings[] =
   keys_settings2,
   keys_settings3,
   keys_settings4,
-  keys_settings5,//e6y
+  keys_settings5,
+  keys_settings6,
+  keys_settings7,
   NULL
 };
 
@@ -2341,15 +2344,9 @@ setup_menu_t keys_settings4[] =  // Key Binding screen strings
   {"CLEAR MARKS",S_KEY       ,m_map ,KB_X,KB_Y+ 9*8,{&key_map_clear}},
   {"FULL/ZOOM"  ,S_KEY       ,m_map ,KB_X,KB_Y+10*8,{&key_map_gobig}},
   {"GRID"       ,S_KEY       ,m_map ,KB_X,KB_Y+11*8,{&key_map_grid}},
-
-  {"CHATTING"   ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y+12*8},
-  {"BEGIN CHAT" ,S_KEY       ,m_scrn,KB_X,KB_Y+13*8,{&key_chat}},
-  {"PLAYER 1"   ,S_KEY       ,m_scrn,KB_X,KB_Y+14*8,{&destination_keys[0]}},
-  {"PLAYER 2"   ,S_KEY       ,m_scrn,KB_X,KB_Y+15*8,{&destination_keys[1]}},
-  {"PLAYER 3"   ,S_KEY       ,m_scrn,KB_X,KB_Y+16*8,{&destination_keys[2]}},
-  {"PLAYER 4"   ,S_KEY       ,m_scrn,KB_X,KB_Y+17*8,{&destination_keys[3]}},
-  {"BACKSPACE"  ,S_KEY       ,m_scrn,KB_X,KB_Y+18*8,{&key_backspace}},
-  {"ENTER"      ,S_KEY       ,m_scrn,KB_X,KB_Y+19*8,{&key_enter}},
+#ifdef GL_DOOM
+  {"TEXTURED"   ,S_KEY       ,m_map ,KB_X,KB_Y+12*8,{&key_map_textured}},
+#endif
 
   {"<- PREV" ,S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {keys_settings3}},
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {keys_settings5}},
@@ -2357,11 +2354,29 @@ setup_menu_t keys_settings4[] =  // Key Binding screen strings
   // Final entry
 
   {0,S_SKIP|S_END,m_null}
+};
 
+setup_menu_t keys_settings5[] =  // Key Binding screen strings
+{
+  {"CHATTING"   ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y+0*8},
+  {"BEGIN CHAT" ,S_KEY       ,m_scrn,KB_X,KB_Y+1*8,{&key_chat}},
+  {"PLAYER 1"   ,S_KEY       ,m_scrn,KB_X,KB_Y+2*8,{&destination_keys[0]}},
+  {"PLAYER 2"   ,S_KEY       ,m_scrn,KB_X,KB_Y+3*8,{&destination_keys[1]}},
+  {"PLAYER 3"   ,S_KEY       ,m_scrn,KB_X,KB_Y+4*8,{&destination_keys[2]}},
+  {"PLAYER 4"   ,S_KEY       ,m_scrn,KB_X,KB_Y+5*8,{&destination_keys[3]}},
+  {"BACKSPACE"  ,S_KEY       ,m_scrn,KB_X,KB_Y+6*8,{&key_backspace}},
+  {"ENTER"      ,S_KEY       ,m_scrn,KB_X,KB_Y+7*8,{&key_enter}},
+
+  {"<- PREV" ,S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {keys_settings4}},
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {keys_settings6}},
+
+  // Final entry
+
+  {0,S_SKIP|S_END,m_null}
 };
 
 //e6y
-setup_menu_t keys_settings5[] =  // Key Binding screen strings
+setup_menu_t keys_settings6[] =  // Key Binding screen strings
 {
   {"GAME SPEED"           ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y},
   {"SPEED UP"             ,S_KEY     ,m_scrn,KB_X,KB_Y+ 1*8,{&key_speed_up}},
@@ -2378,13 +2393,13 @@ setup_menu_t keys_settings5[] =  // Key Binding screen strings
   {"Show Alive Monsters"  ,S_KEY     ,m_scrn,KB_X,KB_Y+11*8,{&key_showalive}},
 #endif
 
-  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {keys_settings4}},
-  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {keys_settings6}},
+  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {keys_settings5}},
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {keys_settings7}},
   // Final entry
   {0,S_SKIP|S_END,m_null}
 };
 
-setup_menu_t keys_settings6[] =
+setup_menu_t keys_settings7[] =
 {
   {"MENUS"       ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y+0*8},
   {"NEXT ITEM"   ,S_KEY       ,m_menu,KB_X,KB_Y+1*8,{&key_menu_down}},
@@ -2395,7 +2410,7 @@ setup_menu_t keys_settings6[] =
   {"SELECT ITEM" ,S_KEY       ,m_menu,KB_X,KB_Y+6*8,{&key_menu_enter}},
   {"EXIT"        ,S_KEY       ,m_menu,KB_X,KB_Y+7*8,{&key_menu_escape}},
 
-  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {keys_settings5}},
+  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {keys_settings6}},
   // Final entry
   {0,S_SKIP|S_END,m_null}
 };

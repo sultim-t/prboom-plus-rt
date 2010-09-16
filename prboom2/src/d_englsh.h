@@ -344,6 +344,9 @@
 #define AMSTR_OVERLAYON    "Overlay Mode ON"
 #define AMSTR_OVERLAYOFF   "Overlay Mode OFF"
 
+#define AMSTR_TEXTUREDON   "Textured Mode ON"
+#define AMSTR_TEXTUREDOFF  "Textured Mode OFF"
+
 /* st_stuff.c */
 
 #define STSTR_MUS       "Music Change"

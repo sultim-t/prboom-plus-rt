@@ -395,6 +395,10 @@ const char* s_AMSTR_ROTATEON     = AMSTR_ROTATEON;
 const char* s_AMSTR_ROTATEOFF    = AMSTR_ROTATEOFF;
 const char* s_AMSTR_OVERLAYON    = AMSTR_OVERLAYON;
 const char* s_AMSTR_OVERLAYOFF   = AMSTR_OVERLAYOFF;
+// e6y: textured automap
+const char* s_AMSTR_TEXTUREDON   = AMSTR_TEXTUREDON;
+const char* s_AMSTR_TEXTUREDOFF  = AMSTR_TEXTUREDOFF;
+
 const char *s_STSTR_MUS          = STSTR_MUS;
 const char *s_STSTR_NOMUS        = STSTR_NOMUS;
 const char *s_STSTR_DQDON        = STSTR_DQDON;

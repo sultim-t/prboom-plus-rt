@@ -201,6 +201,7 @@ int     key_map_clear;
 int     key_map_grid;
 int     key_map_overlay; // cph - map overlay
 int     key_map_rotate;  // cph - map rotation
+int     key_map_textured;  // e6y - textured automap
 int     key_help = KEYD_F1;                                 // phares 4/13/98
 int     key_soundvolume;
 int     key_hud;

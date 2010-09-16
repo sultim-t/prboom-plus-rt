@@ -739,6 +739,13 @@ dboolean AM_Responder
       automapmode ^= am_overlay;
       plr->message = (automapmode & am_overlay) ? s_AMSTR_OVERLAYON : s_AMSTR_OVERLAYOFF;
     }
+#ifdef GL_DOOM
+    else if (ch == key_map_textured) {
+      map_textured = !map_textured;
+      M_ChangeMapTextured();
+      plr->message = (map_textured ? s_AMSTR_TEXTUREDON : s_AMSTR_TEXTUREDOFF);
+    }
+#endif
     else                                                        // phares
     {
       cheatstate=0;

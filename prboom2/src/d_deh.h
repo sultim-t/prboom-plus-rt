@@ -620,6 +620,9 @@ extern const char* s_AMSTR_ROTATEON;
 extern const char* s_AMSTR_ROTATEOFF;
 extern const char* s_AMSTR_OVERLAYON;
 extern const char* s_AMSTR_OVERLAYOFF;
+// e6y: textured automap
+extern const char* s_AMSTR_TEXTUREDON;
+extern const char* s_AMSTR_TEXTUREDOFF;
 
 //
 //      ST_stuff.C
