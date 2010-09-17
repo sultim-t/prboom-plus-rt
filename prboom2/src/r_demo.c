@@ -565,6 +565,16 @@ static void R_DemoEx_GetParams(const byte *pwad_p, waddata_t *waddata)
       }
     }
 
+    //for recording or playback using "single-player coop" mode
+    if (!M_CheckParm("-solo-net"))
+    {
+      p = M_CheckParmEx("-solo-net", params, paramscount);
+      if (p >= 0)
+      {
+        M_AddParam("-solo-net");
+      }
+    }
+
     // for doom 1.2
     if (!M_CheckParm("-respawn"))
     {
@@ -717,6 +727,13 @@ static void R_DemoEx_AddParams(wadtbl_t *wadtbl)
   if (demo_compatibility)
   {
     sprintf(buf, "-complevel %d ", compatibility_level);
+    AddString(&files, buf);
+  }
+
+  //for recording or playback using "single-player coop" mode
+  if (M_CheckParm("-solo-net"))
+  {
+    sprintf(buf, "-solo-net ");
     AddString(&files, buf);
   }
 
