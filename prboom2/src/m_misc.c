@@ -890,6 +890,8 @@ default_t defaults[] =
   {"Prboom-plus misc settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"misc_fastexit", {&misc_fastexit},  {0},0,1,
    def_bool,ss_stat},
+  {"screenshot_dir", {NULL,&screenshot_dir}, {0,""},UL,UL,
+   def_str,ss_none},
 
   {"Prboom-plus video settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"sdl_videodriver", {NULL,&sdl_videodriver}, {0,"default"},UL,UL,
@@ -1526,6 +1528,8 @@ void M_LoadDefaults (void)
 // M_DoScreenShot
 // Takes a screenshot into the names file
 
+char *screenshot_dir;
+
 void M_DoScreenShot (const char* fname)
 {
   if (I_ScreenShot(fname) != 0)
@@ -1542,18 +1546,66 @@ void M_DoScreenShot (const char* fname)
 #define SCREENSHOT_EXT ".bmp"
 #endif
 
+const char* M_CheckWritableDir(const char *dir)
+{
+  static char *base = NULL;
+  static int base_len = 0;
+
+  const char *result = NULL;
+  int len;
+
+  if (!dir || !(len = strlen(dir)))
+  {
+    return NULL;
+  }
+
+  if (len + 1 > base_len)
+  {
+    base_len = len + 1;
+    base = malloc(len + 1);
+  }
+
+  if (base)
+  {
+    strcpy(base, dir);
+
+    if (base[len - 1] != '\\' && base[len - 1] != '/')
+      strcat(base, "/");
+    if (!access(base, O_RDWR))
+    {
+      base[strlen(base) - 1] = 0;
+      result = base;
+    }
+  }
+
+  return result;
+}
+
 void M_ScreenShot(void)
 {
   static int shot;
   char       lbmname[PATH_MAX + 1];
   int        startshot;
+  const char *shot_dir = NULL;
+  int p;
 
-  if (!access(SCREENSHOT_DIR,2))
+  if ((p = M_CheckParm("-shotdir")) && (p < myargc - 1))
+    shot_dir = M_CheckWritableDir(myargv[p + 1]);
+  if (!shot_dir)
+    shot_dir = M_CheckWritableDir(screenshot_dir);
+  if (!shot_dir)
+#ifdef _WIN32
+    shot_dir = M_CheckWritableDir(I_DoomExeDir());
+#else
+    shot_dir = (!access(SCREENSHOT_DIR, 2) ? SCREENSHOT_DIR : NULL);
+#endif
+
+  if (shot_dir)
   {
     startshot = shot; // CPhipps - prevent infinite loop
 
     do {
-      sprintf(lbmname,"%s/doom%02d" SCREENSHOT_EXT, SCREENSHOT_DIR, shot++);
+      sprintf(lbmname,"%s/doom%02d" SCREENSHOT_EXT, shot_dir, shot++);
     } while (!access(lbmname,0) && (shot != startshot) && (shot < 10000));
 
     if (access(lbmname,0))

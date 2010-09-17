@@ -122,4 +122,6 @@ int M_StrToFloat(const char *s, float *f);
 char* M_Strlwr(char* str);
 char* M_Strupr(char* str);
 
+extern char *screenshot_dir;
+
 #endif
