@@ -271,7 +271,7 @@ prboom_comp_t prboom_comp[PC_MAX] = {
 dboolean *use_wrong_fixeddiv;
 void e6y_InitCommandLine(void)
 {
-  int i, p;
+  int p;
 
   if ((p = M_CheckParm("-skipsec")) && (p < myargc-1))
     demo_skiptics = (int)(atof(myargv[p + 1]) * 35);
@@ -280,40 +280,6 @@ void e6y_InitCommandLine(void)
   if ((p = M_CheckParm("-avidemo")) && (p < myargc-1))
     avi_shot_fname = myargv[p + 1];
   stats_level = M_CheckParm("-levelstat");
-
-  if (IsDemoPlayback())
-  {
-    //"2.4.8.2" -> 0x02040802
-    if ((p = M_CheckParm("-emulate")) && (p < myargc - 1))
-    {
-      unsigned int emulated_version = 0;
-      int b[4], k = 1;
-      memset(b, 0, sizeof(b));
-      sscanf(myargv[p+1], "%d.%d.%d.%d", &b[0], &b[1], &b[2], &b[3]);
-      for (i = 3; i >= 0; i--, k *= 256)
-      {
-#ifdef RANGECHECK
-        if (b[i] >= 256)
-          I_Error("Wrong version number of package: %s", VERSION);
-#endif
-        emulated_version += b[i] * k;
-      }
-      
-      for (i = 0; i < PC_MAX; i++)
-      {
-        prboom_comp[i].state = 
-          (emulated_version >= prboom_comp[i].minver && 
-           emulated_version <  prboom_comp[i].maxver);
-      }
-    }
-
-    for (i = 0; i < PC_MAX; i++)
-    {
-      if (M_CheckParm(prboom_comp[i].cmd))
-        prboom_comp[i].state = true;
-    }
-  }
-  use_wrong_fixeddiv = &(prboom_comp[PC_WRONG_FIXEDDIV].state);
 
   // TAS-tracers
   InitTracers();
@@ -1185,6 +1151,42 @@ void e6y_G_Compatibility(void)
   RF_IGNORE_CURRENT = RF_IGNORE;
   if (demo_compatibility)
     RF_IGNORE_CURRENT |= RF_IGNORE_COMPAT;
+
+  if (IsDemoPlayback())
+  {
+    int i, p;
+
+    //"2.4.8.2" -> 0x02040802
+    if ((p = M_CheckParm("-emulate")) && (p < myargc - 1))
+    {
+      unsigned int emulated_version = 0;
+      int b[4], k = 1;
+      memset(b, 0, sizeof(b));
+      sscanf(myargv[p + 1], "%d.%d.%d.%d", &b[0], &b[1], &b[2], &b[3]);
+      for (i = 3; i >= 0; i--, k *= 256)
+      {
+#ifdef RANGECHECK
+        if (b[i] >= 256)
+          I_Error("Wrong version number of package: %s", VERSION);
+#endif
+        emulated_version += b[i] * k;
+      }
+      
+      for (i = 0; i < PC_MAX; i++)
+      {
+        prboom_comp[i].state = 
+          (emulated_version >= prboom_comp[i].minver && 
+           emulated_version <  prboom_comp[i].maxver);
+      }
+    }
+
+    for (i = 0; i < PC_MAX; i++)
+    {
+      if (M_CheckParm(prboom_comp[i].cmd))
+        prboom_comp[i].state = true;
+    }
+  }
+  use_wrong_fixeddiv = &(prboom_comp[PC_WRONG_FIXEDDIV].state);
 }
 
 dboolean zerotag_manual;
