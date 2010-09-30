@@ -41,6 +41,8 @@
 #include "v_video.h"
 #include "lprintf.h"
 
+int currentsubsectornum;
+
 seg_t     *curline;
 side_t    *sidedef;
 line_t    *linedef;
@@ -388,6 +390,9 @@ static void R_AddLine (seg_t *line)
     {
       return;
     }
+
+    map_subsectors[currentsubsectornum] = 1;
+
     if (!line->backsector)
     {
       gld_clipper_SafeAddClipRange(angle2, angle1);
@@ -407,7 +412,7 @@ static void R_AddLine (seg_t *line)
         gld_clipper_SafeAddClipRange(angle2, angle1);
       }
     }
-    
+
     if (ds_p == drawsegs+maxdrawsegs)   // killough 1/98 -- fix 2s line HOM
     {
       unsigned pos = ds_p - drawsegs; // jff 8/9/98 fix from ZDOOM1.14a
@@ -612,6 +617,7 @@ static void R_Subsector(int num)
 #endif
 
   sub = &subsectors[num];
+  currentsubsectornum = num;
   frontsector = sub->sector;
   count = sub->numlines;
   line = &segs[sub->firstline];
@@ -700,10 +706,6 @@ static void R_Subsector(int num)
   // Either you must pass the fake sector and handle validcount here, on the
   // real sector, or you must account for the lighting in some other way,
   // like passing it as an argument.
-
-#ifdef GL_DOOM
-  map_subsectors[num] = 1;
-#endif
 
   if (sub->sector->validcount != validcount)
   {
