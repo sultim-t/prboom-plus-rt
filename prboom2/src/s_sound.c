@@ -76,6 +76,7 @@ typedef struct
   void *origin;        // origin of sound
   int handle;          // handle of the sound being played
   int is_pickup;       // killough 4/25/98: whether sound is a player's weapon
+  int pitch;
 } channel_t;
 
 // the set of channels available
@@ -311,7 +312,11 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume)
   // Assigns the handle to one of the channels in the mix/output buffer.
   { // e6y: [Fix] Crash with zero-length sounds.
     int h = I_StartSound(sfx_id, cnum, volume, sep, pitch, priority);
-    if (h != -1) channels[cnum].handle = h;
+    if (h != -1)
+    {
+      channels[cnum].handle = h;
+      channels[cnum].pitch = pitch;
+    }
   }
 }
 
@@ -393,7 +398,7 @@ void S_UpdateSounds(void* listener_p)
             {
               // initialize parameters
               int volume = snd_SfxVolume;
-              int pitch = NORM_PITCH;
+              int pitch = c->pitch; // use channel's pitch!
               int sep = NORM_SEP;
 
               if (sfx->link)
