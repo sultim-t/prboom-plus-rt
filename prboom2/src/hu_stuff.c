@@ -1329,7 +1329,7 @@ void HU_widget_build_armor_big(void)
   char *s;
   char armorstr[80]; //jff
   int armor = plr->armorpoints;
-  int armor_idx = (plr->armortype == 0 ? 1 : 2);
+  int armor_idx = (plr->armortype < 2 ? 1 : 2);
 
   // transfer the graphic key text to the widget
   HUlib_clearTextLine(&w_armor_armor);
