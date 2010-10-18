@@ -89,6 +89,5 @@ extern int hud_distributed; /* whether hud is all in lower left or distributed *
 extern int hud_displayed;   /* hud is displayed */
 /* jff 2/18/98 hud/status control */
 extern int hud_active;      /* hud mode 0=off, 1=small, 2=full          */
-extern int hud_nosecrets;   /* status does not list secrets/items/kills */
 
 #endif

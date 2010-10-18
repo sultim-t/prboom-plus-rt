@@ -820,8 +820,6 @@ default_t defaults[] =
   //jff 2/23/98
   {"hud_displayed", {&hud_displayed},  {0},0,1, // whether hud is displayed
    def_bool,ss_none}, // enables display of HUD
-  {"hud_nosecrets", {&hud_nosecrets},  {0},0,1, // no secrets/items/kills HUD line
-   def_bool,ss_stat}, // disables display of kills/items/secrets on HUD
 
 //e6y
   {"Prboom-plus key bindings",{NULL},{0},UL,UL,def_none,ss_none},

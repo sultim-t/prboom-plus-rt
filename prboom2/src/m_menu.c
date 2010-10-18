@@ -2599,15 +2599,14 @@ setup_menu_t stat_settings1[] =  // Status Bar and HUD Settings screen
 
   {"HEADS-UP DISPLAY"  ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+ 6*8},
 
-  {"HIDE SECRETS"      ,S_YESNO     ,m_null,ST_X,ST_Y+ 7*8, {"hud_nosecrets"}},
-  {"HEALTH LOW/OK"     ,S_NUM       ,m_null,ST_X,ST_Y+ 8*8, {"health_red"}},
-  {"HEALTH OK/GOOD"    ,S_NUM       ,m_null,ST_X,ST_Y+ 9*8, {"health_yellow"}},
-  {"HEALTH GOOD/EXTRA" ,S_NUM       ,m_null,ST_X,ST_Y+10*8, {"health_green"}},
-  {"ARMOR LOW/OK"      ,S_NUM       ,m_null,ST_X,ST_Y+11*8, {"armor_red"}},
-  {"ARMOR OK/GOOD"     ,S_NUM       ,m_null,ST_X,ST_Y+12*8, {"armor_yellow"}},
-  {"ARMOR GOOD/EXTRA"  ,S_NUM       ,m_null,ST_X,ST_Y+13*8, {"armor_green"}},
-  {"AMMO LOW/OK"       ,S_NUM       ,m_null,ST_X,ST_Y+14*8, {"ammo_red"}},
-  {"AMMO OK/GOOD"      ,S_NUM       ,m_null,ST_X,ST_Y+15*8, {"ammo_yellow"}},
+  {"HEALTH LOW/OK"     ,S_NUM       ,m_null,ST_X,ST_Y+ 7*8, {"health_red"}},
+  {"HEALTH OK/GOOD"    ,S_NUM       ,m_null,ST_X,ST_Y+ 8*8, {"health_yellow"}},
+  {"HEALTH GOOD/EXTRA" ,S_NUM       ,m_null,ST_X,ST_Y+ 9*8, {"health_green"}},
+  {"ARMOR LOW/OK"      ,S_NUM       ,m_null,ST_X,ST_Y+10*8, {"armor_red"}},
+  {"ARMOR OK/GOOD"     ,S_NUM       ,m_null,ST_X,ST_Y+11*8, {"armor_yellow"}},
+  {"ARMOR GOOD/EXTRA"  ,S_NUM       ,m_null,ST_X,ST_Y+12*8, {"armor_green"}},
+  {"AMMO LOW/OK"       ,S_NUM       ,m_null,ST_X,ST_Y+13*8, {"ammo_red"}},
+  {"AMMO OK/GOOD"      ,S_NUM       ,m_null,ST_X,ST_Y+14*8, {"ammo_yellow"}},
 
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
