@@ -46,6 +46,7 @@
 #include "g_game.h"
 #include "r_main.h"
 #include "p_inter.h"
+#include "lprintf.h"
 #include "e6y.h" //e6y
 
 // global heads up display controls
@@ -1009,7 +1010,7 @@ void HU_MoveHud(int force)
         if (maxammo[i] > 999)
         {
           char buf[16];
-          int n = strlen(itoa(maxammo[i], buf, 10)) - 3;
+          int n = SNPRINTF(buf, 10, "%d", maxammo[i]);
           hud[HUD_WEAPON].x[1] -= n * 10;
           hud[HUD_AMMO].x[1] -= n * 10;
           break;
@@ -1032,8 +1033,8 @@ void HU_MoveHud(int force)
 
     if (hudnum == 3 || hudnum == 7)
     {
-      health_y = max(hu_font_hud[1].height, hu_font_hud[2].height);
-      health_y = max(health_y, hu_font_hud[0].height) + 2;
+      health_y = MAX(hu_font_hud[1].height, hu_font_hud[2].height);
+      health_y = MAX(health_y, hu_font_hud[0].height) + 2;
 
       for (i = 0; i <= HUD_HUDADD; i++)
       {
