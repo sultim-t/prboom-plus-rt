@@ -1334,7 +1334,7 @@ void HU_widget_build_armor_big(void)
 
   // transfer the graphic key text to the widget
   HUlib_clearTextLine(&w_armor_armor);
-  HUlib_addCharToTextLine(&w_armor_armor, '!' + armor_idx);
+  HUlib_addCharToTextLine(&w_armor_armor, (char)('!' + armor_idx));
 
   // clear the widgets internal line
   HUlib_clearTextLine(&w_armor_big);
