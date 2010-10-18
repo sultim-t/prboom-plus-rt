@@ -400,13 +400,15 @@ void HU_Init(void)
     R_SetPatchNum(&hu_fontk[i], buffer);
   }
 
-  R_SetSpriteByIndex(&hu_font_hud[3], SPR_MEDI);
-  R_SetSpriteByIndex(&hu_font_hud[4], SPR_ARM1);
-  R_SetSpriteByIndex(&hu_font_hud[5], SPR_ARM2);
+  R_SetSpriteByIndex(&hu_font_hud[4], SPR_MEDI);
+  R_SetSpriteByIndex(&hu_font_hud[5], SPR_ARM1);
+  R_SetSpriteByIndex(&hu_font_hud[6], SPR_ARM1);
+  R_SetSpriteByIndex(&hu_font_hud[7], SPR_ARM2);
 
-  R_SetSpriteByIndex(&hu_font_hud[6], SPR_STIM);
-  R_SetSpriteByName(&hu_font_hud[7], "BON2A0");
-  R_SetSpriteByName(&hu_font_hud[8], "BON2D0");
+  R_SetSpriteByIndex(&hu_font_hud[8], SPR_STIM);
+  R_SetSpriteByName(&hu_font_hud[9], "BON2A0");
+  R_SetSpriteByName(&hu_font_hud[10], "BON2B0");
+  R_SetSpriteByName(&hu_font_hud[11], "BON2D0");
 }
 
 //
@@ -984,13 +986,15 @@ void HU_MoveHud(int force)
     // HUDs with icons for health and armor
     if (hudnum == 3 || hudnum == 7)
     {
-      int start = (hudnum == 3 ? 3 : 6);
+      int start = (hudnum == 3 ? 4 : 8);
       hu_font_hud[0] = hu_font_hud[start + 0];
       hu_font_hud[1] = hu_font_hud[start + 1];
       hu_font_hud[2] = hu_font_hud[start + 2];
+      hu_font_hud[3] = hu_font_hud[start + 3];
       if (hu_font_hud[0].lumpnum < 0 ||
           hu_font_hud[1].lumpnum < 0 ||
-          hu_font_hud[2].lumpnum < 0)
+          hu_font_hud[2].lumpnum < 0 ||
+          hu_font_hud[3].lumpnum < 0)
       {
         //no hud graphics?
         HU_NextHud();
@@ -1329,11 +1333,10 @@ void HU_widget_build_armor_big(void)
   char *s;
   char armorstr[80]; //jff
   int armor = plr->armorpoints;
-  int armor_idx = (plr->armortype < 2 ? 1 : 2);
 
   // transfer the graphic key text to the widget
   HUlib_clearTextLine(&w_armor_armor);
-  HUlib_addCharToTextLine(&w_armor_armor, (char)('!' + armor_idx));
+  HUlib_addCharToTextLine(&w_armor_armor, (char)('!' + plr->armortype + 1));
 
   // clear the widgets internal line
   HUlib_clearTextLine(&w_armor_big);
@@ -1355,7 +1358,7 @@ void HU_widget_build_armor_big(void)
 
   // transfer the init string to the widget
   s = armorstr;
-  w_armor_big.x = w_armor_armor.x - hu_font_hud[armor_idx].leftoffset - 4;
+  w_armor_big.x = w_armor_armor.x - hu_font_hud[plr->armortype + 1].leftoffset - 4;
   while (*s)
   {
     HUlib_addCharToTextLine(&w_armor_big, *s);
