@@ -716,6 +716,41 @@ void R_SetPatchNum(patchnum_t *patchnum, const char *name)
   R_UnlockPatchName(name);
 }
 
+void R_SetSpriteByNum(patchnum_t *patchnum, int lump)
+{
+  const rpatch_t *patch = R_CachePatchNum(lump);
+  patchnum->width = patch->width;
+  patchnum->height = patch->height;
+  patchnum->leftoffset = patch->leftoffset;
+  patchnum->topoffset = patch->topoffset;
+  patchnum->lumpnum = lump;
+  R_UnlockPatchNum(lump);
+}
+
+int R_SetSpriteByIndex(patchnum_t *patchnum, spritenum_t item)
+{
+  int result = false;
+  if (item < NUMSPRITES)
+  {
+    int lump = firstspritelump + sprites[item].spriteframes->lump[0];
+    R_SetSpriteByNum(patchnum, lump);
+    result = true;
+  }
+  return result;
+}
+
+int R_SetSpriteByName(patchnum_t *patchnum, const char *name)
+{
+  int result = false;
+  patchnum->lumpnum = (W_CheckNumForName)(name, ns_sprites);
+  if (patchnum->lumpnum != -1)
+  {
+    R_SetSpriteByNum(patchnum, patchnum->lumpnum);
+    result = true;
+  }
+  return result;
+}
+
 // e6y: Added for "GRNROCK" mostly
 void R_SetFloorNum(patchnum_t *patchnum, const char *name)
 {

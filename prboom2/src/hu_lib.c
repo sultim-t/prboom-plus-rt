@@ -184,7 +184,7 @@ void HUlib_drawTextLine
     else  if (c != ' ' && c >= l->sc && c <= 127)
     {
       w = l->f[c - l->sc].width;
-      if (x+w > BASE_WIDTH)
+      if (x+w-l->f[c - l->sc].leftoffset > BASE_WIDTH)
         break;
       // killough 1/18/98 -- support multiple lines:
       // CPhipps - patch drawing updated

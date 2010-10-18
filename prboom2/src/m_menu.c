@@ -4695,12 +4695,8 @@ dboolean M_Responder (event_t* ev) {
       else
         {
         hud_displayed = 1;               //jff 3/3/98 turn hud on
-        hud_active = (hud_active+1)%3;   // cycle hud_active
-        if (!hud_active)                 //jff 3/4/98 add distributed
-          {
-          hud_distributed = !hud_distributed; // to cycle
-          HU_MoveHud(true); //jff 3/9/98 move it now to avoid glitch
-          }
+        HU_NextHud();
+        HU_MoveHud(true);                //jff 3/9/98 move it now to avoid glitch
         }
       return true;
       }
