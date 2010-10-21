@@ -499,7 +499,7 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
 
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
-  glScissor(viewwindowx, SCREENHEIGHT-(viewheight+viewwindowy), viewwidth, viewheight);
+  glScissor(0, ST_SCALED_HEIGHT, SCREENWIDTH, SCREENHEIGHT - ST_SCALED_HEIGHT);
   glEnable(GL_SCISSOR_TEST);
 
   if (automapmode & am_rotate)
