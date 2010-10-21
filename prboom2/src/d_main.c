@@ -314,12 +314,13 @@ void D_Display (void)
       break;
     }
   } else if (gametic != basetic) { // In a level
+    int automap = (automapmode & am_active) && !(automapmode & am_overlay);
     dboolean redrawborderstuff;
 
     HU_Erase();
 
     // Work out if the player view is visible, and if there is a border
-    viewactive = (!(automapmode & am_active) || (automapmode & am_overlay)) && !inhelpscreens;
+    viewactive = !automap && !inhelpscreens;
     isborder = viewactive ? (viewheight != SCREENHEIGHT) : (!inhelpscreens && (automapmode & am_active));
 
     if (oldgamestate != GS_LEVEL) {
@@ -336,8 +337,7 @@ void D_Display (void)
       // e6y
       // I should do it because I call R_RenderPlayerView in all cases,
       // not only if viewactive is true
-      borderwillneedredraw = (borderwillneedredraw) || 
-        (((automapmode & am_active) && !(automapmode & am_overlay)));
+      borderwillneedredraw = borderwillneedredraw || automap;
     }
     if (redrawborderstuff || (V_GetMode() == VID_MODEGL))
       R_DrawViewBorder();
@@ -360,10 +360,18 @@ void D_Display (void)
     if (automapmode & am_active)
       AM_Drawer();
 
-    ST_Drawer((viewheight != SCREENHEIGHT) || ((automapmode & am_active) && !(automapmode & am_overlay)), redrawborderstuff || BorderNeedRefresh);
+    ST_Drawer((viewheight != SCREENHEIGHT) || automap, redrawborderstuff || BorderNeedRefresh);
     BorderNeedRefresh = false;
     if (V_GetMode() != VID_MODEGL)
+    {
       R_DrawViewBorder();
+    }
+    else
+    {
+      // redraw stbar borders over textured automap
+      if (automap && map_textured && (wide_ratio || wide_offsety))
+        R_FillStBarBorders();
+    }
     HU_Drawer();
   }
 
