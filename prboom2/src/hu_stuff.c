@@ -1005,17 +1005,19 @@ void HU_MoveHud(int force)
 
     if (hud[0].x[0] == -1)
     {
+      int n, max = 999;
+      char buf[16];
       for (i = 0; i < NUMAMMO; i++)
       {
         if (maxammo[i] > 999)
         {
-          char buf[16];
-          int n = SNPRINTF(buf, 10, "%d", maxammo[i]);
-          hud[HUD_WEAPON].x[1] -= n * 10;
-          hud[HUD_AMMO].x[1] -= n * 10;
-          break;
+          max = maxammo[i];
         }
       }
+          
+      n = SNPRINTF(buf, 10, "%d", max) - 3;
+      hud[HUD_WEAPON].x[1] -= n * 10;
+      hud[HUD_AMMO].x[1] -= n * 10;
     }
 
     hud[0].x[0] = HU_KEYSGX;
