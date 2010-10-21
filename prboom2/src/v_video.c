@@ -1293,17 +1293,11 @@ void CheckRatio (int width, int height)
     WIDE_SCREENHEIGHT = SCREENHEIGHT;
   }
 
-  ST_SCALED_HEIGHT = ST_HEIGHT;
-  ST_SCALED_WIDTH  = ST_WIDTH;
-
-  while (ST_SCALED_WIDTH * 2 <= SCREENWIDTH && ST_SCALED_HEIGHT * 2 <= SCREENHEIGHT)
-  {
-    ST_SCALED_HEIGHT <<= 1;
-    ST_SCALED_WIDTH <<= 1;
-  }
-
-  patches_scalex = ST_SCALED_HEIGHT / ST_HEIGHT;
-  patches_scaley = ST_SCALED_WIDTH / ST_WIDTH;
+  patches_scalex = MIN(SCREENWIDTH / 320, SCREENHEIGHT / 200);
+  patches_scalex = MAX(1, patches_scalex);
+  patches_scaley = patches_scalex;
+  ST_SCALED_WIDTH = ST_WIDTH * patches_scalex;
+  ST_SCALED_HEIGHT = ST_HEIGHT * patches_scaley;
 
   if (SCREENWIDTH < 320 || WIDE_SCREENWIDTH < 320 ||
       SCREENHEIGHT < 200 || WIDE_SCREENHEIGHT < 200)
