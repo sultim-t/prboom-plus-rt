@@ -499,6 +499,7 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
 
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
+  glEnable(GL_SCISSOR_TEST);
 
   if (automapmode & am_rotate)
   {
@@ -568,6 +569,7 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
 
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
+  glDisable(GL_SCISSOR_TEST);
 }
 
 void gld_ProcessTexturedMap(void)

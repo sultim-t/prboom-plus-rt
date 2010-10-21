@@ -1043,20 +1043,6 @@ void R_InitBuffer(int width, int height)
   }
 }
 
-void R_FillStBarBorders(void)
-{
-  int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
-
-  V_FillFlat(grnrock.lumpnum, 1,
-    0, stbar_top, wide_offsetx, ST_SCALED_HEIGHT, VPT_NONE);
-  V_FillFlat(grnrock.lumpnum, 1,
-    SCREENWIDTH - wide_offsetx, stbar_top, wide_offsetx, ST_SCALED_HEIGHT, VPT_NONE);
-
-  // line between view and status bar
-  V_FillPatch(brdr_b.lumpnum, 1, 0, stbar_top, wide_offsetx, brdr_b.height, VPT_NONE);
-  V_FillPatch(brdr_b.lumpnum, 1, SCREENWIDTH - wide_offsetx, stbar_top, wide_offsetx, brdr_b.height, VPT_NONE);
-}
-
 //
 // R_FillBackScreen
 // Fills the back screen with a pattern
@@ -1088,7 +1074,17 @@ void R_FillBackScreen (void)
 
     if (only_stbar)
     {
-      R_FillStBarBorders();
+      int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
+
+      V_FillFlat(grnrock.lumpnum, 1,
+        0, stbar_top, wide_offsetx, ST_SCALED_HEIGHT, VPT_NONE);
+      V_FillFlat(grnrock.lumpnum, 1,
+        SCREENWIDTH - wide_offsetx, stbar_top, wide_offsetx, ST_SCALED_HEIGHT, VPT_NONE);
+      
+      // line between view and status bar
+      V_FillPatch(brdr_b.lumpnum, 1, 0, stbar_top, wide_offsetx, brdr_b.height, VPT_NONE);
+      V_FillPatch(brdr_b.lumpnum, 1, SCREENWIDTH - wide_offsetx, stbar_top, wide_offsetx, brdr_b.height, VPT_NONE);
+
       return;
     }
   }
