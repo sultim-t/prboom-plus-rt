@@ -1009,10 +1009,7 @@ void HU_MoveHud(int force)
       char buf[16];
       for (i = 0; i < NUMAMMO; i++)
       {
-        if (maxammo[i] > 999)
-        {
-          max = maxammo[i];
-        }
+        max = MAX(max, maxammo[i]);
       }
           
       n = SNPRINTF(buf, 10, "%d", max) - 3;
@@ -1035,8 +1032,18 @@ void HU_MoveHud(int force)
 
     if (hudnum == 3 || hudnum == 7)
     {
-      health_y = MAX(hu_font_hud[1].height, hu_font_hud[2].height);
-      health_y = MAX(health_y, hu_font_hud[0].height) + 2;
+      health_y = 0;
+      // max height for (health / no armor / green armor / blue armor) icons
+      for (i = 0; i < 4; i++)
+      {
+        health_y = MAX(health_y, hu_font_hud[i].height);
+      }
+      // big digits
+      for (i = 0; i < 10; i++)
+      {
+        health_y = MAX(health_y, hu_font_hud[i + '0' - HU_FONTSTART].height);
+      }
+      health_y += 2;
 
       for (i = 0; i <= HUD_HUDADD; i++)
       {
