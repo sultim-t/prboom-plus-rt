@@ -131,6 +131,7 @@ int gl_texture_filter_anisotropic = 0;
 //sprites
 spriteclipmode_t gl_spriteclip;
 const char *gl_spriteclipmodes[] = {"constant", "full", "smart"};
+int gl_spriteclip_threshold;
 int gl_sprite_offset_default;	// item out of floor offset Mead 8/13/03
 float gl_sprite_offset;       // precalcilated float value for gl_sprite_offset_default
 int gl_sprite_blend;  // e6y: smooth sprite edges
@@ -3440,7 +3441,8 @@ void gld_AddSprite(vissprite_t *vspr)
   // e6y
   // if the sprite is below the floor, and it's not a hanger/floater/missile, 
   // and it's not a fully dead corpse, move it up
-  if ((gl_spriteclip != spriteclip_const) && (sprite.y2 < 0) &&
+  if ((gl_spriteclip != spriteclip_const) &&
+      (sprite.y2 < 0) && (sprite.y2 >= (float)(- gl_spriteclip_threshold) / (float)(MAP_COEFF)) &&
       !(pSpr->flags & (MF_SPAWNCEILING|MF_FLOAT|MF_MISSILE|MF_NOGRAVITY)) &&
       ((gl_spriteclip == spriteclip_always) || !((pSpr->flags & MF_CORPSE) && vspr->thing->tics == -1)))
   {
