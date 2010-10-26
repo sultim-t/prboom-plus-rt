@@ -3388,7 +3388,6 @@ static void gld_DrawSprite(GLSprite *sprite)
   }
 }
 
-#define MINZ        (FRACUNIT*4)
 void gld_ProjectSprite(mobj_t* thing)
 {
   fixed_t   tx;

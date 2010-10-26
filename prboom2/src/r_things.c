@@ -43,7 +43,6 @@
 #include "lprintf.h"
 #include "e6y.h"//e6y
 
-#define MINZ        (FRACUNIT*4)
 #define BASEYCENTER 100
 
 typedef struct {

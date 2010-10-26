@@ -40,6 +40,8 @@
 
 #include "r_draw.h"
 
+#define MINZ        (FRACUNIT*4)
+
 extern int r_near_clip_plane;
 
 /* Constant arrays used for psprite clipping and initializing clipping. */
