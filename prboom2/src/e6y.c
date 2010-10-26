@@ -657,6 +657,7 @@ void M_ChangeFOV(void)
 void M_ChangeSpriteClip(void)
 {
   gl_sprite_offset = (gl_spriteclip != spriteclip_const ? 0 : (.01f * (float)gl_sprite_offset_default));
+  gl_spriteclip_threshold_f = (float)gl_spriteclip_threshold / MAP_COEFF;
 }
 
 void ResolveColormapsHiresConflict(dboolean prefer_colormap)

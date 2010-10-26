@@ -74,6 +74,10 @@
 #include "gl_intern.h"
 #include "e6y.h"
 
+static GLdouble viewMatrix[16];
+static GLdouble projMatrix[16];
+float frustum[6][4];
+
 typedef struct clipnode_s
 {
   struct clipnode_s *prev, *next;
@@ -331,4 +335,112 @@ angle_t gld_FrustumAngle(void)
   if (a1 >= ANG180)
     return 0xffffffff;
   return a1;
+}
+
+//
+// gld_FrustrumSetup
+//
+
+#define CALCMATRIX(a, b, c, d, e, f, g, h)\
+  (float)(viewMatrix[a] * projMatrix[b] + \
+  viewMatrix[c] * projMatrix[d] + \
+  viewMatrix[e] * projMatrix[f] + \
+  viewMatrix[g] * projMatrix[h])
+
+#define NORMALIZE_PLANE(i)\
+  t = (float)sqrt(\
+    frustum[i][0] * frustum[i][0] + \
+    frustum[i][1] * frustum[i][1] + \
+    frustum[i][2] * frustum[i][2]); \
+  frustum[i][0] /= t; \
+  frustum[i][1] /= t; \
+  frustum[i][2] /= t; \
+  frustum[i][3] /= t
+
+void gld_FrustrumSetup(void)
+{
+  float t;
+  float clip[16];
+
+  glGetDoublev(GL_PROJECTION_MATRIX, projMatrix);
+  glGetDoublev(GL_MODELVIEW_MATRIX, viewMatrix);
+
+  clip[0]  = CALCMATRIX(0, 0, 1, 4, 2, 8, 3, 12);
+  clip[1]  = CALCMATRIX(0, 1, 1, 5, 2, 9, 3, 13);
+  clip[2]  = CALCMATRIX(0, 2, 1, 6, 2, 10, 3, 14);
+  clip[3]  = CALCMATRIX(0, 3, 1, 7, 2, 11, 3, 15);
+
+  clip[4]  = CALCMATRIX(4, 0, 5, 4, 6, 8, 7, 12);
+  clip[5]  = CALCMATRIX(4, 1, 5, 5, 6, 9, 7, 13);
+  clip[6]  = CALCMATRIX(4, 2, 5, 6, 6, 10, 7, 14);
+  clip[7]  = CALCMATRIX(4, 3, 5, 7, 6, 11, 7, 15);
+
+  clip[8]  = CALCMATRIX(8, 0, 9, 4, 10, 8, 11, 12);
+  clip[9]  = CALCMATRIX(8, 1, 9, 5, 10, 9, 11, 13);
+  clip[10] = CALCMATRIX(8, 2, 9, 6, 10, 10, 11, 14);
+  clip[11] = CALCMATRIX(8, 3, 9, 7, 10, 11, 11, 15);
+
+  clip[12] = CALCMATRIX(12, 0, 13, 4, 14, 8, 15, 12);
+  clip[13] = CALCMATRIX(12, 1, 13, 5, 14, 9, 15, 13);
+  clip[14] = CALCMATRIX(12, 2, 13, 6, 14, 10, 15, 14);
+  clip[15] = CALCMATRIX(12, 3, 13, 7, 14, 11, 15, 15);
+
+  // Right plane
+  frustum[0][0] = clip[ 3] - clip[ 0];
+  frustum[0][1] = clip[ 7] - clip[ 4];
+  frustum[0][2] = clip[11] - clip[ 8];
+  frustum[0][3] = clip[15] - clip[12];
+  NORMALIZE_PLANE(0);
+
+  // Left plane
+  frustum[1][0] = clip[ 3] + clip[ 0];
+  frustum[1][1] = clip[ 7] + clip[ 4];
+  frustum[1][2] = clip[11] + clip[ 8];
+  frustum[1][3] = clip[15] + clip[12];
+  NORMALIZE_PLANE(1);
+
+  // Bottom plane
+  frustum[2][0] = clip[ 3] + clip[ 1];
+  frustum[2][1] = clip[ 7] + clip[ 5];
+  frustum[2][2] = clip[11] + clip[ 9];
+  frustum[2][3] = clip[15] + clip[13];
+  NORMALIZE_PLANE(2);
+
+  // Top plane
+  frustum[3][0] = clip[ 3] - clip[ 1];
+  frustum[3][1] = clip[ 7] - clip[ 5];
+  frustum[3][2] = clip[11] - clip[ 9];
+  frustum[3][3] = clip[15] - clip[13];
+  NORMALIZE_PLANE(3);
+
+  // Far plane
+  frustum[4][0] = clip[ 3] - clip[ 2];
+  frustum[4][1] = clip[ 7] - clip[ 6];
+  frustum[4][2] = clip[11] - clip[10];
+  frustum[4][3] = clip[15] - clip[14];
+  NORMALIZE_PLANE(4);
+
+  // Near plane
+  frustum[5][0] = clip[ 3] + clip[ 2];
+  frustum[5][1] = clip[ 7] + clip[ 6];
+  frustum[5][2] = clip[11] + clip[10];
+  frustum[5][3] = clip[15] + clip[14];
+  NORMALIZE_PLANE(5);
+}
+
+dboolean gld_SphereInFrustum(float x, float y, float z, float radius)
+{
+  int p;
+
+  for (p = 0; p < 4; p++)
+  {
+    if (frustum[p][0] * x +
+        frustum[p][1] * y +
+        frustum[p][2] * z +
+        frustum[p][3] <= -radius)
+    {
+      return false;
+    }
+  }
+  return true;
 }

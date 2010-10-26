@@ -523,8 +523,13 @@ static void R_ProjectSprite (mobj_t* thing)
   fixed_t gxt, gyt;
   fixed_t tz;
   int width;
+
 #ifdef GL_DOOM
-  dboolean mlook = HaveMouseLook() || (render_fov > FOV90);
+  if (V_GetMode() == VID_MODEGL)
+  {
+    gld_ProjectSprite(thing);
+    return;
+  }
 #endif
 
   if (!paused && movement_smooth)
@@ -539,6 +544,7 @@ static void R_ProjectSprite (mobj_t* thing)
     fy = thing->y;
     fz = thing->z;
   }
+
   tr_x = fx - viewx;
   tr_y = fy - viewy;
 
@@ -556,15 +562,6 @@ static void R_ProjectSprite (mobj_t* thing)
   gxt = -FixedMul(tr_x,viewsin);
   gyt = FixedMul(tr_y,viewcos);
   tx = -(gyt+gxt);
-
-//e6y
-#ifdef GL_DOOM
-  if (V_GetMode() == VID_MODEGL && !render_paperitems && mlook)
-  {
-    if (tz >= MINZ && (D_abs(tx)>>5) > tz)
-      return;
-  } else
-#endif
 
   // too far off the side?
   if (D_abs(tx)>(tz<<2))
@@ -628,16 +625,10 @@ static void R_ProjectSprite (mobj_t* thing)
   }
 
   // off the side?
-#ifdef GL_DOOM
-  if(!mlook)//e6y
-#endif
   if (x1 > viewwidth || x2 < 0)
     return;
 
   // killough 4/9/98: clip things which are out of view due to height
-#ifdef GL_DOOM
-  if(!HaveMouseLook() && render_fov <= FOV90)//e6y
-#endif
   // e6y: fix of hanging decoration disappearing in Batman Doom MAP02
   // centeryfrac -> viewheightfrac
   if (fz  > viewz + FixedDiv(viewheightfrac, xscale) ||
@@ -676,20 +667,6 @@ static void R_ProjectSprite (mobj_t* thing)
   vis->gy = fy;
   vis->gz = fz;
 
-#ifdef GL_DOOM
-  if (V_GetMode() == VID_MODEGL)
-  {
-    // proff 11/99: add sprite for OpenGL
-    vis->thing = thing;
-    vis->flip = flip;
-    vis->scale = FixedDiv(projectiony, tz);
-    vis->patch = lump;
-    gld_AddSprite(vis);
-
-    return;
-  }
-#endif
-  
   //vis->isplayersprite = false; // e6y
 
   // killough 3/27/98: save sector for special clipping later

@@ -132,6 +132,8 @@ int gl_texture_filter_anisotropic = 0;
 spriteclipmode_t gl_spriteclip;
 const char *gl_spriteclipmodes[] = {"constant", "full", "smart"};
 int gl_spriteclip_threshold;
+float gl_spriteclip_threshold_f;
+int gl_sprites_frustum_culling;
 int gl_sprite_offset_default;	// item out of floor offset Mead 8/13/03
 float gl_sprite_offset;       // precalcilated float value for gl_sprite_offset_default
 int gl_sprite_blend;  // e6y: smooth sprite edges
@@ -3386,68 +3388,265 @@ static void gld_DrawSprite(GLSprite *sprite)
   }
 }
 
-void gld_AddSprite(vissprite_t *vspr)
+#define MINZ        (FRACUNIT*4)
+void gld_ProjectSprite(mobj_t* thing)
 {
-  mobj_t *pSpr=vspr->thing;
-  GLSprite sprite;
+  fixed_t   tx;
+  spritedef_t   *sprdef;
+  spriteframe_t *sprframe;
+  int       lump;
+  dboolean   flip;
+  int heightsec;      // killough 3/27/98
 
-  sprite.scale=vspr->scale;
-  if ((pSpr->frame & FF_FULLBRIGHT) || show_alive)
+  // transform the origin point
+  //e6y
+  fixed_t tr_x, tr_y;
+  fixed_t fx, fy, fz;
+  fixed_t gxt, gyt;
+  fixed_t tz;
+
+  GLSprite sprite;
+  const rpatch_t* patch;
+
+  int frustum_culling = HaveMouseLook() && gl_sprites_frustum_culling;
+  int mlook = HaveMouseLook() || (render_fov > FOV90);
+
+  if (!paused && movement_smooth)
+  {
+    fx = thing->PrevX + FixedMul (tic_vars.frac, thing->x - thing->PrevX);
+    fy = thing->PrevY + FixedMul (tic_vars.frac, thing->y - thing->PrevY);
+    fz = thing->PrevZ + FixedMul (tic_vars.frac, thing->z - thing->PrevZ);
+  }
+  else
+  {
+    fx = thing->x;
+    fy = thing->y;
+    fz = thing->z;
+  }
+
+  tr_x = fx - viewx;
+  tr_y = fy - viewy;
+
+  gxt = FixedMul(tr_x, viewcos);
+  gyt = -FixedMul(tr_y, viewsin);
+
+  tz = gxt - gyt;
+
+  // thing is behind view plane?
+  if (tz < r_near_clip_plane)
+    return;
+
+  gxt = -FixedMul(tr_x, viewsin);
+  gyt = FixedMul(tr_y, viewcos);
+  tx = -(gyt + gxt);
+
+  //e6y
+  if (!render_paperitems && mlook)
+  {
+    if (tz >= MINZ && (D_abs(tx) >> 5) > tz)
+      return;
+  }
+  else
+  {
+    // too far off the side?
+    if (D_abs(tx) > (tz << 2))
+      return;
+  }
+
+  // decide which patch to use for sprite relative to player
+#ifdef RANGECHECK
+  if ((unsigned) thing->sprite >= (unsigned)numsprites)
+    I_Error ("R_ProjectSprite: Invalid sprite number %i", thing->sprite);
+#endif
+
+  sprdef = &sprites[thing->sprite];
+
+#ifdef RANGECHECK
+  if ((thing->frame&FF_FRAMEMASK) >= sprdef->numframes)
+    I_Error ("R_ProjectSprite: Invalid sprite frame %i : %i", thing->sprite, thing->frame);
+#endif
+
+  if (!sprdef->spriteframes)
+    I_Error("R_ProjectSprite: Missing spriteframes %i : %i", thing->sprite, thing->frame);
+
+  sprframe = &sprdef->spriteframes[thing->frame & FF_FRAMEMASK];
+
+  if (sprframe->rotate)
+  {
+    // choose a different rotation based on player view
+    angle_t ang = R_PointToAngle(fx, fy);
+    unsigned rot = (ang - thing->angle + (unsigned)(ANG45 / 2) * 9) >> 29;
+    lump = sprframe->lump[rot];
+    flip = (dboolean) sprframe->flip[rot];
+  }
+  else
+  {
+    // use single rotation for all views
+    lump = sprframe->lump[0];
+    flip = (dboolean) sprframe->flip[0];
+  }
+  lump += firstspritelump;
+
+  patch = R_CachePatchNum(lump);
+  thing->patch_width = patch->width;
+
+  // killough 4/9/98: clip things which are out of view due to height
+  if(!mlook)
+  {
+    int x1, x2;
+    fixed_t xscale = FixedDiv(projection, tz);
+    /* calculate edges of the shape
+    * cph 2003/08/1 - fraggle points out that this offset must be flipped
+    * if the sprite is flipped; e.g. FreeDoom imp is messed up by this. */
+    if (flip)
+      tx -= (patch->width - patch->leftoffset) << FRACBITS;
+    else
+      tx -= patch->leftoffset << FRACBITS;
+
+    x1 = (centerxfrac + FixedMul(tx, xscale)) >> FRACBITS;
+    tx += patch->width << FRACBITS;
+    x2 = ((centerxfrac + FixedMul (tx, xscale) - FRACUNIT/2) >> FRACBITS);
+
+    // off the side?
+    if (x1 > viewwidth || x2 < 0)
+      return;
+  }
+
+  // killough 3/27/98: exclude things totally separated
+  // from the viewer, by either water or fake ceilings
+  // killough 4/11/98: improve sprite clipping for underwater/fake ceilings
+
+  heightsec = thing->subsector->sector->heightsec;
+  if (heightsec != -1)   // only clip things which are in special sectors
+  {
+    int phs = viewplayer->mo->subsector->sector->heightsec;
+    fixed_t gzt = fz + (patch->topoffset << FRACBITS);
+    if (phs != -1 && viewz < sectors[phs].floorheight ?
+        fz >= sectors[heightsec].floorheight :
+        gzt < sectors[heightsec].floorheight)
+      return;
+    if (phs != -1 && viewz > sectors[phs].ceilingheight ?
+        gzt < sectors[heightsec].ceilingheight && viewz >= sectors[heightsec].ceilingheight :
+        fz >= sectors[heightsec].ceilingheight)
+      return;
+  }
+
+  //e6y FIXME!!!
+  if (thing == players[displayplayer].mo && walkcamera.type != 2)
+    return;
+
+  sprite.x =-(float)fx / MAP_SCALE;
+  sprite.y = (float)fz / MAP_SCALE;
+  sprite.z = (float)fy / MAP_SCALE;
+
+  // Bring items up out of floor by configurable amount times .01 Mead 8/13/03
+  sprite.y += gl_sprite_offset;
+
+  sprite.x2 = (float)patch->leftoffset / MAP_COEFF;
+  sprite.x1 = sprite.x2 - ((float)patch->width / MAP_COEFF);
+  sprite.y1 = (float)patch->topoffset / MAP_COEFF;
+  sprite.y2 = sprite.y1 - ((float)patch->height / MAP_COEFF);
+
+  // e6y
+  // if the sprite is below the floor, and it's not a hanger/floater/missile, 
+  // and it's not a fully dead corpse, move it up
+  if ((gl_spriteclip != spriteclip_const) &&
+      (sprite.y2 < 0) && (sprite.y2 >= (float)(-gl_spriteclip_threshold_f)) &&
+      !(thing->flags & (MF_SPAWNCEILING|MF_FLOAT|MF_MISSILE|MF_NOGRAVITY)) &&
+      ((gl_spriteclip == spriteclip_always) || !((thing->flags & MF_CORPSE) && thing->tics == -1)))
+  {
+    sprite.y1 -= sprite.y2;
+    sprite.y2 = 0.0f;
+  }
+
+  if (frustum_culling)
+  {
+    if (!gld_SphereInFrustum(
+      sprite.x + cos_inv_yaw * (sprite.x1 + sprite.x2) / 2.0f,
+      sprite.y + gl_sprite_offset + (float)fabs(sprite.y1 - sprite.y2) / 2.0f,
+      sprite.z - sin_inv_yaw * (sprite.x1 + sprite.x2) / 2.0f,
+      //1.5 == sqrt(2) + small delta for MF_FOREGROUND
+      (float)(MAX(patch->width, patch->height)) / MAP_COEFF * 1.5f))
+    {
+      return;
+    }
+  }
+
+  if (!render_paperitems && !(thing->flags & (MF_SOLID | MF_SPAWNCEILING)))
+  {
+    float x1, x2, x3, x4, z1, z2, z3, z4;
+    float y1, y2, cy, ycenter, y1c, y2c;
+    float y1z2_y, y2z2_y;
+
+    ycenter = (float)fabs(sprite.y1 - sprite.y2) * 0.5f;
+    y1c = sprite.y1 - ycenter;
+    y2c = sprite.y2 - ycenter;
+    cy = sprite.y + ycenter;
+
+    y1z2_y = -(y1c * sin_paperitems_pitch);
+    y2z2_y = -(y2c * sin_paperitems_pitch);
+
+    x1 = +(sprite.x1 * cos_inv_yaw - y1z2_y * sin_inv_yaw) + sprite.x;
+    x2 = +(sprite.x2 * cos_inv_yaw - y1z2_y * sin_inv_yaw) + sprite.x;
+    x3 = +(sprite.x1 * cos_inv_yaw - y2z2_y * sin_inv_yaw) + sprite.x;
+    x4 = +(sprite.x2 * cos_inv_yaw - y2z2_y * sin_inv_yaw) + sprite.x;
+
+    y1 = +(y1c * cos_paperitems_pitch) + cy;
+    y2 = +(y2c * cos_paperitems_pitch) + cy;
+
+    z1 = -(sprite.x1 * sin_inv_yaw + y1z2_y * cos_inv_yaw) + sprite.z;
+    z2 = -(sprite.x2 * sin_inv_yaw + y1z2_y * cos_inv_yaw) + sprite.z;
+    z3 = -(sprite.x1 * sin_inv_yaw + y2z2_y * cos_inv_yaw) + sprite.z;
+    z4 = -(sprite.x2 * sin_inv_yaw + y2z2_y * cos_inv_yaw) + sprite.z;
+  }
+  else
+  {
+    float x1, x2, y1, y2, z1, z2;
+
+    x1 = +(sprite.x1 * cos_inv_yaw) + sprite.x;
+    x2 = +(sprite.x2 * cos_inv_yaw) + sprite.x;
+
+    y1 = sprite.y + sprite.y1;
+    y2 = sprite.y + sprite.y2;
+
+    z2 = -(sprite.x1 * sin_inv_yaw) + sprite.z;
+    z1 = -(sprite.x2 * sin_inv_yaw) + sprite.z;
+  }
+
+  sprite.scale = FixedDiv(projectiony, tz);;
+  if ((thing->frame & FF_FULLBRIGHT) || show_alive)
   {
     sprite.fogdensity = 0.0f;
     sprite.light = 1.0f;
   }
   else
   {
-    sprite.light = gld_CalcLightLevel(pSpr->subsector->sector->lightlevel+(extralight<<5));
-    sprite.fogdensity = gld_CalcFogDensity(pSpr->subsector->sector, pSpr->subsector->sector->lightlevel, GLDIT_SPRITE);
+    sprite.light = gld_CalcLightLevel(thing->subsector->sector->lightlevel+(extralight<<5));
+    sprite.fogdensity = gld_CalcFogDensity(thing->subsector->sector, thing->subsector->sector->lightlevel, GLDIT_SPRITE);
   }
-  sprite.cm=CR_LIMIT+(int)((pSpr->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
-  sprite.gltexture=gld_RegisterPatch(vspr->patch+firstspritelump,sprite.cm);
+  sprite.cm = CR_LIMIT + (int)((thing->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
+  sprite.gltexture = gld_RegisterPatch(lump, sprite.cm);
   if (!sprite.gltexture)
     return;
-  sprite.flags = pSpr->flags;
+  sprite.flags = thing->flags;
 
-  if (pSpr->flags & MF_FOREGROUND)
+  if (thing->flags & MF_FOREGROUND)
     scene_has_overlapped_sprites = true;
 
   sprite.index = gl_spriteindex++;
-  sprite.xy = vspr->thing->x + (vspr->thing->y >> 16); 
+  sprite.xy = thing->x + (thing->y >> 16); 
 
-  sprite.x =-(float)vspr->gx / MAP_SCALE;
-  sprite.y = (float)vspr->gz / MAP_SCALE;
-  sprite.z = (float)vspr->gy / MAP_SCALE;
-
-  // Bring items up out of floor by configurable amount times .01 Mead 8/13/03
-  sprite.y += gl_sprite_offset;
-
-  sprite.vt=0.0f;
-  sprite.vb=sprite.gltexture->scaleyfac;
-  if (vspr->flip)
+  sprite.vt = 0.0f;
+  sprite.vb = sprite.gltexture->scaleyfac;
+  if (flip)
   {
-    sprite.ul=0.0f;
-    sprite.ur=sprite.gltexture->scalexfac;
+    sprite.ul = 0.0f;
+    sprite.ur = sprite.gltexture->scalexfac;
   }
   else
   {
-    sprite.ul=sprite.gltexture->scalexfac;
-    sprite.ur=0.0f;
-  }
-  sprite.x2=(float)sprite.gltexture->leftoffset/(float)(MAP_COEFF);
-  sprite.x1=sprite.x2-((float)sprite.gltexture->realtexwidth/(float)(MAP_COEFF));
-  sprite.y1=(float)sprite.gltexture->topoffset/(float)(MAP_COEFF);
-  sprite.y2=sprite.y1-((float)sprite.gltexture->realtexheight/(float)(MAP_COEFF));
-  
-  // e6y
-  // if the sprite is below the floor, and it's not a hanger/floater/missile, 
-  // and it's not a fully dead corpse, move it up
-  if ((gl_spriteclip != spriteclip_const) &&
-      (sprite.y2 < 0) && (sprite.y2 >= (float)(- gl_spriteclip_threshold) / (float)(MAP_COEFF)) &&
-      !(pSpr->flags & (MF_SPAWNCEILING|MF_FLOAT|MF_MISSILE|MF_NOGRAVITY)) &&
-      ((gl_spriteclip == spriteclip_always) || !((pSpr->flags & MF_CORPSE) && vspr->thing->tics == -1)))
-  {
-    sprite.y1 -= sprite.y2;
-    sprite.y2 = 0.0f;
+    sprite.ul = sprite.gltexture->scalexfac;
+    sprite.ur = 0.0f;
   }
 
   //e6y: support for transparent sprites
@@ -3458,7 +3657,7 @@ void gld_AddSprite(vissprite_t *vspr)
   else
   {
     gld_AddDrawItem((gl_sprite_blend || (sprite.flags & (MF_SHADOW | MF_TRANSLUCENT)) ? GLDIT_TSPRITE : GLDIT_SPRITE), &sprite);
-    gld_ProcessThingShadow(pSpr);
+    gld_ProcessThingShadow(thing);
   }
 }
 

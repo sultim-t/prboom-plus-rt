@@ -122,7 +122,7 @@ void gld_InitDrawScene(void);
 void gld_StartDrawScene(void);
 void gld_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling);
 void gld_AddWall(seg_t *seg);
-void gld_AddSprite(vissprite_t *vspr);
+void gld_ProjectSprite(mobj_t* thing);
 void gld_DrawScene(player_t *player);
 void gld_EndDrawScene(void);
 void gld_Finish();
@@ -168,6 +168,8 @@ dboolean gld_clipper_SafeCheckRange(angle_t startAngle, angle_t endAngle);
 void gld_clipper_SafeAddClipRange(angle_t startangle, angle_t endangle);
 void gld_clipper_Clear(void);
 angle_t gld_FrustumAngle(void);
+void gld_FrustrumSetup(void);
+dboolean gld_SphereInFrustum(float x, float y, float z, float radius);
 
 //missing flats (fake floors and ceilings)
 extern dboolean gl_use_stencil;
@@ -205,6 +207,8 @@ typedef enum { spriteclip_const, spriteclip_always, spriteclip_smart } spritecli
 extern spriteclipmode_t gl_spriteclip;
 extern const char *gl_spriteclipmodes[];
 extern int gl_spriteclip_threshold;
+extern float gl_spriteclip_threshold_f;
+extern int gl_sprites_frustum_culling;
 extern int gl_sprite_offset_default;
 extern float gl_sprite_offset;
 extern int gl_sprite_blend;

@@ -40,6 +40,8 @@
 
 #include "r_draw.h"
 
+extern int r_near_clip_plane;
+
 /* Constant arrays used for psprite clipping and initializing clipping. */
 
 // e6y: resolution limitation is removed

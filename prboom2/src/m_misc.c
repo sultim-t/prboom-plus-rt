@@ -934,6 +934,8 @@ default_t defaults[] =
   {"gl_spriteclip",{(int*)&gl_spriteclip},{spriteclip_smart}, spriteclip_const, spriteclip_smart, def_int,ss_none},
    {"gl_spriteclip_threshold", {&gl_spriteclip_threshold},  {10},0,100,
    def_int,ss_stat},
+   {"gl_sprites_frustum_culling", {&gl_sprites_frustum_culling},  {1},0,1,
+   def_bool,ss_stat},
   {"movement_mouselook", {&movement_mouselook},  {0},0,1,
    def_bool,ss_stat},
   {"movement_maxviewpitch", {&movement_maxviewpitch},  {90},0,90,
