@@ -1393,11 +1393,19 @@ void A_SargAttack(mobj_t *actor)
   if (!actor->target)
     return;
   A_FaceTarget(actor);
+  if (compatibility_level == doom_12_compatibility)
+  {
+    int damage = ((P_Random(pr_sargattack)%10)+1)*4;
+    P_LineAttack(actor, actor->angle, MELEERANGE, 0, damage);
+  }
+  else
+  {
   if (P_CheckMeleeRange(actor))
     {
       int damage = ((P_Random(pr_sargattack)%10)+1)*4;
       P_DamageMobj(actor->target, actor, actor, damage);
     }
+  }
 }
 
 void A_HeadAttack(mobj_t *actor)
