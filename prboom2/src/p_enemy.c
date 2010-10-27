@@ -141,7 +141,9 @@ static dboolean P_CheckMeleeRange(mobj_t *actor)
   return  // killough 7/18/98: friendly monsters don't attack other friends
     pl && !(actor->flags & pl->flags & MF_FRIEND) &&
     (P_AproxDistance(pl->x-actor->x, pl->y-actor->y) <
-     MELEERANGE - 20*FRACUNIT + pl->info->radius) &&
+     (compatibility_level == doom_12_compatibility ?
+      MELEERANGE :
+      MELEERANGE - 20*FRACUNIT + pl->info->radius)) &&
     P_CheckSight(actor, actor->target);
 }
 
