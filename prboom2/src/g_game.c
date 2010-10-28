@@ -2553,6 +2553,11 @@ void G_RecordDemo (const char* name)
   if (access(demoname, F_OK) || democontinue ||
      (demo_compatibility && demo_overwriteexisting))
   {
+    if (strlen(demoname) > 4
+        && !strcasecmp(demoname+strlen(demoname)-4, ".wad"))
+      I_Error("G_RecordDemo: Cowardly refusing to record over "
+              "what appears to be a WAD. (%s)", demoname);
+
     demofp = fopen(demoname, "wb");
   }
   else
