@@ -1124,10 +1124,17 @@ void A_Chase(mobj_t *actor)
     actor->reactiontime--;
 
   if (actor->threshold) { /* modify target threshold */
-    if (!actor->target || actor->target->health <= 0)
-      actor->threshold = 0;
-    else
+    if (compatibility_level == doom_12_compatibility)
+    {
       actor->threshold--;
+    }
+    else
+    {
+      if (!actor->target || actor->target->health <= 0)
+        actor->threshold = 0;
+      else
+        actor->threshold--;
+    }
   }
 
   /* turn towards movement direction if not there yet
