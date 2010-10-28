@@ -521,7 +521,8 @@ manual_floor://e6y
         floor->sector = sec;
         floor->speed = FLOORSPEED * 4;
         floor->floordestheight = P_FindHighestFloorSurrounding(sec);
-        if (floor->floordestheight != sec->floorheight)
+        if (compatibility_level == doom_12_compatibility ||
+            floor->floordestheight != sec->floorheight)
           floor->floordestheight += 8*FRACUNIT;
         break;
 
