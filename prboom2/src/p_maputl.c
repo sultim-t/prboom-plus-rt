@@ -111,7 +111,7 @@ int PUREFUNC P_BoxOnLineSide(const fixed_t *tmbox, const line_t *ld)
 //
 // killough 5/3/98: reformatted, cleaned up
 
-static int PUREFUNC P_PointOnDivlineSide(fixed_t x, fixed_t y, const divline_t *line)
+int PUREFUNC P_PointOnDivlineSide(fixed_t x, fixed_t y, const divline_t *line)
 {
   return
     !line->dx ? x <= line->x ? line->dy > 0 : line->dy < 0 :
@@ -124,7 +124,7 @@ static int PUREFUNC P_PointOnDivlineSide(fixed_t x, fixed_t y, const divline_t *
 // P_MakeDivline
 //
 
-static void P_MakeDivline(const line_t *li, divline_t *dl)
+void P_MakeDivline(const line_t *li, divline_t *dl)
 {
   dl->x = li->v1->x;
   dl->y = li->v1->y;
@@ -415,10 +415,10 @@ dboolean P_BlockThingsIterator(int x, int y, dboolean func(mobj_t*))
 //
 
 // 1/11/98 killough: Intercept limit removed
-static intercept_t *intercepts, *intercept_p;
+intercept_t *intercepts, *intercept_p;
 
 // Check for limit and double size if necessary -- killough
-static void check_intercept(void)
+void check_intercept(void)
 {
   static size_t num_intercepts;
   size_t offset = intercept_p - intercepts;

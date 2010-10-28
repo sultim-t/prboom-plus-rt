@@ -72,6 +72,11 @@ fixed_t PUREFUNC  P_InterceptVector (const divline_t *v2, const divline_t *v1);
 /* cph - old compatibility version below */
 fixed_t PUREFUNC  P_InterceptVector2(const divline_t *v2, const divline_t *v1);
 
+extern intercept_t *intercepts, *intercept_p;
+void P_MakeDivline(const line_t *li, divline_t *dl);
+int PUREFUNC P_PointOnDivlineSide(fixed_t x, fixed_t y, const divline_t *line);
+void check_intercept(void);
+
 void    P_LineOpening (const line_t *linedef);
 void    P_UnsetThingPosition(mobj_t *thing);
 void    P_SetThingPosition(mobj_t *thing);
