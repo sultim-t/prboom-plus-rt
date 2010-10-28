@@ -1945,7 +1945,10 @@ dboolean PIT_ChangeSector (mobj_t* thing)
     {
     P_SetMobjState (thing, S_GIBS);
 
-    thing->flags &= ~MF_SOLID;
+    if (compatibility_level != doom_12_compatibility)
+    {
+      thing->flags &= ~MF_SOLID;
+    }
     thing->height = 0;
     thing->radius = 0;
     return true; // keep checking
