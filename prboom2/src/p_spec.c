@@ -1226,11 +1226,20 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
   //  Things that should never trigger lines
   //
   // e6y: Improved support for Doom v1.2
-  if (!thing->player && compatibility_level > doom_12_compatibility)
+  if (compatibility_level == doom_12_compatibility)
   {
-    // Things that should NOT trigger specials...
-    switch(thing->type)
+    if (line->special > 98 && line->special != 104)
     {
+      return;
+    }
+  }
+  else
+  {
+    if (!thing->player)
+    {
+      // Things that should NOT trigger specials...
+      switch(thing->type)
+      {
       case MT_ROCKET:
       case MT_PLASMA:
       case MT_BFG:
@@ -1241,6 +1250,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
         break;
 
       default: break;
+      }
     }
   }
 
