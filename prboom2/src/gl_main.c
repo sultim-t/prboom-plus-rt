@@ -275,7 +275,7 @@ void gld_MultisamplingSet(void)
   }
 }
 
-void gld_LoadGLDefs(const char * defsLump)
+int gld_LoadGLDefs(const char * defsLump)
 {
   // these are the core types available in the *DEFS lump
   static const char *CoreKeywords[]=
@@ -293,6 +293,8 @@ void gld_LoadGLDefs(const char * defsLump)
     TAG_MAX,
   };
 
+  int result = false;
+
   if (W_CheckNumForName(defsLump) != -1)
   {
     SC_OpenLump(defsLump);
@@ -303,9 +305,11 @@ void gld_LoadGLDefs(const char * defsLump)
       switch (SC_MatchString(CoreKeywords))
       {
       case TAG_SKYBOX:
+        result = true;
         gld_ParseSkybox();
         break;
       case TAG_DETAIL:
+        result = true;
         gld_ParseDetail();
         break;
       }
@@ -313,6 +317,8 @@ void gld_LoadGLDefs(const char * defsLump)
 
     SC_Close();
   }
+
+  return result;
 }
 
 
@@ -407,7 +413,10 @@ void gld_Init(int width, int height)
   atexit(gld_FreeScreenSizeFBO);
 #endif
 
-  gld_LoadGLDefs("GLDEFS");
+  if( !gld_LoadGLDefs("GLBDEFS"))
+  {
+    gld_LoadGLDefs("GLDEFS");
+  }
 
   atexit(gld_CleanMemory); //e6y
 }
