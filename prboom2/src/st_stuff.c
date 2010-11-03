@@ -760,7 +760,7 @@ static void ST_doPaletteStuff(void)
 
 static void ST_drawWidgets(boolean refresh)
 {
-  int i;
+  int i, ammolevel;
 
   // used by w_arms[] widgets
   st_armson = st_statusbaron && !deathmatch;
@@ -769,20 +769,18 @@ static void ST_drawWidgets(boolean refresh)
   st_fragson = deathmatch && st_statusbaron;
 
   //jff 2/16/98 make color of ammo depend on amount
-  //djsd 12/01/10 add empty, full. It'd be nice to handle 1 shell in SSG,
-  //but dehacked patches might mean it isn't a two-shell weapon.
-  if (*w_ready.num == 0)
+  //djsd 12/01/10 add empty, full.
+  ammolevel = P_GetAmmoLevel(plyr, w_ready.data); // handles BFG/SSG
+  if (ammolevel == 0)
     STlib_updateNum(&w_ready, CR_GRAY, refresh);
-  else if (*w_ready.num == plyr->maxammo[weaponinfo[w_ready.data].ammo])
+  else if (ammolevel >= 100)
     STlib_updateNum(&w_ready, CR_BLUE2, refresh);
-  else if (*w_ready.num*100 < ammo_red*plyr->maxammo[weaponinfo[w_ready.data].ammo])
+  else if (ammolevel < ammo_red)
     STlib_updateNum(&w_ready, CR_RED, refresh);
+  else if (ammolevel < ammo_yellow)
+    STlib_updateNum(&w_ready, CR_GOLD, refresh);
   else
-    if (*w_ready.num*100 <
-        ammo_yellow*plyr->maxammo[weaponinfo[w_ready.data].ammo])
-      STlib_updateNum(&w_ready, CR_GOLD, refresh);
-    else
-      STlib_updateNum(&w_ready, CR_GREEN, refresh);
+    STlib_updateNum(&w_ready, CR_GREEN, refresh);
 
   for (i=0;i<4;i++)
     {

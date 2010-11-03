@@ -807,8 +807,8 @@ void HU_Drawer(void)
       {
         int ammo = plr->ammo[weaponinfo[plr->readyweapon].ammo];
         int fullammo = plr->maxammo[weaponinfo[plr->readyweapon].ammo];
-        int ammopct = (100*ammo)/fullammo;
-        int ammobars = ammopct/4;
+        int ammolevel = P_GetAmmoLevel(plr, plr->readyweapon);
+        int ammobars = ammolevel/4;
 
         // build the numeric amount init string
         sprintf(ammostr,"%d/%d",ammo,fullammo);
@@ -838,13 +838,13 @@ void HU_Drawer(void)
         strcat(hud_ammostr,ammostr);
 
         // set the display color from the percentage of total ammo held
-        if (ammo == 0)
+        if (ammolevel == 0)
           w_ammo.cm = CR_BROWN;
-        else if (ammo == fullammo)
+        else if (ammolevel >= 100)
           w_ammo.cm = CR_BLUE;
-        else if (ammopct<ammo_red)
+        else if (ammolevel < ammo_red)
           w_ammo.cm = CR_RED;
-        else if (ammopct<ammo_yellow)
+        else if (ammolevel < ammo_yellow)
           w_ammo.cm = CR_GOLD;
         else
           w_ammo.cm = CR_GREEN;
@@ -967,8 +967,7 @@ void HU_Drawer(void)
     // do the hud weapon display
     if (doit)
     {
-      int w;
-      int ammo,fullammo,ammopct;
+      int w, ammolevel;
 
       // clear the widgets internal line
       HUlib_clearTextLine(&w_weapon);
@@ -996,27 +995,23 @@ void HU_Drawer(void)
         }
         if (!ok) continue;
 
-        ammo = plr->ammo[weaponinfo[w].ammo];
-        fullammo = plr->maxammo[weaponinfo[w].ammo];
-        ammopct=0;
-
         // skip weapons not currently posessed
         if (!plr->weaponowned[w])
           continue;
 
-        ammopct = fullammo? (100*ammo)/fullammo : 100;
+        ammolevel = P_GetAmmoLevel(plr, w);
 
         // display each weapon number in a color related to the ammo for it
         hud_weapstr[i++] = '\x1b'; //jff 3/26/98 use ESC not '\' for paths
         if (weaponinfo[w].ammo==am_noammo) //jff 3/14/98 show berserk on HUD
           hud_weapstr[i++] = plr->powers[pw_strength]? '0'+CR_GREEN : '0'+CR_GRAY;
-        else if (ammo == 0)
+        else if (ammolevel == 0)
           hud_weapstr[i++] = '0'+CR_BROWN;
-        else if (ammo == fullammo)
+        else if (ammolevel >= 100)
           hud_weapstr[i++] = '0'+CR_BLUE;
-        else if (ammopct<ammo_red)
+        else if (ammolevel < ammo_red)
           hud_weapstr[i++] = '0'+CR_RED;
-        else if (ammopct<ammo_yellow)
+        else if (ammolevel < ammo_yellow)
           hud_weapstr[i++] = '0'+CR_GOLD;
         else
           hud_weapstr[i++] = '0'+CR_GREEN;
