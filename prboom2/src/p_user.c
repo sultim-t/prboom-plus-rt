@@ -114,11 +114,14 @@ void P_CalcHeight (player_t* player)
    * it causes bobbing jerkiness when the player moves from ice to non-ice,
    * and vice-versa.
    */
-  player->bob = !mbf_features ?
-    (FixedMul (player->mo->momx, player->mo->momx)
-     + FixedMul (player->mo->momy,player->mo->momy))>>2 :
-    player_bobbing ? (FixedMul(player->momx,player->momx) +
-        FixedMul(player->momy,player->momy))>>2 : 0;
+  if (!demo_compatibility && !player_bobbing)
+    player->bob = 0;
+  else if (mbf_features)
+    player->bob = (FixedMul(player->momx, player->momx) +
+                   FixedMul(player->momy, player->momy))>>2;
+  else
+    player->bob = (FixedMul(player->mo->momx, player->mo->momx) +
+                   FixedMul(player->mo->momy, player->mo->momy))>>2;
 
     //e6y
     if (compatibility_level >= boom_202_compatibility && 
