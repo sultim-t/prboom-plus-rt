@@ -838,7 +838,11 @@ void HU_Drawer(void)
         strcat(hud_ammostr,ammostr);
 
         // set the display color from the percentage of total ammo held
-        if (ammopct<ammo_red)
+        if (ammo == 0)
+          w_ammo.cm = CR_BROWN;
+        else if (ammo == fullammo)
+          w_ammo.cm = CR_BLUE;
+        else if (ammopct<ammo_red)
           w_ammo.cm = CR_RED;
         else if (ammopct<ammo_yellow)
           w_ammo.cm = CR_GOLD;
@@ -1006,6 +1010,10 @@ void HU_Drawer(void)
         hud_weapstr[i++] = '\x1b'; //jff 3/26/98 use ESC not '\' for paths
         if (weaponinfo[w].ammo==am_noammo) //jff 3/14/98 show berserk on HUD
           hud_weapstr[i++] = plr->powers[pw_strength]? '0'+CR_GREEN : '0'+CR_GRAY;
+        else if (ammo == 0)
+          hud_weapstr[i++] = '0'+CR_BROWN;
+        else if (ammo == fullammo)
+          hud_weapstr[i++] = '0'+CR_BLUE;
         else if (ammopct<ammo_red)
           hud_weapstr[i++] = '0'+CR_RED;
         else if (ammopct<ammo_yellow)

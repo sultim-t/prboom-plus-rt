@@ -769,7 +769,13 @@ static void ST_drawWidgets(boolean refresh)
   st_fragson = deathmatch && st_statusbaron;
 
   //jff 2/16/98 make color of ammo depend on amount
-  if (*w_ready.num*100 < ammo_red*plyr->maxammo[weaponinfo[w_ready.data].ammo])
+  //djsd 12/01/10 add empty, full. It'd be nice to handle 1 shell in SSG,
+  //but dehacked patches might mean it isn't a two-shell weapon.
+  if (*w_ready.num == 0)
+    STlib_updateNum(&w_ready, CR_GRAY, refresh);
+  else if (*w_ready.num == plyr->maxammo[weaponinfo[w_ready.data].ammo])
+    STlib_updateNum(&w_ready, CR_BLUE2, refresh);
+  else if (*w_ready.num*100 < ammo_red*plyr->maxammo[weaponinfo[w_ready.data].ammo])
     STlib_updateNum(&w_ready, CR_RED, refresh);
   else
     if (*w_ready.num*100 <
