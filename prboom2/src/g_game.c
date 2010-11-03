@@ -3124,8 +3124,6 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
   // because demobuffer can be uninitialized
   const byte *header_p = demo_p;
 
-  const byte *option_p = NULL;      /* killough 11/98 */
-
   dboolean failonerror = (params&RDH_SAFE);
 
   basetic = gametic;  // killough 9/29/98
@@ -3226,10 +3224,6 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
           // e6y: detection of more unsupported demo formats
           if (*(header_p + size - 1) == DEMOMARKER)
           {
-            int game = 0;
-            
-            if ((size - 8) % 4 == 0) game |= 1;
-            
             // file size test;
             // DOOM_old and HERETIC don't use maps>9;
             // 2 at 4,6 means playerclass=mage -> not DOOM_old or HERETIC;
@@ -3314,10 +3308,6 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
       map = *demo_p++;
       deathmatch = *demo_p++;
       consoleplayer = *demo_p++;
-
-      /* killough 11/98: save option pointer for below */
-      if (mbf_features)
-	option_p = demo_p;
 
       //e6y: check for overrun
       if (CheckForOverrun(header_p, demo_p, size, GAME_OPTION_SIZE, failonerror))

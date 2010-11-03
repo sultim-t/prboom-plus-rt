@@ -242,7 +242,6 @@ extern int     showMessages;
 
 void D_Display (void)
 {
-  static dboolean inhelpscreensstate   = false;
   static dboolean isborderstate        = false;
   static dboolean borderwillneedredraw = false;
   static gamestate_t oldgamestate = -1;
@@ -367,7 +366,6 @@ void D_Display (void)
     HU_Drawer();
   }
 
-  inhelpscreensstate = inhelpscreens;
   isborderstate      = isborder;
   oldgamestate = wipegamestate = gamestate;
 

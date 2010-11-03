@@ -4275,10 +4275,6 @@ dboolean M_Responder (event_t* ev) {
   int    i;
   static int joywait   = 0;
   static int mousewait = 0;
-  static int mousey    = 0;
-  static int lasty     = 0;
-  static int mousex    = 0;
-  static int lastx     = 0;
 
   ch = -1; // will be changed to a legit char if we're going to use it here
 
