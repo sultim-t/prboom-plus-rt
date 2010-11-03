@@ -226,6 +226,46 @@ int P_WeaponPreferred(int w1, int w2)
    ))))))))))))))));
 }
 
+// P_GetAmmoLevel
+// split out of P_CheckAmmo
+// given a player and a weapon type, returns a number [0,100]
+//  describing how fully loaded the weapon is.
+// special cased to return 0 for weapons that cannot be fired.
+// also used by the status bar and HUD for number colouring.
+
+int P_GetAmmoLevel(player_t *player, weapontype_t weapon)
+{
+  ammotype_t ammo = weaponinfo[weapon].ammo;
+  int current, min, max, result;
+
+  if (weapon == wp_bfg) // Minimal amount for one shot varies.
+    min = BFGCELLS;
+  else if (weapon == wp_supershotgun) // Double barrel.
+    min = 2;
+  else
+    min = 1; // Regular
+
+  current = player->ammo[ammo];
+  max = player->maxammo[ammo];
+
+  if (ammo == am_noammo // no ammunition => always full
+      || current >= max // weapon is full
+      || max == 0) // avoid div-by-zero
+    result = 100;
+  else if (current < min) // weapon is empty
+    result = 0;
+  else
+  {
+    // this division may still give 0 for sufficiently large
+    // values of max. make sure the weapon can still be fired.
+    result = (100 * current) / max;
+    if (result < 1)
+      result = 1;
+  }
+
+  return result;
+}
+
 //
 // P_CheckAmmo
 // Returns true if there is enough ammo to shoot.
