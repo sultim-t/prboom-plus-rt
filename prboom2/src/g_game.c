@@ -1989,6 +1989,14 @@ void G_Compatibility(void)
 
     monkeys = 0;
   }
+
+  if (demo_compatibility) {
+    allow_pushers = 0;
+    variable_friction = 0;
+    monsters_remember = 0;
+    weapon_recoil = 0;
+    player_bobbing = 1;
+  }
 }
 
 #ifdef DOGS
