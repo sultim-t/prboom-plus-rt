@@ -95,18 +95,12 @@ static int write_png(
 {
   int result = -1;
   int rgb = (scr->format->palette == NULL);
-  unsigned char *pixel_data;
-  size_t pixel_size;
+  size_t pixel_size = rgb ? sizeof(png_color) : 1; // sizeof(char) == 1
+  unsigned char *row_data = malloc(scr->w * pixel_size);
 
-  if (rgb)
-    pixel_size = sizeof(png_color);
-  else
-    pixel_size = sizeof(*pixel_data);
-
-  pixel_data = malloc(scr->w * scr->h * pixel_size);
-
-  if (pixel_data)
+  if (row_data)
   {
+#if 0
     int lock_needed = SDL_MUSTLOCK(scr);
     int lock_was_successful = 0;
 
@@ -134,8 +128,9 @@ static int write_png(
 
       result = 0;
     }
+#endif
 
-    free(pixel_data);
+    free(row_data);
   }
   return result;
 }
