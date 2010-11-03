@@ -116,12 +116,13 @@ void P_CalcHeight (player_t* player)
    */
   if (!demo_compatibility && !player_bobbing)
     player->bob = 0;
-  else if (mbf_features)
-    player->bob = (FixedMul(player->momx, player->momx) +
-                   FixedMul(player->momy, player->momy))>>2;
   else
-    player->bob = (FixedMul(player->mo->momx, player->mo->momx) +
-                   FixedMul(player->mo->momy, player->mo->momy))>>2;
+  {
+    fixed_t x = mbf_features ? player->momx : player->mo->momx;
+    fixed_t y = mbf_features ? player->momy : player->mo->momy;
+
+    player->bob = (FixedMul(x,x) + FixedMul(y,y)) >> 2;
+  }
 
     //e6y
     if (compatibility_level >= boom_202_compatibility && 
