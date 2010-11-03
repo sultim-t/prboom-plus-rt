@@ -275,19 +275,7 @@ int P_GetAmmoLevel(player_t *player, weapontype_t weapon)
 
 boolean P_CheckAmmo(player_t *player)
 {
-  ammotype_t ammo = weaponinfo[player->readyweapon].ammo;
-  int count = 1;  // Regular
-
-  if (player->readyweapon == wp_bfg)  // Minimal amount for one shot varies.
-    count = BFGCELLS;
-  else
-    if (player->readyweapon == wp_supershotgun)        // Double barrel.
-      count = 2;
-
-  // Some do not need ammunition anyway.
-  // Return if current ammunition sufficient.
-
-  if (ammo == am_noammo || player->ammo[ammo] >= count)
+  if (P_GetAmmoLevel(player, player->readyweapon) > 0) // has enough ammo
     return true;
 
   // Out of ammo, pick a weapon to change to.
