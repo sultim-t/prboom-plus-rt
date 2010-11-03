@@ -24,6 +24,7 @@ dnl --- Check for programs
 AC_PROG_CC
 AC_PROG_LN_S
 AC_PROG_RANLIB
+AC_GNU_SOURCE
 
 if test "x$GCC" = "xyes"; then
   AC_DEFINE(PACKEDATTR,[__attribute__((packed))],[Set to the attribute to apply to struct definitions to make them packed])
