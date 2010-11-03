@@ -100,35 +100,31 @@ static int write_png(
 
   if (row_data)
   {
-#if 0
     int lock_needed = SDL_MUSTLOCK(scr);
-    int lock_was_successful = 0;
 
     if (!lock_needed || SDL_LockSurface(scr) >= 0)
     {
-      // While the screen is locked write it into the buffer
-      lock_was_successful = 1;
-      if (rgb)
-        write_png_rgb_transform(pixel_data, scr);
-      else
-        memcpy(pixel_data, scr->pixels, scr->w * scr->h);
-      if (lock_needed)
-        SDL_UnlockSurface(scr);
-    }
-
-    if (lock_was_successful)
-    {
       int y;
 
-      // Write out the buffer
       png_write_info(png_ptr, info_ptr);
+
       for (y = 0; y < scr->h; y++)
-        png_write_row(png_ptr, pixel_data + y*scr->w*pixel_size);
+      {
+        if (rgb)
+          ; // FIXME write_png_rgb_transform(pixel_data, scr);
+        else
+          memcpy(row_data, scr->pixels + y * scr->pitch, scr->w);
+
+        png_write_row(png_ptr, row_data);
+      }
+
       png_write_end(png_ptr, info_ptr);
+
+      if (lock_needed)
+        SDL_UnlockSurface(scr);
 
       result = 0;
     }
-#endif
 
     free(row_data);
   }
