@@ -3175,7 +3175,7 @@ void T_Pusher(pusher_t *p)
     int radius;
     int ht = 0;
 
-    if (!allow_pushers)
+    if (demo_compatibility || !allow_pushers)
         return;
 
     sec = sectors + p->affectee;
