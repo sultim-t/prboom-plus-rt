@@ -176,14 +176,9 @@ static void scale3x ( unsigned int* inputBuffer, unsigned int* outputBuffer, int
 
 static void scale4x ( unsigned int* inputBuffer, unsigned int* outputBuffer, int inWidth, int inHeight )
 {
-  int width = 2* inWidth;
-  int height = 2 * inHeight;
-  unsigned int * buffer2x = malloc(width*height * sizeof(unsigned int));
-
-  scale2x ( inputBuffer, buffer2x, inWidth, inHeight );
-  width *= 2;
-  height *= 2;
-  scale2x ( buffer2x, outputBuffer, 2*inWidth, 2*inHeight );
+  unsigned int * buffer2x = malloc((2 * inWidth) * (2 * inHeight) * sizeof(unsigned int));
+  scale2x (inputBuffer, buffer2x, inWidth, inHeight);
+  scale2x (buffer2x, outputBuffer, 2 * inWidth, 2 * inHeight);
   free(buffer2x);
 }
 

@@ -1505,7 +1505,6 @@ static void gld_PrecalculateSector(int num)
   angle_t lineangle;
   angle_t angle;
   angle_t bestangle;
-  sector_t *backsector;
   GLUtesselator *tess;
   double *v=NULL;
   int maxvertexnum;
@@ -1885,12 +1884,12 @@ static void gld_MarkSectorsForClamp(void)
 
 void gld_PreprocessSectors(void)
 {
-  int i;
 #ifdef USE_GLU_TESS // figgi
   char *vertexcheck;
   char *vertexcheck2;
   int v1num;
   int v2num;
+  int i;
   int j;
 #endif
 
@@ -2339,7 +2338,6 @@ void gld_EndDrawScene(void)
     if (MotionBlurOn)
     {
       extern int renderer_fps;
-      static float prev_alpha = 0;
       static float motionblur_alpha = 1.0f;
 
       if (realframe)
@@ -3578,47 +3576,6 @@ void gld_ProjectSprite(mobj_t* thing)
     {
       return;
     }
-  }
-
-  if (!render_paperitems && !(thing->flags & (MF_SOLID | MF_SPAWNCEILING)))
-  {
-    float x1, x2, x3, x4, z1, z2, z3, z4;
-    float y1, y2, cy, ycenter, y1c, y2c;
-    float y1z2_y, y2z2_y;
-
-    ycenter = (float)fabs(sprite.y1 - sprite.y2) * 0.5f;
-    y1c = sprite.y1 - ycenter;
-    y2c = sprite.y2 - ycenter;
-    cy = sprite.y + ycenter;
-
-    y1z2_y = -(y1c * sin_paperitems_pitch);
-    y2z2_y = -(y2c * sin_paperitems_pitch);
-
-    x1 = +(sprite.x1 * cos_inv_yaw - y1z2_y * sin_inv_yaw) + sprite.x;
-    x2 = +(sprite.x2 * cos_inv_yaw - y1z2_y * sin_inv_yaw) + sprite.x;
-    x3 = +(sprite.x1 * cos_inv_yaw - y2z2_y * sin_inv_yaw) + sprite.x;
-    x4 = +(sprite.x2 * cos_inv_yaw - y2z2_y * sin_inv_yaw) + sprite.x;
-
-    y1 = +(y1c * cos_paperitems_pitch) + cy;
-    y2 = +(y2c * cos_paperitems_pitch) + cy;
-
-    z1 = -(sprite.x1 * sin_inv_yaw + y1z2_y * cos_inv_yaw) + sprite.z;
-    z2 = -(sprite.x2 * sin_inv_yaw + y1z2_y * cos_inv_yaw) + sprite.z;
-    z3 = -(sprite.x1 * sin_inv_yaw + y2z2_y * cos_inv_yaw) + sprite.z;
-    z4 = -(sprite.x2 * sin_inv_yaw + y2z2_y * cos_inv_yaw) + sprite.z;
-  }
-  else
-  {
-    float x1, x2, y1, y2, z1, z2;
-
-    x1 = +(sprite.x1 * cos_inv_yaw) + sprite.x;
-    x2 = +(sprite.x2 * cos_inv_yaw) + sprite.x;
-
-    y1 = sprite.y + sprite.y1;
-    y2 = sprite.y + sprite.y2;
-
-    z2 = -(sprite.x1 * sin_inv_yaw) + sprite.z;
-    z1 = -(sprite.x2 * sin_inv_yaw) + sprite.z;
   }
 
   sprite.scale = FixedDiv(projectiony, tz);;

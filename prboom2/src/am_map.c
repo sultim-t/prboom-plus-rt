@@ -642,7 +642,6 @@ dboolean AM_Responder
 ( event_t*  ev )
 {
   int rc;
-  static int cheatstate=0;
   static int bigstate=0;
   int ch;                                                       // phares
 
@@ -748,7 +747,6 @@ dboolean AM_Responder
 #endif
     else                                                        // phares
     {
-      cheatstate=0;
       rc = false;
     }
   }
