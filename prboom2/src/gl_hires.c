@@ -383,6 +383,7 @@ GLGenericImage * ReadDDSFile(const char *filename, int * bufsize, int * numMipma
       factor = 4;
       break;
     default:
+      fclose(fp);
       return NULL;
   }
 
