@@ -73,14 +73,17 @@ static int write_png_palette(
 }
 
 // Transform SDL pixel format into png_color
-static void write_png_rgb_transform(unsigned char *buffer, SDL_Surface *scr)
+static void write_png_rgb_transform(
+    unsigned char *buffer, SDL_Surface *scr, int y)
 {
   SDL_PixelFormat *fmt = scr->format;
   png_color *pixel = (png_color *)buffer;
   unsigned char *source = scr->pixels;
-  int y;
+  int x;
 
-  for (y = scr->w * scr->h; y > 0; pixel++, source += fmt->BytesPerPixel, y--)
+  source += y * scr->pitch;
+
+  for (x = scr->w; x > 0; pixel++, source += fmt->BytesPerPixel, x--)
   {
     Uint32 p = *(Uint32 *)source;
     pixel->red   = (((p & fmt->Rmask)>>fmt->Rshift)<<fmt->Rloss);
@@ -111,7 +114,7 @@ static int write_png(
       for (y = 0; y < scr->h; y++)
       {
         if (rgb)
-          ; // FIXME write_png_rgb_transform(pixel_data, scr);
+          write_png_rgb_transform(row_data, scr, y);
         else
           memcpy(row_data, scr->pixels + y * scr->pitch, scr->w);
 
