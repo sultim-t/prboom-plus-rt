@@ -1684,6 +1684,9 @@ void HU_widget_build_monsec(void)
   }
   else
   {
+    int allkills_len = 0;
+    int allsecrets_len = 0;
+
     playerscount = 0;
     fullkillcount = 0;
     fullitemcount = 0;
@@ -1695,13 +1698,16 @@ void HU_widget_build_monsec(void)
         color = i==displayplayer?0x33:0x32;
         if (playerscount==0)
         {
-          sprintf(allkills, "\x1b%c%d", color, players[i].killcount - players[i].resurectedkillcount);
-          sprintf(allsecrets, "\x1b%c%d", color, players[i].secretcount);
+          allkills_len = sprintf(allkills, "\x1b%c%d", color, players[i].killcount - players[i].resurectedkillcount);
+          allsecrets_len = sprintf(allsecrets, "\x1b%c%d", color, players[i].secretcount);
         }
         else
         {
-          sprintf(allkills, "%s\x1b%c+%d", allkills, color, players[i].killcount - players[i].resurectedkillcount);
-          sprintf(allsecrets, "%s\x1b%c+%d", allsecrets, color, players[i].secretcount);
+          if (allkills_len >= 0 && allsecrets_len >=0)
+          {
+            allkills_len += sprintf(&allkills[allkills_len], "\x1b%c+%d", color, players[i].killcount - players[i].resurectedkillcount);
+            allsecrets_len += sprintf(&allsecrets[allsecrets_len], "\x1b%c+%d", color, players[i].secretcount);
+          }
         }
         playerscount++;
         fullkillcount += players[i].killcount - players[i].resurectedkillcount;
