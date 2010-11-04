@@ -66,7 +66,7 @@ void S_ParseMusInfo(const char *mapid)
 
   if (W_CheckNumForName("MUSINFO") != -1)
   {
-    int num, lumpnum, lastlump = 0;
+    int num, lumpnum;
     int inMap = false;
 
     SC_OpenLump("MUSINFO");

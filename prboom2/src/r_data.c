@@ -129,7 +129,6 @@ static void R_InitTextures (void)
   const char *names; // cph -
   const char *name_p;// const*'s
   int  *patchlookup;
-  int  totalwidth;
   int  nummappatches;
   int  offset;
   int  maxoff, maxoff2;
@@ -195,8 +194,6 @@ static void R_InitTextures (void)
 
   textures = Z_Malloc(numtextures*sizeof*textures, PU_STATIC, 0);
   textureheight = Z_Malloc(numtextures*sizeof*textureheight, PU_STATIC, 0);
-
-  totalwidth = 0;
 
   for (i=0 ; i<numtextures ; i++, directory++)
     {
@@ -282,8 +279,6 @@ static void R_InitTextures (void)
         ;
       texture->widthmask = j-1;
       textureheight[i] = texture->height<<FRACBITS;
-
-      totalwidth += texture->width;
     }
 
   free(patchlookup);         // killough

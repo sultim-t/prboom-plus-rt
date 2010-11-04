@@ -969,7 +969,7 @@ static int G_ReadDemoFooter(const char *filename)
     const char* template_format = "%sprboom-plus-demoex-XXXXXX";
 
     tmp_dir = I_GetTempDir();
-    if (tmp_dir && strlen(tmp_dir) > 0)
+    if (tmp_dir && *tmp_dir != '\0')
     {
       tmp_path = malloc(strlen(tmp_dir) + 2);
       strcpy(tmp_path, tmp_dir);

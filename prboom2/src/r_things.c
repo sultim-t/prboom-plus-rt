@@ -45,14 +45,6 @@
 
 #define BASEYCENTER 100
 
-typedef struct {
-  int x1;
-  int x2;
-  int column;
-  int topclip;
-  int bottomclip;
-} maskdraw_t;
-
 //
 // Sprite rotation 0 is facing the viewer,
 //  rotation 1 is one angle turn CLOCKWISE around the axis.
