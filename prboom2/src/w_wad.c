@@ -240,7 +240,17 @@ static void W_AddFile(wadfile_info_t *wadfile)
         lump_p->wadfile = wadfile;                    //  killough 4/25/98
         lump_p->position = LittleLong(fileinfo->filepos);
         lump_p->size = LittleLong(fileinfo->size);
-        lump_p->li_namespace = ns_global;              // killough 4/17/98
+        if (wadfile->src == source_lmp)
+        {
+          // Modifications to place command-line-added demo lumps
+          // into a separate "ns_demos" namespace so that they cannot
+          // conflict with other lump names
+          lump_p->li_namespace = ns_demos;
+        }
+        else
+        {
+          lump_p->li_namespace = ns_global;              // killough 4/17/98
+        }
         strncpy (lump_p->name, fileinfo->name, 8);
 	lump_p->source = wadfile->src;                    // Ty 08/29/98
       }

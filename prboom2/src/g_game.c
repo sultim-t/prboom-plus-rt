@@ -3403,10 +3403,18 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
 
 void G_DoPlayDemo(void)
 {
+  int lump;
   char basename[9];
 
   ExtractFileBase(defdemoname,basename);           // killough
   basename[8] = 0;
+
+  // check ns_demos namespace first, then ns_global
+  lump = (W_CheckNumForName)(basename, ns_demos);
+  if (lump < 0)
+  {
+    lump = W_CheckNumForName(basename);
+  }
 
   // e6y
   // Do not exit if corresponding demo lump is not found.
@@ -3416,7 +3424,7 @@ void G_DoPlayDemo(void)
   // Plutonia/Tnt executables exit with "W_GetNumForName: DEMO4 not found"
   // message after playing of DEMO3, because DEMO4 is not present
   // in the corresponding IWADs.
-  if (W_CheckNumForName(basename) < 0)
+  if (lump < 0)
   {
     usergame = false;
     D_StartTitle();                // Start the title screen
@@ -3425,7 +3433,7 @@ void G_DoPlayDemo(void)
   }
 
   /* cph - store lump number for unlocking later */
-  demolumpnum = W_GetNumForName(basename);
+  demolumpnum = lump;
   demobuffer = W_CacheLumpNum(demolumpnum);
   demolength = W_LumpLength(demolumpnum);
 
