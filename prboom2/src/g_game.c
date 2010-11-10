@@ -3716,7 +3716,13 @@ void G_CheckDemoContinue(void)
     ExtractFileBase(defdemoname,basename);           // killough
     basename[8] = 0;
 
-    demolumpnum = W_GetNumForName(basename);
+    // check ns_demos namespace first, then ns_global
+    demolumpnum = (W_CheckNumForName)(basename, ns_demos);
+    if (demolumpnum < 0)
+    {
+      demolumpnum = W_CheckNumForName(basename);
+    }
+
     demobuffer = W_CacheLumpNum(demolumpnum);
     demolength = W_LumpLength(demolumpnum);
 
