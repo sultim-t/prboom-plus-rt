@@ -43,6 +43,26 @@
 
 <h1>Change Log</h1>
 
+<br><span class="ver">2.5.0.8</span>
+<span class="date">&nbsp;@&nbsp;2010-Nov-13</span>
+<table>
+<tr><td class="aaa">[+]</td><td>Added support for textured automap. Available in the menu at "Options\Setup\Automap\Enable Textured Display".
+<tr><td class="aaa">[+]</td><td>"Next Level" key now works during normal play, not just during demo playback.
+<tr><td class="aaa">[+]</td><td>Added "-shotdir" command line switch and "screenshot_dir" config variable. Default folder for screenshots is now exe_dir.
+<tr><td class="aaa">[+]</td><td>Two new sponsored HUDs.
+<tr><td class="aaa">[*]</td><td>Added ability (overrun_missedbackside_emulate 1) to emulate wrong memory access for cases when some linedefs have a two-sided flag set, but no second sidedef. Fixed desynch on <a href="http://doomedsda.us/wad1005.html">CLNJ-506.LMP @ CHALLENJ.WAD</a>
+<tr><td class="aaa">[*]</td><td>Broken BLOCKMAP lumps won't be recreated automatically. Use "-blockmap" command line switch if PrBoom-plus reports a buggy blockmap.
+<tr><td class="aaa">[*]</td><td>The "-solo-net" and "-emulate x.y.z" params are saved to the demo footer.
+<tr><td class="aaa">[*]</td><td>Added frustum culling for sprites if mouse look is enabled (gl_sprites_frustum_culling). If you look up or down on nuts.wad with this, frame rate will increase instead of decreasing.
+<tr><td class="aaa">[*]</td><td>Improved compatibility with Doom 1.2. All known Doom 1.2 demos including <a href="http://doomedsda.us/767col159.html">ret12na.lmp @ return01.wad</a>, <a href="http://doomedsda.us/1082col215.html">wp2-33.lmp @ wadpak2.wad</a> and <a href="http://doomedsda.us/wad892.html">uac_dead demos</a> by Never_Again are now in sync.
+<tr><td class="aaa">[*]</td><td>GLBDEFS alias for GLDEFS lump to avoid compatibility issues with other ports. Note that if GLBDEFS is present, GLDEFS will not be parsed at all.
+<tr><td class="aaa">[*]</td><td>Command-line added demos don't conflict with lump names anymore. For example, you can play map01.lmp back on map01.
+<tr><td class="aaa">[*]</td><td>Incorrect nodes on <a href="http://www.doomworld.com/idgames/index.php?id=4169">e1m1 @ deepcre.wad</a> don't crash PrBoom-plus anymore.
+<tr><td class="aaa">[-]</td><td>The title screen from the <a href="http://www.doomwadstation.com/main/dukegp.rar">Duke Nukem total conversion</a> PWAD didn't appear in software mode, being replaced by a black screen.
+<tr><td class="aaa">[-]</td><td>Pitch-shift emulation didn't work.
+<tr><td class="aaa">[-]</td><td>On-screen graphics like PAUSE, M_DOOM, TITLEPIC, etc didn't fit in the screen at 16x9 aspect ratios and "not adjusted" mode for "status bar and menu appearance".
+</table>
+
 <br><span class="ver">2.5.0.7</span>
 <span class="date">&nbsp;@&nbsp;2010-Aug-15</span>
 <table>

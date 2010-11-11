@@ -1,5 +1,30 @@
 Change Log
 
+2.5.0.8 @ 2010-Nov-13
+[+] Added support for textured automap. Available in the menu at "Options\Setup\Automap\Enable Textured Display".
+[+] "Next Level" key now works during normal play, not just during demo playback.
+[+] Added "-shotdir" command line switch and "screenshot_dir" config variable. Default folder for screenshots is now exe_dir.
+[+] Two new sponsored HUDs.
+[*] Added ability (overrun_missedbackside_emulate 1) to emulate wrong memory access for cases when some linedefs have a two-sided flag set, but no second sidedef. Fixed desynch on CLNJ-506.LMP @ CHALLENJ.WAD
+[*] Broken BLOCKMAP lumps won't be recreated automatically. Use "-blockmap" command line switch if PrBoom-plus reports a buggy blockmap.
+[*] The "-solo-net" and "-emulate x.y.z" params are saved to the demo footer.
+[*] Added frustum culling for sprites if mouse look is enabled (gl_sprites_frustum_culling). If you look up or down on nuts.wad with this, frame rate will increase instead of decreasing.
+[*] Improved compatibility with Doom 1.2. All known Doom 1.2 demos including ret12na.lmp @ return01.wad, wp2-33.lmp @ wadpak2.wad and uac_dead by Never_Again are now in sync.
+[*] GLBDEFS alias for GLDEFS lump to avoid compatibility issues with other ports. Note that if GLBDEFS is present, GLDEFS will not be parsed at all.
+[*] Command-line added demos don't conflict with lump names anymore. For example, you can play map01.lmp back on map01.
+[*] Incorrect nodes on e1m1 @ deepcre.wad don't crash PrBoom-plus anymore.
+[-] The title screen from the Duke Nukem total conversion PWAD didn't appear in software mode, being replaced by a black screen.
+[-] Pitch-shift emulation didn't work.
+[-] On-screen graphics like PAUSE, M_DOOM, TITLEPIC, etc didn't fit in the screen at 16x9 aspect ratios and "not adjusted" mode for "status bar and menu appearance".
+
+Links for the demos, wads and topics referred to above:
+http://doomedsda.us/wad1005.html (CLNJ-506.LMP, CHALLENJ.WAD)
+http://www.doomwadstation.com/main/dukegp.rar (Duke Nukem total conversion)
+http://doomedsda.us/767col159.html (return01.wad, ret12na.lmp)
+http://doomedsda.us/1082col215.html (wadpak2.wad, wp2-33.lmp)
+http://doomedsda.us/wad892.html (uac_dead.wad and doom 1.2 demos)
+http://www.doomworld.com/idgames/index.php?id=4169 (deepcre.wad)
+
 2.5.0.7 @ 2010-Aug-15
 [+] Added support for DeePBSP v4 extended nodes.
 [+] Added support for ZDoom's uncompressed extended nodes.
