@@ -928,6 +928,14 @@ static void P_LoadNodes (int lump)
           {
             // Convert to extended type
             no->children[j] &= ~0x8000;
+
+            // haleyjd 11/06/10: check for invalid subsector reference
+            if(no->children[j] >= numsubsectors)
+            {
+              lprintf(LO_ERROR, "P_LoadNodes: BSP tree references invalid subsector %d.\n", no->children[j]);
+              no->children[j] = 0;
+            }
+
             no->children[j] |= NF_SUBSECTOR;
           }
 
