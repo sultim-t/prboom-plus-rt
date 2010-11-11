@@ -2,7 +2,7 @@ Change Log
 
 2.5.0.8 @ 2010-Nov-13
 [+] Added support for textured automap. Available in the menu at "Options\Setup\Automap\Enable Textured Display".
-[+] "Next Level" key now works during normal play, not just during demo playback.
+[+] "Next Level" key now works during normal play, and not just during demo playback.
 [+] Added "-shotdir" command line switch and "screenshot_dir" config variable. Default folder for screenshots is now exe_dir.
 [+] Two new sponsored HUDs.
 [*] Added ability (overrun_missedbackside_emulate 1) to emulate wrong memory access for cases when some linedefs have a two-sided flag set, but no second sidedef. Fixed desynch on CLNJ-506.LMP @ CHALLENJ.WAD
@@ -16,6 +16,7 @@ Change Log
 [-] The title screen from the Duke Nukem total conversion PWAD didn't appear in software mode, being replaced by a black screen.
 [-] Pitch-shift emulation didn't work.
 [-] On-screen graphics like PAUSE, M_DOOM, TITLEPIC, etc didn't fit in the screen at 16x9 aspect ratios and "not adjusted" mode for "status bar and menu appearance".
+[-] Fixed glitch in "no texture" mapping trick under invulnerability when using hires textures.
 
 Links for the demos, wads and topics referred to above:
 http://doomedsda.us/wad1005.html (CLNJ-506.LMP, CHALLENJ.WAD)
