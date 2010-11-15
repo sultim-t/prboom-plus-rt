@@ -49,7 +49,7 @@
 /* #define I386_ASM 1 */
 
 #ifdef _DEBUG
-#define PRBOOM_DEBUG 1
+//#define PRBOOM_DEBUG 1
 #endif // _DEBUG
 
 #ifdef PRBOOM_DEBUG
@@ -160,7 +160,7 @@
 
 //e6y
 /* Version number of package */
-#define VERSION "2.5.0.8"
+#define VERSION "2.5.0.9"
 
 /* Define if you have the SDL image library -lSDL_image */
 #define HAVE_LIBSDL_IMAGE
