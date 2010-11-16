@@ -3515,7 +3515,7 @@ void gld_ProjectSprite(mobj_t* thing)
 
     // off the side?
     if (x1 > viewwidth || x2 < 0)
-      return;
+      goto unlock_patch;
   }
 
   // killough 3/27/98: exclude things totally separated
@@ -3530,16 +3530,16 @@ void gld_ProjectSprite(mobj_t* thing)
     if (phs != -1 && viewz < sectors[phs].floorheight ?
         fz >= sectors[heightsec].floorheight :
         gzt < sectors[heightsec].floorheight)
-      return;
+      goto unlock_patch;
     if (phs != -1 && viewz > sectors[phs].ceilingheight ?
         gzt < sectors[heightsec].ceilingheight && viewz >= sectors[heightsec].ceilingheight :
         fz >= sectors[heightsec].ceilingheight)
-      return;
+      goto unlock_patch;
   }
 
   //e6y FIXME!!!
   if (thing == players[displayplayer].mo && walkcamera.type != 2)
-    return;
+    goto unlock_patch;
 
   sprite.x =-(float)fx / MAP_SCALE;
   sprite.y = (float)fz / MAP_SCALE;
@@ -3574,7 +3574,7 @@ void gld_ProjectSprite(mobj_t* thing)
       //1.5 == sqrt(2) + small delta for MF_FOREGROUND
       (float)(MAX(patch->width, patch->height)) / MAP_COEFF * 1.5f))
     {
-      return;
+      goto unlock_patch;
     }
   }
 
@@ -3592,7 +3592,7 @@ void gld_ProjectSprite(mobj_t* thing)
   sprite.cm = CR_LIMIT + (int)((thing->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
   sprite.gltexture = gld_RegisterPatch(lump, sprite.cm);
   if (!sprite.gltexture)
-    return;
+    goto unlock_patch;
   sprite.flags = thing->flags;
 
   if (thing->flags & MF_FOREGROUND)
@@ -3624,6 +3624,9 @@ void gld_ProjectSprite(mobj_t* thing)
     gld_AddDrawItem((gl_sprite_blend || (sprite.flags & (MF_SHADOW | MF_TRANSLUCENT)) ? GLDIT_TSPRITE : GLDIT_SPRITE), &sprite);
     gld_ProcessThingShadow(thing);
   }
+
+unlock_patch:
+  R_UnlockPatchNum(lump);
 }
 
 /*****************
