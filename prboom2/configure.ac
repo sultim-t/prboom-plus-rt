@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT([prboom-plus],[2.5.0.9])
+AC_INIT([PrBoom-Plus],[2.5.0.9],[],[prboom-plus])
 AC_DEFINE(PACKAGE_TITLE, ["PrBoom-Plus"], [Capitalised name of package])
 
 AC_CONFIG_AUX_DIR(autotools)
