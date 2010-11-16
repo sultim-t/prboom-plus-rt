@@ -153,8 +153,8 @@
 /* Name of package */
 #define PACKAGE "prboom-plus"
 
-/* Capitalised name of package */
-#define PACKAGE_TITLE "PrBoom-Plus"
+/* Define to the full name of this package. */
+#define PACKAGE_NAME "PrBoom-Plus"
 
 //e6y
 /* Version number of package */
