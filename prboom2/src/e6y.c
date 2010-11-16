@@ -811,7 +811,7 @@ int I_MessageBox(const char* text, unsigned int type)
 #ifdef _WIN32
   {
     HWND current_hwnd = GetForegroundWindow();
-    result = MessageBox(GetDesktopWindow(), text, PACKAGE_TITLE, type|MB_TASKMODAL|MB_TOPMOST);
+    result = MessageBox(GetDesktopWindow(), text, PACKAGE_NAME, type|MB_TASKMODAL|MB_TOPMOST);
     I_SwitchToWindow(current_hwnd);
     return result;
   }

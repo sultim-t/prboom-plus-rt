@@ -1086,7 +1086,7 @@ void G_WriteDemoFooter(FILE *file)
 
   //process port name
   W_AddLump(&demoex, DEMOEX_PORTNAME_LUMPNAME,
-    (const byte*)(PACKAGE_TITLE" "VERSION), strlen(PACKAGE_TITLE" "VERSION));
+    (const byte*)(PACKAGE_NAME" "VERSION), strlen(PACKAGE_NAME" "VERSION));
   W_AddLump(&demoex, NULL, (const byte*)DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
 
   //process iwad, pwads, dehs and critical for demos params like -spechit, etc
