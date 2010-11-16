@@ -10,9 +10,9 @@ dist_doc_DATA=boom.txt MBF.txt MBFFAQ.txt README.demos README.compat \
 	prboom-plus-history.html \
 	prboom-plus-usage.txt
 
-man5_MANS = boom.cfg.5
-man6_MANS = prboom.6 prboom-game-server.6
+man5_MANS = prboom-plus.cfg.5
+man6_MANS = prboom-plus.6 prboom-plus-game-server.6
 
-README.command-line: prboom.6 boom.cfg.5 prboom-game-server.6
+README.command-line: prboom-plus.cfg.5 prboom-plus.6 prboom-plus-game-server.6
 	(echo ".ll +12" && cat *.5 *.6) | groff -Tascii -mandoc | perl -p -e 's/.\x08//g' > README.command-line
 
