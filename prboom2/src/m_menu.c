@@ -5550,9 +5550,9 @@ void M_StartControlPanel (void)
   // We need to remove the fourth episode for pre-ultimate complevels.
   // It is located here instead of M_Init() because of TNTCOMP cheat.
   EpiDef.numitems = ep_end;
-  if (compatibility_level < ultdoom_compatibility || 
-      gamemode < commercial || 
-      W_SafeGetNumForName(EpiDef.menuitems[ep4].name) == -1)
+  if (gamemode != commercial
+      && (compatibility_level < ultdoom_compatibility
+          || W_SafeGetNumForName(EpiDef.menuitems[ep4].name) == -1))
   {
     EpiDef.numitems--;
   }
