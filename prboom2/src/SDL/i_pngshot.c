@@ -146,7 +146,7 @@ int I_SavePNG(SDL_Surface *scr, const char *fname)
   if (fp)
   {
     png_struct *png_ptr = png_create_write_struct(
-        PNG_LIBPNG_VER_STRING, png_error_ptr_NULL, NULL, NULL);
+        PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
     if (png_ptr)
     {
@@ -174,7 +174,7 @@ int I_SavePNG(SDL_Surface *scr, const char *fname)
             || (write_png_palette(png_ptr, info_ptr, scr) >= 0))
           result = write_png(png_ptr, info_ptr, scr);
       }
-      png_destroy_write_struct(&png_ptr, png_infopp_NULL);
+      png_destroy_write_struct(&png_ptr, NULL);
     }
     fclose(fp);
   }
