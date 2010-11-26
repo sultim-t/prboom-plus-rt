@@ -161,6 +161,7 @@ extern int  autorun;           // always running?                   // phares
 extern int  mousebfire;
 extern int  mousebstrafe;
 extern int  mousebforward;
+extern int  mousebbackward;
 extern int  mousebuse;
 extern int  joybfire;
 extern int  joybstrafe;

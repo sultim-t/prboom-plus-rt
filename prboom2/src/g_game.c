@@ -208,6 +208,7 @@ int     key_screenshot;             // killough 2/22/98: screenshot key
 int     mousebfire;
 int     mousebstrafe;
 int     mousebforward;
+int     mousebbackward;
 int     mousebuse;
 int     joybfire;
 int     joybstrafe;
@@ -459,6 +460,8 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   // mouse
   if (mousebuttons[mousebforward])
     forward += forwardmove[speed];
+  if (mousebuttons[mousebbackward])
+    forward -= forwardmove[speed];
 
     // forward double click
   if (mousebuttons[mousebforward] != dclickstate && dclicktime > 1 )
