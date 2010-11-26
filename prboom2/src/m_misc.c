@@ -141,10 +141,6 @@ int M_ReadFile(char const *name, byte **buffer)
 int usemouse;
 boolean    precache = true; /* if true, load all graphics at start */
 
-extern int mousebfire;
-extern int mousebstrafe;
-extern int mousebforward;
-
 extern int viewwidth;
 extern int viewheight;
 #ifdef GL_DOOM

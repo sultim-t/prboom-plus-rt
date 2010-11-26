@@ -180,15 +180,6 @@ menu_t* currentMenu; // current menudef
 // phares 3/30/98
 // externs added for setup menus
 
-extern int mousebfire;
-extern int mousebstrafe;
-extern int mousebforward;
-// proff 08/17/98: Added backward to mousebuttons
-extern int mousebbackward;
-extern int joybfire;
-extern int joybstrafe;
-extern int joybuse;
-extern int joybspeed;
 int mapcolor_me;    // cph
 
 extern int map_point_coordinates; // killough 10/98
