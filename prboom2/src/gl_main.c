@@ -3569,10 +3569,10 @@ void gld_ProjectSprite(mobj_t* thing)
   {
     if (!gld_SphereInFrustum(
       sprite.x + cos_inv_yaw * (sprite.x1 + sprite.x2) / 2.0f,
-      sprite.y + gl_sprite_offset + (float)fabs(sprite.y1 - sprite.y2) / 2.0f,
+      sprite.y + (sprite.y1 + sprite.y2) / 2.0f,
       sprite.z - sin_inv_yaw * (sprite.x1 + sprite.x2) / 2.0f,
       //1.5 == sqrt(2) + small delta for MF_FOREGROUND
-      (float)(MAX(patch->width, patch->height)) / MAP_COEFF * 1.5f))
+      (float)(MAX(patch->width, patch->height)) / MAP_COEFF / 2.0f * 1.5f))
     {
       goto unlock_patch;
     }
