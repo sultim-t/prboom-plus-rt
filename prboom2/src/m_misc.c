@@ -393,6 +393,8 @@ default_t defaults[] =
   {"mouseb_use", {&mousebuse},{-1},-1,MAX_MOUSEB,
    def_int,ss_keys}, // mouse button number to use for using doors/switches
   //jff 3/8/98 end of lower range change for -1 allowed in mouse binding
+  {"mouse_double_click_use", {&mouse_double_click_use}, {1}, 0, 1,
+   def_int, ss_none}, // allow disabling of double-click-to-use
 
 // For key bindings, the values stored in the key_* variables       // phares
 // are the internal Doom Codes. The values stored in the default.cfg

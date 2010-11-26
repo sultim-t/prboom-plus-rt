@@ -163,6 +163,7 @@ extern int  mousebstrafe;
 extern int  mousebforward;
 extern int  mousebbackward;
 extern int  mousebuse;
+extern int  mouse_double_click_use;
 extern int  joybfire;
 extern int  joybstrafe;
 extern int  joybuse;
