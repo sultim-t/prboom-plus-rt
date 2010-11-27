@@ -1817,16 +1817,8 @@ static void M_DrawSetting(const setup_menu_t* s)
 
     if (key) {
       M_GetKeyString(*key,0); // string to display
-      if (key == &key_use) {
-  // For the 'use' key, you have to build the string
-
-  if (s->m_mouse)
-    sprintf(menu_buffer+strlen(menu_buffer), "/DBL-CLK MB%d",*s->m_mouse+1);
-  if (s->m_joy)
-    sprintf(menu_buffer+strlen(menu_buffer), "/JSB%d",*s->m_joy+1);
-      }
-      else if (key == &key_up   || key == &key_speed ||
-         key == &key_fire || key == &key_strafe)
+      if (key == &key_up || key == &key_down || key == &key_speed ||
+         key == &key_fire || key == &key_strafe || key == &key_use)
   {
     if (s->m_mouse)
       sprintf(menu_buffer+strlen(menu_buffer), "/MB%d",
