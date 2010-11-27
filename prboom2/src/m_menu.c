@@ -1820,7 +1820,7 @@ static void M_DrawSetting(const setup_menu_t* s)
       if (key == &key_up || key == &key_down || key == &key_speed ||
          key == &key_fire || key == &key_strafe || key == &key_use)
   {
-    if (s->m_mouse)
+    if (s->m_mouse && *s->m_mouse != -1)
       sprintf(menu_buffer+strlen(menu_buffer), "/MB%d",
         *s->m_mouse+1);
     if (s->m_joy)
