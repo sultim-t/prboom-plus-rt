@@ -1144,6 +1144,9 @@ static void P_LoadZNodes(int lump, int glnodes)
     int size = newVerts * (sizeof(newvertarray[0].x) + sizeof(newvertarray[0].y));
     CheckZNodesOverflow(&len, size);
     data += size;
+
+    // P_LoadVertexes reset numvertexes, need to increase it again
+    numvertexes = orgVerts + newVerts;
   }
 
   // Read the subsectors
