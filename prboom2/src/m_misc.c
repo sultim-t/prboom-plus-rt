@@ -388,7 +388,7 @@ default_t defaults[] =
    def_int,ss_keys}, // mouse button number to use for strafing
   {"mouseb_forward",{&mousebforward},{2},-1,MAX_MOUSEB,
    def_int,ss_keys}, // mouse button number to use for forward motion
-  {"mouseb_backward",{&mousebbackward},{2},-1,MAX_MOUSEB,
+  {"mouseb_backward",{&mousebbackward},{-1},-1,MAX_MOUSEB,
    def_int,ss_keys}, // mouse button number to use for backward motion
   {"mouseb_use", {&mousebuse},{-1},-1,MAX_MOUSEB,
    def_int,ss_keys}, // mouse button number to use for using doors/switches
