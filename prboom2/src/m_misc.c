@@ -153,10 +153,6 @@ int M_ReadFile(char const *name, byte **buffer)
 int usemouse;
 dboolean    precache = true; /* if true, load all graphics at start */
 
-extern int mousebfire;
-extern int mousebstrafe;
-extern int mousebforward;
-
 // The available anisotropic
 typedef enum {
   gl_anisotropic_off = 0,
@@ -504,6 +500,10 @@ default_t defaults[] =
    def_int,ss_keys}, // mouse button number to use for strafing
   {"mouseb_forward",{&mousebforward},{2},-1,MAX_MOUSEB,
    def_int,ss_keys}, // mouse button number to use for forward motion
+  {"mouseb_backward",{&mousebbackward},{-1},-1,MAX_MOUSEB,
+   def_int,ss_keys}, // mouse button number to use for backward motion
+  {"mouseb_use", {&mousebuse},{-1},-1,MAX_MOUSEB,
+   def_int,ss_keys}, // mouse button number to use for using doors/switches
   //jff 3/8/98 end of lower range change for -1 allowed in mouse binding
 
 // For key bindings, the values stored in the key_* variables       // phares

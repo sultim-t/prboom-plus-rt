@@ -190,15 +190,6 @@ menu_t* currentMenu; // current menudef
 // phares 3/30/98
 // externs added for setup menus
 
-extern int mousebfire;
-extern int mousebstrafe;
-extern int mousebforward;
-// proff 08/17/98: Added backward to mousebuttons
-extern int mousebbackward;
-extern int joybfire;
-extern int joybstrafe;
-extern int joybuse;
-extern int joybspeed;
 int mapcolor_me;    // cph
 
 extern int map_point_coordinates; // killough 10/98
@@ -1878,18 +1869,10 @@ static void M_DrawSetting(const setup_menu_t* s)
 
     if (key) {
       M_GetKeyString(*key,0); // string to display
-      if (key == &key_use) {
-  // For the 'use' key, you have to build the string
-
-  if (s->m_mouse)
-    sprintf(menu_buffer+strlen(menu_buffer), "/DBL-CLK MB%d",*s->m_mouse+1);
-  if (s->m_joy)
-    sprintf(menu_buffer+strlen(menu_buffer), "/JSB%d",*s->m_joy+1);
-      }
-      else if (key == &key_up   || key == &key_speed ||
-         key == &key_fire || key == &key_strafe)
+      if (key == &key_up || key == &key_down || key == &key_speed ||
+         key == &key_fire || key == &key_strafe || key == &key_use)
   {
-    if (s->m_mouse)
+    if (s->m_mouse && *s->m_mouse != -1)
       sprintf(menu_buffer+strlen(menu_buffer), "/MB%d",
         *s->m_mouse+1);
     if (s->m_joy)
@@ -2239,7 +2222,7 @@ setup_menu_t keys_settings1[] =  // Key Binding screen strings
 {
   {"MOVEMENT"    ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y},
   {"FORWARD"     ,S_KEY       ,m_scrn,KB_X,KB_Y+1*8,{&key_up},&mousebforward},
-  {"BACKWARD"    ,S_KEY       ,m_scrn,KB_X,KB_Y+2*8,{&key_down}},
+  {"BACKWARD"    ,S_KEY       ,m_scrn,KB_X,KB_Y+2*8,{&key_down},&mousebbackward},
   {"TURN LEFT"   ,S_KEY       ,m_scrn,KB_X,KB_Y+3*8,{&key_left}},
   {"TURN RIGHT"  ,S_KEY       ,m_scrn,KB_X,KB_Y+4*8,{&key_right}},
   {"RUN"         ,S_KEY       ,m_scrn,KB_X,KB_Y+5*8,{&key_speed},0,&joybspeed},
@@ -2248,7 +2231,7 @@ setup_menu_t keys_settings1[] =  // Key Binding screen strings
   {"STRAFE"      ,S_KEY       ,m_scrn,KB_X,KB_Y+8*8,{&key_strafe},&mousebstrafe,&joybstrafe},
   {"AUTORUN"     ,S_KEY       ,m_scrn,KB_X,KB_Y+9*8,{&key_autorun}},
   {"180 TURN"    ,S_KEY       ,m_scrn,KB_X,KB_Y+10*8,{&key_reverse}},
-  {"USE"         ,S_KEY       ,m_scrn,KB_X,KB_Y+11*8,{&key_use},&mousebforward,&joybuse},
+  {"USE"         ,S_KEY       ,m_scrn,KB_X,KB_Y+11*8,{&key_use},&mousebuse,&joybuse},
 #ifdef GL_DOOM
   {"MOUSE LOOK"  ,S_KEY       ,m_scrn,KB_X,KB_Y+12*8,{&key_mlook}},
 #endif
@@ -4091,7 +4074,7 @@ setup_menu_t helpstrings[] =  // HELP screen strings
 
   {"MOVEMENT"    ,S_SKIP|S_TITLE,m_null,KT_X3,KT_Y3},
   {"FORWARD"     ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+ 1*8,{&key_up},&mousebforward},
-  {"BACKWARD"    ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+ 2*8,{&key_down}},
+  {"BACKWARD"    ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+ 2*8,{&key_down},&mousebbackward},
   {"TURN LEFT"   ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+ 3*8,{&key_left}},
   {"TURN RIGHT"  ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+ 4*8,{&key_right}},
   {"RUN"         ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+ 5*8,{&key_speed},0,&joybspeed},
@@ -4100,7 +4083,7 @@ setup_menu_t helpstrings[] =  // HELP screen strings
   {"STRAFE"      ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+ 8*8,{&key_strafe},&mousebstrafe,&joybstrafe},
   {"AUTORUN"     ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+ 9*8,{&key_autorun}},
   {"180 TURN"    ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+10*8,{&key_reverse}},
-  {"USE"         ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+11*8,{&key_use},&mousebforward,&joybuse},
+  {"USE"         ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+11*8,{&key_use},&mousebuse,&joybuse},
 
   {"GAME"        ,S_SKIP|S_TITLE,m_null,KT_X2,KT_Y1},
   {"SAVE"        ,S_SKIP|S_KEY,m_null,KT_X2,KT_Y1+ 1*8,{&key_savegame}},

@@ -230,6 +230,8 @@ int     key_screenshot;             // killough 2/22/98: screenshot key
 int     mousebfire;
 int     mousebstrafe;
 int     mousebforward;
+int     mousebbackward;
+int     mousebuse;
 int     joybfire;
 int     joybstrafe;
 int     joybuse;
@@ -418,7 +420,8 @@ void G_BuildTiccmd(ticcmd_t* cmd)
       joybuttons[joybfire])
     cmd->buttons |= BT_ATTACK;
 
-  if (gamekeydown[key_use] || joybuttons[joybuse])
+  if (gamekeydown[key_use] || mousebuttons[mousebuse] ||
+      joybuttons[joybuse])
     {
       cmd->buttons |= BT_USE;
       // clear double clicks if hit use button
@@ -505,6 +508,8 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   // mouse
   if (mousebuttons[mousebforward])
     forward += forwardmove[speed];
+  if (mousebuttons[mousebbackward])
+    forward -= forwardmove[speed];
 
   if (mouse_doubleclick_as_use) {//e6y
 
