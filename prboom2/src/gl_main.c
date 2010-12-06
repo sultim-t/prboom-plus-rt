@@ -815,15 +815,20 @@ void gld_DrawMapLines(void)
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
   int i;
   const unsigned char *playpal = V_GetPlaypal();
+  
+  float alpha = (float)((automapmode & am_overlay) ? map_lines_overlay_trans : 100.0f) / 100.0f;
+  if (alpha == 0)
+    return;
 
   for (i = 0; i < MAP_COLORS_COUNT; i++)
   {
     if (map_lines.count[i] > 0)
     {
-      glColor3f(
+      glColor4f(
         (float)playpal[3 * i + 0] / 255.0f,
         (float)playpal[3 * i + 1] / 255.0f,
-        (float)playpal[3 * i + 2] / 255.0f);
+        (float)playpal[3 * i + 2] / 255.0f,
+        alpha);
 
       glVertexPointer(2, GL_SHORT , 0, map_lines.points[i]); 
       glDrawArrays(GL_LINES, 0, map_lines.count[i]/2);

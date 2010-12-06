@@ -770,6 +770,8 @@ default_t defaults[] =
    def_int,ss_auto},
   {"map_textured_overlay_trans", {&map_textured_overlay_trans}, {66},0,100,
    def_int,ss_auto},
+  {"map_lines_overlay_trans", {&map_lines_overlay_trans}, {100},0,100,
+   def_int,ss_auto},
 #endif
 
   {"Heads-up display settings",{NULL},{0},UL,UL,def_none,ss_none},

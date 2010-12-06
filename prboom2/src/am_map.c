@@ -94,6 +94,7 @@ int map_use_multisamling;
 int map_textured;
 int map_textured_trans;
 int map_textured_overlay_trans;
+int map_lines_overlay_trans;
 
 //jff 4/3/98 add symbols for "no-color" for disable and "black color" for black
 #define NC 0
