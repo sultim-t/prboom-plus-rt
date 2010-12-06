@@ -449,7 +449,7 @@ void gld_ResetTexturedAutomap(void)
   visible_subsectors_count_prev = -1;
 }
 
-void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my, int fh, fixed_t scale)
+void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my, int fw, int fh, fixed_t scale)
 {
   extern int ddt_cheating;
   
@@ -511,13 +511,13 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
 
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
-  glScissor(0, ST_SCALED_HEIGHT, SCREENWIDTH, SCREENHEIGHT - ST_SCALED_HEIGHT);
+  glScissor(fx, SCREENHEIGHT - (fy + fh), fw, fh);
   glEnable(GL_SCISSOR_TEST);
 
   if (automapmode & am_rotate)
   {
-    float pivotx = (float)SCREENWIDTH / 2.0f;
-    float pivoty = ((float)SCREENHEIGHT - ST_SCALED_HEIGHT) / 2.0f;
+    float pivotx = (float)(fx + fw / 2);
+    float pivoty = (float)(fy + fh / 2);
 
     float rot = -(float)(ANG90 - plr->mo->angle) / (float)(1u << 31) * 180.0f;
 

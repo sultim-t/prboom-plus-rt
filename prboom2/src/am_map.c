@@ -1746,7 +1746,7 @@ void AM_drawSubsectors(void)
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
-    gld_MapDrawSubsectors(plr, f_x, f_y, m_x, m_y, f_h, scale_mtof);
+    gld_MapDrawSubsectors(plr, f_x, f_y, m_x, m_y, f_w, f_h, scale_mtof);
   }
 #endif
 }
