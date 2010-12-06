@@ -816,7 +816,7 @@ void gld_DrawMapLines(void)
   int i;
   const unsigned char *playpal = V_GetPlaypal();
   
-  float alpha = (float)((automapmode & am_overlay) ? map_lines_overlay_trans : 100.0f) / 100.0f;
+  float alpha = ((automapmode & am_overlay) ? map_lines_overlay_trans / 100.0f : 1.0f);
   if (alpha == 0)
     return;
 
@@ -857,10 +857,15 @@ void gld_DrawLine(int x0, int y0, int x1, int y1, int BaseColor)
   map_lines.points[BaseColor][map_lines.count[BaseColor]++] = y1;
 #else
   const unsigned char *playpal = V_GetPlaypal();
+  
+  float alpha = ((automapmode & am_overlay) ? map_lines_overlay_trans / 100.0f : 1.0f);
+  if (alpha == 0)
+    return;
 
-  glColor3f((float)playpal[3*BaseColor]/255.0f,
+  glColor4f((float)playpal[3*BaseColor]/255.0f,
             (float)playpal[3*BaseColor+1]/255.0f,
-            (float)playpal[3*BaseColor+2]/255.0f);
+            (float)playpal[3*BaseColor+2]/255.0f,
+            alpha);
   glBegin(GL_LINES);
     glVertex2i( x0, y0 );
     glVertex2i( x1, y1 );
