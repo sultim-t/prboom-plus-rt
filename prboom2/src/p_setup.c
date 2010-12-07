@@ -82,17 +82,14 @@ side_t   *sides;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // figgi 08/21/00 -- constants and globals for glBsp support
-#define gNd2            0x32644E67  // figgi -- suppport for new GL_VERT format v2.0
-#define gNd3            0x33644E67
-#define gNd4            0x34644E67
-#define gNd5            0x35644E67
-#define ZNOD            0x444F4E5A
-#define ZGLN            0x4E4C475A
+
 #define GL_VERT_OFFSET  4
 
 int     firstglvertex = 0;
-int     nodesVersion  = 0;
 boolean forceOldBsp   = false;
+
+int nodes_glbsp; // version of GLBSP nodes detected, or 0
+int nodes_zdbsp; // version of ZDBSP nodes detected, or 0
 
 // figgi 08/21/00 -- glSegs
 typedef struct
@@ -118,6 +115,170 @@ enum
    ML_GL_SSECT,    // SubSectors, list of segs
    ML_GL_NODES     // GL BSP nodes
 };
+
+//
+// P_GetNodesVersion
+//
+
+// read identifier (a 4 byte string at the start of a lump)
+// passed a lump number and a pointer to 4-byte buffer
+// returns NULL if it can't be read, otherwise returns the buffer
+static void *ReadIdentifier(int lumpnum, void *buffer)
+{
+  const void *lump;
+
+  if (W_LumpLength(lumpnum) >= 4
+      && (lump = W_CacheLumpNum(lumpnum)))
+  {
+    memmove(buffer, lump, 4);
+    W_UnlockLumpNum(lumpnum);
+    return buffer;
+  }
+  return NULL;
+}
+
+// check GL lumps are present (cf. P_CheckLevel)
+static boolean CheckForGLBSPLumps(int gl_lumpnum)
+{
+  static const char *names[] = { "GL_VERT", "GL_SEGS", "GL_SSECT", "GL_NODES" };
+  int i, e;
+
+  for (i = 0, e = ML_GL_VERTS; e <= ML_GL_NODES; i++, e++)
+    if (gl_lumpnum + e >= numlumps
+        || strncasecmp(lumpinfo[gl_lumpnum + e].name, names[i], 8))
+      return false;
+
+  return true;
+}
+
+// check for existence of GL (glbsp) nodes and return their version
+static int GetGLBSPNodesVersion(int gl_lumpnum)
+{
+  char vert_id[4], seg_id[4];
+
+  if (ReadIdentifier(gl_lumpnum + ML_GL_VERTS, vert_id))
+  {
+    if (memcmp(vert_id, "gNd5", 4) == 0)
+      return 5;
+    else if (memcmp(vert_id, "gNd4", 4) == 0)
+      return 4;
+    else if (memcmp(vert_id, "gNd2", 4) == 0)
+    {
+      // version 2 or 3; for 3, the segs start with gNd3
+      if (ReadIdentifier(gl_lumpnum + ML_GL_SEGS, seg_id))
+      {
+        if (memcmp(seg_id, "gNd3", 4) == 0)
+          return 3;
+        else if (memcmp(seg_id, "gNd", 3) == 0)
+          return 0; // unrecognised identifier
+      }
+      return 2; // no segs identifier, so version 2
+    }
+    else if (memcmp(vert_id, "gNd", 3) == 0)
+      return 0; // unrecognised identifier
+  }
+  // no vertexes identifier, so version 1
+  return 1;
+}
+
+// Examine ordinary map nodes, looking for ZDBSP extensions. Return:
+// 0: unknown or original BSP
+// 1/2: uncompressed/compressed extended (XNOD/ZNOD)
+// 3/4: uncompressed/compressed GL (XGLN/ZGLN)
+// 5/6: uncompressed/compressed GL2 (XGL2/ZGL2)
+static int GetZDBSPNodesVersion(int lumpnum)
+{
+  char node_id[4], ssec_id[4];
+
+  if (ReadIdentifier(lumpnum + ML_NODES, node_id))
+  {
+    if (memcmp(node_id, "XNOD", 4) == 0)
+      return 1;
+    else if (memcmp(node_id, "ZNOD", 4) == 0)
+      return 2;
+  }
+  if (ReadIdentifier(lumpnum + ML_SSECTORS, ssec_id))
+  {
+    if (memcmp(ssec_id, "XGLN", 4) == 0)
+      return 3;
+    else if (memcmp(ssec_id, "ZGLN", 4) == 0)
+      return 4;
+    else if (memcmp(ssec_id, "XGL2", 4) == 0)
+      return 5;
+    else if (memcmp(ssec_id, "ZGL2", 4) == 0)
+      return 6;
+  }
+  return 0;
+}
+
+// P_GetNodesVersion
+// sets nodes_glbsp and nodes_zdbsp from Check{GL,ZD}BSPNodesVersion
+// sets level_error on unknown/unsupported data
+static void P_GetNodesVersion(int lumpnum, int gl_lumpnum)
+{
+  int version;
+  int valid_gl = 0, valid_bsp = 0;
+
+  nodes_glbsp = nodes_zdbsp = 0; // reset from previous map
+
+  // check for GL nodes, if available/compatible
+  if (gl_lumpnum > lumpnum // A map's GL nodes are unlikely to preceed it.
+      && !forceOldBsp // FIXME why isn't this a comp_option?
+      && compatibility_level >= prboom_2_compatibility)
+  {
+    if (!CheckForGLBSPLumps(gl_lumpnum)) // do all required lumps exist?
+      lprintf(LO_WARN,
+              "P_GetNodesVersion: missing or invalid GLBSP nodes\n");
+    else
+    {
+      // All lumps exist - try to read them, and get the version.
+      switch (version = GetGLBSPNodesVersion(gl_lumpnum))
+      {
+      case 1: case 2:
+        // supported versions of GL nodes are v1 and v2 (don't forget v1!)
+        nodes_glbsp = version;
+        valid_gl = 1;
+        break;
+
+      case 3: case 4: case 5:
+        // unsupported version of GL nodes - try to fall back to BSP
+        lprintf(LO_WARN,
+                "P_GetNodesVersion: GLBSP v%d nodes not supported\n",
+                version);
+        break;
+
+      default:
+        lprintf(LO_WARN,
+                "P_GetNodesVersion: unknown GLBSP nodes version\n");
+        break;
+      }
+    }
+  }
+
+  switch (version = GetZDBSPNodesVersion(lumpnum))
+  {
+  case 2:
+    lprintf(LO_WARN,
+            "P_GetNodesVersion: ZDBSP ZNOD nodes not supported\n");
+    break;
+
+  case 3: case 4: case 5: case 6:
+    lprintf(LO_WARN,
+            "P_GetNodesVersion: ZDBSP %cGL%c nodes not supported\n",
+            ((version % 2 == 1) ? 'X' : 'Z'), ((version >= 5) ? '2' : 'N'));
+    break;
+
+  case 0:
+  case 1: // XNOD
+    nodes_zdbsp = version;
+    valid_bsp = 1;
+    break;
+  }
+
+  if (!valid_gl && !valid_bsp)
+    I_Error("P_GetNodesVersion: cannot find supported nodes");
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -162,64 +323,6 @@ size_t     num_deathmatchstarts;   // killough
 
 mapthing_t *deathmatch_p;
 mapthing_t playerstarts[MAXPLAYERS];
-
-//
-// P_CheckForZDoomNodes
-//
-
-static boolean P_CheckForZDoomNodes(int lumpnum, int gl_lumpnum)
-{
-  const void *data;
-
-  data = W_CacheLumpNum(lumpnum + ML_NODES);
-  if (*(const int *)data == ZNOD)
-    I_Error("P_CheckForZDoomNodes: ZDoom nodes not supported yet");
-
-  data = W_CacheLumpNum(lumpnum + ML_SSECTORS);
-  if (*(const int *)data == ZGLN)
-    I_Error("P_CheckForZDoomNodes: ZDoom GL nodes not supported yet");
-
-  return false;
-}
-
-//
-// P_GetNodesVersion
-//
-
-static void P_GetNodesVersion(int lumpnum, int gl_lumpnum)
-{
-  const void *data;
-
-  data = W_CacheLumpNum(gl_lumpnum+ML_GL_VERTS);
-  if ( (gl_lumpnum > lumpnum) && (forceOldBsp == false) && (compatibility_level >= prboom_2_compatibility) ) {
-    if (*(const int *)data == gNd2) {
-      data = W_CacheLumpNum(gl_lumpnum+ML_GL_SEGS);
-      if (*(const int *)data == gNd3) {
-        nodesVersion = gNd3;
-        lprintf(LO_DEBUG, "P_GetNodesVersion: found version 3 nodes\n");
-        I_Error("P_GetNodesVersion: version 3 nodes not supported\n");
-      } else {
-        nodesVersion = gNd2;
-        lprintf(LO_DEBUG, "P_GetNodesVersion: found version 2 nodes\n");
-      }
-    }
-    if (*(const int *)data == gNd4) {
-      nodesVersion = gNd4;
-      lprintf(LO_DEBUG, "P_GetNodesVersion: found version 4 nodes\n");
-      I_Error("P_GetNodesVersion: version 4 nodes not supported\n");
-    }
-    if (*(const int *)data == gNd5) {
-      nodesVersion = gNd5;
-      lprintf(LO_DEBUG, "P_GetNodesVersion: found version 5 nodes\n");
-      I_Error("P_GetNodesVersion: version 5 nodes not supported\n");
-    }
-  } else {
-    nodesVersion = 0;
-    lprintf(LO_DEBUG,"P_GetNodesVersion: using normal BSP nodes\n");
-    if (P_CheckForZDoomNodes(lumpnum, gl_lumpnum))
-      I_Error("P_GetNodesVersion: ZDoom nodes not supported yet");
-  }
-}
 
 //
 // P_LoadVertexes
@@ -277,7 +380,7 @@ static void P_LoadVertexes2(int lump, int gllump)
   {
     gldata = W_CacheLumpNum(gllump);
 
-    if (nodesVersion == gNd2) // 32 bit GL_VERT format (16.16 fixed)
+    if (nodes_glbsp == 2) // 32 bit GL_VERT format (16.16 fixed)
     {
       const mapglvertex_t*  mgl;
 
@@ -1568,7 +1671,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   // figgi 10/19/00 -- check for gl lumps and load them
   P_GetNodesVersion(lumpnum,gl_lumpnum);
 
-  if (nodesVersion > 0)
+  if (nodes_glbsp > 0)
     P_LoadVertexes2 (lumpnum+ML_VERTEXES,gl_lumpnum+ML_GL_VERTS);
   else
     P_LoadVertexes  (lumpnum+ML_VERTEXES);
@@ -1579,7 +1682,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   P_LoadLineDefs2 (lumpnum+ML_LINEDEFS);
   P_LoadBlockMap  (lumpnum+ML_BLOCKMAP);
 
-  if (nodesVersion > 0)
+  if (nodes_glbsp > 0)
   {
     P_LoadSubsectors(gl_lumpnum + ML_GL_SSECT);
     P_LoadNodes(gl_lumpnum + ML_GL_NODES);
