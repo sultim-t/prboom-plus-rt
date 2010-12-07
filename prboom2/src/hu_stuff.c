@@ -778,6 +778,10 @@ void HU_Drawer(void)
     }
   }
 
+  // don't draw anything if there's a fullscreen menu up
+  if (menuactive == mnact_full)
+    return;
+
   // draw the weapon/health/ammo/armor/kills/keys displays if optioned
   //jff 2/17/98 allow new hud stuff to be turned off
   // killough 2/21/98: really allow new hud stuff to be turned off COMPLETELY

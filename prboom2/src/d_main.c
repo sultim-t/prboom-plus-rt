@@ -286,7 +286,7 @@ void D_Display (void)
   oldgamestate = wipegamestate = gamestate;
 
   // draw pause pic
-  if (paused) {
+  if (paused && (menuactive != mnact_full)) {
     // Simplified the "logic" here and no need for x-coord caching - POPE
     V_DrawNamePatch((320 - V_NamePatchWidth("M_PAUSE"))/2, 4,
                     0, "M_PAUSE", CR_DEFAULT, VPT_STRETCH);
