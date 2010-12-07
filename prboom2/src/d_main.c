@@ -1638,6 +1638,8 @@ static void D_DoomMainSetup(void)
     if (!singledemo) {                  /* killough 12/98 */
       if (autostart || netgame)
   {
+    // sets first map and first episode if unknown
+    GetFirstMap(&startepisode, &startmap);
     G_InitNew(startskill, startepisode, startmap);
     if (demorecording)
       G_BeginRecording();
