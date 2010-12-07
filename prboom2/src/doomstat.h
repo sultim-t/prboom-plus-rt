@@ -176,7 +176,13 @@ enum automapmode_e {
 };
 extern enum automapmode_e automapmode; // Mode that the automap is in
 
-extern  boolean menuactive;    // Menu overlayed?
+enum menuactive_e {
+  mnact_inactive, // no menu
+  mnact_float, // doom-style large font menu, doesn't overlap anything
+  mnact_full, // boom-style small font menu, may overlap status bar
+};
+extern enum menuactive_e menuactive; // Type of menu overlaid, if any
+
 extern  boolean paused;        // Game Pause?
 extern  boolean nodrawers;
 extern  boolean noblit;

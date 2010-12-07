@@ -133,7 +133,7 @@ char saveOldString[SAVESTRINGSIZE];
 
 boolean inhelpscreens; // indicates we are in or just left a help screen
 
-boolean menuactive;    // The menus are up
+enum menuactive_e menuactive;    // The menus are up
 
 #define SKULLXOFF  -32
 #define LINEHEIGHT  16
@@ -4234,7 +4234,7 @@ boolean M_Responder (event_t* ev) {
     if (messageRoutine)
       messageRoutine(ch);
 
-    menuactive = false;
+    menuactive = mnact_inactive;
     S_StartSound(NULL,sfx_swtchx);
     return true;
   }
@@ -5219,7 +5219,7 @@ void M_StartControlPanel (void)
   NewDef.lastOn = defaultskill - 1;
 
   default_verify = 0;                  // killough 10/98
-  menuactive = 1;
+  menuactive = mnact_float;
   currentMenu = &MainDef;         // JDC
   itemOn = currentMenu->lastOn;   // JDC
   print_warning_about_changes = false;   // killough 11/98
@@ -5296,7 +5296,7 @@ void M_Drawer (void)
 
 void M_ClearMenus (void)
 {
-  menuactive = 0;
+  menuactive = mnact_inactive;
   print_warning_about_changes = 0;     // killough 8/15/98
   default_verify = 0;                  // killough 10/98
 
@@ -5338,7 +5338,7 @@ void M_StartMessage (const char* string,void* routine,boolean input)
   messageString = string;
   messageRoutine = routine;
   messageNeedsInput = input;
-  menuactive = true;
+  menuactive = mnact_float;
   return;
 }
 
@@ -5517,7 +5517,7 @@ void M_Init(void)
 {
   M_InitDefaults();                // killough 11/98
   currentMenu = &MainDef;
-  menuactive = 0;
+  menuactive = mnact_inactive;
   itemOn = currentMenu->lastOn;
   whichSkull = 0;
   skullAnimCounter = 10;
