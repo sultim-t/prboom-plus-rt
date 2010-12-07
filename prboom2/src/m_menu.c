@@ -121,7 +121,7 @@ static void M_UpdateCurrent(default_t* def)
 int warning_about_changes, print_warning_about_changes;
 
 /* cphipps - M_DrawBackground renamed and moved to v_video.c */
-#define M_DrawBackground V_DrawBackground
+#define M_DrawBackground(flat, scrn) /* do nothing */
 
 // we are going to be entering a savegame string
 
