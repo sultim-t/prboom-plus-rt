@@ -948,10 +948,10 @@ static dboolean AM_clipMline
 
 #define DOOUTCODE(oc, mx, my) \
   (oc) = 0; \
-  if ((my) < 0) (oc) |= TOP; \
-  else if ((my) >= f_h) (oc) |= BOTTOM; \
-  if ((mx) < 0) (oc) |= LEFT; \
-  else if ((mx) >= f_w) (oc) |= RIGHT;
+  if ((my) < f_y) (oc) |= TOP; \
+  else if ((my) >= f_y + f_h) (oc) |= BOTTOM; \
+  if ((mx) < f_x) (oc) |= LEFT; \
+  else if ((mx) >= f_x + f_w) (oc) |= RIGHT;
 
 
   // do trivial rejects and outcodes
@@ -1007,29 +1007,29 @@ static dboolean AM_clipMline
     {
       dy = fl->a.y - fl->b.y;
       dx = fl->b.x - fl->a.x;
-      tmp.x = fl->a.x + (dx*(fl->a.y))/dy;
-      tmp.y = 0;
+      tmp.x = fl->a.x + (dx*(fl->a.y-f_y))/dy;
+      tmp.y = f_y;
     }
     else if (outside & BOTTOM)
     {
       dy = fl->a.y - fl->b.y;
       dx = fl->b.x - fl->a.x;
-      tmp.x = fl->a.x + (dx*(fl->a.y-f_h))/dy;
-      tmp.y = f_h-1;
+      tmp.x = fl->a.x + (dx*(fl->a.y-(f_y+f_h)))/dy;
+      tmp.y = f_y+f_h-1;
     }
     else if (outside & RIGHT)
     {
       dy = fl->b.y - fl->a.y;
       dx = fl->b.x - fl->a.x;
-      tmp.y = fl->a.y + (dy*(f_w-1 - fl->a.x))/dx;
-      tmp.x = f_w-1;
+      tmp.y = fl->a.y + (dy*(f_x+f_w-1 - fl->a.x))/dx;
+      tmp.x = f_x+f_w-1;
     }
     else if (outside & LEFT)
     {
       dy = fl->b.y - fl->a.y;
       dx = fl->b.x - fl->a.x;
-      tmp.y = fl->a.y + (dy*(-fl->a.x))/dx;
-      tmp.x = 0;
+      tmp.y = fl->a.y + (dy*(f_x-fl->a.x))/dx;
+      tmp.x = f_x;
     }
 
     if (outside == outcode1)
