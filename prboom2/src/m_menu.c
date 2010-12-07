@@ -121,7 +121,14 @@ static void M_UpdateCurrent(default_t* def)
 int warning_about_changes, print_warning_about_changes;
 
 /* cphipps - M_DrawBackground renamed and moved to v_video.c */
-#define M_DrawBackground(flat, scrn) /* do nothing */
+
+boolean menu_background = 1; // do Boom fullscreen menus have backgrounds?
+
+static void M_DrawBackground(const char *flat, int scrn)
+{
+  if (menu_background)
+    V_DrawBackground(flat, scrn);
+}
 
 // we are going to be entering a savegame string
 
@@ -2944,6 +2951,7 @@ enum {
   general_smooth,
   general_smoothfactor,
   general_defskill,
+  general_menubg,
 };
 
 #define G_YB  44
@@ -2992,6 +3000,9 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
 
   {"Default skill level", S_CHOICE, m_null, G_X,
     G_YB2 + general_defskill*8, {"default_skill"}, 0, 0, NULL, gen_skillstrings},
+
+  {"Fullscreen menu background", S_YESNO, m_null, G_X,
+    G_YB2 + general_menubg*8, {"menu_background"}},
 
   {"<- PREV",S_SKIP|S_PREV, m_null, KB_PREV, KB_Y+20*8, {gen_settings1}},
 
