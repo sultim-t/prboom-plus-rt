@@ -823,40 +823,33 @@ static void ST_drawWidgets(boolean refresh)
 
 }
 
-static void ST_doRefresh(void)
-{
 
-  st_firsttime = false;
 
-  // draw status bar background to off-screen buff
-  ST_refreshBackground();
-
-  // and refresh all widgets
-  ST_drawWidgets(true);
-
-}
-
-static void ST_diffDraw(void)
-{
-  // update all widgets
-  ST_drawWidgets(false);
-}
-
-void ST_Drawer(boolean statusbaron, boolean refresh)
+void ST_Drawer(boolean statusbaron, boolean refresh, boolean fullmenu)
 {
   /* cph - let status bar on be controlled
    * completely by the call from D_Display
    * proff - really do it
    */
-  st_firsttime = st_firsttime || refresh;
+  st_firsttime = st_firsttime || refresh || fullmenu;
 
   ST_doPaletteStuff();  // Do red-/gold-shifts from damage/items
 
   if (statusbaron) {
     if (st_firsttime || (V_GetMode() == VID_MODEGL))
-      ST_doRefresh();     /* If just after ST_Start(), refresh all */
+    {
+      /* If just after ST_Start(), refresh all */
+      st_firsttime = false;
+      ST_refreshBackground(); // draw status bar background to off-screen buff
+      if (!fullmenu)
+        ST_drawWidgets(true); // and refresh all widgets
+    }
     else
-      ST_diffDraw();      /* Otherwise, update as little as possible */
+    {
+      /* Otherwise, update as little as possible */
+      if (!fullmenu)
+        ST_drawWidgets(false); // update all widgets
+    }
   }
 }
 

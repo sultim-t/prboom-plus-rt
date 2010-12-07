@@ -276,7 +276,11 @@ void D_Display (void)
       R_RenderPlayerView (&players[displayplayer]);
     if (automapmode & am_active)
       AM_Drawer();
-    ST_Drawer((viewheight != SCREENHEIGHT) || ((automapmode & am_active) && !(automapmode & am_overlay)), redrawborderstuff);
+    ST_Drawer(
+        ((viewheight != SCREENHEIGHT)
+         || ((automapmode & am_active) && !(automapmode & am_overlay))),
+        redrawborderstuff,
+        (menuactive == mnact_full));
     if (V_GetMode() != VID_MODEGL)
       R_DrawViewBorder();
     HU_Drawer();
