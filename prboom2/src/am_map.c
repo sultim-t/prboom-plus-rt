@@ -469,6 +469,11 @@ void AM_SetPosition(void)
       f_w = SCREENWIDTH - f_x;
     if (f_y + f_h > SCREENHEIGHT)
       f_h = SCREENHEIGHT - f_h;
+
+    f_x = viewwindowx + f_x * viewwidth / SCREENWIDTH;
+    f_y = viewwindowy + f_y * viewheight / SCREENHEIGHT;
+    f_w = f_w * viewwidth / SCREENWIDTH;
+    f_h = f_h * viewheight / SCREENHEIGHT;
   }
   else
   {
@@ -770,7 +775,7 @@ dboolean AM_Responder
     }
     else if (ch == key_map_overlay) {
       automapmode ^= am_overlay;
-      AM_SetPosition();
+      AM_initVariables();
       plr->message = (automapmode & am_overlay) ? s_AMSTR_OVERLAYON : s_AMSTR_OVERLAYOFF;
     }
 #ifdef GL_DOOM

@@ -1802,7 +1802,7 @@ void HU_Drawer(void)
 
   plr = &players[displayplayer];         // killough 3/7/98
   // draw the automap widgets if automap is displayed
-  if (automapmode & am_active)
+  if ((automapmode & am_active) && !(automapmode & am_overlay))
   {
     // map title
     HUlib_drawTextLine(&w_title, false);
@@ -1907,7 +1907,8 @@ void HU_Drawer(void)
     hud_active>0 &&                  // hud optioned on
     hud_displayed &&                 // hud on from fullscreen key
     viewheight==SCREENHEIGHT &&      // fullscreen mode is active
-    !(automapmode & am_active)       // automap is not active
+    (!(automapmode & am_active) ||   // automap is not active
+     (automapmode & am_overlay))
   )
   {
     HU_MoveHud(false);                  // insure HUD display coords are correct
