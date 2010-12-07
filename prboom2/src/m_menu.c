@@ -2301,13 +2301,13 @@ void M_KeyBindings(int choice)
 // background, title, instruction line, and items.
 
 void M_DrawKeybnd(void)
-
 {
-  inhelpscreens = true;    // killough 4/6/98: Force status bar redraw
+  menuactive = mnact_full;
 
   // Set up the Key Binding screen
 
   M_DrawBackground("FLOOR4_6", 0); // Draw background
+
   // proff/nicolas 09/20/98 -- changed for hi-res
   V_DrawNamePatch(84, 2, 0, "M_KEYBND", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -2414,9 +2414,10 @@ void M_Weapons(int choice)
 
 void M_DrawWeapons(void)
 {
-  inhelpscreens = true;    // killough 4/6/98: Force status bar redraw
+  menuactive = mnact_full;
 
   M_DrawBackground("FLOOR4_6", 0); // Draw background
+
   // proff/nicolas 09/20/98 -- changed for hi-res
   V_DrawNamePatch(109, 2, 0, "M_WEAP", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -2499,11 +2500,11 @@ void M_StatusBar(int choice)
 // background, title, instruction line, and items.
 
 void M_DrawStatusHUD(void)
-
 {
-  inhelpscreens = true;    // killough 4/6/98: Force status bar redraw
+  menuactive = mnact_full;
 
   M_DrawBackground("FLOOR4_6", 0); // Draw background
+
   // proff/nicolas 09/20/98 -- changed for hi-res
   V_DrawNamePatch(59, 2, 0, "M_STAT", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -2652,11 +2653,11 @@ static void M_DrawColPal(void)
 // background, title, instruction line, and items.
 
 void M_DrawAutoMap(void)
-
 {
-  inhelpscreens = true;    // killough 4/6/98: Force status bar redraw
+  menuactive = mnact_full;
 
   M_DrawBackground("FLOOR4_6", 0); // Draw background
+
   // CPhipps - patch drawing updated
   V_DrawNamePatch(109, 2, 0, "M_AUTO", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -2779,11 +2780,11 @@ void M_Enemy(int choice)
 // background, title, instruction line, and items.
 
 void M_DrawEnemy(void)
-
 {
-  inhelpscreens = true;
+  menuactive = mnact_full;
 
   M_DrawBackground("FLOOR4_6", 0); // Draw background
+
   // proff/nicolas 09/20/98 -- changed for hi-res
   V_DrawNamePatch(114, 2, 0, "M_ENEM", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -3103,9 +3104,10 @@ void M_General(int choice)
 
 void M_DrawGeneral(void)
 {
-  inhelpscreens = true;
+  menuactive = mnact_full;
 
   M_DrawBackground("FLOOR4_6", 0); // Draw background
+
   // proff/nicolas 09/20/98 -- changed for hi-res
   V_DrawNamePatch(114, 2, 0, "M_GENERL", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -3295,9 +3297,10 @@ void M_Compat(int choice)
 
 void M_DrawCompat(void)
 {
-  inhelpscreens = true;
+  menuactive = mnact_full;
 
   M_DrawBackground("FLOOR4_6", 0); // Draw background
+
   V_DrawNamePatch(52,2,0,"M_COMPAT", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
   M_DrawScreenItems(current_setup_menu);
@@ -3414,10 +3417,11 @@ void M_Messages(int choice)
 // background, title, instruction line, and items.
 
 void M_DrawMessages(void)
-
 {
-  inhelpscreens = true;
+  menuactive = mnact_full;
+
   M_DrawBackground("FLOOR4_6", 0); // Draw background
+
   // CPhipps - patch drawing updated
   V_DrawNamePatch(103, 2, 0, "M_MESS", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -3487,10 +3491,11 @@ void M_ChatStrings(int choice)
 // background, title, instruction line, and items.
 
 void M_DrawChatStrings(void)
-
 {
-  inhelpscreens = true;
+  menuactive = mnact_full;
+
   M_DrawBackground("FLOOR4_6", 0); // Draw background
+
   // CPhipps - patch drawing updated
   V_DrawNamePatch(83, 2, 0, "M_CHAT", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -3992,7 +3997,8 @@ static void M_DrawStringCentered(int cx, int cy, int color, const char* ch)
 
 void M_DrawHelp (void)
 {
-  inhelpscreens = true;                        // killough 10/98
+  menuactive = mnact_full;
+
   M_DrawBackground("FLOOR4_6", 0);
 
   M_DrawScreenItems(helpstrings);
@@ -5263,6 +5269,8 @@ void M_Drawer (void)
     if (menuactive)
       {
   int x,y,max,i;
+
+  menuactive = mnact_float; // Boom-style menu drawers will set mnact_full
 
   if (currentMenu->routine)
     currentMenu->routine();     // call Draw routine
