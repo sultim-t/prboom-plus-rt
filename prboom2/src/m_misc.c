@@ -772,6 +772,15 @@ default_t defaults[] =
    def_int,ss_auto},
   {"map_lines_overlay_trans", {&map_lines_overlay_trans}, {100},0,100,
    def_int,ss_auto},
+
+  {"map_overlay_pos_x", {&map_overlay_pos_x}, {-1},-1,319,
+   def_int,ss_auto},
+  {"map_overlay_pos_y", {&map_overlay_pos_y}, {-1},-1,199,
+   def_int,ss_auto},
+  {"map_overlay_pos_width", {&map_overlay_pos_width}, {-1},-1,320,
+   def_int,ss_auto},
+  {"map_overlay_pos_height", {&map_overlay_pos_height}, {-1},-1,200,
+   def_int,ss_auto},
 #endif
 
   {"Heads-up display settings",{NULL},{0},UL,UL,def_none,ss_none},

@@ -95,6 +95,10 @@ int map_textured;
 int map_textured_trans;
 int map_textured_overlay_trans;
 int map_lines_overlay_trans;
+int map_overlay_pos_x;
+int map_overlay_pos_y;
+int map_overlay_pos_width;
+int map_overlay_pos_height;
 
 //jff 4/3/98 add symbols for "no-color" for disable and "black color" for black
 #define NC 0
@@ -445,6 +449,41 @@ static void AM_changeWindowLoc(void)
   m_y2 = m_y + m_h;
 }
 
+//
+// AM_SetPosition
+//
+void AM_SetPosition(void)
+{
+  if ((automapmode & am_overlay) &&
+    (map_overlay_pos_x != -1) &&
+    (map_overlay_pos_y != -1) &&
+    (map_overlay_pos_width != -1) &&
+    (map_overlay_pos_height != -1))
+  {
+    f_x = map_overlay_pos_x * SCREENWIDTH / 320;
+    f_y = map_overlay_pos_y * SCREENHEIGHT / 200;
+    f_w = map_overlay_pos_width * SCREENWIDTH / 320;
+    f_h = map_overlay_pos_height * SCREENHEIGHT / 200;
+
+    if (f_x + f_w > SCREENWIDTH)
+      f_w = SCREENWIDTH - f_x;
+    if (f_y + f_h > SCREENHEIGHT)
+      f_h = SCREENHEIGHT - f_h;
+  }
+  else
+  {
+    //default
+    f_x = f_y = 0;
+    f_w = SCREENWIDTH;           // killough 2/7/98: get rid of finit_ vars
+    f_h = SCREENHEIGHT-ST_SCALED_HEIGHT;// to allow runtime setting of width/height
+  }
+
+  AM_findMinMaxBoundaries();
+  scale_mtof = FixedDiv(min_scale_mtof, (int) (0.7*FRACUNIT));
+  if (scale_mtof > max_scale_mtof)
+    scale_mtof = min_scale_mtof;
+  scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
+}
 
 //
 // AM_initVariables()
@@ -461,6 +500,8 @@ static void AM_initVariables(void)
   static event_t st_notify = { ev_keyup, AM_MSGENTERED, 0, 0 };
 
   automapmode |= am_active;
+
+  AM_SetPosition();
 
   f_oldloc.x = INT_MAX;
 
@@ -535,15 +576,7 @@ static void AM_LevelInit(void)
 {
   leveljuststarted = 0;
 
-  f_x = f_y = 0;
-  f_w = SCREENWIDTH;           // killough 2/7/98: get rid of finit_ vars
-  f_h = SCREENHEIGHT-ST_SCALED_HEIGHT;// to allow runtime setting of width/height
-
-  AM_findMinMaxBoundaries();
-  scale_mtof = FixedDiv(min_scale_mtof, (int) (0.7*FRACUNIT));
-  if (scale_mtof > max_scale_mtof)
-    scale_mtof = min_scale_mtof;
-  scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
+  AM_SetPosition();
 
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
   {
@@ -737,6 +770,7 @@ dboolean AM_Responder
     }
     else if (ch == key_map_overlay) {
       automapmode ^= am_overlay;
+      AM_SetPosition();
       plr->message = (automapmode & am_overlay) ? s_AMSTR_OVERLAYON : s_AMSTR_OVERLAYOFF;
     }
 #ifdef GL_DOOM
