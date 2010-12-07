@@ -707,13 +707,138 @@ static void P_LoadNodes (int lump)
       for (j=0 ; j<2 ; j++)
         {
           int k;
-          no->children[j] = SHORT(mn->children[j]);
+          no->children[j] = (unsigned short)SHORT(mn->children[j]);
+
+          // account for children's promotion to 32 bits
+          if (no->children[j] == 0xffff)
+            no->children[j] = 0xffffffff;
+          else if (no->children[j] & 0x8000) // old NF_SUBSECTOR
+            no->children[j] = (no->children[j] &~ 0x8000) | NF_SUBSECTOR;
+
           for (k=0 ; k<4 ; k++)
             no->bbox[j][k] = SHORT(mn->bbox[j][k])<<FRACBITS;
         }
     }
 
   W_UnlockLumpNum(lump); // cph - release the data
+}
+
+//
+// P_LoadXNOD - load uncompressed ZDBSP nodes
+//
+
+static void P_LoadXNOD(int lump)
+{
+  unsigned int len = W_LumpLength(lump);
+  const void *data = W_CacheLumpNum(lump);
+  unsigned int i, numorgvert, numnewvert, first_seg = 0;
+  vertex_t *newvert;
+
+  data += 4; len -= 4; // skip the header
+  numorgvert = LONG(*(const unsigned int *)data); data += 4; len -= 4;
+  numnewvert = LONG(*(const unsigned int *)data); data += 4; len -= 4;
+
+  newvert = Z_Realloc(vertexes,
+                      (numorgvert+numnewvert)*sizeof(*newvert),
+                      PU_LEVEL, NULL);
+
+  for (i = 0; i < numnewvert; i++)
+  {
+    vertex_t *v = newvert + numorgvert + i;
+
+    v->x = LONG(*(const fixed_t *)data); data += 4; len -= 4;
+    v->y = LONG(*(const fixed_t *)data); data += 4; len -= 4;
+  }
+
+  if (newvert != vertexes)
+  {
+    for (i = 0; i < numlines; i++) {
+      lines[i].v1 = newvert + (lines[i].v1 - vertexes);
+      lines[i].v2 = newvert + (lines[i].v2 - vertexes);
+    }
+    vertexes = newvert;
+  }
+  newvert = vertexes + numorgvert;
+  numvertexes = numorgvert + numnewvert;
+
+  numsubsectors = LONG(*(const unsigned int *)data); data += 4; len -= 4;
+  subsectors = Z_Calloc(numsubsectors, sizeof(*subsectors), PU_LEVEL, NULL);
+
+  for (i = 0; i < numsubsectors; i++) {
+    subsectors[i].firstline = first_seg;
+    subsectors[i].numlines = LONG(*(const unsigned int *)data); data += 4; len -= 4;
+    first_seg += subsectors[i].numlines;
+  }
+
+  numsegs = LONG(*(const unsigned int *)data); data += 4; len -= 4;
+  segs = Z_Calloc(numsegs, sizeof(*segs), PU_LEVEL, NULL);
+
+  for (i = 0; i < numsegs; i++)
+  {
+    unsigned int v1, v2;
+    unsigned short ld;
+    unsigned char side;
+    seg_t *seg;
+    line_t *line;
+
+    v1 = LONG(*(const unsigned int *)data); data += 4; len -= 4;
+    v2 = LONG(*(const unsigned int *)data); data += 4; len -= 4;
+    ld = SHORT(*(const unsigned short *)data); data += 2; len -= 2;
+    side = *(const unsigned char *)data; data += 1; len -= 1;
+
+    seg = segs + i;
+    line = lines + ld;
+
+    seg->v1 = vertexes + v1;
+    seg->v2 = vertexes + v2;
+    seg->miniseg = false;
+    seg->iSegID = i; // needed for OpenGL
+    seg->length = GetDistance(seg->v2->x - seg->v1->x,
+                              seg->v2->y - seg->v1->y);
+    seg->angle = R_PointToAngle2(seg->v1->x, seg->v1->y,
+                                 seg->v2->x, seg->v2->y);
+    seg->linedef = line;
+    seg->sidedef = sides + line->sidenum[side];
+    seg->frontsector = seg->sidedef->sector;
+    seg->backsector = ((line->flags & ML_TWOSIDED
+                        && line->sidenum[side^1] != NO_INDEX)
+                       ? sides[line->sidenum[side^1]].sector
+                       : NULL);
+    seg->offset = FRACUNIT *
+      (side == 0
+       // Right side - offset is distance from start of line to start of seg
+       ? GetDistance(line->v1->x - seg->v1->x, line->v1->y - seg->v1->y)
+       // Left side - offset is distance from end of line to start of seg
+       : GetDistance(line->v2->x - seg->v1->x, line->v2->y - seg->v1->y)
+      );
+  }
+
+  numnodes = LONG(*(const unsigned int *)data); data += 4; len -= 4;
+  nodes = Z_Calloc(numnodes, sizeof(*nodes), PU_LEVEL, NULL);
+
+  for (i = 0; i < numnodes; i++)
+  {
+    node_t *node = nodes + i;
+    int j, k;
+
+    node->x = SHORT(*(const short *)data)<<FRACBITS; data += 2; len -= 2;
+    node->y = SHORT(*(const short *)data)<<FRACBITS; data += 2; len -= 2;
+    node->dx = SHORT(*(const short *)data)<<FRACBITS; data += 2; len -= 2;
+    node->dy = SHORT(*(const short *)data)<<FRACBITS; data += 2; len -= 2;
+
+    for (j = 0; j < 2; j++) {
+      for (k = 0; k < 4; k++) {
+        node->bbox[j][k] =
+          SHORT(*(const short *)data)<<FRACBITS; data += 2; len -= 2;
+      }
+    }
+
+    for (j = 0; j < 2; j++) {
+      node->children[j] = LONG(*(const unsigned int *)data); data += 4; len -= 4;
+    }
+  }
+
+  W_UnlockLumpNum(lump);
 }
 
 
@@ -1687,6 +1812,10 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
     P_LoadSubsectors(gl_lumpnum + ML_GL_SSECT);
     P_LoadNodes(gl_lumpnum + ML_GL_NODES);
     P_LoadGLSegs(gl_lumpnum + ML_GL_SEGS);
+  }
+  else if (nodes_zdbsp == 1)
+  {
+    P_LoadXNOD(lumpnum + ML_NODES);
   }
   else
   {
