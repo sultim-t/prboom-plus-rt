@@ -468,7 +468,7 @@ void AM_SetPosition(void)
     if (f_x + f_w > SCREENWIDTH)
       f_w = SCREENWIDTH - f_x;
     if (f_y + f_h > SCREENHEIGHT)
-      f_h = SCREENHEIGHT - f_h;
+      f_h = SCREENHEIGHT - f_y;
 
     f_x = viewwindowx + f_x * viewwidth / SCREENWIDTH;
     f_y = viewwindowy + f_y * viewheight / SCREENHEIGHT;
