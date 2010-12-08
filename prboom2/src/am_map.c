@@ -478,9 +478,10 @@ void AM_SetPosition(void)
   else
   {
     //default
-    f_x = f_y = 0;
-    f_w = SCREENWIDTH;           // killough 2/7/98: get rid of finit_ vars
-    f_h = SCREENHEIGHT-ST_SCALED_HEIGHT;// to allow runtime setting of width/height
+    f_x = viewwindowx;
+    f_y = viewwindowy;
+    f_w = viewwidth;
+    f_h = viewheight;
   }
 
   AM_findMinMaxBoundaries();
