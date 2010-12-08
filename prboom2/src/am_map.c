@@ -454,11 +454,7 @@ static void AM_changeWindowLoc(void)
 //
 void AM_SetPosition(void)
 {
-  if ((automapmode & am_overlay) &&
-    (map_overlay_pos_x != -1) &&
-    (map_overlay_pos_y != -1) &&
-    (map_overlay_pos_width != -1) &&
-    (map_overlay_pos_height != -1))
+  if (automapmode & am_overlay)
   {
     f_x = map_overlay_pos_x * SCREENWIDTH / 320;
     f_y = map_overlay_pos_y * SCREENHEIGHT / 200;
@@ -478,10 +474,9 @@ void AM_SetPosition(void)
   else
   {
     //default
-    f_x = viewwindowx;
-    f_y = viewwindowy;
-    f_w = viewwidth;
-    f_h = viewheight;
+    f_x = f_y = 0;
+    f_w = SCREENWIDTH;           // killough 2/7/98: get rid of finit_ vars
+    f_h = SCREENHEIGHT-ST_SCALED_HEIGHT;// to allow runtime setting of width/height
   }
 
   AM_findMinMaxBoundaries();
