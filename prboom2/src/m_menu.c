@@ -4063,7 +4063,8 @@ setup_menu_t cred_settings[]={
 void M_DrawCredits(void)     // killough 10/98: credit screen
 {
   inhelpscreens = true;
-  M_DrawBackground(gamemode==shareware ? "CEIL5_1" : "MFLR8_4", 0);
+  // Use V_DrawBackground here deliberately to force drawing a background
+  V_DrawBackground(gamemode==shareware ? "CEIL5_1" : "MFLR8_4", 0);
   V_DrawNamePatch(115,9,0, "PRBOOM",CR_GOLD, VPT_TRANS | VPT_STRETCH);
   M_DrawScreenItems(cred_settings);
 }
