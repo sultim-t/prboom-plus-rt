@@ -266,7 +266,9 @@ void D_Display (void)
       redrawborderstuff = isborder && (!isborderstate || borderwillneedredraw);
       // The border may need redrawing next time if the border surrounds the screen,
       // and there is a menu being displayed
-      borderwillneedredraw = menuactive && isborder && viewactive;
+      borderwillneedredraw = viewactive
+        ? (menuactive && isborder)
+        : (!inhelpscreens && menuactive == mnact_full);
     }
     if (redrawborderstuff || (V_GetMode() == VID_MODEGL))
       R_DrawViewBorder();
