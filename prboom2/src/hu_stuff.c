@@ -739,6 +739,10 @@ void HU_Drawer(void)
   char armorstr[80]; //jff
   int i,doit;
 
+  // don't draw anything if there's a fullscreen menu up
+  if (menuactive == mnact_full)
+    return;
+
   plr = &players[displayplayer];         // killough 3/7/98
   // draw the automap widgets if automap is displayed
   if (automapmode & am_active)
@@ -777,10 +781,6 @@ void HU_Drawer(void)
       HUlib_drawTextLine(&w_coordz, false);
     }
   }
-
-  // don't draw anything if there's a fullscreen menu up
-  if (menuactive == mnact_full)
-    return;
 
   // draw the weapon/health/ammo/armor/kills/keys displays if optioned
   //jff 2/17/98 allow new hud stuff to be turned off
