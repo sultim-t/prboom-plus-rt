@@ -144,48 +144,7 @@ static void I_SignalHandler(int s)
 
 
 
-/* killough 2/22/98: Add support for ENDBOOM, which is PC-specific
- *
- * this converts BIOS color codes to ANSI codes.
- * Its not pretty, but it does the job - rain
- * CPhipps - made static
- */
-
-inline static int convert(int color, int *bold)
-{
-  if (color > 7) {
-    color -= 8;
-    *bold = 1;
-  }
-  switch (color) {
-  case 0:
-    return 0;
-  case 1:
-    return 4;
-  case 2:
-    return 2;
-  case 3:
-    return 6;
-  case 4:
-    return 1;
-  case 5:
-    return 5;
-  case 6:
-    return 3;
-  case 7:
-    return 7;
-  }
-  return 0;
-}
-
-/* CPhipps - flags controlling ENDOOM behaviour */
-enum {
-  endoom_colours = 1,
-  endoom_nonasciichars = 2,
-  endoom_droplastline = 4
-};
-
-unsigned int endoom_mode;
+// killough 2/22/98: Add support for ENDBOOM, which is PC-specific
 
 static void PrintVer(void)
 {
@@ -199,114 +158,9 @@ static void PrintVer(void)
  */
 static void I_EndDoom(void)
 {
-  int lump_eb, lump_ed, lump = -1;
-
-  /* CPhipps - ENDOOM/ENDBOOM selection */
-  lump_eb = W_CheckNumForName("ENDBOOM");/* jff 4/1/98 sign our work    */
-  lump_ed = W_CheckNumForName("ENDOOM"); /* CPhipps - also maybe ENDOOM */
-
-  if (lump_eb == -1)
-    lump = lump_ed;
-  else if (lump_ed == -1)
-    lump = lump_eb;
-  else
-  { /* Both ENDOOM and ENDBOOM are present */
-#define LUMP_IS_NEW(num) (!((lumpinfo[num].source == source_iwad) || (lumpinfo[num].source == source_auto_load)))
-    switch ((LUMP_IS_NEW(lump_ed) ? 1 : 0 ) |
-      (LUMP_IS_NEW(lump_eb) ? 2 : 0)) {
-    case 1:
-      lump = lump_ed;
-      break;
-    case 2:
-      lump = lump_eb;
-      break;
-    default:
-      /* Both lumps have equal priority, both present */
-      lump = (P_Random(pr_misc) & 1) ? lump_ed : lump_eb;
-      break;
-    }
-  }
-
-  if (lump != -1)
-  {
-    const char (*endoom)[2] = (const void*)W_CacheLumpNum(lump);
-    int i, l = W_LumpLength(lump) / 2;
-
-    /* cph - colour ENDOOM by rain */
-    int oldbg = -1, oldcolor = -1, bold = 0, oldbold = -1, color = 0;
-#ifndef _WIN32
-    if (endoom_mode & endoom_nonasciichars)
-      /* switch to secondary charset, and set to cp437 (IBM charset) */
-      printf("\e)K\016");
-#endif /* _WIN32 */
-
-    /* cph - optionally drop the last line, so everything fits on one screen */
-    if (endoom_mode & endoom_droplastline)
-      l -= 80;
-    lprintf(LO_INFO,"\n");
-    for (i=0; i<l; i++)
-    {
-#ifdef _WIN32
-      I_ConTextAttr(endoom[i][1]);
-#elif defined (DJGPP)
-      textattr(endoom[i][1]);
-#else
-      if (endoom_mode & endoom_colours)
-      {
-        if (!(i % 80))
-        {
-          /* reset color but not bold when we start a new line */
-          oldbg = -1;
-          oldcolor = -1;
-          printf("\e[39m\e[49m\n");
-        }
-        /* foreground color */
-        bold = 0;
-        color = endoom[i][1] % 16;
-        if (color != oldcolor)
-        {
-          oldcolor = color;
-          color = convert(color, &bold);
-          if (oldbold != bold)
-          {
-            oldbold = bold;
-      printf("\e[%cm", bold + '0');
-      if (!bold) oldbg = -1;
-          }
-          /* we buffer everything or output is horrendously slow */
-          printf("\e[%dm", color + 30);
-          bold = 0;
-        }
-        /* background color */
-        color = endoom[i][1] / 16;
-        if (color != oldbg)
-        {
-          oldbg = color;
-          color = convert(color, &bold);
-          printf("\e[%dm", color + 40);
-        }
-      }
-#endif
-      /* cph - portable ascii printout if requested */
-      if (isascii(endoom[i][0]) || (endoom_mode & endoom_nonasciichars))
-        lprintf(LO_INFO,"%c",endoom[i][0]);
-      else /* Probably a box character, so do #'s */
-        lprintf(LO_INFO,"#");
-    }
-#ifndef _WIN32
-    lprintf(LO_INFO,"\b"); /* hack workaround for extra newline at bottom of screen */
-    lprintf(LO_INFO,"\r");
-    if (endoom_mode & endoom_nonasciichars)
-      printf("%c",'\017'); /* restore primary charset */
-#endif /* _WIN32 */
-    W_UnlockLumpNum(lump);
-  }
-#ifndef _WIN32
-  if (endoom_mode & endoom_colours)
-    puts("\e[0m"); /* cph - reset colours */
-  PrintVer();
-#endif /* _WIN32 */
 }
+
+
 
 static int has_exited;
 

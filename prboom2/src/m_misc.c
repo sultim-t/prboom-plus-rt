@@ -168,8 +168,6 @@ int         mus_pause_opt; // 0 = kill music, 1 = pause, 2 = continue
 
 extern const char* chat_macros[];
 
-extern int endoom_mode;
-
 extern const char* S_music_files[]; // cournia
 
 /* cph - Some MBF stuff parked here for now
@@ -193,8 +191,6 @@ default_t defaults[] =
    def_bool,ss_none}, // killough 10/98 - enable flashing HOM indicator
   {"demo_insurance",{&default_demo_insurance},{2},0,2,  // killough 3/31/98
    def_int,ss_none}, // 1=take special steps ensuring demo sync, 2=only during recordings
-  {"endoom_mode", {&endoom_mode},{5},0,7, // CPhipps - endoom flags
-   def_hex, ss_none}, // 0, +1 for colours, +2 for non-ascii chars, +4 for skip-last-line
   {"level_precache",{(int*)&precache},{0},0,1,
    def_bool,ss_none}, // precache level data?
   {"demo_smoothturns", {&demo_smoothturns},  {0},0,1,
