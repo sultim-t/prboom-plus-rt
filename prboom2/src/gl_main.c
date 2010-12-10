@@ -548,8 +548,8 @@ void gld_DrawBackground(const char* name)
     return;
   fU1=0;
   fV1=0;
-  fU2=(float)SCREENWIDTH/(float)gltexture->realtexwidth;
-  fV2=(float)SCREENHEIGHT/(float)gltexture->realtexheight;
+  fU2=320.0f/(float)gltexture->realtexwidth;
+  fV2=200.0f/(float)gltexture->realtexheight;
   width=SCREENWIDTH;
   height=SCREENHEIGHT;
   glBegin(GL_TRIANGLE_STRIP);
