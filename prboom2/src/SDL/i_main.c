@@ -256,11 +256,18 @@ static void endoom_init(struct endoom_state *state)
 
 static void endoom_start(struct endoom_state *state)
 {
+#ifdef _WIN32
+  printf("\n");
+#else
   printf("\e[0m\n");
+#endif
 }
 
 static void endoom_charstyle(struct endoom_state *state, unsigned char style)
 {
+#ifdef _WIN32
+  I_ConTextAttr(style);
+#else
   static unsigned char cga_to_ansi[] = { 0, 4, 2, 6, 1, 5, 3, 7 }; // convert()
   static unsigned char bold_to_ansi[] = { 22, 1 }; // intensity normal/high
   static unsigned char blink_to_ansi[] = { 25, 5 }; // blinking off/on
@@ -299,10 +306,14 @@ static void endoom_charstyle(struct endoom_state *state, unsigned char style)
     state->blink = blink;
     printf("\e[%dm", blink_to_ansi[blink]);
   }
+#endif
 }
 
 static void endoom_printchar(unsigned char cp437)
 {
+#ifdef _WIN32
+  printf("%c", cp437);
+#else
   unsigned int unicode;
   unsigned char utf8[8];
 
@@ -311,18 +322,25 @@ static void endoom_printchar(unsigned char cp437)
   unicode_to_utf8(utf8, unicode);
 
   printf("%s", utf8);
+#endif
 }
 
 static void endoom_endofline(struct endoom_state *state)
 {
+#ifdef _WIN32
+#else
   // reset background colour at new line to avoid "spillage"
   state->bg = -1;
   printf("\e[49m\n");
+#endif
 }
 
 static void endoom_finish(struct endoom_state *state)
 {
+#ifdef _WIN32
+#else
   printf("\e[0m"); /* cph - reset colours */
+#endif
 }
 
 /* I_EndDoom
@@ -360,7 +378,9 @@ static void I_EndDoom(void)
     W_UnlockLumpNum(lump);
   }
 
+#ifndef _WIN32
   PrintVer();
+#endif
 }
 
 
