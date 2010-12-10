@@ -154,60 +154,63 @@ static void FUNC_V_CopyRect(int srcx, int srcy, int srcscrn, int width,
  * cphipps - used to have M_DrawBackground, but that was used the framebuffer
  * directly, so this is my code from the equivalent function in f_finale.c
  */
+
+// FIXME: restore v_video.inl
+static inline byte GETCOL8(byte col)
+  { return col; }
+static inline short GETCOL15(byte col)
+  { return VID_PAL15(col, VID_COLORWEIGHTMASK); }
+static inline short GETCOL16(byte col)
+  { return VID_PAL16(col, VID_COLORWEIGHTMASK); }
+static inline int GETCOL32(byte col)
+  { return VID_PAL32(col, VID_COLORWEIGHTMASK); }
+
+// draw a stretched 64x64 flat to the top left corner of the screen
+#define V_DRAWFLAT(SCRN, TYPE, PITCH, GETCOL) { \
+  const int width = (64 * SCREENWIDTH) / 320; \
+  int height = (64 * SCREENHEIGHT) / 200; \
+  fixed_t dx = (320 << FRACBITS) / SCREENWIDTH; \
+  TYPE *dest = (TYPE *)screens[SCRN].data; \
+  \
+  while (height--) { \
+    const byte *const src_row = src + 64*((height*200)/SCREENHEIGHT); \
+    TYPE *const dst_row = dest + screens[SCRN].PITCH*height; \
+    int x; \
+    fixed_t tx; \
+    \
+    for (x=0, tx=0; x<width; x++, tx += dx) { \
+      byte col = src_row[tx >> FRACBITS]; \
+      dst_row[x] = GETCOL(col); \
+    } \
+  } \
+}
+
 static void FUNC_V_DrawBackground(const char* flatname, int scrn)
 {
   /* erase the entire screen to a tiled background */
   const byte *src;
   int         x,y;
-  int         width,height;
   int         lump;
 
   // killough 4/17/98:
   src = W_CacheLumpNum(lump = firstflat + R_FlatNumForName(flatname));
 
   /* V_DrawBlock(0, 0, scrn, 64, 64, src, 0); */
-  width = height = 64;
-  if (V_GetMode() == VID_MODE8) {
-    byte *dest = screens[scrn].data;
-
-    while (height--) {
-      memcpy (dest, src, width);
-      src += width;
-      dest += screens[scrn].byte_pitch;
-    }
-  } else if (V_GetMode() == VID_MODE15) {
-    unsigned short *dest = (unsigned short *)screens[scrn].data;
-
-    while (height--) {
-      int i;
-      for (i=0; i<width; i++) {
-        dest[i] = VID_PAL15(src[i], VID_COLORWEIGHTMASK);
-      }
-      src += width;
-      dest += screens[scrn].short_pitch;
-    }
-  } else if (V_GetMode() == VID_MODE16) {
-    unsigned short *dest = (unsigned short *)screens[scrn].data;
-
-    while (height--) {
-      int i;
-      for (i=0; i<width; i++) {
-        dest[i] = VID_PAL16(src[i], VID_COLORWEIGHTMASK);
-      }
-      src += width;
-      dest += screens[scrn].short_pitch;
-    }
-  } else if (V_GetMode() == VID_MODE32) {
-    unsigned int *dest = (unsigned int *)screens[scrn].data;
-
-    while (height--) {
-      int i;
-      for (i=0; i<width; i++) {
-        dest[i] = VID_PAL32(src[i], VID_COLORWEIGHTMASK);
-      }
-      src += width;
-      dest += screens[scrn].int_pitch;
-    }
+  switch (V_GetMode())
+  {
+  case VID_MODE8:
+    V_DRAWFLAT(scrn, byte, byte_pitch, GETCOL8);
+    break;
+  case VID_MODE15:
+    V_DRAWFLAT(scrn, short, short_pitch, GETCOL15);
+    break;
+  case VID_MODE16:
+    V_DRAWFLAT(scrn, short, short_pitch, GETCOL16);
+    break;
+  case VID_MODE32:
+    V_DRAWFLAT(scrn, int, int_pitch, GETCOL32);
+    break;
+  default: return;
   }
   /* end V_DrawBlock */
 
