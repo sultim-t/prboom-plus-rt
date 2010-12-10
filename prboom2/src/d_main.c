@@ -283,8 +283,6 @@ void D_Display (void)
          || ((automapmode & am_active) && !(automapmode & am_overlay))),
         redrawborderstuff,
         (menuactive == mnact_full));
-    if (V_GetMode() != VID_MODEGL)
-      R_DrawViewBorder();
     HU_Drawer();
   }
 
