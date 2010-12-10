@@ -191,6 +191,7 @@ static void FUNC_V_DrawBackground(const char* flatname, int scrn)
   const byte *src;
   int         x,y;
   int         lump;
+  const int   w = (64*SCREENWIDTH/320), h = (64*SCREENHEIGHT/200);
 
   // killough 4/17/98:
   src = W_CacheLumpNum(lump = firstflat + R_FlatNumForName(flatname));
@@ -214,10 +215,10 @@ static void FUNC_V_DrawBackground(const char* flatname, int scrn)
   }
   /* end V_DrawBlock */
 
-  for (y=0 ; y<SCREENHEIGHT ; y+=64)
-    for (x=y ? 0 : 64; x<SCREENWIDTH ; x+=64)
-      V_CopyRect(0, 0, scrn, ((SCREENWIDTH-x) < 64) ? (SCREENWIDTH-x) : 64,
-     ((SCREENHEIGHT-y) < 64) ? (SCREENHEIGHT-y) : 64, x, y, scrn, VPT_NONE);
+  for (y=0 ; y<SCREENHEIGHT ; y+=h)
+    for (x=y ? 0 : w; x<SCREENWIDTH ; x+=w)
+      V_CopyRect(0, 0, scrn, ((SCREENWIDTH-x) < w) ? (SCREENWIDTH-x) : w,
+     ((SCREENHEIGHT-y) < h) ? (SCREENHEIGHT-y) : h, x, y, scrn, VPT_NONE);
   W_UnlockLumpNum(lump);
 }
 
