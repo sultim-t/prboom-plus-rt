@@ -557,13 +557,11 @@ void I_CalculateRes(unsigned int width, unsigned int height)
     SCREENHEIGHT = height;
     SCREENPITCH = SCREENWIDTH;
   } else {
-    SCREENWIDTH = (width+15) & ~15;
+    SCREENWIDTH = width;
     SCREENHEIGHT = height;
-    if (!(SCREENWIDTH % 1024)) {
-      SCREENPITCH = SCREENWIDTH*V_GetPixelDepth()+32;
-    } else {
-      SCREENPITCH = SCREENWIDTH*V_GetPixelDepth();
-    }
+    SCREENPITCH = (width * V_GetPixelDepth() + 3) & ~3;
+    if (!(SCREENPITCH % 1024))
+      SCREENPITCH += 32;
   }
 }
 
