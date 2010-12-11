@@ -116,7 +116,9 @@ static int write_png(
         if (rgb)
           write_png_rgb_transform(row_data, scr, y);
         else
-          memcpy(row_data, scr->pixels + y * scr->pitch, scr->w);
+          memcpy(row_data,
+                 ((unsigned char *)scr->pixels) + y * scr->pitch,
+                 scr->w);
 
         png_write_row(png_ptr, row_data);
       }

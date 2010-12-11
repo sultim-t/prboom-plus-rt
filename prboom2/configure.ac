@@ -61,7 +61,7 @@ dnl --- Try for processor optimisations
 AC_CPU_OPTIMISATIONS
 
 dnl --- some defaults for CFLAGS
-AC_C_COMPILE_FLAGS(-Wextra -Wno-missing-field-initializers -Winline -Wwrite-strings -Wundef -Wbad-function-cast -Wcast-align -Wcast-qual -Wdeclaration-after-statement -ffast-math $CFLAGS_OPT)
+AC_C_COMPILE_FLAGS(-Wextra -Wno-missing-field-initializers -Winline -Wwrite-strings -Wundef -Wbad-function-cast -Wcast-align -Wcast-qual -Wdeclaration-after-statement -Wpointer-arith -ffast-math $CFLAGS_OPT)
 dnl -Wmissing-prototypes -Wmissing-declarations 
 CFLAGS="$CFLAGS -I\$(top_srcdir)/src"
 

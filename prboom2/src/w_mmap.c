@@ -270,7 +270,12 @@ const void* W_CacheLumpNum(int lump)
 #endif
   if (!lumpinfo[lump].wadfile)
     return NULL;
-  return (mapped_wad[lumpinfo[lump].wadfile->handle]+lumpinfo[lump].position);
+
+  return
+    (const void *) (
+      ((const byte *) (mapped_wad[lumpinfo[lump].wadfile->handle]))
+      + lumpinfo[lump].position
+    );
 }
 #endif
 

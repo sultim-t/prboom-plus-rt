@@ -730,7 +730,7 @@ static void P_LoadNodes (int lump)
 static void P_LoadXNOD(int lump)
 {
   unsigned int len = W_LumpLength(lump);
-  const void *data = W_CacheLumpNum(lump);
+  const byte *data = W_CacheLumpNum(lump);
   unsigned int i, numorgvert, numnewvert, first_seg = 0;
   vertex_t *newvert;
 
