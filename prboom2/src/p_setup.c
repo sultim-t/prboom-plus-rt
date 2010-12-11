@@ -729,14 +729,14 @@ static void P_LoadNodes (int lump)
 
 static void P_LoadXNOD(int lump)
 {
-  unsigned int len = W_LumpLength(lump);
+  int len = W_LumpLength(lump);
   const byte *data = W_CacheLumpNum(lump);
-  unsigned int i, numorgvert, numnewvert, first_seg = 0;
+  int i, numorgvert, numnewvert, first_seg = 0;
   vertex_t *newvert;
 
   data += 4; len -= 4; // skip the header
-  numorgvert = LONG(*(const unsigned int *)data); data += 4; len -= 4;
-  numnewvert = LONG(*(const unsigned int *)data); data += 4; len -= 4;
+  numorgvert = LONG(*(const int *)data); data += 4; len -= 4;
+  numnewvert = LONG(*(const int *)data); data += 4; len -= 4;
 
   newvert = Z_Realloc(vertexes,
                       (numorgvert+numnewvert)*sizeof(*newvert),
@@ -804,13 +804,13 @@ static void P_LoadXNOD(int lump)
                         && line->sidenum[side^1] != NO_INDEX)
                        ? sides[line->sidenum[side^1]].sector
                        : NULL);
-    seg->offset = FRACUNIT *
+    seg->offset = (fixed_t)(FRACUNIT *
       (side == 0
        // Right side - offset is distance from start of line to start of seg
        ? GetDistance(line->v1->x - seg->v1->x, line->v1->y - seg->v1->y)
        // Left side - offset is distance from end of line to start of seg
        : GetDistance(line->v2->x - seg->v1->x, line->v2->y - seg->v1->y)
-      );
+      ));
   }
 
   numnodes = LONG(*(const unsigned int *)data); data += 4; len -= 4;

@@ -280,7 +280,7 @@ typedef struct
 typedef struct subsector_s
 {
   sector_t *sector;
-  unsigned int numlines, firstline;
+  int numlines, firstline;
 } subsector_t;
 
 
