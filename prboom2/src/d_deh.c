@@ -2010,7 +2010,7 @@ static void deh_procSounds(DEHFILE *fpin, FILE* fpout, char *line)
             S_sfx[indexnum].priority = (int)value;
           else
             if (!strcasecmp(key,deh_sfxinfo[3]))  // Zero 1
-              S_sfx[indexnum].link = (sfxinfo_t *)value;
+              ; // .link - don't set pointers from DeHackEd
             else
               if (!strcasecmp(key,deh_sfxinfo[4]))  // Zero 2
                 S_sfx[indexnum].pitch = (int)value;
@@ -2019,7 +2019,7 @@ static void deh_procSounds(DEHFILE *fpin, FILE* fpout, char *line)
                   S_sfx[indexnum].volume = (int)value;
                 else
                   if (!strcasecmp(key,deh_sfxinfo[6]))  // Zero 4
-                    S_sfx[indexnum].data = (void *) value; // killough 5/3/98: changed cast
+                    ; // .data - don't set pointers from DeHackEd
                   else
                     if (!strcasecmp(key,deh_sfxinfo[7]))  // Neg. One 1
                       S_sfx[indexnum].usefulness = (int)value;
