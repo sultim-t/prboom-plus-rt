@@ -1646,7 +1646,9 @@ void G_DoLoadGame(void)
   /* killough 3/1/98: Read game options
    * killough 11/98: move down to here
    */
-  save_p = (char*)G_ReadOptions(save_p);
+  // Avoid assignment of const to non-const: add the difference
+  // between the updated and original pointer onto the original
+  save_p += (G_ReadOptions(save_p) - save_p);
 
   // load a base level
   G_InitNew (gameskill, gameepisode, gamemap);

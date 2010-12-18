@@ -764,17 +764,20 @@ void M_LoadSelect(int choice)
 // killough 5/15/98: add forced loadgames
 //
 
+static char *forced_loadgame_message;
+
 static void M_VerifyForcedLoadGame(int ch)
 {
   if (ch=='y')
     G_ForcedLoadGame();
-  free((char*)messageString);       // free the message strdup()'ed below
+  free(forced_loadgame_message);    // free the message strdup()'ed below
   M_ClearMenus();
 }
 
 void M_ForcedLoadGame(const char *msg)
 {
-  M_StartMessage(strdup(msg), M_VerifyForcedLoadGame, true); // free()'d above
+  forced_loadgame_message = strdup(msg); // free()'d above
+  M_StartMessage(forced_loadgame_message, M_VerifyForcedLoadGame, true);
 }
 
 //

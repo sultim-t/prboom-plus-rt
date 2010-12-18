@@ -71,7 +71,7 @@ static GLTexture **gld_GLPatchTextures=NULL;
 boolean use_mipmapping=false;
 
 int gld_max_texturesize=0;
-char *gl_tex_format_string;
+const char *gl_tex_format_string;
 //int gl_tex_format=GL_RGBA8;
 int gl_tex_format=GL_RGB5_A1;
 //int gl_tex_format=GL_RGBA4;

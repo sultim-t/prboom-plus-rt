@@ -433,7 +433,7 @@ int main(int argc, char **argv)
 #endif
 
   myargc = argc;
-  myargv = argv;
+  myargv = (const char * const *) argv;
 
 #ifdef _WIN32
   if (!M_CheckParm("-nodraw")) {

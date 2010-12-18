@@ -191,7 +191,7 @@ void P_UnArchiveWorld (void)
   int          i;
   sector_t     *sec;
   line_t       *li;
-  const short  *get;
+  short        *get;
 
   PADSAVEP();                // killough 3/22/98
 

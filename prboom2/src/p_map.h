@@ -69,7 +69,7 @@ void    P_DelSeclist(msecnode_t*);                          // phares 3/16/98
 void    P_CreateSecNodeList(mobj_t*,fixed_t,fixed_t);       // phares 3/14/98
 boolean Check_Sides(mobj_t *, int, int);                    // phares
 
-int     P_GetMoveFactor(const mobj_t *mo, int *friction);   // killough 8/28/98
+int     P_GetMoveFactor(mobj_t *mo, int *friction);         // killough 8/28/98
 int     P_GetFriction(const mobj_t *mo, int *factor);       // killough 8/28/98
 void    P_ApplyTorque(mobj_t *mo);                          // killough 9/12/98
 

@@ -58,7 +58,7 @@ typedef struct
 } GLTexture;
 
 extern int gld_max_texturesize;
-extern char *gl_tex_format_string;
+extern const char *gl_tex_format_string;
 extern int gl_tex_format;
 extern int gl_tex_filter;
 extern int gl_mipmap_filter;

@@ -71,7 +71,7 @@ extern int tran_filter_pct;
 boolean use_fog=false;
 
 int gl_nearclip=5;
-char *gl_tex_filter_string;
+const char *gl_tex_filter_string;
 int gl_tex_filter;
 int gl_mipmap_filter;
 int gl_drawskys=true;

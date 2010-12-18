@@ -147,8 +147,8 @@ extern int viewheight;
 extern int gl_nearclip;
 extern int gl_colorbuffer_bits;
 extern int gl_depthbuffer_bits;
-extern char *gl_tex_filter_string;
-extern char *gl_tex_format_string;
+extern const char *gl_tex_filter_string;
+extern const char *gl_tex_format_string;
 extern int gl_drawskys;
 extern int gl_sortsprites;
 extern int gl_use_paletted_texture;
@@ -841,7 +841,7 @@ default_t defaults[] =
 };
 
 int numdefaults;
-static const char* defaultfile; // CPhipps - static, const
+static char *defaultfile;
 
 //
 // M_SaveDefaults
@@ -933,15 +933,15 @@ void M_LoadDefaults (void)
 
   i = M_CheckParm ("-config");
   if (i && i < myargc-1)
-    defaultfile = myargv[i+1];
+    defaultfile = strdup(myargv[i+1]);
   else {
     const char* exedir = I_DoomExeDir();
     defaultfile = malloc(PATH_MAX+1);
     /* get config file from same directory as executable */
 #ifdef HAVE_SNPRINTF
-    snprintf((char *)defaultfile, PATH_MAX,
+    snprintf(defaultfile, PATH_MAX,
 #else
-    sprintf ((char *)defaultfile,
+    sprintf (defaultfile,
 #endif
             "%s%s%sboom.cfg", exedir, HasTrailingSlash(exedir) ? "" : "/", 
 #if ((defined GL_DOOM) && (defined _MSC_VER))
