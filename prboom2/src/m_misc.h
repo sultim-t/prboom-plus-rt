@@ -72,6 +72,7 @@ typedef struct default_s
    *  m_menu.c cast it back when they need to change it. Possibly this is
    *  more trouble than it's worth.
    */
+  // Note: casts are now made via unions to avoid discarding qualifier warnings
   struct {
     int* pi;
     const char** ppsz;

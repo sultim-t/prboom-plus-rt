@@ -1004,8 +1004,11 @@ void M_LoadDefaults (void)
               }
             else
               {
-              free((char*)*(defaults[i].location.ppsz));  /* phares 4/13/98 */
-              *(defaults[i].location.ppsz) = newstring;
+                union { const char **c; char **s; } u; // type punning via unions
+
+                u.c = defaults[i].location.ppsz;
+                free(*(u.s));
+                *(u.s) = newstring;
               }
             break;
             }

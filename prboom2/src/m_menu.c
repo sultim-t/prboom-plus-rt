@@ -1884,7 +1884,11 @@ static void M_DrawSetting(const setup_menu_t* s)
 
   if (flags & S_STRING) {
     /* cph - cast to char* as it's really a Z_Strdup'd string (see m_misc.h) */
-    char *text = (char*)*s->var.def->location.ppsz;
+    union { const char **c; char **s; } u; // type punning via unions
+    char *text;
+
+    u.c = s->var.def->location.ppsz;
+    text = *(u.s);
 
     // Are we editing this string? If so, display a cursor under
     // the correct character.
@@ -3598,8 +3602,13 @@ static void M_ResetDefaults(void)
     p->m_joy == dp->location.pi)
         {
     if (IS_STRING(*dp))
-      free((char*)*dp->location.ppsz),
-        *dp->location.ppsz = strdup(dp->defaultvalue.psz);
+    {
+      union { const char **c; char **s; } u; // type punning via unions
+
+      u.c = dp->location.ppsz;
+      free(*(u.s));
+      *(u.c) = strdup(dp->defaultvalue.psz);
+    }
     else
       *dp->location.pi = dp->defaultvalue.i;
 
@@ -4983,9 +4992,13 @@ boolean M_Responder (event_t* ev) {
 
         // set chat table pointer to working buffer
         // and free old string's memory.
+        {
+          union { const char **c; char **s; } u; // type punning via unions
 
-        free((char*)*ptr1->var.def->location.ppsz);
-        *ptr1->var.def->location.ppsz = chat_string_buffer;
+          u.c = ptr1->var.def->location.ppsz;
+          free(*(u.s));
+          *(u.c) = chat_string_buffer;
+        }
         chat_index = 0; // current cursor position in chat_string_buffer
       }
     else if (flags & S_RESET)
