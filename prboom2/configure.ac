@@ -37,15 +37,15 @@ fi
 
 dnl --- cph: work out flags to pass to compiler
 CFLAGS_OPT="-O2 -fomit-frame-pointer"
-AC_C_COMPILE_FLAGS(-Wall)
+AC_C_COMPILE_FLAGS(-Wall -Wextra -Wno-missing-field-initializers -Wwrite-strings -Wundef -Wbad-function-cast -Wcast-align -Wcast-qual -Wdeclaration-after-statement -Wpointer-arith -ffast-math)
 dnl --- Option to enable debugging
 AC_ARG_ENABLE(debug,AC_HELP_STRING([--enable-debug],[turns on various debugging features, like range checking and internal heap diagnostics]),,enable_debug="no")
 if test "$enable_debug" = "no"
 then
-    AC_C_COMPILE_FLAGS(-Wno-unused -Wno-switch)
+    AC_C_COMPILE_FLAGS(-Wno-unused -Wno-switch -Wno-sign-compare -Wno-pointer-sign)
 else
     CFLAGS_OPT="-g"
-    AC_C_COMPILE_FLAGS(-Wmissing-noreturn -Wredundant-decls -Wnested-externs -Wold-style-definition -Wmissing-declarations -Wmissing-format-attribute -Wvariadic-macros -Wdisabled-optimization -Wlarger-than-128000 -Waggregate-return -Wvolatile-register-var)
+    AC_C_COMPILE_FLAGS(-Wmissing-noreturn -Wredundant-decls -Wnested-externs -Wold-style-definition -Wmissing-declarations -Wmissing-format-attribute -Wvariadic-macros -Wdisabled-optimization -Wlarger-than-128000 -Waggregate-return -Wvolatile-register-var -Winline)
     AC_DEFINE(RANGECHECK,1,[Define to enable internal range checking])
     AC_DEFINE(INSTRUMENTED,1,[Define this to see real-time memory allocation statistics, and enable extra debugging features])
     AC_DEFINE(TIMEDIAG,1,[Defining this causes time stamps to be created each time a lump is locked, and lumps locked for long periods of time are reported])
@@ -61,7 +61,7 @@ dnl --- Try for processor optimisations
 AC_CPU_OPTIMISATIONS
 
 dnl --- some defaults for CFLAGS
-AC_C_COMPILE_FLAGS(-Wextra -Wno-sign-compare -Wno-pointer-sign -Wno-missing-field-initializers -Wwrite-strings -Wundef -Wbad-function-cast -Wcast-align -Wcast-qual -Wdeclaration-after-statement -Wpointer-arith -ffast-math $CFLAGS_OPT)
+AC_C_COMPILE_FLAGS($CFLAGS_OPT)
 dnl -Wmissing-prototypes -Wmissing-declarations 
 CFLAGS="$CFLAGS -I\$(top_srcdir)/src"
 
