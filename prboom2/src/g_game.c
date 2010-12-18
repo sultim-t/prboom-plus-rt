@@ -2215,7 +2215,7 @@ void G_InitNew(skill_t skill, int episode, int map)
 
 void G_ReadDemoTiccmd (ticcmd_t* cmd)
 {
-  unsigned char at; // e6y: tasdoom stuff
+  unsigned char at = 0; // e6y: tasdoom stuff
 
   if (*demo_p == DEMOMARKER)
     G_CheckDemoStatus();      // end of demo data stream
@@ -2292,7 +2292,7 @@ void G_RecordDemo (const char* name)
     demofp = fopen(demoname, "r+");
     if (demofp) {
       int slot = -1;
-      int rc;
+      int rc = 0;
       int bytes_per_tic;
       const byte* pos;
 
@@ -2520,7 +2520,7 @@ void G_BeginRecording (void)
   /* cph - 3 demo record formats supported: MBF+, BOOM, and Doom v1.9 */
   if (mbf_features) {
     { /* Write version code into demo */
-      unsigned char v;
+      unsigned char v = 0;
       switch(compatibility_level) {
 	case mbf_compatibility: v = 203; break; // e6y: Bug in MBF compatibility mode fixed
         case prboom_2_compatibility: v = 210; break;
@@ -2566,7 +2566,7 @@ void G_BeginRecording (void)
       *demo_p++ = 0;
 
   } else if (compatibility_level > boom_compatibility_compatibility) {
-    byte v, c; /* Nominally, version and compatibility bits */
+    byte v = 0, c = 0; /* Nominally, version and compatibility bits */
     switch (compatibility_level) {
     case boom_compatibility_compatibility: v = 202, c = 1; break;
     case boom_201_compatibility: v = 201; c = 0; break;

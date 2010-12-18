@@ -1932,7 +1932,7 @@ static void deh_procPointer(DEHFILE *fpin, FILE* fpout, char *line) // done
           continue;
         }
 
-      if (value < 0 || value >= NUMSTATES)
+      if (value >= NUMSTATES)
         {
           if (fpout)
             fprintf(fpout,"Bad pointer number %lld of %d\n",value, NUMSTATES);

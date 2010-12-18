@@ -593,9 +593,9 @@ int S_AdjustSoundParams(mobj_t *listener, mobj_t *source,
   // It happens in multiplayer demos only.
   //
   // Stack trace is:
-  // P_SetupLevel() \ P_LoadThings() \ P_SpawnMapThing() \ P_SpawnPlayer(players[0]) \
-  // P_SetupPsprites() \ P_BringUpWeapon() \ S_StartSound(players[0]->mo, sfx_sawup) \
-  // S_StartSoundAtVolume() \ S_AdjustSoundParams(players[displayplayer]->mo, ...);
+  /* P_SetupLevel() \ P_LoadThings() \ P_SpawnMapThing() \ P_SpawnPlayer(players[0]) \
+     P_SetupPsprites() \ P_BringUpWeapon() \ S_StartSound(players[0]->mo, sfx_sawup) \
+     S_StartSoundAtVolume() \ S_AdjustSoundParams(players[displayplayer]->mo, ...); */
   // players[displayplayer]->mo is NULL
   //
   // There is no more crash on e1cmnet3.lmp between e1m2 and e1m3

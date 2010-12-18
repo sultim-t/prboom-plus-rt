@@ -33,8 +33,8 @@
 
 #define DMR 16
 byte filter_ditherMatrix[DITHER_DIM][DITHER_DIM] = {
-   0*DMR, 14*DMR,  3*DMR, 13*DMR, 11*DMR,  5*DMR, 8*DMR,  6*DMR,
-  12*DMR,  2*DMR, 15*DMR,  1*DMR,  7*DMR,  9*DMR, 4*DMR, 10*DMR
+  { 0*DMR, 14*DMR,  3*DMR, 13*DMR, }, {11*DMR,  5*DMR,  8*DMR,  6*DMR, },
+  {12*DMR,  2*DMR, 15*DMR,  1*DMR, }, { 7*DMR,  9*DMR,  4*DMR, 10*DMR, },
 };
 
 byte filter_roundedUVMap[FILTER_UVDIM*FILTER_UVDIM];
@@ -75,10 +75,10 @@ void R_FilterInit(void) {
   }
 
   // fill the uvMap. this will return:
-  // 0/\1
-  // /4 \
-  // \  /
-  // 2\/3
+  /* 0/\1
+     /4 \
+     \  /
+     2\/3 */
   // .. based on the uv coordinates
   for (i=0; i<FILTER_UVDIM; i++) {
     for (j=0; j<FILTER_UVDIM; j++) {

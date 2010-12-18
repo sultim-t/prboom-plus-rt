@@ -2085,6 +2085,8 @@ void gld_AddWall(seg_t *seg)
   float lineheight;
   int rellight = 0;
 
+  memset(&wall, 0, sizeof(wall));
+
   if (!segrendered)
     return;
   if (segrendered[seg->iSegID]==rendermarker)

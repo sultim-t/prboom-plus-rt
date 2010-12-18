@@ -523,7 +523,7 @@ static void I_ClosestResolution (int *width, int *height, int flags)
         cheight = theight;
       }
     }
-    if (closest != 4294967295u)
+    if (closest != UINT_MAX)
     {
       *width = cwidth;
       *height = cheight;

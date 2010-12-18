@@ -412,12 +412,13 @@ const lighttable_t* R_ColourMap(int lightlevel, fixed_t spryscale)
 {
   if (fixedcolormap) return fixedcolormap;
   else {
-    if (curline)
+    if (curline) {
       if (curline->v1->y == curline->v2->y)
         lightlevel -= 1 << LIGHTSEGSHIFT;
       else
         if (curline->v1->x == curline->v2->x)
           lightlevel += 1 << LIGHTSEGSHIFT;
+    }
 
     lightlevel += extralight << LIGHTSEGSHIFT;
 
