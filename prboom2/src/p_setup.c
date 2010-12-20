@@ -1409,7 +1409,8 @@ static void P_LoadLineDefs (int lump)
         {
           if (ld->sidenum[j] != NO_INDEX && ld->sidenum[j] >= numsides) {
             ld->sidenum[j] = NO_INDEX;
-            lprintf(LO_WARN, "P_LoadLineDefs: linedef %d has out-of-range sidedef number\n",numlines-i-1);
+            lprintf(LO_WARN, "P_LoadLineDefs: linedef %d"
+                    " has out-of-range sidedef number\n", i);
           }
         }
         
@@ -1418,7 +1419,8 @@ static void P_LoadLineDefs (int lump)
         if (ld->sidenum[0] == NO_INDEX) {
           ld->sidenum[0] = 0;  // Substitute dummy sidedef for missing right side
           // cph - print a warning about the bug
-          lprintf(LO_WARN, "P_LoadLineDefs: linedef %d missing first sidedef\n",numlines-i-1);
+          lprintf(LO_WARN, "P_LoadLineDefs: linedef %d"
+                  " missing first sidedef\n", i);
         }
         
         if ((ld->sidenum[1] == NO_INDEX) && (ld->flags & ML_TWOSIDED)) {
@@ -1435,7 +1437,8 @@ static void P_LoadLineDefs (int lump)
           // http://www.doomworld.com/idgames/index.php?id=1651
           ld->r_flags = RF_IGNORE_COMPAT;
           // cph - print a warning about the bug
-          lprintf(LO_WARN, "P_LoadLineDefs: linedef %d has two-sided flag set, but no second sidedef\n",numlines-i-1);
+          lprintf(LO_WARN, "P_LoadLineDefs: linedef %d"
+                  " has two-sided flag set, but no second sidedef\n", i);
         }
       }
 
