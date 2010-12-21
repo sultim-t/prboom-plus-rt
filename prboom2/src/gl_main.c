@@ -1133,7 +1133,7 @@ static FILE *levelinfo;
  */
 
 #define FIX2DBL(x)    ((double)(x))
-#define MAX_CC_SIDES  64
+#define MAX_CC_SIDES  128
 
 static dboolean gld_PointOnSide(vertex_t *p, divline_t *d)
 {
