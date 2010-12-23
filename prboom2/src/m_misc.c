@@ -385,7 +385,7 @@ default_t defaults[] =
 #endif
   /* 640x480 default resolution */
   {"screen_resolution",{NULL, &screen_resolution},{0,"640x480"},UL,UL,def_str,ss_none},
-  {"use_fullscreen",{&use_fullscreen},{1},0,1, /* proff 21/05/2000 */
+  {"use_fullscreen",{&use_fullscreen},{0},0,1, /* proff 21/05/2000 */
    def_bool,ss_none},
 #ifndef DISABLE_DOUBLEBUFFER
   {"use_doublebuffer",{&use_doublebuffer},{1},0,1,             // proff 2001-7-4
