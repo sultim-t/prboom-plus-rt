@@ -61,6 +61,8 @@ int patches_scaley;
 
 int render_stretch_hud;
 int render_stretch_hud_default;
+int render_patches_scalex;
+int render_patches_scaley;
 
 // Each screen is [SCREENWIDTH*SCREENHEIGHT];
 screeninfo_t screens[NUM_SCREENS];
@@ -1296,6 +1298,17 @@ void CheckRatio (int width, int height)
   patches_scalex = MIN(SCREENWIDTH / 320, SCREENHEIGHT / 200);
   patches_scalex = MAX(1, patches_scalex);
   patches_scaley = patches_scalex;
+
+  //custom scaling when "not adjusted" is used
+  if (render_patches_scalex > 0)
+  {
+    patches_scalex = MIN(render_patches_scalex, patches_scalex);
+  }
+  if (render_patches_scaley > 0)
+  {
+    patches_scaley = MIN(render_patches_scaley, patches_scaley);
+  }
+
   ST_SCALED_WIDTH = ST_WIDTH * patches_scalex;
   ST_SCALED_HEIGHT = ST_HEIGHT * patches_scaley;
 

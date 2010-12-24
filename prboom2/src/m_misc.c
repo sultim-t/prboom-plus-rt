@@ -926,8 +926,12 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"fake_contrast", {&fake_contrast},  {1},0,1,
    def_bool,ss_stat}, /* cph - allow crappy fake contrast to be disabled */
-   {"render_stretch_hud", {&render_stretch_hud_default},{patch_stretch_4x3},0,patch_stretch_max - 1,
-   def_int,ss_stat},
+  {"render_stretch_hud", {&render_stretch_hud_default},{patch_stretch_4x3},0,patch_stretch_max - 1,
+  def_int,ss_stat},
+  {"render_patches_scalex", {&render_patches_scalex},{0},0,16,
+  def_int,ss_stat},
+  {"render_patches_scaley", {&render_patches_scaley},{0},0,16,
+  def_int,ss_stat},
   {"sprites_doom_order", {&sprites_doom_order}, {DOOM_ORDER_STATIC},0,DOOM_ORDER_LAST - 1,
    def_int,ss_stat},
 

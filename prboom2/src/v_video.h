@@ -91,6 +91,8 @@ extern const char *render_stretch_list[];
 
 extern int render_stretch_hud;
 extern int render_stretch_hud_default;
+extern int render_patches_scalex;
+extern int render_patches_scaley;
 
 void CheckRatio(int width, int height);
 
