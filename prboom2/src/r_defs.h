@@ -233,7 +233,6 @@ typedef struct line_s
     RF_IGNORE   = 8,     // Renderer can skip this line
     RF_CLOSED   =16,     // Line blocks view
     RF_ISOLATED =32,     // Isolated line
-    RF_IGNORE_COMPAT=64, // Renderer can skip this line only with demo_compatibility
   } r_flags;
   degenmobj_t soundorg;  // sound origin for switches/buttons
 } line_t;

@@ -119,11 +119,6 @@ static void R_RecalcLineFlags(line_t *linedef)
 {
   linedef->r_validcount = gametic;
 
-  // See OTTAWAU.WAD E1M1, sectors 226 and 300
-  // http://www.doomworld.com/idgames/index.php?id=1651
-  if ((linedef->r_flags & RF_IGNORE_COMPAT) && demo_compatibility)
-    return;
-
   /* First decide if the line is closed, normal, or invisible */
   if (!(linedef->flags & ML_TWOSIDED)
       || backsector->ceilingheight <= frontsector->floorheight

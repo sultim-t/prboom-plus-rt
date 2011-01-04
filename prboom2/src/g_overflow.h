@@ -128,6 +128,7 @@ void RejectOverrun(int rejectlump, const byte **rejectmatrix, int totallines);
 
 int DonutOverrun(fixed_t *pfloorheight, short *pfloorpic);
 
-int MissedBackSideOverrun(sector_t *sector, seg_t *seg);
+int MissedBackSideOverrun(line_t *line);
+sector_t* GetSectorAtNullAddress(void);
 
 #endif // __G_OVERFLOW__

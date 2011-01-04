@@ -495,35 +495,45 @@ int DonutOverrun(fixed_t *pfloorheight, short *pfloorpic)
   return false;
 }
 
-//
-// MissedBackSideOverrun
-//
-int MissedBackSideOverrun(sector_t *sector, seg_t *seg)
+
+int MissedBackSideOverrun(line_t *line)
 {
-  if (demo_compatibility && PROCESS(OVERFLOW_MISSEDBACKSIDE))
+  if (demo_compatibility)
   {
-    if (seg)
+    if (line)
     {
       ShowOverflowWarning(OVERFLOW_MISSEDBACKSIDE, 0,
         "\n\nLinedef %d has two-sided flag set, but no second sidedef",
-        seg->linedef->iLineID);
+        line->iLineID);
     }
     else
     {
       ShowOverflowWarning(OVERFLOW_MISSEDBACKSIDE, 0, "");
     }
-
-    if (EMULATE(OVERFLOW_MISSEDBACKSIDE))
-    {
-      if (sector)
-      {
-        GetMemoryValue(0, &sector->floorheight, 4);
-        GetMemoryValue(4, &sector->ceilingheight, 4);
-        
-        return true;
-      }
-    }
   }
 
   return false;
+}
+
+//
+// GetSectorAtNullAddress
+//
+sector_t* GetSectorAtNullAddress(void)
+{
+  static int null_sector_is_initialized = false;
+  static sector_t null_sector;
+
+  if (demo_compatibility && EMULATE(OVERFLOW_MISSEDBACKSIDE))
+  {
+    if (!null_sector_is_initialized)
+    {
+      GetMemoryValue(0, &null_sector.floorheight, 4);
+      GetMemoryValue(4, &null_sector.ceilingheight, 4);
+      null_sector_is_initialized = true;
+    }
+
+    return &null_sector;
+  }
+
+  return 0;
 }

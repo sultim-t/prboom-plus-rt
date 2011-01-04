@@ -1034,7 +1034,7 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"overrun_missedbackside_warn", {&overflows[OVERFLOW_MISSEDBACKSIDE].warn},  {0},0,1,
    def_bool,ss_stat},
-  {"overrun_missedbackside_emulate", {&overflows[OVERFLOW_MISSEDBACKSIDE].emulate},  {0},0,1,
+  {"overrun_missedbackside_emulate", {&overflows[OVERFLOW_MISSEDBACKSIDE].emulate},  {1},0,1,
    def_bool,ss_stat},
 
   {"Prboom-plus 'bad' compatibility settings",{NULL},{0},UL,UL,def_none,ss_none},

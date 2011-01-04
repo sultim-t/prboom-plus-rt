@@ -458,20 +458,6 @@ static dboolean P_CrossSubsector(int num)
       front = seg->frontsector;
       back = seg->backsector;
 
-      // e6y: emulation of missed back side on two-sided lines.
-      // backsector can be NULL if overrun_missedbackside_emulate is 1
-      if (!back)
-      {
-        static sector_t dummy_sector;
-        static int initialized = false;
-        if (!initialized)
-        {
-          initialized = true;
-          MissedBackSideOverrun(&dummy_sector, seg);
-        }
-        back = &dummy_sector;
-      }
-
       // no wall to block sight with?
       if (front->floorheight == back->floorheight
         && front->ceilingheight == back->ceilingheight)
