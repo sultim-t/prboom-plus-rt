@@ -54,6 +54,6 @@ typedef struct
 
 } weaponinfo_t;
 
-extern  weaponinfo_t    weaponinfo[NUMWEAPONS+1];
+extern  weaponinfo_t    weaponinfo[NUMWEAPONS+2];
 
 #endif

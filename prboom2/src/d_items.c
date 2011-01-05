@@ -54,7 +54,7 @@
 //  atkstate, i.e. attack/fire/hit frame
 //  flashstate, muzzle flash
 //
-weaponinfo_t    weaponinfo[NUMWEAPONS+1] =
+weaponinfo_t    weaponinfo[NUMWEAPONS+2] =
 {
   {
     // fist
@@ -148,7 +148,16 @@ weaponinfo_t    weaponinfo[NUMWEAPONS+1] =
   {
     // ololo weapon
     0,
-    S_NULL, // sounds are not important for emulation of weaponinfo overrun
+    S_NULL, // states are not used for emulation of weaponinfo overrun
+    S_NULL,
+    S_NULL,
+    S_NULL,
+    S_NULL
+  },
+  {
+    // preved medved weapon
+    0,
+    S_NULL,
     S_NULL,
     S_NULL,
     S_NULL,
