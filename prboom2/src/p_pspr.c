@@ -43,6 +43,7 @@
 #include "sounds.h"
 #include "d_event.h"
 #include "r_demo.h"
+#include "lprintf.h"
 #include "e6y.h"//e6y
 
 #define LOWERSPEED   (FRACUNIT*6)
