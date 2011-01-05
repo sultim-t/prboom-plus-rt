@@ -93,6 +93,7 @@ typedef struct
 #define NO_TOPTEXTURES        0x00000001
 #define NO_BOTTOMTEXTURES     0x00000002
 #define SECTOR_IS_CLOSED      0x00000004
+#define NULL_SECTOR           0x00000008
 
 typedef struct
 {

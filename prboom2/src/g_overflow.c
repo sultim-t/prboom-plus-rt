@@ -527,6 +527,8 @@ sector_t* GetSectorAtNullAddress(void)
   {
     if (!null_sector_is_initialized)
     {
+      memset(&null_sector, 0, sizeof(null_sector));
+      null_sector.flags = NULL_SECTOR;
       GetMemoryValue(0, &null_sector.floorheight, 4);
       GetMemoryValue(4, &null_sector.ceilingheight, 4);
       null_sector_is_initialized = true;

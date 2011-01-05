@@ -2853,7 +2853,8 @@ void gld_AddWall(seg_t *seg)
         temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->toptexture], true, false);
         if (!temptex && gl_use_stencil && backsector &&
           !(seg->linedef->r_flags & RF_ISOLATED) &&
-          frontsector->ceilingpic != skyflatnum && backsector->ceilingpic != skyflatnum)
+          frontsector->ceilingpic != skyflatnum && backsector->ceilingpic != skyflatnum &&
+          !(backsector->flags & NULL_SECTOR))
         {
           wall.ytop=((float)(ceiling_height)/(float)MAP_SCALE)+SMALLDELTA;
           wall.ybottom=((float)(floor_height)/(float)MAP_SCALE)-SMALLDELTA;
@@ -2861,8 +2862,11 @@ void gld_AddWall(seg_t *seg)
           {
             wall.flag=GLDWF_TOPFLUD;
             temptex=gld_RegisterFlat(flattranslation[seg->backsector->ceilingpic], true);
-            wall.gltexture=temptex;
-            gld_AddDrawWallItem(GLDIT_FWALL, &wall);
+            if (temptex)
+            {
+              wall.gltexture=temptex;
+              gld_AddDrawWallItem(GLDIT_FWALL, &wall);
+            }
           }
         }
         else
@@ -2996,7 +3000,8 @@ bottomtexture:
       temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->bottomtexture], true, false);
       if (!temptex && gl_use_stencil && backsector &&
         !(seg->linedef->r_flags & RF_ISOLATED) &&
-        frontsector->floorpic != skyflatnum && backsector->floorpic != skyflatnum)
+        frontsector->floorpic != skyflatnum && backsector->floorpic != skyflatnum &&
+        !(backsector->flags & NULL_SECTOR))
       {
         wall.ytop=((float)(ceiling_height)/(float)MAP_SCALE)+SMALLDELTA;
         wall.ybottom=((float)(floor_height)/(float)MAP_SCALE)-SMALLDELTA;
@@ -3004,8 +3009,11 @@ bottomtexture:
         {
           wall.flag = GLDWF_BOTFLUD;
           temptex=gld_RegisterFlat(flattranslation[seg->backsector->floorpic], true);
-          wall.gltexture=temptex;
-          gld_AddDrawWallItem(GLDIT_FWALL, &wall);
+          if (temptex)
+          {
+            wall.gltexture=temptex;
+            gld_AddDrawWallItem(GLDIT_FWALL, &wall);
+          }
         }
       }
       else
