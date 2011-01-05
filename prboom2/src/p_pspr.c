@@ -415,6 +415,9 @@ void A_Lower(player_t *player, pspdef_t *psp)
       return;
     }
 
+   // haleyjd 03/28/10: do not assume pendingweapon is valid
+   // e6y: probably for future complevels
+   // if(player->pendingweapon < NUMWEAPONS)
   player->readyweapon = player->pendingweapon;
 
   P_BringUpWeapon(player);

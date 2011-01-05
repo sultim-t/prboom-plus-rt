@@ -54,7 +54,7 @@
 //  atkstate, i.e. attack/fire/hit frame
 //  flashstate, muzzle flash
 //
-weaponinfo_t    weaponinfo[NUMWEAPONS] =
+weaponinfo_t    weaponinfo[NUMWEAPONS+1] =
 {
   {
     // fist
@@ -136,5 +136,22 @@ weaponinfo_t    weaponinfo[NUMWEAPONS] =
     S_DSGUN,
     S_DSGUN1,
     S_DSGUNFLASH1
+  },
+
+  // dseg03:00082D90                 weaponinfo_t <5, 46h, 45h, 43h, 47h, 0>
+  // dseg03:00082D90                 weaponinfo_t <1, 22h, 21h, 20h, 23h, 2Fh>
+  // dseg03:00082E68 animdefs        dd 0                    ; istexture
+  // dseg03:00082E68                 db 'N', 'U', 'K', 'A', 'G', 'E', '3', 2 dup(0); endname
+  // dseg03:00082E68                 db 'N', 'U', 'K', 'A', 'G', 'E', '1', 2 dup(0); startname
+  // dseg03:00082E68                 dd 8                    ; speed
+  // dseg03:00082E68                 dd 0                    ; istexture
+  {
+    // ololo weapon
+    0,
+    S_NULL, // sounds are not important for emulation of weaponinfo overrun
+    S_NULL,
+    S_NULL,
+    S_NULL,
+    S_NULL
   },
 };
