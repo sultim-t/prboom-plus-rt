@@ -128,6 +128,9 @@ static void P_BringUpWeapon(player_t *player)
   if (player->pendingweapon == wp_chainsaw)
     S_StartSound (player->mo, sfx_sawup);
 
+  if (player->pendingweapon >= NUMWEAPONS)
+    lprintf(LO_WARN, "P_BringUpWeapon: weaponinfo overrun has occured.\n");
+
   newstate = weaponinfo[player->pendingweapon].upstate;
 
   player->pendingweapon = wp_nochange;
