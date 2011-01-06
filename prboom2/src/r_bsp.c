@@ -373,9 +373,6 @@ static void R_AddLine (seg_t *line)
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
-    if (curline->linedef->r_flags & RF_IGNORE_CURRENT)
-      return;
-
     // Back side, i.e. backface culling	- read: endAngle >= startAngle!
     if (angle2 - angle1 < ANG180 || !line->linedef)  
     {
@@ -488,7 +485,7 @@ static void R_AddLine (seg_t *line)
   if ((linedef = curline->linedef)->r_validcount != gametic)
     R_RecalcLineFlags(linedef);
 
-  if (linedef->r_flags & RF_IGNORE_CURRENT)
+  if (linedef->r_flags & RF_IGNORE)
   {
     return;
   }

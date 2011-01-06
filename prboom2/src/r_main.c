@@ -60,10 +60,6 @@
 #include <math.h>
 #include "e6y.h"//e6y
 
-// See OTTAWAU.WAD E1M1, sectors 226 and 300
-// http://www.doomworld.com/idgames/index.php?id=1651
-unsigned int RF_IGNORE_CURRENT;
-
 // e6y
 // Now they are variables. Depends from render_doom_lightmaps variable.
 // Unify colour maping logic by cph is removed, because of bugs.

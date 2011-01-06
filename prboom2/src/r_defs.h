@@ -238,10 +238,6 @@ typedef struct line_s
   degenmobj_t soundorg;  // sound origin for switches/buttons
 } line_t;
 
-// See OTTAWAU.WAD E1M1, sectors 226 and 300
-// http://www.doomworld.com/idgames/index.php?id=1651
-extern unsigned int RF_IGNORE_CURRENT;
-
 // phares 3/14/98
 //
 // Sector list node showing all sectors an object appears in.
