@@ -2448,7 +2448,10 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   // e6y: speedup of level reloading
   // Do not reload BlockMap for same level,
   // because in case of big level P_CreateBlockMap eats much time
-  if (!samelevel)
+  //
+  // BlockMap should be reloaded after OVERFLOW_INTERCEPT,
+  // because bmapwidth/bmapheight/bmaporgx/bmaporgy can be overwritten
+  if (!samelevel || overflows[OVERFLOW_INTERCEPT].shit_happens)
   {
     P_LoadBlockMap  (lumpnum+ML_BLOCKMAP);
   }
