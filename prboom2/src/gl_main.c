@@ -3087,7 +3087,8 @@ static void gld_DrawFlat(GLFlat *flat)
 
   if ((sectorloops[flat->sectornum].flags & SECTOR_CLAMPXY) && (!has_detail) &&
       ((tex_filter[MIP_TEXTURE].mag_filter == GL_NEAREST) ||
-       (flat->gltexture->flags & GLTEXTURE_HIRES)))
+       (flat->gltexture->flags & GLTEXTURE_HIRES)) &&
+      !(flat->flags & GLFLAT_HAVE_OFFSET))
     flags = GLTEXTURE_CLAMPXY;
   else
     flags = 0;
