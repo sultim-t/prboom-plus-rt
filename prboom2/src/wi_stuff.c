@@ -545,7 +545,7 @@ WI_drawOnLnode  // draw stuff at a location by episode/map#
   {
     // DEBUG
     //jff 8/3/98 use logical output routine
-    lprintf(LO_DEBUG,"Could not place patch on level %d", n+1);
+    lprintf(LO_DEBUG,"Could not place patch on level %d\n", n+1);
   }
 }
 
