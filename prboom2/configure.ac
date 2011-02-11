@@ -145,12 +145,17 @@ savelibs="$LIBS"
 LIBS="$LIBS $SDL_LIBS"
 AC_CHECK_FUNCS(SDL_JoystickGetAxis)
 LIBS="$savelibs"
+
 AC_ARG_WITH([mixer],
   AC_HELP_STRING([--without-mixer],[Do not use SDL_mixer even if available]),
-  [], AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,[],[],[$SDL_LIBS $MIXER_LIBS]))
+  [], [with_mixer=yes])
+AS_IF([test "x$with_mixer" != xno],
+  AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,[],[],[$SDL_LIBS $MIXER_LIBS]))
 
 AC_ARG_WITH(net,
   AS_HELP_STRING([--without-net],[Do not use SDL_net even if available]),
+  [], [with_net=yes])
+AS_IF([test "x$with_net" = xno],
   [
     dnl -- Networking was disabled by the user.
     NET_LIBS=
@@ -181,7 +186,9 @@ AC_ARG_WITH(net,
 AM_CONDITIONAL(BUILD_SERVER, [test "$sdl_net" = "yes"])
 
 dnl - Other libs
-AC_ARG_WITH([png], AC_HELP_STRING([--without-png], [Do not use libpng even if available]),,AC_CHECK_LIB(png,png_create_info_struct))
+AC_ARG_WITH([png], AC_HELP_STRING([--without-png], [Do not use libpng even if available]),,with_png=yes)
+AS_IF([test "x$with_png" != xno],AC_CHECK_LIB(png,png_create_info_struct))
+
 AC_EGREP_HEADER(sockaddr_in6,netinet/in.h,AC_DEFINE(HAVE_IPv6,1,[Define if you have struct sockaddr_in6]))
 
 dnl --- Options
