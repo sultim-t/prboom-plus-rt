@@ -467,8 +467,16 @@ static void I_ShutdownSDL(void)
 
 void I_PreInitGraphics(void)
 {
-  // Initialize SDL
+  static const union {
+    const char *c;
+    char *s;
+  } window_pos = {"SDL_VIDEO_WINDOW_POS=center"};
+
   unsigned int flags = 0;
+
+  putenv(window_pos.s);
+
+  // Initialize SDL
   if (!(M_CheckParm("-nodraw") && M_CheckParm("-nosound")))
     flags = SDL_INIT_VIDEO;
 #ifdef _DEBUG
