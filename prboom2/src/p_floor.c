@@ -915,7 +915,10 @@ int EV_DoDonut(line_t*  line)
       // killough 4/5/98: changed demo_compatibility to compatibility
       if (comp[comp_model])
       {
-        if ((!s2->lines[i]->flags & ML_TWOSIDED) ||
+        // original code:   !s2->lines[i]->flags & ML_TWOSIDED
+        // equivalent to:   (!s2->lines[i]->flags) & ML_TWOSIDED , i.e. 0
+        // should be:       !(s2->lines[i]->flags & ML_TWOSIDED)
+        if (((!s2->lines[i]->flags) & ML_TWOSIDED) ||
             (s2->lines[i]->backsector == s1))
           continue;
       }
