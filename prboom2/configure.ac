@@ -159,12 +159,17 @@ savelibs="$LIBS"
 LIBS="$LIBS $SDL_LIBS"
 AC_CHECK_FUNCS(SDL_JoystickGetAxis)
 LIBS="$savelibs"
+
 AC_ARG_WITH([mixer],
   AC_HELP_STRING([--without-mixer],[Do not use SDL_mixer even if available]),
-  [], AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,[],[],[$SDL_LIBS $MIXER_LIBS]))
+  [], [with_mixer=yes])
+AS_IF([test "x$with_mixer" != xno],
+  AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,[],[],[$SDL_LIBS $MIXER_LIBS]))
 
 AC_ARG_WITH(net,
   AS_HELP_STRING([--without-net],[Do not use SDL_net even if available]),
+  [], [with_net=yes])
+AS_IF([test "x$with_net" = xno],
   [
     dnl -- Networking was disabled by the user.
     NET_LIBS=
@@ -197,6 +202,8 @@ AM_CONDITIONAL(BUILD_SERVER, [test "$sdl_net" = "yes"])
 dnl -- PCRE
 AC_ARG_WITH(pcre,
   [AS_HELP_STRING([--without-pcre],[Do not compile with libpcre])],,
+  [with_pcre=yes])
+AS_IF([test "x$with_pcre" != xno],
   [AC_CHECK_LIB(pcreposix,pcreposix_regcomp)]
 )
 
