@@ -339,10 +339,6 @@ dboolean P_TeleportMove (mobj_t* thing,fixed_t x,fixed_t y, dboolean boss)
   thing->y = y;
 
   P_SetThingPosition (thing);
-//e6y
-  thing->PrevX = x;
-  thing->PrevY = y;
-  thing->PrevZ = thing->floorz;
 
   thing->PrevX = x;
   thing->PrevY = y;
