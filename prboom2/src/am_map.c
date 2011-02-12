@@ -450,6 +450,18 @@ static void AM_changeWindowLoc(void)
 }
 
 //
+// AM_SetScale
+//
+void AM_SetScale(void)
+{
+  AM_findMinMaxBoundaries();
+  scale_mtof = FixedDiv(min_scale_mtof, (int) (0.7*FRACUNIT));
+  if (scale_mtof > max_scale_mtof)
+    scale_mtof = min_scale_mtof;
+  scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
+}
+
+//
 // AM_SetPosition
 //
 void AM_SetPosition(void)
@@ -478,12 +490,6 @@ void AM_SetPosition(void)
     f_w = SCREENWIDTH;           // killough 2/7/98: get rid of finit_ vars
     f_h = SCREENHEIGHT-ST_SCALED_HEIGHT;// to allow runtime setting of width/height
   }
-
-  AM_findMinMaxBoundaries();
-  scale_mtof = FixedDiv(min_scale_mtof, (int) (0.7*FRACUNIT));
-  if (scale_mtof > max_scale_mtof)
-    scale_mtof = min_scale_mtof;
-  scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
 }
 
 //
@@ -501,8 +507,6 @@ static void AM_initVariables(void)
   static event_t st_notify = { ev_keyup, AM_MSGENTERED, 0, 0 };
 
   automapmode |= am_active;
-
-  AM_SetPosition();
 
   f_oldloc.x = INT_MAX;
 
@@ -578,6 +582,7 @@ static void AM_LevelInit(void)
   leveljuststarted = 0;
 
   AM_SetPosition();
+  AM_SetScale();
 
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
   {
@@ -771,6 +776,8 @@ dboolean AM_Responder
     }
     else if (ch == key_map_overlay) {
       automapmode ^= am_overlay;
+      AM_SetPosition();
+      AM_SetScale();
       AM_initVariables();
       plr->message = (automapmode & am_overlay) ? s_AMSTR_OVERLAYON : s_AMSTR_OVERLAYOFF;
     }
