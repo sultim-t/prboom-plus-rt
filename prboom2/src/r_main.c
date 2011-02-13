@@ -119,8 +119,6 @@ float viewfocratio;
 extern const lighttable_t **walllights;
 extern const lighttable_t **walllightsnext;
 
-static mobj_t *oviewer;
-
 //
 // precalculated math tables
 //
@@ -771,29 +769,13 @@ subsector_t *R_PointInSubsector(fixed_t x, fixed_t y)
 static void R_SetupFrame (player_t *player)
 {
   int i, cm;
-  dboolean NoInterpolate = (paused && !walkcamera.type) || (menuactive && !demoplayback);
 
   viewplayer = player;
-
-  if (player->mo != oviewer || NoInterpolate)
-  {
-    R_ResetViewInterpolation ();
-    oviewer = player->mo;
-  }
-  tic_vars.frac = I_GetTimeFrac ();
-  if (NoInterpolate)
-    tic_vars.frac = FRACUNIT;
-  R_InterpolateView (player, tic_vars.frac);
 
   extralight = player->extralight;
 
   viewsin = finesine[viewangle>>ANGLETOFINESHIFT];
   viewcos = finecosine[viewangle>>ANGLETOFINESHIFT];
-
-  if (!paused)
-  {
-    R_DoInterpolations(tic_vars.frac);
-  }
 
   // killough 3/20/98, 4/4/98: select colormap based on player status
 
@@ -964,6 +946,4 @@ void R_RenderPlayerView (player_t* player)
 
   //e6y if (rendering_stats) 
   R_ShowStats();
-
-  R_RestoreInterpolations();
 }

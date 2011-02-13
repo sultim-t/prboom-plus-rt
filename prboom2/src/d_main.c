@@ -345,6 +345,8 @@ void D_Display (void)
     // Boom colormaps should be applied for everything in R_RenderPlayerView
     use_boom_cm=true;
 
+    R_InterpolateView(&players[displayplayer]);
+
     // Now do the drawing
     if (viewactive || map_always_updates)
     {
@@ -358,6 +360,8 @@ void D_Display (void)
 
     if (automapmode & am_active)
       AM_Drawer();
+
+    R_RestoreInterpolations();
 
     ST_Drawer((viewheight != SCREENHEIGHT) || ((automapmode & am_active) && !(automapmode & am_overlay)), redrawborderstuff || BorderNeedRefresh);
     BorderNeedRefresh = false;

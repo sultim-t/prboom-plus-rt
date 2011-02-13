@@ -1139,6 +1139,7 @@ void P_SpawnPlayer (int n, const mapthing_t* mthing)
   mobj->angle      = ANG45 * (mthing->angle/45);
   mobj->player     = p;
   mobj->health     = p->health;
+  mobj->player->prev_viewangle = mobj->angle + viewangleoffset;
 
   p->mo            = mobj;
   p->playerstate   = PST_LIVE;

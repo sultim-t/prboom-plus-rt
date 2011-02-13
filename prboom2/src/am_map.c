@@ -55,6 +55,8 @@
 #include "d_deh.h"    // Ty 03/27/98 - externalizations
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "g_game.h"
+#include "r_fps.h"
+#include "r_demo.h"
 
 extern dboolean gamekeydown[];
 
@@ -271,6 +273,9 @@ int markpointnum_max = 0;       // killough 2/22/98
 
 static dboolean stopped = true;
 
+angle_t am_viewangle;
+fixed_t am_viewx, am_viewy;
+
 static void AM_rotate(fixed_t* x,  fixed_t* y, angle_t a, fixed_t xorig, fixed_t yorig);
 
 //
@@ -327,8 +332,8 @@ static void AM_restoreScaleAndLoc(void)
   }
   else
   {
-    m_x = (plr->mo->x >> FRACTOMAPBITS) - m_w/2;//e6y
-    m_y = (plr->mo->y >> FRACTOMAPBITS) - m_h/2;//e6y
+    m_x = (am_viewx >> FRACTOMAPBITS) - m_w/2;//e6y
+    m_y = (am_viewy >> FRACTOMAPBITS) - m_h/2;//e6y
   }
   m_x2 = m_x + m_w;
   m_y2 = m_y + m_h;
@@ -426,7 +431,7 @@ static void AM_changeWindowLoc(void)
 
   if (automapmode & am_rotate)
   {
-    AM_rotate(&incx, &incy, plr->mo->angle - ANG90, 0, 0);
+    AM_rotate(&incx, &incy, am_viewangle - ANG90, 0, 0);
   }
 
   m_x += incx;
@@ -583,6 +588,12 @@ static void AM_LevelInit(void)
 
   AM_SetPosition();
   AM_SetScale();
+
+  AM_findMinMaxBoundaries();
+  scale_mtof = FixedDiv(min_scale_mtof, (int) (0.7*FRACUNIT));
+  if (scale_mtof > max_scale_mtof)
+    scale_mtof = min_scale_mtof;
+  scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
 
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
   {
@@ -862,18 +873,28 @@ void AM_rotatePoint (fixed_t *x, fixed_t *y)
   fixed_t pivoty = m_y + m_h/2;
   *x -= pivotx;
   *y -= pivoty;
-  AM_rotate(x, y, ANG90 - plr->mo->angle, 0, 0);
+  AM_rotate(x, y, ANG90 - am_viewangle, 0, 0);
   *x += pivotx;
   *y += pivoty;
 }
 
 static void AM_rotate_f(float *x, float *y, angle_t a)
 {
-  float rot = (float)a / (float)(1u << 31) * (float)M_PI;
-  float sinrot = (float)sin(rot);
-  float cosrot = (float)cos(rot);
+  static angle_t prev_angle = 0;
+  static float sinrot = 0.0f;
+  static float cosrot = 1.0f;
+
+  float rot, tmpx;
   
-  float tmpx = ((*x) * cosrot) - ((*y) * sinrot);
+  if (a != prev_angle)
+  {
+    prev_angle = a;
+    rot = (float)a / (float)(1u << 31) * (float)M_PI;
+    sinrot = (float)sin(rot);
+    cosrot = (float)cos(rot);
+  }
+  
+  tmpx = ((*x) * cosrot) - ((*y) * sinrot);
   *y = ((*x) * sinrot) + ((*y) * cosrot);
   *x = tmpx;
 }
@@ -884,7 +905,7 @@ void AM_rotatePoint_f(float *x, float *y)
   float pivoty = (float)m_y + (float)m_h/2.0f;
   *x -= pivotx;
   *y -= pivoty;
-  AM_rotate_f(x, y, ANG90 - plr->mo->angle);
+  AM_rotate_f(x, y, ANG90 - am_viewangle);
   *x += pivotx;
   *y += pivoty;
 }
@@ -919,14 +940,14 @@ static void AM_changeWindowScale(void)
 //
 static void AM_doFollowPlayer(void)
 {
-  if (f_oldloc.x != plr->mo->x || f_oldloc.y != plr->mo->y)
+  if (f_oldloc.x != am_viewx || f_oldloc.y != am_viewy)
   {
-    m_x = FTOM(MTOF(plr->mo->x >> FRACTOMAPBITS)) - m_w/2;//e6y
-    m_y = FTOM(MTOF(plr->mo->y >> FRACTOMAPBITS)) - m_h/2;//e6y
+    m_x = FTOM(MTOF(am_viewx >> FRACTOMAPBITS)) - m_w/2;//e6y
+    m_y = FTOM(MTOF(am_viewy >> FRACTOMAPBITS)) - m_h/2;//e6y
     m_x2 = m_x + m_w;
     m_y2 = m_y + m_h;
-    f_oldloc.x = plr->mo->x;
-    f_oldloc.y = plr->mo->y;
+    f_oldloc.x = am_viewx;
+    f_oldloc.y = am_viewy;
   }
 }
 
@@ -1453,7 +1474,7 @@ static void AM_drawLineCharacter
   int   i;
   mline_t l;
 
-  if (automapmode & am_rotate) angle -= plr->mo->angle - ANG90; // cph
+  if (automapmode & am_rotate) angle -= am_viewangle - ANG90; // cph
 
   for (i=0;i<lineguylines;i++)
   {
@@ -1507,9 +1528,8 @@ static void AM_drawPlayers(void)
 
   if (!netgame)
   {
-    pt.x = plr->mo->x >> FRACTOMAPBITS;
-    pt.y = plr->mo->y >> FRACTOMAPBITS;
-    angle = plr->mo->angle;
+    pt.x = am_viewx >> FRACTOMAPBITS;
+    pt.y = am_viewy >> FRACTOMAPBITS;
     if (automapmode & am_rotate)
     {
       //angle = ANG90;
@@ -1517,9 +1537,9 @@ static void AM_drawPlayers(void)
     }
 
     if (ddt_cheating)
-      AM_drawLineCharacter(cheat_player_arrow, NUMCHEATPLYRLINES, 0, angle, mapcolor_sngl, pt.x, pt.y);
+      AM_drawLineCharacter(cheat_player_arrow, NUMCHEATPLYRLINES, 0, am_viewangle, mapcolor_sngl, pt.x, pt.y);
     else
-      AM_drawLineCharacter(player_arrow, NUMPLYRLINES, 0, angle, mapcolor_sngl, pt.x, pt.y);
+      AM_drawLineCharacter(player_arrow, NUMPLYRLINES, 0, am_viewangle, mapcolor_sngl, pt.x, pt.y);
     return;
   }
 
@@ -1531,13 +1551,33 @@ static void AM_drawPlayers(void)
 
     if (playeringame[i])
     {
-      pt.x = p->mo->x >> FRACTOMAPBITS;
-      pt.y = p->mo->y >> FRACTOMAPBITS;
-      angle = p->mo->angle;
+      if (movement_smooth)
+      {
+        pt.x = p->mo->PrevX + FixedMul(tic_vars.frac, p->mo->x - p->mo->PrevX);
+        pt.y = p->mo->PrevY + FixedMul(tic_vars.frac, p->mo->y - p->mo->PrevY);
+        if (i == displayplayer)
+        {
+          angle = p->prev_viewangle + FixedMul(tic_vars.frac, R_SmoothPlaying_Get(p->mo->angle) - p->prev_viewangle);
+        }
+        else
+        {
+          angle = p->mo->angle + FixedMul(tic_vars.frac, p->mo->angle - p->mo->angle);
+        }
+      }
+      else
+      {
+        pt.x = p->mo->x;
+        pt.y = p->mo->y;
+        angle = p->mo->angle;
+      }
+
+      pt.x = pt.x >> FRACTOMAPBITS;
+      pt.y = pt.y >> FRACTOMAPBITS;
+      //angle = p->mo->angle;
       if (automapmode & am_rotate)
       {
         AM_rotatePoint(&pt.x, &pt.y);
-        //angle -= plr->mo->angle - ANG90;
+        //angle -= am_viewangle - ANG90;
       }
 
       AM_drawLineCharacter (player_arrow, NUMPLYRLINES, 0, angle,
@@ -1577,7 +1617,24 @@ static void AM_drawThings(void)
     t = sectors[i].thinglist;
     while (t) // for all things in that sector
     {
-      fixed_t x = t->x >> FRACTOMAPBITS, y = t->y >> FRACTOMAPBITS;//e6y
+      fixed_t x, y;
+      angle_t angle;
+
+      if (!paused && movement_smooth)
+      {
+        x = t->PrevX + FixedMul(tic_vars.frac, t->x - t->PrevX);
+        y = t->PrevY + FixedMul(tic_vars.frac, t->y - t->PrevY);
+        angle = (t->player ? t->player->prev_viewangle : t->angle);
+        angle = angle + FixedMul(tic_vars.frac, t->angle - angle);
+      }
+      else
+      {
+        x = t->x;
+        y = t->y;
+        angle = t->angle;
+      }
+      x = x >> FRACTOMAPBITS;
+      y = y >> FRACTOMAPBITS;
 
       //e6y: stop if all enemies from current sector already has been drawn
       if (pass == 1 && enemies == 0)
@@ -1647,7 +1704,7 @@ static void AM_drawThings(void)
         thintriangle_guy,
         NUMTHINTRIANGLEGUYLINES,
         16<<MAPBITS,//e6y
-        t->angle,
+        angle,
 	t->flags & MF_FRIEND && !t->player ? mapcolor_frnd : 
 	/* cph 2006/07/30 - Show count-as-kills in red. */
           ((t->flags & (MF_COUNTKILL | MF_CORPSE)) == MF_COUNTKILL) ? mapcolor_enemy :
@@ -1684,7 +1741,7 @@ static void AM_drawMarks(void)
       int j = i;
 
       if (automapmode & am_rotate)
-        AM_rotate(&fx, &fy, ANG90-plr->mo->angle, plr->mo->x, plr->mo->y);
+        AM_rotate(&fx, &fy, ANG90-am_viewangle, am_viewx, am_viewy);
 
       fx = CXMTOF(fx); fy = CYMTOF(fy);
 
@@ -1805,6 +1862,16 @@ void AM_Drawer (void)
 {
   // CPhipps - all automap modes put into one enum
   if (!(automapmode & am_active)) return;
+
+  am_viewangle = viewangle;
+  am_viewx = viewx;
+  am_viewy = viewy;
+  
+  if (automapmode & am_follow)
+  {
+    m_x = (am_viewx >> FRACTOMAPBITS) - m_w/2;
+    m_y = (am_viewy >> FRACTOMAPBITS) - m_h/2;
+  }
 
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)

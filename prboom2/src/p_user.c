@@ -377,11 +377,10 @@ void P_PlayerThink (player_t* player)
   //e6y
   if (movement_smooth && &players[displayplayer] == player)
   {
-    original_view_vars.viewx = player->mo->x;
-    original_view_vars.viewy = player->mo->y;
-    original_view_vars.viewz = player->viewz;
-    original_view_vars.viewangle = R_SmoothPlaying_Get(player->mo->angle) + viewangleoffset;
-    original_view_vars.viewpitch = player->mo->pitch;// + viewpitchoffset;
+    player->prev_viewz = player->viewz;
+    player->prev_viewangle = R_SmoothPlaying_Get(player->mo->angle) + viewangleoffset;
+    player->prev_viewpitch = player->mo->pitch;
+
     if(walkcamera.type)
     {
       P_ResetWalkcam();

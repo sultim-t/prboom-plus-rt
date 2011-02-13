@@ -187,6 +187,10 @@ typedef struct player_s
   //e6y
   int                 resurectedkillcount;
   const char*         centermessage;
+
+  fixed_t prev_viewz;
+  fixed_t prev_viewangle;
+  angle_t prev_viewpitch;
 } player_t;
 
 

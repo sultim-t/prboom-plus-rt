@@ -38,6 +38,7 @@
 #include "p_spec.h"
 #include "r_demo.h"
 #include "r_fps.h"
+#include "i_system.h"
 #include "e6y.h"
 
 int movement_smooth_default;
@@ -65,7 +66,7 @@ static int numinterpolations = 0;
 
 tic_vars_t tic_vars;
 
-view_vars_t original_view_vars;
+static void R_DoAnInterpolation (int i, fixed_t smoothratio);
 
 extern int realtic_clock_rate;
 void D_Display(void);
@@ -89,19 +90,35 @@ static dboolean NoInterpolateView;
 static dboolean didInterp;
 dboolean WasRenderedInTryRunTics;
 
-void R_InterpolateView (player_t *player, fixed_t frac)
+void R_InterpolateView(player_t *player)
 {
+  static mobj_t *oviewer;
+  fixed_t frac;
+
+  dboolean NoInterpolate = (paused && !walkcamera.type) || (menuactive && !demoplayback);
+
+  viewplayer = player;
+
+  if (player->mo != oviewer || NoInterpolate)
+  {
+    R_ResetViewInterpolation();
+    oviewer = player->mo;
+  }
+  tic_vars.frac = I_GetTimeFrac();
+  if (NoInterpolate)
+    tic_vars.frac = FRACUNIT;
+
+  frac = tic_vars.frac;
+
   if (movement_smooth)
   {
     if (NoInterpolateView)
     {
       NoInterpolateView = false;
-      original_view_vars.viewx = player->mo->x;
-      original_view_vars.viewy = player->mo->y;
-      original_view_vars.viewz = player->viewz;
 
-      original_view_vars.viewangle = player->mo->angle + viewangleoffset;
-      original_view_vars.viewpitch = player->mo->pitch;
+      player->prev_viewz = player->viewz;
+      player->prev_viewangle = player->mo->angle + viewangleoffset;
+      player->prev_viewpitch = player->mo->pitch;
 
       if(walkcamera.type)
       {
@@ -111,9 +128,9 @@ void R_InterpolateView (player_t *player, fixed_t frac)
 
     if (walkcamera.type != 2)
     {
-      viewx = original_view_vars.viewx + FixedMul (frac, player->mo->x - original_view_vars.viewx);
-      viewy = original_view_vars.viewy + FixedMul (frac, player->mo->y - original_view_vars.viewy);
-      viewz = original_view_vars.viewz + FixedMul (frac, player->viewz - original_view_vars.viewz);
+      viewx = player->mo->PrevX + FixedMul (frac, player->mo->x - player->mo->PrevX);
+      viewy = player->mo->PrevY + FixedMul (frac, player->mo->y - player->mo->PrevY);
+      viewz = player->prev_viewz + FixedMul (frac, player->viewz - player->prev_viewz);
     }
     else
     {
@@ -129,8 +146,8 @@ void R_InterpolateView (player_t *player, fixed_t frac)
     }
     else
     {
-      viewangle = original_view_vars.viewangle + FixedMul (frac, R_SmoothPlaying_Get(player->mo->angle) + viewangleoffset - original_view_vars.viewangle);
-      viewpitch = original_view_vars.viewpitch + FixedMul (frac, player->mo->pitch - original_view_vars.viewpitch);
+      viewangle = player->prev_viewangle + FixedMul (frac, R_SmoothPlaying_Get(player->mo->angle) + viewangleoffset - player->prev_viewangle);
+      viewpitch = player->prev_viewpitch + FixedMul (frac, player->mo->pitch - player->prev_viewpitch);
     }
   }
   else
@@ -156,6 +173,20 @@ void R_InterpolateView (player_t *player, fixed_t frac)
     {
       viewangle = R_SmoothPlaying_Get(player->mo->angle);
       viewpitch = player->mo->pitch;
+    }
+  }
+
+  if (!paused && movement_smooth)
+  {
+    int i;
+
+    didInterp = tic_vars.frac != FRACUNIT;
+    if (didInterp)
+    {
+      for (i = numinterpolations - 1; i >= 0; i--)
+      {
+        R_DoAnInterpolation (i, tic_vars.frac);
+      }
     }
   }
 }
@@ -454,27 +485,7 @@ void R_StopAllInterpolations(void)
   }
 }
 
-void R_DoInterpolations(fixed_t smoothratio)
-{
-  int i;
-  if (!movement_smooth)
-    return;
-
-  if (smoothratio == FRACUNIT)
-  {
-    didInterp = false;
-    return;
-  }
-
-  didInterp = true;
-
-  for (i = numinterpolations-1; i >= 0; --i)
-  {
-    R_DoAnInterpolation (i, smoothratio);
-  }
-}
-
-void R_RestoreInterpolations()
+void R_RestoreInterpolations(void)
 {
   int i;
   
