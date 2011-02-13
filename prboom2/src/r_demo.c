@@ -640,7 +640,8 @@ static void R_DemoEx_GetParams(const byte *pwad_p, waddata_t *waddata)
             strcat(mask, " = %d");
             if (sscanf(pstr, mask, &value) == 1)
             {
-              overflows[overflow].tmp_emulate = value;
+              overflows[overflow].footer = true;
+              overflows[overflow].footer_emulate = value;
             }
           }
           free(mask);

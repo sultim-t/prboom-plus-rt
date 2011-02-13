@@ -46,9 +46,6 @@
 #include "m_misc.h"
 #include "e6y.h"
 
-#define EMULATE(overflow) (overflows[overflow].emulate || overflows[overflow].tmp_emulate)
-#define PROCESS(overflow) (overflows[overflow].warn || EMULATE(overflow))
-
 overrun_param_t overflows[OVERFLOW_MAX];
 const char *overflow_cfgname[OVERFLOW_MAX] =
 {
