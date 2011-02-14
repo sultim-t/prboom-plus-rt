@@ -387,7 +387,8 @@ static void createPatch(int id) {
     while (oldColumn->topdelta != 0xff) {
 
       //e6y: support for DeePsea's true tall patches
-      if (oldColumn->topdelta <= top)
+      if (oldColumn->topdelta <= top &&
+          oldColumn->topdelta + oldColumn->length <= patch->height)
       {
         top += oldColumn->topdelta;
       }
@@ -639,7 +640,8 @@ static void createTextureCompositePatch(int id) {
         rpost_t *post = &composite_patch->columns[tx].posts[countsInColumn[tx].posts_used];
 
         //e6y: support for DeePsea's true tall patches
-        if (oldColumn->topdelta <= top)
+        if (oldColumn->topdelta <= top &&
+          oldColumn->topdelta + oldColumn->length <= composite_patch->height)
         {
           top += oldColumn->topdelta;
         }
