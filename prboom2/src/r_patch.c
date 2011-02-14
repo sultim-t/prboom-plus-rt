@@ -385,10 +385,10 @@ static void createPatch(int id) {
     patch->columns[x].posts = patch->posts + numPostsUsedSoFar;
 
     while (oldColumn->topdelta != 0xff) {
+      int len = oldColumn->length;
 
       //e6y: support for DeePsea's true tall patches
-      if (oldColumn->topdelta <= top &&
-          oldColumn->topdelta + oldColumn->length <= patch->height)
+      if (oldColumn->topdelta <= top)
       {
         top += oldColumn->topdelta;
       }
@@ -397,25 +397,33 @@ static void createPatch(int id) {
         top = oldColumn->topdelta;
       }
 
-      // set up the post's data
-      patch->posts[numPostsUsedSoFar].topdelta = top;
-      patch->posts[numPostsUsedSoFar].length = oldColumn->length;
-      patch->posts[numPostsUsedSoFar].slope = 0;
-
-      edgeSlope = getColumnEdgeSlope(oldPrevColumn, oldNextColumn, top);
-      if (edgeSlope == 1) patch->posts[numPostsUsedSoFar].slope |= RDRAW_EDGESLOPE_TOP_UP;
-      else if (edgeSlope == -1) patch->posts[numPostsUsedSoFar].slope |= RDRAW_EDGESLOPE_TOP_DOWN;
-
-      edgeSlope = getColumnEdgeSlope(oldPrevColumn, oldNextColumn, top+oldColumn->length);
-      if (edgeSlope == 1) patch->posts[numPostsUsedSoFar].slope |= RDRAW_EDGESLOPE_BOT_UP;
-      else if (edgeSlope == -1) patch->posts[numPostsUsedSoFar].slope |= RDRAW_EDGESLOPE_BOT_DOWN;
-
-      // fill in the post's pixels
-      oldColumnPixelData = (const byte *)oldColumn + 3;
-      for (y=0; y<oldColumn->length; y++) {
-        patch->pixels[x * patch->height + top + y] = oldColumnPixelData[y];
+      // Clip posts that extend past the bottom
+      if (top + oldColumn->length > patch->height)
+      {
+        len = patch->height - top;
       }
 
+      if (len > 0)
+      {
+        // set up the post's data
+        patch->posts[numPostsUsedSoFar].topdelta = top;
+        patch->posts[numPostsUsedSoFar].length = len;
+        patch->posts[numPostsUsedSoFar].slope = 0;
+
+        edgeSlope = getColumnEdgeSlope(oldPrevColumn, oldNextColumn, top);
+        if (edgeSlope == 1) patch->posts[numPostsUsedSoFar].slope |= RDRAW_EDGESLOPE_TOP_UP;
+        else if (edgeSlope == -1) patch->posts[numPostsUsedSoFar].slope |= RDRAW_EDGESLOPE_TOP_DOWN;
+
+        edgeSlope = getColumnEdgeSlope(oldPrevColumn, oldNextColumn, top+len);
+        if (edgeSlope == 1) patch->posts[numPostsUsedSoFar].slope |= RDRAW_EDGESLOPE_BOT_UP;
+        else if (edgeSlope == -1) patch->posts[numPostsUsedSoFar].slope |= RDRAW_EDGESLOPE_BOT_DOWN;
+
+        // fill in the post's pixels
+        oldColumnPixelData = (const byte *)oldColumn + 3;
+        for (y=0; y<len; y++) {
+          patch->pixels[x * patch->height + top + y] = oldColumnPixelData[y];
+        }
+      }
       oldColumn = (const column_t *)((const byte *)oldColumn + oldColumn->length + 4);
       numPostsUsedSoFar++;
     }
@@ -640,8 +648,7 @@ static void createTextureCompositePatch(int id) {
         rpost_t *post = &composite_patch->columns[tx].posts[countsInColumn[tx].posts_used];
 
         //e6y: support for DeePsea's true tall patches
-        if (oldColumn->topdelta <= top &&
-          oldColumn->topdelta + oldColumn->length <= composite_patch->height)
+        if (oldColumn->topdelta <= top)
         {
           top += oldColumn->topdelta;
         }
