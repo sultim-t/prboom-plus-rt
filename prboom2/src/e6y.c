@@ -1033,14 +1033,34 @@ void e6y_G_DoWorldDone(void)
   if (doSkip)
   {
     static int firstmap = 1;
-    demo_warp =
-      demo_stoponnext ||
-      ((gamemode==commercial)?
-        (startmap == gamemap):
-        (startepisode==gameepisode && startmap==gamemap));
-    if (demo_warp && demo_skiptics==0 && !firstmap)
+    int episode;
+    int map = 0;
+    int p;
+
+    if ((p = M_CheckParm ("-warp")))
+    {
+      if (gamemode == commercial)
+      {
+        if (p < myargc - 1)
+          startmap = atoi(myargv[p + 1]);
+      }
+      else
+      {
+        if (p < myargc - 2)
+        {
+          episode = atoi(myargv[++p]);
+          map = atoi(myargv[p + 1]);
+        }
+      }
+    }
+
+    demo_warp = demo_stoponnext ||
+      (gamemode == commercial ? (map == gamemap) : (episode == gameepisode && map == gamemap));
+    
+    if (demo_warp && demo_skiptics == 0 && !firstmap)
       G_SkipDemoStop();
-    if (firstmap) firstmap = 0;
+
+    firstmap = 0;
   }
 }
 
