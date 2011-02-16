@@ -61,6 +61,9 @@ dboolean AM_Responder (event_t* ev);
 // Called by main loop.
 void AM_Ticker (void);
 
+// For interpolation
+void AM_savePrevLocAndScale(void);
+
 // Called by main loop,
 // called instead of view drawer if automap active.
 void AM_Drawer (void);

@@ -1050,8 +1050,11 @@ void G_Ticker (void)
       P_Ticker ();
       P_WalkTicker();//e6y
       mlooky = 0;//e6y
+      if (!movement_smooth)
+        AM_Ticker();
+      else
+        AM_savePrevLocAndScale();
       ST_Ticker ();
-      AM_Ticker ();
       HU_Ticker ();
       break;
 

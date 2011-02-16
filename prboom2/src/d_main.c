@@ -359,7 +359,11 @@ void D_Display (void)
     frame_fixedcolormap = 0;
 
     if (automapmode & am_active)
+    {
+      if (movement_smooth)
+        AM_Ticker();
       AM_Drawer();
+    }
 
     R_RestoreInterpolations();
 
