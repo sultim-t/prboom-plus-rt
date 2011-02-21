@@ -1042,7 +1042,7 @@ void e6y_G_DoWorldDone(void)
       if (gamemode == commercial)
       {
         if (p < myargc - 1)
-          startmap = atoi(myargv[p + 1]);
+          map = atoi(myargv[p + 1]);
       }
       else
       {
