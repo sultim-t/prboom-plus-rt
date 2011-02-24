@@ -289,7 +289,7 @@ static void I_EndDoom(void)
   PrintVer();
 #endif
 
-  if (misc_fastexit)
+  if (misc_fastexit || demorecording)
   {
     return;
   }
@@ -500,7 +500,8 @@ static void I_Quit (void)
     has_exited=1;   /* Prevent infinitely recursive exits -- killough */
 
   if (has_exited == 1) {
-    I_EndDoom();
+    if (!demorecording)
+      I_EndDoom();
     if (demorecording)
       G_CheckDemoStatus();
     M_SaveDefaults ();
