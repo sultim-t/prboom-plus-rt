@@ -142,7 +142,7 @@ int render_wipescreen;
 int mouse_acceleration;
 int demo_overwriteexisting;
 
-int misc_fastexit;
+int showendoom;
 
 int palette_ondamage;
 int palette_onbonus;

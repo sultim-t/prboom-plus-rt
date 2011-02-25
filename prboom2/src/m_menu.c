@@ -1045,7 +1045,7 @@ static void M_QuitResponse(int ch)
     return;
   
   //e6y: Optional removal of a quit sound
-  if ((!netgame && !misc_fastexit) // killough 12/98
+  if ((!netgame && !showendoom) // killough 12/98
       && !nosfxparm && snd_card) // avoid delay if no sound card
   {
     int i;
@@ -3055,7 +3055,7 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
   {"Maximum number of player corpses", S_NUM|S_PRGWARN, m_null, G_X, G_Y+12*8, {"max_player_corpse"}},
   {"Game speed, percentage of normal", S_NUM|S_PRGWARN, m_null, G_X, G_Y+13*8, {"realtic_clock_rate"}},
   {"Default skill level",              S_CHOICE,        m_null, G_X, G_Y+14*8, {"default_skill"}, 0, 0, NULL, gen_skillstrings},
-  {"Fast Exit",                        S_YESNO,         m_null, G_X, G_Y+15*8, {"misc_fastexit"}},
+  {"Show ENDOOM screen",               S_YESNO,         m_null, G_X, G_Y+15*8, {"showendoom"}},
 #ifdef USE_WINDOWS_LAUNCHER
   {"Use In-Game Launcher",             S_CHOICE,        m_null, G_X, G_Y+ 16*8, {"launcher_enable"}, 0, 0, NULL, launcher_enable_states},
 #endif

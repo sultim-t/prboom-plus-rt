@@ -151,7 +151,7 @@ extern float render_multiplier;
 void M_ChangeAspectRatio(void);
 void M_ChangeStretch(void);
 
-extern int misc_fastexit;
+extern int showendoom;
 
 extern int palette_ondamage;
 extern int palette_onbonus;

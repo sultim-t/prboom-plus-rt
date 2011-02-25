@@ -896,7 +896,7 @@ default_t defaults[] =
    def_int,ss_stat},
 
   {"Prboom-plus misc settings",{NULL},{0},UL,UL,def_none,ss_none},
-  {"misc_fastexit", {&misc_fastexit},  {0},0,1,
+  {"showendoom", {&showendoom},  {0},0,1,
    def_bool,ss_stat},
   {"screenshot_dir", {NULL,&screenshot_dir}, {0,""},UL,UL,
    def_str,ss_none},

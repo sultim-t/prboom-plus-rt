@@ -289,7 +289,7 @@ static void I_EndDoom(void)
   PrintVer();
 #endif
 
-  if (misc_fastexit || demorecording)
+  if (showendoom || demorecording)
   {
     return;
   }
@@ -362,7 +362,7 @@ static void I_EndDoom2(void)
   int lump_eb, lump_ed, lump = -1;
 
   //e6y
-  if (misc_fastexit)
+  if (showendoom)
   {
     lprintf(LO_INFO,"I_EndDoom: All following output is skipped because of \"Fast Exit\" option\n");
     return;
