@@ -1045,7 +1045,7 @@ static void M_QuitResponse(int ch)
     return;
   
   //e6y: Optional removal of a quit sound
-  if ((!netgame && !showendoom) // killough 12/98
+  if ((!netgame && showendoom) // killough 12/98
       && !nosfxparm && snd_card) // avoid delay if no sound card
   {
     int i;
