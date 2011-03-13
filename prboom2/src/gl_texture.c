@@ -1156,10 +1156,6 @@ GLTexture *gld_RegisterFlat(int lump, dboolean mipmap)
 {
   GLTexture *gltexture;
 
-  // lump == 0 reffers to F_START marker
-  if (lump <= 0)
-    return NULL;
-
   gltexture=gld_AddNewGLPatchTexture(firstflat+lump);
   if (!gltexture)
     return NULL;
