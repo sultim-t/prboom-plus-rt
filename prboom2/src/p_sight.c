@@ -458,6 +458,12 @@ static dboolean P_CrossSubsector(int num)
       front = seg->frontsector;
       back = seg->backsector;
 
+      // missed back side on two-sided lines.
+      if (!back)
+      {
+        back = GetSectorAtNullAddress();
+      }
+
       // no wall to block sight with?
       if (front->floorheight == back->floorheight
         && front->ceilingheight == back->ceilingheight)

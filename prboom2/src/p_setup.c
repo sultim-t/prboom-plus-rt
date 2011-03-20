@@ -533,6 +533,7 @@ static void P_LoadSegs (int lump)
 
         if (sidenum == NO_INDEX)
         {
+          // this is wrong
           li->backsector = GetSectorAtNullAddress();
         }
         else
