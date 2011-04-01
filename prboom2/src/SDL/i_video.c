@@ -1224,6 +1224,7 @@ static void CenterMouse(void)
 // motion event.
 static void I_ReadMouse(void)
 {
+  static int mouse_currently_grabbed = true;
   int x, y;
   event_t ev;
 
@@ -1231,7 +1232,16 @@ static void I_ReadMouse(void)
     return;
 
   if (!MouseShouldBeGrabbed())
+  {
+    mouse_currently_grabbed = false;
     return;
+  }
+
+  if (!mouse_currently_grabbed && !desired_fullscreen)
+  {
+    CenterMouse();
+    mouse_currently_grabbed = true;
+  }
 
   SDL_GetRelativeMouseState(&x, &y);
 
