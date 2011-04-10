@@ -1462,10 +1462,18 @@ static void D_DoomMainSetup(void)
     }
     else    // 1/25/98 killough: fix -warp xxx from crashing Doom 1 / UD
     {
-      if (p < myargc-2)
+      if (p < myargc-1)
       {
-        startepisode = atoi(myargv[++p]);
-        startmap = atoi(myargv[p+1]);
+        int episode, map;
+        if (sscanf(myargv[p+1], "%d", &episode) == 1)
+        {
+          startepisode = episode;
+          startmap = 1;
+          if (p < myargc-2 && sscanf(myargv[p+2], "%d", &map) == 1)
+          {
+            startmap = map;
+          }
+        }
       }
     }
   }
@@ -1796,7 +1804,10 @@ static void D_DoomMainSetup(void)
       if (autostart || netgame)
   {
     // sets first map and first episode if unknown
-    GetFirstMap(&startepisode, &startmap);
+    if (autostart)
+    {
+      GetFirstMap(&startepisode, &startmap);
+    }
     G_InitNew(startskill, startepisode, startmap);
     if (demorecording)
       G_BeginRecording();
