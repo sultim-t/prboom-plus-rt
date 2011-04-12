@@ -1790,7 +1790,7 @@ static void AM_drawMarks(void)
       int j = i;
 
       if (automapmode & am_rotate)
-        AM_rotate(&fx, &fy, ANG90-am_viewangle, am_viewx, am_viewy);
+        AM_rotatePoint(&fx, &fy);
 
       fx = CXMTOF(fx); fy = CYMTOF(fy);
 
