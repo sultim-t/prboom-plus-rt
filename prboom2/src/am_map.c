@@ -1962,8 +1962,7 @@ void AM_Drawer (void)
   AM_drawCrosshair(mapcolor_hair);   //jff 1/7/98 default crosshair color
   AM_DrawLines();
 
-  AM_drawMarks();
-  AM_DrawLines();
-
   AM_EndLines();
+
+  AM_drawMarks();
 }
