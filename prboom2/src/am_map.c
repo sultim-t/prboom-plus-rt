@@ -1899,9 +1899,11 @@ static void AM_drawMarks(void)
 
       do
       {
+        int width = MAX(320, SCREENWIDTH);
         int d = j % 10;
+
         if (d==1)           // killough 2/22/98: less spacing for '1'
-          p.x++;
+          p.x += width / 320;
 
         if (p.x >= f_x && p.x < f_w - w && p.y >= f_y && p.y < f_h - h) {
           // cph - construct patch name and draw marker
@@ -1920,7 +1922,7 @@ static void AM_drawMarks(void)
               FB, namebuf, CR_DEFAULT, VPT_STRETCH);
           }
         }
-        p.x -= w-1;          // killough 2/22/98: 1 space backwards
+        p.x -= (w - 1) * width / 320;          // killough 2/22/98: 1 space backwards
         j /= 10;
       }
       while (j>0);
