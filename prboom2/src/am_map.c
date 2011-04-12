@@ -897,15 +897,15 @@ static void AM_rotate(fixed_t* x,  fixed_t* y, angle_t a, fixed_t xorig, fixed_t
   *x = tmpx + xorig;
 }
 
-void AM_rotatePoint (fixed_t *x, fixed_t *y)
+void AM_rotatePoint (mpoint_t *p)
 {
   fixed_t pivotx = m_x + m_w/2;
   fixed_t pivoty = m_y + m_h/2;
-  *x -= pivotx;
-  *y -= pivoty;
-  AM_rotate(x, y, ANG90 - am_viewangle, 0, 0);
-  *x += pivotx;
-  *y += pivoty;
+  p->x -= pivotx;
+  p->y -= pivoty;
+  AM_rotate(&p->x, &p->y, ANG90 - am_viewangle, 0, 0);
+  p->x += pivotx;
+  p->y += pivoty;
 }
 
 static void AM_rotate_f(float *x, float *y, angle_t a)
@@ -1235,8 +1235,8 @@ static void AM_drawGrid(int color)
     ml.b.y = ml.a.y + minlen;
     if (automapmode & am_rotate)
     {
-      AM_rotatePoint (&ml.a.x, &ml.a.y);
-      AM_rotatePoint (&ml.b.x, &ml.b.y);
+      AM_rotatePoint (&ml.a);
+      AM_rotatePoint (&ml.b);
     }
     AM_drawMline(&ml, color);
   }
@@ -1256,8 +1256,8 @@ static void AM_drawGrid(int color)
     ml.b.y = y;
     if (automapmode & am_rotate)
     {
-      AM_rotatePoint (&ml.a.x, &ml.a.y);
-      AM_rotatePoint (&ml.b.x, &ml.b.y);
+      AM_rotatePoint (&ml.a);
+      AM_rotatePoint (&ml.b);
     }
     AM_drawMline(&ml, color);
   }
@@ -1327,14 +1327,14 @@ static void AM_drawWalls(void)
   // draw the unclipped visible portions of all lines
   for (i=0;i<numlines;i++)
   {
-    l.a.x = lines[i].v1->x >> FRACTOMAPBITS;//e6y
-    l.a.y = lines[i].v1->y >> FRACTOMAPBITS;//e6y
-    l.b.x = lines[i].v2->x >> FRACTOMAPBITS;//e6y
-    l.b.y = lines[i].v2->y >> FRACTOMAPBITS;//e6y
+    l.a.x = lines[i].v1->x >> FRACTOMAPBITS;
+    l.a.y = lines[i].v1->y >> FRACTOMAPBITS;
+    l.b.x = lines[i].v2->x >> FRACTOMAPBITS;
+    l.b.y = lines[i].v2->y >> FRACTOMAPBITS;
 
     if (automapmode & am_rotate) {
-      AM_rotatePoint(&l.a.x, &l.a.y);
-      AM_rotatePoint(&l.b.x, &l.b.y);
+      AM_rotatePoint(&l.a);
+      AM_rotatePoint(&l.b);
     }
 
     // if line has been seen or IDDT has been used
@@ -1582,7 +1582,7 @@ static void AM_drawPlayers(void)
     if (automapmode & am_rotate)
     {
       //angle = ANG90;
-      AM_rotatePoint(&pt.x, &pt.y);
+      AM_rotatePoint(&pt);
     }
 
     if (ddt_cheating)
@@ -1625,7 +1625,7 @@ static void AM_drawPlayers(void)
       //angle = p->mo->angle;
       if (automapmode & am_rotate)
       {
-        AM_rotatePoint(&pt.x, &pt.y);
+        AM_rotatePoint(&pt);
         //angle -= am_viewangle - ANG90;
       }
 
@@ -1666,24 +1666,24 @@ static void AM_drawThings(void)
     t = sectors[i].thinglist;
     while (t) // for all things in that sector
     {
-      fixed_t x, y;
+      mpoint_t p;
       angle_t angle;
 
       if (!paused && movement_smooth)
       {
-        x = t->PrevX + FixedMul(tic_vars.frac, t->x - t->PrevX);
-        y = t->PrevY + FixedMul(tic_vars.frac, t->y - t->PrevY);
+        p.x = t->PrevX + FixedMul(tic_vars.frac, t->x - t->PrevX);
+        p.y = t->PrevY + FixedMul(tic_vars.frac, t->y - t->PrevY);
         angle = (t->player ? t->player->prev_viewangle : t->angle);
         angle = angle + FixedMul(tic_vars.frac, t->angle - angle);
       }
       else
       {
-        x = t->x;
-        y = t->y;
+        p.x = t->x;
+        p.y = t->y;
         angle = t->angle;
       }
-      x = x >> FRACTOMAPBITS;
-      y = y >> FRACTOMAPBITS;
+      p.x = p.x >> FRACTOMAPBITS;
+      p.y = p.y >> FRACTOMAPBITS;
 
       //e6y: stop if all enemies from current sector already has been drawn
       if (pass == 1 && enemies == 0)
@@ -1697,7 +1697,7 @@ static void AM_drawThings(void)
 
       if (automapmode & am_rotate)
       {
-        AM_rotatePoint (&x, &y);
+        AM_rotatePoint (&p);
       }
 
       //jff 1/5/98 case over doomednum of thing being drawn
@@ -1714,7 +1714,7 @@ static void AM_drawThings(void)
               16<<MAPBITS,//e6y
               t->angle,
               mapcolor_rkey!=-1? mapcolor_rkey : mapcolor_sprt,
-              x, y
+              p.x, p.y
             );
             t = t->snext;
             continue;
@@ -1726,7 +1726,7 @@ static void AM_drawThings(void)
               16<<MAPBITS,//e6y
               t->angle,
               mapcolor_ykey!=-1? mapcolor_ykey : mapcolor_sprt,
-              x, y
+              p.x, p.y
             );
             t = t->snext;
             continue;
@@ -1738,7 +1738,7 @@ static void AM_drawThings(void)
               16<<MAPBITS,//e6y
               t->angle,
               mapcolor_bkey!=-1? mapcolor_bkey : mapcolor_sprt,
-              x, y
+              p.x, p.y
             );
             t = t->snext;
             continue;
@@ -1759,7 +1759,7 @@ static void AM_drawThings(void)
           ((t->flags & (MF_COUNTKILL | MF_CORPSE)) == MF_COUNTKILL) ? mapcolor_enemy :
         /* bbm 2/28/03 Show countable items in yellow. */
           t->flags & MF_COUNTITEM ? mapcolor_item : mapcolor_sprt,
-        x, y
+        p.x, p.y
       );
       t = t->snext;
     }
@@ -1783,41 +1783,44 @@ static void AM_drawMarks(void)
   for (i=0;i<markpointnum;i++) // killough 2/22/98: remove automap mark limit
     if (markpoints[i].x != -1)
     {
+      mpoint_t p;
       int w = 5;
       int h = 6;
-      int fx = markpoints[i].x;
-      int fy = markpoints[i].y;
       int j = i;
 
-      if (automapmode & am_rotate)
-        AM_rotatePoint(&fx, &fy);
+      p.x = markpoints[i].x;
+      p.y = markpoints[i].y;
 
-      fx = CXMTOF(fx); fy = CYMTOF(fy);
+      if (automapmode & am_rotate)
+        AM_rotatePoint(&p);
+
+      p.x = CXMTOF(p.x);
+      p.y = CYMTOF(p.y);
 
       do
       {
         int d = j % 10;
         if (d==1)           // killough 2/22/98: less spacing for '1'
-          fx++;
+          p.x++;
 
-        if (fx >= f_x && fx < f_w - w && fy >= f_y && fy < f_h - h) {
+        if (p.x >= f_x && p.x < f_w - w && p.y >= f_y && p.y < f_h - h) {
           // cph - construct patch name and draw marker
           char namebuf[] = { 'A', 'M', 'M', 'N', 'U', 'M', '0'+d, 0 };
 
           if (movement_smooth && V_GetMode() == VID_MODEGL)
           {
             V_DrawNamePatchPrecise(
-              (float)fx * 320.0f / SCREENWIDTH, (float)fy * 200.0f / SCREENHEIGHT,
+              (float)p.x * 320.0f / SCREENWIDTH, (float)p.y * 200.0f / SCREENHEIGHT,
               FB, namebuf, CR_DEFAULT, VPT_STRETCH);
           }
           else
           {
             V_DrawNamePatch(
-              fx * 320 / SCREENWIDTH, fy * 200 / SCREENHEIGHT,
+              p.x * 320 / SCREENWIDTH, p.y * 200 / SCREENHEIGHT,
               FB, namebuf, CR_DEFAULT, VPT_STRETCH);
           }
         }
-        fx -= w-1;          // killough 2/22/98: 1 space backwards
+        p.x -= w-1;          // killough 2/22/98: 1 space backwards
         j /= 10;
       }
       while (j>0);
