@@ -1801,11 +1801,13 @@ static void AM_drawMarks(void)
           fx++;
 
         if (fx >= f_x && fx < f_w - w && fy >= f_y && fy < f_h - h) {
-    // cph - construct patch name and draw marker
-    char namebuf[] = { 'A', 'M', 'M', 'N', 'U', 'M', '0'+d, 0 };
+          // cph - construct patch name and draw marker
+          char namebuf[] = { 'A', 'M', 'M', 'N', 'U', 'M', '0'+d, 0 };
 
-          V_DrawNamePatch(fx, fy, FB, namebuf, CR_DEFAULT, VPT_NONE);
-  }
+          V_DrawNamePatch(
+            fx * 320 / SCREENWIDTH, fy * 200 / SCREENHEIGHT,
+            FB, namebuf, CR_DEFAULT, VPT_STRETCH);
+        }
         fx -= w-1;          // killough 2/22/98: 1 space backwards
         j /= 10;
       }
