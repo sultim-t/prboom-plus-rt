@@ -835,14 +835,15 @@ void gld_DrawMapLines(void)
         (float)playpal[3 * i + 2] / 255.0f,
         alpha);
 
-      glVertexPointer(2, GL_SHORT , 0, map_lines.points[i]); 
+      glVertexPointer(2, GL_FLOAT, 0, map_lines.points[i]);
+
       glDrawArrays(GL_LINES, 0, map_lines.count[i]/2);
     }
   }
 #endif
 }
 
-void gld_DrawLine(int x0, int y0, int x1, int y1, int BaseColor)
+void gld_DrawLine_f(float x0, float y0, float x1, float y1, int BaseColor)
 {
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
   if (!map_lines.points[BaseColor])
@@ -872,10 +873,15 @@ void gld_DrawLine(int x0, int y0, int x1, int y1, int BaseColor)
             (float)playpal[3*BaseColor+2]/255.0f,
             alpha);
   glBegin(GL_LINES);
-    glVertex2i( x0, y0 );
-    glVertex2i( x1, y1 );
+    glVertex2f( x0, y0 );
+    glVertex2f( x1, y1 );
   glEnd();
 #endif
+}
+
+void gld_DrawLine(int x0, int y0, int x1, int y1, int BaseColor)
+{
+  gld_DrawLine_f((float)x0, (float)y0, (float)x1, (float)y1, BaseColor);
 }
 
 void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)

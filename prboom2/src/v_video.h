@@ -253,6 +253,7 @@ extern V_PlotPixel_f V_PlotPixel;
 typedef struct
 {
   int x, y;
+  float fx, fy;
 } fpoint_t;
 
 typedef struct

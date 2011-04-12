@@ -40,7 +40,7 @@
 
 typedef struct map_lines_s
 {
-  unsigned short *points[MAP_COLORS_COUNT];
+  float *points[MAP_COLORS_COUNT];
   int maxsize[MAP_COLORS_COUNT];
   int count[MAP_COLORS_COUNT];
 } map_lines_t;
@@ -83,6 +83,7 @@ extern void AM_clearMarks(void);
 typedef struct
 {
  fixed_t x,y;
+ float fx,fy;
 } mpoint_t;
 
 extern mpoint_t *markpoints;

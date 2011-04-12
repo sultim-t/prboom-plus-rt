@@ -102,6 +102,8 @@ int map_overlay_pos_y;
 int map_overlay_pos_width;
 int map_overlay_pos_height;
 
+int map_render_precise;
+
 //jff 4/3/98 add symbols for "no-color" for disable and "black color" for black
 #define NC 0
 #define BC 247
@@ -129,6 +131,10 @@ int map_overlay_pos_height;
 // translates between frame-buffer and map coordinates
 #define CXMTOF(x)  (f_x + MTOF((x)-m_x))
 #define CYMTOF(y)  (f_y + (f_h - MTOF((y)-m_y)))
+// precise versions
+#define MTOF_F(x) (((float)(x)*scale_mtof)/(float)FRACUNIT/(float)FRACUNIT)
+#define CXMTOF_F(x)  ((float)f_x + MTOF_F((x)-m_x))
+#define CYMTOF_F(y)  ((float)f_y + (f_h - MTOF_F((y)-m_y)))
 
 typedef struct
 {
@@ -281,6 +287,23 @@ angle_t am_viewangle;
 fixed_t am_viewx, am_viewy;
 
 static void AM_rotate(fixed_t* x,  fixed_t* y, angle_t a, fixed_t xorig, fixed_t yorig);
+
+
+static void AM_SetMPointFloatValue(mpoint_t *p)
+{
+#ifdef GL_DOOM
+  p->fx = (float)p->x;
+  p->fy = (float)p->y;
+#endif
+}
+
+static void AM_SetFPointFloatValue(fpoint_t *p)
+{
+#ifdef GL_DOOM
+  p->fx = (float)p->x;
+  p->fy = (float)p->y;
+#endif
+}
 
 //
 // AM_activateNewScale()
@@ -680,6 +703,8 @@ void AM_Start(void)
   }
   AM_initVariables();
   AM_loadPics();
+
+  map_render_precise = render_precise && (V_GetMode() == VID_MODEGL);
 }
 
 //
@@ -897,7 +922,7 @@ static void AM_rotate(fixed_t* x,  fixed_t* y, angle_t a, fixed_t xorig, fixed_t
   *x = tmpx + xorig;
 }
 
-void AM_rotatePoint (mpoint_t *p)
+void AM_rotatePoint_i (mpoint_t *p)
 {
   fixed_t pivotx = m_x + m_w/2;
   fixed_t pivoty = m_y + m_h/2;
@@ -929,15 +954,31 @@ static void AM_rotate_f(float *x, float *y, angle_t a)
   *x = tmpx;
 }
 
-void AM_rotatePoint_f(float *x, float *y)
+void AM_rotatePoint_f(mpoint_t *p)
 {
+  float x = (float)p->x;
+  float y = (float)p->y;
+
   float pivotx = (float)m_x + (float)m_w/2.0f;
   float pivoty = (float)m_y + (float)m_h/2.0f;
-  *x -= pivotx;
-  *y -= pivoty;
-  AM_rotate_f(x, y, ANG90 - am_viewangle);
-  *x += pivotx;
-  *y += pivoty;
+  x -= pivotx;
+  y -= pivoty;
+  AM_rotate_f(&x, &y, ANG90 - am_viewangle);
+  x += pivotx;
+  y += pivoty;
+
+  p->fx = x;
+  p->fy = y;
+
+  AM_rotatePoint_i(p);
+}
+
+void AM_rotatePoint (mpoint_t *p)
+{
+  if (map_render_precise)
+    AM_rotatePoint_f(p);
+  else
+    AM_rotatePoint_i(p);
 }
 
 //
@@ -1056,6 +1097,7 @@ static dboolean AM_clipMline
   fpoint_t  tmp;
   int   dx;
   int   dy;
+  float dx_f, dy_f;
 
 
 #define DOOUTCODE(oc, mx, my) \
@@ -1099,6 +1141,14 @@ static dboolean AM_clipMline
   fl->b.x = CXMTOF(ml->b.x);
   fl->b.y = CYMTOF(ml->b.y);
 
+  if (map_render_precise)
+  {
+    fl->a.fx = CXMTOF_F(ml->a.fx);
+    fl->a.fy = CYMTOF_F(ml->a.fy);
+    fl->b.fx = CXMTOF_F(ml->b.fx);
+    fl->b.fy = CYMTOF_F(ml->b.fy);
+  }
+
   DOOUTCODE(outcode1, fl->a.x, fl->a.y);
   DOOUTCODE(outcode2, fl->b.x, fl->b.y);
 
@@ -1121,6 +1171,13 @@ static dboolean AM_clipMline
       dx = fl->b.x - fl->a.x;
       tmp.x = fl->a.x + (dx*(fl->a.y-f_y))/dy;
       tmp.y = f_y;
+      if (map_render_precise)
+      {
+        dy_f = fl->a.fy - fl->b.fy;
+        dx_f = fl->b.fx - fl->a.fx;
+        tmp.fx = fl->a.fx + (dx_f*(fl->a.fy-f_y))/dy_f;
+        tmp.fy = (float)f_y;
+      }
     }
     else if (outside & BOTTOM)
     {
@@ -1128,6 +1185,13 @@ static dboolean AM_clipMline
       dx = fl->b.x - fl->a.x;
       tmp.x = fl->a.x + (dx*(fl->a.y-(f_y+f_h)))/dy;
       tmp.y = f_y+f_h-1;
+      if (map_render_precise)
+      {
+        dy_f = fl->a.fy - fl->b.fy;
+        dx_f = fl->b.fx - fl->a.fx;
+        tmp.fx = fl->a.fx + (dx_f*(fl->a.fy-(f_y+f_h)))/dy_f;
+        tmp.fy = (float)(f_y+f_h-1);
+      }
     }
     else if (outside & RIGHT)
     {
@@ -1135,6 +1199,13 @@ static dboolean AM_clipMline
       dx = fl->b.x - fl->a.x;
       tmp.y = fl->a.y + (dy*(f_x+f_w-1 - fl->a.x))/dx;
       tmp.x = f_x+f_w-1;
+      if (map_render_precise)
+      {
+        dy_f = fl->b.fy - fl->a.fy;
+        dx_f = fl->b.fx - fl->a.fx;
+        tmp.fy = fl->a.fy + (dy_f*(f_x+f_w-1 - fl->a.fx))/dx_f;
+        tmp.fx = (float)(f_x+f_w-1);
+      }
     }
     else if (outside & LEFT)
     {
@@ -1142,6 +1213,13 @@ static dboolean AM_clipMline
       dx = fl->b.x - fl->a.x;
       tmp.y = fl->a.y + (dy*(f_x-fl->a.x))/dx;
       tmp.x = f_x;
+      if (map_render_precise)
+      {
+        dy_f = fl->b.fy - fl->a.fy;
+        dx_f = fl->b.fx - fl->a.fx;
+        tmp.fy = fl->a.fy + (dy_f*(f_x-fl->a.fx))/dx_f;
+        tmp.fx = (float)f_x;
+      }
     }
 
     if (outside == outcode1)
@@ -1233,6 +1311,8 @@ static void AM_drawGrid(int color)
     ml.b.x = x;
     ml.a.y = miny - exty;
     ml.b.y = ml.a.y + minlen;
+    AM_SetMPointFloatValue(&ml.a);
+    AM_SetMPointFloatValue(&ml.b);
     if (automapmode & am_rotate)
     {
       AM_rotatePoint (&ml.a);
@@ -1254,6 +1334,8 @@ static void AM_drawGrid(int color)
     ml.b.x = ml.a.x + minlen;
     ml.a.y = y;
     ml.b.y = y;
+    AM_SetMPointFloatValue(&ml.a);
+    AM_SetMPointFloatValue(&ml.b);
     if (automapmode & am_rotate)
     {
       AM_rotatePoint (&ml.a);
@@ -1331,6 +1413,9 @@ static void AM_drawWalls(void)
     l.a.y = lines[i].v1->y >> FRACTOMAPBITS;
     l.b.x = lines[i].v2->x >> FRACTOMAPBITS;
     l.b.y = lines[i].v2->y >> FRACTOMAPBITS;
+
+    AM_SetMPointFloatValue(&l.a);
+    AM_SetMPointFloatValue(&l.b);
 
     if (automapmode & am_rotate) {
       AM_rotatePoint(&l.a);
@@ -1557,6 +1642,11 @@ static void AM_drawLineCharacter
     l.b.x += x;
     l.b.y += y;
 
+    l.a.fx = (float)l.a.x;
+    l.a.fy = (float)l.a.y;
+    l.b.fx = (float)l.b.x;
+    l.b.fy = (float)l.b.y;
+
     AM_drawMline(&l, color);
   }
 }
@@ -1579,9 +1669,9 @@ static void AM_drawPlayers(void)
   {
     pt.x = am_viewx >> FRACTOMAPBITS;
     pt.y = am_viewy >> FRACTOMAPBITS;
+    AM_SetMPointFloatValue(&pt);
     if (automapmode & am_rotate)
     {
-      //angle = ANG90;
       AM_rotatePoint(&pt);
     }
 
@@ -1622,11 +1712,10 @@ static void AM_drawPlayers(void)
 
       pt.x = pt.x >> FRACTOMAPBITS;
       pt.y = pt.y >> FRACTOMAPBITS;
-      //angle = p->mo->angle;
+      AM_SetMPointFloatValue(&pt);
       if (automapmode & am_rotate)
       {
         AM_rotatePoint(&pt);
-        //angle -= am_viewangle - ANG90;
       }
 
       AM_drawLineCharacter (player_arrow, NUMPLYRLINES, 0, angle,
@@ -1684,6 +1773,8 @@ static void AM_drawThings(void)
       }
       p.x = p.x >> FRACTOMAPBITS;
       p.y = p.y >> FRACTOMAPBITS;
+
+      AM_SetMPointFloatValue(&p);
 
       //e6y: stop if all enemies from current sector already has been drawn
       if (pass == 1 && enemies == 0)
@@ -1787,6 +1878,10 @@ static void AM_drawMarks(void)
       int w = 5;
       int h = 6;
       int j = i;
+      
+      p.x = markpoints[i].x;
+      p.y = markpoints[i].y;
+      AM_SetMPointFloatValue(&p);
 
       p.x = markpoints[i].x;
       p.y = markpoints[i].y;
@@ -1796,6 +1891,11 @@ static void AM_drawMarks(void)
 
       p.x = CXMTOF(p.x);
       p.y = CYMTOF(p.y);
+      if (map_render_precise)
+      {
+        p.fx = CXMTOF_F(p.fx);
+        p.fy = CYMTOF_F(p.fy);
+      }
 
       do
       {
@@ -1845,12 +1945,16 @@ static void AM_drawCrosshair(int color)
   line.a.y = f_y+(f_h/2);
   line.b.x = f_x+(f_w/2)+1;
   line.b.y = f_y+(f_h/2);
+  AM_SetFPointFloatValue(&line.a);
+  AM_SetFPointFloatValue(&line.b);
   V_DrawLine(&line, color);
 
   line.a.x = f_x+(f_w/2);
   line.a.y = f_y+(f_h/2)-1;
   line.b.x = f_x+(f_w/2);
   line.b.y = f_y+(f_h/2)+1;
+  AM_SetFPointFloatValue(&line.a);
+  AM_SetFPointFloatValue(&line.b);
   V_DrawLine(&line, color);
 }
 

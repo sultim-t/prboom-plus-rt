@@ -898,7 +898,10 @@ static void V_PlotPixelGL(int scrn, int x, int y, byte color) {
 }
 static void WRAP_gld_DrawLine(fline_t* fl, int color)
 {
-  gld_DrawLine(fl->a.x, fl->a.y, fl->b.x, fl->b.y, color);
+  if (render_precise)
+    gld_DrawLine_f(fl->a.fx, fl->a.fy, fl->b.fx, fl->b.fy, color);
+  else
+    gld_DrawLine(fl->a.x, fl->a.y, fl->b.x, fl->b.y, color);
 }
 #endif
 
