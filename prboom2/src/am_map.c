@@ -1804,9 +1804,18 @@ static void AM_drawMarks(void)
           // cph - construct patch name and draw marker
           char namebuf[] = { 'A', 'M', 'M', 'N', 'U', 'M', '0'+d, 0 };
 
-          V_DrawNamePatch(
-            fx * 320 / SCREENWIDTH, fy * 200 / SCREENHEIGHT,
-            FB, namebuf, CR_DEFAULT, VPT_STRETCH);
+          if (movement_smooth && V_GetMode() == VID_MODEGL)
+          {
+            V_DrawNamePatchPrecise(
+              (float)fx * 320.0f / SCREENWIDTH, (float)fy * 200.0f / SCREENHEIGHT,
+              FB, namebuf, CR_DEFAULT, VPT_STRETCH);
+          }
+          else
+          {
+            V_DrawNamePatch(
+              fx * 320 / SCREENWIDTH, fy * 200 / SCREENHEIGHT,
+              FB, namebuf, CR_DEFAULT, VPT_STRETCH);
+          }
         }
         fx -= w-1;          // killough 2/22/98: 1 space backwards
         j /= 10;

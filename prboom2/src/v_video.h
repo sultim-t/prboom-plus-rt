@@ -207,8 +207,14 @@ typedef void (*V_DrawNumPatch_f)(int x, int y, int scrn,
                                  enum patch_translation_e flags);
 extern V_DrawNumPatch_f V_DrawNumPatch;
 
+typedef void (*V_DrawNumPatchPrecise_f)(float x, float y, int scrn,
+                                 int lump, int cm,
+                                 enum patch_translation_e flags);
+extern V_DrawNumPatchPrecise_f V_DrawNumPatchPrecise;
+
 // V_DrawNamePatch - Draws the patch from lump "name"
 #define V_DrawNamePatch(x,y,s,n,t,f) V_DrawNumPatch(x,y,s,W_GetNumForName(n),t,f)
+#define V_DrawNamePatchPrecise(x,y,s,n,t,f) V_DrawNumPatchPrecise(x,y,s,W_GetNumForName(n),t,f)
 
 /* cph -
  * Functions to return width & height of a patch.

@@ -605,6 +605,13 @@ static void FUNC_V_DrawNumPatch(int x, int y, int scrn, int lump,
   R_UnlockPatchNum(lump);
 }
 
+static void FUNC_V_DrawNumPatchPrecise(float x, float y, int scrn, int lump,
+         int cm, enum patch_translation_e flags)
+{
+  V_DrawMemPatch((int)x, (int)y, scrn, R_CachePatchNum(lump), cm, flags);
+  R_UnlockPatchNum(lump);
+}
+
 unsigned short *V_Palette15 = NULL;
 unsigned short *V_Palette16 = NULL;
 unsigned int *V_Palette32 = NULL;
@@ -878,6 +885,10 @@ static void WRAP_gld_DrawNumPatch(int x, int y, int scrn, int lump, int cm, enum
 {
   gld_DrawNumPatch(x,y,lump,cm,flags);
 }
+static void WRAP_gld_DrawNumPatchPrecise(float x, float y, int scrn, int lump, int cm, enum patch_translation_e flags)
+{
+  gld_DrawNumPatch_f(x,y,lump,cm,flags);
+}
 static void WRAP_gld_DrawBlock(int x, int y, int scrn, int width, int height, const byte *src, enum patch_translation_e flags)
 {
 }
@@ -897,6 +908,7 @@ static void NULL_FillFlat(int lump, int n, int x, int y, int width, int height, 
 static void NULL_FillPatch(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags) {}
 static void NULL_DrawBackground(const char *flatname, int n) {}
 static void NULL_DrawNumPatch(int x, int y, int scrn, int lump, int cm, enum patch_translation_e flags) {}
+static void NULL_DrawNumPatchPrecise(float x, float y, int scrn, int lump, int cm, enum patch_translation_e flags) {}
 static void NULL_DrawBlock(int x, int y, int scrn, int width, int height, const byte *src, enum patch_translation_e flags) {}
 static void NULL_PlotPixel(int scrn, int x, int y, byte color) {}
 static void NULL_DrawLine(fline_t* fl, int color) {}
@@ -907,6 +919,7 @@ static video_mode_t current_videomode = VID_MODE8;
 V_CopyRect_f V_CopyRect = NULL_CopyRect;
 V_FillRect_f V_FillRect = NULL_FillRect;
 V_DrawNumPatch_f V_DrawNumPatch = NULL_DrawNumPatch;
+V_DrawNumPatchPrecise_f V_DrawNumPatchPrecise = NULL_DrawNumPatchPrecise;
 V_FillFlat_f V_FillFlat = NULL_FillFlat;
 V_FillPatch_f V_FillPatch = NULL_FillPatch;
 V_DrawBackground_f V_DrawBackground = NULL_DrawBackground;
@@ -927,6 +940,7 @@ void V_InitMode(video_mode_t mode) {
       V_CopyRect = FUNC_V_CopyRect;
       V_FillRect = V_FillRect8;
       V_DrawNumPatch = FUNC_V_DrawNumPatch;
+      V_DrawNumPatchPrecise = FUNC_V_DrawNumPatchPrecise;
       V_FillFlat = FUNC_V_FillFlat;
       V_FillPatch = FUNC_V_FillPatch;
       V_DrawBackground = FUNC_V_DrawBackground;
@@ -939,6 +953,7 @@ void V_InitMode(video_mode_t mode) {
       V_CopyRect = FUNC_V_CopyRect;
       V_FillRect = V_FillRect15;
       V_DrawNumPatch = FUNC_V_DrawNumPatch;
+      V_DrawNumPatchPrecise = FUNC_V_DrawNumPatchPrecise;
       V_FillFlat = FUNC_V_FillFlat;
       V_FillPatch = FUNC_V_FillPatch;
       V_DrawBackground = FUNC_V_DrawBackground;
@@ -951,6 +966,7 @@ void V_InitMode(video_mode_t mode) {
       V_CopyRect = FUNC_V_CopyRect;
       V_FillRect = V_FillRect16;
       V_DrawNumPatch = FUNC_V_DrawNumPatch;
+      V_DrawNumPatchPrecise = FUNC_V_DrawNumPatchPrecise;
       V_FillFlat = FUNC_V_FillFlat;
       V_FillPatch = FUNC_V_FillPatch;
       V_DrawBackground = FUNC_V_DrawBackground;
@@ -963,6 +979,7 @@ void V_InitMode(video_mode_t mode) {
       V_CopyRect = FUNC_V_CopyRect;
       V_FillRect = V_FillRect32;
       V_DrawNumPatch = FUNC_V_DrawNumPatch;
+      V_DrawNumPatchPrecise = FUNC_V_DrawNumPatchPrecise;
       V_FillFlat = FUNC_V_FillFlat;
       V_FillPatch = FUNC_V_FillPatch;
       V_DrawBackground = FUNC_V_DrawBackground;
@@ -976,6 +993,7 @@ void V_InitMode(video_mode_t mode) {
       V_CopyRect = WRAP_gld_CopyRect;
       V_FillRect = WRAP_gld_FillRect;
       V_DrawNumPatch = WRAP_gld_DrawNumPatch;
+      V_DrawNumPatchPrecise = WRAP_gld_DrawNumPatchPrecise;
       V_FillFlat = WRAP_gld_FillFlat;
       V_FillPatch = WRAP_gld_FillPatch;
       V_DrawBackground = WRAP_gld_DrawBackground;

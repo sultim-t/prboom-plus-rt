@@ -99,6 +99,7 @@ void gld_InitCommandLine(void);
 void gld_InitTextureParams(void);
 
 void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e flags);
+void gld_DrawNumPatch_f(float x, float y, int lump, int cm, enum patch_translation_e flags);
 
 void gld_FillFlat(int lump, int x, int y, int width, int height, enum patch_translation_e flags);
 #define gld_FillFlatName(flatname, x, y, width, height, flags) \

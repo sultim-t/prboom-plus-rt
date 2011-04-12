@@ -617,7 +617,7 @@ void gld_DrawTriangleStrip(GLWall *wall, gl_strip_coords_t *c)
   glEnd();
 }
 
-void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e flags)
+void gld_DrawNumPatch_f(float x, float y, int lump, int cm, enum patch_translation_e flags)
 {
   GLTexture *gltexture;
   float fU1,fU2,fV1,fV2;
@@ -708,6 +708,11 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
   {
     glColor3f(1.0f,1.0f,1.0f);
   }
+}
+
+void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e flags)
+{
+  gld_DrawNumPatch_f((float)x, (float)y, lump, cm, flags);
 }
 
 void gld_FillFlat(int lump, int x, int y, int width, int height, enum patch_translation_e flags)
