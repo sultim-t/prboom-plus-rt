@@ -157,8 +157,6 @@ int fake_contrast;
 //e6y: for Boom colormaps in OpenGL mode
 dboolean use_boom_cm;
 int boom_cm;         // current colormap
-int last_boom_cm=-1; // previous colormap
-int last_fixedcolormap=-1;
 int frame_fixedcolormap = 0;
 
 int extralight;                           // bumped light from gun blasts
@@ -791,7 +789,6 @@ static void R_SetupFrame (player_t *player)
     cm = 0;
 
   //e6y: save previous and current colormap
-  last_boom_cm = boom_cm;
   boom_cm = cm;
 
   fullcolormap = colormaps[cm];

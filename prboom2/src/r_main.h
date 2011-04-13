@@ -130,8 +130,6 @@ extern const lighttable_t **colormaps;
 //e6y: for Boom colormaps in OpenGL mode
 extern dboolean use_boom_cm;
 extern int boom_cm;         // current colormap
-extern int last_boom_cm;    // previous colormap
-extern int last_fixedcolormap;
 extern int frame_fixedcolormap;
 
 extern int          extralight;
