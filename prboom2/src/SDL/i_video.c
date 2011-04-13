@@ -285,6 +285,8 @@ void I_StartFrame (void)
 
 static void I_InitInputs(void)
 {
+  static Uint8 empty_cursor_data = 0;
+
   int nomouse_parm = M_CheckParm("-nomouse");
 
   // check if the user wants to use the mouse
@@ -292,15 +294,14 @@ static void I_InitInputs(void)
   
   SDL_PumpEvents();
 
-  //e6y
+  // Save the default cursor so it can be recalled later
+  cursors[0] = SDL_GetCursor();
+  // Create an empty cursor
+  cursors[1] = SDL_CreateCursor(&empty_cursor_data, &empty_cursor_data, 8, 1, 0, 0);
+
   if (mouse_enabled)
   {
-    Uint8 data[1] = {0x00};
-    cursors[0] = SDL_GetCursor();
-    cursors[1] = SDL_CreateCursor(data, data, 8, 1, 0, 0);
-
     CenterMouse();
-
     MouseAccelChanging();
   }
 
