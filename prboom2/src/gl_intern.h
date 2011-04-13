@@ -468,7 +468,7 @@ unsigned char* gld_HQResize(GLTexture *gltexture, unsigned char *inputBuffer, in
 #define SKY_FLOOR   2
 typedef struct PalEntry_s
 {
-  unsigned char r, g, b, a;
+  unsigned char r, g, b;
 } PalEntry_t;
 typedef struct SkyBoxParams_s
 {
@@ -477,8 +477,9 @@ typedef struct SkyBoxParams_s
   GLWall wall;
   float x_scale, y_scale;
   float x_offset, y_offset;
-  PalEntry_t FloorSkyColor;
-  PalEntry_t CeilingSkyColor;
+  // 0 - no colormap; 1 - INVUL inverse colormap
+  PalEntry_t FloorSkyColor[2];
+  PalEntry_t CeilingSkyColor[2];
   // for BoxSkybox
   side_t *side;
 } SkyBoxParams_t;
@@ -508,9 +509,9 @@ typedef struct vbo_vertex_s
   unsigned char r, g, b, a;
 } vbo_vertex_t;
 #define NULL_VBO_VERTEX ((vbo_vertex_t*)NULL)
-#define sky_vbo_x (gl_ext_arb_vertex_buffer_object ? &NULL_VBO_VERTEX->x : &sky_vbo[0].data[0].x)
-#define sky_vbo_u (gl_ext_arb_vertex_buffer_object ? &NULL_VBO_VERTEX->u : &sky_vbo[0].data[0].u)
-#define sky_vbo_r (gl_ext_arb_vertex_buffer_object ? &NULL_VBO_VERTEX->r : &sky_vbo[0].data[0].r)
+#define sky_vbo_x (gl_ext_arb_vertex_buffer_object ? &NULL_VBO_VERTEX->x : &vbo->data[0].x)
+#define sky_vbo_u (gl_ext_arb_vertex_buffer_object ? &NULL_VBO_VERTEX->u : &vbo->data[0].u)
+#define sky_vbo_r (gl_ext_arb_vertex_buffer_object ? &NULL_VBO_VERTEX->r : &vbo->data[0].r)
 
 typedef struct vbo_xyz_uv_s
 {

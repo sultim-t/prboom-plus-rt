@@ -68,6 +68,7 @@ typedef struct
 
 typedef struct
 {
+  int id;
   int rows, columns;
   int loopcount;
   GLSkyLoopDef *loops;
@@ -90,11 +91,6 @@ box_skybox_t *BoxSkybox = NULL;
 int BoxSkyboxCount = 0;
 
 box_skybox_t *BoxSkybox_default;
-
-void M_ChangeSky(void)
-{
-  gld_InitSky();
-}
 
 void gld_InitSky(void)
 {
@@ -550,6 +546,33 @@ static float delta = 0.0f;
 
 int gl_sky_detail = 16;
 
+int V_BestColor(int r, int g, int b)
+{
+  int color;
+  const unsigned char *playpal = V_GetPlaypal();
+  int bestcolor = 0;
+  int bestdist = 257 * 257 + 257 * 257 + 257 * 257;
+
+  for (color = 0; color < 256; color++)
+  {
+    int x, y, z, dist;
+    x = r - playpal[color * 3 + 0];
+    y = g - playpal[color * 3 + 1];
+    z = b - playpal[color * 3 + 2];
+    dist = x * x + y * y + z * z;
+    if (dist < bestdist)
+    {
+      if (dist == 0)
+        return color;
+
+      bestdist = dist;
+      bestcolor = color;
+    }
+  }
+
+  return bestcolor;
+}
+
 //-----------------------------------------------------------------------------
 //
 //
@@ -558,8 +581,23 @@ int gl_sky_detail = 16;
 
 void gld_GetSkyCapColors(void)
 {
-  int width, height;
+  int color, width, height;
+  int frame_fixedcolormap_saved;
   unsigned char *buffer = NULL;
+  const unsigned char *playpal = V_GetPlaypal();
+  const lighttable_t *colormap;
+  const lighttable_t *fixedcolormap_saved;
+  PalEntry_t *ceiling_rgb = &SkyBox.CeilingSkyColor[0];
+  PalEntry_t *floor_rgb = &SkyBox.FloorSkyColor[0];
+  
+  // saving current colormap
+  fixedcolormap_saved = fixedcolormap;
+  frame_fixedcolormap_saved = frame_fixedcolormap;
+
+  fixedcolormap = fullcolormap;
+  frame_fixedcolormap = 0;
+
+  gld_BindTexture(SkyBox.wall.gltexture, 0);
 
   glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
   glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
@@ -567,17 +605,33 @@ void gld_GetSkyCapColors(void)
   buffer = malloc(width * height * 4);
   glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 
-  averageColor(&SkyBox.CeilingSkyColor, (unsigned int*)buffer, width * MIN(30, height), 0);
+  averageColor(ceiling_rgb, (unsigned int*)buffer, width * MIN(30, height), 0);
 
   if (height > 30)
   {
-    averageColor(&SkyBox.FloorSkyColor, 
+    averageColor(floor_rgb, 
       ((unsigned int*)buffer) + (height - 30) * width, width * 30, 0);
   }
   else
   {
-    SkyBox.FloorSkyColor = SkyBox.CeilingSkyColor;
+    *floor_rgb = *ceiling_rgb;
   }
+
+  colormap = fullcolormap + INVERSECOLORMAP * 256 * sizeof(lighttable_t);
+
+  color = V_BestColor(ceiling_rgb->r, ceiling_rgb->g, ceiling_rgb->b);
+  SkyBox.CeilingSkyColor[1].r = playpal[colormap[color] * 3 + 0];
+  SkyBox.CeilingSkyColor[1].g = playpal[colormap[color] * 3 + 1];
+  SkyBox.CeilingSkyColor[1].b = playpal[colormap[color] * 3 + 2];
+
+  color = V_BestColor(floor_rgb->r, floor_rgb->g, floor_rgb->b);
+  SkyBox.FloorSkyColor[1].r = playpal[colormap[color] * 3 + 0];
+  SkyBox.FloorSkyColor[1].g = playpal[colormap[color] * 3 + 1];
+  SkyBox.FloorSkyColor[1].b = playpal[colormap[color] * 3 + 2];
+
+  // restorin current colormap
+  fixedcolormap = fixedcolormap_saved;
+  frame_fixedcolormap = frame_fixedcolormap_saved;
 
   free(buffer);
 }
@@ -640,57 +694,58 @@ static void SkyVertex(vbo_vertex_t *vbo, int r, int c)
   vbo->z = (float)z/(float)MAP_SCALE;
 }
 
-GLSkyVBO *sky_vbo = NULL;
+GLSkyVBO sky_vbo[2];
 
-static void gld_BuildSky(int row_count, int col_count, SkyBoxParams_t *sky)
+static void gld_BuildSky(int row_count, int col_count, SkyBoxParams_t *sky, int cm)
 {
   int texh, c, r;
   vbo_vertex_t *vertex_p;
   int vertex_count = 2 * row_count * (col_count * 2 + 2) + col_count * 2;
+  int vbo_idx = (cm == INVERSECOLORMAP ? 1 : 0);
+  GLSkyVBO *vbo = &sky_vbo[vbo_idx];
 
-  if (sky_vbo && ((sky_vbo->columns != col_count) || (sky_vbo->rows != row_count)))
+  if ((vbo->columns != col_count) || (vbo->rows != row_count))
   {
-    free(sky_vbo[0].loops);
-    free(sky_vbo[0].data);
-    free(sky_vbo);
-    sky_vbo = NULL;
+    free(vbo->loops);
+    free(vbo->data);
+    memset(vbo, 0, sizeof(vbo[0]));
   }
 
-  if (!sky_vbo)
+  if (!vbo->data)
   {
-    sky_vbo = malloc(sizeof(sky_vbo[0]));
-    sky_vbo[0].loops = malloc((row_count * 2 + 2) * sizeof(sky_vbo[0].loops[0]));
+    memset(vbo, 0, sizeof(vbo[0]));
+    vbo->loops = malloc((row_count * 2 + 2) * sizeof(vbo->loops[0]));
     // create vertex array
-    sky_vbo[0].data = malloc(vertex_count * sizeof(sky_vbo[0].data[0]));
+    vbo->data = malloc(vertex_count * sizeof(vbo->data[0]));
   }
 
-  sky_vbo->columns = col_count;
-  sky_vbo->rows = row_count;
+  vbo->columns = col_count;
+  vbo->rows = row_count;
 
   texh = sky->wall.gltexture->buffer_height;
   if (texh > 190 && gl_stretchsky)
     texh = 190;
   texw = sky->wall.gltexture->buffer_width;
 
-  vertex_p = &sky_vbo[0].data[0];
-  sky_vbo[0].loopcount = 0;
+  vertex_p = &vbo->data[0];
+  vbo->loopcount = 0;
   for (yflip = 0; yflip < 2; yflip++)
   {
-    sky_vbo[0].loops[sky_vbo[0].loopcount].mode = GL_TRIANGLE_FAN;
-    sky_vbo[0].loops[sky_vbo[0].loopcount].vertexindex = vertex_p - &sky_vbo[0].data[0];
-    sky_vbo[0].loops[sky_vbo[0].loopcount].vertexcount = col_count;
-    sky_vbo[0].loops[sky_vbo[0].loopcount].use_texture = false;
-    sky_vbo[0].loopcount++;
+    vbo->loops[vbo->loopcount].mode = GL_TRIANGLE_FAN;
+    vbo->loops[vbo->loopcount].vertexindex = vertex_p - &vbo->data[0];
+    vbo->loops[vbo->loopcount].vertexcount = col_count;
+    vbo->loops[vbo->loopcount].use_texture = false;
+    vbo->loopcount++;
 
     yAdd = sky->y_offset / texh;
     yMult = (texh <= 180 ? 1.0f : 180.0f / texh);
     if (yflip == 0)
     {
-      SkyColor = &sky->CeilingSkyColor;
+      SkyColor = &sky->CeilingSkyColor[vbo_idx];
     }
     else
     {
-      SkyColor = &sky->FloorSkyColor;
+      SkyColor = &sky->FloorSkyColor[vbo_idx];
       if (texh <= 180) yMult = 1.0f; else yAdd += 180.0f / texh;
     }
 
@@ -711,11 +766,11 @@ static void gld_BuildSky(int row_count, int col_count, SkyBoxParams_t *sky)
 
     for(r = 0; r < row_count; r++)
     {
-      sky_vbo[0].loops[sky_vbo[0].loopcount].mode = GL_TRIANGLE_STRIP;
-      sky_vbo[0].loops[sky_vbo[0].loopcount].vertexindex = vertex_p - &sky_vbo[0].data[0];
-      sky_vbo[0].loops[sky_vbo[0].loopcount].vertexcount = 2 * col_count + 2;
-      sky_vbo[0].loops[sky_vbo[0].loopcount].use_texture = true;
-      sky_vbo[0].loopcount++;
+      vbo->loops[vbo->loopcount].mode = GL_TRIANGLE_STRIP;
+      vbo->loops[vbo->loopcount].vertexindex = vertex_p - &vbo->data[0];
+      vbo->loops[vbo->loopcount].vertexcount = 2 * col_count + 2;
+      vbo->loops[vbo->loopcount].use_texture = true;
+      vbo->loopcount++;
 
       for(c = 0; c <= col_count; c++)
       {
@@ -736,20 +791,21 @@ static void RenderDome(SkyBoxParams_t *sky)
 {
   int i, j;
   int vbosize;
-
-#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
-  static GLuint sky_vbo_id = 0; // ID of VBO
-#endif
+  GLSkyVBO *vbo;
 
   if (!sky || !sky->wall.gltexture)
     return;
+
+  if (invul_method == INVUL_CM && frame_fixedcolormap == INVERSECOLORMAP)
+    vbo = &sky_vbo[1]; 
+  else
+    vbo = &sky_vbo[0]; 
+  
 
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
   // be sure the second ARB is not enabled
   gld_EnableDetail(false);
 #endif
-
-  gld_BindTexture(sky->wall.gltexture, 0);
 
   glRotatef(-180.0f + sky->x_offset, 0.f, 1.f, 0.f);
 
@@ -769,39 +825,42 @@ static void RenderDome(SkyBoxParams_t *sky)
       gld_GetSkyCapColors();
     }
 
-    gld_BuildSky(rows, columns, sky);
+    gld_BuildSky(rows, columns, sky, 0);
+    gld_BuildSky(rows, columns, sky, INVERSECOLORMAP);
 
 #ifdef USE_VBO
     if (gl_ext_arb_vertex_buffer_object)
     {
-      if (sky_vbo_id)
+      if (vbo->id)
       {
         // delete VBO when already exists
-        GLEXT_glDeleteBuffersARB(1, &sky_vbo_id);
+        GLEXT_glDeleteBuffersARB(1, &vbo->id);
       }
       // generate a new VBO and get the associated ID
-      GLEXT_glGenBuffersARB(1, &sky_vbo_id);
+      GLEXT_glGenBuffersARB(1, &vbo->id);
       // bind VBO in order to use
-      GLEXT_glBindBufferARB(GL_ARRAY_BUFFER, sky_vbo_id);
+      GLEXT_glBindBufferARB(GL_ARRAY_BUFFER, vbo->id);
       // upload data to VBO
       GLEXT_glBufferDataARB(GL_ARRAY_BUFFER,
-        vbosize * sizeof(sky_vbo[0].data[0]),
-        sky_vbo[0].data, GL_STATIC_DRAW_ARB);
+        vbosize * sizeof(vbo->data[0]),
+        vbo->data, GL_STATIC_DRAW_ARB);
     }
 #endif
   }
+
+  gld_BindTexture(SkyBox.wall.gltexture, 0);
 
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
   if (gl_ext_arb_vertex_buffer_object)
   {
     // bind VBO in order to use
-    GLEXT_glBindBufferARB(GL_ARRAY_BUFFER, sky_vbo_id);
+    GLEXT_glBindBufferARB(GL_ARRAY_BUFFER, vbo->id);
   }
 
   // activate and specify pointers to arrays
-  glVertexPointer(3, GL_FLOAT, sizeof(sky_vbo[0].data[0]), sky_vbo_x);
-  glTexCoordPointer(2, GL_FLOAT, sizeof(sky_vbo[0].data[0]), sky_vbo_u);
-  glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(sky_vbo[0].data[0]), sky_vbo_r);
+  glVertexPointer(3, GL_FLOAT, sizeof(vbo->data[0]), sky_vbo_x);
+  glTexCoordPointer(2, GL_FLOAT, sizeof(vbo->data[0]), sky_vbo_u);
+  glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(vbo->data[0]), sky_vbo_r);
 
   // activate vertex array, texture coord array and color arrays
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -828,9 +887,9 @@ static void RenderDome(SkyBoxParams_t *sky)
   {
     gld_EnableTexture2D(GL_TEXTURE0_ARB, j != 0);
 
-    for(i = 0; i < sky_vbo[0].loopcount; i++)
+    for(i = 0; i < vbo->loopcount; i++)
     {
-      GLSkyLoopDef *loop = &sky_vbo[0].loops[i];
+      GLSkyLoopDef *loop = &vbo->loops[i];
 
       if (j == 0 ? loop->use_texture : !loop->use_texture)
         continue;
@@ -843,7 +902,7 @@ static void RenderDome(SkyBoxParams_t *sky)
         glBegin(loop->mode);
         for (k = loop->vertexindex; k < (loop->vertexindex + loop->vertexcount); k++)
         {
-          vbo_vertex_t *v = &sky_vbo[0].data[k];
+          vbo_vertex_t *v = &vbo->data[k];
           if (loop->use_texture)
           {
             glTexCoord2fv((GLfloat*)&v->u);

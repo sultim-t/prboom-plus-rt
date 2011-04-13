@@ -80,7 +80,6 @@ void gld_CheckHardwareGamma(void);
 void gld_FlushTextures(void);
 void gld_ApplyGammaRamp(byte *buf, int pitch, int width, int height);
 void M_ChangeLightMode(void);
-void M_ChangeSky(void);
 
 //detail
 extern int gl_detail_maxdist;
