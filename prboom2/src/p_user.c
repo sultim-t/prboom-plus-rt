@@ -44,10 +44,6 @@
 #include "g_game.h"
 #include "e6y.h"//e6y
 
-// Index of the special effects (INVUL inverse) map.
-
-#define INVERSECOLORMAP 32
-
 //
 // Movement.
 //

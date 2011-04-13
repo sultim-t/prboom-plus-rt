@@ -141,6 +141,8 @@ extern const lighttable_t *fixedcolormap;
 // There a 0-31, i.e. 32 LUT in the COLORMAP lump.
 
 #define NUMCOLORMAPS 32
+// Index of the special effects (INVUL inverse) map.
+#define INVERSECOLORMAP 32
 
 //
 // Utility functions.
