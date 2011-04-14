@@ -396,7 +396,8 @@ void G_SkipDemoStop(void)
     I_InitSound();
   }
   S_Init(snd_SfxVolume, snd_MusicVolume);
-  S_Start();
+  S_Stop();
+  S_RestartMusic();
 
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL) {

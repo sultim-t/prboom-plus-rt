@@ -96,6 +96,9 @@ static dboolean mus_paused;
 // music currently being played
 static musicinfo_t *mus_playing;
 
+// music currently should play
+static int musicnum_current;
+
 // following is set
 //  by the defaults code in M_misc:
 // number of channels available
@@ -183,10 +186,6 @@ void S_Start(void)
   //  (trust me - a good idea)
 
   S_Stop();
-
-  //jff 1/22/98 return if music is not enabled
-  if (!mus_card || nomusicparm)
-    return;
 
   // start new music for the level
   mus_paused = 0;
@@ -462,9 +461,6 @@ void S_SetSfxVolume(int volume)
 //
 void S_StartMusic(int m_id)
 {
-  //jff 1/22/98 return if music is not enabled
-  if (!mus_card || nomusicparm)
-    return;
   S_ChangeMusic(m_id, false);
 }
 
@@ -475,6 +471,9 @@ void S_ChangeMusic(int musicnum, int looping)
   musicinfo_t *music;
   int music_file_failed; // cournia - if true load the default MIDI music
   char* music_filename;  // cournia
+
+  // current music which should play
+  musicnum_current = musicnum;
 
   //jff 1/22/98 return if music is not enabled
   if (!mus_card || nomusicparm)
@@ -529,6 +528,11 @@ void S_ChangeMusic(int musicnum, int looping)
   mus_playing = music;
 
   musinfo.current_item = -1;
+}
+
+void S_RestartMusic(void)
+{
+  S_ChangeMusic(musicnum_current, true);
 }
 
 void S_ChangeMusInfoMusic(int lumpnum, int looping)

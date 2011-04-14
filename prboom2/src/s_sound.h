@@ -76,6 +76,7 @@ void S_StartMusic(int music_id);
 // Start music using <music_id> from sounds.h, and set whether looping
 void S_ChangeMusic(int music_id, int looping);
 void S_ChangeMusInfoMusic(int lumpnum, int looping);
+void S_RestartMusic(void);
 
 // Stops the music fer sure.
 void S_StopMusic(void);
