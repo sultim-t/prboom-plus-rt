@@ -623,6 +623,11 @@ void AM_clearMarks(void)
   markpointnum = 0;
 }
 
+void AM_SetRenderPrecise()
+{
+  map_render_precise = render_precise && (V_GetMode() == VID_MODEGL);
+}
+
 //
 // AM_LevelInit()
 //
@@ -704,7 +709,7 @@ void AM_Start(void)
   AM_initVariables();
   AM_loadPics();
 
-  map_render_precise = render_precise && (V_GetMode() == VID_MODEGL);
+  AM_SetRenderPrecise();
 }
 
 //
