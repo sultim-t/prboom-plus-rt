@@ -127,7 +127,9 @@ int map_render_precise;
 
 // translates between frame-buffer and map distances
 #define FTOM(x) FixedMul(((x)<<16),scale_ftom)
-#define MTOF(x) (FixedMul((x),scale_mtof)>>16)
+// e6y: int64 version to avoid overflows
+//#define MTOF(x) (FixedMul((x),scale_mtof)>>16)
+#define MTOF(x) (fixed_t)((((int_64_t)(x) * scale_mtof) >> FRACBITS)>>FRACBITS)
 // translates between frame-buffer and map coordinates
 #define CXMTOF(x)  (f_x + MTOF((x)-m_x))
 #define CYMTOF(y)  (f_y + (f_h - MTOF((y)-m_y)))
@@ -1174,7 +1176,8 @@ static dboolean AM_clipMline
     {
       dy = fl->a.y - fl->b.y;
       dx = fl->b.x - fl->a.x;
-      tmp.x = fl->a.x + (dx*(fl->a.y-f_y))/dy;
+      // 'int64' math to avoid overflows on long lines
+      tmp.x = fl->a.x + (fixed_t)(((int_64_t)dx*(fl->a.y-f_y))/dy);
       tmp.y = f_y;
       if (map_render_precise)
       {
@@ -1188,7 +1191,7 @@ static dboolean AM_clipMline
     {
       dy = fl->a.y - fl->b.y;
       dx = fl->b.x - fl->a.x;
-      tmp.x = fl->a.x + (dx*(fl->a.y-(f_y+f_h)))/dy;
+      tmp.x = fl->a.x + (fixed_t)(((int_64_t)dx*(fl->a.y-(f_y+f_h)))/dy);
       tmp.y = f_y+f_h-1;
       if (map_render_precise)
       {
@@ -1202,7 +1205,7 @@ static dboolean AM_clipMline
     {
       dy = fl->b.y - fl->a.y;
       dx = fl->b.x - fl->a.x;
-      tmp.y = fl->a.y + (dy*(f_x+f_w-1 - fl->a.x))/dx;
+      tmp.y = fl->a.y + (fixed_t)(((int_64_t)dy*(f_x+f_w-1 - fl->a.x))/dx);
       tmp.x = f_x+f_w-1;
       if (map_render_precise)
       {
@@ -1216,7 +1219,7 @@ static dboolean AM_clipMline
     {
       dy = fl->b.y - fl->a.y;
       dx = fl->b.x - fl->a.x;
-      tmp.y = fl->a.y + (dy*(f_x-fl->a.x))/dx;
+      tmp.y = fl->a.y + (fixed_t)(((int_64_t)dy*(f_x-fl->a.x))/dx);
       tmp.x = f_x;
       if (map_render_precise)
       {
