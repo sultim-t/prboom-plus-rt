@@ -1921,13 +1921,13 @@ static void AM_drawMarks(void)
           {
             V_DrawNamePatchPrecise(
               (float)p.x * 320.0f / SCREENWIDTH, (float)p.y * 200.0f / SCREENHEIGHT,
-              FB, namebuf, CR_DEFAULT, VPT_STRETCH);
+              FB, namebuf, CR_DEFAULT, VPT_ALIGN_WIDE | VPT_STRETCH);
           }
           else
           {
             V_DrawNamePatch(
               p.x * 320 / SCREENWIDTH, p.y * 200 / SCREENHEIGHT,
-              FB, namebuf, CR_DEFAULT, VPT_STRETCH);
+              FB, namebuf, CR_DEFAULT, VPT_ALIGN_WIDE | VPT_STRETCH);
           }
         }
         p.x -= (w - 1) * width / 320;          // killough 2/22/98: 1 space backwards
