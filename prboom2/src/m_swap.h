@@ -62,11 +62,11 @@
 /* Try to use superfast macros on systems that support them */
 #ifdef HAVE_ASM_BYTEORDER_H
 #include <asm/byteorder.h>
-#ifdef __arch__swab16
-#define doom_swap_s  (signed short)__arch__swab16
+#ifdef __arch_swab16
+#define doom_swap_s  (signed short)__arch_swab16
 #endif
-#ifdef __arch__swab32
-#define doom_swap_l  (signed long)__arch__swab32
+#ifdef __arch_swab32
+#define doom_swap_l  (signed long)__arch_swab32
 #endif
 #endif /* HAVE_ASM_BYTEORDER_H */
 
