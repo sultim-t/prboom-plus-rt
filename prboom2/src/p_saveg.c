@@ -977,9 +977,9 @@ void P_UnArchiveRNG(void)
 // killough 2/22/98: Save/restore automap state
 void P_ArchiveMap(void)
 {
-  int zero = 0, one = 1;
+  int i, zero = 0, one = 1;
   CheckSaveGame(2 * sizeof zero + sizeof markpointnum +
-                markpointnum * sizeof *markpoints +
+                markpointnum * (sizeof(markpoints[0].x) + sizeof(markpoints[0].y)) +
                 sizeof automapmode + sizeof one);
 
   memcpy(save_p, &automapmode, sizeof automapmode);
@@ -993,11 +993,13 @@ void P_ArchiveMap(void)
   memcpy(save_p, &markpointnum, sizeof markpointnum);
   save_p += sizeof markpointnum;
 
-  if (markpointnum)
-    {
-      memcpy(save_p, markpoints, sizeof *markpoints * markpointnum);
-      save_p += markpointnum * sizeof *markpoints;
-    }
+  for (i = 0; i < markpointnum; i++)
+  {
+    memcpy(save_p, &markpoints[i].x, sizeof(markpoints[i].x));
+    save_p += sizeof(markpoints[i].x);
+    memcpy(save_p, &markpoints[i].y, sizeof(markpoints[i].y));
+    save_p += sizeof(markpoints[i].y);
+  }
 }
 
 void P_UnArchiveMap(void)
@@ -1020,11 +1022,20 @@ void P_UnArchiveMap(void)
 
   if (markpointnum)
     {
+      int i;
       while (markpointnum >= markpointnum_max)
         markpoints = realloc(markpoints, sizeof *markpoints *
          (markpointnum_max = markpointnum_max ? markpointnum_max*2 : 16));
-      memcpy(markpoints, save_p, markpointnum * sizeof *markpoints);
-      save_p += markpointnum * sizeof *markpoints;
+
+      for (i = 0; i < markpointnum; i++)
+      {
+        memcpy(&markpoints[i].x, save_p, sizeof(markpoints[i].x));
+        save_p += sizeof(markpoints[i].x);
+        memcpy(&markpoints[i].y, save_p, sizeof(markpoints[i].y));
+        save_p += sizeof(markpoints[i].y);
+
+        AM_setMarkParams(i);
+      }
     }
 }
 

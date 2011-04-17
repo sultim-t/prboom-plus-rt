@@ -279,7 +279,7 @@ static player_t *plr;           // the player represented by an arrow
 // killough 2/22/98: Remove limit on automap marks,
 // and make variables external for use in savegames.
 
-mpoint_t *markpoints = NULL;    // where the points are
+markpoint_t *markpoints = NULL;    // where the points are
 int markpointnum = 0; // next point to be assigned (also number of points now)
 int markpointnum_max = 0;       // killough 2/22/98
 
@@ -372,6 +372,24 @@ static void AM_restoreScaleAndLoc(void)
   scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
 }
 
+void AM_setMarkParams(int num)
+{
+  int i;
+  static char namebuf[16] = "AMMNUM0";
+
+  markpoints[num].w = 0;
+  markpoints[num].h = 0;
+
+  itoa(num, markpoints[num].label, 10);
+  for (i = 0; i < (int)strlen(markpoints[num].label); i++)
+  {
+    namebuf[6] = markpoints[num].label[i];
+    markpoints[num].widths[i] = V_NamePatchWidth(namebuf);
+    markpoints[num].w += markpoints[num].widths[i] + 1;
+    markpoints[num].h = MAX(markpoints[num].h, V_NamePatchHeight(namebuf));
+  }
+}
+
 //
 // AM_addMark()
 //
@@ -392,6 +410,7 @@ static void AM_addMark(void)
 
   markpoints[markpointnum].x = m_x + m_w/2;
   markpoints[markpointnum].y = m_y + m_h/2;
+  AM_setMarkParams(markpointnum);
   markpointnum++;
 }
 
@@ -627,7 +646,7 @@ void AM_clearMarks(void)
 
 void AM_SetRenderPrecise()
 {
-  map_render_precise = render_precise && (V_GetMode() == VID_MODEGL);
+  map_render_precise = (V_GetMode() == VID_MODEGL);
 }
 
 //
@@ -1879,62 +1898,66 @@ static void AM_drawThings(void)
 static void AM_drawMarks(void)
 {
   int i;
-  for (i=0;i<markpointnum;i++) // killough 2/22/98: remove automap mark limit
+  char namebuf[16] = "AMMNUM0";
+
+  for (i = 0; i < markpointnum; i++) // killough 2/22/98: remove automap mark limit
+  {
     if (markpoints[i].x != -1)
     {
+      int k, w;
       mpoint_t p;
-      int w = 5;
-      int h = 6;
-      int j = i;
       
-      p.x = markpoints[i].x;
-      p.y = markpoints[i].y;
+      p.x = markpoints[i].x;// - m_x + prev_m_x;
+      p.y = markpoints[i].y;// - m_y + prev_m_y;
       AM_SetMPointFloatValue(&p);
-
-      p.x = markpoints[i].x;
-      p.y = markpoints[i].y;
 
       if (automapmode & am_rotate)
         AM_rotatePoint(&p);
 
-      p.x = CXMTOF(p.x);
-      p.y = CYMTOF(p.y);
+      p.x = CXMTOF(p.x) - markpoints[i].w * SCREENWIDTH / 320 / 2;
+      p.y = CYMTOF(p.y) - markpoints[i].h * SCREENHEIGHT / 200 / 2;
       if (map_render_precise)
       {
-        p.fx = CXMTOF_F(p.fx);
-        p.fy = CYMTOF_F(p.fy);
+        p.fx = CXMTOF_F(p.fx) - (float)markpoints[i].w * SCREENWIDTH / 320.0f / 2.0f;
+        p.fy = CYMTOF_F(p.fy) - (float)markpoints[i].h * SCREENHEIGHT / 200.0f / 2.0f;
       }
 
-      do
+      if (V_GetMode() == VID_MODEGL ? 
+          p.y < f_y + f_w && p.y + markpoints[i].h * SCREENHEIGHT / 200 >= f_x :
+          p.y < f_y + f_w && p.y >= f_x)
       {
-        int width = MAX(320, SCREENWIDTH);
-        int d = j % 10;
+        w = 0;
+        for (k = 0; k < (int)strlen(markpoints[i].label); k++)
+        {
+          namebuf[6] = markpoints[i].label[k];
 
-        if (d==1)           // killough 2/22/98: less spacing for '1'
-          p.x += width / 320;
-
-        if (p.x >= f_x && p.x < f_w - w && p.y >= f_y && p.y < f_h - h) {
-          // cph - construct patch name and draw marker
-          char namebuf[] = { 'A', 'M', 'M', 'N', 'U', 'M', '0'+d, 0 };
-
-          if (movement_smooth && V_GetMode() == VID_MODEGL)
+          if (p.x < f_x + f_w &&
+              p.x + markpoints[i].widths[k] * SCREENWIDTH / 320 >= f_x)
           {
-            V_DrawNamePatchPrecise(
-              (float)p.x * 320.0f / SCREENWIDTH, (float)p.y * 200.0f / SCREENHEIGHT,
-              FB, namebuf, CR_DEFAULT, VPT_ALIGN_WIDE | VPT_STRETCH);
+            if (map_render_precise)
+            {
+              V_DrawNamePatchPrecise(
+                (float)p.fx * 320.0f / SCREENWIDTH, (float)p.fy * 200.0f / SCREENHEIGHT,
+                FB, namebuf, CR_DEFAULT, VPT_ALIGN_WIDE | VPT_STRETCH);
+            }
+            else
+            {
+              V_DrawNamePatch(
+                p.x * 320 / SCREENWIDTH, p.y * 200 / SCREENHEIGHT,
+                FB, namebuf, CR_DEFAULT, VPT_ALIGN_WIDE | VPT_STRETCH);
+            }
           }
-          else
+
+          w += markpoints[i].widths[k] + 1;
+          p.x += w * SCREENWIDTH / 320;
+          if (map_render_precise)
           {
-            V_DrawNamePatch(
-              p.x * 320 / SCREENWIDTH, p.y * 200 / SCREENHEIGHT,
-              FB, namebuf, CR_DEFAULT, VPT_ALIGN_WIDE | VPT_STRETCH);
+            p.fx += (float)w * SCREENWIDTH / 320.0f;
           }
         }
-        p.x -= (w - 1) * width / 320;          // killough 2/22/98: 1 space backwards
-        j /= 10;
       }
-      while (j>0);
     }
+  }
 }
 
 //

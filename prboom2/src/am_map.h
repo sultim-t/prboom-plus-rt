@@ -76,11 +76,13 @@ void AM_SetRenderPrecise();
 
 // killough 2/22/98: for saving automap information in savegame:
 
-extern void AM_Start(void);
+void AM_Start(void);
 
 //jff 4/16/98 make externally available
 
-extern void AM_clearMarks(void);
+void AM_clearMarks(void);
+
+void AM_setMarkParams(int num);
 
 typedef struct
 {
@@ -88,7 +90,16 @@ typedef struct
  float fx,fy;
 } mpoint_t;
 
-extern mpoint_t *markpoints;
+typedef struct
+{
+ fixed_t x, y;
+ fixed_t w, h;
+
+ char label[16];
+ int widths[16];
+} markpoint_t;
+
+extern markpoint_t *markpoints;
 extern int markpointnum, markpointnum_max;
 
 // end changes -- killough 2/22/98
