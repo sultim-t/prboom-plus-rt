@@ -761,6 +761,8 @@ default_t defaults[] =
    def_int,ss_auto},
   {"map_scroll_speed", {&map_scroll_speed}, {4},1,32,
    def_int,ss_auto},
+  {"map_wheel_zoom", {&map_wheel_zoom}, {1},0,1,
+   def_bool,ss_auto},
 #ifdef GL_DOOM
   {"map_use_multisamling", {&map_use_multisamling}, {1},0,1,
    def_bool,ss_auto},

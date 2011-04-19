@@ -92,6 +92,7 @@ int map_secret_after;
 int map_always_updates;
 int map_grid_size;
 int map_scroll_speed;
+int map_wheel_zoom;
 int map_use_multisamling;
 int map_textured;
 int map_textured_trans;
@@ -809,13 +810,13 @@ dboolean AM_Responder
           m_paninc.y = -FTOM(F_PANINC);
       else
           rc = false;
-    else if (ch == key_map_zoomout)
+    else if ((ch == key_map_zoomout) || (map_wheel_zoom && ch == KEYD_MWHEELDOWN))
     {
       mtof_zoommul = M_ZOOMOUT;
       ftom_zoommul = M_ZOOMIN;
       curr_mtof_zoommul = mtof_zoommul;
     }
-    else if (ch == key_map_zoomin)
+    else if ((ch == key_map_zoomin) || (map_wheel_zoom && ch == KEYD_MWHEELUP))
     {
       mtof_zoommul = M_ZOOMIN;
       ftom_zoommul = M_ZOOMOUT;
@@ -909,7 +910,8 @@ dboolean AM_Responder
       if (!(automapmode & am_follow))
           m_paninc.y = 0;
     }
-    else if ((ch == key_map_zoomout) || (ch == key_map_zoomin))
+    else if ((ch == key_map_zoomout) || (ch == key_map_zoomin) ||
+             (map_wheel_zoom && ((ch == KEYD_MWHEELDOWN) || (ch == KEYD_MWHEELUP))))
     {
       mtof_zoommul = FRACUNIT;
       ftom_zoommul = FRACUNIT;
