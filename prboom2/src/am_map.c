@@ -380,7 +380,7 @@ void AM_setMarkParams(int num)
   markpoints[num].w = 0;
   markpoints[num].h = 0;
 
-  itoa(num, markpoints[num].label, 10);
+  SNPRINTF(markpoints[num].label, sizeof(markpoints[num].label), "%d", num);
   for (i = 0; i < (int)strlen(markpoints[num].label); i++)
   {
     namebuf[6] = markpoints[num].label[i];
