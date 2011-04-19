@@ -305,6 +305,13 @@ typedef enum {
 #define KEYD_KEYPADPLUS   (0x100 + '+')
 #define KEYD_KEYPADPERIOD (0x100 + '.')
 
+// haleyjd: virtual keys
+#define KEYD_MOUSE1     (0x80 + 0x60)
+#define KEYD_MOUSE2     (0x80 + 0x61)
+#define KEYD_MOUSE3     (0x80 + 0x62)
+#define KEYD_MWHEELUP   (0x80 + 0x6b)
+#define KEYD_MWHEELDOWN (0x80 + 0x6c)
+
 // phares 4/19/98:
 // Defines Setup Screen groups that config variables appear in.
 // Used when resetting the defaults for every item in a Setup group.

@@ -203,10 +203,16 @@ int I_SDLtoDoomMouseState(Uint8 buttonstate)
       | (buttonstate & SDL_BUTTON(3) ? 4 : 0);
 }
 
-static void I_GetEvent(SDL_Event *Event)
+static void I_GetEvent(void)
 {
   event_t event;
 
+  SDL_Event SDLEvent;
+  SDL_Event *Event = &SDLEvent;
+  static int mwheeluptic = 0, mwheeldowntic = 0;
+
+while (SDL_PollEvent(Event))
+{
   switch (Event->type) {
   case SDL_KEYDOWN:
     // e6y
@@ -236,6 +242,24 @@ static void I_GetEvent(SDL_Event *Event)
     event.type = ev_mouse;
     event.data1 = I_SDLtoDoomMouseState(SDL_GetMouseState(NULL, NULL));
     event.data2 = event.data3 = 0;
+
+    if (Event->type == SDL_MOUSEBUTTONDOWN)
+    {
+      switch(Event->button.button)
+      {
+      case SDL_BUTTON_WHEELUP:
+        event.type = ev_keydown;
+        event.data1 = KEYD_MWHEELUP;
+        mwheeluptic = gametic;
+        break;
+      case SDL_BUTTON_WHEELDOWN:
+        event.type = ev_keydown;
+        event.data1 = KEYD_MWHEELDOWN;
+        mwheeldowntic = gametic;
+        break;
+      }
+    }
+
     D_PostEvent(&event);
   }
   break;
@@ -254,6 +278,22 @@ static void I_GetEvent(SDL_Event *Event)
   }
 }
 
+  if(mwheeluptic && mwheeluptic + 1 < gametic)
+  {
+    event.type = ev_keyup;
+    event.data1 = KEYD_MWHEELUP;
+    D_PostEvent(&event);
+    mwheeluptic = 0;
+  }
+
+  if(mwheeldowntic && mwheeldowntic + 1 < gametic)
+  {
+    event.type = ev_keyup;
+    event.data1 = KEYD_MWHEELDOWN;
+    D_PostEvent(&event);
+    mwheeldowntic = 0;
+  }
+}
 
 //
 // I_StartTic
@@ -261,12 +301,8 @@ static void I_GetEvent(SDL_Event *Event)
 
 void I_StartTic (void)
 {
-  SDL_Event Event;
+  I_GetEvent();
 
-  while ( SDL_PollEvent(&Event) )
-    I_GetEvent(&Event);
-
-  //e6y
   I_ReadMouse();
 
   I_PollJoystick();

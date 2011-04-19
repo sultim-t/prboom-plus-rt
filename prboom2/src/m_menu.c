@@ -4014,6 +4014,8 @@ int M_GetKeyString(int c,int offset)
       case KEYD_F11:        s = "F11";  break;
       case KEYD_F12:        s = "F12";  break;
       case KEYD_PAUSE:      s = "PAUS"; break;
+      case KEYD_MWHEELDOWN: s = "MWDN"; break;
+      case KEYD_MWHEELUP:   s = "MWUP"; break;
       default:              s = "JUNK"; break;
       }
 
