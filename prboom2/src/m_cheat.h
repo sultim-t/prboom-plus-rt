@@ -69,7 +69,7 @@ typedef struct cheatseq_s {
   char parameter_buf[CHEAT_ARGS_MAX];
 } cheatseq_t;
 
-cheatseq_t cheat[];
+extern cheatseq_t cheat[];
 
 dboolean M_FindCheats(int key);
 
