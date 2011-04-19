@@ -200,7 +200,12 @@ int I_SDLtoDoomMouseState(Uint8 buttonstate)
   return 0
       | (buttonstate & SDL_BUTTON(1) ? 1 : 0)
       | (buttonstate & SDL_BUTTON(2) ? 2 : 0)
-      | (buttonstate & SDL_BUTTON(3) ? 4 : 0);
+      | (buttonstate & SDL_BUTTON(3) ? 4 : 0)
+#if SDL_VERSION_ATLEAST(1, 2, 14)
+      | (buttonstate & SDL_BUTTON(6) ? 8 : 0)
+      | (buttonstate & SDL_BUTTON(7) ? 16 : 0)
+#endif
+      ;
 }
 
 static void I_GetEvent(void)

@@ -252,7 +252,7 @@ fixed_t angleturn[3]   = {640, 1280, 320};  // + slow turn
 dboolean gamekeydown[NUMKEYS];
 static int     turnheld;       // for accelerative turning
 
-static dboolean mousearray[4];
+static dboolean mousearray[6];
 static dboolean *mousebuttons = &mousearray[1];    // allow [-1]
 
 // mouse values are used once
@@ -824,6 +824,8 @@ dboolean G_Responder (event_t* ev)
       mousebuttons[0] = ev->data1 & 1;
       mousebuttons[1] = ev->data1 & 2;
       mousebuttons[2] = ev->data1 & 4;
+      mousebuttons[3] = ev->data1 & 8;
+      mousebuttons[4] = ev->data1 & 16;
       /*
        * bmead@surfree.com
        * Modified by Barry Mead after adding vastly more resolution

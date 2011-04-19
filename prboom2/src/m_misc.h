@@ -112,7 +112,7 @@ typedef struct default_s
 #define IS_STRING(dv) ((dv).type == def_str)
 // CPhipps - What is the max. key code that X will send us?
 #define MAX_KEY 65536
-#define MAX_MOUSEB 2
+#define MAX_MOUSEB 4
 
 #define UL (-123456789) /* magic number for no min or max for parameter */
 
