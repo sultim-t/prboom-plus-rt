@@ -267,7 +267,7 @@ enum {
   endoom_droplastline = 4
 };
 
-unsigned int endoom_mode;
+int endoom_mode;
 
 static void PrintVer(void)
 {
