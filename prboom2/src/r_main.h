@@ -121,6 +121,7 @@ extern int fake_contrast;
 
 // killough 3/20/98: Allow colormaps to be dynamic (e.g. underwater)
 extern const lighttable_t *(*scalelight)[MAXLIGHTSCALE];
+extern const lighttable_t *(*c_zlight)[LIGHTLEVELS_MAX][MAXLIGHTZ];
 extern const lighttable_t *(*zlight)[MAXLIGHTZ];
 extern const lighttable_t *fullcolormap;
 extern int numcolormaps;    // killough 4/4/98: dynamic number of maps
