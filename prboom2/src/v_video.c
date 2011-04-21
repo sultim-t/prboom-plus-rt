@@ -1623,21 +1623,37 @@ void V_GetWideRect(int *x, int *y, int *w, int *h, enum patch_translation_e flag
   *y += params->deltay1;
 }
 
+// 
+// V_BestColor
+//
+// Adapted from zdoom -- thanks to Randy Heit.
+//
+// This always assumes a 256-color palette;
+// it's intended for use in startup functions to match hard-coded
+// color values to the best fit in the game's palette (allows
+// cross-game usage among other things).
+//
 int V_BestColor(const unsigned char *palette, int r, int g, int b)
 {
   int color;
+  
+  // use color 0 as a worst-case match for any color
   int bestcolor = 0;
   int bestdist = 257 * 257 + 257 * 257 + 257 * 257;
 
   for (color = 0; color < 256; color++)
   {
-    int x, y, z, dist;
-    x = r - palette[color * 3 + 0];
-    y = g - palette[color * 3 + 1];
-    z = b - palette[color * 3 + 2];
-    dist = x * x + y * y + z * z;
+    int dr, dg, db, dist;
+
+    dr = r - *palette++;
+    dg = g - *palette++;
+    db = b - *palette++;
+
+    dist = dr * dr + dg * dg + db * db;
+
     if (dist < bestdist)
     {
+      // exact match
       if (dist == 0)
         return color;
 
