@@ -2691,8 +2691,8 @@ setup_menu_t auto_settings1[] =  // 1st AutoMap Settings screen
   {"Grid cell size (8..256)",                 S_NUM,  m_null,AU_X,AU_Y+4*8, {"map_grid_size"}},
   {"Scroll / Zoom speed  (1..32)",            S_NUM,  m_null,AU_X,AU_Y+5*8, {"map_scroll_speed"}},
   {"Use mouse wheel for zooming",             S_YESNO,m_null,AU_X,AU_Y+6*8, {"map_wheel_zoom"}},
+  {"Apply multisampling",                     S_YESNO,m_null,AU_X,AU_Y+7*8, {"map_use_multisamling"}, 0, 0, M_ChangeMapMultisamling},
 #ifdef GL_DOOM
-  {"Apply multisampling",                     S_YESNO,m_null,AU_X,AU_Y+7*8, {"map_use_multisamling"}},
   {"Enable textured display",                 S_YESNO,m_null,AU_X,AU_Y+8*8, {"map_textured"}, 0, 0, M_ChangeMapTextured},
   {"Translucency percentage",                 S_SKIP|S_TITLE,m_null,AU_X,AU_Y+9*8},
   {"Textured automap",                        S_NUM,  m_null,AU_X,AU_Y+10*8, {"map_textured_trans"}},
@@ -5918,6 +5918,8 @@ void M_Init(void)
 
   M_ChangeDemoSmoothTurns();
   M_ChangeDemoExtendedFormat();
+
+  M_ChangeMapMultisamling();
 
   render_stretch_hud = render_stretch_hud_default;
 }

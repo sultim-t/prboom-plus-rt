@@ -1293,7 +1293,13 @@ static void AM_drawMline
     color=0;
 
   if (AM_clipMline(ml, &fl))
-    V_DrawLine(&fl, color); // draws it on frame buffer using fb coords
+  {
+    // draws it on frame buffer using fb coords
+    if (map_use_multisamling)
+      V_DrawLineWu(&fl, color);
+    else
+      V_DrawLine(&fl, color);
+  }
 }
 
 //
@@ -2034,6 +2040,14 @@ void M_ChangeMapTextured(void)
     gld_ProcessTexturedMap();
   }
 #endif
+}
+
+void M_ChangeMapMultisamling(void)
+{
+  if (map_use_multisamling && V_GetMode() != VID_MODEGL)
+  {
+    V_InitFlexTranTable();
+  }
 }
 
 //=============================================================================

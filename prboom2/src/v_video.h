@@ -183,6 +183,8 @@ int V_GetPixelDepth(void);
 //jff 4/24/98 loads color translation lumps
 void V_InitColorTranslation(void);
 
+void V_InitFlexTranTable(void);
+
 // Allocates buffer screens, call before R_Init.
 void V_Init (void);
 
@@ -250,6 +252,10 @@ void V_SetPalette(int pal);
 typedef void (*V_PlotPixel_f)(int,int,int,byte);
 extern V_PlotPixel_f V_PlotPixel;
 
+// V_GetPixel
+typedef unsigned int (*V_GetPixel_f)(int,int,int);
+extern V_GetPixel_f V_GetPixel;
+
 typedef struct
 {
   int x, y;
@@ -265,6 +271,14 @@ typedef struct
 typedef void (*V_DrawLine_f)(fline_t* fl, int color);
 extern V_DrawLine_f V_DrawLine;
 
+// V_DrawLineWu
+typedef void (*V_DrawLineWu_f)(fline_t* fl, int color);
+extern V_DrawLineWu_f V_DrawLineWu;
+
+// V_PlotPixelWu
+typedef void (*V_PlotPixelWu_f)(int scrn, int x, int y, int color, int weight);
+extern V_PlotPixelWu_f V_PlotPixelWu;
+
 void V_AllocScreen(screeninfo_t *scrn);
 void V_AllocScreens();
 void V_FreeScreen(screeninfo_t *scrn);
@@ -277,6 +291,8 @@ void V_FreePlaypal(void);
 void V_FillBorder(int lump, byte color);
 
 void V_GetWideRect(int *x, int *y, int *w, int *h, enum patch_translation_e flags);
+
+int V_BestColor(const unsigned char *palette, int r, int g, int b);
 
 #ifdef GL_DOOM
 #include "gl_struct.h"

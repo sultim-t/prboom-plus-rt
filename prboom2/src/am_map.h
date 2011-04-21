@@ -151,6 +151,7 @@ extern int map_overlay_pos_y;
 extern int map_overlay_pos_width;
 extern int map_overlay_pos_height;
 void M_ChangeMapTextured(void);
+void M_ChangeMapMultisamling(void);
 
 extern angle_t am_viewangle;
 

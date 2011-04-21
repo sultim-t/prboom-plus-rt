@@ -546,33 +546,6 @@ static float delta = 0.0f;
 
 int gl_sky_detail = 16;
 
-int V_BestColor(int r, int g, int b)
-{
-  int color;
-  const unsigned char *playpal = V_GetPlaypal();
-  int bestcolor = 0;
-  int bestdist = 257 * 257 + 257 * 257 + 257 * 257;
-
-  for (color = 0; color < 256; color++)
-  {
-    int x, y, z, dist;
-    x = r - playpal[color * 3 + 0];
-    y = g - playpal[color * 3 + 1];
-    z = b - playpal[color * 3 + 2];
-    dist = x * x + y * y + z * z;
-    if (dist < bestdist)
-    {
-      if (dist == 0)
-        return color;
-
-      bestdist = dist;
-      bestcolor = color;
-    }
-  }
-
-  return bestcolor;
-}
-
 //-----------------------------------------------------------------------------
 //
 //
@@ -619,12 +592,12 @@ void gld_GetSkyCapColors(void)
 
   colormap = fullcolormap + INVERSECOLORMAP * 256 * sizeof(lighttable_t);
 
-  color = V_BestColor(ceiling_rgb->r, ceiling_rgb->g, ceiling_rgb->b);
+  color = V_BestColor(playpal, ceiling_rgb->r, ceiling_rgb->g, ceiling_rgb->b);
   SkyBox.CeilingSkyColor[1].r = playpal[colormap[color] * 3 + 0];
   SkyBox.CeilingSkyColor[1].g = playpal[colormap[color] * 3 + 1];
   SkyBox.CeilingSkyColor[1].b = playpal[colormap[color] * 3 + 2];
 
-  color = V_BestColor(floor_rgb->r, floor_rgb->g, floor_rgb->b);
+  color = V_BestColor(playpal, floor_rgb->r, floor_rgb->g, floor_rgb->b);
   SkyBox.FloorSkyColor[1].r = playpal[colormap[color] * 3 + 0];
   SkyBox.FloorSkyColor[1].g = playpal[colormap[color] * 3 + 1];
   SkyBox.FloorSkyColor[1].b = playpal[colormap[color] * 3 + 2];

@@ -108,6 +108,64 @@ static const crdef_t crdefs[] = {
   {NULL}
 };
 
+// haleyjd: DOSDoom-style single translucency lookup-up table
+// generation code. This code has a 32k (plus a bit more) 
+// footprint but allows a much wider range of translucency effects
+// than BOOM-style translucency. This will be used for particles, 
+// for variable mapthing trans levels, and for screen patches.
+
+// haleyjd: Updated 06/21/08 to use 32k lookup, mainly to fix
+// additive translucency. Note this code is included in Odamex and
+// so it can be considered GPL as used here, rather than BSD. But,
+// I don't care either way. It is effectively dual-licensed I suppose.
+
+unsigned int Col2RGB8[65][256];
+byte RGB32k[32][32][32];
+
+#define MAKECOLOR(a) (((a)<<3)|((a)>>2))
+
+void V_InitFlexTranTable(void)
+{
+  static int flexTranInit = false;
+
+  if (!flexTranInit)
+  {
+    int r, g, b, x, y, pos;
+    const unsigned char *palette = V_GetPlaypal();
+
+    // mark that we've initialized the flex tran table
+    flexTranInit = true;
+
+    // build RGB table
+    for(r = 0; r < 32; r++)
+    {
+      for(g = 0; g < 32; g++)
+      {
+        for(b = 0; b < 32; b++)
+        {
+          RGB32k[r][g][b] = V_BestColor(palette,
+            MAKECOLOR(r), MAKECOLOR(g), MAKECOLOR(b));
+        }
+      }
+    }
+
+    // build lookup table
+    for(x = 0; x < 65; x++)
+    {
+      pos = 0;
+      for(y = 0; y < 256; y++)
+      {
+        Col2RGB8[x][y] =
+          (((palette[pos + 0] * x) >> 4) << 20) |
+          ((palette[pos + 1] * x) >> 4) |
+          (((palette[pos + 2] * x) >> 4) << 10);
+
+        pos += 3;
+      }
+    }
+  }
+}
+
 // killough 5/2/98: tiny engine driven by table above
 void V_InitColorTranslation(void)
 {
@@ -861,6 +919,14 @@ static void V_PlotPixel15(int scrn, int x, int y, byte color);
 static void V_PlotPixel16(int scrn, int x, int y, byte color);
 static void V_PlotPixel32(int scrn, int x, int y, byte color);
 
+static void WRAP_V_DrawLineWu(fline_t* fl, int color);
+static unsigned int V_GetPixel8(int scrn, int x, int y);
+static unsigned int V_GetPixel15(int scrn, int x, int y);
+static unsigned int V_GetPixel16(int scrn, int x, int y);
+static unsigned int V_GetPixel32(int scrn, int x, int y);
+
+static void WRAP_V_PlotPixelWu(int scrn, int x, int y, int color, int weight);
+
 #ifdef GL_DOOM
 static void WRAP_gld_FillRect(int scrn, int x, int y, int width, int height, byte colour)
 {
@@ -896,6 +962,12 @@ static void V_PlotPixelGL(int scrn, int x, int y, byte color) {
   gld_DrawLine(x-1, y, x+1, y, color);
   gld_DrawLine(x, y-1, x, y+1, color);
 }
+static void V_PlotPixelWuGL(int scrn, int x, int y, int color, int weight) {
+  V_PlotPixelGL(scrn, x, y, color);
+}
+static unsigned int WRAP_gld_GetPixel(int scrn, int x, int y) {
+  return 0;
+}
 static void WRAP_gld_DrawLine(fline_t* fl, int color)
 {
   if (render_precise)
@@ -914,7 +986,10 @@ static void NULL_DrawNumPatch(int x, int y, int scrn, int lump, int cm, enum pat
 static void NULL_DrawNumPatchPrecise(float x, float y, int scrn, int lump, int cm, enum patch_translation_e flags) {}
 static void NULL_DrawBlock(int x, int y, int scrn, int width, int height, const byte *src, enum patch_translation_e flags) {}
 static void NULL_PlotPixel(int scrn, int x, int y, byte color) {}
+static unsigned int NULL_GetPixel(int scrn, int x, int y) { return 0; }
 static void NULL_DrawLine(fline_t* fl, int color) {}
+static void NULL_DrawLineWu(fline_t* fl, int color) {}
+static void NULL_PlotPixelWu(int scrn, int x, int y, int color, int weight) {}
 
 const char *default_videomode;
 static video_mode_t current_videomode = VID_MODE8;
@@ -927,7 +1002,10 @@ V_FillFlat_f V_FillFlat = NULL_FillFlat;
 V_FillPatch_f V_FillPatch = NULL_FillPatch;
 V_DrawBackground_f V_DrawBackground = NULL_DrawBackground;
 V_PlotPixel_f V_PlotPixel = NULL_PlotPixel;
+V_PlotPixelWu_f V_PlotPixelWu = NULL_PlotPixelWu;
+V_GetPixel_f V_GetPixel = NULL_GetPixel;
 V_DrawLine_f V_DrawLine = NULL_DrawLine;
+V_DrawLineWu_f V_DrawLineWu = NULL_DrawLineWu;
 
 //
 // V_InitMode
@@ -948,7 +1026,10 @@ void V_InitMode(video_mode_t mode) {
       V_FillPatch = FUNC_V_FillPatch;
       V_DrawBackground = FUNC_V_DrawBackground;
       V_PlotPixel = V_PlotPixel8;
+      V_PlotPixelWu = WRAP_V_PlotPixelWu;
+      V_GetPixel = V_GetPixel8;
       V_DrawLine = WRAP_V_DrawLine;
+      V_DrawLineWu = WRAP_V_DrawLineWu;
       current_videomode = VID_MODE8;
       break;
     case VID_MODE15:
@@ -961,7 +1042,10 @@ void V_InitMode(video_mode_t mode) {
       V_FillPatch = FUNC_V_FillPatch;
       V_DrawBackground = FUNC_V_DrawBackground;
       V_PlotPixel = V_PlotPixel15;
+      V_PlotPixelWu = WRAP_V_PlotPixelWu;
+      V_GetPixel = V_GetPixel15;
       V_DrawLine = WRAP_V_DrawLine;
+      V_DrawLineWu = WRAP_V_DrawLineWu;
       current_videomode = VID_MODE15;
       break;
     case VID_MODE16:
@@ -974,7 +1058,10 @@ void V_InitMode(video_mode_t mode) {
       V_FillPatch = FUNC_V_FillPatch;
       V_DrawBackground = FUNC_V_DrawBackground;
       V_PlotPixel = V_PlotPixel16;
+      V_PlotPixelWu = WRAP_V_PlotPixelWu;
+      V_GetPixel = V_GetPixel16;
       V_DrawLine = WRAP_V_DrawLine;
+      V_DrawLineWu = WRAP_V_DrawLineWu;
       current_videomode = VID_MODE16;
       break;
     case VID_MODE32:
@@ -987,7 +1074,10 @@ void V_InitMode(video_mode_t mode) {
       V_FillPatch = FUNC_V_FillPatch;
       V_DrawBackground = FUNC_V_DrawBackground;
       V_PlotPixel = V_PlotPixel32;
+      V_PlotPixelWu = WRAP_V_PlotPixelWu;
+      V_GetPixel = V_GetPixel32;
       V_DrawLine = WRAP_V_DrawLine;
+      V_DrawLineWu = WRAP_V_DrawLineWu;
       current_videomode = VID_MODE32;
       break;
 #ifdef GL_DOOM
@@ -1001,7 +1091,10 @@ void V_InitMode(video_mode_t mode) {
       V_FillPatch = WRAP_gld_FillPatch;
       V_DrawBackground = WRAP_gld_DrawBackground;
       V_PlotPixel = V_PlotPixelGL;
+      V_PlotPixelWu = V_PlotPixelWuGL;
+      V_GetPixel = WRAP_gld_GetPixel;
       V_DrawLine = WRAP_gld_DrawLine;
+      V_DrawLineWu = WRAP_gld_DrawLine;
       current_videomode = VID_MODEGL;
       break;
 #endif
@@ -1105,6 +1198,22 @@ static void V_PlotPixel32(int scrn, int x, int y, byte color) {
   ((unsigned int *)screens[scrn].data)[x+screens[scrn].int_pitch*y] = VID_PAL32(color, VID_COLORWEIGHTMASK);
 }
 
+// V_GetPixel*
+static unsigned int V_GetPixel8(int scrn, int x, int y) {
+  return screens[scrn].data[x+screens[scrn].byte_pitch*y];
+}
+static unsigned int V_GetPixel15(int scrn, int x, int y) {
+  return ((unsigned short *)screens[scrn].data)[x+screens[scrn].short_pitch*y];
+}
+static unsigned int V_GetPixel16(int scrn, int x, int y) {
+  return ((unsigned short *)screens[scrn].data)[x+screens[scrn].short_pitch*y];
+}
+static unsigned int V_GetPixel32(int scrn, int x, int y) {
+  return ((unsigned int *)screens[scrn].data)[x+screens[scrn].int_pitch*y];
+}
+
+#define PUTDOT(xx,yy,cc) V_PlotPixel(0,xx,yy,(byte)cc)
+
 //
 // WRAP_V_DrawLine()
 //
@@ -1143,8 +1252,6 @@ static void WRAP_V_DrawLine(fline_t* fl, int color)
     return;
   }
 #endif
-
-#define PUTDOT(xx,yy,cc) V_PlotPixel(0,xx,yy,(byte)cc)
 
   dx = fl->b.x - fl->a.x;
   ax = 2 * (dx<0 ? -dx : dx);
@@ -1190,6 +1297,133 @@ static void WRAP_V_DrawLine(fline_t* fl, int color)
     }
   }
 }
+
+//
+// WRAP_V_PlotPixelWu
+//
+// haleyjd 06/13/09: Pixel plotter for Wu line drawing.
+//
+static void WRAP_V_PlotPixelWu(int scrn, int x, int y, int color, int weight)
+{
+  unsigned int bg_color = V_GetPixel(scrn, x, y);
+  unsigned int *fg2rgb = Col2RGB8[weight];
+  unsigned int *bg2rgb = Col2RGB8[64 - weight];
+  unsigned int fg = fg2rgb[color];
+  unsigned int bg = bg2rgb[bg_color];
+
+  fg = (fg + bg) | 0x1f07c1f;
+  V_PlotPixel(scrn, x, y, RGB32k[0][0][fg & (fg >> 15)]);
+}
+
+// Given 65536, we need 2048; 65536 / 2048 == 32 == 2^5
+// Why 2048? ANG90 == 0x40000000 which >> 19 == 0x800 == 2048.
+// The trigonometric correction is based on an angle from 0 to 90.
+#define wu_fineshift 5
+
+// Given 64 levels in the Col2RGB8 table, 65536 / 64 == 1024 == 2^10
+#define wu_fixedshift 10
+
+//
+// WRAP_V_DrawLineWu
+//
+// haleyjd 06/12/09: Wu line drawing for the automap, with trigonometric
+// brightness correction by SoM. I call this the Wu-McGranahan line drawing
+// algorithm.
+//
+void WRAP_V_DrawLineWu(fline_t *fl, int color)
+{
+  unsigned short erroracc, erroradj, erroracctmp;
+  int dx, dy, xdir = 1;
+  int x, y;   
+
+  // swap end points if necessary
+  if(fl->a.y > fl->b.y)
+  {
+    fpoint_t tmp = fl->a;
+
+    fl->a = fl->b;
+    fl->b = tmp;
+  }
+
+  // determine change in x, y and direction of travel
+  dx = fl->b.x - fl->a.x;
+  dy = fl->b.y - fl->a.y;
+
+  if(dx < 0)
+  {
+    dx   = -dx;
+    xdir = -xdir;      
+  }   
+
+  // detect special cases -- horizontal, vertical, and 45 degrees;
+  // revert to Bresenham
+  if(dx == 0 || dy == 0 || dx == dy)
+  {
+    V_DrawLine(fl, color);
+    return;
+  }
+
+  // draw first pixel
+  PUTDOT(fl->a.x, fl->a.y, color);
+
+  x = fl->a.x;
+  y = fl->a.y;
+
+  if(dy > dx)
+  {
+    // line is y-axis major.
+    erroracc = 0; 
+    erroradj = (unsigned short)(((unsigned int)dx << 16) / (unsigned int)dy);
+
+    while(--dy)
+    {
+      erroracctmp = erroracc;
+
+      erroracc += erroradj;
+
+      // if error has overflown, advance x coordinate
+      if(erroracc <= erroracctmp)
+        x += xdir;
+
+      y += 1; // advance y
+
+      // the trick is in the trig!
+      V_PlotPixelWu(0, x, y, color, 
+        finecosine[erroracc >> wu_fineshift] >> wu_fixedshift);
+      V_PlotPixelWu(0, x + xdir, y, color, 
+        finesine[erroracc >> wu_fineshift] >> wu_fixedshift);
+    }
+  }
+  else
+  {
+    // line is x-axis major.
+    erroracc = 0;
+    erroradj = (unsigned short)(((unsigned int)dy << 16) / (unsigned int)dx);
+
+    while(--dx)
+    {
+      erroracctmp = erroracc;
+
+      erroracc += erroradj;
+
+      // if error has overflown, advance y coordinate
+      if(erroracc <= erroracctmp)
+        y += 1;
+
+      x += xdir; // advance x
+
+      // the trick is in the trig!
+      V_PlotPixelWu(0, x, y, color, 
+        finecosine[erroracc >> wu_fineshift] >> wu_fixedshift);
+      V_PlotPixelWu(0, x, y + 1, color, 
+        finesine[erroracc >> wu_fineshift] >> wu_fixedshift);
+    }
+  }
+
+  // draw last pixel
+  PUTDOT(fl->b.x, fl->b.y, color);
+}
+
 
 static unsigned char *playpal_data = NULL;
 const unsigned char* V_GetPlaypal(void)
@@ -1387,4 +1621,30 @@ void V_GetWideRect(int *x, int *y, int *w, int *h, enum patch_translation_e flag
   *h = params->video->y2lookup[sy + *h - 1] - *y + 1;
   *x += params->deltax1;
   *y += params->deltay1;
+}
+
+int V_BestColor(const unsigned char *palette, int r, int g, int b)
+{
+  int color;
+  int bestcolor = 0;
+  int bestdist = 257 * 257 + 257 * 257 + 257 * 257;
+
+  for (color = 0; color < 256; color++)
+  {
+    int x, y, z, dist;
+    x = r - palette[color * 3 + 0];
+    y = g - palette[color * 3 + 1];
+    z = b - palette[color * 3 + 2];
+    dist = x * x + y * y + z * z;
+    if (dist < bestdist)
+    {
+      if (dist == 0)
+        return color;
+
+      bestdist = dist;
+      bestcolor = color;
+    }
+  }
+
+  return bestcolor;
 }

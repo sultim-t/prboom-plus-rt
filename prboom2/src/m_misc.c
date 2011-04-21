@@ -766,6 +766,11 @@ default_t defaults[] =
 #ifdef GL_DOOM
   {"map_use_multisamling", {&map_use_multisamling}, {1},0,1,
    def_bool,ss_auto},
+#else
+  {"map_use_multisamling", {&map_use_multisamling}, {0},0,1,
+   def_bool,ss_auto},
+#endif
+#ifdef GL_DOOM
   {"map_textured", {&map_textured}, {1},0,1,
    def_bool,ss_auto},
   {"map_textured_trans", {&map_textured_trans}, {100},0,100,
