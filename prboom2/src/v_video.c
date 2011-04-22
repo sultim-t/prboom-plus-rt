@@ -1313,33 +1313,33 @@ static void V_PlotPixelWu8(int scrn, int x, int y, byte color, int weight)
 }
 static void V_PlotPixelWu15(int scrn, int x, int y, byte color, int weight)
 {
-  const unsigned char *palette = V_GetPlaypal();
+  const unsigned char *rgb = V_GetPlaypal() + color * 3;
 
-  byte r = (palette[color * 3 + 0] * weight) >> wu_weightbits;
-  byte g = (palette[color * 3 + 1] * weight) >> wu_weightbits;
-  byte b = (palette[color * 3 + 2] * weight) >> wu_weightbits;
+  byte r = (*(rgb + 0) * weight) >> wu_weightbits;
+  byte g = (*(rgb + 1) * weight) >> wu_weightbits;
+  byte b = (*(rgb + 2) * weight) >> wu_weightbits;
   
   ((unsigned short *)screens[scrn].data)[x+screens[scrn].short_pitch*y] =
     (unsigned short)RGB2COLOR(r, g, b);
 }
 static void V_PlotPixelWu16(int scrn, int x, int y, byte color, int weight)
 {
-  const unsigned char *palette = V_GetPlaypal();
+  const unsigned char *rgb = V_GetPlaypal() + color * 3;
 
-  byte r = (palette[color * 3 + 0] * weight) >> wu_weightbits;
-  byte g = (palette[color * 3 + 1] * weight) >> wu_weightbits;
-  byte b = (palette[color * 3 + 2] * weight) >> wu_weightbits;
+  byte r = (*(rgb + 0) * weight) >> wu_weightbits;
+  byte g = (*(rgb + 1) * weight) >> wu_weightbits;
+  byte b = (*(rgb + 2) * weight) >> wu_weightbits;
   
   ((unsigned short *)screens[scrn].data)[x+screens[scrn].short_pitch*y] =
     (unsigned short)RGB2COLOR(r, g, b);
 }
 static void V_PlotPixelWu32(int scrn, int x, int y, byte color, int weight)
 {
-  const unsigned char *palette = V_GetPlaypal();
+  const unsigned char *rgb = V_GetPlaypal() + color * 3;
 
-  byte r = (palette[color * 3 + 0] * weight) >> wu_weightbits;
-  byte g = (palette[color * 3 + 1] * weight) >> wu_weightbits;
-  byte b = (palette[color * 3 + 2] * weight) >> wu_weightbits;
+  byte r = (*(rgb + 0) * weight) >> wu_weightbits;
+  byte g = (*(rgb + 1) * weight) >> wu_weightbits;
+  byte b = (*(rgb + 2) * weight) >> wu_weightbits;
   
   ((unsigned int *)screens[scrn].data)[x+screens[scrn].int_pitch*y] =
     (unsigned int)RGB2COLOR(r, g, b);
