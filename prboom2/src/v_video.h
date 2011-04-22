@@ -37,6 +37,8 @@
 #ifndef __V_VIDEO__
 #define __V_VIDEO__
 
+#include "SDL.h"
+
 #include "doomtype.h"
 #include "doomdef.h"
 // Needed because we are refering to patches.
@@ -137,6 +139,7 @@ typedef struct {
 
 #define NUM_SCREENS 6
 extern screeninfo_t screens[NUM_SCREENS];
+extern SDL_Surface *screen;
 extern int          usegamma;
 
 // Varying bit-depth support -POPE
@@ -252,10 +255,6 @@ void V_SetPalette(int pal);
 typedef void (*V_PlotPixel_f)(int,int,int,byte);
 extern V_PlotPixel_f V_PlotPixel;
 
-// V_GetPixel
-typedef unsigned int (*V_GetPixel_f)(int,int,int);
-extern V_GetPixel_f V_GetPixel;
-
 typedef struct
 {
   int x, y;
@@ -276,7 +275,7 @@ typedef void (*V_DrawLineWu_f)(fline_t* fl, int color);
 extern V_DrawLineWu_f V_DrawLineWu;
 
 // V_PlotPixelWu
-typedef void (*V_PlotPixelWu_f)(int scrn, int x, int y, int color, int weight);
+typedef void (*V_PlotPixelWu_f)(int scrn, int x, int y, byte color, int weight);
 extern V_PlotPixelWu_f V_PlotPixelWu;
 
 void V_AllocScreen(screeninfo_t *scrn);

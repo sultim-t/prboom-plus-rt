@@ -105,7 +105,7 @@ int use_doublebuffer = 1; // Included not to break m_misc, but not relevant to S
 #endif
 int use_fullscreen;
 int desired_fullscreen;
-static SDL_Surface *screen;
+/*static */SDL_Surface *screen;
 
 ////////////////////////////////////////////////////////////////////////////
 // Input code

@@ -920,12 +920,10 @@ static void V_PlotPixel16(int scrn, int x, int y, byte color);
 static void V_PlotPixel32(int scrn, int x, int y, byte color);
 
 static void WRAP_V_DrawLineWu(fline_t* fl, int color);
-static unsigned int V_GetPixel8(int scrn, int x, int y);
-static unsigned int V_GetPixel15(int scrn, int x, int y);
-static unsigned int V_GetPixel16(int scrn, int x, int y);
-static unsigned int V_GetPixel32(int scrn, int x, int y);
-
-static void WRAP_V_PlotPixelWu(int scrn, int x, int y, int color, int weight);
+static void V_PlotPixelWu8(int scrn, int x, int y, byte color, int weight);
+static void V_PlotPixelWu15(int scrn, int x, int y, byte color, int weight);
+static void V_PlotPixelWu16(int scrn, int x, int y, byte color, int weight);
+static void V_PlotPixelWu32(int scrn, int x, int y, byte color, int weight);
 
 #ifdef GL_DOOM
 static void WRAP_gld_FillRect(int scrn, int x, int y, int width, int height, byte colour)
@@ -962,11 +960,8 @@ static void V_PlotPixelGL(int scrn, int x, int y, byte color) {
   gld_DrawLine(x-1, y, x+1, y, color);
   gld_DrawLine(x, y-1, x, y+1, color);
 }
-static void V_PlotPixelWuGL(int scrn, int x, int y, int color, int weight) {
+static void V_PlotPixelWuGL(int scrn, int x, int y, byte color, int weight) {
   V_PlotPixelGL(scrn, x, y, color);
-}
-static unsigned int WRAP_gld_GetPixel(int scrn, int x, int y) {
-  return 0;
 }
 static void WRAP_gld_DrawLine(fline_t* fl, int color)
 {
@@ -986,10 +981,9 @@ static void NULL_DrawNumPatch(int x, int y, int scrn, int lump, int cm, enum pat
 static void NULL_DrawNumPatchPrecise(float x, float y, int scrn, int lump, int cm, enum patch_translation_e flags) {}
 static void NULL_DrawBlock(int x, int y, int scrn, int width, int height, const byte *src, enum patch_translation_e flags) {}
 static void NULL_PlotPixel(int scrn, int x, int y, byte color) {}
-static unsigned int NULL_GetPixel(int scrn, int x, int y) { return 0; }
+static void NULL_PlotPixelWu(int scrn, int x, int y, byte color, int weight) {}
 static void NULL_DrawLine(fline_t* fl, int color) {}
 static void NULL_DrawLineWu(fline_t* fl, int color) {}
-static void NULL_PlotPixelWu(int scrn, int x, int y, int color, int weight) {}
 
 const char *default_videomode;
 static video_mode_t current_videomode = VID_MODE8;
@@ -1003,7 +997,6 @@ V_FillPatch_f V_FillPatch = NULL_FillPatch;
 V_DrawBackground_f V_DrawBackground = NULL_DrawBackground;
 V_PlotPixel_f V_PlotPixel = NULL_PlotPixel;
 V_PlotPixelWu_f V_PlotPixelWu = NULL_PlotPixelWu;
-V_GetPixel_f V_GetPixel = NULL_GetPixel;
 V_DrawLine_f V_DrawLine = NULL_DrawLine;
 V_DrawLineWu_f V_DrawLineWu = NULL_DrawLineWu;
 
@@ -1026,8 +1019,7 @@ void V_InitMode(video_mode_t mode) {
       V_FillPatch = FUNC_V_FillPatch;
       V_DrawBackground = FUNC_V_DrawBackground;
       V_PlotPixel = V_PlotPixel8;
-      V_PlotPixelWu = WRAP_V_PlotPixelWu;
-      V_GetPixel = V_GetPixel8;
+      V_PlotPixelWu = V_PlotPixelWu8;
       V_DrawLine = WRAP_V_DrawLine;
       V_DrawLineWu = WRAP_V_DrawLineWu;
       current_videomode = VID_MODE8;
@@ -1042,8 +1034,7 @@ void V_InitMode(video_mode_t mode) {
       V_FillPatch = FUNC_V_FillPatch;
       V_DrawBackground = FUNC_V_DrawBackground;
       V_PlotPixel = V_PlotPixel15;
-      V_PlotPixelWu = WRAP_V_PlotPixelWu;
-      V_GetPixel = V_GetPixel15;
+      V_PlotPixelWu = V_PlotPixelWu15;
       V_DrawLine = WRAP_V_DrawLine;
       V_DrawLineWu = WRAP_V_DrawLineWu;
       current_videomode = VID_MODE15;
@@ -1058,8 +1049,7 @@ void V_InitMode(video_mode_t mode) {
       V_FillPatch = FUNC_V_FillPatch;
       V_DrawBackground = FUNC_V_DrawBackground;
       V_PlotPixel = V_PlotPixel16;
-      V_PlotPixelWu = WRAP_V_PlotPixelWu;
-      V_GetPixel = V_GetPixel16;
+      V_PlotPixelWu = V_PlotPixelWu16;
       V_DrawLine = WRAP_V_DrawLine;
       V_DrawLineWu = WRAP_V_DrawLineWu;
       current_videomode = VID_MODE16;
@@ -1074,8 +1064,7 @@ void V_InitMode(video_mode_t mode) {
       V_FillPatch = FUNC_V_FillPatch;
       V_DrawBackground = FUNC_V_DrawBackground;
       V_PlotPixel = V_PlotPixel32;
-      V_PlotPixelWu = WRAP_V_PlotPixelWu;
-      V_GetPixel = V_GetPixel32;
+      V_PlotPixelWu = V_PlotPixelWu32;
       V_DrawLine = WRAP_V_DrawLine;
       V_DrawLineWu = WRAP_V_DrawLineWu;
       current_videomode = VID_MODE32;
@@ -1092,7 +1081,6 @@ void V_InitMode(video_mode_t mode) {
       V_DrawBackground = WRAP_gld_DrawBackground;
       V_PlotPixel = V_PlotPixelGL;
       V_PlotPixelWu = V_PlotPixelWuGL;
-      V_GetPixel = WRAP_gld_GetPixel;
       V_DrawLine = WRAP_gld_DrawLine;
       V_DrawLineWu = WRAP_gld_DrawLine;
       current_videomode = VID_MODEGL;
@@ -1198,20 +1186,6 @@ static void V_PlotPixel32(int scrn, int x, int y, byte color) {
   ((unsigned int *)screens[scrn].data)[x+screens[scrn].int_pitch*y] = VID_PAL32(color, VID_COLORWEIGHTMASK);
 }
 
-// V_GetPixel*
-static unsigned int V_GetPixel8(int scrn, int x, int y) {
-  return screens[scrn].data[x+screens[scrn].byte_pitch*y];
-}
-static unsigned int V_GetPixel15(int scrn, int x, int y) {
-  return ((unsigned short *)screens[scrn].data)[x+screens[scrn].short_pitch*y];
-}
-static unsigned int V_GetPixel16(int scrn, int x, int y) {
-  return ((unsigned short *)screens[scrn].data)[x+screens[scrn].short_pitch*y];
-}
-static unsigned int V_GetPixel32(int scrn, int x, int y) {
-  return ((unsigned int *)screens[scrn].data)[x+screens[scrn].int_pitch*y];
-}
-
 #define PUTDOT(xx,yy,cc) V_PlotPixel(0,xx,yy,(byte)cc)
 
 //
@@ -1298,14 +1272,29 @@ static void WRAP_V_DrawLine(fline_t* fl, int color)
   }
 }
 
+#define RGB2COLOR(r, g, b)\
+  ((r >> screen->format->Rloss) << screen->format->Rshift) |\
+  ((g >> screen->format->Gloss) << screen->format->Gshift) |\
+  ((b >> screen->format->Bloss) << screen->format->Bshift)\
+
+// Given 65536, we need 2048; 65536 / 2048 == 32 == 2^5
+// Why 2048? ANG90 == 0x40000000 which >> 19 == 0x800 == 2048.
+// The trigonometric correction is based on an angle from 0 to 90.
+#define wu_fineshift 5
+
+#define wu_weightbits 6
+
+// Given 64 levels in the Col2RGB8 table, 65536 / 64 == 1024 == 2^10
+#define wu_fixedshift (16-wu_weightbits)
+
 //
-// WRAP_V_PlotPixelWu
+// V_PlotPixelWu
 //
 // haleyjd 06/13/09: Pixel plotter for Wu line drawing.
 //
-static void WRAP_V_PlotPixelWu(int scrn, int x, int y, int color, int weight)
+static void V_PlotPixelWu8(int scrn, int x, int y, byte color, int weight)
 {
-  unsigned int bg_color = V_GetPixel(scrn, x, y);
+  unsigned int bg_color = screens[scrn].data[x+screens[scrn].byte_pitch*y];
   unsigned int *fg2rgb = Col2RGB8[weight];
   unsigned int *bg2rgb = Col2RGB8[64 - weight];
   unsigned int fg = fg2rgb[color];
@@ -1314,14 +1303,39 @@ static void WRAP_V_PlotPixelWu(int scrn, int x, int y, int color, int weight)
   fg = (fg + bg) | 0x1f07c1f;
   V_PlotPixel(scrn, x, y, RGB32k[0][0][fg & (fg >> 15)]);
 }
+static void V_PlotPixelWu15(int scrn, int x, int y, byte color, int weight)
+{
+  const unsigned char *palette = V_GetPlaypal();
 
-// Given 65536, we need 2048; 65536 / 2048 == 32 == 2^5
-// Why 2048? ANG90 == 0x40000000 which >> 19 == 0x800 == 2048.
-// The trigonometric correction is based on an angle from 0 to 90.
-#define wu_fineshift 5
+  byte r = (palette[color * 3 + 0] * weight) >> wu_weightbits;
+  byte g = (palette[color * 3 + 1] * weight) >> wu_weightbits;
+  byte b = (palette[color * 3 + 2] * weight) >> wu_weightbits;
+  
+  ((unsigned short *)screens[scrn].data)[x+screens[scrn].short_pitch*y] =
+    (unsigned short)RGB2COLOR(r, g, b);
+}
+static void V_PlotPixelWu16(int scrn, int x, int y, byte color, int weight)
+{
+  const unsigned char *palette = V_GetPlaypal();
 
-// Given 64 levels in the Col2RGB8 table, 65536 / 64 == 1024 == 2^10
-#define wu_fixedshift 10
+  byte r = (palette[color * 3 + 0] * weight) >> wu_weightbits;
+  byte g = (palette[color * 3 + 1] * weight) >> wu_weightbits;
+  byte b = (palette[color * 3 + 2] * weight) >> wu_weightbits;
+  
+  ((unsigned short *)screens[scrn].data)[x+screens[scrn].short_pitch*y] =
+    (unsigned short)RGB2COLOR(r, g, b);
+}
+static void V_PlotPixelWu32(int scrn, int x, int y, byte color, int weight)
+{
+  const unsigned char *palette = V_GetPlaypal();
+
+  byte r = (palette[color * 3 + 0] * weight) >> wu_weightbits;
+  byte g = (palette[color * 3 + 1] * weight) >> wu_weightbits;
+  byte b = (palette[color * 3 + 2] * weight) >> wu_weightbits;
+  
+  ((unsigned int *)screens[scrn].data)[x+screens[scrn].int_pitch*y] =
+    (unsigned int)RGB2COLOR(r, g, b);
+}
 
 //
 // WRAP_V_DrawLineWu
