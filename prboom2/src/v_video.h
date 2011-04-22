@@ -37,8 +37,6 @@
 #ifndef __V_VIDEO__
 #define __V_VIDEO__
 
-#include "SDL.h"
-
 #include "doomtype.h"
 #include "doomdef.h"
 // Needed because we are refering to patches.
@@ -139,7 +137,6 @@ typedef struct {
 
 #define NUM_SCREENS 6
 extern screeninfo_t screens[NUM_SCREENS];
-extern SDL_Surface *screen;
 extern int          usegamma;
 
 // Varying bit-depth support -POPE

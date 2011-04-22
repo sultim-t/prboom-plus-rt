@@ -35,6 +35,13 @@
  *-----------------------------------------------------------------------------
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#ifdef USE_SDL
+#include "SDL.h"
+#endif
+
 #include "doomdef.h"
 #include "r_main.h"
 #include "r_draw.h"
@@ -1272,6 +1279,7 @@ static void WRAP_V_DrawLine(fline_t* fl, int color)
   }
 }
 
+extern SDL_Surface *screen;
 #define RGB2COLOR(r, g, b)\
   ((r >> screen->format->Rloss) << screen->format->Rshift) |\
   ((g >> screen->format->Gloss) << screen->format->Gshift) |\
@@ -1402,9 +1410,9 @@ void WRAP_V_DrawLineWu(fline_t *fl, int color)
       y += 1; // advance y
 
       // the trick is in the trig!
-      V_PlotPixelWu(0, x, y, color, 
+      V_PlotPixelWu(0, x, y, (byte)color, 
         finecosine[erroracc >> wu_fineshift] >> wu_fixedshift);
-      V_PlotPixelWu(0, x + xdir, y, color, 
+      V_PlotPixelWu(0, x + xdir, y, (byte)color, 
         finesine[erroracc >> wu_fineshift] >> wu_fixedshift);
     }
   }
@@ -1427,9 +1435,9 @@ void WRAP_V_DrawLineWu(fline_t *fl, int color)
       x += xdir; // advance x
 
       // the trick is in the trig!
-      V_PlotPixelWu(0, x, y, color, 
+      V_PlotPixelWu(0, x, y, (byte)color, 
         finecosine[erroracc >> wu_fineshift] >> wu_fixedshift);
-      V_PlotPixelWu(0, x, y + 1, color, 
+      V_PlotPixelWu(0, x, y + 1, (byte)color, 
         finesine[erroracc >> wu_fineshift] >> wu_fixedshift);
     }
   }
