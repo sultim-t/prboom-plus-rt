@@ -1936,11 +1936,6 @@ void HU_Drawer(void)
           HU_widget_build_keys();
           HU_widget_build_monsec();
         }
-
-        if (hudadd_gamespeed || hudadd_leveltime)
-        {
-          HU_widget_build_hudadd();
-        }
       }
     }
 
@@ -1966,6 +1961,7 @@ void HU_Drawer(void)
       }
       if (hudadd_gamespeed || hudadd_leveltime)
       {
+        HU_widget_build_hudadd();
         HU_widget_draw_hudadd();
       }
     }
