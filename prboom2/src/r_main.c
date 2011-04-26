@@ -831,7 +831,7 @@ int rendered_visplanes, rendered_segs, rendered_vissprites;
 dboolean rendering_stats;
 int renderer_fps = 0;
 
-static void R_ShowStats(void)
+void R_ShowStats(void)
 {
   static unsigned int FPS_SavedTick = 0, FPS_FrameCount = 0;
   unsigned int tick = SDL_GetTicks();
@@ -851,6 +851,13 @@ static void R_ShowStats(void)
   }
 }
 
+void R_ClearStats(void)
+{
+  rendered_visplanes = 0;
+  rendered_segs = 0;
+  rendered_vissprites = 0;
+}
+
 //
 // R_RenderView
 //
@@ -868,7 +875,6 @@ void R_RenderPlayerView (player_t* player)
   R_ClearPlanes ();
   R_ClearSprites ();
 
-  rendered_segs = rendered_visplanes = 0;
   if (V_GetMode() == VID_MODEGL)
   {
 #ifdef GL_DOOM
@@ -940,7 +946,4 @@ void R_RenderPlayerView (player_t* player)
     gld_EndDrawScene();
 #endif
   }
-
-  //e6y if (rendering_stats) 
-  R_ShowStats();
 }

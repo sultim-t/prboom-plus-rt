@@ -4048,8 +4048,6 @@ void gld_DrawScene(player_t *player)
   }
 #endif
 
-  rendered_visplanes = rendered_segs = rendered_vissprites = 0;
-
   //e6y: skybox
   skybox = gld_DrawBoxSkyBox();
   if (!skybox)

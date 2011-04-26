@@ -347,11 +347,16 @@ void D_Display (void)
 
     R_InterpolateView(&players[displayplayer]);
 
+    R_ClearStats();
+
     // Now do the drawing
     if (viewactive || map_always_updates)
     {
       R_RenderPlayerView (&players[displayplayer]);
     }
+
+    // IDRATE cheat
+    R_ShowStats();
 
     // e6y
     // but should NOT be applied for automap, statusbar and HUD
