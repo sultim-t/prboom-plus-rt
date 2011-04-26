@@ -53,6 +53,18 @@
 
 #define BFGCELLS bfgcells        /* Ty 03/09/98 externalized in p_inter.c */
 
+// Checking correctness of input parameters for weapon codepointers
+// for avoiding crashes when they are used with player/monster states.
+#ifdef PRBOOM_DEBUG
+  #define CHECK_WEAPON_CODEPOINTER(codepointer, player)\
+    if (!player->mo->player) {\
+      I_Error("%s: Weapon codepointers cannot be used with player/monster states (incorrect DEH).", codepointer);\
+      return;\
+    }
+#else
+  #define CHECK_WEAPON_CODEPOINTER(codepointer, player)
+#endif
+
 extern void P_Thrust(player_t *, angle_t, fixed_t);
 
 // The following array holds the recoil values         // phares
@@ -309,6 +321,8 @@ void P_DropWeapon(player_t *player)
 
 void A_WeaponReady(player_t *player, pspdef_t *psp)
 {
+  CHECK_WEAPON_CODEPOINTER("A_WeaponReady", player);
+
   // get out of attack state
   if (player->mo->state == &states[S_PLAY_ATK1]
       || player->mo->state == &states[S_PLAY_ATK2] )
@@ -361,6 +375,8 @@ void A_WeaponReady(player_t *player, pspdef_t *psp)
 
 void A_ReFire(player_t *player, pspdef_t *psp)
 {
+  CHECK_WEAPON_CODEPOINTER("A_ReFire", player);
+
   // check for fire
   //  (if a weaponchange is pending, let it go through instead)
 
@@ -379,6 +395,8 @@ void A_ReFire(player_t *player, pspdef_t *psp)
 
 void A_CheckReload(player_t *player, pspdef_t *psp)
 {
+  CHECK_WEAPON_CODEPOINTER("A_CheckReload", player);
+
   if (!P_CheckAmmo(player) && compatibility_level >= prboom_4_compatibility) {
     /* cph 2002/08/08 - In old Doom, P_CheckAmmo would start the weapon lowering
      * immediately. This was lost in Boom when the weapon switching logic was
@@ -397,6 +415,8 @@ void A_CheckReload(player_t *player, pspdef_t *psp)
 
 void A_Lower(player_t *player, pspdef_t *psp)
 {
+  CHECK_WEAPON_CODEPOINTER("A_Lower", player);
+
   psp->sy += LOWERSPEED;
 
   // Is already down.
@@ -434,6 +454,8 @@ void A_Lower(player_t *player, pspdef_t *psp)
 void A_Raise(player_t *player, pspdef_t *psp)
 {
   statenum_t newstate;
+
+  CHECK_WEAPON_CODEPOINTER("A_Raise", player);
 
   psp->sy -= RAISESPEED;
 
@@ -477,6 +499,8 @@ static void A_FireSomething(player_t* player,int adder)
 
 void A_GunFlash(player_t *player, pspdef_t *psp)
 {
+  CHECK_WEAPON_CODEPOINTER("A_GunFlash", player);
+
   P_SetMobjState(player->mo, S_PLAY_ATK2);
 
   A_FireSomething(player,0);                                      // phares
@@ -493,7 +517,11 @@ void A_GunFlash(player_t *player, pspdef_t *psp)
 void A_Punch(player_t *player, pspdef_t *psp)
 {
   angle_t angle;
-  int t, slope, damage = (P_Random(pr_punch)%10+1)<<1;
+  int t, slope, damage;
+
+  CHECK_WEAPON_CODEPOINTER("A_Punch", player);
+
+  damage = (P_Random(pr_punch)%10+1)<<1;
 
   if (player->powers[pw_strength])
     damage *= 10;
@@ -530,10 +558,16 @@ void A_Punch(player_t *player, pspdef_t *psp)
 
 void A_Saw(player_t *player, pspdef_t *psp)
 {
-  int slope, damage = 2*(P_Random(pr_saw)%10+1);
-  angle_t angle = player->mo->angle;
+  int slope, damage;
+  angle_t angle;
+  int t;
+
+  CHECK_WEAPON_CODEPOINTER("A_Saw", player);
+
+  damage = 2*(P_Random(pr_saw)%10+1);
+  angle = player->mo->angle;
   // killough 5/5/98: remove dependence on order of evaluation:
-  int t = P_Random(pr_saw);
+  t = P_Random(pr_saw);
   angle += (t - P_Random(pr_saw))<<18;
 
   /* Use meleerange + 1 so that the puff doesn't skip the flash
@@ -579,6 +613,8 @@ void A_Saw(player_t *player, pspdef_t *psp)
 
 void A_FireMissile(player_t *player, pspdef_t *psp)
 {
+  CHECK_WEAPON_CODEPOINTER("A_FireMissile", player);
+
   player->ammo[weaponinfo[player->readyweapon].ammo]--;
   P_SpawnPlayerMissile(player->mo, MT_ROCKET);
 }
@@ -589,6 +625,8 @@ void A_FireMissile(player_t *player, pspdef_t *psp)
 
 void A_FireBFG(player_t *player, pspdef_t *psp)
 {
+  CHECK_WEAPON_CODEPOINTER("A_FireBFG", player);
+
   player->ammo[weaponinfo[player->readyweapon].ammo] -= BFGCELLS;
   P_SpawnPlayerMissile(player->mo, MT_BFG);
 }
@@ -599,6 +637,8 @@ void A_FireBFG(player_t *player, pspdef_t *psp)
 
 void A_FirePlasma(player_t *player, pspdef_t *psp)
 {
+  CHECK_WEAPON_CODEPOINTER("A_FirePlasma", player);
+
   player->ammo[weaponinfo[player->readyweapon].ammo]--;
 
   A_FireSomething(player,P_Random(pr_plasma)&1);              // phares
@@ -656,6 +696,8 @@ static void P_GunShot(mobj_t *mo, dboolean accurate)
 
 void A_FirePistol(player_t *player, pspdef_t *psp)
 {
+  CHECK_WEAPON_CODEPOINTER("A_FirePistol", player);
+
   S_StartSound(player->mo, sfx_pistol);
 
   P_SetMobjState(player->mo, S_PLAY_ATK2);
@@ -673,6 +715,8 @@ void A_FirePistol(player_t *player, pspdef_t *psp)
 void A_FireShotgun(player_t *player, pspdef_t *psp)
 {
   int i;
+
+  CHECK_WEAPON_CODEPOINTER("A_FireShotgun", player);
 
   S_StartSound(player->mo, sfx_shotgn);
   P_SetMobjState(player->mo, S_PLAY_ATK2);
@@ -694,6 +738,8 @@ void A_FireShotgun(player_t *player, pspdef_t *psp)
 void A_FireShotgun2(player_t *player, pspdef_t *psp)
 {
   int i;
+
+  CHECK_WEAPON_CODEPOINTER("A_FireShotgun2", player);
 
   S_StartSound(player->mo, sfx_dshtgn);
   P_SetMobjState(player->mo, S_PLAY_ATK2);
@@ -722,6 +768,8 @@ void A_FireShotgun2(player_t *player, pspdef_t *psp)
 
 void A_FireCGun(player_t *player, pspdef_t *psp)
 {
+  CHECK_WEAPON_CODEPOINTER("A_FireCGun", player);
+
   if (player->ammo[weaponinfo[player->readyweapon].ammo] || comp[comp_sound])
     S_StartSound(player->mo, sfx_pistol);
 
@@ -740,16 +788,22 @@ void A_FireCGun(player_t *player, pspdef_t *psp)
 
 void A_Light0(player_t *player, pspdef_t *psp)
 {
+  CHECK_WEAPON_CODEPOINTER("A_Light0", player);
+
   player->extralight = 0;
 }
 
 void A_Light1 (player_t *player, pspdef_t *psp)
 {
+  CHECK_WEAPON_CODEPOINTER("A_Light1", player);
+
   player->extralight = 1;
 }
 
 void A_Light2 (player_t *player, pspdef_t *psp)
 {
+  CHECK_WEAPON_CODEPOINTER("A_Light2", player);
+
   player->extralight = 2;
 }
 
@@ -794,6 +848,8 @@ void A_BFGSpray(mobj_t *mo)
 
 void A_BFGsound(player_t *player, pspdef_t *psp)
 {
+  CHECK_WEAPON_CODEPOINTER("A_BFGsound", player);
+
   S_StartSound(player->mo, sfx_bfg);
 }
 
