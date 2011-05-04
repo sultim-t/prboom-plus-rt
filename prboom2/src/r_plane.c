@@ -138,6 +138,19 @@ void R_InitPlanesRes(void)
   distscale = calloc(1, SCREENWIDTH * sizeof(*distscale));
 }
 
+void R_InitVisplanesRes(void)
+{
+  int i;
+  
+  freetail = NULL;
+  freehead = &freetail;
+
+  for (i = 0; i < MAXVISPLANES; i++)
+  {
+    visplanes[i] = 0;
+  }
+}
+
 //
 // R_InitPlanes
 // Only at game startup.

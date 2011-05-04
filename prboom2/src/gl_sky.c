@@ -1039,6 +1039,8 @@ void gld_ParseSkybox(void)
       }
     }
   }
+
+  R_SetBoxSkybox(skytexture);
 }
 
 int gld_BindFace(box_skybox_t *sb, int index)

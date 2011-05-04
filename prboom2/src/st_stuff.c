@@ -862,6 +862,12 @@ static void ST_drawWidgets(dboolean refresh)
 
 }
 
+void ST_SetResolution(void)
+{
+  st_firsttime = true;
+  R_FillBackScreen();
+}
+
 static void ST_doRefresh(void)
 {
 

@@ -84,6 +84,8 @@ void AM_clearMarks(void);
 
 void AM_setMarkParams(int num);
 
+void AM_SetResolution(void);
+
 typedef struct
 {
  fixed_t x,y;

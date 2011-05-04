@@ -616,6 +616,12 @@ static void AM_initVariables(void)
   ST_Responder(&st_notify);
 }
 
+void AM_SetResolution(void)
+{
+  AM_SetPosition();
+  AM_SetScale();
+}
+
 //
 // AM_loadPics()
 //

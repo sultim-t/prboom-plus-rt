@@ -413,7 +413,7 @@ void gld_Init(int width, int height)
   atexit(gld_FreeScreenSizeFBO);
 #endif
 
-  if( !gld_LoadGLDefs("GLBDEFS"))
+  if(!gld_LoadGLDefs("GLBDEFS"))
   {
     gld_LoadGLDefs("GLDEFS");
   }
@@ -587,7 +587,7 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
 
 void gld_ProcessTexturedMap(void)
 {
-  if (map_textured && subsectorloops[0].loops == NULL)
+  if (map_textured && subsectorloops && subsectorloops[0].loops == NULL)
   {
     triangulate_subsectors = 1;
     if (nodesVersion == 0)
@@ -1906,8 +1906,8 @@ static void gld_MarkSectorsForClamp(void)
 void gld_PreprocessSectors(void)
 {
 #ifdef USE_GLU_TESS // figgi
-  char *vertexcheck;
-  char *vertexcheck2;
+  char *vertexcheck = NULL;
+  char *vertexcheck2 = NULL;
   int v1num;
   int v2num;
   int i;
@@ -1925,38 +1925,56 @@ void gld_PreprocessSectors(void)
   }
 #endif
 
-  sectorloops=Z_Malloc(sizeof(GLSector)*numsectors,PU_STATIC,0);
-  if (!sectorloops)
-    I_Error("gld_PreprocessSectors: Not enough memory for array sectorloops");
-  memset(sectorloops, 0, sizeof(GLSector)*numsectors);
+  if (numsectors)
+  {
+    sectorloops=Z_Malloc(sizeof(GLSector)*numsectors,PU_STATIC,0);
+    if (!sectorloops)
+      I_Error("gld_PreprocessSectors: Not enough memory for array sectorloops");
+    memset(sectorloops, 0, sizeof(GLSector)*numsectors);
+  }
 
-  subsectorloops=Z_Malloc(sizeof(GLMapSubsector)*numsubsectors,PU_STATIC,0);
-  if (!subsectorloops)
-    I_Error("gld_PreprocessSectors: Not enough memory for array subsectorloops");
-  memset(subsectorloops, 0, sizeof(GLMapSubsector)*numsubsectors);
+  if (numsubsectors)
+  {
+    subsectorloops=Z_Malloc(sizeof(GLMapSubsector)*numsubsectors,PU_STATIC,0);
+    if (!subsectorloops)
+      I_Error("gld_PreprocessSectors: Not enough memory for array subsectorloops");
+    memset(subsectorloops, 0, sizeof(GLMapSubsector)*numsubsectors);
+  }
 
-  segrendered=calloc(numsegs, sizeof(byte));
-  if (!segrendered)
-    I_Error("gld_PreprocessSectors: Not enough memory for array segrendered");
+  if (numsegs)
+  {
+    segrendered=calloc(numsegs, sizeof(byte));
+    if (!segrendered)
+      I_Error("gld_PreprocessSectors: Not enough memory for array segrendered");
+  }
 
-  linerendered[0]=calloc(numlines, sizeof(byte));
-  linerendered[1]=calloc(numlines, sizeof(byte));
-  if (!linerendered[0] || !linerendered[1])
-    I_Error("gld_PreprocessSectors: Not enough memory for array linerendered");
+  if (numlines)
+  {
+    linerendered[0]=calloc(numlines, sizeof(byte));
+    linerendered[1]=calloc(numlines, sizeof(byte));
+    if (!linerendered[0] || !linerendered[1])
+      I_Error("gld_PreprocessSectors: Not enough memory for array linerendered");
+  }
 
   flats_vbo = NULL;
   gld_max_vertexes=0;
   gld_num_vertexes=0;
-  gld_AddGlobalVertexes(numvertexes*2);
+  if (numvertexes)
+  {
+    gld_AddGlobalVertexes(numvertexes*2);
+  }
 
 #ifdef USE_GLU_TESS
-  vertexcheck=malloc(numvertexes*sizeof(vertexcheck[0]));
-  vertexcheck2=malloc(numvertexes*sizeof(vertexcheck2[0]));
-  if (!vertexcheck || !vertexcheck2)
+  if (numvertexes)
   {
-    if (levelinfo) fclose(levelinfo);
-    I_Error("gld_PreprocessSectors: Not enough memory for array vertexcheck");
-    return;
+    vertexcheck=malloc(numvertexes*sizeof(vertexcheck[0]));
+    vertexcheck2=malloc(numvertexes*sizeof(vertexcheck2[0]));
+    if (!vertexcheck || !vertexcheck2)
+    {
+      if (levelinfo) fclose(levelinfo);
+      I_Error("gld_PreprocessSectors: Not enough memory for array vertexcheck");
+      return;
+    }
   }
 
   for (i=0; i<numsectors; i++)
@@ -2032,10 +2050,13 @@ void gld_PreprocessSectors(void)
 #endif /* USE_GLU_TESS */
 
   // figgi -- adapted for glnodes
-  if (nodesVersion == 0)
-    gld_CarveFlats(numnodes-1, 0, 0);
-  else
-    gld_GetSubSectorVertices();
+  if (numnodes)
+  {
+    if (nodesVersion == 0)
+      gld_CarveFlats(numnodes-1, 0, 0);
+    else
+      gld_GetSubSectorVertices();
+  }
 
   gld_ProcessTexturedMap();
 

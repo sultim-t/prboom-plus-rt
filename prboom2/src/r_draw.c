@@ -1054,6 +1054,9 @@ void R_FillBackScreen (void)
 {
   int automap = ((automapmode & am_active) && !(automapmode & am_overlay));
 
+  if (grnrock.lumpnum == 0)
+    return;
+
   // e6y: wide-res
   if (wide_ratio || wide_offsety)
   {

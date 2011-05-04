@@ -882,7 +882,8 @@ void gld_ParseDetailItem(tag_detail_e item)
 
 void gld_ParseDetail(void)
 {
-  free(details);
+  gld_ShutdownDetail();
+
   details_count = 2; // reserved for default wall and flat
   details_size = 128;
   details = calloc(details_size, sizeof(details[0]));

@@ -294,7 +294,8 @@ void M_ChangeTextureParams(void);
 void M_General(int);      // killough 10/98
 void M_DrawCompat(void);  // killough 10/98
 void M_DrawGeneral(void); // killough 10/98
-void M_FullScreen(void);  // nathanh  01/01
+void M_ChangeFullScreen(void);
+void M_ChangeScreenResolution(void);
 
 menu_t NewDef;                                              // phares 5/04/98
 
@@ -3009,9 +3010,9 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
 
   {"Video",                          S_SKIP|S_TITLE,     m_null, G_X, G_Y+ 1*8},
   {"Video mode",                     S_CHOICE|S_PRGWARN, m_null, G_X, G_Y+ 2*8, {"videomode"}, 0, 0, NULL, videomodes},
-  {"Screen Resolution",              S_CHOICE|S_PRGWARN, m_null, G_X, G_Y+ 3*8, {"screen_resolution"}, 0, 0, NULL, screen_resolutions_list},
+  {"Screen Resolution",              S_CHOICE,           m_null, G_X, G_Y+ 3*8, {"screen_resolution"}, 0, 0, M_ChangeScreenResolution, screen_resolutions_list},
   {"Aspect Ratio",                   S_CHOICE,           m_null, G_X, G_Y+ 4*8, {"render_aspect"}, 0, 0, M_ChangeAspectRatio, render_aspects_list},
-  {"Fullscreen Video mode",          S_YESNO|S_PRGWARN,  m_null, G_X, G_Y+ 5*8, {"use_fullscreen"}, 0, 0, NULL},
+  {"Fullscreen Video mode",          S_YESNO,            m_null, G_X, G_Y+ 5*8, {"use_fullscreen"}, 0, 0, M_ChangeFullScreen},
   {"Status Bar and Menu Appearance", S_CHOICE,           m_null, G_X, G_Y+ 6*8, {"render_stretch_hud"}, 0, 0, M_ChangeStretch, render_stretch_list},
 #ifdef GL_DOOM
   {"Vertical Sync",                  S_YESNO|S_PRGWARN,  m_null, G_X, G_Y+ 7*8, {"gl_vsync"}},
@@ -3222,10 +3223,15 @@ void M_Trans(void) // To reset translucency after setting it in menu
     R_InitTranMap(0);
 }
 
-void M_FullScreen(void) // To (un)set fullscreen video after menu changes
+// To (un)set fullscreen video after menu changes
+void M_ChangeFullScreen(void)
 {
-  I_UpdateVideoMode();
-  V_SetPalette(0);
+  V_ChangeFullScreen();
+}
+
+void M_ChangeScreenResolution(void)
+{
+  V_ChangeScreenResolution();
 }
 
 void M_ChangeDemoSmoothTurns(void)

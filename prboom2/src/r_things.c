@@ -45,6 +45,9 @@
 
 #define BASEYCENTER 100
 
+static int *clipbot = NULL; // killough 2/8/98: // dropoff overflow
+static int *cliptop = NULL; // change to MAX_*  // dropoff overflow
+
 //
 // Sprite rotation 0 is facing the viewer,
 //  rotation 1 is one angle turn CLOCKWISE around the axis.
@@ -105,6 +108,11 @@ void R_InitSpritesRes(void)
   xtoviewangle = calloc(1, (SCREENWIDTH + 1) * sizeof(*xtoviewangle));
   negonearray = calloc(1, SCREENWIDTH * sizeof(*negonearray));
   screenheightarray = calloc(1, SCREENWIDTH * sizeof(*screenheightarray));
+
+  if (clipbot) free(clipbot);
+
+  clipbot = calloc(1, 2 * SCREENWIDTH * sizeof(*clipbot));
+  cliptop = clipbot + SCREENWIDTH;
 }
 
 //
@@ -1065,20 +1073,12 @@ void R_SortVisSprites (void)
 static void R_DrawSprite (vissprite_t* spr)
 {
   drawseg_t *ds;
-  static int     *clipbot = NULL; // killough 2/8/98: // dropoff overflow
-  static int     *cliptop = NULL; // change to MAX_*  // dropoff overflow
   int     x;
   int     r1;
   int     r2;
   fixed_t scale;
   fixed_t lowscale;
   int     i;
-
-  if (!clipbot)
-  {
-    clipbot = malloc(2 * SCREENWIDTH * sizeof(*clipbot));
-    cliptop = clipbot + SCREENWIDTH;
-  }
 
   for (x = spr->x1 ; x<=spr->x2 ; x++)
     clipbot[x] = -2;

@@ -246,6 +246,10 @@ void V_DestroyUnusedTrueColorPalettes(void);
 // CPhipps - function to set the palette to palette number pal.
 void V_SetPalette(int pal);
 
+// Alt-Enter: fullscreen <-> windowed
+void V_ChangeFullScreen(void);
+void V_ChangeScreenResolution(void);
+
 // CPhipps - function to plot a pixel
 
 // V_PlotPixel

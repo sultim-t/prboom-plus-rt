@@ -50,6 +50,7 @@ extern int *lastopening; // dropoff overflow
 extern int *floorclip, *ceilingclip; // dropoff overflow
 extern fixed_t *yslope, *distscale;
 
+void R_InitVisplanesRes(void);
 void R_InitPlanesRes(void);
 void R_InitPlanes(void);
 void R_ClearPlanes(void);

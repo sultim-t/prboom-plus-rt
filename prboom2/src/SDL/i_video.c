@@ -72,6 +72,7 @@
 #include "sounds.h"
 #include "w_wad.h"
 #include "st_stuff.h"
+#include "am_map.h"
 #include "lprintf.h"
 
 #include "i_simd.h"
@@ -220,12 +221,22 @@ while (SDL_PollEvent(Event))
 {
   switch (Event->type) {
   case SDL_KEYDOWN:
-    // e6y
-    // Eating of Alt-Tab event to prevent switching to the automap
-    // after task switching on Windows
 #ifdef _WIN32
-    if ((Event->key.keysym.mod & KMOD_LALT) && Event->key.keysym.sym == SDLK_TAB)
-      break;
+    if (Event->key.keysym.mod & KMOD_LALT)
+    {
+      // Eating of Alt-Tab event to prevent switching to the automap
+      // after task switching on Windows
+      if (Event->key.keysym.sym == SDLK_TAB)
+      {
+        break;
+      }
+      //Alt-Enter: fullscreen <-> windowed
+      else if (Event->key.keysym.sym == SDLK_RETURN)
+      {
+        V_ChangeFullScreen();
+        break;
+      }
+    }
 #endif
     event.type = ev_keydown;
     event.data1 = I_TranslateKey(&Event->key.keysym);
@@ -597,6 +608,7 @@ void I_InitBuffersRes(void)
   R_InitSpritesRes();
   R_InitBuffersRes();
   R_InitPlanesRes();
+  R_InitVisplanesRes();
 }
 
 #define MAX_RESOLUTIONS_COUNT 128
@@ -885,71 +897,89 @@ void I_InitScreenResolution(void)
   int i, p, w, h;
   char c, x;
   video_mode_t mode;
+  int init = screen == NULL;
 
-  //e6y: ability to change screen resolution from GUI
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL)
+  {
+    if (V_GetMode() == VID_MODEGL)
+    {
+		  gld_CleanMemory();
+    }
+  }
+#endif
+
   I_GetScreenResolution();
-  I_FillScreenResolutionsList();
 
-  // Video stuff
-  if ((p = M_CheckParm("-width")))
-    if (myargv[p+1])
-      desired_screenwidth = atoi(myargv[p+1]);
+  if (init)
+  {
+    //e6y: ability to change screen resolution from GUI
+    I_FillScreenResolutionsList();
 
-  if ((p = M_CheckParm("-height")))
-    if (myargv[p+1])
-      desired_screenheight = atoi(myargv[p+1]);
+    // Video stuff
+    if ((p = M_CheckParm("-width")))
+      if (myargv[p+1])
+        desired_screenwidth = atoi(myargv[p+1]);
 
-  if ((p = M_CheckParm("-fullscreen")))
+    if ((p = M_CheckParm("-height")))
+      if (myargv[p+1])
+        desired_screenheight = atoi(myargv[p+1]);
+
+    if ((p = M_CheckParm("-fullscreen")))
       use_fullscreen = 1;
 
-  if ((p = M_CheckParm("-nofullscreen")))
+    if ((p = M_CheckParm("-nofullscreen")))
       use_fullscreen = 0;
 
-  // e6y
-  // New command-line options for setting a window (-window) 
-  // or fullscreen (-nowindow) mode temporarily which is not saved in cfg.
-  // It works like "-geom" switch
-  desired_fullscreen = use_fullscreen;
-  if ((p = M_CheckParm("-window")))
+    // e6y
+    // New command-line options for setting a window (-window) 
+    // or fullscreen (-nowindow) mode temporarily which is not saved in cfg.
+    // It works like "-geom" switch
+    desired_fullscreen = use_fullscreen;
+    if ((p = M_CheckParm("-window")))
       desired_fullscreen = 0;
 
-  if ((p = M_CheckParm("-nowindow")))
+    if ((p = M_CheckParm("-nowindow")))
       desired_fullscreen = 1;
 
-  // e6y
-  // change the screen size for the current session only
-  // syntax: -geom WidthxHeight[w|f]
-  // examples: -geom 320x200f, -geom 640x480w, -geom 1024x768
-  w = desired_screenwidth;
-  h = desired_screenheight;
+    // e6y
+    // change the screen size for the current session only
+    // syntax: -geom WidthxHeight[w|f]
+    // examples: -geom 320x200f, -geom 640x480w, -geom 1024x768
+    w = desired_screenwidth;
+    h = desired_screenheight;
 
-  if (!(p = M_CheckParm("-geom")))
-    p = M_CheckParm("-geometry");
+    if (!(p = M_CheckParm("-geom")))
+      p = M_CheckParm("-geometry");
 
-  if (p && p + 1 < myargc)
-  {
-    int count = sscanf(myargv[p+1], "%d%c%d%c", &w, &x, &h, &c);
-
-    // at least width and height must be specified
-    // restoring original values if not
-    if (count < 3 || tolower(x) != 'x')
+    if (p && p + 1 < myargc)
     {
-      w = desired_screenwidth;
-      h = desired_screenheight;
-    }
-    else
-    {
-      if (count >= 4)
+      int count = sscanf(myargv[p+1], "%d%c%d%c", &w, &x, &h, &c);
+
+      // at least width and height must be specified
+      // restoring original values if not
+      if (count < 3 || tolower(x) != 'x')
       {
-        if (tolower(c) == 'w')
-          desired_fullscreen = 0;
-        if (tolower(c) == 'f')
-          desired_fullscreen = 1;
+        w = desired_screenwidth;
+        h = desired_screenheight;
+      }
+      else
+      {
+        if (count >= 4)
+        {
+          if (tolower(c) == 'w')
+            desired_fullscreen = 0;
+          if (tolower(c) == 'f')
+            desired_fullscreen = 1;
+        }
       }
     }
   }
-
-  lprintf(LO_INFO, "I_InitScreenResolution: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, desired_fullscreen ? "fullscreen" : "nofullscreen");
+  else
+  {
+    w = desired_screenwidth;
+    h = desired_screenheight;
+  }
 
   mode = I_GetModeFromString(default_videomode);
   if ((i=M_CheckParm("-vidmode")) && i<myargc-1)
@@ -1105,6 +1135,14 @@ void I_UpdateVideoMode(void)
 {
   int init_flags;
 
+  if(screen)
+  {
+    I_InitScreenResolution();
+
+    SDL_FreeSurface(screen);
+    screen = NULL;
+  }
+
   // Initialize SDL with this graphics mode
   if (V_GetMode() == VID_MODEGL) {
     init_flags = SDL_OPENGL;
@@ -1194,6 +1232,10 @@ void I_UpdateVideoMode(void)
   // e6y: wide-res
   // Need some initialisations before level precache
   R_ExecuteSetViewSize();
+
+  V_SetPalette(0);
+  ST_SetResolution();
+  AM_SetResolution();
 
   if (V_GetMode() == VID_MODEGL) {
     int temp;

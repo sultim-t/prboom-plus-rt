@@ -72,6 +72,9 @@ void ST_Start(void);
 // Called by startup code.
 void ST_Init(void);
 
+// After changing videomode;
+void ST_SetResolution(void);
+
 // States for status bar code.
 typedef enum
 {

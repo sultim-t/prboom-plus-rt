@@ -1686,3 +1686,38 @@ int V_BestColor(const unsigned char *palette, int r, int g, int b)
 
   return bestcolor;
 }
+
+// Alt-Enter: fullscreen <-> windowed
+void V_ChangeFullScreen(void)
+{
+  if (desired_fullscreen == use_fullscreen)
+  {
+    use_fullscreen = (use_fullscreen ? 0 : 1);
+    desired_fullscreen = use_fullscreen;
+  }
+  else
+  {
+    desired_fullscreen = (desired_fullscreen ? 0 : 1);
+  }
+
+  I_UpdateVideoMode();
+
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL)
+  {
+    gld_PreprocessLevel();
+  }
+#endif
+}
+
+void V_ChangeScreenResolution(void)
+{
+  I_UpdateVideoMode();
+
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL)
+  {
+    gld_PreprocessLevel();
+  }
+#endif
+}
