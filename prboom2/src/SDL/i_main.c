@@ -52,10 +52,6 @@ typedef BOOL (WINAPI *SetAffinityFunc)(HANDLE hProcess, DWORD mask);
 
 #include <errno.h>
 
-#ifdef USE_SDL
-#include "SDL.h"
-#endif
-
 #include "doomdef.h"
 #include "m_argv.h"
 #include "d_main.h"

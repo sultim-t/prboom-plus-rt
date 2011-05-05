@@ -36,9 +36,8 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#ifdef USE_SDL
 #include "SDL.h"
-#endif
+
 #include "doomstat.h"
 #include "d_net.h"
 #include "w_wad.h"
