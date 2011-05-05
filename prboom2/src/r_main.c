@@ -37,9 +37,6 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#ifdef USE_SDL
-#include "SDL.h"
-#endif
 #include "doomstat.h"
 #include "d_net.h"
 #include "w_wad.h"
@@ -537,7 +534,7 @@ boolean rendering_stats;
 static void R_ShowStats(void)
 {
 //e6y
-#if 0 // USE_SDL
+#if 0 // requires abstraction e.g. src/*/i_system.c:I_GetTicks
   static unsigned int FPS_SavedTick = 0, FPS_FrameCount = 0;
   unsigned int tick = SDL_GetTicks();
   FPS_FrameCount++;

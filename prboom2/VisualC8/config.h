@@ -121,9 +121,6 @@
 /* Define for support for MBF helper dogs */
 #define DOGS 1
 
-/* Define if you want to compile with SDL  */
-#define USE_SDL 1
-
 #define MONITOR_VISIBILITY 1
 
 /* Define if you want to use the gluTesselator  */

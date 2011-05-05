@@ -44,7 +44,6 @@
 /*#define DISABLE_LUMP_CACHING*/
 
 /**/
-#define USE_SDL 1
 /*#define HAVE_MIXER 1*/
 #define HAVE_NET 1
 #define USE_SDL_NET 1
