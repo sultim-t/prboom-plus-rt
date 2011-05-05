@@ -1,6 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT([PrBoom-Plus],[2.5.0.9],[],[prboom-plus])
 
+AC_CONFIG_HEADER(config.h)
 AC_CONFIG_AUX_DIR(autotools)
 AC_CONFIG_MACRO_DIR(autotools)
 
@@ -9,7 +10,8 @@ AC_CANONICAL_TARGET
 
 dnl --- Fire up automake
 AM_INIT_AUTOMAKE([foreign -Woverride -Wobsolete -Wportability -Wsyntax -Wunsupported])
-AM_CONFIG_HEADER(config.h)
+ifdef([AM_SILENT_RULES],[AM_SILENT_RULES(yes)])
+AM_MAINTAINER_MODE([enable])
 
 AC_MSG_CHECKING([checking whether to use x86 asm versions of some functions])
 AC_ARG_ENABLE(i386-asm,AC_HELP_STRING([--disable-i386-asm],[Do not use i386 assembly]),,[
