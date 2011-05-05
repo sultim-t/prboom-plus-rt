@@ -303,7 +303,7 @@ while (SDL_PollEvent(Event))
     UpdateFocus();
     break;
   
-  case SDL_RESIZABLE:
+  case SDL_VIDEORESIZE:
     resize_event = *Event;
     resize_time = SDL_GetTicks();
     break;
