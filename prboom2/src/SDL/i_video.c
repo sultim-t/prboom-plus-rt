@@ -221,16 +221,25 @@ while (SDL_PollEvent(Event))
 {
   switch (Event->type) {
   case SDL_KEYDOWN:
-#ifdef _WIN32
+#ifdef MACOSX
+    if (Event->key.keysym.mod & KMOD_META)
+    {
+      // Switch windowed<->fullscreen if pressed <Command-F>
+      if (Event->key.keysym.sym == SDLK_f)
+      {
+        V_ChangeFullScreen();
+        break;
+      }
+    }
+#else
     if (Event->key.keysym.mod & KMOD_LALT)
     {
-      // Eating of Alt-Tab event to prevent switching to the automap
-      // after task switching on Windows
+      // Prevent executing action on Alt-Tab
       if (Event->key.keysym.sym == SDLK_TAB)
       {
         break;
       }
-      //Alt-Enter: fullscreen <-> windowed
+      // Switch windowed<->fullscreen if pressed Alt-Enter
       else if (Event->key.keysym.sym == SDLK_RETURN)
       {
         V_ChangeFullScreen();
