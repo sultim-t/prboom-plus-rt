@@ -1,5 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT([prboom],[2.5.0])
+AC_CONFIG_HEADER(config.h)
 AC_CONFIG_AUX_DIR(autotools)
 AC_CONFIG_MACRO_DIR(autotools)
 
@@ -8,7 +9,6 @@ AC_CANONICAL_TARGET
 
 dnl --- Fire up automake
 AM_INIT_AUTOMAKE([check-news foreign -Woverride -Wobsolete -Wportability -Wsyntax -Wunsupported])
-AM_CONFIG_HEADER(config.h)
 ifdef([AM_SILENT_RULES],[AM_SILENT_RULES(yes)])
 AM_MAINTAINER_MODE([enable])
 
