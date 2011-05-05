@@ -9,6 +9,7 @@ AC_CANONICAL_TARGET
 dnl --- Fire up automake
 AM_INIT_AUTOMAKE([check-news foreign -Woverride -Wobsolete -Wportability -Wsyntax -Wunsupported])
 AM_CONFIG_HEADER(config.h)
+ifdef([AM_SILENT_RULES],[AM_SILENT_RULES(yes)])
 
 AC_ARG_WITH(waddir,AC_HELP_STRING([--with-waddir],[Path to install prboom.wad and look for other WAD files]),
 DOOMWADDIR="$withval",
