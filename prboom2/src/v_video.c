@@ -1688,7 +1688,7 @@ int V_BestColor(const unsigned char *palette, int r, int g, int b)
 }
 
 // Alt-Enter: fullscreen <-> windowed
-void V_ChangeFullScreen(void)
+void V_ToggleFullscreen(void)
 {
   if (desired_fullscreen == use_fullscreen)
   {

@@ -3226,7 +3226,7 @@ void M_Trans(void) // To reset translucency after setting it in menu
 // To (un)set fullscreen video after menu changes
 void M_ChangeFullScreen(void)
 {
-  V_ChangeFullScreen();
+  V_ToggleFullscreen();
 }
 
 void M_ChangeScreenResolution(void)

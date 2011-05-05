@@ -227,7 +227,7 @@ while (SDL_PollEvent(Event))
       // Switch windowed<->fullscreen if pressed <Command-F>
       if (Event->key.keysym.sym == SDLK_f)
       {
-        V_ChangeFullScreen();
+        V_ToggleFullscreen();
         break;
       }
     }
@@ -242,7 +242,7 @@ while (SDL_PollEvent(Event))
       // Switch windowed<->fullscreen if pressed Alt-Enter
       else if (Event->key.keysym.sym == SDLK_RETURN)
       {
-        V_ChangeFullScreen();
+        V_ToggleFullscreen();
         break;
       }
     }
