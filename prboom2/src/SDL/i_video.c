@@ -73,6 +73,7 @@
 #include "w_wad.h"
 #include "st_stuff.h"
 #include "am_map.h"
+#include "g_game.h"
 #include "lprintf.h"
 
 #include "i_simd.h"
@@ -83,6 +84,9 @@
 static SDL_Cursor* cursors[2] = {NULL, NULL};
 
 dboolean window_focused;
+
+// Window resize state.
+static void ApplyWindowResize(SDL_Event *resize_event);
 
 char *sdl_videodriver;
 char *sdl_video_window_pos;
@@ -215,7 +219,12 @@ static void I_GetEvent(void)
 
   SDL_Event SDLEvent;
   SDL_Event *Event = &SDLEvent;
+
   static int mwheeluptic = 0, mwheeldowntic = 0;
+
+  // Window resize state.
+  static unsigned int resize_time = 0;
+  static SDL_Event resize_event;
 
 while (SDL_PollEvent(Event))
 {
@@ -293,6 +302,11 @@ while (SDL_PollEvent(Event))
   case SDL_ACTIVEEVENT:
     UpdateFocus();
     break;
+  
+  case SDL_RESIZABLE:
+    resize_event = *Event;
+    resize_time = SDL_GetTicks();
+    break;
 
   case SDL_QUIT:
     S_StartSound(NULL, sfx_swtchn);
@@ -317,6 +331,12 @@ while (SDL_PollEvent(Event))
     event.data1 = KEYD_MWHEELDOWN;
     D_PostEvent(&event);
     mwheeldowntic = 0;
+  }
+
+  if (resize_time && SDL_GetTicks() > resize_time + 500)
+  {
+    ApplyWindowResize(&resize_event);
+    resize_time = 0;
   }
 }
 
@@ -753,14 +773,19 @@ static void I_ClosestResolution (int *width, int *height, int flags)
   SDL_Rect **modes;
   int twidth, theight;
   int cwidth = 0, cheight = 0;
-//  int iteration;
   int i;
   unsigned int closest = UINT_MAX;
   unsigned int dist;
 
   modes = SDL_ListModes(NULL, flags);
 
-  //for (iteration = 0; iteration < 2; iteration++)
+  if (modes == (SDL_Rect **)-1)
+  {
+    // any dimension is okay for the given format
+    return;
+  }
+
+  if (modes)
   {
     for(i=0; modes[i]; ++i)
     {
@@ -1168,6 +1193,14 @@ void I_UpdateVideoMode(void)
   if ( desired_fullscreen )
     init_flags |= SDL_FULLSCREEN;
 
+  // In windowed mode, the window can be resized while the game is
+  // running.  This feature is disabled on OS X, as it adds an ugly
+  // scroll handle to the corner of the screen.
+#ifndef MACOSX
+  if (!desired_fullscreen)
+    init_flags |= SDL_RESIZABLE;
+#endif
+
   if (sdl_video_window_pos && sdl_video_window_pos[0])
   {
     char buf[80];
@@ -1451,4 +1484,37 @@ void UpdateGrab(void)
   }
 
   currently_grabbed = grab;
+}
+
+static void ApplyWindowResize(SDL_Event *resize_event)
+{
+  int w = MAX(320, resize_event->resize.w);
+  int h = MAX(200, resize_event->resize.h);
+
+  if (screen_resolution)
+  {
+    SDLMod mod = SDL_GetModState();
+    if (!(mod & KMOD_SHIFT))
+    {
+      // Find the biggest screen mode that will fall within these
+      // dimensions, falling back to the smallest mode possible if
+      // none is found.
+
+      Uint32 flags = SDL_FULLSCREEN;
+
+      if (V_GetMode() == VID_MODEGL)
+        flags |= SDL_OPENGL;
+
+      I_ClosestResolution(&w, &h, flags);
+
+      w = MAX(320, w);
+      h = MAX(200, h);
+    }
+
+    sprintf((char*)screen_resolution, "%dx%d", w, h);
+
+    V_ChangeScreenResolution();
+
+    doom_printf("Resize to %dx%d", w, h);
+  }
 }
