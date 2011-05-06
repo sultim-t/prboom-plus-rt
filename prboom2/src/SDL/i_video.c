@@ -631,6 +631,7 @@ void I_InitBuffersRes(void)
 
 #define MAX_RESOLUTIONS_COUNT 128
 const char *screen_resolutions_list[MAX_RESOLUTIONS_COUNT] = {NULL};
+const char *screen_resolution_lowest;
 const char *screen_resolution = NULL;
 
 //
@@ -702,6 +703,11 @@ static void I_FillScreenResolutionsList(void)
       int in_list = false;
 
       SNPRINTF(mode, sizeof(mode), "%dx%d", modes[i]->w, modes[i]->h);
+
+      if (i == count - 1)
+      {
+        screen_resolution_lowest = strdup(mode);
+      }
       
       for(j = 0; j < list_size; j++)
       {
@@ -1477,6 +1483,9 @@ void UpdateGrab(void)
 
 static void ApplyWindowResize(SDL_Event *resize_event)
 {
+  int i, k;
+  char mode[80];
+
   int w = MAX(320, resize_event->resize.w);
   int h = MAX(200, resize_event->resize.h);
 
@@ -1499,7 +1508,40 @@ static void ApplyWindowResize(SDL_Event *resize_event)
     w = MAX(320, w);
     h = MAX(200, h);
 
-    sprintf((char*)screen_resolution, "%dx%d", w, h);
+    sprintf(mode, "%dx%d", w, h);
+    screen_resolution = screen_resolutions_list[0];
+    for (i = 0; i < MAX_RESOLUTIONS_COUNT; i++)
+    {
+      if (screen_resolutions_list[i])
+      {
+        if (!strcmp(mode, screen_resolutions_list[i]))
+        {
+          screen_resolution = screen_resolutions_list[i];
+          break;
+        }
+      }
+    }
+
+    // custom resolution
+    if (screen_resolution == screen_resolutions_list[0])
+    {
+      if (screen_resolution_lowest &&
+          !strcmp(screen_resolution_lowest, screen_resolutions_list[0]))
+      {
+        // there is no "custom resolution" entry in the list
+        for(k = MAX_RESOLUTIONS_COUNT - 1; k > 0; k--)
+        {
+          screen_resolutions_list[k] = screen_resolutions_list[k - 1];
+        }
+        // add it
+        screen_resolutions_list[0] = strdup(mode);
+        screen_resolution = screen_resolutions_list[0];
+      }
+      else
+      {
+        sprintf((char*)screen_resolution, mode);
+      }
+    }
 
     V_ChangeScreenResolution();
 
