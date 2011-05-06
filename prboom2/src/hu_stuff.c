@@ -220,7 +220,6 @@ dboolean           message_dontfuckwithme;
 static dboolean    message_nottobefuckedwith;
 static int        message_counter;
 extern int        showMessages;
-extern dboolean    automapactive;
 static dboolean    headsupactive = false;
 
 //jff 2/16/98 hud supported automap colors added
