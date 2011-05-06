@@ -52,6 +52,8 @@ typedef BOOL (WINAPI *SetAffinityFunc)(HANDLE hProcess, DWORD mask);
 
 #include <errno.h>
 
+#include "TEXTSCREEN/txt_main.h"
+
 #include "doomdef.h"
 #include "m_argv.h"
 #include "d_main.h"
@@ -75,7 +77,6 @@ typedef BOOL (WINAPI *SetAffinityFunc)(HANDLE hProcess, DWORD mask);
 
 #include "i_simd.h"
 #include "e6y.h"
-#include "TEXTSCREEN/txt_main.h"
 
 /* Most of the following has been rewritten by Lee Killough
  *
