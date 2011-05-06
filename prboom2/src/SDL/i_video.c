@@ -222,10 +222,6 @@ static void I_GetEvent(void)
 
   static int mwheeluptic = 0, mwheeldowntic = 0;
 
-  // Window resize state.
-  static unsigned int resize_time = 0;
-  static SDL_Event resize_event;
-
 while (SDL_PollEvent(Event))
 {
   switch (Event->type) {
@@ -304,8 +300,7 @@ while (SDL_PollEvent(Event))
     break;
   
   case SDL_VIDEORESIZE:
-    resize_event = *Event;
-    resize_time = SDL_GetTicks();
+    ApplyWindowResize(Event);
     break;
 
   case SDL_QUIT:
@@ -331,12 +326,6 @@ while (SDL_PollEvent(Event))
     event.data1 = KEYD_MWHEELDOWN;
     D_PostEvent(&event);
     mwheeldowntic = 0;
-  }
-
-  if (resize_time && SDL_GetTicks() > resize_time + 500)
-  {
-    ApplyWindowResize(&resize_event);
-    resize_time = 0;
   }
 }
 
@@ -1493,8 +1482,7 @@ static void ApplyWindowResize(SDL_Event *resize_event)
 
   if (screen_resolution)
   {
-    SDLMod mod = SDL_GetModState();
-    if (!(mod & KMOD_SHIFT))
+    if (!(SDL_GetModState() & KMOD_SHIFT))
     {
       // Find the biggest screen mode that will fall within these
       // dimensions, falling back to the smallest mode possible if
@@ -1506,15 +1494,15 @@ static void ApplyWindowResize(SDL_Event *resize_event)
         flags |= SDL_OPENGL;
 
       I_ClosestResolution(&w, &h, flags);
-
-      w = MAX(320, w);
-      h = MAX(200, h);
     }
+
+    w = MAX(320, w);
+    h = MAX(200, h);
 
     sprintf((char*)screen_resolution, "%dx%d", w, h);
 
     V_ChangeScreenResolution();
 
-    doom_printf("Resize to %dx%d", w, h);
+    doom_printf("%dx%d", w, h);
   }
 }
