@@ -418,6 +418,8 @@ void gld_Init(int width, int height)
     gld_LoadGLDefs("GLDEFS");
   }
 
+  gld_ResetLastTexture();
+
   atexit(gld_CleanMemory); //e6y
 }
 
