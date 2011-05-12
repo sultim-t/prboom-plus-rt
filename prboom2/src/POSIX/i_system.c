@@ -121,7 +121,7 @@ const char* I_GetVersionString(char* buf, size_t sz)
  */
 const char* I_SigString(char* buf, size_t sz, int signum)
 {
-#ifdef HAVE_DECL_SYS_SIGLIST
+#if HAVE_DECL_SYS_SIGLIST // NSM: automake defines this symbol as 0 or 1
   if (strlen(sys_siglist[signum]) < sz)
     strcpy(buf,sys_siglist[signum]);
   else
