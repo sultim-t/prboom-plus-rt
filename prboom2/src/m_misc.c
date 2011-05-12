@@ -654,6 +654,10 @@ default_t defaults[] =
    0,MAX_KEY,def_key,ss_keys}, // key to switch to weapon 8 (chainsaw)        //    |
   {"key_weapon9",     {&key_weapon9},         {'9'}            ,
    0,MAX_KEY,def_key,ss_keys}, // key to switch to weapon 9 (supershotgun)    // phares
+  {"key_nextweapon",  {&key_nextweapon},      {KEYD_MWHEELUP}  ,
+   0,MAX_KEY,def_key,ss_keys}, // key to cycle to the next weapon
+  {"key_prevweapon",  {&key_prevweapon},      {KEYD_MWHEELDOWN},
+   0,MAX_KEY,def_key,ss_keys}, // key to cycle to the previous weapon
 
   // killough 2/22/98: screenshot key
   {"key_screenshot",  {&key_screenshot},      {'*'}            ,

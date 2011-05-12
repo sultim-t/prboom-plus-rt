@@ -225,6 +225,8 @@ int     key_weapon6;
 int     key_weapon7;                                                //    ^
 int     key_weapon8;                                                //    |
 int     key_weapon9;                                                // phares
+int     key_nextweapon;
+int     key_prevweapon;
 
 int     key_screenshot;             // killough 2/22/98: screenshot key
 int     mousebfire;
@@ -251,6 +253,28 @@ fixed_t angleturn[3]   = {640, 1280, 320};  // + slow turn
 //e6y static
 dboolean gamekeydown[NUMKEYS];
 static int     turnheld;       // for accelerative turning
+
+// Set to -1 or +1 to switch to the previous or next weapon.
+
+static int next_weapon = 0;
+
+// Used for prev/next weapon keys.
+
+static const struct
+{
+  weapontype_t weapon;
+  weapontype_t weapon_num;
+} weapon_order_table[] = {
+  { wp_fist,         wp_fist },
+  { wp_chainsaw,     wp_fist },
+  { wp_pistol,       wp_pistol },
+  { wp_shotgun,      wp_shotgun },
+  { wp_supershotgun, wp_shotgun },
+  { wp_chaingun,     wp_chaingun },
+  { wp_missile,      wp_missile },
+  { wp_plasma,       wp_plasma },
+  { wp_bfg,          wp_bfg }
+};
 
 static dboolean mousearray[6];
 static dboolean *mousebuttons = &mousearray[1];    // allow [-1]
@@ -325,6 +349,63 @@ static inline signed short fudgea(signed short b)
   }
 }
 
+static dboolean WeaponSelectable(weapontype_t weapon)
+{
+  if (gamemode == shareware)
+  {
+    if (weapon == wp_plasma || weapon == wp_bfg)
+      return false;
+  }
+
+  // Can't select the super shotgun in Doom 1.
+  if (weapon == wp_supershotgun && gamemission == doom)
+  {
+    return false;
+  }
+
+  // Can't select a weapon if we don't own it.
+  if (!players[consoleplayer].weaponowned[weapon])
+  {
+    return false;
+  }
+
+  return true;
+}
+
+static int G_NextWeapon(int direction)
+{
+  weapontype_t weapon;
+  int i, arrlen;
+
+  // Find index in the table.
+  if (players[consoleplayer].pendingweapon == wp_nochange)
+  {
+    weapon = players[consoleplayer].readyweapon;
+  }
+  else
+  {
+    weapon = players[consoleplayer].pendingweapon;
+  }
+
+  arrlen = sizeof(weapon_order_table) / sizeof(*weapon_order_table);
+  for (i = 0; i < arrlen; i++)
+  {
+    if (weapon_order_table[i].weapon == weapon)
+    {
+      break;
+    }
+  }
+
+  // Switch weapon.
+  do
+  {
+    i += direction;
+    i = (i + arrlen) % arrlen;
+  }
+  while (!WeaponSelectable(weapon_order_table[i].weapon));
+
+  return weapon_order_table[i].weapon_num;
+}
 
 void G_BuildTiccmd(ticcmd_t* cmd)
 {
@@ -444,6 +525,13 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     newweapon = P_SwitchWeapon(&players[consoleplayer]);           // phares
   else
     {                                 // phares 02/26/98: Added gamemode checks
+      if (next_weapon)
+      {
+        newweapon = G_NextWeapon(next_weapon);
+        next_weapon = 0;
+      }
+      else
+      {
       newweapon =
         gamekeydown[key_weapon1] ? wp_fist :    // killough 5/2/98: reformatted
         gamekeydown[key_weapon2] ? wp_pistol :
@@ -455,6 +543,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         gamekeydown[key_weapon8] ? wp_chainsaw :
         (!demo_compatibility && gamekeydown[key_weapon9] && gamemode == commercial) ? wp_supershotgun :
         wp_nochange;
+      }
 
       // killough 3/22/98: For network and demo consistency with the
       // new weapons preferences, we must do the weapons switches here
@@ -497,6 +586,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
             newweapon = wp_supershotgun;
         }
       // killough 2/8/98, 3/22/98 -- end of weapon selection changes
+      //}
     }
 
   if (newweapon != wp_nochange)
@@ -802,6 +892,20 @@ dboolean G_Responder (event_t* ev)
 
   if (gamestate == GS_FINALE && F_Responder(ev))
     return true;  // finale ate the event
+
+  // If the next/previous weapon keys are pressed, set the next_weapon
+  // variable to change weapons when the next ticcmd is generated.
+  if (ev->type == ev_keydown)
+  {
+    if (ev->data1 == key_prevweapon)
+    {
+      next_weapon = -1;
+    }
+    else if (ev->data1 == key_nextweapon)
+    {
+      next_weapon = 1;
+    }
+  }
 
   switch (ev->type)
     {
