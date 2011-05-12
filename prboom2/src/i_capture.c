@@ -306,13 +306,14 @@ static void my_pclose3 (pipeinfo_t *p)
 #else // _WIN32
 // posix implementation
 // not tested
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
 
 typedef struct
 {
-  int pid
+  int pid;
 } puser_t;
 
 
@@ -381,7 +382,7 @@ static int my_popen3 (pipeinfo_t *p)
     goto fail;
 
   close (child_hin);
-  close (child_out);
+  close (child_hout);
   close (child_herr);
 
   puser->pid = pid;
@@ -415,7 +416,7 @@ static int my_popen3 (pipeinfo_t *p)
 
 static void my_pclose3 (pipeinfo_t *p)
 {
-  puser_t *puser = (puser_t *) user;
+  puser_t *puser = (puser_t *) p->user;
 
   int s;
 
