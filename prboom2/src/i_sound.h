@@ -80,6 +80,13 @@ dboolean I_AnySoundStillPlaying(void);
 //  and pitch of a sound channel.
 void I_UpdateSoundParams(int handle, int vol, int sep, int pitch);
 
+// NSM sound capture routines
+// silences sound output, and instead allows sound capture to work
+// call this before sound startup
+void I_SetSoundCap (void);
+// grabs len samples of audio (16 bit interleaved)
+char *I_GrabSound (int len);
+
 //
 //  MUSIC I/O
 //

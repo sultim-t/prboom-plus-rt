@@ -106,6 +106,7 @@ gl_fbo.c
 hu_lib.c
 hu_stuff.c
 hu_tracers.c
+i_capture.c
 icon.c
 info.c
 lprintf.c

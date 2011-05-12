@@ -500,6 +500,14 @@ SOURCE=..\src\hu_tracers.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\i_capture.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\i_capture.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\SDL\i_joy.c
 # End Source File
 # Begin Source File

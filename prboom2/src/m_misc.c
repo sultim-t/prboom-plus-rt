@@ -83,6 +83,9 @@
 #include "e6y_launcher.h"
 #endif
 
+// NSM
+#include "i_capture.h"
+
 /* cph - disk icon not implemented */
 static inline void I_BeginRead(void) {}
 static inline void I_EndRead(void) {}
@@ -907,6 +910,15 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"screenshot_dir", {NULL,&screenshot_dir}, {0,""},UL,UL,
    def_str,ss_none},
+
+  // NSM
+  {"Video capture encoding settings",{NULL},{0},UL,UL,def_none,ss_none},
+  {"cap_soundcommand",{NULL, &cap_soundcommand},{0,"ffmpeg -f s16le -ar %s -ac 2 -i pipe:0 -acodec libvorbis -f ogg -aq 5 output.ogg"},UL,UL,def_str,ss_none},
+  {"cap_videocommand",{NULL, &cap_videocommand},{0,"ffmpeg -f rawvideo -pix_fmt rgb24 -s %wx%h -r 35 -i pipe:0 -vcodec libx264 -f mp4 -fpre ./libx264-baseline.ffpreset -crf 22 output.mp4"},UL,UL,def_str,ss_none},
+  {"cap_muxcommand",{NULL, &cap_muxcommand},{0,"ffmpeg -i output.ogg -i output.mp4 -vcodec copy -acodec copy %f"},UL,UL,def_str,ss_none},
+  {"cap_tempfile1",{NULL, &cap_tempfile1},{0,"output.ogg"},UL,UL,def_str,ss_none},
+  {"cap_tempfile2",{NULL, &cap_tempfile2},{0,"output.mp4"},UL,UL,def_str,ss_none},
+  {"cap_remove_tempfiles", {&cap_remove_tempfiles},{1},0,1,def_bool,ss_none},
 
   {"Prboom-plus video settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"sdl_videodriver", {NULL,&sdl_videodriver}, {0,"default"},UL,UL,

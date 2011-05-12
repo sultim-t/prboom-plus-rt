@@ -62,6 +62,8 @@ void I_UpdateNoBlit (void);
 void I_FinishUpdate (void);
 
 int I_ScreenShot (const char *fname);
+// NSM expose lower level screen data grab for vidcap
+unsigned char *I_GrabScreen (void);
 
 /* I_StartTic
  * Called by D_DoomLoop,

@@ -1037,17 +1037,29 @@ void gld_SetPalette(int palette)
 }
 
 unsigned char *gld_ReadScreen(void)
-{
-  unsigned char *scr = NULL;
-  unsigned char *buffer;
-  int i;
+{ // NSM convert to static
+  static unsigned char *scr = NULL;
+  static unsigned char *buffer = NULL;
+  static int scr_size = 0;
+  static int buffer_size = 0;
 
-  buffer = malloc(SCREENWIDTH * 3);
-  if (buffer)
+  int i, size;
+
+  size = SCREENWIDTH * 3;
+  if (!buffer || size > buffer_size)
   {
-    scr = malloc(SCREENWIDTH * SCREENHEIGHT * 3);
-    if (scr)
-    {
+    buffer_size = size;
+    buffer = realloc (buffer, size);
+  }
+  size = SCREENWIDTH * SCREENHEIGHT * 3;
+  if (!scr || size > scr_size)
+  {
+    scr_size = size;
+    scr = realloc (scr, size);
+  }
+
+  if (buffer && scr)
+  {
       GLint pack_aligment;
       glGetIntegerv(GL_PACK_ALIGNMENT, &pack_aligment);
       glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -1067,8 +1079,6 @@ unsigned char *gld_ReadScreen(void)
         memcpy(&scr[(SCREENHEIGHT-(i+1))*SCREENWIDTH*3], buffer, SCREENWIDTH*3);
       }
     }
-    free(buffer);
-  }
 
   return scr;
 }

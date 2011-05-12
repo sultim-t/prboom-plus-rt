@@ -218,7 +218,7 @@ static int screenshot_gl(png_struct *png_ptr, png_info *info_ptr)
       png_write_row(png_ptr, pixel_data + y*SCREENWIDTH*3);
     png_write_end(png_ptr, info_ptr);
 
-    free(pixel_data);
+    //free(pixel_data); //static buffer
     return 0;
   }
   else
@@ -320,7 +320,7 @@ int I_ScreenShot (const char *fname)
         result = SDL_SaveBMP(surface, fname);
         SDL_FreeSurface(surface);
       }
-      free(pixel_data);
+      //free(pixel_data); // static buffer
     }
     return result;
   } else
@@ -329,3 +329,73 @@ int I_ScreenShot (const char *fname)
 }
 
 #endif // HAVE_LIBPNG
+
+// NSM
+// returns current screern contents as RGB24 (raw)
+// returned pointer should be freed when done
+
+unsigned char *I_GrabScreen (void)
+{
+  static unsigned char *pixel_data = NULL;
+  static int pixel_data_size = 0;
+  int size;
+
+  size = SCREENWIDTH * SCREENHEIGHT * 3;
+  if (!pixel_data || size > pixel_data_size)
+  {
+    pixel_data_size = size;
+    pixel_data = realloc(pixel_data, size);
+  }
+
+  #ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL)
+  {
+    return gld_ReadScreen();
+  }
+  #endif
+
+  if (pixel_data)
+  {
+    SDL_Surface *scr = SDL_GetVideoSurface();
+    SDL_PixelFormat *fmt = scr->format;
+    SDL_Palette *pal = fmt->palette;
+    unsigned char *pixel_src = (unsigned char *) scr->pixels;
+
+    int lock_needed = SDL_MUSTLOCK(scr);
+    int lock_was_successful = 0;
+
+    if (!lock_needed || SDL_LockSurface(scr) >= 0)
+    {
+      // While the screen is locked write it into a buffer
+      unsigned char *s = pixel_data;
+      int i;
+
+      if (pal) // 8bpp
+      {
+        for (i = 0; i < SCREENWIDTH * SCREENHEIGHT; i++)
+        {
+          *s++ = pal->colors[pixel_src[i]].r;
+          *s++ = pal->colors[pixel_src[i]].g;
+          *s++ = pal->colors[pixel_src[i]].b;
+        }
+      }
+      else // high/truecolor
+      {
+        for (i = 0; i < SCREENWIDTH * SCREENHEIGHT; i++)
+        {
+          Uint32 p = *(Uint32 *) (pixel_src + i * fmt->BytesPerPixel);
+          *s++ = (unsigned char) (((p & fmt->Rmask)>>fmt->Rshift)<<fmt->Rloss);
+          *s++ = (unsigned char) (((p & fmt->Gmask)>>fmt->Gshift)<<fmt->Gloss);
+          *s++ = (unsigned char) (((p & fmt->Bmask)>>fmt->Bshift)<<fmt->Bloss);
+        }
+      }
+
+      if (lock_needed)
+        SDL_UnlockSurface(scr);
+    }
+  }
+  return pixel_data;
+}
+
+
+

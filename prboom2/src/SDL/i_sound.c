@@ -130,6 +130,9 @@ int   steptable[256];
 // Volume lookups.
 int   vol_lookup[128*256];
 
+// NSM
+static int dumping_sound = 0;
+
 /* cph
  * stopchan
  * Stops a sound, unlocks the data
@@ -432,6 +435,13 @@ static void I_UpdateSound(void *unused, Uint8 *stream, int len)
   // Mixing channel index.
   int       chan;
 
+  // NSM: when dumping sound, ignore the callback calls and only
+  // service dumping calls
+  if (dumping_sound && unused != (void *) 0xdeadbeef)
+    return;
+
+
+
   if (snd_pcspeaker)
     return;
 
@@ -616,6 +626,39 @@ void I_InitSound(void)
 }
 
 
+// NSM sound capture routines
+
+// silences sound output, and instead allows sound capture to work
+// call this before sound startup
+void I_SetSoundCap (void)
+{
+  dumping_sound = 1;
+}
+
+// grabs len samples of audio (16 bit interleaved)
+char *I_GrabSound (int len)
+{
+  static char *buffer = NULL;
+  static int buffer_size = 0;
+  int size;
+
+  if (!dumping_sound)
+    return NULL;
+
+  size = len * 4;
+  if (!buffer || size > buffer_size)
+  {
+    buffer_size = size * 4;
+    buffer = realloc (buffer, buffer_size);
+  }
+
+  if (buffer)
+  {
+    memset (buffer, 0, size);
+    I_UpdateSound ((void *) 0xdeadbeef, buffer, size);
+  }
+  return buffer;
+}
 
 
 //

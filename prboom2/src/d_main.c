@@ -92,6 +92,9 @@
 #include "e6y_launcher.h"
 #endif
 
+// NSM
+#include "i_capture.h"
+
 void GetFirstMap(int *ep, int *map); // Ty 08/29/98 - add "-warp x" functionality
 static void D_PageDrawer(void);
 
@@ -481,8 +484,12 @@ static void D_DoomLoop(void)
         sprintf(avi_shot_curr_fname, "%s%06.6i.tga", avi_shot_fname, avi_shot_num);
         M_DoScreenShot(avi_shot_curr_fname);
       }
-
-    }
+      // NSM
+      if (capturing_video && !doSkip)
+      {
+        I_CaptureFrame ();
+      }
+}
 }
 
 //
@@ -1673,6 +1680,12 @@ static void D_DoomMainSetup(void)
     LauncherShow(demo_footer);
 #endif
   }
+  // NSM
+  if ((p = M_CheckParm("-viddump")) && (p < myargc-1))
+  {
+    I_CapturePrep (myargv[p + 1]);
+  }
+
 
   // 1/18/98 killough: Z_Init() call moved to i_main.c
 
