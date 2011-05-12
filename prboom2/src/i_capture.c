@@ -45,7 +45,7 @@ static const char *vid_fname;
 
 typedef struct
 { // information on a running pipe
-  char command[MAX_PATH];
+  char command[PATH_MAX];
   FILE *f_stdin;
   FILE *f_stdout;
   FILE *f_stderr;
@@ -488,19 +488,19 @@ void I_CapturePrep (const char *fn)
 {
   vid_fname = fn;
 
-  if (!parsecommand (soundpipe.command, cap_soundcommand, MAX_PATH))
+  if (!parsecommand (soundpipe.command, cap_soundcommand, sizeof(soundpipe.command)))
   {
     lprintf (LO_ERROR, "I_CapturePrep: malformed command %s\n", cap_soundcommand);
     capturing_video = 0;
     return;
   }
-  if (!parsecommand (videopipe.command, cap_videocommand, MAX_PATH))
+  if (!parsecommand (videopipe.command, cap_videocommand, sizeof(videopipe.command)))
   {
     lprintf (LO_ERROR, "I_CapturePrep: malformed command %s\n", cap_videocommand);
     capturing_video = 0;
     return;
   }
-  if (!parsecommand (muxpipe.command, cap_muxcommand, MAX_PATH))
+  if (!parsecommand (muxpipe.command, cap_muxcommand, sizeof(muxpipe.command)))
   {
     lprintf (LO_ERROR, "I_CapturePrep: malformed command %s\n", cap_muxcommand);
     capturing_video = 0;
