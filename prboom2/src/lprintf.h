@@ -66,11 +66,6 @@ void Done_ConsoleWin(void);
 #endif
 
 // e6y
-// #ifdef HAVE_SNPRINTF
-//   snprintf(s, n, format, ...);
-// #else
-//   sprintf(s, format, ...);
-// #endif
 int SNPRINTF(char *s, size_t n, const char *format, ...);
 
 #endif
