@@ -231,4 +231,7 @@ void gld_ProcessTexturedMap(void);
 void gld_ResetTexturedAutomap(void);
 void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my, int fw, int fh, fixed_t scale);
 
+void gld_Init8InGLMode(void);
+void gld_Draw8InGL(void);
+
 #endif // _GL_STRUCT_H

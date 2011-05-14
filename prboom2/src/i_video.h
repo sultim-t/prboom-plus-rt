@@ -97,4 +97,26 @@ extern int try_to_reduce_cpu_cache_misses;
 extern dboolean window_focused;
 void UpdateGrab(void);
 
+typedef SDL_Surface;
+typedef struct vid_8ingl_s
+{
+  int enabled;
+
+  SDL_Surface *screen;
+  SDL_Surface *surface;
+
+  int texid;
+  int pboids[2];
+
+  int width, height, size;
+  unsigned char *buf;
+
+  byte *colours;
+  int palette;
+
+  float fU1, fU2, fV1, fV2;
+} vid_8ingl_t;
+
+extern vid_8ingl_t vid_8ingl;
+
 #endif

@@ -195,6 +195,7 @@ extern int gl_ext_packed_depth_stencil_default;
 extern int gl_ext_blend_color_default;
 extern int gl_use_stencil_default;
 extern int gl_ext_arb_vertex_buffer_object_default;
+extern int gl_arb_pixel_buffer_object_default;
 
 //e6y: motion bloor
 extern int gl_motionblur;
@@ -435,6 +436,8 @@ default_t defaults[] =
   {"gl_arb_texture_non_power_of_two", {&gl_arb_texture_non_power_of_two_default}, {1},0,1,
    def_bool,ss_stat},
   {"gl_ext_arb_vertex_buffer_object", {&gl_ext_arb_vertex_buffer_object_default}, {1},0,1,
+   def_bool,ss_stat},
+  {"gl_arb_pixel_buffer_object", {&gl_arb_pixel_buffer_object_default}, {1},0,1,
    def_bool,ss_stat},
   {"gl_ext_blend_color", {&gl_ext_blend_color_default}, {1},0,1,
    def_bool,ss_stat},

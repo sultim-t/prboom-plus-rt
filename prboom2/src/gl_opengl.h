@@ -84,6 +84,7 @@ extern dboolean gl_ext_packed_depth_stencil;
 extern dboolean gl_ext_blend_color;
 extern dboolean gl_use_stencil;
 extern dboolean gl_ext_arb_vertex_buffer_object;
+extern dboolean gl_arb_pixel_buffer_object;
 
 // obsolete?
 extern PFNGLCOLORTABLEEXTPROC              GLEXT_glColorTableEXT;
@@ -115,6 +116,12 @@ extern PFNGLGENBUFFERSARBPROC              GLEXT_glGenBuffersARB;
 extern PFNGLDELETEBUFFERSARBPROC           GLEXT_glDeleteBuffersARB;
 extern PFNGLBINDBUFFERARBPROC              GLEXT_glBindBufferARB;
 extern PFNGLBUFFERDATAARBPROC              GLEXT_glBufferDataARB;
+
+/* PBO */
+extern PFNGLBUFFERSUBDATAARBPROC           GLEXT_glBufferSubDataARB;
+extern PFNGLGETBUFFERPARAMETERIVARBPROC    GLEXT_glGetBufferParameterivARB;
+extern PFNGLMAPBUFFERARBPROC               GLEXT_glMapBufferARB;
+extern PFNGLUNMAPBUFFERARBPROC             GLEXT_glUnmapBufferARB;
 
 void gld_InitOpenGL(dboolean compatibility_mode);
 

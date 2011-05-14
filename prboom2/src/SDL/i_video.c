@@ -75,6 +75,7 @@
 #include "am_map.h"
 #include "g_game.h"
 #include "lprintf.h"
+#include "gl_struct.h"
 
 #include "i_simd.h"
 #include "r_screenmultiply.h"
@@ -111,6 +112,7 @@ int use_doublebuffer = 1; // Included not to break m_misc, but not relevant to S
 int use_fullscreen;
 int desired_fullscreen;
 SDL_Surface *screen;
+vid_8ingl_t vid_8ingl;
 
 ////////////////////////////////////////////////////////////////////////////
 // Input code
@@ -427,13 +429,25 @@ static void I_UploadNewPalette(int pal)
     if (!colours) {
       // First call - allocate and prepare colour array
       colours = malloc(sizeof(*colours)*num_pals);
+      vid_8ingl.colours = malloc(sizeof(vid_8ingl.colours[0]) * 4 * num_pals);
     }
 
     // set the colormap entries
     for (i=0 ; (size_t)i<num_pals ; i++) {
-      colours[i].r = gtable[palette[0]];
-      colours[i].g = gtable[palette[1]];
-      colours[i].b = gtable[palette[2]];
+      if (vid_8ingl.enabled)
+      {
+        vid_8ingl.colours[i * 4 + 0] = gtable[palette[0]];
+        vid_8ingl.colours[i * 4 + 1] = gtable[palette[1]];
+        vid_8ingl.colours[i * 4 + 2] = gtable[palette[2]];
+        vid_8ingl.colours[i * 4 + 3] = 255;
+      }
+      else
+      {
+        colours[i].r = gtable[palette[0]];
+        colours[i].g = gtable[palette[1]];
+        colours[i].b = gtable[palette[2]];
+      }
+
       palette += 3;
     }
 
@@ -450,7 +464,14 @@ static void I_UploadNewPalette(int pal)
 
   // store the colors to the current display
   // SDL_SetColors(SDL_GetVideoSurface(), colours+256*pal, 0, 256);
-  SDL_SetPalette(SDL_GetVideoSurface(),SDL_LOGPAL|SDL_PHYSPAL,colours+256*pal, 0, 256);
+  if (vid_8ingl.enabled)
+  {
+    vid_8ingl.palette = pal;
+  }
+  else
+  {
+    SDL_SetPalette(SDL_GetVideoSurface(),SDL_LOGPAL|SDL_PHYSPAL,colours+256*pal, 0, 256);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -534,7 +555,17 @@ void I_FinishUpdate (void)
     I_UploadNewPalette(newpal);
     newpal = NO_PALETTE_CHANGE;
   }
-  SDL_Flip(screen);
+
+#ifdef GL_DOOM
+  if (vid_8ingl.enabled)
+  {
+    gld_Draw8InGL();
+  }
+  else
+#endif
+  {
+    SDL_Flip(screen);
+  }
 }
 
 //
@@ -1138,6 +1169,8 @@ int I_GetModeFromString(const char *modestr)
 {
   video_mode_t mode;
 
+  vid_8ingl.enabled = false;
+
   if (!stricmp(modestr,"15")) {
     mode = VID_MODE15;
   } else if (!stricmp(modestr,"15bit")) {
@@ -1150,6 +1183,10 @@ int I_GetModeFromString(const char *modestr)
     mode = VID_MODE32;
   } else if (!stricmp(modestr,"32bit")) {
     mode = VID_MODE32;
+  } else if (!stricmp(modestr,"8gl")) {
+    mode = VID_MODE8; vid_8ingl.enabled = true;
+  } else if (!stricmp(modestr,"8ingl")) {
+    mode = VID_MODE8; vid_8ingl.enabled = true;
   } else if (!stricmp(modestr,"gl")) {
     mode = VID_MODEGL;
   } else if (!stricmp(modestr,"OpenGL")) {
@@ -1170,6 +1207,12 @@ void I_UpdateVideoMode(void)
 
     SDL_FreeSurface(screen);
     screen = NULL;
+
+    if (vid_8ingl.surface)
+    {
+      SDL_FreeSurface(vid_8ingl.surface);
+      vid_8ingl.surface = NULL;
+    }
   }
 
   // Initialize SDL with this graphics mode
@@ -1204,9 +1247,9 @@ void I_UpdateVideoMode(void)
     putenv(buf);
   }
 
-#ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
+#ifdef GL_DOOM
     SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 0 );
     SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 0 );
     SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 0 );
@@ -1229,12 +1272,48 @@ void I_UpdateVideoMode(void)
 
     screen = SDL_SetVideoMode(REAL_SCREENWIDTH, REAL_SCREENHEIGHT, gl_colorbuffer_bits, init_flags);
     gld_CheckHardwareGamma();
+#endif
   }
   else
-#endif
   {
-    // e6y: processing of screen_multiply
-    screen = SDL_SetVideoMode(REAL_SCREENWIDTH, REAL_SCREENHEIGHT, V_GetNumPixelBits(), init_flags);
+#ifdef GL_DOOM
+    if (vid_8ingl.enabled)
+    {
+      int flags;
+      SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+      SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, gl_colorbuffer_bits );
+      SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
+      //e6y: vertical sync
+      SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, (gl_vsync ? 1 : 0));
+
+      flags = SDL_OPENGL;
+
+      if ( desired_fullscreen )
+        flags |= SDL_FULLSCREEN;
+
+#ifndef MACOSX
+      if (!desired_fullscreen)
+        flags |= SDL_RESIZABLE;
+#endif
+
+      vid_8ingl.surface = SDL_SetVideoMode(
+        REAL_SCREENWIDTH, REAL_SCREENHEIGHT,
+        gl_colorbuffer_bits, flags);
+
+      screen = SDL_CreateRGBSurface(
+        init_flags & ~SDL_FULLSCREEN,
+        REAL_SCREENWIDTH, REAL_SCREENHEIGHT,
+        V_GetNumPixelBits(), 0, 0, 0, 0);
+
+      vid_8ingl.screen = screen;
+
+      gld_Init8InGLMode();
+    }
+    else
+#endif
+    {
+      screen = SDL_SetVideoMode(REAL_SCREENWIDTH, REAL_SCREENHEIGHT, V_GetNumPixelBits(), init_flags);
+    }
   }
 
   if(screen == NULL) {

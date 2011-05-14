@@ -66,6 +66,7 @@ dboolean gl_ext_packed_depth_stencil = false;
 dboolean gl_ext_blend_color = false;
 dboolean gl_use_stencil = false;
 dboolean gl_ext_arb_vertex_buffer_object = false;
+dboolean gl_arb_pixel_buffer_object = false;
 
 // cfg values
 int gl_ext_texture_filter_anisotropic_default;
@@ -77,6 +78,7 @@ int gl_ext_packed_depth_stencil_default;
 int gl_ext_blend_color_default;
 int gl_use_stencil_default;
 int gl_ext_arb_vertex_buffer_object_default;
+int gl_arb_pixel_buffer_object_default;
 
 int active_texture_enabled[32];
 int clieant_active_texture_enabled[32];
@@ -112,6 +114,13 @@ PFNGLGENBUFFERSARBPROC              GLEXT_glGenBuffersARB              = NULL;
 PFNGLDELETEBUFFERSARBPROC           GLEXT_glDeleteBuffersARB           = NULL;
 PFNGLBINDBUFFERARBPROC              GLEXT_glBindBufferARB              = NULL;
 PFNGLBUFFERDATAARBPROC              GLEXT_glBufferDataARB              = NULL;
+
+/* PBO */
+PFNGLBUFFERSUBDATAARBPROC           GLEXT_glBufferSubDataARB           = NULL;
+PFNGLGETBUFFERPARAMETERIVARBPROC    GLEXT_glGetBufferParameterivARB    = NULL;
+PFNGLMAPBUFFERARBPROC               GLEXT_glMapBufferARB               = NULL;
+PFNGLUNMAPBUFFERARBPROC             GLEXT_glUnmapBufferARB             = NULL;
+
 
 void gld_InitOpenGLVersion(void)
 {
@@ -286,6 +295,28 @@ void gld_InitOpenGL(dboolean compatibility_mode)
   gl_ext_arb_vertex_buffer_object = false;
 #endif
 
+  gl_arb_pixel_buffer_object = gl_arb_pixel_buffer_object_default &&
+    isExtensionSupported("GL_ARB_pixel_buffer_object") != NULL;
+  if (gl_arb_pixel_buffer_object)
+  {
+    GLEXT_glGenBuffersARB = SDL_GL_GetProcAddress("glGenBuffersARB");
+    GLEXT_glBindBufferARB = SDL_GL_GetProcAddress("glBindBufferARB");
+    GLEXT_glBufferDataARB = SDL_GL_GetProcAddress("glBufferDataARB");
+    GLEXT_glBufferSubDataARB = SDL_GL_GetProcAddress("glBufferSubDataARB");
+    GLEXT_glDeleteBuffersARB = SDL_GL_GetProcAddress("glDeleteBuffersARB");
+    GLEXT_glGetBufferParameterivARB = SDL_GL_GetProcAddress("glGetBufferParameterivARB");
+    GLEXT_glMapBufferARB = SDL_GL_GetProcAddress("glMapBufferARB");
+    GLEXT_glUnmapBufferARB = SDL_GL_GetProcAddress("glUnmapBufferARB");
+
+    if (!GLEXT_glGenBuffersARB || !GLEXT_glBindBufferARB ||
+        !GLEXT_glBufferDataARB || !GLEXT_glBufferSubDataARB ||
+        !GLEXT_glDeleteBuffersARB || !GLEXT_glGetBufferParameterivARB ||
+        !GLEXT_glMapBufferARB || !GLEXT_glUnmapBufferARB)
+      gl_arb_pixel_buffer_object = false;
+  }
+  if (gl_arb_pixel_buffer_object)
+    lprintf(LO_INFO,"using GL_ARB_pixel_buffer_object\n");
+
   //
   // Stencil support
   //
@@ -316,6 +347,7 @@ void gld_InitOpenGL(dboolean compatibility_mode)
     gl_ext_blend_color = false;
     gl_use_stencil = false;
     gl_ext_arb_vertex_buffer_object = false;
+    gl_arb_pixel_buffer_object = false;
     GLEXT_CLAMP_TO_EDGE = GL_CLAMP;
     gl_version = OPENGL_VERSION_1_1;
   }
