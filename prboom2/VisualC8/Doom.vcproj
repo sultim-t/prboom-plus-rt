@@ -1942,6 +1942,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\i_capture.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\i_capture.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\SDL\i_joy.c"
 				>
 				<FileConfiguration
