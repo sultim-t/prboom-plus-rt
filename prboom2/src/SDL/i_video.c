@@ -1315,8 +1315,6 @@ void I_UpdateVideoMode(void)
         V_GetNumPixelBits(), 0, 0, 0, 0);
 
       vid_8ingl.screen = screen;
-
-      gld_Init8InGLMode();
     }
     else
 #endif
@@ -1362,7 +1360,9 @@ void I_UpdateVideoMode(void)
   ST_SetResolution();
   AM_SetResolution();
 
-  if (V_GetMode() == VID_MODEGL) {
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL)
+  {
     int temp;
     lprintf(LO_INFO,"SDL OpenGL PixelFormat:\n");
     SDL_GL_GetAttribute( SDL_GL_RED_SIZE, &temp );
@@ -1387,7 +1387,6 @@ void I_UpdateVideoMode(void)
     lprintf(LO_INFO,"    SDL_GL_BUFFER_SIZE: %i\n",temp);
     SDL_GL_GetAttribute( SDL_GL_DEPTH_SIZE, &temp );
     lprintf(LO_INFO,"    SDL_GL_DEPTH_SIZE: %i\n",temp);
-#ifdef GL_DOOM
     SDL_GL_GetAttribute( SDL_GL_MULTISAMPLESAMPLES, &temp );
     lprintf(LO_INFO,"    SDL_GL_MULTISAMPLESAMPLES: %i\n",temp);
     SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &temp );
@@ -1396,8 +1395,14 @@ void I_UpdateVideoMode(void)
     lprintf(LO_INFO,"    SDL_GL_STENCIL_SIZE: %i\n",temp);
 
     gld_Init(SCREENWIDTH, SCREENHEIGHT);
-#endif
   }
+
+  if (vid_8ingl.enabled)
+  {
+    gld_Init8InGLMode();
+  }
+#endif
+
   I_AfterUpdateVideoMode();//e6y
 }
 
