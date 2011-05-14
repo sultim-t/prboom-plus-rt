@@ -880,13 +880,6 @@ void R_RenderPlayerView (player_t* player)
     // proff 11/99: clear buffers
     gld_InitDrawScene();
     
-    // flashing red HOM indicators
-    if (flashing_hom)
-    {
-      glClearColor (gametic % 20 < 9 ? 1.0f : 0.0f, 0.0f, 0.0f, 1.0f);
-      glClear (GL_COLOR_BUFFER_BIT);
-    }
-
     if (!automap)
     {
       // proff 11/99: switch to perspective mode

@@ -2134,6 +2134,13 @@ void gld_Clear(void)
 #endif
     clearbits |= GL_COLOR_BUFFER_BIT;
 
+  // flashing red HOM indicators
+  if (flashing_hom)
+  {
+    clearbits |= GL_COLOR_BUFFER_BIT;
+    glClearColor (gametic % 20 < 9 ? 1.0f : 0.0f, 0.0f, 0.0f, 1.0f);
+  }
+
   if (gl_use_stencil)
     clearbits |= GL_STENCIL_BUFFER_BIT;
 
