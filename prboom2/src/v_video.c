@@ -1012,6 +1012,7 @@ void V_InitMode(video_mode_t mode) {
 #ifndef GL_DOOM
   if (mode == VID_MODEGL)
     mode = VID_MODE8;
+  vid_8ingl.enabled = false;
 #endif
   switch (mode) {
     case VID_MODE8:

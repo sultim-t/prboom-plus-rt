@@ -434,6 +434,7 @@ static void I_UploadNewPalette(int pal)
 
     // set the colormap entries
     for (i=0 ; (size_t)i<num_pals ; i++) {
+#ifdef GL_DOOM
       if (vid_8ingl.enabled)
       {
         vid_8ingl.colours[i * 4 + 0] = gtable[palette[0]];
@@ -442,6 +443,7 @@ static void I_UploadNewPalette(int pal)
         vid_8ingl.colours[i * 4 + 3] = 255;
       }
       else
+#endif
       {
         colours[i].r = gtable[palette[0]];
         colours[i].g = gtable[palette[1]];
@@ -464,11 +466,13 @@ static void I_UploadNewPalette(int pal)
 
   // store the colors to the current display
   // SDL_SetColors(SDL_GetVideoSurface(), colours+256*pal, 0, 256);
+#ifdef GL_DOOM
   if (vid_8ingl.enabled)
   {
     vid_8ingl.palette = pal;
   }
   else
+#endif
   {
     SDL_SetPalette(SDL_GetVideoSurface(),SDL_LOGPAL|SDL_PHYSPAL,colours+256*pal, 0, 256);
   }
@@ -1194,6 +1198,11 @@ int I_GetModeFromString(const char *modestr)
   } else {
     mode = VID_MODE8;
   }
+
+#ifndef GL_DOOM
+  vid_8ingl.enabled = false;
+#endif
+
   return mode;
 }
 
