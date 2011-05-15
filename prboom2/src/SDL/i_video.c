@@ -403,7 +403,7 @@ inline static dboolean I_SkipFrame(void)
 ///////////////////////////////////////////////////////////
 // Palette stuff.
 //
-static void I_UploadNewPalette(int pal)
+static void I_UploadNewPalette(int pal, int force)
 {
   // This is used to replace the current 256 colour cmap with a new one
   // Used by 256 colour PseudoColor modes
@@ -416,7 +416,7 @@ static void I_UploadNewPalette(int pal)
   if (V_GetMode() == VID_MODEGL)
     return;
 
-  if ((colours == NULL) || (cachedgamma != usegamma)) {
+  if ((colours == NULL) || (cachedgamma != usegamma) || force) {
     int pplump = W_GetNumForName("PLAYPAL");
     int gtlump = (W_CheckNumForName)("GAMMATBL",ns_prboom);
     register const byte * palette = W_CacheLumpNum(pplump);
@@ -556,7 +556,7 @@ void I_FinishUpdate (void)
   /* Update the display buffer (flipping video pages if supported)
    * If we need to change palette, that implicitely does a flip */
   if (newpal != NO_PALETTE_CHANGE) {
-    I_UploadNewPalette(newpal);
+    I_UploadNewPalette(newpal, false);
     newpal = NO_PALETTE_CHANGE;
   }
 
@@ -1357,6 +1357,8 @@ void I_UpdateVideoMode(void)
   R_ExecuteSetViewSize();
 
   V_SetPalette(0);
+  I_UploadNewPalette(0, true);
+
   ST_SetResolution();
   AM_SetResolution();
 

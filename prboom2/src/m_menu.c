@@ -295,7 +295,7 @@ void M_General(int);      // killough 10/98
 void M_DrawCompat(void);  // killough 10/98
 void M_DrawGeneral(void); // killough 10/98
 void M_ChangeFullScreen(void);
-void M_ChangeScreenResolution(void);
+void M_ChangeVideoMode(void);
 
 menu_t NewDef;                                              // phares 5/04/98
 
@@ -3011,8 +3011,8 @@ static const char *gltexformats[] = {
 setup_menu_t gen_settings1[] = { // General Settings screen1
 
   {"Video",                          S_SKIP|S_TITLE,     m_null, G_X, G_Y+ 1*8},
-  {"Video mode",                     S_CHOICE|S_PRGWARN, m_null, G_X, G_Y+ 2*8, {"videomode"}, 0, 0, NULL, videomodes},
-  {"Screen Resolution",              S_CHOICE,           m_null, G_X, G_Y+ 3*8, {"screen_resolution"}, 0, 0, M_ChangeScreenResolution, screen_resolutions_list},
+  {"Video mode",                     S_CHOICE,           m_null, G_X, G_Y+ 2*8, {"videomode"}, 0, 0, M_ChangeVideoMode, videomodes},
+  {"Screen Resolution",              S_CHOICE,           m_null, G_X, G_Y+ 3*8, {"screen_resolution"}, 0, 0, M_ChangeVideoMode, screen_resolutions_list},
   {"Aspect Ratio",                   S_CHOICE,           m_null, G_X, G_Y+ 4*8, {"render_aspect"}, 0, 0, M_ChangeAspectRatio, render_aspects_list},
   {"Fullscreen Video mode",          S_YESNO,            m_null, G_X, G_Y+ 5*8, {"use_fullscreen"}, 0, 0, M_ChangeFullScreen},
   {"Status Bar and Menu Appearance", S_CHOICE,           m_null, G_X, G_Y+ 6*8, {"render_stretch_hud"}, 0, 0, M_ChangeStretch, render_stretch_list},
@@ -3231,7 +3231,7 @@ void M_ChangeFullScreen(void)
   V_ToggleFullscreen();
 }
 
-void M_ChangeScreenResolution(void)
+void M_ChangeVideoMode(void)
 {
   V_ChangeScreenResolution();
 }
