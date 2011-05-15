@@ -966,10 +966,7 @@ void I_InitScreenResolution(void)
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
-    if (V_GetMode() == VID_MODEGL)
-    {
-		  gld_CleanMemory();
-    }
+    gld_CleanMemory();
   }
 #endif
 
