@@ -255,7 +255,6 @@ void gld_MultisamplingCheck(void)
     if (test!=render_multisampling)
     {
       void M_SaveDefaults (void);
-      void I_Error(const char *error, ...);
       int i=render_multisampling;
       render_multisampling = 0;
       M_SaveDefaults ();
@@ -4554,18 +4553,66 @@ void gld_Init8InGLMode(void)
 
 void UpdatePixels(unsigned char* dst)
 {
-  int i, j, x, y;
+  int x, y;
 
   unsigned int *pal = (unsigned int*)(vid_8ingl.colours +
     256 * vid_8ingl.palette * 4);
 
-  for (y = 0; y < REAL_SCREENHEIGHT; y++)
+  if (V_GetMode() == VID_MODE8)
   {
-    i = y * vid_8ingl.width;
-    j = y * vid_8ingl.screen->pitch;
-    for (x = 0; x < REAL_SCREENWIDTH; x++)
+    for (y = 0; y < REAL_SCREENHEIGHT; y++)
     {
-      ((int*)dst)[i++] = pal[((byte*)vid_8ingl.screen->pixels)[j++]];
+      byte *px = (((byte*)vid_8ingl.screen->pixels) + y * vid_8ingl.screen->pitch);
+      int *py = ((int*)dst) + y * vid_8ingl.width;
+      for (x = 0; x < REAL_SCREENWIDTH; x++)
+      {
+        *(int*)py = pal[*(byte*)px];
+        px += 1;
+        py += 1;
+      }
+    }
+  } else if (V_GetMode() == VID_MODE15 || V_GetMode() == VID_MODE16)
+  {
+    unsigned int Rshift, Gshift, Bshift;
+    unsigned int Rmask, Gmask, Bmask;
+    SDL_PixelFormat *format = vid_8ingl.screen->format;
+
+    Rmask = format->Rmask;
+    Gmask = format->Gmask;
+    Bmask = format->Bmask;
+   
+    Rshift = 16 - format->Rshift + format->Rloss;
+    Gshift =  8 - format->Gshift + format->Gloss;
+    Bshift =  0 - format->Bshift + format->Bloss;
+
+    for (y = 0; y < REAL_SCREENHEIGHT; y++)
+    {
+      byte *px = (((byte*)vid_8ingl.screen->pixels) + y * vid_8ingl.screen->pitch);
+      int *py = ((int*)dst) + y * vid_8ingl.width;
+      for (x = 0; x < REAL_SCREENWIDTH; x++)
+      {
+        short color = *(short*)px;
+        *(int*)py =
+          ((color & Bmask) << Bshift) |
+          ((color & Gmask) << Gshift) |
+          ((color & Rmask) << Rshift);
+        px += 2;
+        py += 1;
+      }
+    }
+  }
+  else if (V_GetMode() == VID_MODE32)
+  {
+    for (y = 0; y < REAL_SCREENHEIGHT; y++)
+    {
+      byte *px = (((byte*)vid_8ingl.screen->pixels) + y * vid_8ingl.screen->pitch);
+      int *py = ((int*)dst) + y * vid_8ingl.width;
+      for (x = 0; x < REAL_SCREENWIDTH; x++)
+      {
+        *(int*)py = *(int*)px;
+        px += 4;
+        py += 1;
+      }
     }
   }
 }
@@ -4596,7 +4643,7 @@ void gld_Draw8InGL(void)
     // Use offset instead of ponter.
     glTexImage2D(GL_TEXTURE_2D, 0, gl_tex_format,
       vid_8ingl.width, vid_8ingl.height,
-      0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+      0, GL_BGRA, GL_UNSIGNED_BYTE, 0);
 
     // bind PBO to update pixel values
     GLEXT_glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, vid_8ingl.pboids[nextIndex]);
@@ -4631,7 +4678,7 @@ void gld_Draw8InGL(void)
 
     glTexImage2D(GL_TEXTURE_2D, 0, gl_tex_format,
       vid_8ingl.width, vid_8ingl.height,
-      0, GL_RGBA, GL_UNSIGNED_BYTE, vid_8ingl.buf);
+      0, GL_BGRA, GL_UNSIGNED_BYTE, vid_8ingl.buf);
 
     UpdatePixels(vid_8ingl.buf);
   }

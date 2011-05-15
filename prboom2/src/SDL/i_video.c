@@ -113,6 +113,7 @@ int use_fullscreen;
 int desired_fullscreen;
 SDL_Surface *screen;
 vid_8ingl_t vid_8ingl;
+int use_gl_surface;
 
 ////////////////////////////////////////////////////////////////////////////
 // Input code
@@ -437,9 +438,9 @@ static void I_UploadNewPalette(int pal, int force)
 #ifdef GL_DOOM
       if (vid_8ingl.enabled)
       {
-        vid_8ingl.colours[i * 4 + 0] = gtable[palette[0]];
+        vid_8ingl.colours[i * 4 + 0] = gtable[palette[2]];
         vid_8ingl.colours[i * 4 + 1] = gtable[palette[1]];
-        vid_8ingl.colours[i * 4 + 2] = gtable[palette[2]];
+        vid_8ingl.colours[i * 4 + 2] = gtable[palette[0]];
         vid_8ingl.colours[i * 4 + 3] = 255;
       }
       else
@@ -1170,8 +1171,6 @@ int I_GetModeFromString(const char *modestr)
 {
   video_mode_t mode;
 
-  vid_8ingl.enabled = false;
-
   if (!stricmp(modestr,"15")) {
     mode = VID_MODE15;
   } else if (!stricmp(modestr,"15bit")) {
@@ -1184,10 +1183,6 @@ int I_GetModeFromString(const char *modestr)
     mode = VID_MODE32;
   } else if (!stricmp(modestr,"32bit")) {
     mode = VID_MODE32;
-  } else if (!stricmp(modestr,"8gl")) {
-    mode = VID_MODE8; vid_8ingl.enabled = true;
-  } else if (!stricmp(modestr,"8ingl")) {
-    mode = VID_MODE8; vid_8ingl.enabled = true;
   } else if (!stricmp(modestr,"gl")) {
     mode = VID_MODEGL;
   } else if (!stricmp(modestr,"OpenGL")) {
@@ -1195,10 +1190,6 @@ int I_GetModeFromString(const char *modestr)
   } else {
     mode = VID_MODE8;
   }
-
-#ifndef GL_DOOM
-  vid_8ingl.enabled = false;
-#endif
 
   return mode;
 }
@@ -1253,6 +1244,8 @@ void I_UpdateVideoMode(void)
     putenv(buf);
   }
 
+  vid_8ingl.enabled = false;
+
   if (V_GetMode() == VID_MODEGL)
   {
 #ifdef GL_DOOM
@@ -1283,28 +1276,25 @@ void I_UpdateVideoMode(void)
   else
   {
 #ifdef GL_DOOM
-    if (vid_8ingl.enabled)
+    if (use_gl_surface)
     {
-      int flags;
+      int flags = SDL_OPENGL;
+
+      if ( desired_fullscreen )
+        flags |= SDL_FULLSCREEN;
+
       SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
       SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, gl_colorbuffer_bits );
       SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
       //e6y: vertical sync
       SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, (gl_vsync ? 1 : 0));
 
-      flags = SDL_OPENGL;
-
-      if ( desired_fullscreen )
-        flags |= SDL_FULLSCREEN;
-
-#ifndef MACOSX
-      if (!desired_fullscreen)
-        flags |= SDL_RESIZABLE;
-#endif
-
       vid_8ingl.surface = SDL_SetVideoMode(
         REAL_SCREENWIDTH, REAL_SCREENHEIGHT,
         gl_colorbuffer_bits, flags);
+
+      if(vid_8ingl.surface == NULL)
+        I_Error("Couldn't set %dx%d video mode [%s]", REAL_SCREENWIDTH, REAL_SCREENHEIGHT, SDL_GetError());
 
       screen = SDL_CreateRGBSurface(
         init_flags & ~SDL_FULLSCREEN,
@@ -1312,6 +1302,8 @@ void I_UpdateVideoMode(void)
         V_GetNumPixelBits(), 0, 0, 0, 0);
 
       vid_8ingl.screen = screen;
+
+      vid_8ingl.enabled = true;
     }
     else
 #endif
@@ -1325,8 +1317,8 @@ void I_UpdateVideoMode(void)
   }
 
 #ifdef GL_DOOM
-  if (V_GetMode() == VID_MODEGL)
-    gld_MultisamplingCheck();//e6y
+  /*if (V_GetMode() == VID_MODEGL)
+    gld_MultisamplingCheck();*/
 #endif
 
   lprintf(LO_INFO, "I_UpdateVideoMode: 0x%x, %s, %s\n", init_flags, screen->pixels ? "SDL buffer" : "own buffer", SDL_MUSTLOCK(screen) ? "lock-and-copy": "direct access");

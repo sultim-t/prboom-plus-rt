@@ -118,5 +118,6 @@ typedef struct vid_8ingl_s
 } vid_8ingl_t;
 
 extern vid_8ingl_t vid_8ingl;
+extern int use_gl_surface;
 
 #endif

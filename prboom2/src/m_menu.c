@@ -296,6 +296,7 @@ void M_DrawCompat(void);  // killough 10/98
 void M_DrawGeneral(void); // killough 10/98
 void M_ChangeFullScreen(void);
 void M_ChangeVideoMode(void);
+void M_ChangeUseGLSurface(void);
 
 menu_t NewDef;                                              // phares 5/04/98
 
@@ -3003,7 +3004,7 @@ setup_menu_t* gen_settings[] =
 #define G_X2 284
 
 static const char *videomodes[] = {
-  "8bit","15bit","16bit", "32bit", "8inGL","OpenGL", NULL};
+  "8bit","15bit","16bit", "32bit", "OpenGL", NULL};
 
 static const char *gltexformats[] = {
   "GL_RGBA","GL_RGB5_A1", "GL_RGBA4", NULL};
@@ -3017,18 +3018,19 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
   {"Fullscreen Video mode",          S_YESNO,            m_null, G_X, G_Y+ 5*8, {"use_fullscreen"}, 0, 0, M_ChangeFullScreen},
   {"Status Bar and Menu Appearance", S_CHOICE,           m_null, G_X, G_Y+ 6*8, {"render_stretch_hud"}, 0, 0, M_ChangeStretch, render_stretch_list},
 #ifdef GL_DOOM
-  {"Vertical Sync",                  S_YESNO|S_PRGWARN,  m_null, G_X, G_Y+ 7*8, {"gl_vsync"}},
+  {"Use GL surface for software mode",S_YESNO,           m_null, G_X, G_Y+ 7*8, {"use_gl_surface"}, 0, 0, M_ChangeUseGLSurface},
+  {"Vertical Sync",                  S_YESNO|S_PRGWARN,  m_null, G_X, G_Y+ 8*8, {"gl_vsync"}},
 #endif
   
-  {"Enable Translucency",            S_YESNO,            m_null, G_X, G_Y+ 9*8, {"translucency"}, 0, 0, M_Trans},
-  {"Translucency filter percentage", S_NUM,              m_null, G_X, G_Y+10*8, {"tran_filter_pct"}, 0, 0, M_Trans},
-  {"Uncapped Framerate",             S_YESNO,            m_null, G_X, G_Y+11*8, {"uncapped_framerate"}, 0, 0, M_ChangeUncappedFrameRate},
+  {"Enable Translucency",            S_YESNO,            m_null, G_X, G_Y+10*8, {"translucency"}, 0, 0, M_Trans},
+  {"Translucency filter percentage", S_NUM,              m_null, G_X, G_Y+11*8, {"tran_filter_pct"}, 0, 0, M_Trans},
+  {"Uncapped Framerate",             S_YESNO,            m_null, G_X, G_Y+12*8, {"uncapped_framerate"}, 0, 0, M_ChangeUncappedFrameRate},
 
-  {"Sound & Music",                  S_SKIP|S_TITLE,     m_null, G_X, G_Y+13*8},
-  {"Number of Sound Channels",       S_NUM|S_PRGWARN,    m_null, G_X, G_Y+14*8, {"snd_channels"}},
-  {"Enable v1.1 Pitch Effects",      S_YESNO,            m_null, G_X, G_Y+15*8, {"pitched_sounds"}},
+  {"Sound & Music",                  S_SKIP|S_TITLE,     m_null, G_X, G_Y+14*8},
+  {"Number of Sound Channels",       S_NUM|S_PRGWARN,    m_null, G_X, G_Y+15*8, {"snd_channels"}},
+  {"Enable v1.1 Pitch Effects",      S_YESNO,            m_null, G_X, G_Y+16*8, {"pitched_sounds"}},
 #ifdef HAVE_LIBSDL_MIXER
-  {"PC Speaker emulation",           S_YESNO|S_PRGWARN,  m_null, G_X, G_Y+16*8, {"snd_pcspeaker"}},
+  {"PC Speaker emulation",           S_YESNO|S_PRGWARN,  m_null, G_X, G_Y+17*8, {"snd_pcspeaker"}},
 #endif
 
   // Button for resetting to defaults
@@ -3232,6 +3234,11 @@ void M_ChangeFullScreen(void)
 }
 
 void M_ChangeVideoMode(void)
+{
+  V_ChangeScreenResolution();
+}
+
+void M_ChangeUseGLSurface(void)
 {
   V_ChangeScreenResolution();
 }
