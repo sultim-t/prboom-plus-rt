@@ -436,7 +436,7 @@ static void I_UploadNewPalette(int pal, int force)
     // set the colormap entries
     for (i=0 ; (size_t)i<num_pals ; i++) {
 #ifdef GL_DOOM
-      if (vid_8ingl.enabled)
+      if (vid_8ingl.enabled && V_GetMode() == VID_MODE8)
       {
         vid_8ingl.colours[i * 4 + 0] = gtable[palette[2]];
         vid_8ingl.colours[i * 4 + 1] = gtable[palette[1]];
