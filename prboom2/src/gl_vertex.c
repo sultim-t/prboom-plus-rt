@@ -467,10 +467,14 @@ void gld_InitVertexData()
 void gld_UpdateSplitData(sector_t *sector)
 {
   int i;
-  splitsbysector_t *splitsbysector = &gl_splitsbysector[sector->iSectorID];
-  for (i = 0; i < splitsbysector->numsplits; i++)
+
+  if (gl_splitsbysector)
   {
-    splitsbysector->splits[i]->changed = true;
+    splitsbysector_t *splitsbysector = &gl_splitsbysector[sector->iSectorID];
+    for (i = 0; i < splitsbysector->numsplits; i++)
+    {
+      splitsbysector->splits[i]->changed = true;
+    }
   }
 }
 

@@ -82,8 +82,11 @@ result_e T_MovePlane
                             // from moving thru each other
 
 #ifdef GL_DOOM
-  if (gl_seamless)
-    gld_UpdateSplitData(sector);
+  if (V_GetMode() == VID_MODEGL)
+  {
+    if (gl_seamless)
+      gld_UpdateSplitData(sector);
+  }
 #endif
 
   switch(floorOrCeiling)
