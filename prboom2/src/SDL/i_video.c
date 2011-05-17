@@ -723,7 +723,12 @@ static void I_FillScreenResolutionsList(void)
   flags |= SDL_OPENGL;
 #endif
 
-  modes = SDL_ListModes(NULL, flags);
+  // Don't call SDL_ListModes if SDL has not been initialized
+  if (!nodrawers)
+    modes = SDL_ListModes(NULL, flags);
+  else
+    modes = NULL;
+
   list_size = 0;
   current_resolution_index = -1;
 
