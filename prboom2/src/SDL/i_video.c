@@ -972,13 +972,6 @@ void I_InitScreenResolution(void)
   video_mode_t mode;
   int init = screen == NULL;
 
-#ifdef GL_DOOM
-  if (V_GetMode() == VID_MODEGL)
-  {
-    gld_CleanMemory();
-  }
-#endif
-
   I_GetScreenResolution();
 
   if (init)
@@ -1208,6 +1201,15 @@ void I_UpdateVideoMode(void)
 
   if(screen)
   {
+#ifdef GL_DOOM
+    if (V_GetMode() == VID_MODEGL)
+    {
+      gld_CleanMemory();
+      // hires patches
+      gld_CleanStaticMemory();
+    }
+#endif
+
     I_InitScreenResolution();
 
     SDL_FreeSurface(screen);

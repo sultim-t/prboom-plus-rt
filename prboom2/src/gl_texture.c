@@ -1586,3 +1586,8 @@ void gld_CleanMemory(void)
   gld_CleanDisplayLists();
   gl_preprocessed = false;
 }
+
+void gld_CleanStaticMemory(void)
+{
+  gld_CleanTexItems(numlumps, &gld_GLStaticPatchTextures);
+}

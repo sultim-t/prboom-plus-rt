@@ -116,6 +116,7 @@ void gld_SetPalette(int palette);
 unsigned char *gld_ReadScreen(void);
 
 void gld_CleanMemory(void);
+void gld_CleanStaticMemory(void);
 void gld_PreprocessLevel(void);
 
 void gld_Set2DMode();
