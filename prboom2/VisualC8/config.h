@@ -166,7 +166,7 @@
 /* Define if you want to use PC Speaker */
 #define USE_WIN32_PCSOUND_DRIVER
 
-//#define USE_EXPERIMENTAL_MUSIC 1
+#define USE_EXPERIMENTAL_MUSIC 1
 
 #if defined(USE_EXPERIMENTAL_MUSIC) && !defined(PRBOOM_SERVER)
 
@@ -188,12 +188,18 @@
 /* Define to 1 if you have the `vorbisfile' library (-lvorbisfile). */
 #define HAVE_LIBVORBISFILE 1
 
+#ifdef _DEBUG
+  #define LINK_MUS_LIBRARY(x) comment(lib, x"d.lib")
+#else
+  #define LINK_MUS_LIBRARY(x) comment(lib, x".lib")
+#endif
+
 #if defined(HAVE_LIBFLUIDSYNTH)
 #pragma comment( lib, "libfluidsynth.lib" )
 #endif
 
 #if defined(HAVE_LIBMAD)
-#pragma comment( lib, "libmad.lib" )
+#pragma LINK_MUS_LIBRARY("libmad")
 #endif
 
 #if defined(HAVE_LIBPORTMIDI)
@@ -201,7 +207,7 @@
 #endif
 
 #if defined(HAVE_LIBDUMB)
-#pragma comment( lib, "dumb.lib" )
+#pragma LINK_MUS_LIBRARY("dumb")
 #endif
 
 #if defined(HAVE_LIBVORBISFILE)
