@@ -577,8 +577,8 @@ void I_InitSound(void)
   if (SDL_InitSubSystem(SDL_INIT_AUDIO))
   {
     lprintf(LO_INFO, "Couldn't initialize SDL audio.\n");
-    nosfxparm = 0;
-    nomusicparm = 0;
+    nosfxparm = true;
+    nomusicparm = true;
     return;
   }
   if (sound_inited)
