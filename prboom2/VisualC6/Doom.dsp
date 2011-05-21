@@ -1892,6 +1892,94 @@ SOURCE=..\src\TEXTSCREEN\txt_window_action.c
 SOURCE=..\src\TEXTSCREEN\txt_window_action.h
 # End Source File
 # End Group
+# Begin Group "Music"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\src\MUSIC\dbopl.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\MUSIC\dbopl.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\MUSIC\dumbplayer.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\MUSIC\dumbplayer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\MUSIC\flplayer.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\MUSIC\flplayer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\MUSIC\madplayer.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\MUSIC\madplayer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\MUSIC\midifile.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\MUSIC\midifile.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\MUSIC\musicplayer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\MUSIC\opl.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\MUSIC\opl.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\MUSIC\opl_queue.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\MUSIC\opl_queue.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\MUSIC\oplplayer.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\MUSIC\oplplayer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\MUSIC\portmidiplayer.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\MUSIC\portmidiplayer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\MUSIC\vorbisplayer.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\MUSIC\vorbisplayer.h
+# End Source File
+# End Group
 # Begin Source File
 
 SOURCE=..\src\SDL\SDL_win32_main.c
