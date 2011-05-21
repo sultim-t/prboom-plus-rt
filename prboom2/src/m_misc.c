@@ -356,9 +356,9 @@ default_t defaults[] =
   {"comp_translucency",{&default_comp[comp_translucency]},{0},0,1,def_bool,ss_comp,&comp[comp_translucency]},
 
   {"Sound settings",{NULL},{0},UL,UL,def_none,ss_none},
-#ifdef HAVE_LIBSDL_MIXER
+//#ifdef HAVE_LIBSDL_MIXER
   {"snd_pcspeaker",{&snd_pcspeaker},{0}, 0, 1, def_bool,ss_none},
-#endif
+//#endif
   {"sound_card",{&snd_card},{-1},-1,7,       // jff 1/18/98 allow Allegro drivers
    def_int,ss_none}, // select sounds driver (DOS), -1 is autodetect, 0 is none; in Linux, non-zero enables sound
   {"music_card",{&mus_card},{-1},-1,9,       //  to be set,  -1 = autodetect
@@ -372,6 +372,15 @@ default_t defaults[] =
    def_int, ss_none}, // 0 = kill music when paused, 1 = pause music, 2 = let music continue
   {"snd_channels",{&default_numChannels},{8},1,32,
    def_int,ss_none}, // number of audio events simultaneously // killough
+  {"use_experimental_music",{&use_experimental_music},{0},0,1, def_bool,ss_none},
+  {"snd_soundfont",{NULL, &snd_soundfont},{0,"weedsgm3.sf2"},UL,UL,def_str,ss_none}, // soundfont name for synths that support it
+  {"music_player_order0",{NULL, &music_player_order[0]},{0,"vorbis player"},UL,UL,def_str,ss_none}, // order to try different music players
+  {"music_player_order1",{NULL, &music_player_order[1]},{0,"mad mp3 player"},UL,UL,def_str,ss_none}, // order to try different music players
+  {"music_player_order2",{NULL, &music_player_order[2]},{0,"dumb tracker player"},UL,UL,def_str,ss_none}, // order to try different music players
+  {"music_player_order3",{NULL, &music_player_order[3]},{0,"fluidsynth midi player"},UL,UL,def_str,ss_none}, // order to try different music players
+  {"music_player_order4",{NULL, &music_player_order[4]},{0,"opl2 synth player"},UL,UL,def_str,ss_none}, // order to try different music players
+  {"music_player_order5",{NULL, &music_player_order[5]},{0,"portmidi midi player"},UL,UL,def_str,ss_none}, // order to try different music players
+
 #ifdef _WIN32
   {"mus_extend_volume",{&mus_extend_volume},{0},0,1,
    def_bool,ss_none}, // e6y: apply midi volume to all midi devices

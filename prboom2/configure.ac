@@ -94,9 +94,11 @@ dnl --- cph: we need pow(3) in SDL/i_sound.c; on some systems it gets pulled
 dnl ---  in by other libraries, but we can't rely on that.
 AC_CHECK_LIB(m,pow)
 dnl - system specific stuff
+dnl - winmm for the midi volume hack
 case "$target" in
     *-*-cygwin* | *-*-mingw32*)
         SYS_GL_LIBS="-lopengl32 -lglu32"
+	LIBS="-lwinmm $LIBS"
         ;;
     *-*-beos*)
         SYS_GL_LIBS="-lGL -lGLU"
@@ -196,6 +198,38 @@ AS_IF([test "x$with_pcre" != xno],
   [AC_CHECK_LIB(pcreposix,pcreposix_regcomp)]
 )
 
+dnl individual sound libraries
+
+AC_ARG_WITH([mad],
+  AC_HELP_STRING([--without-mad],[Do not use MAD mp3 library even when available]),
+  [], [with_mad=yes])
+AS_IF([test "x$with_mad" != xno],
+  AC_CHECK_LIB(mad,mad_stream_init))
+
+AC_ARG_WITH([fluidsynth],
+  AC_HELP_STRING([--without-fluidsynth],[Do not use fluidsynth library even when available]),
+  [], [with_fluidsynth=yes])
+AS_IF([test "x$with_fluidsynth" != xno],
+  AC_CHECK_LIB(fluidsynth,new_fluid_synth))
+
+AC_ARG_WITH([dumb],
+  AC_HELP_STRING([--without-dumb],[Do not use dumb tracker library even when available]),
+  [], [with_dumb=yes])
+AS_IF([test "x$with_dumb" != xno],
+  AC_CHECK_LIB(dumb,dumbfile_open))
+
+AC_ARG_WITH([vorbisfile],
+  AC_HELP_STRING([--without-vorbisfile],[Do not use vorbisfile library even when available]),
+  [], [with_vorbisfile=yes])
+AS_IF([test "x$with_vorbisfile" != xno],
+  AC_CHECK_LIB(vorbisfile,ov_test_callbacks,[],[],[-logg -lvorbis]))
+
+AC_ARG_WITH([portmidi],
+  AC_HELP_STRING([--without-portmidi],[Do not use portmidi library even when available]),
+  [], [with_portmidi=yes])
+AS_IF([test "x$with_portmidi" != xno],
+  AC_CHECK_LIB(portmidi,Pm_OpenInput))
+
 dnl - SDL_image
 AC_ARG_WITH(image,
   [AS_HELP_STRING([--without-image],[Do not use SDL_image even if available])],,
@@ -243,4 +277,4 @@ AC_SUBST(CFLAGS)
 AC_SUBST(DOOMWADDIR)
 
 dnl --- output
-AC_OUTPUT(Makefile src/Makefile src/POSIX/Makefile src/SDL/Makefile src/MAC/Makefile src/PCSOUND/Makefile src/TEXTSCREEN/Makefile doc/Makefile data/Makefile ICONS/Makefile VisualC6/Makefile VisualC8/Makefile prboom.spec)
+AC_OUTPUT(Makefile src/Makefile src/POSIX/Makefile src/SDL/Makefile src/MAC/Makefile src/PCSOUND/Makefile src/TEXTSCREEN/Makefile src/MUSIC/Makefile doc/Makefile data/Makefile ICONS/Makefile VisualC6/Makefile VisualC8/Makefile prboom.spec)

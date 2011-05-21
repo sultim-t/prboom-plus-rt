@@ -87,13 +87,17 @@ void I_SetSoundCap (void);
 // grabs len samples of audio (16 bit interleaved)
 char *I_GrabSound (int len);
 
+// NSM helper routine for some of the streaming audio
+void I_ResampleStream (void *dest, unsigned nsamp, void (*proc) (void *dest, unsigned nsamp), unsigned sratein, unsigned srateout);
+
 //
 //  MUSIC I/O
 //
+extern const char *snd_soundfont;
+extern const char *music_player_order[];
+
 void I_InitMusic(void);
 void I_ShutdownMusic(void);
-
-void I_UpdateMusic(void);
 
 // Volume.
 void I_SetMusicVolume(int volume);
@@ -125,5 +129,7 @@ extern int snd_card;
 extern int mus_card;
 // CPhipps - put these in config file
 extern int snd_samplerate;
+
+extern int use_experimental_music;
 
 #endif

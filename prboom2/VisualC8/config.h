@@ -166,6 +166,52 @@
 /* Define if you want to use PC Speaker */
 #define USE_WIN32_PCSOUND_DRIVER
 
+//#define USE_EXPERIMENTAL_MUSIC 1
+
+#if defined(USE_EXPERIMENTAL_MUSIC) && !defined(PRBOOM_SERVER)
+
+/* use delay load feature for the libraries */
+#pragma comment( lib, "delayimp.lib" )
+
+/* Define to 1 if you have the `fluidsynth' library (-lfluidsynth). */
+#define HAVE_LIBFLUIDSYNTH 1
+
+/* Define to 1 if you have the `mad' library (-lmad). */
+#define HAVE_LIBMAD 1
+
+/* Define to 1 if you have the `portmidi' library (-lportmidi). */
+#define HAVE_LIBPORTMIDI 1
+
+/* Define to 1 if you have the `dumb' library (-ldumb). */
+#define HAVE_LIBDUMB 1
+
+/* Define to 1 if you have the `vorbisfile' library (-lvorbisfile). */
+#define HAVE_LIBVORBISFILE 1
+
+#if defined(HAVE_LIBFLUIDSYNTH)
+#pragma comment( lib, "libfluidsynth.lib" )
+#endif
+
+#if defined(HAVE_LIBMAD)
+#pragma comment( lib, "libmad.lib" )
+#endif
+
+#if defined(HAVE_LIBPORTMIDI)
+#pragma comment( lib, "portmidi.lib" )
+#endif
+
+#if defined(HAVE_LIBDUMB)
+#pragma comment( lib, "dumb.lib" )
+#endif
+
+#if defined(HAVE_LIBVORBISFILE)
+#pragma comment( lib, "libvorbisfile.lib" )
+#pragma comment( lib, "libvorbis.lib" )
+#pragma comment( lib, "libogg.lib" )
+#endif
+
+#endif // USE_EXPERIMENTAL_MUSIC
+
 /* MSVC6' implementation of qsort is much slower (up to 32x) than it should be */
 //#define USE_CUSTOM_QSORT 1
 

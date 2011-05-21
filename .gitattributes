@@ -251,6 +251,7 @@ prboom2/src/MAC/config.h -text
 prboom2/src/MAC/i_sound.c -text
 prboom2/src/MAC/i_system.m -text
 prboom2/src/MAC/macsupport.rb -text
+prboom2/src/MUSIC/Makefile.am eol=lf
 prboom2/src/Makefile.am eol=lf
 prboom2/src/PCRELIB/AUTHORS -text
 prboom2/src/PCRELIB/COPYING -text

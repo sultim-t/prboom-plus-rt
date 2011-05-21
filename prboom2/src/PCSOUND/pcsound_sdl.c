@@ -1,4 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
+// Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
 // Copyright(C) 2007 Simon Howard
@@ -23,6 +23,8 @@
 //
 //-----------------------------------------------------------------------------
 
+// NSM: reworked to function without sdl_mixer (needs new i_sound.c)
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -31,17 +33,19 @@
 #include <stdlib.h>
 
 #include "SDL.h"
-#ifdef HAVE_LIBSDL_MIXER
-#include "SDL_mixer.h"
-#endif
+//#ifdef HAVE_LIBSDL_MIXER
+//#include "SDL_mixer.h"
+//#endif
 
 #include "pcsound.h"
 
 //e6y
 #include "lprintf.h"
 
+#include "i_sound.h" // snd_samplerate
+
 // Can't do any of this without SDL_mixer
-#ifdef HAVE_LIBSDL_MIXER
+//#ifdef HAVE_LIBSDL_MIXER
 
 #define SQUARE_WAVE_AMP 0x2000
 
@@ -50,8 +54,8 @@ static pcsound_callback_func callback;
 // Output sound format
 
 static int mixing_freq;
-static Uint16 mixing_format;
-static int mixing_channels;
+//static Uint16 mixing_format;
+//static int mixing_channels;
 
 // Currently playing sound
 // current_remaining is the number of remaining samples that must be played
@@ -62,9 +66,11 @@ static int current_freq;
 
 static int phase_offset = 0;
 
+static int pcsound_inited = 0;
+
 // Mixer function that does the PC speaker emulation
 
-static void PCSound_Mix_Callback(void *udata, Uint8 *stream, int len)
+void PCSound_Mix_Callback(void *udata, Uint8 *stream, int len)
 {
     Sint16 *leftptr;
     Sint16 *rightptr;
@@ -73,21 +79,26 @@ static void PCSound_Mix_Callback(void *udata, Uint8 *stream, int len)
     int i;
     int nsamples;
 
+    // safe to call even if not active
+    if (!pcsound_inited)
+      return;
+
+
     // Number of samples is quadrupled, because of 16-bit and stereo
 
     nsamples = len / 4;
 
     leftptr = (Sint16 *) stream;
     rightptr = ((Sint16 *) stream) + 1;
-    
+
     // Fill the output buffer
 
     for (i=0; i<nsamples; ++i)
     {
-        // Has this sound expired? If so, invoke the callback to get 
+        // Has this sound expired? If so, invoke the callback to get
         // the next frequency.
 
-        while (current_remaining == 0) 
+        while (current_remaining == 0)
         {
             oldfreq = current_freq;
 
@@ -108,24 +119,24 @@ static void PCSound_Mix_Callback(void *udata, Uint8 *stream, int len)
         }
 
         // Set the value for this sample.
-        
+
         if (current_freq == 0)
         {
             // Silence
 
             this_value = 0;
         }
-        else 
+        else
         {
             int frac;
 
             // Determine whether we are at a peak or trough in the current
-            // sound.  Multiply by 2 so that frac % 2 will give 0 or 1 
+            // sound.  Multiply by 2 so that frac % 2 will give 0 or 1
             // depending on whether we are at a peak or trough.
 
             frac = (phase_offset * current_freq * 2) / mixing_freq;
 
-            if ((frac % 2) == 0) 
+            if ((frac % 2) == 0)
             {
                 this_value = SQUARE_WAVE_AMP;
             }
@@ -148,44 +159,26 @@ static void PCSound_Mix_Callback(void *udata, Uint8 *stream, int len)
         rightptr += 2;
     }
 }
-#endif // HAVE_LIBSDL_MIXER
+//#endif // HAVE_LIBSDL_MIXER
 
 static int PCSound_SDL_Init(pcsound_callback_func callback_func)
 {
-#ifdef HAVE_LIBSDL_MIXER
-    // Check that SDL_mixer has been opened already
-    // If not, fail
-
-    if (!Mix_QuerySpec(&mixing_freq, &mixing_format, &mixing_channels))
-    {
-        return 0;
-    }
-
-    // Only supports AUDIO_S16SYS
-
-    if (mixing_format != AUDIO_S16SYS || mixing_channels != 2)
-    {
-        lprintf(LO_WARN, 
-                "PCSound_SDL only supports native signed 16-bit LSB, "
-                "stereo format!\n");
-        return 0;
-    }
+    mixing_freq = snd_samplerate;
 
     callback = callback_func;
     current_freq = 0;
     current_remaining = 0;
+    pcsound_inited = 1;
 
-    Mix_SetPostMix(PCSound_Mix_Callback, NULL);
-
-#endif
     return 1;
 }
 
 static void PCSound_SDL_Shutdown(void)
 {
+    pcsound_inited = 0;
 }
 
-pcsound_driver_t pcsound_sdl_driver = 
+pcsound_driver_t pcsound_sdl_driver =
 {
     "SDL",
     PCSound_SDL_Init,

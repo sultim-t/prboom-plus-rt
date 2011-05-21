@@ -140,8 +140,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/Qipo /Qprof-use"
 				Optimization="2"
-				InlineFunctionExpansion="1"
+				InlineFunctionExpansion="2"
+				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="../VisualC8;../src;../src/PCRELIB"
 				PreprocessorDefinitions="NDEBUG;GL_DOOM;WIN32;_WINDOWS;HAVE_CONFIG_H;I386_ASM;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
@@ -166,6 +168,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalOptions="/Qipo /Qprof-use"
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib glu32.lib"
 				OutputFile="$(OutDir)\glboom-plus.exe"
 				LinkIncremental="1"
@@ -707,8 +710,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/Qipo /Qprof-use"
 				Optimization="2"
-				InlineFunctionExpansion="1"
+				InlineFunctionExpansion="2"
+				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="../VisualC8;../src;../src/PCRELIB"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;HAVE_CONFIG_H;I386_ASM;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
@@ -732,6 +737,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalOptions="/Qipo /Qprof-use"
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib"
 				OutputFile="$(OutDir)\prboom-plus.exe"
 				LinkIncremental="1"
@@ -7412,6 +7418,94 @@
 			</File>
 			<File
 				RelativePath="..\src\TEXTSCREEN\txt_window_action.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Music"
+			>
+			<File
+				RelativePath="..\src\MUSIC\dbopl.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\MUSIC\dbopl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\MUSIC\dumbplayer.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\MUSIC\dumbplayer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\MUSIC\flplayer.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\MUSIC\flplayer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\MUSIC\madplayer.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\MUSIC\madplayer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\MUSIC\midifile.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\MUSIC\midifile.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\MUSIC\musicplayer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\MUSIC\opl.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\MUSIC\opl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\MUSIC\opl_queue.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\MUSIC\opl_queue.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\MUSIC\oplplayer.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\MUSIC\oplplayer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\MUSIC\portmidiplayer.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\MUSIC\portmidiplayer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\MUSIC\vorbisplayer.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\MUSIC\vorbisplayer.h"
 				>
 			</File>
 		</Filter>
