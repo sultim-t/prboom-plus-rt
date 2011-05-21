@@ -576,7 +576,7 @@ void I_InitSound(void)
   // haleyjd: the docs say we should do this
   if (SDL_InitSubSystem(SDL_INIT_AUDIO))
   {
-    lprintf(LO_INFO, "Couldn't initialize SDL audio.\n");
+    lprintf(LO_INFO, "Couldn't initialize SDL audio (%s))\n", SDL_GetError());
     nosfxparm = true;
     nomusicparm = true;
     return;
@@ -599,7 +599,9 @@ void I_InitSound(void)
 
     if (Mix_OpenAudio(audio_rate, MIX_DEFAULT_FORMAT, audio_channels, audio_buffers) < 0)
     {
-      lprintf(LO_INFO,"couldn't open audio with desired format\n");
+      lprintf(LO_INFO,"couldn't open audio with desired format (%s)\n", SDL_GetError());
+      nosfxparm = true;
+      nomusicparm = true;
       return;
     }
     sound_inited_once = true;//e6y
@@ -625,7 +627,9 @@ void I_InitSound(void)
     audio.callback = I_UpdateSound;
     if ( SDL_OpenAudio(&audio, NULL) < 0 )
     {
-      lprintf(LO_INFO, "couldn't open audio with desired format\n");
+      lprintf(LO_INFO, "couldn't open audio with desired format (%s))\n", SDL_GetError());
+      nosfxparm = true;
+      nomusicparm = true;
       return;
     }
     sound_inited_once = true;//e6y
