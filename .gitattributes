@@ -252,6 +252,10 @@ prboom2/src/MAC/i_sound.c -text
 prboom2/src/MAC/i_system.m -text
 prboom2/src/MAC/macsupport.rb -text
 prboom2/src/MUSIC/Makefile.am eol=lf
+prboom2/src/MUSIC/dll/libogg-0.dll -text
+prboom2/src/MUSIC/dll/libvorbis-0.dll -text
+prboom2/src/MUSIC/dll/libvorbisfile-3.dll -text
+prboom2/src/MUSIC/dll/portmidi.dll -text
 prboom2/src/MUSIC/lib/dumb.lib -text
 prboom2/src/MUSIC/lib/dumbd.lib -text
 prboom2/src/MUSIC/lib/libfluidsynth.lib -text
