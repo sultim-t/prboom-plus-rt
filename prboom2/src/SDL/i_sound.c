@@ -556,7 +556,11 @@ void I_ShutdownSound(void)
     lprintf(LO_INFO, "\n");
     sound_inited = false;
 
-    SDL_DestroyMutex (sfxmutex);
+    if (sfxmutex)
+    {
+      SDL_DestroyMutex (sfxmutex);
+      sfxmutex = NULL;
+    }
   }
 }
 
@@ -1221,7 +1225,11 @@ static void Exp_ShutdownMusic(void)
       music_players[i]->shutdown ();
   }
 
-  SDL_DestroyMutex (musmutex);
+  if (musmutex)
+  {
+    SDL_DestroyMutex (musmutex);
+    musmutex = NULL;
+  }
 }
 
 
