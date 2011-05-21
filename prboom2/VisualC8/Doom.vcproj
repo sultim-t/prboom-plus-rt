@@ -140,10 +140,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/Qipo /Qprof-use"
 				Optimization="2"
-				InlineFunctionExpansion="2"
-				FavorSizeOrSpeed="1"
+				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../VisualC8;../src;../src/PCRELIB"
 				PreprocessorDefinitions="NDEBUG;GL_DOOM;WIN32;_WINDOWS;HAVE_CONFIG_H;I386_ASM;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
@@ -168,7 +166,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/Qipo /Qprof-use"
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib glu32.lib"
 				OutputFile="$(OutDir)\glboom-plus.exe"
 				LinkIncremental="1"
@@ -710,10 +707,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/Qipo /Qprof-use"
 				Optimization="2"
-				InlineFunctionExpansion="2"
-				FavorSizeOrSpeed="1"
+				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../VisualC8;../src;../src/PCRELIB"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;HAVE_CONFIG_H;I386_ASM;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
@@ -737,7 +732,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/Qipo /Qprof-use"
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib"
 				OutputFile="$(OutDir)\prboom-plus.exe"
 				LinkIncremental="1"
