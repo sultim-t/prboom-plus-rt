@@ -89,6 +89,9 @@ typedef struct
 // helper for deferred load dll
 
 #ifdef _MSC_VER
+#if 1
+#define TESTDLLLOAD(a,b)
+#else
 #define TESTDLLLOAD(a,b)                                                           \
   if (1)                                                                           \
   {                                                                                \
@@ -105,6 +108,7 @@ typedef struct
       return 0;                                                                    \
     }                                                                              \
   }
+#endif
 
 #else // _MSC_VER
 #define TESTDLLLOAD(a,b)
