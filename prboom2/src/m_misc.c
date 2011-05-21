@@ -373,7 +373,7 @@ default_t defaults[] =
   {"snd_channels",{&default_numChannels},{8},1,32,
    def_int,ss_none}, // number of audio events simultaneously // killough
   {"use_experimental_music",{&use_experimental_music},{0},0,1, def_bool,ss_none},
-  {"snd_soundfont",{NULL, &snd_soundfont},{0,"weedsgm3.sf2"},UL,UL,def_str,ss_none}, // soundfont name for synths that support it
+  {"snd_soundfont",{NULL, &snd_soundfont},{0,"8mbgmsfx.sf2"},UL,UL,def_str,ss_none}, // soundfont name for synths that support it
   {"music_player_order0",{NULL, &music_player_order[0]},{0,"vorbis player"},UL,UL,def_str,ss_none}, // order to try different music players
   {"music_player_order1",{NULL, &music_player_order[1]},{0,"mad mp3 player"},UL,UL,def_str,ss_none}, // order to try different music players
   {"music_player_order2",{NULL, &music_player_order[2]},{0,"dumb tracker player"},UL,UL,def_str,ss_none}, // order to try different music players
