@@ -125,10 +125,14 @@ int OPL_Init (unsigned int rate)
 
 void OPL_Shutdown(void)
 {
+    if (callback_queue)
+    {
+      OPL_Queue_Destroy(callback_queue);
+      free(mix_buffer);
 
-    OPL_Queue_Destroy(callback_queue);
-    free(mix_buffer);
-
+      callback_queue = NULL;
+      mix_buffer = NULL;
+    }
 }
 
 void OPL_SetCallback(unsigned int ms,

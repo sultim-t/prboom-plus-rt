@@ -161,9 +161,19 @@ static int fl_init (int samplerate)
 
 static void fl_shutdown (void)
 {
-  fluid_synth_sfunload (f_syn, f_font, 1);
-  delete_fluid_synth (f_syn);
-  delete_fluid_settings (f_set);
+  if (f_syn)
+  {
+    fluid_synth_sfunload (f_syn, f_font, 1);
+    delete_fluid_synth (f_syn);
+    f_syn = NULL;
+    f_font = 0;
+  }
+
+  if (f_set)
+  {
+    delete_fluid_settings (f_set);
+    f_set = NULL;
+  }
 }
 
 

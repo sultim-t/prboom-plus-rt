@@ -155,8 +155,12 @@ static int pm_init (int samplerate)
 
 static void pm_shutdown (void)
 {
-  Pm_Close (pm_stream);
-  Pm_Terminate ();
+  if (pm_stream)
+  {
+    Pm_Close (pm_stream);
+    Pm_Terminate ();
+    pm_stream = NULL;
+  }
 }
 
 
