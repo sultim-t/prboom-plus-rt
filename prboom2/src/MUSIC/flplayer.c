@@ -288,8 +288,14 @@ static void fl_writesamples_ex (short *dest, int nsamp)
   fluid_synth_write_float (f_syn, nsamp, fbuff, 0, 2, fbuff, 1, 2);
 
   for (i = 0; i < nsamp * 2; i++)
-    // data is already clipped?
+  {
+    // data is NOT already clipped
+    if (fbuff[i] > 1.0f)
+      fbuff[i] = 1.0f;
+    if (fbuff[i] < -1.0f)
+      fbuff[i] = -1.0f;
     dest[i] = (short) (fbuff[i] * multiplier);
+  }
 }
 
 static void writesysex (unsigned char *data, int len)
