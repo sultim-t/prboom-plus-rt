@@ -1436,9 +1436,6 @@ void I_midiOutSetVolumes(int volume)
   MIDIOUTCAPS capabilities;
   unsigned int i;
 
-  if (!mus_extend_volume)
-    return;
-
   if (volume > 15)
     volume = 15;
   if (volume < 0)
