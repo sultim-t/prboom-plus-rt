@@ -86,8 +86,8 @@ static int vorb_paused = 0;
 static int vorb_playing = 0;
 
 static const char *vorb_data;
-static ogg_int64_t vorb_len;
-static ogg_int64_t vorb_pos;
+static size_t vorb_len;
+static size_t vorb_pos;
 
 OggVorbis_File vf;
 
@@ -95,7 +95,7 @@ OggVorbis_File vf;
 
 static size_t vread (void *dst, size_t s, size_t n, void *src)
 {
-  ogg_int64_t size = s * n;
+  size_t size = s * n;
 
   if (vorb_pos + size >= vorb_len)
     size = vorb_len - vorb_pos;
@@ -107,19 +107,19 @@ static size_t vread (void *dst, size_t s, size_t n, void *src)
 
 static int vseek (void *src, ogg_int64_t offset, int whence)
 {
-  ogg_int64_t desired_pos;
+  size_t desired_pos;
 
   switch (whence)
   {
     case SEEK_SET:
-      desired_pos = offset;
+      desired_pos = (size_t) offset;
       break;
     case SEEK_CUR:
-      desired_pos = vorb_pos + offset;
+      desired_pos = vorb_pos + (size_t) offset;
       break;
     case SEEK_END:
     default:
-      desired_pos = vorb_len + offset;
+      desired_pos = vorb_len + (size_t) offset;
       break;
   }
   if (desired_pos > vorb_len) // placing exactly at the end is allowed)

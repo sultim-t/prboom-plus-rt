@@ -1336,7 +1336,7 @@ void Chip__Setup(Chip *self, Bit32u rate ) {
   //-3 since the real envelope takes 8 steps to reach the single value we supply
   for ( i = 0; i < 76; i++ ) {
     Bit8u index, shift;
-    EnvelopeSelect( i, &index, &shift );
+    EnvelopeSelect( (Bit8u) i, &index, &shift );
     self->linearRates[i] = (Bit32u)( scale * (EnvelopeIncreaseTable[ index ] << ( RATE_SH + ENV_EXTRA - shift - 3 )));
   }
   //Generate the best matching attack rate
@@ -1344,7 +1344,7 @@ void Chip__Setup(Chip *self, Bit32u rate ) {
     Bit8u index, shift;
     Bit32s original, guessAdd, bestAdd, bestDiff;
     Bit32u passes;
-    EnvelopeSelect( i, &index, &shift );
+    EnvelopeSelect( (Bit8u) i, &index, &shift );
     //Original amount of samples the attack would take
     original = (Bit32u)( (AttackSamplesTable[ index ] << shift) / scale);
 
@@ -1545,7 +1545,7 @@ void DBOPL_InitTables( void ) {
     if ( i >= 16 )
       index += 9;
     blah = (Bitu) ( &(chip->chan[ index ]) );
-    ChanOffsetTable[i] = blah;
+    ChanOffsetTable[i] = (Bit16u) blah;
   }
   //Same for operators
   for ( i = 0; i < 64; i++ ) {
@@ -1561,7 +1561,7 @@ void DBOPL_InitTables( void ) {
       chNum += 16 - 12;
     opNum = ( i % 8 ) / 3;
     blah = (Bitu) ( &(chan->op[opNum]) );
-    OpOffsetTable[i] = ChanOffsetTable[ chNum ] + blah;
+    OpOffsetTable[i] = (Bit16u) (ChanOffsetTable[ chNum ] + blah);
   }
 #if 0
   //Stupid checks if table's are correct

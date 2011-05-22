@@ -871,7 +871,7 @@ midi_event_t **MIDI_GenerateFlatList (midi_file_t *file)
 
     for (i = 0; i < file->num_tracks; i++)
     {
-      if (i == nextrk)
+      if (i == (unsigned) nextrk)
       {
         tracktime[i] = 0;
         trackpos[i]++;
@@ -890,7 +890,7 @@ midi_event_t **MIDI_GenerateFlatList (midi_file_t *file)
       trackpos[nextrk] = -1;
       epos[0]->data.meta.type = MIDI_META_TEXT;
     }
-    else if (trackpos[nextrk] == file->tracks[nextrk].num_events)
+    else if ((unsigned) trackpos[nextrk] == file->tracks[nextrk].num_events)
     {
       lprintf (LO_WARN, "MIDI_GenerateFlatList: Unexpected end of track\n");
       free (trackpos);

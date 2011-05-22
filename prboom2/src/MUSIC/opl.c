@@ -202,7 +202,7 @@ static void WriteRegister(unsigned int reg_num, unsigned int value)
             break;
 
         default:
-            Chip__WriteReg(&opl_chip, reg_num, value);
+            Chip__WriteReg(&opl_chip, reg_num, (unsigned char) value);
             break;
     }
 }
