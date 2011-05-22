@@ -107,6 +107,7 @@ static int fl_init (int samplerate)
 #ifdef _WIN32
   if ((int)GetVersion() < 0) // win9x
   {
+    lprintf (LO_INFO, "Fluidplayer: Win9x is not supported\n");
     return 0;
   }
 #endif
