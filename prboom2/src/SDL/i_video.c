@@ -633,7 +633,11 @@ void I_PreInitGraphics(void)
     // videodriver == default
 #ifdef _WIN32
     if ((int)GetVersion() < 0 && V_GetMode() != VID_MODEGL ) // win9x
+    {
+      free(sdl_videodriver);
+      sdl_videodriver = strdup("directx");
       putenv("SDL_VIDEODRIVER=directx");
+    }
 #endif
   }
 
