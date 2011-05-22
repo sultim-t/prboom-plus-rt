@@ -236,7 +236,11 @@ static void fl_unregistersong (void *handle)
 
 static void fl_pause (void)
 {
+  int i;
   f_paused = 1;
+  // stray notes can hang for too long
+  for (i = 0; i < 16; i++)
+    fluid_synth_cc (f_syn, i, 123, 0); // ALL NOTES OFF
 }
 static void fl_resume (void)
 {

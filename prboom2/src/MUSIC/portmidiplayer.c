@@ -199,6 +199,14 @@ static const void *pm_registersong (const void *data, unsigned len)
   return data;
 }
 
+static void writeevent (int when, int eve, int channel, int v1, int v2)
+{
+  PmMessage m;
+
+  m = Pm_Message (eve | channel, v1, v2);
+  Pm_WriteShort (pm_stream, when, m);
+}
+
 static void pm_unregistersong (void *handle)
 {
   if (events)
@@ -215,7 +223,13 @@ static void pm_unregistersong (void *handle)
 
 static void pm_pause (void)
 {
+  int i;
+  unsigned long when = Pt_Time ();
   pm_paused = 1;
+  for (i = 0; i < 16; i++)
+  {
+    writeevent (when, MIDI_EVENT_CONTROLLER, i, 123, 0); // all notes off
+  }
 }
 static void pm_resume (void)
 {
@@ -231,14 +245,6 @@ static void pm_play (void *handle, int looping)
   pm_delta = 0.0;
   trackstart = Pt_Time ();
 
-}
-
-static void writeevent (int when, int eve, int channel, int v1, int v2)
-{
-  PmMessage m;
-
-  m = Pm_Message (eve | channel, v1, v2);
-  Pm_WriteShort (pm_stream, when, m);
 }
 
 
