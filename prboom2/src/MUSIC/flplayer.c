@@ -104,6 +104,13 @@ static const char *fl_name (void)
 
 static int fl_init (int samplerate)
 {
+#ifdef _WIN32
+  if ((int)GetVersion() < 0) // win9x
+  {
+    return 0;
+  }
+#endif
+
   TESTDLLLOAD ("libfluidsynth.dll", TRUE)
 
   f_soundrate = samplerate;
