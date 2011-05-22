@@ -532,7 +532,10 @@ void S_ChangeMusic(int musicnum, int looping)
 
 void S_RestartMusic(void)
 {
-  S_ChangeMusic(musicnum_current, true);
+  if (musicnum_current > mus_None && musicnum_current < NUMMUSIC)
+  {
+    S_ChangeMusic(musicnum_current, true);
+  }
 }
 
 void S_ChangeMusInfoMusic(int lumpnum, int looping)
