@@ -130,7 +130,7 @@ static int fl_init (int samplerate)
   FSET (num, "synth.sample-rate", f_soundrate);
 
   // gain control
-  FSET (num, "synth.gain", 0.8); // 0.0 - 0.2 - 10.0
+  FSET (num, "synth.gain", 0.5); // 0.0 - 0.2 - 10.0
   // behavior wrt bank select messages
   FSET (str, "synth-midi-bank-select", "gm"); // general midi mode
   // general midi spec says no more than 24 voices needed
