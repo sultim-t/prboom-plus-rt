@@ -94,7 +94,7 @@ void I_ResampleStream (void *dest, unsigned nsamp, void (*proc) (void *dest, uns
 //  MUSIC I/O
 //
 extern const char *snd_soundfont;
-extern const char *music_player_order[];
+extern char music_player_order[][200];
 
 void I_InitMusic(void);
 void I_ShutdownMusic(void);
@@ -131,5 +131,12 @@ extern int mus_card;
 extern int snd_samplerate;
 
 extern int use_experimental_music;
+
+// prefered MIDI player
+extern const char *snd_midiplayer;
+
+extern const char *midiplayers[];
+
+void M_ChangeMIDIPlayer(void);
 
 #endif

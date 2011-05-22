@@ -373,13 +373,8 @@ default_t defaults[] =
   {"snd_channels",{&default_numChannels},{8},1,32,
    def_int,ss_none}, // number of audio events simultaneously // killough
   {"use_experimental_music",{&use_experimental_music},{0},0,1, def_bool,ss_none},
+  {"snd_midiplayer",{NULL, &snd_midiplayer},{0,"sdl"},UL,UL,def_str,ss_none},
   {"snd_soundfont",{NULL, &snd_soundfont},{0,"8mbgmsfx.sf2"},UL,UL,def_str,ss_none}, // soundfont name for synths that support it
-  {"music_player_order0",{NULL, &music_player_order[0]},{0,"vorbis player"},UL,UL,def_str,ss_none}, // order to try different music players
-  {"music_player_order1",{NULL, &music_player_order[1]},{0,"mad mp3 player"},UL,UL,def_str,ss_none}, // order to try different music players
-  {"music_player_order2",{NULL, &music_player_order[2]},{0,"dumb tracker player"},UL,UL,def_str,ss_none}, // order to try different music players
-  {"music_player_order3",{NULL, &music_player_order[3]},{0,"fluidsynth midi player"},UL,UL,def_str,ss_none}, // order to try different music players
-  {"music_player_order4",{NULL, &music_player_order[4]},{0,"opl2 synth player"},UL,UL,def_str,ss_none}, // order to try different music players
-  {"music_player_order5",{NULL, &music_player_order[5]},{0,"portmidi midi player"},UL,UL,def_str,ss_none}, // order to try different music players
 
 #ifdef _WIN32
   {"mus_extend_volume",{&mus_extend_volume},{0},0,1,
