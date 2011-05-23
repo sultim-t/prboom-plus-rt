@@ -3032,7 +3032,7 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
 //#ifdef HAVE_LIBSDL_MIXER
   {"PC Speaker emulation",           S_YESNO|S_PRGWARN,  m_null, G_X, G_Y+17*8, {"snd_pcspeaker"}},
 //#endif
-  {"Preferred MIDI player",          S_CHOICE,           m_null, G_X, G_Y+18*8, {"snd_midiplayer"}, 0, 0, M_ChangeMIDIPlayer, midiplayers},
+  {"Preferred MIDI player",          S_CHOICE|S_PRGWARN, m_null, G_X, G_Y+18*8, {"snd_midiplayer"}, 0, 0, M_ChangeMIDIPlayer, midiplayers},
 
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},

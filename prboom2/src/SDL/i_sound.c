@@ -745,7 +745,7 @@ void I_ResampleStream (void *dest, unsigned nsamp, void (*proc) (void *dest, uns
 // MUSIC API.
 //
 
-int use_experimental_music;
+int use_experimental_music = -1;
 
 static void Exp_UpdateMusic (void *buff, unsigned nsamp);
 static int Exp_RegisterMusic (const char *filename, musicinfo_t *song);
@@ -1575,15 +1575,34 @@ void M_ChangeMIDIPlayer(void)
     }
   }
 
+  if (use_experimental_music == -1)
+  {
+    use_experimental_music = experimental_music;
+  }
+  else
+  {
+    if (experimental_music && use_experimental_music)
+    {
+      S_StopMusic();
+      S_RestartMusic();
+    }
+  }
+
+#if 0
   S_StopMusic();
 
   if (use_experimental_music != experimental_music)
   {
     I_ShutdownMusic();
+
+    S_Stop();
     I_ShutdownSound();
+
     use_experimental_music = experimental_music;
+
     I_InitSound();
   }
 
   S_RestartMusic();
+#endif
 }
