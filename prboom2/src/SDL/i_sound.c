@@ -1547,6 +1547,12 @@ void M_ChangeMIDIPlayer(void)
 {
   int experimental_music;
 
+#ifndef _WIN32
+  // do not bother about small memory leak
+  snd_midiplayer = strdup(midiplayers[midi_player_sdl]);
+  return;
+#endif
+
   if (!strcasecmp(snd_midiplayer, midiplayers[midi_player_sdl]))
   {
     experimental_music = false;
