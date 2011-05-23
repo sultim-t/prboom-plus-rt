@@ -1581,6 +1581,7 @@ void M_ChangeMIDIPlayer(void)
     }
   }
 
+#if 1
   if (use_experimental_music == -1)
   {
     use_experimental_music = experimental_music;
@@ -1593,8 +1594,7 @@ void M_ChangeMIDIPlayer(void)
       S_RestartMusic();
     }
   }
-
-#if 0
+#else
   S_StopMusic();
 
   if (use_experimental_music != experimental_music)
