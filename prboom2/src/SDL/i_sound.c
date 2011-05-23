@@ -552,6 +552,9 @@ void I_ShutdownSound(void)
   if (sound_inited)
   {
     lprintf(LO_INFO, "I_ShutdownSound: ");
+#ifdef HAVE_MIXER
+    Mix_CloseAudio();
+#endif
     SDL_CloseAudio();
     lprintf(LO_INFO, "\n");
     sound_inited = false;
