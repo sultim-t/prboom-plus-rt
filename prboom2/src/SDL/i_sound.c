@@ -1580,6 +1580,7 @@ void M_ChangeMIDIPlayer(void)
   if (use_experimental_music != experimental_music)
   {
     I_ShutdownMusic();
+    I_ShutdownSound();
     use_experimental_music = experimental_music;
     I_InitSound();
   }
