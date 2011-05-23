@@ -1581,7 +1581,7 @@ void M_ChangeMIDIPlayer(void)
   {
     I_ShutdownMusic();
     use_experimental_music = experimental_music;
-    I_InitMusic();
+    I_InitSound();
   }
 
   S_RestartMusic();
