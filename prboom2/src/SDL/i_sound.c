@@ -46,7 +46,13 @@
 #include "SDL.h"
 #include "SDL_audio.h"
 #include "SDL_mutex.h"
+
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+#include "SDL_endian.h"
+#else
 #include "SDL_byteorder.h"
+#endif
+
 #include "SDL_version.h"
 #include "SDL_thread.h"
 #ifdef HAVE_MIXER

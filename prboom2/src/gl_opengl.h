@@ -44,6 +44,19 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+#if defined(__MACOSX__)
+#include <OpenGL/gl.h>	/* Header File For The OpenGL Library */
+#include <OpenGL/glu.h>	/* Header File For The GLU Library */
+#elif defined(__MACOS__)
+#include <gl.h>		/* Header File For The OpenGL Library */
+#include <glu.h>	/* Header File For The GLU Library */
+#else
+#include <GL/gl.h>	/* Header File For The OpenGL Library */
+#include <GL/glu.h>	/* Header File For The GLU Library */
+#endif
+#endif
+
 #include "doomtype.h"
 
 #if !defined(GL_DEPTH_STENCIL_EXT)

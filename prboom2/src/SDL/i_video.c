@@ -1106,10 +1106,13 @@ void I_SetWindowCaption(void)
 
 void I_SetWindowIcon(void)
 {
-    SDL_Surface *surface;
-    Uint8 *mask;
-    int i;
+  static SDL_Surface *surface = NULL;
+  static Uint8 *mask;
+  int i;
 
+  // do it only once, because of crash in SDL_InitVideoMode in SDL 1.3
+  if (!surface)
+  {
     // Generate the mask
   
     mask = malloc(icon_w * icon_h / 8);
@@ -1126,18 +1129,14 @@ void I_SetWindowIcon(void)
     }
 
     surface = SDL_CreateRGBSurfaceFrom(icon_data,
-                                       icon_w,
-                                       icon_h,
-                                       24,
-                                       icon_w * 3,
-                                       0xff << 0,
-                                       0xff << 8,
-                                       0xff << 16,
-                                       0);
+      icon_w, icon_h, 24, icon_w * 3,
+      0xff << 0, 0xff << 8, 0xff << 16, 0);
+  }
 
-    SDL_WM_SetIcon(surface, mask);
-    SDL_FreeSurface(surface);
-    free(mask);
+  if (surface && mask)
+  {
+    //SDL_WM_SetIcon(surface, mask);
+  }
 }
 
 void I_InitGraphics(void)
@@ -1278,7 +1277,9 @@ void I_UpdateVideoMode(void)
     SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 8 );
 
     //e6y: vertical sync
+#if !SDL_VERSION_ATLEAST(1, 3, 0)
     SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, (gl_vsync ? 1 : 0));
+#endif
 
     //e6y: anti-aliasing
     gld_MultisamplingInit();
@@ -1301,7 +1302,9 @@ void I_UpdateVideoMode(void)
       SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, gl_colorbuffer_bits );
       SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
       //e6y: vertical sync
+#if !SDL_VERSION_ATLEAST(1, 3, 0)
       SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, (gl_vsync ? 1 : 0));
+#endif
 
       vid_8ingl.surface = SDL_SetVideoMode(
         REAL_SCREENWIDTH, REAL_SCREENHEIGHT,
@@ -1329,6 +1332,15 @@ void I_UpdateVideoMode(void)
   if(screen == NULL) {
     I_Error("Couldn't set %dx%d video mode [%s]", REAL_SCREENWIDTH, REAL_SCREENHEIGHT, SDL_GetError());
   }
+
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL)
+  {
+    SDL_GL_SetSwapInterval((gl_vsync ? 1 : 0));
+  }
+#endif
+#endif
 
 #ifdef GL_DOOM
   /*if (V_GetMode() == VID_MODEGL)
@@ -1413,15 +1425,21 @@ void I_UpdateVideoMode(void)
 
 static void ActivateMouse(void)
 {
-  SDL_SetCursor(cursors[1]);
   SDL_WM_GrabInput(SDL_GRAB_ON);
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+  SDL_ShowCursor(0);
+#else
+  SDL_SetCursor(cursors[1]);
   SDL_ShowCursor(1);
+#endif
 }
 
 static void DeactivateMouse(void)
 {
-  SDL_SetCursor(cursors[0]);
   SDL_WM_GrabInput(SDL_GRAB_OFF);
+#if !SDL_VERSION_ATLEAST(1, 3, 0)
+  SDL_SetCursor(cursors[0]);
+#endif
   SDL_ShowCursor(1);
 }
 

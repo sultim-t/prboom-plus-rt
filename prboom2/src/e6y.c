@@ -1078,7 +1078,11 @@ HWND WIN32_GetHWND(void)
     SDL_SysWMinfo wminfo;
     SDL_VERSION(&wminfo.version);
     SDL_GetWMInfo(&wminfo);
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+    Window = wminfo.info.win.window;
+#else
     Window = wminfo.window;
+#endif
   }
   return Window;
 }
