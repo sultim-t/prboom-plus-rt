@@ -1036,8 +1036,114 @@ double MIDI_spmc (midi_file_t *file, midi_event_t *ev, unsigned sndrate)
   return compute_spmc_normal (headerval, tempo, sndrate);
 }
 
+/*
+The timing system used by the OPL driver is very interesting. But there are too many edge cases
+in multitrack (type 1) midi tempo changes that it simply can't handle without a major rework.
+The alternative is that we recook the file into a single track file with no tempo changes at
+load time.
+*/
+
+midi_file_t *MIDI_LoadFileSpecial (midimem_t *mf)
+{
+  midi_event_t **flatlist;
+  midi_file_t *base = MIDI_LoadFile (mf);
+  midi_file_t *ret;
+  
+  double opi;
+
+  int epos = 0;
+
+  if (!base)
+    return NULL;
+
+  flatlist = MIDI_GenerateFlatList (base);
+  if (!flatlist)
+  {
+    MIDI_FreeFile (base);
+    return NULL;
+  }
+
+  ret = malloc (sizeof (midi_file_t *));
+
+  ret->header.format_type = 0;
+  ret->header.num_tracks = 1;
+  ret->header.time_division = 10000;
+  ret->num_tracks = 1;
+  ret->buffer_size = 0;
+  ret->buffer = NULL;
+  ret->tracks = malloc (sizeof (midi_track_t));
+
+  ret->tracks->num_events = 0;
+  ret->tracks->num_event_mem = 0;
+  ret->tracks->events = NULL;
+
+  opi = MIDI_spmc (base, NULL, 20000);
 
 
+  while (1)
+  {
+    midi_event_t *oldev;
+    midi_event_t *nextev;
+
+    if (ret->tracks->num_events == ret->tracks->num_event_mem)
+    { 
+      ret->tracks->num_event_mem += 100; 
+      ret->tracks->events = realloc (ret->tracks->events, sizeof (midi_event_t) * ret->tracks->num_event_mem);
+    }
+
+    oldev = flatlist[epos];
+    nextev = ret->tracks->events + ret->tracks->num_events;
+
+
+    // figure delta time
+    nextev->delta_time = opi * oldev->delta_time;
+
+    if (oldev->event_type == MIDI_EVENT_SYSEX ||
+        oldev->event_type == MIDI_EVENT_SYSEX_SPLIT)
+      // opl player can't process any sysex...
+    {
+      epos++;
+      continue;
+    }
+
+    if (oldev->event_type == MIDI_EVENT_META)
+    {
+      if (oldev->data.meta.type == MIDI_META_SET_TEMPO)
+      { // adjust future tempo scaling
+        opi = MIDI_spmc (base, oldev, 20000);
+        // insert event as dummy
+        nextev->event_type = MIDI_EVENT_META;
+        nextev->data.meta.type = MIDI_META_TEXT;
+        nextev->data.meta.length = 0;
+        nextev->data.meta.data = malloc (4);
+        epos++;
+        ret->tracks->num_events++;
+        continue;
+      }
+      if (oldev->data.meta.type == MIDI_META_END_OF_TRACK)
+      { // reproduce event and break
+        nextev->event_type = MIDI_EVENT_META;
+        nextev->data.meta.type = MIDI_META_END_OF_TRACK;
+        nextev->data.meta.length = 0;
+        nextev->data.meta.data = malloc (4);
+        epos++;
+        ret->tracks->num_events++;
+        break;
+      }
+      // other meta events not needed
+      epos++;
+      continue;
+    }
+    // non meta events can simply be copied (excluding delta time)
+    memcpy (&nextev->event_type, &oldev->event_type, sizeof (midi_event_t) - sizeof (unsigned));
+    epos++;
+    ret->tracks->num_events++;
+  }
+
+  MIDI_DestroyFlatList (flatlist);
+  MIDI_FreeFile (base);
+  return ret;
+}
 
 
 

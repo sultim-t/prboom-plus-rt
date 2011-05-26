@@ -1347,7 +1347,7 @@ static const void *I_OPL_RegisterSong(const void *data, unsigned len)
         return NULL;
     }
 
-    result = MIDI_LoadFile(&mf);
+    result = MIDI_LoadFileSpecial (&mf);
 
     if (result == NULL)
     {
