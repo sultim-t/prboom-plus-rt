@@ -1096,7 +1096,7 @@ midi_file_t *MIDI_LoadFileSpecial (midimem_t *mf)
 
 
     // figure delta time
-    nextev->delta_time = opi * oldev->delta_time;
+    nextev->delta_time = (unsigned int)(opi * oldev->delta_time);
 
     if (oldev->event_type == MIDI_EVENT_SYSEX ||
         oldev->event_type == MIDI_EVENT_SYSEX_SPLIT)
