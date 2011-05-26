@@ -1422,10 +1422,13 @@ static int Exp_RegisterSongEx (const void *data, size_t len, int try_mus2mid)
           found = 1;
           if (music_player_was_init[i])
           {
-            music_handle = (void *) music_players[i]->registersong (data, len);
-            if (music_handle)
+            void *temp_handle = (void *) music_players[i]->registersong (data, len);
+            if (temp_handle)
             {
+              SDL_LockMutex (musmutex);
               current_player = i;
+              music_handle = temp_handle;
+              SDL_UnlockMutex (musmutex);
               lprintf (LO_INFO, "Exp_RegisterSongEx: Using player %s\n", music_players[i]->name ());
               return 1;
             }
