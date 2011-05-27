@@ -1,5 +1,42 @@
 Change Log
 
+2.5.1.0 @ 2011-May-28
+[+] New music code by Nicholai Main. See "Preferred MIDI player" GUI option. Available values are "sdl", "fluidsynth" (disabled for Win9x), "opl2" and "portmidi".
+[+] If "-warp" doesn't have a map number after it, the game will automatically warp to the first map in all the files loaded at the command line.  This allows a pwad to be run without concerns about where its actual maps start.
+[+] The option to place the overlaid automap where you want (map_overlay_pos_x/y/width/height config variables).
+[+] Added render_patches_scalex/y config variables for custom scaling when "not adjusted" is used.
+[+] Emulation of weaponinfo overruns.
+[+] Automap interpolation.
+[+] Support for mouse wheel up/down.
+[+] Added an "Use mouse wheel for zooming" automap option.
+[+] Screen resolution changes don't require an engine restart.
+[+] The option to resize the main window with the mouse. Any size is allowed if Shift is pressed during resizing.
+[+] Alt-Enter now toggles between fullscreen and windowed modes.
+[+] Added an "Use GL surface for software mode" video option. It renders a software surface into an OpenGL surface. Thus, you shouldn't have palette issues on modern systems and you can use VSync with the "windib" SDL video driver.
+[*] Added mouse button actions for "backward motion" and for single-click "use".
+[*] The noclip effect which can occur with an "intercepts overflow" should not take effect after a level is reloaded.
+[*] When recording, the ENDOOM screen is now disabled regardless of the misc_fastexit option.
+[*] The "Fast Exit" option is now named "Show ENDOOM screen".
+[*] The precise rendering of automap lines when "render quality" is "quality" to avoid small vibrations during map rotation. Applied only in GL mode.
+[*] Antialiasing of automap lines now also works in software modes (Xiaolin Wu's line algorithm). There's a map_use_multisamling config variable and a corresponding GUI entry for this.
+[-] Fixed a crash on map21 @ newgothic.wad with "-complevel 10" and higher.
+[-] Improved emulation of "missed back side" overruns. The desynch in fez1-924.lmp @ fez1.wad is gone now, but you still need to add "-setmem dosbox" or "-setmem dos71" command line parameter, because the default "dos622" memory layout causes a desynch.
+[-] The automap scaling factor is now saved.
+[-] A "-set overrun_* = 0" setting now works in demo footers.
+[-] When playing back multi-level demos for the Ultimate DOOM, -warp produced unexpected results when combined with -auto.
+[-] The titlepic in malgnant.wad caused Signal 11 crashes.
+[-] Fixed the incorrect positioning of automap marks when 'follow mode' and 'rotate mode' were enabled.
+[-] Automap marks did not draw correctly, displaying white rectangles instead of digits.
+[-] Automap marks did not scale to the selected screen resolution and were hardly visible at high resolutions as a result.
+[-] The skydome cap color was wrong during invulnerability mode.
+[-] The mouse cursor didn't hide during fullscreen when the mouse was disabled in General options.
+[-] When one used skipsec to warp to an intermission screen portion of a demo, the music from the previous level was played instead of the intermission music.
+[-] The "flashing hom" detector didn't work in GL mode.
+Links for the demos, wads and topics referred to above:
+http://www.doomworld.com/idgames/index.php?id=16238 (newgothic.wad)
+http://doomedsda.us/wad1490.html (fez1-924.lmp, fez1.wad)
+http://www.doomworld.com/idgames/index.php?id=1509 (malgnant.wad)
+
 2.5.0.8 @ 2010-Nov-13
 [+] Added support for textured automap. Available in the menu at "Options\Setup\Automap\Enable Textured Display".
 [+] "Next Level" key now works during normal play, and not just during demo playback.

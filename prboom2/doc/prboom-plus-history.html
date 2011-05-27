@@ -43,6 +43,42 @@
 
 <h1>Change Log</h1>
 
+<br><span class="ver">2.5.1.0</span>
+<span class="date"> @ 2011-May-28</span>
+<table>
+<tr><td class="aaa">[+]</td><td>New music code by Nicholai Main. See "Preferred MIDI player" GUI option. Available values are "sdl", "fluidsynth" (disabled for Win9x), "opl2" and "portmidi".
+<tr><td class="aaa">[+]</td><td>If "-warp" doesn't have a map number after it, the game will automatically warp to the first map in all the files loaded at the command line.  This allows a pwad to be run without concerns about where its actual maps start.
+<tr><td class="aaa">[+]</td><td>The option to place the overlaid automap <a href="img/prboom-plus/overlay-automap.png">where you want</a> (map_overlay_pos_x/y/width/height config variables).
+<tr><td class="aaa">[+]</td><td>Added render_patches_scalex/y config variables for custom scaling when "not adjusted" is used.
+<tr><td class="aaa">[+]</td><td>Emulation of weaponinfo overruns.
+<tr><td class="aaa">[+]</td><td>Automap interpolation.
+<tr><td class="aaa">[+]</td><td>Support for mouse wheel up/down.
+<tr><td class="aaa">[+]</td><td>Added an "Use mouse wheel for zooming" automap option.
+<tr><td class="aaa">[+]</td><td>Screen resolution changes don't require an engine restart.
+<tr><td class="aaa">[+]</td><td>The option to resize the main window with the mouse. Any size is allowed if Shift is pressed during resizing.
+<tr><td class="aaa">[+]</td><td>Alt-Enter now toggles between fullscreen and windowed modes.
+<tr><td class="aaa">[+]</td><td>Added an "Use GL surface for software mode" video option. It renders a software surface into an OpenGL surface. Thus, you shouldn't have palette issues on modern systems and you can use VSync with the "windib" SDL video driver.
+<tr><td class="aaa">[*]</td><td>Added mouse button actions for "backward motion" and for single-click "use".
+<tr><td class="aaa">[*]</td><td>The noclip effect which can occur with an "intercepts overflow" should not take effect after a level is reloaded.
+<tr><td class="aaa">[*]</td><td>When recording, the ENDOOM screen is now disabled regardless of the misc_fastexit option.
+<tr><td class="aaa">[*]</td><td>The "Fast Exit" option is now named "Show ENDOOM screen".
+<tr><td class="aaa">[*]</td><td>The precise rendering of automap lines when "render quality" is "quality" to avoid small vibrations during map rotation. Applied only in GL mode.
+<tr><td class="aaa">[*]</td><td>Antialiasing of automap lines now also works in software modes (Xiaolin Wu's line algorithm). There's a map_use_multisamling config variable and a corresponding GUI entry for this.
+<tr><td class="aaa">[-]</td><td>Fixed a crash on map21 @ <a href="http://www.doomworld.com/idgames/index.php?id=16238">newgothic.wad</a> with "-complevel 10" and higher.
+<tr><td class="aaa">[-]</td><td>Improved emulation of "missed back side" overruns. The desynch in <a href="http://doomedsda.us/wad1490.html">fez1-924.lmp @ fez1.wad</a> is gone now, but you still need to add "-setmem dosbox" or "-setmem dos71" command line parameter, because the default "dos622" memory layout causes a desynch.
+<tr><td class="aaa">[-]</td><td>The automap scaling factor is now saved.
+<tr><td class="aaa">[-]</td><td>A "-set overrun_* = 0" setting now works in demo footers.
+<tr><td class="aaa">[-]</td><td>When playing back multi-level demos for the Ultimate DOOM, -warp produced unexpected results when combined with -auto.
+<tr><td class="aaa">[-]</td><td>The titlepic in <a href="http://www.doomworld.com/idgames/index.php?id=1509">malgnant.wad</a> caused Signal 11 crashes.
+<tr><td class="aaa">[-]</td><td>Fixed the incorrect positioning of automap marks when 'follow mode' and 'rotate mode' were enabled.
+<tr><td class="aaa">[-]</td><td>Automap marks did not draw correctly, displaying white rectangles instead of digits.
+<tr><td class="aaa">[-]</td><td>Automap marks did not scale to the selected screen resolution and were hardly visible at high resolutions as a result.
+<tr><td class="aaa">[-]</td><td>The skydome cap color was wrong during invulnerability mode.
+<tr><td class="aaa">[-]</td><td>The mouse cursor didn't hide during fullscreen when the mouse was disabled in General options.
+<tr><td class="aaa">[-]</td><td>When one used skipsec to warp to an intermission screen portion of a demo, the music from the previous level was played instead of the intermission music.
+<tr><td class="aaa">[-]</td><td>The "flashing hom" detector didn't work in GL mode.
+</table>
+
 <br><span class="ver">2.5.0.8</span>
 <span class="date">&nbsp;@&nbsp;2010-Nov-13</span>
 <table>
