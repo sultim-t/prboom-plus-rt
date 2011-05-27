@@ -372,7 +372,11 @@ default_t defaults[] =
    def_int, ss_none}, // 0 = kill music when paused, 1 = pause music, 2 = let music continue
   {"snd_channels",{&default_numChannels},{8},1,32,
    def_int,ss_none}, // number of audio events simultaneously // killough
+#ifdef _WIN32
+  {"snd_midiplayer",{NULL, &snd_midiplayer},{0,"fluidsynth"},UL,UL,def_str,ss_none},
+#else
   {"snd_midiplayer",{NULL, &snd_midiplayer},{0,"sdl"},UL,UL,def_str,ss_none},
+#endif
   {"snd_soundfont",{NULL, &snd_soundfont},{0,"TimGM6mb.sf2"},UL,UL,def_str,ss_none}, // soundfont name for synths that support it
 
 #ifdef _WIN32
