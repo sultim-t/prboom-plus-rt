@@ -19,6 +19,13 @@
 //#include "inttypes.h" //NSM
 #include "SDL_stdinc.h"
 
+#ifdef _MSC_VER
+  #if _MSC_VER < 1300
+    #include <BaseTsd.h>
+    typedef INT_PTR   intptr_t;
+  #endif
+#endif
+
 //Use 8 handlers based on a small logatirmic wavetabe and an exponential table for volume
 #define WAVE_HANDLER  10
 //Use a logarithmic wavetable with an exponential table for volume
