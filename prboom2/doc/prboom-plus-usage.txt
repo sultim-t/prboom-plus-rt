@@ -54,6 +54,16 @@ Main Menu\Options\General
 
  SOUND & MUSIC
   PC Speaker Emulation  ; Emulates the PC Speaker sound effects from vanilla Doom
+  Preferred Midi Player ; Choose how you want music playback to happen.
+                        ; SDL:         Use SDL_Mixer (same as 2.5.0.8 and earlier)
+                        ; FLUIDSYNTH:  Use fluidsynth to synthesize midi.  You will need a soundfont file (sf2), and
+                        ;              you can specify its name with the cfg file option snd_soundfont.
+                        ;              Many soundfonts suitable for doom music can be found at http://www.richnagel.net/
+                        ; OPL2:        Use an OPL2 chip emulator.  (Sounds like AdLib or classic SoundBlaster)
+                        ; PORTMIDI:    Use the portmidi library for system output to the default midi device.
+                        ;              If your sound card has hardware midi support or you want to use a software
+                        ;              synthesizer that installs as a system device, like BassMidiDRV or Microsoft GS
+                        ;              Wavetable Synth, use this.
 
  VIDEO
   Uncapped Framerate    ; Removes 35 FPS restriction without loss of compatibility
@@ -324,3 +334,67 @@ If you wish to use hi-res textures and flats and/or patches, then you need to do
 /flats
 /patches
 Hopefully the package in which you have obtained the files will include the appropriate directory structure, so all you need to do is unzip it into the correct location with "Use folder names" (or an equivalent option) enabled.
+
+
+VIDEO CAPTURE
+
+This feature allows you to record movie files, suitable for viewing or upload to websites.
+Prboom-plus uses external command line encoding tools to accomplish this.  You will need the following:
+  oggenc2		    ;ogg vorbis audio encoder    http://www.rarewares.org/ogg-oggenc.php
+  x264                      ;h264 video encoder	         http://x264.nl/
+  mkvmerge		    ;mkv muxer                   http://www.bunkus.org/videotools/mkvtoolnix/
+
+These applications can be placed in the same folder as Prboom-plus.
+Using the movie recording feature is simple.  The command line parameter is "-viddump filename", and is meant to be used with -timedemo.
+Example:
+  prboom-plus -timedemo 30uv1437 -viddump foo.mkv
+  
+This will create foo.mkv playing demo 30uv1437.lmp.  By default, foo.mkv will be an mkv container containing h264 video and vorbis audio, which most popular video sharing sites should understand.
+
+The recording uses all of your normal video and sound options, so make sure things like video resolution, gamma correction, audio samplerate, and sound volume are how you want them beforehand.  Both OpenGL and software renderers are supported.  Music recording will happen as long as you are not using the SDL or Portmidi music options.  The video and sound are encoded as the demo is played, so the process can be slow even on a fast computer.  But, regardless of how fast the encoding goes, the resulting file can playback at full speed with perfect sound sync and no dropped frames.  Note that while you can watch the demo as it records, you will not be able to hear any sound.
+
+
+VIDEO CAPTURE (ADVANCED)
+
+Unless you thoroughly understand video encoding, it's recommended you just use the default settings.  However, if you are an encoding guru, you can control how Prboom-plus makes its videos through cfg options.  These are the defaults:
+
+cap_soundcommand          "oggenc2 -r -R %s -q 5 - -o output.ogg"
+cap_videocommand          "x264 -o output.mp4 --crf 22 --muxer mp4 --demuxer raw --input-csp rgb --input-depth 8 --input-res %wx%h --fps 35 -"
+cap_muxcommand            "mkvmerge -o %f output.mp4 output.ogg"
+cap_tempfile1             "output.ogg"
+cap_tempfile2             "output.mp4"
+cap_remove_tempfiles          1
+
+You can use any command line encoders you want that can take the following input:
+cap_soundcommand:  Receives raw 16 bit PCM audio on stdin
+cap_videocommand:  Receives raw 24 bit RGB video frames on stdin
+
+A few simple substitutions are available in writing the command invocations:
+  %w   video width in pixels
+  %h   video height in pixels
+  %s   sound rate in hertz
+  %f   filename passed to -viddump
+  %%   a single percent sign '%'
+
+cap_muxcommand is not given any special input and is run after the demo is complete.  Finally, cap_tempfile1 and cap_tempfile2 are removed once the mux command is complete only if cap_remove_tempfiles is 1.
+
+For example, the following settings use FFmpeg at all steps to create an mp4 (quicktime) container with h264 video and mp3 audio in it:
+
+cap_soundcommand          "ffmpeg -f s16le -ar %s -ac 2 -i pipe:0 -acodec libmp3lame -aq 5 temp.mp3"
+cap_videocommand          "ffmpeg -f rawvideo -pix_fmt rgb24 -s %wx%h -r 35 -i pipe:0 -vcodec libx264 -f mp4 -fpre ./libx264-baseline.ffpreset -crf 22 temp.mp4"
+cap_muxcommand            "ffmpeg -i temp.mp3 -i temp.mp4 -vcodec copy -acodec copy %f.mp4"
+cap_tempfile1             "temp.mp3"
+cap_tempfile2             "temp.mp4"
+cap_remove_tempfiles          1
+
+The console output from the various commands is redirected to file so you can see it for debugging purposes:
+  cap_soundcommand:
+    sound_stdout.txt
+    sound_stderr.txt
+  cap_videocommand:
+    video_stdout.txt
+    video_stderr.txt
+  cap_muxcommand:
+    mux_stdout.txt
+    mux_stderr.txt
+
