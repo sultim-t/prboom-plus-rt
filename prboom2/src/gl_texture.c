@@ -1312,6 +1312,8 @@ void gld_FlushTextures(void)
   gld_CleanTexItems(numtextures, &gld_GLTextures);
   gld_CleanTexItems(numlumps, &gld_GLPatchTextures);
 
+  gl_has_hires = 0;
+  
   gld_ResetLastTexture();
 #ifdef HAVE_LIBSDL_IMAGE
   gld_HiRes_BuildTables();
