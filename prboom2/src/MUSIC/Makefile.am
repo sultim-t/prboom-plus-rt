@@ -2,7 +2,7 @@
 #
 #
 
-CFLAGS = @CFLAGS@
+CFLAGS = @CFLAGS@ @SDL_CFLAGS@
 
 noinst_LIBRARIES = libdoommusic.a
 
