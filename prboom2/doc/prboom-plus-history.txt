@@ -12,7 +12,8 @@ Change Log
 [+] Screen resolution changes don't require an engine restart.
 [+] The option to resize the main window with the mouse. Any size is allowed if Shift is pressed during resizing.
 [+] Alt-Enter now toggles between fullscreen and windowed modes.
-[+] Added an "Use GL surface for software mode" video option. It renders a software surface into an OpenGL surface. Thus, you shouldn't have palette issues on modern systems and you can use VSync with the "windib" SDL video driver.
+[+] Added an "Use GL surface for software mode" video option. It renders a software surface into an OpenGL surface. Thus, you shouldn't have palette issues on modern systems and you can use VSync even with the "windib" SDL video driver.
+[+] New video capture system by Nicholai Main. Use command line params "-timedemo anydemo.lmp -viddump filename.mkv"; see usage.txt for more details.
 [*] Added mouse button actions for "backward motion" and for single-click "use".
 [*] The noclip effect which can occur with an "intercepts overflow" should not take effect after a level is reloaded.
 [*] When recording, the ENDOOM screen is now disabled regardless of the misc_fastexit option.
