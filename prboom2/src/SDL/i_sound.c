@@ -426,7 +426,9 @@ dboolean I_AnySoundStillPlaying(void)
 // This function currently supports only 16bit.
 //
 
+#ifndef HAVE_OWN_MUSIC
 static void Exp_UpdateMusic (void *buff, unsigned nsamp);
+#endif
 
 // from pcsound_sdl.c
 void PCSound_Mix_Callback(void *udata, Uint8 *stream, int len);
@@ -454,6 +456,7 @@ static void I_UpdateSound(void *unused, Uint8 *stream, int len)
   if (dumping_sound && unused != (void *) 0xdeadbeef)
     return;
 
+#ifndef HAVE_OWN_MUSIC
   // do music update
   if (use_experimental_music)
   {
@@ -461,6 +464,7 @@ static void I_UpdateSound(void *unused, Uint8 *stream, int len)
     Exp_UpdateMusic (stream, len / 4);
     SDL_UnlockMutex (musmutex);
   }
+#endif
 
   if (snd_pcspeaker)
   {
@@ -746,6 +750,7 @@ void I_ResampleStream (void *dest, unsigned nsamp, void (*proc) (void *dest, uns
 }  
   
 
+#ifndef HAVE_OWN_MUSIC
 
 //
 // MUSIC API.
@@ -1621,3 +1626,5 @@ void M_ChangeMIDIPlayer(void)
   S_RestartMusic();
 #endif
 }
+
+#endif
