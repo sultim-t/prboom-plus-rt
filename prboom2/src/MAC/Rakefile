@@ -5,7 +5,7 @@
 NAME = 'PrBoom-Plus'
 APPVERSION = /^#define VERSION "([^"]*)"$/.match(IO.read('MAC/config.h'))[1]
 
-require 'MAC/macsupport'
+require './MAC/macsupport'
 
 DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom-Plus')
 @deutex = 'deutex'
