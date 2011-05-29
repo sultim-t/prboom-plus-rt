@@ -4509,6 +4509,7 @@ void gld_Init8InGLMode(void)
   }
 
   gld_InitOpenGL(gl_compatibility);
+  gld_InitTextureParams();
   gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glViewport(0, 0, REAL_SCREENWIDTH, REAL_SCREENHEIGHT);
