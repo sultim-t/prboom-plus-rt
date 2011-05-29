@@ -106,7 +106,7 @@
 
 #ifndef __BYTEBOOL__
 #define __BYTEBOOL__
-typedef unsigned char dboolean;
+typedef int dboolean;
 enum {false, true};
 typedef unsigned char byte;
 #endif
