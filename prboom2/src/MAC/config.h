@@ -84,7 +84,7 @@
 /* causes a duplicate define warning
 #define HAVE_NETINET_IN_H
 */
-#define HAVE_DECL_SYS_SIGLIST
+#define HAVE_DECL_SYS_SIGLIST 1
 
 /**/
 #ifdef __BIG_ENDIAN__
@@ -103,3 +103,11 @@
 #define UPDATE_MUSIC
 #define SCREENSHOT_DIR I_DoomExeDir()
 #define HEAPDUMP_DIR I_DoomExeDir()
+
+#ifndef __BYTEBOOL__
+#define __BYTEBOOL__
+typedef unsigned char dboolean;
+enum {false, true};
+typedef unsigned char byte;
+#endif
+
