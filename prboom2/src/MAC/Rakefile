@@ -9,11 +9,13 @@ require './MAC/macsupport'
 
 DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom-Plus')
 @deutex = 'deutex'
-@systemFrameworks += %w(Cocoa Carbon QuickTime OpenGL)
+@systemFrameworks += %w(Cocoa Carbon QuickTime QTKit OpenGL)
 @frameworks += %w(SDL SDL_net SDL_image)
 @includes += ' -I. -IMAC'
 @defines += ' -DHAVE_CONFIG_H'
-@objcflags += ' -fobjc-exceptions'
+@cflags += ' -arch i386'
+@objcflags += ' -fobjc-exceptions -arch i386'
+@ldflags += ' -arch i386'
 
 if ENV['DEBUG']
 	@commonflags += ' -g -DDEBUG -Wmissing-noreturn -Wredundant-decls -Wnested-externs -Wold-style-definition -Wshadow'
@@ -55,8 +57,10 @@ SDL/i_sound.c
 SDL/i_system.c
 SDL/i_video.c
 MAC/i_system.m
-MAC/i_sound.c
+MAC/i_sound.m
 MAC/SDLMain.m
+PCSOUND/pcsound.c
+PCSOUND/pcsound_sdl.c
 TEXTSCREEN/txt_button.c
 TEXTSCREEN/txt_checkbox.c
 TEXTSCREEN/txt_desktop.c
@@ -107,6 +111,7 @@ hu_lib.c
 hu_stuff.c
 hu_tracers.c
 i_capture.c
+i_pcsound.c
 icon.c
 info.c
 lprintf.c

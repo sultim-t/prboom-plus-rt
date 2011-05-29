@@ -61,49 +61,39 @@
 // MUSIC API.
 //
 
-// This is to keep the 10.4 build working on 10.5
-// It's ugly but this header does fail for some reason -- NS
-#define __OS_OSMESSAGENOTIFICATION_H
+const char *midiplayers[2] = {"quicktime", NULL};
+const char *snd_midiplayer = "quicktime";
+const char *snd_soundfont;
+void M_ChangeMIDIPlayer(void)
+{
+}
 
-#include <Carbon/Carbon.h>
-#include <QuickTime/Movies.h>
+#import <Cocoa/Cocoa.h>
+#import <QTKit/QTKit.h>
 #include "mus2mid.h"
 
-static int playFile(const char *filename);
-
-typedef int boolean;
-char* music_tmp; /* cph - name of music temporary file */
-static boolean qtInited = false;
-static boolean inLoopedMode = false;
-static unsigned songSize = 0;
-static char *song;
-static Movie movie = NULL;
-static short movieVolume = kFullVolume;
+char *music_tmp = 0; /* cph - name of music temporary file */
+QTMovie *movie = 0;
+float movieVolume = 1.0;
+int inLoopedMode = YES;
 
 void I_ShutdownMusic(void)
 {
-  if(song)
-    free(song);
   if(movie)
-    DisposeMovie(movie);
+  {
+    [movie release];
+    movie = 0;
+  }
 
   if (music_tmp) {
     unlink(music_tmp);
     lprintf(LO_DEBUG, "I_ShutdownMusic: removing %s\n", music_tmp);
     free(music_tmp);
   }
-
-  ExitMovies();
-  qtInited = false;
-
-  song = NULL;
-  movie = NULL;
 }
 
 void I_InitMusic(void)
 {
-  qtInited = true;
-  EnterMovies();
   music_tmp = strdup("/tmp/prboom-music-XXXXXX");
   {
     int fd = mkstemp(music_tmp);
@@ -120,58 +110,48 @@ void I_InitMusic(void)
 
 void I_PlaySong(int handle, int looping)
 {
-  inLoopedMode = looping;
+  inLoopedMode = looping ? YES : NO;
 
-  GoToBeginningOfMovie(movie);
-  StartMovie(movie);
-  SetMovieVolume(movie, movieVolume);
+  [movie gotoBeginning];
+  [movie setAttribute:[NSNumber numberWithInteger:inLoopedMode]
+         forKey:QTMovieLoopsAttribute];
+  [movie setVolume:movieVolume];
+  [movie play];
 }
 
 void I_UpdateMusic(void)
 {
-  if(!movie) return;
-
-  MoviesTask(movie, 0);
-
-  if(IsMovieDone(movie) && inLoopedMode)
-  {
-    GoToBeginningOfMovie(movie);
-    StartMovie(movie);
-  }
 }
 
 void I_PauseSong (int handle)
 {
   if(!movie) return;
-
-  StopMovie(movie);
+  [movie stop];
 }
 
 void I_ResumeSong (int handle)
 {
   if(!movie) return;
-
-  StartMovie(movie);
+  [movie play];
 }
 
 void I_StopSong(int handle)
 {
   if(!movie) return;
-
-  StopMovie(movie);
+  [movie stop];
 }
 
 void I_UnRegisterSong(int handle)
 {
   if(!movie) return;
-
-  DisposeMovie(movie);
+  [movie release];
+  movie = 0;
 }
 
 int I_RegisterSong(const void *data, size_t len)
 {
   FILE *midfile;
-  boolean MidiIsReady = false;
+  bool MidiIsReady = false;
 
   if ( music_tmp == NULL )
     return 0;
@@ -189,7 +169,7 @@ int I_RegisterSong(const void *data, size_t len)
     void *outbuf;
     size_t outbuf_len;
     int result;
-    
+
     MEMFILE *instream = mem_fopen_read((void*)data, len);
     MEMFILE *outstream = mem_fopen_write();
 
@@ -214,7 +194,26 @@ int I_RegisterSong(const void *data, size_t len)
     return 0;
   }
 
-  return playFile(music_tmp);
+  /* Now play in QTKit */
+  NSError *error;
+  movie = [QTMovie movieWithFile:[NSString stringWithUTF8String:music_tmp]
+                   error:&error];
+  if(error)
+  {
+    lprintf(LO_ERROR,"Failed to create QTMovie: %s",
+            [[error localizedDescription] UTF8String]);
+    return 0;
+  }
+
+  [movie retain];
+
+  [movie gotoBeginning];
+  [movie setAttribute:[NSNumber numberWithInteger:inLoopedMode]
+         forKey:QTMovieLoopsAttribute];
+  [movie setVolume:movieVolume];
+  [movie play];
+
+  return 1;
 }
 
 int I_RegisterMusic( const char* filename, musicinfo_t *song )
@@ -225,77 +224,7 @@ int I_RegisterMusic( const char* filename, musicinfo_t *song )
 
 void I_SetMusicVolume(int value)
 {
-  movieVolume = 0x000000ff * value / 15;
+  movieVolume = (float)value / 15.0;
   if(movie)
-  {
-    // Update the volume of the running movie.
-    SetMovieVolume(movie, movieVolume);
-  }
-}
-
-static int playFile(const char *filename)
-{
-  OSErr error = noErr;
-  CFStringRef pathStr;
-  CFURLRef url;
-  FSRef fsRef;
-  FSSpec fsSpec;
-  short refNum;
-
-  if(!qtInited)
-  {
-    lprintf(LO_ERROR, "Music: Music system not initialized");
-    return 0;
-  }
-
-  // Free any previously loaded music.
-  if(movie)
-  {
-    DisposeMovie(movie);
-    movie = NULL;
-  }
-
-  // Now we'll open the file using Carbon and QuickTime.
-  pathStr = CFStringCreateWithCString(NULL, filename, 
-            CFStringGetSystemEncoding());
-  url = CFURLCreateWithString(NULL, pathStr, NULL);
-  CFRelease(pathStr);
-
-  // We've got the URL, get the FSSpec.
-  if(!CFURLGetFSRef(url, &fsRef))
-  {
-    // File does not exist??
-    CFRelease(url);
-    lprintf(LO_ERROR, "Music: Error on CFURLGetFSRef");
-    return 0;
-  }
-  CFRelease(url);
-  url = NULL;
-  if(FSGetCatalogInfo(&fsRef, kFSCatInfoNone, NULL, NULL, &fsSpec, NULL) 
-     != noErr)
-  {
-    lprintf(LO_ERROR, "Music: Error on FSGetCatalogInfo");
-    return 0;
-  }
-
-  // Open the 'movie' from the specified file.
-  if(OpenMovieFile(&fsSpec, &refNum, fsRdPerm) != noErr)
-  {
-    lprintf(LO_ERROR, "Music: Error on OpenMovie");
-    return 0;
-  }
-  error = NewMovieFromFile(&movie, refNum, NULL, NULL, 
-          newMovieActive & newMovieDontAskUnresolvedDataRefs, NULL);
-  CloseMovieFile(refNum);
-  if(error != noErr)
-  {
-    lprintf(LO_ERROR, "Music: Error on NewMovie");
-    return 0;
-  }
-
-  GoToBeginningOfMovie(movie);
-  StartMovie(movie);
-  SetMovieVolume(movie, movieVolume);
-
-  return 1;
+    [movie setVolume:movieVolume];
 }
