@@ -600,7 +600,6 @@ void I_InitSound(void)
   // Secure and configure sound device first.
   lprintf(LO_INFO, "I_InitSound: ");
 
-#ifndef HAVE_OWN_MUSIC
   if (!use_experimental_music)
   {
 #ifdef HAVE_MIXER
@@ -656,7 +655,6 @@ void I_InitSound(void)
     atexit(I_ShutdownSound);
     first_sound_init = false;
   }
-#endif // HAVE_OWN_MUSIC
 
   sfxmutex = SDL_CreateMutex ();
 
