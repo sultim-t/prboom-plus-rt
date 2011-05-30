@@ -1801,10 +1801,13 @@ void HU_Drawer(void)
 
   plr = &players[displayplayer];         // killough 3/7/98
   // draw the automap widgets if automap is displayed
-  if ((automapmode & am_active) && !(automapmode & am_overlay))
+  if (automapmode & am_active)
   {
-    // map title
-    HUlib_drawTextLine(&w_title, false);
+    if (!(automapmode & am_overlay) || (viewheight != SCREENHEIGHT))//!hud_displayed)
+    {
+      // map title
+      HUlib_drawTextLine(&w_title, false);
+    }
 
     //jff 2/16/98 output new coord display
     // x-coord
