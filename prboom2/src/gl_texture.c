@@ -1311,6 +1311,7 @@ void gld_FlushTextures(void)
 {
   gld_CleanTexItems(numtextures, &gld_GLTextures);
   gld_CleanTexItems(numlumps, &gld_GLPatchTextures);
+  gld_CleanTexItems(numlumps, &gld_GLStaticPatchTextures);
 
   gl_has_hires = 0;
   
