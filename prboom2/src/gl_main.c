@@ -4532,6 +4532,10 @@ void gld_Init8InGLMode(void)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, gl_tex_format,
+    vid_8ingl.width, vid_8ingl.height, 
+    0, GL_BGRA, GL_UNSIGNED_BYTE, 0);
   
   glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -4642,9 +4646,15 @@ void gld_Draw8InGL(void)
 
     // copy pixels from PBO to texture object
     // Use offset instead of ponter.
+#if 0
     glTexImage2D(GL_TEXTURE_2D, 0, gl_tex_format,
       vid_8ingl.width, vid_8ingl.height,
       0, GL_BGRA, GL_UNSIGNED_BYTE, 0);
+#else
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
+      vid_8ingl.width, vid_8ingl.height,
+      GL_BGRA, GL_UNSIGNED_BYTE, 0);
+#endif
 
     // bind PBO to update pixel values
     GLEXT_glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, vid_8ingl.pboids[nextIndex]);
@@ -4677,11 +4687,17 @@ void gld_Draw8InGL(void)
   {
     glBindTexture(GL_TEXTURE_2D, vid_8ingl.texid);
 
+    UpdatePixels(vid_8ingl.buf);
+
+#if 0
     glTexImage2D(GL_TEXTURE_2D, 0, gl_tex_format,
       vid_8ingl.width, vid_8ingl.height,
       0, GL_BGRA, GL_UNSIGNED_BYTE, vid_8ingl.buf);
-
-    UpdatePixels(vid_8ingl.buf);
+#else
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
+      vid_8ingl.width, vid_8ingl.height,
+      GL_BGRA, GL_UNSIGNED_BYTE, vid_8ingl.buf);
+#endif
   }
 
   glBegin(GL_TRIANGLE_STRIP);
