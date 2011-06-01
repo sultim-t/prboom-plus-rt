@@ -304,7 +304,7 @@ int I_ScreenShot (const char *fname)
 int I_ScreenShot (const char *fname)
 {
 #ifdef GL_DOOM
-  if (V_GetMode() == VID_MODEGL)
+  if (V_GetMode() == VID_MODEGL || vid_8ingl.enabled)
   {
     int result = -1;
     unsigned char *pixel_data = gld_ReadScreen();
