@@ -125,9 +125,9 @@ typedef struct
   // In case number of active sounds exceeds
   //  available channels.
   int starttime;
-  // Hardware left and right channel volume lookup.
-  int *leftvol_lookup;
-  int *rightvol_lookup;
+  // left and right channel volume (0-127)
+  int leftvol;
+  int rightvol;
 } channel_info_t;
 
 channel_info_t channelinfo[MAX_CHANNELS];
@@ -136,7 +136,7 @@ channel_info_t channelinfo[MAX_CHANNELS];
 int   steptable[256];
 
 // Volume lookups.
-int   vol_lookup[128 * 256];
+//int   vol_lookup[128 * 256];
 
 // NSM
 static int dumping_sound = 0;
@@ -235,8 +235,8 @@ static void updateSoundParams(int handle, int volume, int seperation, int pitch)
 
   // Get the proper lookup table piece
   //  for this volume level???
-  channelinfo[slot].leftvol_lookup = &vol_lookup[leftvol * 256];
-  channelinfo[slot].rightvol_lookup = &vol_lookup[rightvol * 256];
+  channelinfo[slot].leftvol = leftvol;
+  channelinfo[slot].rightvol = rightvol;
 }
 
 void I_UpdateSoundParams(int handle, int volume, int seperation, int pitch)
@@ -280,6 +280,7 @@ void I_SetChannels(void)
   // Generates volume lookup tables
   //  which also turn the unsigned samples
   //  into signed samples.
+  /*
   for (i = 0 ; i < 128 ; i++)
     for (j = 0 ; j < 256 ; j++)
     {
@@ -288,6 +289,7 @@ void I_SetChannels(void)
       vol_lookup[i * 256 + j] = (i * (j - 128) * 256) / 191;
       //vol_lookup[i*256+j] = (i*(j-128)*256)/127;
     }
+  */
 }
 
 //
@@ -437,7 +439,7 @@ static void I_UpdateSound(void *unused, Uint8 *stream, int len)
 {
   // Mix current sound data.
   // Data, from raw sound, for right and left.
-  register unsigned char sample;
+  // register unsigned char sample;
   register int    dl;
   register int    dr;
 
@@ -505,17 +507,26 @@ static void I_UpdateSound(void *unused, Uint8 *stream, int len)
       {
         // Get the raw data from the channel.
         // no filtering
-        // sample = *channelinfo[chan].data;
+        //int s = channelinfo[chan].data[0] * 0x10000 - 0x800000;
+
         // linear filtering
-        sample = (((unsigned int)channelinfo[chan].data[0] * (0x10000 - channelinfo[chan].stepremainder))
-            + ((unsigned int)channelinfo[chan].data[1] * (channelinfo[chan].stepremainder))) >> 16;
+        // the old SRC did linear interpolation back into 8 bit, and then expanded to 16 bit.
+        // this does interpolation and 8->16 at same time, allowing slightly higher quality
+        int s = ((unsigned int)channelinfo[chan].data[0] * (0x10000 - channelinfo[chan].stepremainder))
+              + ((unsigned int)channelinfo[chan].data[1] * (channelinfo[chan].stepremainder))
+              - 0x800000; // convert to signed
+
 
         // Add left and right part
         //  for this channel (sound)
         //  to the current data.
         // Adjust volume accordingly.
-        dl += channelinfo[chan].leftvol_lookup[sample];
-        dr += channelinfo[chan].rightvol_lookup[sample];
+
+        // full loudness (vol=127) is actually 127/191
+
+        dl += channelinfo[chan].leftvol * s / 49152;  // >> 15;
+        dr += channelinfo[chan].rightvol * s / 49152; // >> 15;
+
         // Increment index ???
         channelinfo[chan].stepremainder += channelinfo[chan].step;
         // MSB is next sample???
