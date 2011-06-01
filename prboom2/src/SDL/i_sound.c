@@ -261,7 +261,7 @@ void I_SetChannels(void)
   // This function sets up internal lookups used during
   //  the mixing process.
   int   i;
-  int   j;
+  //int   j;
 
   int  *steptablemid = steptable + 128;
 
