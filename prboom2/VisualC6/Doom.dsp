@@ -548,6 +548,14 @@ SOURCE=..\src\i_simd.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\i_smp.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\i_smp.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\SDL\i_sound.c
 # End Source File
 # Begin Source File

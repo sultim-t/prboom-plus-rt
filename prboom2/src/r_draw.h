@@ -70,8 +70,12 @@ typedef enum
   DRAW_COLUMN_ISPATCH = 0x00000001
 } draw_column_flags_e;
 
+typedef struct draw_column_vars_s;
+typedef void (*R_DrawColumn_f)(struct draw_column_vars_s *dcvars);
+
 // Packaged into a struct - POPE
-typedef struct {
+typedef struct draw_column_vars_s
+{
   int                 x;
   int                 yl;
   int                 yh;
@@ -92,6 +96,7 @@ typedef struct {
   int                 drawingmasked;
   enum sloped_edge_type_e edgetype;
   unsigned int        flags; //e6y: for detect patches ind colfunc()
+  R_DrawColumn_f      colfunc;
 } draw_column_vars_t;
 
 void R_SetDefaultDrawColumnVars(draw_column_vars_t *dcvars);
@@ -140,7 +145,6 @@ extern draw_vars_t drawvars;
 extern byte playernumtotrans[MAXPLAYERS]; // CPhipps - what translation table for what player
 extern byte       *translationtables;
 
-typedef void (*R_DrawColumn_f)(draw_column_vars_t *dcvars);
 R_DrawColumn_f R_GetDrawColumnFunc(enum column_pipeline_e type,
                                    enum draw_filter_type_e filter,
                                    enum draw_filter_type_e filterz);

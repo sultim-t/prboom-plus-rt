@@ -33,6 +33,11 @@
 //
 // 4/25/98, 5/2/98 killough: reformatted, beautified
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#include "SDL.h"
+
 #include "doomstat.h"
 #include "r_main.h"
 #include "r_bsp.h"
@@ -42,6 +47,7 @@
 #include "r_draw.h"
 #include "w_wad.h"
 #include "v_video.h"
+#include "i_smp.h"
 #include "lprintf.h"
 
 // OPTIMIZE: closed two sided lines as single sided
@@ -408,7 +414,8 @@ static void R_RenderSegLoop (void)
           dcvars.prevsource = R_GetTextureColumn(tex_patch, texturecolumn-1);
           dcvars.nextsource = R_GetTextureColumn(tex_patch, texturecolumn+1);
           dcvars.texheight = midtexheight;
-          colfunc (&dcvars);
+          dcvars.colfunc = colfunc;
+          SMP_ColFunc(&dcvars);
           R_UnlockTextureCompositePatchNum(midtexture);
           tex_patch = NULL;
           ceilingclip[rw_x] = viewheight;
@@ -437,7 +444,8 @@ static void R_RenderSegLoop (void)
                   dcvars.prevsource = R_GetTextureColumn(tex_patch,texturecolumn-1);
                   dcvars.nextsource = R_GetTextureColumn(tex_patch,texturecolumn+1);
                   dcvars.texheight = toptexheight;
-                  colfunc (&dcvars);
+                  dcvars.colfunc = colfunc;
+                  SMP_ColFunc(&dcvars);
                   R_UnlockTextureCompositePatchNum(toptexture);
                   tex_patch = NULL;
                   ceilingclip[rw_x] = mid;
@@ -471,7 +479,8 @@ static void R_RenderSegLoop (void)
                   dcvars.prevsource = R_GetTextureColumn(tex_patch, texturecolumn-1);
                   dcvars.nextsource = R_GetTextureColumn(tex_patch, texturecolumn+1);
                   dcvars.texheight = bottomtexheight;
-                  colfunc (&dcvars);
+                  dcvars.colfunc = colfunc;
+                  SMP_ColFunc(&dcvars);
                   R_UnlockTextureCompositePatchNum(bottomtexture);
                   tex_patch = NULL;
                   floorclip[rw_x] = mid;

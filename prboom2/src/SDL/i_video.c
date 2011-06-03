@@ -67,6 +67,7 @@
 #include "d_event.h"
 #include "i_joy.h"
 #include "i_video.h"
+#include "i_smp.h"
 #include "z_zone.h"
 #include "s_sound.h"
 #include "sounds.h"
@@ -1223,6 +1224,8 @@ void I_UpdateVideoMode(void)
       SDL_FreeSurface(vid_8ingl.surface);
       vid_8ingl.surface = NULL;
     }
+
+    SMP_Free();
   }
 
   // Initialize SDL with this graphics mode
@@ -1332,6 +1335,8 @@ void I_UpdateVideoMode(void)
   if(screen == NULL) {
     I_Error("Couldn't set %dx%d video mode [%s]", REAL_SCREENWIDTH, REAL_SCREENHEIGHT, SDL_GetError());
   }
+
+  SMP_Init();
 
 #if SDL_VERSION_ATLEAST(1, 3, 0)
 #ifdef GL_DOOM

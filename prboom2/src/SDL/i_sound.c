@@ -1251,16 +1251,6 @@ char music_player_order[NUM_MUS_PLAYERS][200] =
 // prefered MIDI device
 const char *snd_midiplayer;
 
-typedef enum
-{
-  midi_player_sdl,
-  midi_player_fluidsynth,
-  midi_player_opl2,
-  midi_player_portmidi,
-
-  midi_player_last
-} midi_player_name_t;
-
 const char *midiplayers[midi_player_last + 1] = {
   "sdl", "fluidsynth", "opl2", "portmidi", NULL};
 

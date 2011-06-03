@@ -112,6 +112,7 @@ hu_stuff.c
 hu_tracers.c
 i_capture.c
 i_pcsound.c
+i_smp.c
 icon.c
 info.c
 lprintf.c
