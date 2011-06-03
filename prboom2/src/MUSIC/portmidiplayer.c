@@ -199,13 +199,74 @@ static const void *pm_registersong (const void *data, unsigned len)
   return data;
 }
 
-static void writeevent (int when, int eve, int channel, int v1, int v2)
+static void writeevent (unsigned long when, int eve, int channel, int v1, int v2)
 {
   PmMessage m;
 
   m = Pm_Message (eve | channel, v1, v2);
   Pm_WriteShort (pm_stream, when, m);
 }
+
+/*
+portmidi has no overall volume control.  we have two options:
+1. use a win32-specific hack (only if mus_extend_volume is set)
+2. monitor the controller volume events and tweak them to serve our purpose
+*/
+
+#ifdef _WIN32
+extern int mus_extend_volume; // from e6y.h
+void I_midiOutSetVolumes (int volume); // from e6y.h
+#endif
+
+static int channelvol[16];
+
+static void pm_setchvolume (int ch, int v, unsigned long when)
+{
+  channelvol[ch] = v;
+  writeevent (when, MIDI_EVENT_CONTROLLER, ch, 7, channelvol[ch] * pm_volume / 15);
+}
+
+static void pm_refreshvolume (void)
+{
+  int i;
+  unsigned long when = Pt_Time ();
+
+  for (i = 0; i < 16; i ++)
+    writeevent (when, MIDI_EVENT_CONTROLLER, i, 7, channelvol[i] * pm_volume / 15);
+}
+
+static void pm_clearchvolume (void)
+{
+  int i;
+  for (i = 0; i < 16; i++)
+    channelvol[i] = 127; // default: max
+
+}
+
+static void pm_setvolume (int v)
+{ 
+  static int firsttime = 1;
+
+  if (pm_volume == v && !firsttime)
+    return;
+  firsttime = 0;
+
+  pm_volume = v;
+  
+  // this is a bit of a hack
+  // fix: add non-win32 version
+  // fix: change win32 version to only modify the device we're using?
+  // (portmidi could know what device it's using, but the numbers
+  //  don't match up with the winapi numbers...)
+
+  #ifdef _WIN32
+  if (mus_extend_volume)
+    I_midiOutSetVolumes (pm_volume);
+  else
+  #endif
+    pm_refreshvolume ();
+}
+
 
 static void pm_unregistersong (void *handle)
 {
@@ -243,8 +304,10 @@ static void pm_play (void *handle, int looping)
   pm_playing = 1;
   //pm_paused = 0;
   pm_delta = 0.0;
+  pm_clearchvolume ();
+  pm_refreshvolume ();
   trackstart = Pt_Time ();
-
+  
 }
 
 
@@ -284,24 +347,6 @@ static void pm_stop (void)
   }
   // abort any partial sysex
   sysexbufflen = 0;
-}
-
-
-void I_midiOutSetVolumes (int volume); // from e6y.h
-
-static void pm_setvolume (int v)
-{ // portmidi has no "overall volume" control.  you can get volume control
-  // through various controller messages, but those can all be overwritten
-  // by the midi stream you're playing at any time.
-
-  pm_volume = v;
-  
-  // this is a bit of a hack
-  // fix: add non-win32 version
-  // fix: change win32 version to only modify the device we're using?
-  // (portmidi could know what device it's using, but the numbers
-  //  don't match up with the winapi numbers...)
-  I_midiOutSetVolumes (pm_volume);
 }
 
 static void pm_render (void *vdest, unsigned bufflen)
@@ -374,11 +419,26 @@ static void pm_render (void *vdest, unsigned bufflen)
           return;
         }
         break; // not interested in most metas
+      case MIDI_EVENT_CONTROLLER:
+        if (currevent->data.channel.param1 == 7)
+        { // volume event
+          #ifdef _WIN32
+          if (!mus_extend_volume)
+          #endif
+          {
+            pm_setchvolume (currevent->data.channel.channel, currevent->data.channel.param2, when);
+            break;
+          }
+        } // fall through
       default:
         writeevent (when, currevent->event_type, currevent->data.channel.channel, currevent->data.channel.param1, currevent->data.channel.param2);
         break;
       
     }
+    // if the event was a "reset all controllers", we need to additionally re-fix the volume (which itself was reset)
+    if (currevent->event_type == MIDI_EVENT_CONTROLLER && currevent->data.channel.param1 == 121)
+      pm_setchvolume (currevent->data.channel.channel, 127, when);
+
     // event processed so advance midiclock
     pm_delta += eventdelta;
     eventpos++;
