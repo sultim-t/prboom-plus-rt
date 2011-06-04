@@ -224,10 +224,12 @@ AC_ARG_WITH([vorbisfile],
 AS_IF([test "x$with_vorbisfile" != xno],
   AC_CHECK_LIB(vorbisfile,ov_test_callbacks,[],[],[-logg -lvorbis]))
 
+dnl on some platforms, porttime is a seperate lib.  ackk
 AC_ARG_WITH([portmidi],
   AC_HELP_STRING([--without-portmidi],[Do not use portmidi library even when available]),
   [], [with_portmidi=yes])
 AS_IF([test "x$with_portmidi" != xno],
+  AC_CHECK_LIB(porttime,Pt_Time,LIBS="-lporttime $LIBS")
   AC_CHECK_LIB(portmidi,Pm_OpenInput))
 
 dnl - SDL_image

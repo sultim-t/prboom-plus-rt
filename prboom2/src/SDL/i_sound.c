@@ -1562,7 +1562,7 @@ void M_ChangeMIDIPlayer(void)
 {
   int experimental_music;
 
-#ifndef _WIN32
+#ifdef HAVE_OWN_MUSIC
   // do not bother about small memory leak
   snd_midiplayer = strdup(midiplayers[midi_player_sdl]);
   use_experimental_music = 0;
