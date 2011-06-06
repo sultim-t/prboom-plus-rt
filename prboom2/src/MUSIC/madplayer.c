@@ -239,14 +239,22 @@ static void mp_render_ex (void *dest, unsigned nsamp)
     // decode new data
     while (mad_frame_decode (&Frame, &Stream) != 0)
     {
-      if (!MAD_RECOVERABLE (Stream.error))
-      { // oh well.
-        lprintf (LO_WARN, "mad_frame_decode: Unrecoverable error %s\n", mad_stream_errorstr (&Stream));
-        mp_playing = 0;
-        memset (sout, 0, nsamp * 4);
-        return;
-      }
-      if (Stream.error == MAD_ERROR_BUFLEN)
+      if (MAD_RECOVERABLE (Stream.error))
+      { // unspecified problem with one frame.
+        // try the next frame, but bail if we get a bunch of crap in a row;
+        // likely indicates a larger problem (and if we don't bail, we could
+        // spend arbitrarily long amounts of time looking for the next good
+        // packet)
+        localerrors++;
+        if (localerrors == 10)
+        {
+          lprintf (LO_WARN, "mad_frame_decode: Lots of errors.  Most recent %s\n", mad_stream_errorstr (&Stream));
+          mp_playing = 0;
+          memset (sout, 0, nsamp * 4);
+          return;
+        }
+      }  
+      else if (Stream.error == MAD_ERROR_BUFLEN)
       { // EOF
         // FIXME: in order to not drop the last frame, there must be at least MAD_BUFFER_GUARD
         // of extra bytes (with value 0) at the end of the file.  current implementation
@@ -264,20 +272,12 @@ static void mp_render_ex (void *dest, unsigned nsamp)
         }
       }
       else
-      { // unspecified problem with one frame.
-        // try the next frame, but bail if we get a bunch of crap in a row;
-        // likely indicates a larger problem (and if we don't bail, we could
-        // spend arbitrarily long amounts of time looking for the next good
-        // packet)
-        localerrors++;
-        if (localerrors == 10)
-        {
-          lprintf (LO_WARN, "mad_frame_decode: Lots of errors.  Most recent %s\n", mad_stream_errorstr (&Stream));
-          mp_playing = 0;
-          memset (sout, 0, nsamp * 4);
-          return;
-        }
-      }  
+      { // oh well.
+        lprintf (LO_WARN, "mad_frame_decode: Unrecoverable error %s\n", mad_stream_errorstr (&Stream));
+        mp_playing = 0;
+        memset (sout, 0, nsamp * 4);
+        return;
+      }
     }
 
     // got a good frame, so synth it and dispatch it.
