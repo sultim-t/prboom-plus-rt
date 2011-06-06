@@ -124,17 +124,31 @@ static void mp_shutdown (void)
 
 static const void *mp_registersong (const void *data, unsigned len)
 {
+  int i;
+  int maxtry;
+
+  // if the stream begins with an ID3v2 magic, search hard and long for our first valid header
+  if (memcmp (data, "ID3", 3) == 0)
+    maxtry = 20;
+  // otherwise, be very strict.  (if you're lenient, everything looks like an mp3)
+  // (also, ID3v1 tags come at the END of the stream, so no worries there)
+  else
+    maxtry = 1;
+
   mad_stream_buffer (&Stream, data, len);
 
-  // peek first header
-  if (mad_header_decode (&Header, &Stream) != 0)
-    // header was somehow invalid; fail out
+  for (i = 0; i < maxtry; i++)
+    if (mad_header_decode (&Header, &Stream) == 0)
+      break;
+
+  if (i == maxtry) // failed
   {
     lprintf (LO_WARN, "mad_registersong failed: %s\n", mad_stream_errorstr (&Stream));
     return NULL;
   }
+  
   lprintf (LO_INFO, "mad_registersong succeed. bitrate %lu samplerate %d\n", Header.bitrate, Header.samplerate);
-
+ 
   mp_data = data;
   mp_len = len;
   // handle not used
