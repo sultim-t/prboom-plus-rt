@@ -97,7 +97,7 @@ extern int try_to_reduce_cpu_cache_misses;
 extern dboolean window_focused;
 void UpdateGrab(void);
 
-typedef struct SDL_Surface SDL_Surface;
+typedef SDL_Surface;
 typedef struct vid_8ingl_s
 {
   int enabled;
