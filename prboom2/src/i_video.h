@@ -97,13 +97,13 @@ extern int try_to_reduce_cpu_cache_misses;
 extern dboolean window_focused;
 void UpdateGrab(void);
 
-typedef SDL_Surface;
+typedef struct SDL_Surface *PSDL_Surface;
 typedef struct vid_8ingl_s
 {
   int enabled;
 
-  SDL_Surface *screen;
-  SDL_Surface *surface;
+  PSDL_Surface screen;
+  PSDL_Surface surface;
 
   int texid;
   int pboids[2];
