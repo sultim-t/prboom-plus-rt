@@ -78,6 +78,20 @@ static int SMP_GetState(void)
   return smp_state;
 }
 
+static inline void SMP_CheckSize(smp_item_t *item, int size)
+{
+  if (item->count >= item->size)
+  {
+    while (item->index < item->count)
+    {
+      SDL_Delay(1);
+    }
+
+    item->size = (item->size == 0 ? 1024 : item->size * 2);
+    item->data.item = realloc(item->data.item, item->size * size);
+  }
+}
+
 void SMP_ColFunc(draw_column_vars_t *dcvars)
 {
   if (!use_smp)
@@ -86,19 +100,8 @@ void SMP_ColFunc(draw_column_vars_t *dcvars)
   }
   else
   {
-    if (smp_segs.count >= smp_segs.size)
-    {
-      while (smp_segs.index < smp_segs.count)
-      {
-        SDL_Delay(1);
-      }
-
-      smp_segs.size = (smp_segs.size == 0 ? 1024 : smp_segs.size * 2);
-      smp_segs.data.segs = realloc(smp_segs.data.segs, smp_segs.size * sizeof(*dcvars));
-    }
-
+    SMP_CheckSize(&smp_segs, sizeof(smp_segs.data.segs[0]));
     smp_segs.data.segs[smp_segs.count] = *dcvars;
-
     smp_segs.count++;
   }
 }
@@ -111,19 +114,8 @@ void SMP_SpanFunc(draw_span_vars_t *dsvars)
   }
   else
   {
-    if (smp_spans.count >= smp_spans.size)
-    {
-      while (smp_spans.index < smp_spans.count)
-      {
-        SDL_Delay(1);
-      }
-
-      smp_spans.size = (smp_spans.size == 0 ? 1024 : smp_spans.size * 2);
-      smp_spans.data.spans = realloc(smp_spans.data.spans, smp_spans.size * sizeof(*dsvars));
-    }
-
+    SMP_CheckSize(&smp_spans, sizeof(smp_spans.data.spans[0]));
     smp_spans.data.spans[smp_spans.count] = *dsvars;
-
     smp_spans.count++;
   }
 }
