@@ -58,7 +58,6 @@ void SMP_Init(void);
 void SMP_Free(void);
 
 void SMP_WakeRenderer(void);
-void SMP_RendererSleep(void);
 void SMP_FrontEndSleep(void);
 
 void SMP_ColFunc(draw_column_vars_t *data);

@@ -135,9 +135,6 @@ void SMP_SpanFunc(draw_span_vars_t *data)
 
 void SMP_RendererSleep(void)
 {
-  if (!use_smp)
-    return;
-
   SDL_LockMutex(smp_mutex);
   {
     smp_ready = false;
