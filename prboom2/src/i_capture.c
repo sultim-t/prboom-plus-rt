@@ -363,14 +363,14 @@ static int my_popen3 (pipeinfo_t *p)
   {
     dup2 (child_hin, STDIN_FILENO);
     dup2 (child_hout, STDOUT_FILENO);
-    dup2 (child_herr, STDOUT_FILENO);
+    dup2 (child_herr, STDERR_FILENO);
 
     close (parent_hin);
     close (parent_hout);
     close (parent_herr);
 
     // does this work? otherwise we have to parse cmd into an **argv style array
-    execl ("/bin/sh", "-c", p->command, NULL);
+    execl ("/bin/sh", "sh", "-c", p->command, NULL);
     goto fail;
   }
 
@@ -587,13 +587,18 @@ void I_CaptureFinish (void)
     return;
   capturing_video = 0;
 
-  my_pclose3 (&soundpipe);
-  SDL_WaitThread (soundpipe.outthread, &s);
-  SDL_WaitThread (soundpipe.errthread, &s);
-
+  // on linux, we have to close videopipe first, because it has a copy of the write
+  // end of soundpipe_stdin (so that stream will never see EOF).
+  // is there a better way to do this?
+  
+  // (on windows, it doesn't matter what order we do it in)
   my_pclose3 (&videopipe);
   SDL_WaitThread (videopipe.outthread, &s);
   SDL_WaitThread (videopipe.errthread, &s);
+
+  my_pclose3 (&soundpipe);
+  SDL_WaitThread (soundpipe.outthread, &s);
+  SDL_WaitThread (soundpipe.errthread, &s);
 
   // muxing and temp file cleanup
 
