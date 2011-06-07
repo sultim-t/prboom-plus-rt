@@ -251,7 +251,7 @@ unsigned char* gld_HQResize(GLTexture *gltexture, unsigned char *inputBuffer, in
     break;
 
   case GLDT_FLAT:
-    sw = sh = 0;
+    sw = sh = 1;
     scale_mode = gl_texture_hqresize_textures;
     break;
     
