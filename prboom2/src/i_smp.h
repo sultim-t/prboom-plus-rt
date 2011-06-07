@@ -61,7 +61,7 @@ void SMP_WakeRenderer(void);
 void SMP_RendererSleep(void);
 void SMP_FrontEndSleep(void);
 
-void SMP_ColFunc(draw_column_vars_t *dcvars);
-void SMP_SpanFunc(draw_span_vars_t *dsvars);
+void SMP_ColFunc(draw_column_vars_t *data);
+void SMP_SpanFunc(draw_span_vars_t *data);
 
 #endif // __I_SMP__

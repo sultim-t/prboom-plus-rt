@@ -51,19 +51,28 @@ static SDL_cond *renderCommandsEvent;
 static volatile int smp_ready;
 static volatile int smp_state;
 
-static smp_item_t smp_segs;
-static smp_item_t smp_spans;
+typedef enum
+{
+  SMP_DATA_SEGS,
+  SMP_DATA_SPANS,
+
+  SMP_DATA_MAX
+} smp_datatype_e;
+
+static smp_item_t smp_data[SMP_DATA_MAX];
 
 int use_smp_defauls;
 int use_smp;
 
 static void SMP_ResetBuffers(void)
 {
-  smp_segs.count = 0;
-  smp_segs.index = 0;
+  int i;
 
-  smp_spans.count = 0;
-  smp_spans.index = 0;
+  for (i = 0; i < SMP_DATA_MAX; i++)
+  {
+    smp_data[i].count = 0;
+    smp_data[i].index = 0;
+  }
 }
 
 static void SMP_SetState(int state)
@@ -92,31 +101,35 @@ static inline void SMP_CheckSize(smp_item_t *item, int size)
   }
 }
 
-void SMP_ColFunc(draw_column_vars_t *dcvars)
+void SMP_ColFunc(draw_column_vars_t *data)
 {
   if (!use_smp)
   {
-    dcvars->colfunc(dcvars);
+    data->colfunc(data);
   }
   else
   {
-    SMP_CheckSize(&smp_segs, sizeof(smp_segs.data.segs[0]));
-    smp_segs.data.segs[smp_segs.count] = *dcvars;
-    smp_segs.count++;
+    smp_item_t *item = &smp_data[SMP_DATA_SEGS];
+
+    SMP_CheckSize(item, sizeof(item->data.segs[0]));
+    item->data.segs[item->count] = *data;
+    item->count++;
   }
 }
 
-void SMP_SpanFunc(draw_span_vars_t *dsvars)
+void SMP_SpanFunc(draw_span_vars_t *data)
 {
   if (!use_smp)
   {
-    R_DrawSpan(dsvars);
+    R_DrawSpan(data);
   }
   else
   {
-    SMP_CheckSize(&smp_spans, sizeof(smp_spans.data.spans[0]));
-    smp_spans.data.spans[smp_spans.count] = *dsvars;
-    smp_spans.count++;
+    smp_item_t *item = &smp_data[SMP_DATA_SPANS];
+
+    SMP_CheckSize(item, sizeof(item->data.spans[0]));
+    item->data.spans[item->count] = *data;
+    item->count++;
   }
 }
 
@@ -176,16 +189,19 @@ void SMP_WakeRenderer(void)
 
 static inline void smp_draw(void)
 {
-  while (smp_segs.index < smp_segs.count)
+  smp_item_t *segs = &smp_data[SMP_DATA_SEGS];
+  smp_item_t *spans = &smp_data[SMP_DATA_SPANS];
+
+  while (segs->index < segs->count)
   {
-    smp_segs.data.segs[smp_segs.index].colfunc(&smp_segs.data.segs[smp_segs.index]);
-    smp_segs.index++;
+    segs->data.segs[segs->index].colfunc(&segs->data.segs[segs->index]);
+    segs->index++;
   }
 
-  while (smp_spans.index < smp_spans.count)
+  while (spans->index < spans->count)
   {
-    R_DrawSpan(&smp_spans.data.spans[smp_spans.index]);
-    smp_spans.index++;
+    R_DrawSpan(&spans->data.spans[spans->index]);
+    spans->index++;
   }
 }
 
@@ -235,8 +251,12 @@ void SMP_Init(void)
   {
     if (use_smp_defauls && !smp_thread)
     {
-      memset(&smp_segs, 0, sizeof(smp_segs));
-      memset(&smp_spans, 0, sizeof(smp_spans));
+      int i;
+
+      for (i = 0; i < SMP_DATA_MAX; i++)
+      {
+        memset(&smp_data[i], 0, sizeof(smp_data[i]));
+      }
 
       smp_mutex = SDL_CreateMutex();
       if (smp_mutex)
