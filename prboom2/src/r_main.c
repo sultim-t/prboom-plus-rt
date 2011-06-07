@@ -917,6 +917,13 @@ void R_RenderPlayerView (player_t* player)
   // The head node is the last node output.
   R_RenderBSPNode (numnodes-1);
 
+#ifdef HAVE_NET
+  if (!use_smp)
+  {
+    NetUpdate ();
+  }
+#endif
+
   if (V_GetMode() != VID_MODEGL)
     R_DrawPlanes();
 

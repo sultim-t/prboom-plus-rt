@@ -44,15 +44,15 @@
 
 #include "i_smp.h"
 
-SDL_Thread *smp_thread;
-SDL_mutex *smp_mutex;
-SDL_cond *renderCompletedEvent;
-SDL_cond *renderCommandsEvent;
-volatile int smp_ready;
-volatile int smp_state;
+static SDL_Thread *smp_thread;
+static SDL_mutex *smp_mutex;
+static SDL_cond *renderCompletedEvent;
+static SDL_cond *renderCommandsEvent;
+static volatile int smp_ready;
+static volatile int smp_state;
 
-smp_item_t smp_segs;
-smp_item_t smp_spans;
+static smp_item_t smp_segs;
+static smp_item_t smp_spans;
 
 int use_smp_defauls;
 int use_smp;

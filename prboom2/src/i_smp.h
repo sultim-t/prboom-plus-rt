@@ -54,9 +54,6 @@ typedef struct smp_item_s
 extern int use_smp;
 extern int use_smp_defauls;
 
-extern smp_item_t smp_segs;
-extern smp_item_t smp_spans;
-
 void SMP_Init(void);
 void SMP_Free(void);
 
