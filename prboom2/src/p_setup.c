@@ -1095,7 +1095,8 @@ static void P_LoadZSegs (const byte *data)
 static void P_LoadZNodes(int lump, int glnodes)
 {
   const byte *data;
-  unsigned int i, len;
+  unsigned int i;
+  int len;
 
   unsigned int orgVerts, newVerts;
   unsigned int numSubs, currSeg;
@@ -1112,11 +1113,11 @@ static void P_LoadZNodes(int lump, int glnodes)
 
   // Read extra vertices added during node building
   CheckZNodesOverflow(&len, sizeof(orgVerts));
-  orgVerts = *((unsigned int*)data);
+  orgVerts = *((const unsigned int*)data);
   data += sizeof(orgVerts);
 
   CheckZNodesOverflow(&len, sizeof(newVerts));
-  newVerts = *((unsigned int*)data);
+  newVerts = *((const unsigned int*)data);
   data += sizeof(newVerts);
 
   if (!samelevel)
@@ -1134,10 +1135,10 @@ static void P_LoadZNodes(int lump, int glnodes)
     CheckZNodesOverflow(&len, newVerts * (sizeof(newvertarray[0].x) + sizeof(newvertarray[0].y)));
     for (i = 0; i < newVerts; i++)
     {
-      newvertarray[i + orgVerts].x = *((unsigned int*)data);
+      newvertarray[i + orgVerts].x = *((const unsigned int*)data);
       data += sizeof(newvertarray[0].x);
 
-      newvertarray[i + orgVerts].y = *((unsigned int*)data);
+      newvertarray[i + orgVerts].y = *((const unsigned int*)data);
       data += sizeof(newvertarray[0].y);
     }
 
@@ -1165,7 +1166,7 @@ static void P_LoadZNodes(int lump, int glnodes)
 
   // Read the subsectors
   CheckZNodesOverflow(&len, sizeof(numSubs));
-  numSubs = *((unsigned int*)data);
+  numSubs = *((const unsigned int*)data);
   data += sizeof(numSubs);
 
   numsubsectors = numSubs;
@@ -1186,7 +1187,7 @@ static void P_LoadZNodes(int lump, int glnodes)
 
   // Read the segs
   CheckZNodesOverflow(&len, sizeof(numSegs));
-  numSegs = *((unsigned int*)data);
+  numSegs = *((const unsigned int*)data);
   data += sizeof(numSegs);
 
   // The number of segs stored should match the number of
@@ -1213,7 +1214,7 @@ static void P_LoadZNodes(int lump, int glnodes)
 
   // Read nodes
   CheckZNodesOverflow(&len, sizeof(numNodes));
-  numNodes = *((unsigned int*)data);
+  numNodes = *((const unsigned int*)data);
   data += sizeof(numNodes);
 
   numnodes = numNodes;
