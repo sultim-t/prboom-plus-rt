@@ -34,6 +34,8 @@
 #ifndef __I_VIDEO__
 #define __I_VIDEO__
 
+#include <SDL_opengl.h>
+
 #include "doomtype.h"
 #include "v_video.h"
 
@@ -105,8 +107,8 @@ typedef struct vid_8ingl_s
   PSDL_Surface screen;
   PSDL_Surface surface;
 
-  int texid;
-  int pboids[2];
+  GLuint texid;
+  GLuint pboids[2];
 
   int width, height, size;
   unsigned char *buf;

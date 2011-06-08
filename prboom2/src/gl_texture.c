@@ -627,7 +627,7 @@ GLTexture *gld_RegisterTexture(int texture_num, dboolean mipmap, dboolean force)
   return gltexture;
 }
 
-unsigned char* gld_GetTextureBuffer(int texid, int miplevel, int *width, int *height)
+unsigned char* gld_GetTextureBuffer(GLuint texid, int miplevel, int *width, int *height)
 {
   int w, h;
   static unsigned char *buf = NULL;

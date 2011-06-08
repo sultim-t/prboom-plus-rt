@@ -386,7 +386,7 @@ void gld_RecalcVertexHeights(const vertex_t *v);
 void gld_InitGLVersion(void);
 void gld_ResetLastTexture(void);
 
-unsigned char* gld_GetTextureBuffer(int texid, int miplevel, int *width, int *height);
+unsigned char* gld_GetTextureBuffer(GLuint texid, int miplevel, int *width, int *height);
 
 int gld_BuildTexture(GLTexture *gltexture, void *data, dboolean readonly, int width, int height);
 
