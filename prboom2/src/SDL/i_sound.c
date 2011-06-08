@@ -299,7 +299,7 @@ void I_SetChannels(void)
 int I_GetSfxLumpNum(sfxinfo_t *sfx)
 {
   char namebuf[9];
-  char *prefix;
+  const char *prefix;
 
   // Different prefix for PC speaker sound effects.
   prefix = (snd_pcspeaker ? "dp" : "ds");
@@ -1225,7 +1225,7 @@ static const music_player_t *music_players[] =
   &pm_player, // portmidiplayer.h
   NULL
 };
-#define NUM_MUS_PLAYERS (sizeof (music_players) / sizeof (music_player_t *) - 1)
+#define NUM_MUS_PLAYERS ((int)(sizeof (music_players) / sizeof (music_player_t *) - 1))
 
 
 static int music_player_was_init[NUM_MUS_PLAYERS];
