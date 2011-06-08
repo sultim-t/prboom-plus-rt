@@ -1881,7 +1881,7 @@ void G_DoLoadGame(void)
     // killough 2/22/98: "proprietary" version string :-)
     sprintf (vcheck, version_headers[i].ver_printf, version_headers[i].version);
 
-    if (!strncmp(save_p, vcheck, VERSIONSIZE)) {
+    if (!strncmp((char*)save_p, vcheck, VERSIONSIZE)) {
       savegame_compatibility = version_headers[i].comp_level;
       i = num_version_headers;
     }
@@ -1906,10 +1906,10 @@ void G_DoLoadGame(void)
 
     if (memcmp(&checksum, save_p, sizeof checksum)) {
       if (!forced_loadgame) {
-        char *msg = malloc(strlen(save_p + sizeof checksum) + 128);
+        char *msg = malloc(strlen((char*)save_p + sizeof checksum) + 128);
         strcpy(msg,"Incompatible Savegame!!!\n");
         if (save_p[sizeof checksum])
-          strcat(strcat(msg,"Wads expected:\n\n"), save_p + sizeof checksum);
+          strcat(strcat(msg,"Wads expected:\n\n"), (char*)save_p + sizeof checksum);
         strcat(msg, "\nAre you sure?");
         G_LoadGameErr(msg);
         free(msg);
@@ -1920,7 +1920,7 @@ void G_DoLoadGame(void)
     save_p += sizeof checksum;
    }
 
-  save_p += strlen(save_p)+1;
+  save_p += strlen((char*)save_p)+1;
 
   //e6y: check on new savegame format
   if (!memcmp(NEWFORMATSIG, save_p, strlen(NEWFORMATSIG)))
