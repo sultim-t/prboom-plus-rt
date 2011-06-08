@@ -371,7 +371,8 @@ static int my_popen3 (pipeinfo_t *p)
 
     // does this work? otherwise we have to parse cmd into an **argv style array
     execl ("/bin/sh", "sh", "-c", p->command, NULL);
-    goto fail;
+    // exit forked process if command failed
+    _exit (0);
   }
 
   if (NULL == (fin = fdopen (parent_hin, "wb")))
