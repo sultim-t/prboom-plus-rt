@@ -129,7 +129,7 @@ struct midi_file_s
 // Check the header of a chunk:
 
 static dboolean CheckChunkHeader(chunk_header_t *chunk,
-                                char *expected_id)
+                                const char *expected_id)
 {
     dboolean result;
 
@@ -604,7 +604,7 @@ static dboolean ReadFileHeader(midi_file_t *file, midimem_t *mf)
      || ntohl(file->header.chunk_header.chunk_size) != 6)
     {
         lprintf (LO_WARN, "ReadFileHeader: Invalid MIDI chunk header! "
-                        "chunk_size=%i\n",
+                        "chunk_size=%ld\n",
                         ntohl(file->header.chunk_header.chunk_size));
         return false;
     }
