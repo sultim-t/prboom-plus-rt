@@ -127,7 +127,7 @@ void MarkAnimatedTextures(void)
       }
     }
   }
-#endif GL_DOOM
+#endif // GL_DOOM
 }
 
 //
