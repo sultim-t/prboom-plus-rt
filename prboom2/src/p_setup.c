@@ -138,10 +138,10 @@ enum
 int       bmapwidth, bmapheight;  // size in mapblocks
 
 // killough 3/1/98: remove blockmap limit internally:
-long      *blockmap;              // was short -- killough
+int       *blockmap;              // was short -- killough
 
 // offsets in blockmap are from here
-long      *blockmaplump;          // was short -- killough
+int       *blockmaplump;          // was short -- killough
 
 fixed_t   bmaporgx, bmaporgy;     // origin of block map
 
