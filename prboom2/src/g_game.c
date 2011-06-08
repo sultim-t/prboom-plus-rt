@@ -2301,7 +2301,7 @@ void G_Compatibility(void)
     // comp_translucency - No predefined translucency for some things
     { boom_compatibility_compatibility, prboom_6_compatibility },
   };
-  int i;
+  unsigned int i;
 
   if (sizeof(levels)/sizeof(*levels) != COMP_NUM)
     I_Error("G_Compatibility: consistency error");
