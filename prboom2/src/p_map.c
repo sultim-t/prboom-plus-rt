@@ -198,7 +198,7 @@ int P_GetFriction(const mobj_t *mo, int *frictionfactor)
  * killough 8/28/98: rewritten
  */
 
-int P_GetMoveFactor(const mobj_t *mo, int *frictionp)
+int P_GetMoveFactor(mobj_t *mo, int *frictionp)
 {
   int movefactor, friction;
 

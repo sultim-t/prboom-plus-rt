@@ -1946,7 +1946,7 @@ static void deh_procPointer(DEHFILE *fpin, FILE* fpout, char *line) // done
   char inbuffer[DEH_BUFFERMAX];
   uint_64_t value;      // All deh values are ints or longs
   int indexnum;
-  int i; // looper
+  size_t i; // looper
 
   strncpy(inbuffer,line,DEH_BUFFERMAX);
   // NOTE: different format from normal
@@ -3098,7 +3098,7 @@ char *ptr_lstrip(char *p)  // point past leading whitespace
 dboolean deh_GetData(char *s, char *k, uint_64_t *l, char **strval, FILE *fpout)
 {
   char *t;  // current char
-  long val; // to hold value of pair
+  int val; // to hold value of pair
   char buffer[DEH_MAXKEYLEN];  // to hold key in progress
   // e6y: Correction of wrong processing of Bits parameter if its value is equal to zero
   // No more desync on HACX demos.

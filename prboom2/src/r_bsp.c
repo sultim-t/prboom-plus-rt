@@ -747,5 +747,5 @@ void R_RenderBSPNode(int bspnum)
       bspnum = bsp->children[side^1];
     }
   // e6y: support for extended nodes
-  R_Subsector(bspnum == 0xFFFFFFFF ? 0 : bspnum & ~NF_SUBSECTOR);
+  R_Subsector(bspnum == -1 ? 0 : bspnum & ~NF_SUBSECTOR);
 }

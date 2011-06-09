@@ -936,7 +936,7 @@ static void P_LoadNodes (int lump)
           // e6y: support for extended nodes
           if (no->children[j] == 0xFFFF)
           {
-            no->children[j] = 0xFFFFFFFF;
+            no->children[j] = -1;
           }
           else if (no->children[j] & 0x8000)
           {

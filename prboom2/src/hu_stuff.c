@@ -928,7 +928,7 @@ void HU_MoveHud(int force)
   static int ohud_distributed = -1;
   static int ohud_active = -1;
   static int health_y = -1;
-  int i;
+  size_t i;
 
   typedef enum
   {
@@ -1063,7 +1063,7 @@ void HU_MoveHud(int force)
       }
     }
 
-    for (i = 0; i < sizeof(hud) /  sizeof(hud[0]); i++)
+    for (i = 0; i < sizeof(hud) / sizeof(hud[0]); i++)
     {
       int index = (hud_distributed ? 1 : 0);
       if (hudnum == 3 && hud_active == 3)
