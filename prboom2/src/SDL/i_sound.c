@@ -1015,7 +1015,7 @@ int I_RegisterSong(const void *data, size_t len)
       if (strlen(music_tmp_ext[i]) == 0)
       {
         //midi
-        rw_midi = SDL_RWFromMem((void*)data, len);
+        rw_midi = SDL_RWFromConstMem(data, len);
         if (rw_midi)
         {
           music[0] = Mix_LoadMUS_RW(rw_midi);

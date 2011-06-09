@@ -741,17 +741,17 @@ GLuint gld_LoadDetailName(const char *name)
     SDL_PixelFormat fmt;
     SDL_Surface *surf = NULL;
     SDL_Surface *surf_raw;
-    const unsigned char *memDetail = W_CacheLumpNum(lump);
     
 #ifdef HAVE_LIBSDL_IMAGE
-    surf_raw = IMG_Load_RW(SDL_RWFromMem((unsigned char *)memDetail, W_LumpLength(lump)), 1);
+    surf_raw = IMG_Load_RW(SDL_RWFromConstMem(W_CacheLumpNum(lump), W_LumpLength(lump)), 1);
 #else
-    surf_raw = SDL_LoadBMP_RW(SDL_RWFromMem((unsigned char *)memDetail, W_LumpLength(lump)), 1);
+    surf_raw = SDL_LoadBMP_RW(SDL_RWFromConstMem(memDetail, W_LumpLength(lump)), 1);
 #endif
+
+    W_UnlockLumpNum(lump);
+
     if (surf_raw)
     {
-      W_UnlockLumpNum(lump);
-
       fmt = *surf_raw->format;
       fmt.BitsPerPixel = 24;
       fmt.BytesPerPixel = 3;

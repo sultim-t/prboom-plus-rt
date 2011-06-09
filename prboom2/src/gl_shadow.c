@@ -72,11 +72,10 @@ void gld_InitShadows(void)
   lump = (W_CheckNumForName)("GLSHADOW", ns_prboom);
   if (lump != -1)
   {
-    const unsigned char *data = W_CacheLumpNum(lump);
     SDL_PixelFormat fmt;
     SDL_Surface *surf = NULL;
     SDL_Surface *surf_raw;
-    surf_raw = SDL_LoadBMP_RW(SDL_RWFromMem((unsigned char *)data, W_LumpLength(lump)), 1);
+    surf_raw = SDL_LoadBMP_RW(SDL_RWFromConstMem(W_CacheLumpNum(lump), W_LumpLength(lump)), 1);
     W_UnlockLumpNum(lump);
 
     fmt = *surf_raw->format;
