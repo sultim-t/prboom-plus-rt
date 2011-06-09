@@ -289,7 +289,7 @@ int TracerGetPlayerStart(int index)
 
 void TracerClearStarts(void)
 {
-  int i;
+  size_t i;
 
   for (i = 0; i < sizeof(playerstarts_indexes) / sizeof(playerstarts_indexes[0]); i++)
   {
