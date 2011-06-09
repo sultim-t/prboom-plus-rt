@@ -363,7 +363,7 @@ void P_SetThingPosition(mobj_t *thing)
 dboolean P_BlockLinesIterator(int x, int y, dboolean func(line_t*))
 {
   int        offset;
-  const long *list;   // killough 3/1/98: for removal of blockmap limit
+  const int  *list;   // killough 3/1/98: for removal of blockmap limit
 
   if (x<0 || y<0 || x>=bmapwidth || y>=bmapheight)
     return true;
