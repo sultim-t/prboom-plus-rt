@@ -81,7 +81,7 @@ static GLTexture **gld_GLStaticPatchTextures=NULL;
 
 tex_filter_t tex_filter[MIP_COUNT];
 
-char *gl_tex_format_string;
+const char *gl_tex_format_string;
 //int gl_tex_format=GL_RGBA8;
 int gl_tex_format=GL_RGB5_A1;
 //int gl_tex_format=GL_RGBA4;

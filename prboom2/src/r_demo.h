@@ -82,14 +82,14 @@ typedef struct
 
 extern int demo_extendedformat;
 extern int demo_extendedformat_default;
-extern char *demo_demoex_filename;
+extern const char *demo_demoex_filename;
 
 extern int demo_patterns_count;
-extern char *demo_patterns_mask;
+extern const char *demo_patterns_mask;
 extern char **demo_patterns_list;
-extern char *demo_patterns_list_def[];
+extern const char *demo_patterns_list_def[];
 
-extern char *getwad_cmdline;
+extern const char *getwad_cmdline;
 
 int WadDataInit(waddata_t *waddata);
 int WadDataAddItem(waddata_t *waddata, const char *filename, wad_source_t source, int handle);

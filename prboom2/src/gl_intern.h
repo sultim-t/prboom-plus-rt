@@ -324,7 +324,7 @@ extern GLDrawInfo gld_drawinfo;
 extern GLSector *sectorloops;
 extern GLMapSubsector *subsectorloops;
 
-extern char *gl_tex_format_string;
+extern const char *gl_tex_format_string;
 extern int gl_tex_format;
 extern int gl_texture_filter_anisotropic;
 extern int transparent_pal_index;
@@ -420,7 +420,7 @@ void gld_FreeScreenSizeFBO(void);
 //motion bloor
 extern int gl_motionblur;
 extern int gl_use_motionblur;
-extern char *gl_motionblur_minspeed;
+extern const char *gl_motionblur_minspeed;
 extern char *gl_motionblur_linear_k;
 extern char *gl_motionblur_linear_b;
 extern int MotionBlurOn;

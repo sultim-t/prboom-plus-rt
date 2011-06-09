@@ -2126,8 +2126,8 @@ static void G_DoSaveGame (dboolean menu)
       {
         const char *const w = wadfiles[i].name;
         CheckSaveGame(strlen(w)+2);
-        strcpy(save_p, w);
-        save_p += strlen(save_p);
+        strcpy((char*)save_p, w);
+        save_p += strlen((char*)save_p);
         *save_p++ = '\n';
       }
     *save_p++ = 0;
@@ -2136,7 +2136,7 @@ static void G_DoSaveGame (dboolean menu)
   CheckSaveGame(GAME_OPTION_SIZE+MIN_MAXPLAYERS+14+strlen(NEWFORMATSIG)+sizeof packageversion);
 
   //e6y: saving of the version number of package
-  strcpy(save_p, NEWFORMATSIG);
+  strcpy((char*)save_p, NEWFORMATSIG);
   save_p += strlen(NEWFORMATSIG);
   memcpy(save_p, &packageversion, sizeof packageversion);
   save_p += sizeof packageversion;

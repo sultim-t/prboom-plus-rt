@@ -58,10 +58,10 @@ static dboolean gld_CreateScreenSizeFBO(void);
 //e6y: motion bloor
 int gl_motionblur;
 int gl_use_motionblur = false;
-char *gl_motionblur_minspeed;
-char *gl_motionblur_att_a;
-char *gl_motionblur_att_b;
-char *gl_motionblur_att_c;
+const char *gl_motionblur_minspeed;
+const char *gl_motionblur_att_a;
+const char *gl_motionblur_att_b;
+const char *gl_motionblur_att_c;
 int MotionBlurOn;
 int gl_motionblur_minspeed_pow2 = 0x32 * 0x32 + 0x28 * 0x28;
 float gl_motionblur_a = 55.0f;

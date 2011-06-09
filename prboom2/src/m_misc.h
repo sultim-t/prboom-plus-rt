@@ -85,7 +85,7 @@ typedef struct default_s
     const char* psz;
     //e6y: arrays
     int array_size;
-    char** array_data;
+    const char** array_data;
   } defaultvalue; // CPhipps - default value
   // Limits (for an int)
   int   minvalue;         // jff 3/3/98 minimum allowed value
@@ -122,6 +122,6 @@ int M_StrToFloat(const char *s, float *f);
 char* M_Strlwr(char* str);
 char* M_Strupr(char* str);
 
-extern char *screenshot_dir;
+extern const char *screenshot_dir;
 
 #endif

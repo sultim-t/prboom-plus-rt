@@ -177,7 +177,7 @@ extern int gl_texture_filter;
 extern int gl_sprite_filter;
 extern int gl_patch_filter;
 extern int gl_texture_filter_anisotropic;
-extern char *gl_tex_format_string;
+extern const char *gl_tex_format_string;
 extern int gl_sky_detail;
 extern int gl_use_paletted_texture;
 extern int gl_use_shared_texture_palette;
@@ -201,10 +201,10 @@ extern int gl_arb_pixel_buffer_object_default;
 
 //e6y: motion bloor
 extern int gl_motionblur;
-extern char *gl_motionblur_minspeed;
-extern char *gl_motionblur_att_a;
-extern char *gl_motionblur_att_b;
-extern char *gl_motionblur_att_c;
+extern const char *gl_motionblur_minspeed;
+extern const char *gl_motionblur_att_a;
+extern const char *gl_motionblur_att_b;
+extern const char *gl_motionblur_att_c;
 
 //e6y: fog
 extern int gl_fog;
@@ -1278,7 +1278,7 @@ default_t defaults[] =
 };
 
 int numdefaults;
-static const char* defaultfile; // CPhipps - static, const
+static char* defaultfile; // CPhipps - static, const
 
 //
 // M_SaveDefaults
@@ -1427,12 +1427,15 @@ void M_LoadDefaults (void)
 
   i = M_CheckParm ("-config");
   if (i && i < myargc-1)
-    defaultfile = myargv[i+1];
-  else {
+  {
+    defaultfile = strdup(myargv[i+1]);
+  }
+  else
+  {
     const char* exedir = I_DoomExeDir();
     defaultfile = malloc(PATH_MAX+1);
     /* get config file from same directory as executable */
-    SNPRINTF((char *)defaultfile, PATH_MAX,
+    SNPRINTF(defaultfile, PATH_MAX,
             "%s%s%sboom-plus.cfg", exedir, HasTrailingSlash(exedir) ? "" : "/", 
 #if ((defined GL_DOOM) && (defined _MSC_VER))
             "gl");
@@ -1514,9 +1517,7 @@ void M_LoadDefaults (void)
               // e6y: arrays
               if (defaults[i].type == def_arr)
               {
-                char** ppsz=((char**)(defaults[i].location.ppsz));
-                free(*ppsz);
-                *ppsz = NULL;
+                free((char*)*(defaults[i].location.ppsz));
                 *(defaults[i].location.ppsz) = newstring;
                 item = &defaults[i];
                 continue;
@@ -1581,7 +1582,7 @@ void M_LoadDefaults (void)
 // M_DoScreenShot
 // Takes a screenshot into the names file
 
-char *screenshot_dir;
+const char *screenshot_dir;
 
 void M_DoScreenShot (const char* fname)
 {

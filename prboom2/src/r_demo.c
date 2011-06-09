@@ -184,9 +184,9 @@ void R_ResetAfterTeleport(player_t *player)
 
 // patterns
 int demo_patterns_count;
-char *demo_patterns_mask;
+const char *demo_patterns_mask;
 char **demo_patterns_list;
-char *demo_patterns_list_def[9];
+const char *demo_patterns_list_def[9];
 
 // demo ex
 int demo_extendedformat = -1;
@@ -194,7 +194,7 @@ int demo_extendedformat_default;
 dboolean use_demoex_info = false;
 
 char demoex_filename[PATH_MAX];
-char *demo_demoex_filename;
+const char *demo_demoex_filename;
 //wadtbl_t demoex;
 
 typedef struct
@@ -1497,7 +1497,7 @@ int CheckAutoDemo(void)
   return result;
 }
 
-char *getwad_cmdline = NULL;
+const char *getwad_cmdline;
 
 dboolean D_TryGetWad(const char* name)
 {
