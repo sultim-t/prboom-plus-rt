@@ -745,7 +745,7 @@ GLuint gld_LoadDetailName(const char *name)
 #ifdef HAVE_LIBSDL_IMAGE
     surf_raw = IMG_Load_RW(SDL_RWFromConstMem(W_CacheLumpNum(lump), W_LumpLength(lump)), 1);
 #else
-    surf_raw = SDL_LoadBMP_RW(SDL_RWFromConstMem(memDetail, W_LumpLength(lump)), 1);
+    surf_raw = SDL_LoadBMP_RW(SDL_RWFromConstMem(W_CacheLumpNum(lump), W_LumpLength(lump)), 1);
 #endif
 
     W_UnlockLumpNum(lump);
