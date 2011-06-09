@@ -1674,13 +1674,13 @@ void M_ScreenShot(void)
   return;
 }
 
-int M_StrToInt(const char *s, long *l)
+int M_StrToInt(const char *s, int *l)
 {      
   return (
-    (sscanf(s, " 0x%lx", l) == 1) ||
-    (sscanf(s, " 0X%lx", l) == 1) ||
-    (sscanf(s, " 0%lo", l) == 1) ||
-    (sscanf(s, " %ld", l) == 1)
+    (sscanf(s, " 0x%x", l) == 1) ||
+    (sscanf(s, " 0X%x", l) == 1) ||
+    (sscanf(s, " 0%o", l) == 1) ||
+    (sscanf(s, " %d", l) == 1)
   );
 }
 

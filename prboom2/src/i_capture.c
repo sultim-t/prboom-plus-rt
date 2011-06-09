@@ -548,7 +548,7 @@ void I_CapturePrep (const char *fn)
 void I_CaptureFrame (void)
 {
   char *snd;
-  char *vid;
+  unsigned char *vid;
   static int partsof35 = 0; // correct for sync when samplerate % 35 != 0
   int nsampreq;
 

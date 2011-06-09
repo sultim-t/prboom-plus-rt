@@ -1037,7 +1037,7 @@ void e6y_G_DoWorldDone(void)
   if (doSkip)
   {
     static int firstmap = 1;
-    int episode;
+    int episode = 0;
     int map = 0;
     int p;
 

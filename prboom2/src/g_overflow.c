@@ -245,7 +245,7 @@ void SpechitOverrun(spechit_overrun_param_t *params)
         if (p > 0)
         {
           //baseaddr = atoi(myargv[p+1]);
-          M_StrToInt(myargv[p+1], (long*)&spechit_baseaddr);
+          M_StrToInt(myargv[p+1], (int*)&spechit_baseaddr);
         }
         else
         {
