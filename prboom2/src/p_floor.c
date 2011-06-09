@@ -465,7 +465,7 @@ int EV_DoFloor
 manual_floor://e6y
     // Don't start a second thinker on the same floor
     if (P_SectorActive(floor_special,sec)) //jff 2/23/98
-      if (!zerotag_manual) continue; else  return rtn;//e6y
+      { if (!zerotag_manual) continue; else return rtn; }//e6y
 
     // new floor thinker
     rtn = 1;
