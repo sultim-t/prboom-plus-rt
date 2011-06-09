@@ -276,20 +276,21 @@ void gld_MultisamplingSet(void)
 
 int gld_LoadGLDefs(const char * defsLump)
 {
-  // these are the core types available in the *DEFS lump
-  static const char *CoreKeywords[]=
-  {
-    "skybox",
-    "detail",
-
-    NULL
-  };
   typedef enum
   {
     TAG_SKYBOX,
     TAG_DETAIL,
 
-    TAG_MAX,
+    TAG_MAX
+  } gldef_type_e;
+
+  // these are the core types available in the *DEFS lump
+  static const char *CoreKeywords[TAG_MAX + 1] =
+  {
+    "skybox",
+    "detail",
+
+    NULL
   };
 
   int result = false;

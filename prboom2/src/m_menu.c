@@ -4958,7 +4958,8 @@ dboolean M_Responder (event_t* ev) {
     {
       if (ev->type == ev_joystick)
         {
-    int oldbutton,group;
+    int oldbutton;
+    unsigned int group;
     dboolean search = true;
 
     if (!ptr1->m_joy)
@@ -4997,7 +4998,8 @@ dboolean M_Responder (event_t* ev) {
         }
       else if (ev->type == ev_mouse)
         {
-    int i,oldbutton,group;
+    int i,oldbutton;
+    unsigned int group;
     dboolean search = true;
 
     if (!ptr1->m_mouse)
@@ -5038,7 +5040,8 @@ dboolean M_Responder (event_t* ev) {
         }
       else  // keyboard key
         {
-    int i,oldkey,group;
+    int i,oldkey;
+    unsigned int group;
     dboolean search = true;
 
     // see if 'ch' is already bound elsewhere. if so, you have

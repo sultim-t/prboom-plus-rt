@@ -1343,7 +1343,7 @@ void gld_Precache(void)
 {
   int i;
   byte *hitlist;
-  int hit, hitcount;
+  int hit, hitcount = 0;
   GLTexture *gltexture;
   box_skybox_t *sb;
 
