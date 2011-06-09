@@ -97,6 +97,17 @@ void W_ReleaseAllWads(void); // Proff - Added for iwad switching
 void W_InitCache(void);
 void W_DoneCache(void);
 
+typedef enum
+{
+  ns_global=0,
+  ns_sprites,
+  ns_flats,
+  ns_colormaps,
+  ns_prboom,
+  ns_demos,
+  ns_hires //e6y
+} li_namespace_e; // haleyjd 05/21/02: renamed from "namespace"
+
 typedef struct
 {
   // WARNING: order of some fields important (see info.c).
@@ -108,15 +119,7 @@ typedef struct
   int index, next;
 
   // killough 4/17/98: namespace tags, to prevent conflicts between resources
-  enum {
-    ns_global=0,
-    ns_sprites,
-    ns_flats,
-    ns_colormaps,
-    ns_prboom,
-    ns_demos,
-    ns_hires //e6y
-  } li_namespace; // haleyjd 05/21/02: renamed from "namespace"
+  li_namespace_e li_namespace; // haleyjd 05/21/02: renamed from "namespace"
 
   wadfile_info_t *wadfile;
   int position;
@@ -135,7 +138,7 @@ extern int        numlumps;
 // one argument, pass ns_global as the default namespace
 
 #define W_CheckNumForName(name) (W_CheckNumForName)(name, ns_global)
-int     (W_CheckNumForName)(const char* name, int);   // killough 4/17/98
+int     (W_CheckNumForName)(const char* name, li_namespace_e);   // killough 4/17/98
 int     W_GetNumForName (const char* name);
 int     W_SafeGetNumForName (const char* name); //e6y
 int     W_LumpLength (int lump);
