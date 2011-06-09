@@ -74,12 +74,14 @@ void R_FilterInit(void) {
     filter_roundedRowMap[3*16+i] = (i == 0xA || i == 0x2) ? 2 : 1;
   }
 
+  /*
   // fill the uvMap. this will return:
   // 0/\1
   // /4 \
   // \  /
   // 2\/3
   // .. based on the uv coordinates
+  */
   for (i=0; i<FILTER_UVDIM; i++) {
     for (j=0; j<FILTER_UVDIM; j++) {
       s = (FILTER_UVDIM/2) - i;

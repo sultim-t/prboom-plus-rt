@@ -287,7 +287,7 @@ void D_Display (void)
   }
 
   // save the current screen if about to wipe
-  if (wipe = gamestate != wipegamestate)
+  if ((wipe = (gamestate != wipegamestate)))
   {
     wipe_StartScreen();
     R_ResetViewInterpolation();

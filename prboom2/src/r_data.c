@@ -252,7 +252,7 @@ static void R_InitTextures (void)
 #else
 */
       {
-        int j;
+        size_t j;
         for(j=0;j<sizeof(texture->name);j++)
           texture->name[j]=mtexture->name[j];
       }
