@@ -57,6 +57,7 @@
 #include "g_game.h"
 #include "r_fps.h"
 #include "r_demo.h"
+#include "m_misc.h"
 
 extern dboolean gamekeydown[];
 
@@ -1327,7 +1328,7 @@ static void AM_drawGrid(int color)
 
   // [RH] Calculate a minimum for how long the grid lines should be so that
   // they cover the screen at any rotation.
-  minlen = (fixed_t)sqrt ((float)m_w*(float)m_w + (float)m_h*(float)m_h);
+  minlen = M_DoubleToInt(sqrt ((float)m_w*(float)m_w + (float)m_h*(float)m_h));
   extx = (minlen - m_w) / 2;
   exty = (minlen - m_h) / 2;
 

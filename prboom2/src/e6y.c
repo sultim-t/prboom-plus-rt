@@ -1096,7 +1096,8 @@ int AccelerateMouse(int val)
 
   if (val < 0)
     return -AccelerateMouse(-val);
-  return (int)(pow((double)val, (double)mouse_accelfactor));
+
+  return M_DoubleToInt(pow((double)val, (double)mouse_accelfactor));
 }
 
 int mlooky = 0;

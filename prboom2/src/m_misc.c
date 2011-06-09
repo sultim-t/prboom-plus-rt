@@ -1691,6 +1691,16 @@ int M_StrToFloat(const char *s, float *f)
   );
 }
 
+#include <math.h>
+int M_DoubleToInt(double x)
+{
+#ifdef __GNUC__
+  return lrint(x);
+#else
+  return (int)x;
+#endif
+}
+
 char* M_Strlwr(char* str)
 {
   char* p;
