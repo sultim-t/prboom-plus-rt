@@ -87,7 +87,7 @@ typedef struct
 {
     // The instrument currently used for this track.
 
-    genmidi_instr_t *instrument;
+    const genmidi_instr_t *instrument;
 
     // Volume level
 
@@ -128,7 +128,7 @@ struct opl_voice_s
     int op1, op2;
 
     // Currently-loaded instrument data
-    genmidi_instr_t *current_instr;
+    const genmidi_instr_t *current_instr;
 
     // The voice number in the instrument to use.
     // This is normally set to zero; if this is a double voice
@@ -338,9 +338,9 @@ int opl_io_port = 0x388;
 
 static dboolean LoadInstrumentTable(void)
 {
-    byte *lump;
+    const byte *lump;
 
-    lump = (void *) W_CacheLumpName("GENMIDI");
+    lump = W_CacheLumpName("GENMIDI");
 
     // Check header
 
@@ -351,7 +351,7 @@ static dboolean LoadInstrumentTable(void)
         return false;
     }
 
-    main_instrs = (genmidi_instr_t *) (lump + strlen(GENMIDI_HEADER));
+    main_instrs = (const genmidi_instr_t *) (lump + strlen(GENMIDI_HEADER));
     percussion_instrs = main_instrs + GENMIDI_NUM_INSTRS;
 
     return true;
@@ -434,7 +434,8 @@ static void ReleaseVoice(opl_voice_t *voice)
 
 // Load data to the specified operator
 
-static void LoadOperatorData(int operator, genmidi_op_t *data,
+static void LoadOperatorData(int operator,
+                             const genmidi_op_t *data,
                              dboolean max_level)
 {
     int level;
@@ -459,10 +460,10 @@ static void LoadOperatorData(int operator, genmidi_op_t *data,
 // Set the instrument for a particular voice.
 
 static void SetVoiceInstrument(opl_voice_t *voice,
-                               genmidi_instr_t *instr,
+                               const genmidi_instr_t *instr,
                                unsigned int instr_voice)
 {
-    genmidi_voice_t *data;
+    const genmidi_voice_t *data;
     unsigned int modulating;
 
     // Instrument already set for this channel?
@@ -504,7 +505,7 @@ static void SetVoiceInstrument(opl_voice_t *voice,
 
 static void SetVoiceVolume(opl_voice_t *voice, unsigned int volume)
 {
-    genmidi_voice_t *opl_voice;
+    const genmidi_voice_t *opl_voice;
     unsigned int full_volume;
     unsigned int op_volume;
     unsigned int reg_volume;
@@ -714,7 +715,7 @@ static opl_voice_t *ReplaceExistingVoice(opl_channel_data_t *channel)
 
 static unsigned int FrequencyForVoice(opl_voice_t *voice)
 {
-    genmidi_voice_t *gm_voice;
+    const genmidi_voice_t *gm_voice;
     unsigned int freq_index;
     unsigned int octave;
     unsigned int sub_index;
@@ -810,7 +811,7 @@ static void UpdateVoiceFrequency(opl_voice_t *voice)
 // key on event.
 
 static void VoiceKeyOn(opl_channel_data_t *channel,
-                       genmidi_instr_t *instrument,
+                       const genmidi_instr_t *instrument,
                        unsigned int instrument_voice,
                        unsigned int key,
                        unsigned int volume)
@@ -914,11 +915,11 @@ static void KeyOnEvent(opl_track_data_t *track, midi_event_t *event)
     // Find and program a voice for this instrument.  If this
     // is a double voice instrument, we must do this twice.
 
-    VoiceKeyOn(channel, (void *) instrument, 0, key, volume);
+    VoiceKeyOn(channel, instrument, 0, key, volume);
 
     if ((instrument->flags & GENMIDI_FLAG_2VOICE) != 0)
     {
-        VoiceKeyOn(channel, (void *) instrument, 1, key, volume);
+        VoiceKeyOn(channel, instrument, 1, key, volume);
     }
 }
 
@@ -931,7 +932,7 @@ static void ProgramChangeEvent(opl_track_data_t *track, midi_event_t *event)
 
     channel = event->data.channel.channel;
     instrument = event->data.channel.param1;
-    track->channels[channel].instrument = (void *) &main_instrs[instrument];
+    track->channels[channel].instrument = &main_instrs[instrument];
 
     // TODO: Look through existing voices that are turned on on this
     // channel, and change the instrument.
@@ -1167,7 +1168,7 @@ static void InitChannel(opl_track_data_t *track, opl_channel_data_t *channel)
 {
     // TODO: Work out sensible defaults?
 
-    channel->instrument = (void *) &main_instrs[0];
+    channel->instrument = &main_instrs[0];
     channel->volume = 127;
     channel->bend = 0;
 }
@@ -1333,7 +1334,7 @@ static const void *I_OPL_RegisterSong(const void *data, unsigned len)
     }
     mf.len = len;
     mf.pos = 0;
-    mf.data = (void *) data;
+    mf.data = data;
 
     // NSM: if a file has a miniscule timecode we have to not load it.
     // if it's 0, we'll hang in scheduling and never finish.  if it's

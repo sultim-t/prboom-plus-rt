@@ -35,7 +35,7 @@ typedef struct midi_track_iter_s midi_track_iter_t;
 
 typedef struct
 {
-    byte *data;
+    const byte *data;
     size_t len;
     size_t pos;
 } midimem_t;

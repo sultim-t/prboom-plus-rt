@@ -56,7 +56,7 @@ traceslist_t traces[NUMTRACES];
 void InitTracers(void)
 {
   int i, p;
-  long value, count;
+  int value, count;
 
   traceslistinit_t traces_init[NUMTRACES] = {
     {"-trace_thingshealth", "health ", TracerApply, NULL},

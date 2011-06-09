@@ -74,7 +74,7 @@ static Chip opl_chip;
 
 // Temporary mixing buffer used by the mixing callback.
 
-static long *mix_buffer = NULL;
+static int *mix_buffer = NULL;
 
 // Register number that was written.
 

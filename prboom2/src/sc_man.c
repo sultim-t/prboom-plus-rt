@@ -51,9 +51,9 @@ dboolean sc_FileScripts = false;
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
 
 static char ScriptName[16];
-static char *ScriptBuffer;
-static char *ScriptPtr;
-static char *ScriptEndPtr;
+static const char *ScriptBuffer;
+static const char *ScriptPtr;
+static const char *ScriptEndPtr;
 static char StringBuffer[MAX_STRING_SIZE];
 static dboolean ScriptOpen = false;
 static int ScriptSize;
@@ -298,7 +298,7 @@ void SC_UnGet(void)
 
 dboolean SC_Check(void)
 {
-  char *text;
+  const char *text;
 
   CheckOpen();
   text = ScriptPtr;
