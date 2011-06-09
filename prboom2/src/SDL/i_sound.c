@@ -694,9 +694,9 @@ void I_SetSoundCap (void)
 // grabs len samples of audio (16 bit interleaved)
 char *I_GrabSound (int len)
 {
-  static char *buffer = NULL;
-  static int buffer_size = 0;
-  int size;
+  static unsigned char *buffer = NULL;
+  static size_t buffer_size = 0;
+  size_t size;
 
   if (!dumping_sound)
     return NULL;

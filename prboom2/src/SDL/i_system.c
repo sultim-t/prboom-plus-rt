@@ -480,7 +480,7 @@ char* I_FindFileInternal(const char* wfname, const char* ext, dboolean isStatic)
     {"/usr/share/doom"},
   };
 
-  int   i;
+  size_t  i;
   size_t  pl;
 
   char static_p[PATH_MAX];

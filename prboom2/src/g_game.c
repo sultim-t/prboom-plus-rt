@@ -276,8 +276,8 @@ static const struct
   { wp_bfg,          wp_bfg }
 };
 
-static dboolean mousearray[6];
-static dboolean *mousebuttons = &mousearray[1];    // allow [-1]
+static int mousearray[6];
+static int *mousebuttons = &mousearray[1];    // allow [-1]
 
 // mouse values are used once
 static int   mousex;
@@ -409,8 +409,8 @@ static int G_NextWeapon(int direction)
 
 void G_BuildTiccmd(ticcmd_t* cmd)
 {
-  dboolean strafe;
-  dboolean bstrafe;
+  int strafe;
+  int bstrafe;
   int speed;
   int tspeed;
   int forward;
