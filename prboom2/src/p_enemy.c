@@ -63,7 +63,9 @@ typedef enum {
   DI_SOUTHEAST,
   DI_NODIR,
   NUMDIRS
-} dirtype_t;
+} dirtype_e;
+
+typedef int dirtype_t;
 
 static void P_NewChaseDir(mobj_t *actor);
 void P_ZBumpCheck(mobj_t *);                                        // phares

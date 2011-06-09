@@ -547,7 +547,7 @@ void I_CapturePrep (const char *fn)
 // and send it to pipes
 void I_CaptureFrame (void)
 {
-  char *snd;
+  unsigned char *snd;
   unsigned char *vid;
   static int partsof35 = 0; // correct for sync when samplerate % 35 != 0
   int nsampreq;

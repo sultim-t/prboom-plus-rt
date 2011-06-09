@@ -85,7 +85,7 @@ void I_UpdateSoundParams(int handle, int vol, int sep, int pitch);
 // call this before sound startup
 void I_SetSoundCap (void);
 // grabs len samples of audio (16 bit interleaved)
-char *I_GrabSound (int len);
+unsigned char *I_GrabSound (int len);
 
 // NSM helper routine for some of the streaming audio
 void I_ResampleStream (void *dest, unsigned nsamp, void (*proc) (void *dest, unsigned nsamp), unsigned sratein, unsigned srateout);

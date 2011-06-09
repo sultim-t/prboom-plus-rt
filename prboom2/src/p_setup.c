@@ -971,7 +971,7 @@ static void P_LoadNodes_V4(int lump)
   data = W_CacheLumpNum (lump); // cph - wad lump handling updated
 
   // skip header
-  data = ((unsigned char*)data) + 8;
+  data = data + 8;
 
   if ((!data) || (!numnodes))
   {
