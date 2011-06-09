@@ -96,7 +96,7 @@ inline static CONSTFUNC fixed_t FixedMul(fixed_t a, fixed_t b)
  * Fixed Point Division
  */
 
-inline static CONSTFUNC fixed_t FixedDiv(fixed_t a, fixed_t b)
+static CONSTFUNC fixed_t FixedDiv(fixed_t a, fixed_t b)
 {
   extern dboolean *use_wrong_fixeddiv;
   if (*use_wrong_fixeddiv)
