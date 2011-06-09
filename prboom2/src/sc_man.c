@@ -85,7 +85,7 @@ static void OpenScript(const char *name)
   SC_Close();
 
   // Lump script
-  ScriptBuffer = (char *)W_CacheLumpName(name);
+  ScriptBuffer = W_CacheLumpName(name);
   ScriptSize = W_LumpLength(W_GetNumForName(name));
   strcpy(ScriptName, name);
 
