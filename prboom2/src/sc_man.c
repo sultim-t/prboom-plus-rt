@@ -47,7 +47,6 @@ int sc_Line;
 dboolean sc_End;
 dboolean sc_Crossed;
 dboolean sc_FileScripts = false;
-char *sc_ScriptsDir = "";
 
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
 
