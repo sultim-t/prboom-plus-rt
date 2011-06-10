@@ -118,7 +118,12 @@ typedef struct default_s
 
 int M_StrToInt(const char *s, int *l);
 int M_StrToFloat(const char *s, float *f);
-int M_DoubleToInt(double x);
+
+#ifdef __GNUC__
+#define M_DoubleToInt(x) ({ double _x = (x); (int)(_x); })
+#else
+#define M_DoubleToInt(x) ((double)(x))
+#endif
 
 char* M_Strlwr(char* str);
 char* M_Strupr(char* str);
