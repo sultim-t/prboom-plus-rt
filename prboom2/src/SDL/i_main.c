@@ -354,6 +354,7 @@ static void I_EndDoom(void)
  * Prints out ENDOOM or ENDBOOM, using some common sense to decide which.
  * cphipps - moved to l_main.c, made static
  */
+#if 0
 static void I_EndDoom2(void)
 {
   int lump_eb, lump_ed, lump = -1;
@@ -473,6 +474,7 @@ static void I_EndDoom2(void)
   PrintVer();
 #endif /* _WIN32 */
 }
+#endif
 
 static int has_exited;
 
