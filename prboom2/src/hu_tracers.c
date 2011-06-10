@@ -281,7 +281,7 @@ int TracerGetDeathmatchStart(int index)
 
 int TracerGetPlayerStart(int index)
 {
-  if (index >= sizeof(playerstarts_indexes) / sizeof(playerstarts_indexes[0]))
+  if (index >= MAXPLAYERS)
     I_Error("TracerGetDeathmatchStart: index out of bounds");
 
   return playerstarts_indexes[index].index;
@@ -289,9 +289,9 @@ int TracerGetPlayerStart(int index)
 
 void TracerClearStarts(void)
 {
-  size_t i;
+  int i;
 
-  for (i = 0; i < sizeof(playerstarts_indexes) / sizeof(playerstarts_indexes[0]); i++)
+  for (i = 0; i < MAXPLAYERS; i++)
   {
     playerstarts_indexes[i].index = 0;
   }
