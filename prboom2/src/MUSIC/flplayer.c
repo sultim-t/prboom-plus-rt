@@ -105,12 +105,16 @@ static const char *fl_name (void)
 static int fl_init (int samplerate)
 {
 #ifdef _WIN32
+  #ifndef _MSC_VER
+  int __stdcall GetVersion (void);
+  #endif // _MSC_VER
+
   if ((int)GetVersion() < 0) // win9x
   {
     lprintf (LO_INFO, "Fluidplayer: Win9x is not supported\n");
     return 0;
   }
-#endif
+#endif // _WIN32
 
   TESTDLLLOAD ("libfluidsynth.dll", TRUE)
 
