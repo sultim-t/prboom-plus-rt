@@ -3502,7 +3502,7 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
         demo_tics_count++;
         p += bytes_per_tic;
       }
-      while ((p < demobuffer + demolength) && (*((byte*)p) != DEMOMARKER));
+      while ((p < demobuffer + demolength) && (*p != DEMOMARKER));
 
       demo_tics_count /= demo_playerscount;
 

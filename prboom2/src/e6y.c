@@ -295,49 +295,6 @@ void e6y_InitCommandLine(void)
       game_exe = EXE_CHEX;
     }
   }
-
-  // demoex
-  if ((p = M_CheckParm("-addlump")) && (p < myargc - 3))
-  {
-    char *demoname = NULL;
-    char *filename = NULL;
-    const char *lumpname;
-
-    demoname = I_FindFile(myargv[p + 1], ".lmp");
-    filename = I_FindFile(myargv[p + 2], ".txt");
-    lumpname = myargv[p + 3];
-    if (demoname && filename && lumpname && strlen(lumpname) <= 8)
-    {
-      byte *buffer = NULL;
-      byte *demoex_p = NULL;
-      size_t size;
-
-      buffer = G_GetDemoFooter(demoname, &demoex_p, &size);
-      if (buffer && demoex_p)
-      {
-        wadtbl_t* demoex;
-        int lump_size = 0;
-        byte *lump_buffer = NULL;
-
-        demoex = W_CreatePWADTable(demoex_p, size);
-        if (demoex)
-        {
-          if (I_FileToBuffer(filename, &lump_buffer, &lump_size))
-          {
-            W_AddLump(demoex, lumpname, lump_buffer, lump_size);
-            G_SetDemoFooter(demoname, demoex);
-
-            free(lump_buffer);
-          }
-          W_FreePWADTable(demoex);
-        }
-
-        free(buffer);
-      }
-    }
-    free(demoname);
-    free(filename);
-  }
 }
 
 static dboolean saved_fastdemo;

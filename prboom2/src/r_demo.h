@@ -111,7 +111,6 @@ void I_DemoExShutdown(void);
 
 void W_InitPWADTable(wadtbl_t *wadtbl);
 void W_FreePWADTable(wadtbl_t *wadtbl);
-wadtbl_t* W_CreatePWADTable(const byte* buffer, size_t size);
 void W_AddLump(wadtbl_t *wadtbl, const char *name, const byte* data, size_t size);
 
 extern dboolean use_demoex_info;
