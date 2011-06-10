@@ -50,7 +50,7 @@ struct _MEMFILE {
 
 // Open a memory area for reading
 
-MEMFILE *mem_fopen_read(void *buf, size_t buflen)
+MEMFILE *mem_fopen_read(const void *buf, size_t buflen)
 {
   MEMFILE *file;
 

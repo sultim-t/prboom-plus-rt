@@ -680,14 +680,14 @@ midi_file_t *MIDI_LoadFile (midimem_t *mf)
 
 // Get the number of tracks in a MIDI file.
 
-unsigned int MIDI_NumTracks(midi_file_t *file)
+unsigned int MIDI_NumTracks(const midi_file_t *file)
 {
     return file->num_tracks;
 }
 
 // Start iterating over the events in a track.
 
-midi_track_iter_t *MIDI_IterateTrack(midi_file_t *file, unsigned int track)
+midi_track_iter_t *MIDI_IterateTrack(const midi_file_t *file, unsigned int track)
 {
     midi_track_iter_t *iter;
 
@@ -740,7 +740,7 @@ int MIDI_GetNextEvent(midi_track_iter_t *iter, midi_event_t **event)
     }
 }
 
-unsigned int MIDI_GetFileTimeDivision(midi_file_t *file)
+unsigned int MIDI_GetFileTimeDivision(const midi_file_t *file)
 {
     return file->header.time_division;
 }
@@ -752,9 +752,9 @@ void MIDI_RestartIterator(midi_track_iter_t *iter)
 
 
 
-static void MIDI_PrintFlatListDBG (midi_event_t **evs)
+static void MIDI_PrintFlatListDBG (const midi_event_t **evs)
 {
-  midi_event_t *event;
+  const midi_event_t *event;
 
   while (1)
   {
@@ -1002,7 +1002,7 @@ static double compute_spmc_smpte (unsigned smpte_fps, unsigned mpf, unsigned snd
 
 // if event is NULL, compute with default starting tempo (120BPM)
 
-double MIDI_spmc (midi_file_t *file, midi_event_t *ev, unsigned sndrate)
+double MIDI_spmc (const midi_file_t *file, const midi_event_t *ev, unsigned sndrate)
 {
   int smpte_fps;
   unsigned tempo;

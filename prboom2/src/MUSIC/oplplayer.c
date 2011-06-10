@@ -1175,7 +1175,7 @@ static void InitChannel(opl_track_data_t *track, opl_channel_data_t *channel)
 
 // Start a MIDI track playing:
 
-static void StartTrack(midi_file_t *file, unsigned int track_num)
+static void StartTrack(const midi_file_t *file, unsigned int track_num)
 {
     opl_track_data_t *track;
     unsigned int i;
@@ -1201,9 +1201,9 @@ static void StartTrack(midi_file_t *file, unsigned int track_num)
 
 // Start playing a mid
 
-static void I_OPL_PlaySong(void *handle, int looping)
+static void I_OPL_PlaySong(const void *handle, int looping)
 {
-    midi_file_t *file;
+    const midi_file_t *file;
     unsigned int i;
 
     if (!music_initialized || handle == NULL)
@@ -1302,7 +1302,7 @@ static void I_OPL_StopSong(void)
 
 }
 
-static void I_OPL_UnRegisterSong(void *handle)
+static void I_OPL_UnRegisterSong(const void *handle)
 {
     if (!music_initialized)
     {
@@ -1311,7 +1311,7 @@ static void I_OPL_UnRegisterSong(void *handle)
 
     if (handle != NULL)
     {
-        MIDI_FreeFile(handle);
+        MIDI_FreeFile((void *) handle);
     }
 }
 

@@ -198,7 +198,7 @@ static const void *pm_registersong (const void *data, unsigned len)
 
   mf.len = len;
   mf.pos = 0;
-  mf.data = (void *) data;
+  mf.data = data;
 
   midifile = MIDI_LoadFile (&mf);
 
@@ -293,7 +293,7 @@ static void pm_setvolume (int v)
 }
 
 
-static void pm_unregistersong (void *handle)
+static void pm_unregistersong (const void *handle)
 {
   if (events)
   {
@@ -322,7 +322,7 @@ static void pm_resume (void)
   pm_paused = 0;
   trackstart = Pt_Time ();
 }
-static void pm_play (void *handle, int looping)
+static void pm_play (const void *handle, int looping)
 {
   eventpos = 0;
   pm_looping = looping;

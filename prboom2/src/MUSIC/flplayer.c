@@ -198,7 +198,7 @@ static const void *fl_registersong (const void *data, unsigned len)
 
   mf.len = len;
   mf.pos = 0;
-  mf.data = (void *) data;
+  mf.data = data;
 
   midifile = MIDI_LoadFile (&mf);
 
@@ -224,7 +224,7 @@ static const void *fl_registersong (const void *data, unsigned len)
   return data;
 }
 
-static void fl_unregistersong (void *handle)
+static void fl_unregistersong (const void *handle)
 {
   if (events)
   {
@@ -250,7 +250,7 @@ static void fl_resume (void)
 {
   f_paused = 0;
 }
-static void fl_play (void *handle, int looping)
+static void fl_play (const void *handle, int looping)
 {
   eventpos = 0;
   f_looping = looping;

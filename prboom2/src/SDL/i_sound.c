@@ -1255,7 +1255,7 @@ const char *midiplayers[midi_player_last + 1] = {
   "sdl", "fluidsynth", "opl2", "portmidi", NULL};
 
 static int current_player = -1;
-static void *music_handle = NULL;
+static const void *music_handle = NULL;
 
 // songs played directly from wad (no mus->mid conversion)
 // won't have this
@@ -1428,7 +1428,7 @@ static int Exp_RegisterSongEx (const void *data, size_t len, int try_mus2mid)
           found = 1;
           if (music_player_was_init[i])
           {
-            void *temp_handle = (void *) music_players[i]->registersong (data, len);
+            const void *temp_handle = music_players[i]->registersong (data, len);
             if (temp_handle)
             {
               SDL_LockMutex (musmutex);
@@ -1456,7 +1456,7 @@ static int Exp_RegisterSongEx (const void *data, size_t len, int try_mus2mid)
   if (try_mus2mid)
   {
 
-    instream = mem_fopen_read ((void*)data, len);
+    instream = mem_fopen_read (data, len);
     outstream = mem_fopen_write ();
 
     // e6y: from chocolate-doom
@@ -1471,14 +1471,14 @@ static int Exp_RegisterSongEx (const void *data, size_t len, int try_mus2mid)
       // haleyjd 04/04/10: scan forward for a MUS header. Evidently DMX was
       // capable of doing this, and would skip over any intervening data. That,
       // or DMX doesn't use the MUS header at all somehow.
-      while (musptr < (unsigned char*)data + len - sizeof(musheader))
+      while (musptr < (const unsigned char*)data + len - sizeof(musheader))
       {
         // if we found a likely header start, reset the mus pointer to that location,
         // otherwise just leave it alone and pray.
         if (!strncmp ((const char*) musptr, "MUS\x1a", 4))
         {
           mem_fclose (instream);
-          instream = mem_fopen_read ((void*)musptr, muslen);
+          instream = mem_fopen_read (musptr, muslen);
           result = mus2mid (instream, outstream);
           break;
         }

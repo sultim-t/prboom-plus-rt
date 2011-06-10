@@ -155,15 +155,15 @@ void MIDI_FreeFile(midi_file_t *file);
 
 // Get the time division value from the MIDI header.
 
-unsigned int MIDI_GetFileTimeDivision(midi_file_t *file);
+unsigned int MIDI_GetFileTimeDivision(const midi_file_t *file);
 
 // Get the number of tracks in a MIDI file.
 
-unsigned int MIDI_NumTracks(midi_file_t *file);
+unsigned int MIDI_NumTracks(const midi_file_t *file);
 
 // Start iterating over the events in a track.
 
-midi_track_iter_t *MIDI_IterateTrack(midi_file_t *file, unsigned int track_num);
+midi_track_iter_t *MIDI_IterateTrack(const midi_file_t *file, unsigned int track_num);
 
 // Free an iterator.
 
@@ -186,7 +186,7 @@ midi_event_t **MIDI_GenerateFlatList (midi_file_t *file);
 void MIDI_DestroyFlatList (midi_event_t **evs);
 
 // NSM: timing calculator
-double MIDI_spmc (midi_file_t *file, midi_event_t *ev, unsigned sndrate);
+double MIDI_spmc (const midi_file_t *file, const midi_event_t *ev, unsigned sndrate);
 
 midi_file_t *MIDI_LoadFileSpecial (midimem_t *mf);
 

@@ -170,13 +170,13 @@ static void mp_resume (void)
   mp_paused = 0;
 }
 
-static void mp_unregistersong (void *handle)
+static void mp_unregistersong (const void *handle)
 { // nothing to do
   mp_data = NULL;
   mp_playing = 0;
 }
 
-static void mp_play (void *handle, int looping)
+static void mp_play (const void *handle, int looping)
 {
   mad_stream_buffer (&Stream, mp_data, mp_len);
 

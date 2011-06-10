@@ -148,7 +148,7 @@ static const void* db_registersong (const void *data, unsigned len)
   return data;
 }
 
-static void db_unregistersong (void *handle)
+static void db_unregistersong (const void *handle)
 {
   if (duh)
   {
@@ -163,7 +163,7 @@ static void db_unregistersong (void *handle)
   }
 }
 
-static void db_play (void *handle, int looping)
+static void db_play (const void *handle, int looping)
 {
   dsren = duh_start_sigrenderer (duh, 0, 2, 0);
 

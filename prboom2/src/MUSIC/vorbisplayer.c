@@ -316,14 +316,14 @@ static void vorb_resume (void)
   vorb_paused = 0;
 }
 
-static void vorb_unregistersong (void *handle)
+static void vorb_unregistersong (const void *handle)
 { 
   vorb_data = NULL;
   ov_clear (&vf);
   vorb_playing = 0;
 }
 
-static void vorb_play (void *handle, int looping)
+static void vorb_play (const void *handle, int looping)
 {
   ov_raw_seek_lap (&vf, 0);
  

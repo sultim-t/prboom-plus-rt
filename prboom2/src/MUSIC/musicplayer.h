@@ -72,9 +72,9 @@ typedef struct
   const void *(*registersong)(const void *data, unsigned len);
 
   // deallocate structures, etc.  data is no longer valid
-  void (*unregistersong)(void *handle);
+  void (*unregistersong)(const void *handle);
 
-  void (*play)(void *handle, int looping);
+  void (*play)(const void *handle, int looping);
 
   // stop
   void (*stop)(void);
