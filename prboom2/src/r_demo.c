@@ -797,13 +797,13 @@ void I_DemoExShutdown(void)
   }
 }
 
-byte* G_GetDemoFooter(const char *filename, byte** footer, size_t *size)
+byte* G_GetDemoFooter(const char *filename, const byte **footer, size_t *size)
 {
   byte* result = NULL;
 
   FILE *hfile;
   byte *buffer = NULL;
-  byte* p;
+  const byte* p;
   size_t file_size;
 
   hfile = fopen(filename, "rb");
@@ -821,15 +821,15 @@ byte* G_GetDemoFooter(const char *filename, byte** footer, size_t *size)
   if (fread(buffer, file_size, 1, hfile) == 1)
   {
     //skip demo header
-    p = (byte*)G_ReadDemoHeaderEx(buffer, file_size, RDH_SKIP_HEADER);
+    p = G_ReadDemoHeaderEx(buffer, file_size, RDH_SKIP_HEADER);
 
     //skip demo data
-    while (p < buffer + file_size && *((byte*)p) != DEMOMARKER)
+    while (p < buffer + file_size && *p != DEMOMARKER)
     {
       p += bytes_per_tic;
     }
 
-    if (*((byte*)p) == DEMOMARKER)
+    if (*p == DEMOMARKER)
     {
       //skip DEMOMARKER
       p++;
@@ -871,7 +871,7 @@ void G_SetDemoFooter(const char *filename, wadtbl_t *wadtbl)
 {
   FILE *hfile;
   byte *buffer = NULL;
-  byte *demoex_p = NULL;
+  const byte *demoex_p = NULL;
   size_t size;
 
   buffer = G_GetDemoFooter(filename, &demoex_p, &size);
@@ -913,7 +913,7 @@ static int G_ReadDemoFooter(const char *filename)
   int result = false;
 
   byte *buffer = NULL;
-  byte *demoex_p = NULL;
+  const byte *demoex_p = NULL;
   size_t size;
 
   M_ChangeDemoExtendedFormat();
@@ -966,7 +966,7 @@ static int G_ReadDemoFooter(const char *filename)
       waddata_t waddata;
 
       //write an additional info from a demo to demoex.wad
-      if (!M_WriteFile(demoex_filename, (void*)demoex_p, size))
+      if (!M_WriteFile(demoex_filename, demoex_p, size))
       {
         lprintf(LO_ERROR, "G_ReadDemoFooter: failed to create demoex temp file %s", demoex_filename);
       }

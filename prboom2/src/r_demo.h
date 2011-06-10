@@ -104,7 +104,7 @@ void WadFilesToWadData(waddata_t *waddata);
 
 void M_ChangeDemoExtendedFormat(void);
 
-byte* G_GetDemoFooter(const char *filename, byte** footer, size_t *size);
+byte* G_GetDemoFooter(const char *filename, const byte **footer, size_t *size);
 void G_SetDemoFooter(const char *filename, wadtbl_t *wadtbl);
 void G_WriteDemoFooter(FILE *file);
 void I_DemoExShutdown(void);

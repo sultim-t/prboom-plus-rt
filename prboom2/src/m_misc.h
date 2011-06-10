@@ -42,7 +42,7 @@
 // MISC
 //
 
-dboolean M_WriteFile (char const* name,void* source,int length);
+dboolean M_WriteFile (char const* name, const void* source, int length);
 
 int M_ReadFile (char const* name,byte** buffer);
 

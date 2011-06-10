@@ -1024,7 +1024,7 @@ int I_RegisterSong(const void *data, size_t len)
 
       if (!music[0])
       {
-        io_errors = (M_WriteFile(name, (void*)data, len) == 0);
+        io_errors = (M_WriteFile(name, data, len) == 0);
         if (!io_errors)
         {
           music[0] = Mix_LoadMUS(name);

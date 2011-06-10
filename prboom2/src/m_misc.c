@@ -98,7 +98,7 @@ static inline void I_EndRead(void) {}
  * killough 9/98: rewritten to use stdio and to flash disk icon
  */
 
-dboolean M_WriteFile(char const *name, void *source, int length)
+dboolean M_WriteFile(char const *name, const void *source, int length)
 {
   FILE *fp;
 
