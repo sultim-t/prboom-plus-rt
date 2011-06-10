@@ -77,6 +77,9 @@ const music_player_t vorb_player =
 
 #include "i_sound.h"
 
+// uncomment to allow (experiemntal) support for
+// zdoom-style audio loops
+// #define ZDOOM_AUDIO_LOOP
 
 static int vorb_looping = 0;
 static int vorb_volume = 0; // 0-15
@@ -84,6 +87,12 @@ static int vorb_samplerate_target = 0;
 static int vorb_samplerate_in = 0;
 static int vorb_paused = 0;
 static int vorb_playing = 0;
+
+#ifdef ZDOOM_AUDIO_LOOP
+static unsigned vorb_loop_from;
+static unsigned vorb_loop_to;
+static unsigned vorb_total_pos;
+#endif // ZDOOM_AUDIO_LOOP
 
 static const char *vorb_data;
 static size_t vorb_len;
@@ -149,6 +158,72 @@ static const char *vorb_name (void)
   return "vorbis player";
 }
 
+// http://zdoom.org/wiki/Audio_loop
+// it's hard to accurately implement a grammar with "etc" in the spec,
+// so weird edge cases are likely not the same
+#ifdef ZDOOM_AUDIO_LOOP
+static unsigned parsetag (const char *str, int samplerate)
+{
+  int ret = 0;
+  int seendot = 0; // number of dots seen so far
+  int mult = 1; // place value of next digit out
+  int seencolon = 0; // number of colons seen so far
+  int digincol = 0; // number of digits in current group
+                    // (needed to track switch between colon)
+
+  const char *pos = str + strlen (str) - 1;
+
+  for (; pos >= str; pos--)
+  {
+    if (*pos >= '0' && *pos <= '9')
+    {
+      ret += (*pos - '0') * mult;
+      mult *= 10;
+      digincol++;
+    }
+    else if (*pos == '.')
+    {
+      if (seencolon || seendot)
+        return 0;
+      seendot = 1;
+      // convert decimal to samplerate and move on
+      ret *= samplerate;
+      ret /= mult;
+      mult = samplerate;
+      digincol = 0;
+    }
+    else if (*pos == ':')
+    {
+      if (seencolon == 2) // no mention of anything past hours in spec
+        return 0;
+      seencolon++;
+      mult *= 6;
+
+      // the spec is kind of vague and says lots of things can be left out,
+      // so constructs like mmm:ss and hh::ss are allowed
+      while (digincol > 1)
+      {
+        digincol--;
+        mult /= 10;
+      }
+      while (digincol < 1)
+      {
+        digincol++;
+        mult *= 10;
+      }
+      digincol = 0;
+    }
+    else
+      return 0;
+  }
+  if (seencolon && !seendot)
+  { // HH:MM:SS, but we never converted to samples
+    return ret * samplerate;
+  }
+  // either flat pcm or :. in which case everything was converted already
+  return ret;
+}      
+#endif // ZDOOM_AUDIO_LOOP
 
 #ifdef _MSC_VER
 #define WIN32_LEAN_AND_MEAN
@@ -174,23 +249,26 @@ static void vorb_shutdown (void)
 
 static const void *vorb_registersong (const void *data, unsigned len)
 {
-  int ret;
+  int i;
   vorbis_info *vinfo;
+  #ifdef ZDOOM_AUDIO_LOOP
+  vorbis_comment *vcom;
+  #endif // ZDOOM_AUDIO_LOOP
 
   vorb_data = data;
   vorb_len = len;
   vorb_pos = 0;
 
-  ret = ov_test_callbacks ((void *) data, &vf, NULL, 0, vcallback);
+  i = ov_test_callbacks ((void *) data, &vf, NULL, 0, vcallback);
 
-  if (ret != 0)
+  if (i != 0)
   {
     lprintf (LO_WARN, "vorb_registersong: failed\n");
     return NULL;
   }
-  ret = ov_test_open (&vf);
+  i = ov_test_open (&vf);
   
-  if (ret != 0)
+  if (i != 0)
   {
     lprintf (LO_WARN, "vorb_registersong: failed\n");
     ov_clear (&vf);
@@ -199,6 +277,25 @@ static const void *vorb_registersong (const void *data, unsigned len)
   
   vinfo = ov_info (&vf, -1);
   vorb_samplerate_in = vinfo->rate;
+
+  #ifdef ZDOOM_AUDIO_LOOP
+  // parse LOOP_START LOOP_END tags
+  vorb_loop_from = 0;
+  vorb_loop_to = 0;
+
+  vcom = ov_comment (&vf, -1);
+  for (i = 0; i < vcom->comments; i++)
+  {
+    if (strncmp ("LOOP_START=", vcom->user_comments[i], 11) == 0)
+      vorb_loop_to = parsetag (vcom->user_comments[i] + 11, vorb_samplerate_in);
+    else if (strncmp ("LOOP_END=", vcom->user_comments[i], 9) == 0)
+      vorb_loop_from = parsetag (vcom->user_comments[i] + 9, vorb_samplerate_in);
+  }
+  if (vorb_loop_from == 0)
+    vorb_loop_from = 0xffffffff;
+  else if (vorb_loop_to >= vorb_loop_from)
+    vorb_loop_to = 0;
+  #endif // ZDOOM_AUDIO_LOOP
 
   // handle not used
   return data;
@@ -233,6 +330,9 @@ static void vorb_play (void *handle, int looping)
 
   vorb_playing = 1;
   vorb_looping = looping;
+  #ifdef ZDOOM_AUDIO_LOOP
+  vorb_total_pos = 0;
+  #endif // ZDOOM_AUDIO_LOOP
 }
 
 static void vorb_stop (void)
@@ -273,7 +373,13 @@ static void vorb_render_ex (void *dest, unsigned nsamp)
 
   while (nsamp > 0)
   {
-    numread =  ov_read_float (&vf, &pcmdata, nsamp, &bitstreamnum);
+    #ifdef ZDOOM_AUDIO_LOOP
+    // don't use custom loop end point when not in looping mode
+    if (vorb_looping && vorb_total_pos + nsamp > vorb_loop_from)
+      numread = ov_read_float (&vf, &pcmdata, vorb_loop_from - vorb_total_pos, &bitstreamnum);
+    else
+    #endif // ZDOOM_AUDIO_LOOP
+      numread =  ov_read_float (&vf, &pcmdata, nsamp, &bitstreamnum);
     if (numread == OV_HOLE)
     { // recoverable error, but discontinue if we get too many
       localerrors++;
@@ -290,7 +396,12 @@ static void vorb_render_ex (void *dest, unsigned nsamp)
     { // EOF
       if (vorb_looping)
       {
+        #ifdef ZDOOM_AUDIO_LOOP
+        ov_pcm_seek_lap (&vf, vorb_loop_to);
+        vorb_total_pos = vorb_loop_to;
+        #else // ZDOOM_AUDIO_LOOP
         ov_raw_seek_lap (&vf, 0);
+        #endif // ZDOOM_AUDIO_LOOP
         continue;
       }
       else
@@ -326,6 +437,9 @@ static void vorb_render_ex (void *dest, unsigned nsamp)
       }
     }
     nsamp -= numread;
+    #ifdef ZDOOM_AUDIO_LOOP
+    vorb_total_pos += numread;
+    #endif // ZDOOM_AUDIO_LOOP
   }
 
 }
