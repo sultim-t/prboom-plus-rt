@@ -444,8 +444,8 @@ void qsort_subsectors_by_pic(subsector_t **arr, unsigned int n)
 #else
 static int C_DECL dicmp_visible_subsectors_by_pic(const void *a, const void *b)
 {
-  return (*((const subsector_t **)b))->sector->floorpic - 
-         (*((const subsector_t **)a))->sector->floorpic;
+  return (*((const subsector_t *const *)b))->sector->floorpic -
+         (*((const subsector_t *const *)a))->sector->floorpic;
 }
 #endif
 

@@ -1249,8 +1249,8 @@ static int no_overlapped_sprites;
 #define GETXY(mobj) (mobj->x + (mobj->y >> 16))
 static int C_DECL dicmp_sprite_by_pos(const void *a, const void *b)
 {
-  mobj_t *m1 = (*((mobj_t **)a));
-  mobj_t *m2 = (*((mobj_t **)b));
+  const mobj_t *m1 = (*((const mobj_t * const *)a));
+  const mobj_t *m2 = (*((const mobj_t * const *)b));
   
   int res = GETXY(m2) - GETXY(m1);
   no_overlapped_sprites = no_overlapped_sprites && res;
