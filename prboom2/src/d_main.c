@@ -481,7 +481,7 @@ static void D_DoomLoop(void)
       if (avi_shot_fname && !doSkip)
       {
         avi_shot_num++;
-        sprintf(avi_shot_curr_fname, "%s%06.6i.tga", avi_shot_fname, avi_shot_num);
+        sprintf(avi_shot_curr_fname, "%s%06d.tga", avi_shot_fname, avi_shot_num);
         M_DoScreenShot(avi_shot_curr_fname);
       }
       // NSM
