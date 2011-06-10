@@ -70,7 +70,7 @@ static const unsigned char rndtable[256] = { // 1/19/98 killough -- made const
 
 rng_t rng;     // the random number state
 
-unsigned long rngseed = 1993;   // killough 3/26/98: The seed
+unsigned int rngseed = 1993;   // killough 3/26/98: The seed
 
 int (P_Random)(pr_class_t pr_class
 #ifdef INSTRUMENTED
@@ -140,7 +140,7 @@ int (P_Random)(pr_class_t pr_class
 void M_ClearRandom (void)
 {
   int i;
-  unsigned long seed = rngseed*2+1;    // add 3/26/98: add rngseed
+  unsigned int seed = rngseed*2+1;     // add 3/26/98: add rngseed
   for (i=0; i<NUMPRCLASS; i++)         // go through each pr_class and set
     rng.seed[i] = seed *= 69069ul;     // each starting seed differently
   rng.prndindex = rng.rndindex = 0;    // clear two compatibility indices

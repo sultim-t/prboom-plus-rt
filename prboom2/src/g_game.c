@@ -3113,7 +3113,7 @@ void G_SaveRestoreGameOptions(int save)
     {1, 0, &demover},
     {1, 0, (int*)&compatibility_level},
     {1, 0, &basetic},
-    {3, 0, &rngseed},
+    {3, 0, (int*)&rngseed},
 
     {1, 0, (int*)&gameskill},
     {1, 0, &gameepisode},

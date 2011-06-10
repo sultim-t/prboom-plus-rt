@@ -125,7 +125,8 @@ typedef enum {
   /* Aliases follow */
   boom_compatibility = boom_201_compatibility, /* Alias used by G_Compatibility */
   best_compatibility = prboom_6_compatibility,
-} complevel_t;
+} complevel_t_e;
+typedef int complevel_t;
 
 /* cph - from v_video.h, needed by gl_struct.h */
 #define VPT_ALIGN_MASK 0xf

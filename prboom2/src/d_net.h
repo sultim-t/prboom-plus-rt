@@ -120,7 +120,7 @@ typedef struct
   byte player_bobbing;
   byte fastparm;
   byte demo_insurance;
-  unsigned long rngseed;
+  unsigned int rngseed;
   char filler[sizeof(ticcmd_t)*BACKUPTICS-STARTUPLEN];
 } startup_t;
 
