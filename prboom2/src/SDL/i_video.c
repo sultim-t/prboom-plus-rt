@@ -647,10 +647,16 @@ void I_PreInitGraphics(void)
 
   if (p < 0 && strcasecmp(video_driver, "default"))
   {
+    static const union {
+      const char *c;
+      char *s;
+    } u = { "SDL_VIDEODRIVER=" };
+
     //e6y: wrong videodriver?
     lprintf(LO_ERROR, "Could not initialize SDL with SDL_VIDEODRIVER=%s [%s]\n", video_driver, SDL_GetError());
 
-    putenv("SDL_VIDEODRIVER=");
+    putenv(u.s);
+
     p = SDL_Init(flags);
   }
 
