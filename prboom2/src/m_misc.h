@@ -122,7 +122,7 @@ int M_StrToFloat(const char *s, float *f);
 #ifdef __GNUC__
 #define M_DoubleToInt(x) ({ double _x = (x); (int)(_x); })
 #else
-#define M_DoubleToInt(x) ((double)(x))
+#define M_DoubleToInt(x) ((int)(x))
 #endif
 
 char* M_Strlwr(char* str);
