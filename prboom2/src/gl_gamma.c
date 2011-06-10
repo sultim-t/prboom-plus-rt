@@ -37,6 +37,9 @@
 
 #include <math.h>
 #include <sys/stat.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include "doomstat.h"
