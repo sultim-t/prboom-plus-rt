@@ -525,7 +525,7 @@ static void R_DemoEx_GetParams(const byte *pwad_p, waddata_t *waddata)
       if (p >= 0 && p < (int)paramscount - 1)
       {
         M_AddParam("-complevel");
-        M_AddParam(strdup(params[p + 1]));
+        M_AddParam(params[p + 1]);
       }
     }
 
@@ -545,7 +545,7 @@ static void R_DemoEx_GetParams(const byte *pwad_p, waddata_t *waddata)
       if (p >= 0 && p < (int)paramscount - 1)
       {
         M_AddParam("-emulate");
-        M_AddParam(strdup(params[p + 1]));
+        M_AddParam(params[p + 1]);
       }
     }
 

@@ -598,7 +598,8 @@ int main(int argc, char **argv)
 #endif
 
   myargc = argc;
-  myargv = argv;
+  myargv = malloc(sizeof(myargv[0]) * myargc);
+  memcpy(myargv, argv, sizeof(myargv[0]) * myargc);
 
   // e6y: Check for conflicts.
   // Conflicting command-line parameters could cause the engine to be confused 

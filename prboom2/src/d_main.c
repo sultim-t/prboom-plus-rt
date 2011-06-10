@@ -1032,14 +1032,15 @@ static void FindResponseFile (void)
 	  int k;
           lprintf(LO_ERROR,"\nResponse file empty!\n");
 
-          newargv = calloc(sizeof(char *),myargc);
-          newargv[0] = (char*)myargv[0];
+          newargv = calloc(sizeof(newargv[0]),myargc);
+          newargv[0] = myargv[0];
           for (k = 1,index = 1;k < myargc;k++)
           {
             if (i!=k)
-              newargv[index++] = (char*)myargv[k];
+              newargv[index++] = myargv[k];
           }
-          myargc = index; myargv = newargv;
+          myargc = index;
+          myargv = newargv;
           return;
         }
 
@@ -1047,9 +1048,9 @@ static void FindResponseFile (void)
 	memcpy((void *)moreargs,&myargv[i+1],(index = myargc - i - 1) * sizeof(myargv[0]));
 
 	{
-	  const char *firstargv = myargv[0];
-	  newargv = calloc(sizeof(char *), 1);
-	  newargv[0] = (char*)firstargv;
+	  char *firstargv = myargv[0];
+	  newargv = calloc(sizeof(newargv[0]), 1);
+	  newargv[0] = firstargv;
 	}
 
         {
@@ -1077,18 +1078,19 @@ static void FindResponseFile (void)
 
 	      // Terminate string, realloc and add to argv
 	      *p = 0;
-        newargv = realloc(newargv, sizeof(char *) * (indexinfile + 1));
+        newargv = realloc(newargv, sizeof(newargv[0]) * (indexinfile + 1));
 	      newargv[indexinfile++] = realloc(s,strlen(s)+1);
 	    }
 	  } while(size > 0);
 	}
 	free(file);
 
-  newargv = realloc(newargv, sizeof(char *) * (indexinfile + index));
+  newargv = realloc(newargv, sizeof(newargv[0]) * (indexinfile + index));
 	memcpy((void *)&newargv[indexinfile],moreargs,index*sizeof(moreargs[0]));
 	free((void *)moreargs);
 
-        myargc = indexinfile+index; myargv = newargv;
+        myargc = indexinfile+index;
+        myargv = newargv;
 
         // DISPLAY ARGS
         //jff 9/3/98 use logical output routine
@@ -1136,7 +1138,7 @@ static void DoLooseFiles(void)
   int lmpcount = 0;
   int dehcount = 0;
   int i,k,n,p;
-  const char **tmyargv;  // use these to recreate the argv array
+  char **tmyargv;  // use these to recreate the argv array
   int tmyargc;
   dboolean *skip; // CPhipps - should these be skipped at the end
 
@@ -1227,7 +1229,7 @@ static void DoLooseFiles(void)
 
     // Now go back and redo the whole myargv array with our stuff in it.
     // First, create a new myargv array to copy into
-    tmyargv = calloc(sizeof(char *), myargc + n);
+    tmyargv = calloc(sizeof(tmyargv[0]), myargc + n);
     tmyargv[0] = myargv[0]; // invocation
     tmyargc = 1;
 

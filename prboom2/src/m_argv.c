@@ -38,8 +38,7 @@
 #include "m_argv.h"
 
 int    myargc;
-const char * const * myargv; // CPhipps - not sure if ANSI C allows you to
-// modify contents of argv, but I can't imagine it does.
+char **myargv;
 
 //
 // M_CheckParm
@@ -86,21 +85,9 @@ int M_CheckParmEx(const char *check, char **params, int paramscount)
 
 void M_AddParam(const char *param)
 {
-  int i;
-  const char **tmyargv;  // use these to recreate the argv array
-
-  tmyargv = calloc(sizeof(char *), myargc + 1);
-
-  // copy everything that's there now
-  for (i = 0; i < myargc; i++)
-  {
-    tmyargv[i] = myargv[i];  // pointers are still valid
-  }
-  
-  tmyargv[myargc++] = param;
-
-  // now make the global variables point to our array
-  myargv = tmyargv;
+  myargv = realloc(myargv, sizeof(myargv[0]) * (myargc + 1));
+  myargv[myargc] = strdup(param);
+  myargc++;
 }
 
 //
