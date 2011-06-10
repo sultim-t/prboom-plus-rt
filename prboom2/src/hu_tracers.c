@@ -80,7 +80,7 @@ void InitTracers(void)
     {
       while (count < 3 && p + count < myargc - 1 && M_StrToInt(myargv[p + 1 + count], &value))
       {
-        sprintf(traces[i].items[count].value, "\x1b\x36%ld\x1b\x33 0", value);
+        sprintf(traces[i].items[count].value, "\x1b\x36%d\x1b\x33 0", value);
         traces[i].items[count].index = value;
 
         if (traces[i].ApplyFunc)

@@ -482,7 +482,7 @@ static dboolean ReadTrackHeader(midi_track_t *track, midimem_t *mf)
 
 static dboolean ReadTrack(midi_track_t *track, midimem_t *mf)
 {
-    midi_event_t *new_events;
+    midi_event_t *new_events = NULL;
     midi_event_t *event;
     unsigned int last_event_type;
 
