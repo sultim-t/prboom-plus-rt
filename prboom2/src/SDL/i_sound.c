@@ -1047,7 +1047,7 @@ int I_RegisterSong(const void *data, size_t len)
     size_t outbuf_len;
     int result;
 
-    instream = mem_fopen_read((void*)data, len);
+    instream = mem_fopen_read(data, len);
     outstream = mem_fopen_write();
 
     // e6y: from chocolate-doom
@@ -1063,14 +1063,14 @@ int I_RegisterSong(const void *data, size_t len)
       // haleyjd 04/04/10: scan forward for a MUS header. Evidently DMX was 
       // capable of doing this, and would skip over any intervening data. That, 
       // or DMX doesn't use the MUS header at all somehow.
-      while (musptr < (unsigned char*)data + len - sizeof(musheader))
+      while (musptr < (const unsigned char*)data + len - sizeof(musheader))
       {
         // if we found a likely header start, reset the mus pointer to that location,
         // otherwise just leave it alone and pray.
         if (!strncmp((const char*)musptr, "MUS\x1a", 4))
         {
           mem_fclose(instream);
-          instream = mem_fopen_read((void*)musptr, muslen);
+          instream = mem_fopen_read(musptr, muslen);
           result = mus2mid(instream, outstream);
           break;
         }
