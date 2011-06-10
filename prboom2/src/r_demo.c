@@ -277,7 +277,7 @@ void W_FreePWADTable(wadtbl_t *wadtbl)
 wadtbl_t* W_CreatePWADTable(const byte* buffer, size_t size)
 {
   int i;
-  char *pwad_p;
+  const byte *pwad_p;
   wadinfo_t *header_p;
   filelump_t* filelump_p;
   wadtbl_t *wadtbl;
@@ -289,7 +289,7 @@ wadtbl_t* W_CreatePWADTable(const byte* buffer, size_t size)
 
   W_InitPWADTable(wadtbl);
 
-  pwad_p = (char*)buffer;
+  pwad_p = buffer;
   header_p = (wadinfo_t*)pwad_p;
 
   if (strncmp(header_p->identification, PWAD_SIGNATURE, 4))
@@ -298,13 +298,13 @@ wadtbl_t* W_CreatePWADTable(const byte* buffer, size_t size)
   header_p->numlumps = LittleLong(header_p->numlumps);
   header_p->infotableofs = LittleLong(header_p->infotableofs);
 
-  filelump_p = (filelump_t*)((char*)buffer + header_p->infotableofs);
+  filelump_p = (filelump_t*)(buffer + header_p->infotableofs);
   for (i = 0; i < header_p->numlumps; i++, filelump_p++)
   {
     char lumpname[9];
     strncpy(lumpname, filelump_p->name, 8);
     lumpname[8] = 0;
-    W_AddLump(wadtbl, lumpname, (const byte*)(pwad_p + filelump_p->filepos), filelump_p->size);
+    W_AddLump(wadtbl, lumpname, (pwad_p + filelump_p->filepos), filelump_p->size);
   }
 
   return wadtbl;

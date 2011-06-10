@@ -51,6 +51,6 @@ int M_CheckParmEx(const char *check, char **params, int paramscount);
 void M_AddParam(const char *param);
 
 /* Parses the command line and sets up the argv[] array */
-void M_ParseCmdLine(char *cmdstart, char **argv, char *args, unsigned int *numargs, unsigned int *numchars);
+void M_ParseCmdLine(char *cmdstart, char **argv, char *args, int *numargs, int *numchars);
 
 #endif

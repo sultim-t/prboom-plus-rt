@@ -127,7 +127,7 @@ void M_AddParam(const char *param)
 //  int *numchars - number of characters used in args buffer
 //
 
-void M_ParseCmdLine(char *cmdstart, char **argv, char *args, unsigned int *numargs, unsigned int *numchars)
+void M_ParseCmdLine(char *cmdstart, char **argv, char *args, int *numargs, int *numchars)
 {
 #define IsSpace(c) ((c) == 0x20 || ((c) >= 0x09 && (c) <= 0x0D))
 
