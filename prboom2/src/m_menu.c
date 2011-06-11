@@ -129,7 +129,14 @@ static void M_UpdateCurrent(default_t* def)
 int warning_about_changes, print_warning_about_changes;
 
 /* cphipps - M_DrawBackground renamed and moved to v_video.c */
-#define M_DrawBackground V_DrawBackground
+
+dboolean menu_background = 1; // do Boom fullscreen menus have backgrounds?
+
+static void M_DrawBackground(const char *flat, int scrn)
+{
+  if (menu_background)
+    V_DrawBackground(flat, scrn);
+}
 
 // we are going to be entering a savegame string
 
@@ -143,7 +150,7 @@ dboolean inhelpscreens; // indicates we are in or just left a help screen
 
 dboolean BorderNeedRefresh;
 
-dboolean menuactive;    // The menus are up
+enum menuactive_e menuactive;    // The menus are up
 
 #define SKULLXOFF  -32
 #define LINEHEIGHT  16
@@ -2434,13 +2441,13 @@ void M_KeyBindings(int choice)
 // background, title, instruction line, and items.
 
 void M_DrawKeybnd(void)
-
 {
-  inhelpscreens = true;    // killough 4/6/98: Force status bar redraw
+  menuactive = mnact_full;
 
   // Set up the Key Binding screen
 
   M_DrawBackground("FLOOR4_6", 0); // Draw background
+
   // proff/nicolas 09/20/98 -- changed for hi-res
   V_DrawNamePatch(84, 2, 0, "M_KEYBND", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -2547,9 +2554,10 @@ void M_Weapons(int choice)
 
 void M_DrawWeapons(void)
 {
-  inhelpscreens = true;    // killough 4/6/98: Force status bar redraw
+  menuactive = mnact_full;
 
   M_DrawBackground("FLOOR4_6", 0); // Draw background
+
   // proff/nicolas 09/20/98 -- changed for hi-res
   V_DrawNamePatch(109, 2, 0, "M_WEAP", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -2654,11 +2662,11 @@ void M_StatusBar(int choice)
 // background, title, instruction line, and items.
 
 void M_DrawStatusHUD(void)
-
 {
-  inhelpscreens = true;    // killough 4/6/98: Force status bar redraw
+  menuactive = mnact_full;
 
   M_DrawBackground("FLOOR4_6", 0); // Draw background
+
   // proff/nicolas 09/20/98 -- changed for hi-res
   V_DrawNamePatch(59, 2, 0, "M_STAT", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -2837,11 +2845,11 @@ static void M_DrawColPal(void)
 // background, title, instruction line, and items.
 
 void M_DrawAutoMap(void)
-
 {
-  inhelpscreens = true;    // killough 4/6/98: Force status bar redraw
+  menuactive = mnact_full;
 
   M_DrawBackground("FLOOR4_6", 0); // Draw background
+
   // CPhipps - patch drawing updated
   V_DrawNamePatch(109, 2, 0, "M_AUTO", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -2964,11 +2972,11 @@ void M_Enemy(int choice)
 // background, title, instruction line, and items.
 
 void M_DrawEnemy(void)
-
 {
-  inhelpscreens = true;
+  menuactive = mnact_full;
 
   M_DrawBackground("FLOOR4_6", 0); // Draw background
+
   // proff/nicolas 09/20/98 -- changed for hi-res
   V_DrawNamePatch(114, 2, 0, "M_ENEM", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -3070,8 +3078,9 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
   {"Game speed, percentage of normal", S_NUM|S_PRGWARN, m_null, G_X, G_Y+13*8, {"realtic_clock_rate"}},
   {"Default skill level",              S_CHOICE,        m_null, G_X, G_Y+14*8, {"default_skill"}, 0, 0, NULL, gen_skillstrings},
   {"Show ENDOOM screen",               S_YESNO,         m_null, G_X, G_Y+15*8, {"showendoom"}},
+  {"Fullscreen menu background",       S_YESNO, m_null, G_X, G_Y + 16*8, {"menu_background"}},
 #ifdef USE_WINDOWS_LAUNCHER
-  {"Use In-Game Launcher",             S_CHOICE,        m_null, G_X, G_Y+ 16*8, {"launcher_enable"}, 0, 0, NULL, launcher_enable_states},
+  {"Use In-Game Launcher",             S_CHOICE,        m_null, G_X, G_Y+ 17*8, {"launcher_enable"}, 0, 0, NULL, launcher_enable_states},
 #endif
 
 
@@ -3293,9 +3302,10 @@ void M_General(int choice)
 
 void M_DrawGeneral(void)
 {
-  inhelpscreens = true;
+  menuactive = mnact_full;
 
   M_DrawBackground("FLOOR4_6", 0); // Draw background
+
   // proff/nicolas 09/20/98 -- changed for hi-res
   V_DrawNamePatch(114, 2, 0, "M_GENERL", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -3498,9 +3508,10 @@ void M_Compat(int choice)
 
 void M_DrawCompat(void)
 {
-  inhelpscreens = true;
+  menuactive = mnact_full;
 
   M_DrawBackground("FLOOR4_6", 0); // Draw background
+
   V_DrawNamePatch(52,2,0,"M_COMPAT", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
   M_DrawScreenItems(current_setup_menu);
@@ -3617,10 +3628,11 @@ void M_Messages(int choice)
 // background, title, instruction line, and items.
 
 void M_DrawMessages(void)
-
 {
-  inhelpscreens = true;
+  menuactive = mnact_full;
+
   M_DrawBackground("FLOOR4_6", 0); // Draw background
+
   // CPhipps - patch drawing updated
   V_DrawNamePatch(103, 2, 0, "M_MESS", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -3690,10 +3702,11 @@ void M_ChatStrings(int choice)
 // background, title, instruction line, and items.
 
 void M_DrawChatStrings(void)
-
 {
-  inhelpscreens = true;
+  menuactive = mnact_full;
+
   M_DrawBackground("FLOOR4_6", 0); // Draw background
+
   // CPhipps - patch drawing updated
   V_DrawNamePatch(83, 2, 0, "M_CHAT", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -4209,7 +4222,8 @@ static void M_DrawStringCentered(int cx, int cy, int color, const char* ch)
 
 void M_DrawHelp (void)
 {
-  inhelpscreens = true;                        // killough 10/98
+  menuactive = mnact_full;
+
   M_DrawBackground("FLOOR4_6", 0);
 
   M_DrawScreenItems(helpstrings);
@@ -4263,7 +4277,8 @@ setup_menu_t cred_settings[]={
 void M_DrawCredits(void)     // killough 10/98: credit screen
 {
   inhelpscreens = true;
-  M_DrawBackground(gamemode==shareware ? "CEIL5_1" : "MFLR8_4", 0);
+  // Use V_DrawBackground here deliberately to force drawing a background
+  V_DrawBackground(gamemode==shareware ? "CEIL5_1" : "MFLR8_4", 0);
   V_DrawNamePatch(81,9,0, "PRBOOM",CR_GOLD, VPT_TRANS | VPT_STRETCH);
   M_DrawScreenItems(cred_settings);
 }
@@ -4473,7 +4488,7 @@ dboolean M_Responder (event_t* ev) {
     if (messageRoutine)
       messageRoutine(ch);
 
-    menuactive = false;
+    menuactive = mnact_inactive;
     S_StartSound(NULL,sfx_swtchx);
     return true;
   }
@@ -5587,7 +5602,7 @@ void M_StartControlPanel (void)
   }
 
   default_verify = 0;                  // killough 10/98
-  menuactive = 1;
+  menuactive = mnact_float;
   currentMenu = &MainDef;         // JDC
   itemOn = currentMenu->lastOn;   // JDC
   print_warning_about_changes = false;   // killough 11/98
@@ -5632,6 +5647,8 @@ void M_Drawer (void)
       {
   int x,y,max,i;
 
+  menuactive = mnact_float; // Boom-style menu drawers will set mnact_full
+
   if (currentMenu->routine)
     currentMenu->routine();     // call Draw routine
 
@@ -5664,7 +5681,7 @@ void M_Drawer (void)
 
 void M_ClearMenus (void)
 {
-  menuactive = 0;
+  menuactive = mnact_inactive;
   print_warning_about_changes = 0;     // killough 8/15/98
   default_verify = 0;                  // killough 10/98
 
@@ -5710,7 +5727,7 @@ void M_StartMessage (const char* string,void* routine,dboolean input)
   messageString = string;
   messageRoutine = routine;
   messageNeedsInput = input;
-  menuactive = true;
+  menuactive = mnact_float;
   return;
 }
 
@@ -5889,7 +5906,7 @@ void M_Init(void)
 {
   M_InitDefaults();                // killough 11/98
   currentMenu = &MainDef;
-  menuactive = 0;
+  menuactive = mnact_inactive;
   itemOn = currentMenu->lastOn;
   whichSkull = 0;
   skullAnimCounter = 10;

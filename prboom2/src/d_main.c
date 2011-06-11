@@ -334,7 +334,7 @@ void D_Display (void)
       redrawborderstuff = isborder && (!isborderstate || borderwillneedredraw);
       // The border may need redrawing next time if the border surrounds the screen,
       // and there is a menu being displayed
-      borderwillneedredraw = menuactive && isborder && viewactive && (viewwidth != SCREENWIDTH);
+      borderwillneedredraw = menuactive && isborder && viewactive;
       // e6y
       // I should do it because I call R_RenderPlayerView in all cases,
       // not only if viewactive is true
@@ -375,7 +375,12 @@ void D_Display (void)
 
     R_RestoreInterpolations();
 
-    ST_Drawer((viewheight != SCREENHEIGHT) || ((automapmode & am_active) && !(automapmode & am_overlay)), redrawborderstuff || BorderNeedRefresh);
+    ST_Drawer(
+        ((viewheight != SCREENHEIGHT)
+         || ((automapmode & am_active) && !(automapmode & am_overlay))),
+        redrawborderstuff || BorderNeedRefresh,
+        (menuactive == mnact_full));
+
     BorderNeedRefresh = false;
     if (V_GetMode() != VID_MODEGL)
       R_DrawViewBorder();
@@ -386,7 +391,7 @@ void D_Display (void)
   oldgamestate = wipegamestate = gamestate;
 
   // draw pause pic
-  if (paused) {
+  if (paused && (menuactive != mnact_full)) {
     // Simplified the "logic" here and no need for x-coord caching - POPE
     V_DrawNamePatch((320 - V_NamePatchWidth("M_PAUSE"))/2, 4,
                     0, "M_PAUSE", CR_DEFAULT, VPT_STRETCH);

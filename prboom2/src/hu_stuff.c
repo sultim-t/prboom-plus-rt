@@ -1799,6 +1799,10 @@ void HU_Drawer(void)
   if (realframe) needupdate = !needupdate;
   doit = needupdate;
 
+  // don't draw anything if there's a fullscreen menu up
+  if (menuactive == mnact_full)
+    return;
+
   plr = &players[displayplayer];         // killough 3/7/98
   // draw the automap widgets if automap is displayed
   if (automapmode & am_active)

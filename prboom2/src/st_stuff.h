@@ -64,7 +64,7 @@ dboolean ST_Responder(event_t* ev);
 void ST_Ticker(void);
 
 // Called by main loop.
-void ST_Drawer(dboolean st_statusbaron, dboolean refresh);
+void ST_Drawer(dboolean st_statusbaron, dboolean refresh, dboolean fullmenu);
 
 // Called when the console player is spawned on each level.
 void ST_Start(void);
