@@ -79,7 +79,7 @@ const music_player_t vorb_player =
 
 // uncomment to allow (experiemntal) support for
 // zdoom-style audio loops
-// #define ZDOOM_AUDIO_LOOP
+#define ZDOOM_AUDIO_LOOP
 
 static int vorb_looping = 0;
 static int vorb_volume = 0; // 0-15
