@@ -140,11 +140,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/Qipo /Qprof-use"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="../VisualC8;../src;../src/PCRELIB;../src/MUSIC/include/portmidi;../src/MUSIC/include/dumb;../src/MUSIC/include/libmad;../src/MUSIC/include/fluidsynth;../src/MUSIC/include/vorbis"
 				PreprocessorDefinitions="NDEBUG;GL_DOOM;WIN32;_WINDOWS;HAVE_CONFIG_H;I386_ASM;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
@@ -710,11 +707,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/Qipo /Qprof-use"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="../VisualC8;../src;../src/PCRELIB;../src/MUSIC/include/portmidi;../src/MUSIC/include/dumb;../src/MUSIC/include/libmad;../src/MUSIC/include/fluidsynth;../src/MUSIC/include/vorbis"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;HAVE_CONFIG_H;I386_ASM;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
