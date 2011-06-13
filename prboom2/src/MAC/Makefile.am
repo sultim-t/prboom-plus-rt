@@ -14,7 +14,7 @@ EXTRA_DIST = ANSIString.h \
 	FileButtonController.m \
 	Image-DS_Store \
 	Info.plist \
-	i_sound.c \
+	i_sound.m \
 	i_system.m \
 	LauncherApp.h \
 	LauncherApp.m \
