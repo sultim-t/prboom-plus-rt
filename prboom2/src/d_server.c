@@ -558,7 +558,7 @@ int main(int argc, char** argv)
         int from = *(byte*)(packet+1);
 	if (badplayer(from)) break;
 
-        if (verbose>2) printf("%d requests resend from %d\n", from, ptic(packet));
+        if (verbose>2) printf("%d requests resend from %ld\n", from, ptic(packet));
         remoteticto[from] = ptic(packet);
       }
       break;
@@ -576,7 +576,7 @@ int main(int argc, char** argv)
         if (playerleftgame[from] == INT_MAX) { // In the game
 	  playerleftgame[from] = ptic(packet);
 	  --curplayers;
-	  if (verbose) printf("%d quits at %d (%d left)\n", from, ptic(packet),curplayers);
+	  if (verbose) printf("%d quits at %ld (%d left)\n", from, ptic(packet),curplayers);
 	  if (ingame && !curplayers) exit(0); // All players have exited
         }
       }
