@@ -35,10 +35,22 @@ section.
 Basic Installation
 ==================
 
-  1. To compile PrBoom, you need the SDL development headers and libraries
-     installed (SDL, SDL_mixer, SDL_net). See
-     http://prboom.sourceforge.net/linux.html for information on downloading
-     the right libraries for your system.
+  1. To compile PrBoom-Plus, you need at least SDL. To enable various
+     extensions and optional features, the following are required:
+     - SDL_net (for network play)
+     - SDL_image (for high-resolution texture support in OpenGL mode)
+     - PCRE (for demo filename pattern matching)
+     - for music support, some or all of
+       * SDL_mixer (midi, timidity)
+       * Fluidsynth (midi)
+       * Portmidi (midi)
+       * MAD (mp3)
+       * DUMB (various tracker-style formats)
+       * vorbisfile (ogg)
+     On a typical Debian or Ubuntu system this may be sufficient:
+       apt-get install libsdl1.2-dev libsdl-net1.2-dev libsdl-image1.2-dev \
+         libpcre3-dev libsdl-mixer1.2-dev libfluidsynth-dev libportmidi-dev \
+         libmad0-dev libdumb1-dev libvorbis-dev
 
   2. `cd' to the directory containing the PrBoom distribution (the directory
      this file is in).
