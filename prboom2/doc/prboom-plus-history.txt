@@ -1,5 +1,18 @@
 Change Log
 
+2.5.1.1 @ 2011-Jun-13
+[+]Support for ZDoom-style OGG loop points, by Nicholai Main. http://zdoom.org/wiki/Audio_loop
+[+]Ability to disable the background on Boom fullscreen menus. There is a "menu_background" config variable and in-game GUI entry.
+[*]"Automap - Show kills/items/secrets statistics" is displayed on overlay automap too.
+[*]Improved sample rate conversion, by Nicholai Main.
+[*]MIDI volume works independently from SFX on Vista/7 for "portmidi" player.
+[*]"madplayer" should now correctly play mp3 songs with ID3v2 tags.
+[*]Seamless tiling in the high quality resize algorithms (thanks Nunya).
+[-]"Texture format" always forced to GL_RGB5_A1 if "Use GL surface for software mode" is enabled.
+[-]Fixed crash when you try to make a screenshot if "Use GL surface for software mode" is enabled.
+[-]Deadlock in "portmidi" music player.
+[-]Looping for all mp3s are completely broken in libmad player.
+
 2.5.1.0 @ 2011-May-28
 [+] New music code by Nicholai Main. See "Preferred MIDI player" GUI option. Available values are "sdl", "fluidsynth" (disabled for Win9x), "opl2" and "portmidi".
 [+] If "-warp" doesn't have a map number after it, the game will automatically warp to the first map in all the files loaded at the command line.  This allows a pwad to be run without concerns about where its actual maps start.
