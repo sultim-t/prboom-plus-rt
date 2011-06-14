@@ -488,12 +488,13 @@ const char *savegamename = PACKAGE"-savegame";
 typedef struct {
   const char **ppstr;  // doubly indirect pointer to string
   const char *lookup;  // pointer to lookup string name
+  const char *orig;
 } deh_strs;
 
-/* CPhipps - const, static
+/* CPhipps - const
  *         - removed redundant "Can't XXX in a netgame" strings
  */
-static const deh_strs deh_strlookup[] = {
+static deh_strs deh_strlookup[] = {
   {&s_D_DEVSTR,"D_DEVSTR"},
   {&s_D_CDROM,"D_CDROM"},
   {&s_PRESSKEY,"PRESSKEY"},
@@ -2739,9 +2740,12 @@ dboolean deh_procStringSub(char *key, char *lookfor, char *newstring, FILE *fpou
   found = false;
   for (i=0;i<deh_numstrlookup;i++)
     {
+      if (deh_strlookup[i].orig == NULL)
+      {
+        deh_strlookup[i].orig = *deh_strlookup[i].ppstr;
+      }
       found = lookfor ?
-        //e6y !strnicmp(*deh_strlookup[i].ppstr,lookfor,strlen(lookfor)) :
-        !stricmp(*deh_strlookup[i].ppstr,lookfor) :
+        !stricmp(deh_strlookup[i].orig,lookfor) :
         !stricmp(deh_strlookup[i].lookup,key);
 
       if (found)
