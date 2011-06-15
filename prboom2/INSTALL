@@ -39,6 +39,7 @@ Basic Installation
      extensions and optional features, the following are required:
      - SDL_net (for network play)
      - SDL_image (for high-resolution texture support in OpenGL mode)
+     - libpng (to have screenshots saved in PNG format)
      - PCRE (for demo filename pattern matching)
      - for music support, some or all of
        * SDL_mixer (midi, timidity)
@@ -49,8 +50,8 @@ Basic Installation
        * vorbisfile (ogg)
      On a typical Debian or Ubuntu system this may be sufficient:
        apt-get install libsdl1.2-dev libsdl-net1.2-dev libsdl-image1.2-dev \
-         libpcre3-dev libsdl-mixer1.2-dev libfluidsynth-dev libportmidi-dev \
-         libmad0-dev libdumb1-dev libvorbis-dev
+         libpng12-dev libpcre3-dev libsdl-mixer1.2-dev libfluidsynth-dev \
+         libportmidi-dev libmad0-dev libdumb1-dev libvorbis-dev
 
   2. `cd' to the directory containing the PrBoom distribution (the directory
      this file is in).
