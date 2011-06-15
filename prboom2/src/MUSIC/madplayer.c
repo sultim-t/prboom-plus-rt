@@ -126,24 +126,44 @@ static const void *mp_registersong (const void *data, unsigned len)
 {
   int i;
   int maxtry;
+  int success = 0;
 
+  // the MP3 standard doesn't include any global file header.  the only way to tell filetype
+  // is to start decoding stuff.  you can't be too strict however because MP3 is resilient to
+  // crap in the stream.
+
+  // this routine is a bit slower than it could be, but apparently there are lots of files out
+  // there with some dodgy stuff at the beginning.
+    
   // if the stream begins with an ID3v2 magic, search hard and long for our first valid header
   if (memcmp (data, "ID3", 3) == 0)
-    maxtry = 20;
-  // otherwise, be very strict.  (if you're lenient, everything looks like an mp3)
-  // (also, ID3v1 tags come at the END of the stream, so no worries there)
+    maxtry = 100;
+  // otherwise, search for not so long
   else
-    maxtry = 1;
+    maxtry = 20;
 
   mad_stream_buffer (&Stream, data, len);
 
   for (i = 0; i < maxtry; i++)
-    if (mad_header_decode (&Header, &Stream) == 0)
-      break;
-
-  if (i == maxtry) // failed
   {
-    lprintf (LO_WARN, "mad_registersong failed: %s\n", mad_stream_errorstr (&Stream));
+    if (mad_header_decode (&Header, &Stream) != 0)
+    {
+      if (!MAD_RECOVERABLE (Stream.error))
+      {
+        lprintf (LO_WARN, "mad_registersong failed: %s\n", mad_stream_errorstr (&Stream));
+        return NULL;
+      }  
+    }
+    else
+    {
+      success++;
+    }
+  }
+
+  // 80% to pass
+  if (success < maxtry * 8 / 10)
+  {
+    lprintf (LO_WARN, "mad_registersong failed\n");
     return NULL;
   }
   
