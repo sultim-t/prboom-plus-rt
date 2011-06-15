@@ -46,13 +46,14 @@
 <br><span class="ver">2.5.1.1</span>
 <span class="date"> @ 2011-Jun-13</span>
 <table>
-<tr><td class="aaa">[+]</td><td>Support for ZDoom-style OGG loop points, by Nicholai Main. http://zdoom.org/wiki/Audio_loop
+<tr><td class="aaa">[+]</td><td>Support for ZDoom-style OGG loop points, by Nicholai Main. <a href="http://zdoom.org/wiki/Audio_loop">http://zdoom.org/wiki/Audio_loop</a>
 <tr><td class="aaa">[+]</td><td>Ability to disable the background on Boom fullscreen menus. There is a "menu_background" config variable and in-game GUI entry.
 <tr><td class="aaa">[*]</td><td>"Automap - Show kills/items/secrets statistics" is displayed on overlay automap too.
 <tr><td class="aaa">[*]</td><td>Improved sample rate conversion, by Nicholai Main.
 <tr><td class="aaa">[*]</td><td>MIDI volume works independently from SFX on Vista/7 for "portmidi" player.
 <tr><td class="aaa">[*]</td><td>"madplayer" should now correctly play mp3 songs with ID3v2 tags.
 <tr><td class="aaa">[*]</td><td>Seamless tiling in the high quality resize algorithms (thanks Nunya).
+<tr><td class="aaa">[*]</td><td>The first frame of the O_COUNTD(.MP3) @ dvii-1u.wad is in fact corrupt, but the rest is ok (best guess: it used to have an ID3v2 tag which was removed by a dodgy program). This new load routine should be more accepting of damaged mp3s.
 <tr><td class="aaa">[-]</td><td>"Texture format" always forced to GL_RGB5_A1 if "Use GL surface for software mode" is enabled.
 <tr><td class="aaa">[-]</td><td>Fixed crash when you try to make a screenshot if "Use GL surface for software mode" is enabled.
 <tr><td class="aaa">[-]</td><td>Deadlock in "portmidi" music player.
