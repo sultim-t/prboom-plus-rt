@@ -229,19 +229,22 @@ void SMP_Init(void)
 
   use_smp = 0;
 
-  if (process_affinity_mask)
+  if (use_smp_defauls)
   {
-    lprintf(LO_WARN,
-      "SMP_Init: Unable to init SMP if 'process_affinity_mask' is not a zero\n");
-    return;
-  }
+    if (process_affinity_mask)
+    {
+      lprintf(LO_WARN,
+        "SMP_Init: Unable to init SMP if 'process_affinity_mask' is not a zero\n");
+      return;
+    }
 
-  if (!strcasecmp(snd_midiplayer, midiplayers[midi_player_sdl]))
-  {
-    lprintf(LO_WARN,
-      "SMP_Init: Unable to init SMP if 'Preffered MIDI Player' is '%s'\n",
-      midiplayers[midi_player_sdl]);
-    return;
+    if (!strcasecmp(snd_midiplayer, midiplayers[midi_player_sdl]))
+    {
+      lprintf(LO_WARN,
+        "SMP_Init: Unable to init SMP if 'Preffered MIDI Player' is '%s'\n",
+        midiplayers[midi_player_sdl]);
+      return;
+    }
   }
 
   if (V_GetMode() != VID_MODEGL)
