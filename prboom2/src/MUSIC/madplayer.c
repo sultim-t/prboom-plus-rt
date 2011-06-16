@@ -211,8 +211,21 @@ static void mp_stop (void)
   mp_playing = 0;
 }
 
+// convert from mad's internal fixed point representation
+static inline short mp_fixtoshort (mad_fixed_t f)
+{
+  // clip
+  if (f < -MAD_F_ONE)
+    f = -MAD_F_ONE;
+  if (f > MAD_F_ONE)
+    f = MAD_F_ONE;    
+  // apply volume before conversion to 16bit
+  f /= 15;
+  f *= mp_volume;
+  f >>= (MAD_F_FRACBITS - 15);
 
-
+  return (short) f;
+}
 
 static void mp_render_ex (void *dest, unsigned nsamp)
 {
@@ -231,22 +244,16 @@ static void mp_render_ex (void *dest, unsigned nsamp)
 
   while (1)
   {
+    // write any leftover data from last MP3 frame
     while (mp_leftoversamps > 0 && nsamp > 0)
     {
-      for (i = 0; i < 2; i++)
-      {
-        f = Synth.pcm.samples[i][mp_leftoversamppos];
-        if (f < -MAD_F_ONE)
-          f = -MAD_F_ONE;
-        if (f > MAD_F_ONE)
-          f = MAD_F_ONE;    
-        // apply volume before conversion to 16bit
-        f /= 15;
-        f *= mp_volume;
-        f >>= (MAD_F_FRACBITS - 15);
-        sout[i] = (short) f;
-      }
-      sout += 2;
+      short s = mp_fixtoshort (Synth.pcm.samples[0][mp_leftoversamppos]);
+      *sout++ = s;
+      if (Synth.pcm.channels == 2)
+        s = mp_fixtoshort (Synth.pcm.samples[1][mp_leftoversamppos]);
+      // if mono, just duplicate the first channel again
+      *sout++ = s;
+
       mp_leftoversamps -= 1;
       mp_leftoversamppos += 1;
       nsamp -= 1;
@@ -254,9 +261,7 @@ static void mp_render_ex (void *dest, unsigned nsamp)
     if (nsamp == 0)
       return; // done
     
-    // else we ran out of leftovers first
-
-    // decode new data
+    // decode next valid MP3 frame
     while (mad_frame_decode (&Frame, &Stream) != 0)
     {
       if (MAD_RECOVERABLE (Stream.error))
