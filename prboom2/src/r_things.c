@@ -1078,7 +1078,6 @@ static void R_DrawSprite (vissprite_t* spr)
   int     r2;
   fixed_t scale;
   fixed_t lowscale;
-  int     i;
 
   for (x = spr->x1 ; x<=spr->x2 ; x++)
     clipbot[x] = -2;
@@ -1096,14 +1095,15 @@ static void R_DrawSprite (vissprite_t* spr)
 
   if (drawsegs_xrange_size)
   {
-    // drawsegs_xrange is sorted by ::x1
-    for (i = 0; i < drawsegs_xrange_count; i++)
+    const drawsegs_xrange_t *last = &drawsegs_xrange[drawsegs_xrange_count - 1];
+    drawsegs_xrange_t *curr = &drawsegs_xrange[-1];
+    while (++curr <= last)
     {
       // determine if the drawseg obscures the sprite
-      if (drawsegs_xrange[i].x1 > spr->x2 || drawsegs_xrange[i].x2 < spr->x1)
+      if (curr->x1 > spr->x2 || curr->x2 < spr->x1)
         continue;      // does not cover sprite
 
-      ds = drawsegs_xrange[i].user;
+      ds = curr->user;
 
       if (ds->scale1 > ds->scale2)
       {
@@ -1272,10 +1272,10 @@ void R_DrawMasked(void)
   drawsegs_xrange_count = 0;
   if (try_to_reduce_cpu_cache_misses && num_vissprite > 0)
   {
-    if (drawsegs_xrange_size <= maxdrawsegs)
+    if (drawsegs_xrange_size < maxdrawsegs)
     {
-      drawsegs_xrange_size = maxdrawsegs;
-      drawsegs_xrange = realloc(drawsegs_xrange, 2 * drawsegs_xrange_size * sizeof(drawsegs_xrange[0]));
+      drawsegs_xrange_size = 2 * maxdrawsegs;
+      drawsegs_xrange = realloc(drawsegs_xrange, drawsegs_xrange_size * sizeof(drawsegs_xrange[0]));
     }
     for (ds = ds_p; ds-- > drawsegs;)
     {
