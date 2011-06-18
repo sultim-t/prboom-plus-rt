@@ -203,7 +203,7 @@ def buildBinary(task, path, file, sources)
 		depfile = "#{BUILDDIR}#{File::dirname(source)}/.#{File::basename(source, '.*')}.dep.mf"
 		file(depfile => deps) do |task|
 			prefix = File::join(File::dirname(task.prerequisites[0]), '')
-			sh("#{@makedepend} -p#{BUILDDIR}#{prefix} -f- -- #{@includes} #{@defines} -- #{task.prerequisites[0]} > #{task.name} 2> /dev/null")
+			sh("#{@makedepend} -p#{BUILDDIR}#{prefix} -f- -- #{@includes} #{@defines} -- #{task.prerequisites[0]} 2> /dev/null | sed 's,/usr/include/stdint.h,,' > #{task.name} ")
 		end
 		import depfile
 		@cleanfiles.push(depfile)
