@@ -1,6 +1,6 @@
 Change Log
 
-2.5.1.1 @ 2011-Jun-13
+2.5.1.1 @ 2011-Jun-18
 [+] Support for ZDoom-style OGG loop points, by Nicholai Main. http://zdoom.org/wiki/Audio_loop
 [+] Ability to disable the background on Boom fullscreen menus. There is a "menu_background" config variable and in-game GUI entry.
 [*] "Automap - Show kills/items/secrets statistics" is displayed on overlay automap too.
