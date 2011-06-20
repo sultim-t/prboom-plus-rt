@@ -412,8 +412,13 @@ static void fl_render (void *vdest, unsigned length)
         {
           if (f_looping)
           {
+            int i;
             eventpos = 0;
             f_delta += eventdelta;
+            // fix buggy songs that forget to terminate notes held over loop point
+            // sdl_mixer does this as well
+            for (i = 0; i < 16; i++)
+              fluid_synth_cc (f_syn, i, 123, 0); // ALL NOTES OFF
             continue;
           }
           // stop, write leadout

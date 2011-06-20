@@ -435,8 +435,13 @@ static void pm_render (void *vdest, unsigned bufflen)
         {
           if (pm_looping)
           {
+            int i;
             eventpos = 0;
             pm_delta += eventdelta;
+            // fix buggy songs that forget to terminate notes held over loop point
+            // sdl_mixer does this as well
+            for (i = 0; i < 16; i++)
+              writeevent (when, MIDI_EVENT_CONTROLLER, i, 123, 0); // all notes off
             continue;
           }
           // stop

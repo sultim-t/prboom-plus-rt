@@ -1098,6 +1098,18 @@ static void RestartSong(void)
 
     running_tracks = num_tracks;
 
+    // fix buggy songs that forget to terminate notes held over loop point
+    // sdl_mixer does this as well
+    for (i=0; i<OPL_NUM_VOICES; ++i)
+    {
+        if (voices[i].channel != NULL
+         && voices[i].current_instr < percussion_instrs)
+        {
+            VoiceKeyOff(&voices[i]);
+        }
+    }
+
+
     for (i=0; i<num_tracks; ++i)
     {
         MIDI_RestartIterator(tracks[i].iter);
