@@ -230,9 +230,6 @@ static inline short mp_fixtoshort (mad_fixed_t f)
 static void mp_render_ex (void *dest, unsigned nsamp)
 {
   short *sout = (short *) dest;
-  mad_fixed_t f;
-
-  int i;
 
   int localerrors = 0;
 
