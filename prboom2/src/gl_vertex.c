@@ -307,7 +307,7 @@ void gld_RecalcVertexHeights(const vertex_t *v)
 static void AddToVertex(const sector_t *sec, int **list, unsigned int *size)
 {
   unsigned int i;
-  int secno = sec-sectors;
+  int secno = sec->iSectorID;
 
   for(i = 0; i < (*size); i++)
   {

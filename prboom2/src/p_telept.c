@@ -52,7 +52,7 @@ static mobj_t* P_TeleportDestination(line_t* line)
       if (th->function == P_MobjThinker) {
         register mobj_t* m = (mobj_t*)th;
         if (m->type == MT_TELEPORTMAN  &&
-            m->subsector->sector-sectors == i)
+            m->subsector->sector->iSectorID == i)
             return m;
       }
   }

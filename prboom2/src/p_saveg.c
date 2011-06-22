@@ -664,7 +664,7 @@ void P_ArchiveSpecials (void)
           ceiling = (ceiling_t *)save_p;
           memcpy (ceiling, th, sizeof(*ceiling));
           save_p += sizeof(*ceiling);
-          ceiling->sector = (sector_t *)(ceiling->sector - sectors);
+          ceiling->sector = (sector_t *)(ceiling->sector->iSectorID);
           continue;
         }
 
@@ -676,7 +676,7 @@ void P_ArchiveSpecials (void)
           door = (vldoor_t *) save_p;
           memcpy (door, th, sizeof *door);
           save_p += sizeof(*door);
-          door->sector = (sector_t *)(door->sector - sectors);
+          door->sector = (sector_t *)(door->sector->iSectorID);
           //jff 1/31/98 archive line remembered by door as well
           door->line = (line_t *) (door->line ? door->line-lines : -1);
           continue;
@@ -690,7 +690,7 @@ void P_ArchiveSpecials (void)
           floor = (floormove_t *)save_p;
           memcpy (floor, th, sizeof(*floor));
           save_p += sizeof(*floor);
-          floor->sector = (sector_t *)(floor->sector - sectors);
+          floor->sector = (sector_t *)(floor->sector->iSectorID);
           continue;
         }
 
@@ -703,7 +703,7 @@ void P_ArchiveSpecials (void)
           plat = (plat_t *)save_p;
           memcpy (plat, th, sizeof(*plat));
           save_p += sizeof(*plat);
-          plat->sector = (sector_t *)(plat->sector - sectors);
+          plat->sector = (sector_t *)(plat->sector->iSectorID);
           continue;
         }
 
@@ -715,7 +715,7 @@ void P_ArchiveSpecials (void)
           flash = (lightflash_t *)save_p;
           memcpy (flash, th, sizeof(*flash));
           save_p += sizeof(*flash);
-          flash->sector = (sector_t *)(flash->sector - sectors);
+          flash->sector = (sector_t *)(flash->sector->iSectorID);
           continue;
         }
 
@@ -727,7 +727,7 @@ void P_ArchiveSpecials (void)
           strobe = (strobe_t *)save_p;
           memcpy (strobe, th, sizeof(*strobe));
           save_p += sizeof(*strobe);
-          strobe->sector = (sector_t *)(strobe->sector - sectors);
+          strobe->sector = (sector_t *)(strobe->sector->iSectorID);
           continue;
         }
 
@@ -739,7 +739,7 @@ void P_ArchiveSpecials (void)
           glow = (glow_t *)save_p;
           memcpy (glow, th, sizeof(*glow));
           save_p += sizeof(*glow);
-          glow->sector = (sector_t *)(glow->sector - sectors);
+          glow->sector = (sector_t *)(glow->sector->iSectorID);
           continue;
         }
 
@@ -752,7 +752,7 @@ void P_ArchiveSpecials (void)
           flicker = (fireflicker_t *)save_p;
           memcpy (flicker, th, sizeof(*flicker));
           save_p += sizeof(*flicker);
-          flicker->sector = (sector_t *)(flicker->sector - sectors);
+          flicker->sector = (sector_t *)(flicker->sector->iSectorID);
           continue;
         }
 
@@ -765,7 +765,7 @@ void P_ArchiveSpecials (void)
           elevator = (elevator_t *)save_p;
           memcpy (elevator, th, sizeof(*elevator));
           save_p += sizeof(*elevator);
-          elevator->sector = (sector_t *)(elevator->sector - sectors);
+          elevator->sector = (sector_t *)(elevator->sector->iSectorID);
           continue;
         }
 

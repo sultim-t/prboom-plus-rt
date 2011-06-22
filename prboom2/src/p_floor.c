@@ -644,7 +644,7 @@ manual_floor://e6y
         floor->oldspecial = sec->oldspecial;
 
         //jff 5/23/98 use model subroutine to unify fixes and handling
-        sec = P_FindModelFloorSector(floor->floordestheight,sec-sectors);
+        sec = P_FindModelFloorSector(floor->floordestheight,sec->iSectorID);
         if (sec)
         {
           floor->texture = sec->floorpic;
@@ -852,14 +852,14 @@ manual_stair://e6y
         if ( !((sec->lines[i])->flags & ML_TWOSIDED) )
           continue;
 
-        newsecnum = tsec-sectors;
+        newsecnum = tsec->iSectorID;
 
         if (secnum != newsecnum)
           continue;
 
         tsec = (sec->lines[i])->backsector;
         if (!tsec) continue;     //jff 5/7/98 if no backside, continue
-        newsecnum = tsec - sectors;
+        newsecnum = tsec->iSectorID;
 
         // if sector's floor is different texture, look for another
         if (tsec->floorpic != texture)

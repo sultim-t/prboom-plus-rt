@@ -1189,7 +1189,7 @@ dboolean ProcessNoTagLines(line_t* line, sector_t **sec, int *secnum)
   {
     if (!(*sec=line->backsector))
       return true;
-    *secnum = *sec-sectors;
+    *secnum = (*sec)->iSectorID;
     zerotag_manual = true;
     return true;
   }

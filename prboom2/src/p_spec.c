@@ -759,7 +759,7 @@ sector_t *P_FindModelFloorSector(fixed_t floordestheight,int secnum)
   {
     if ( twoSided(secnum, i) )
     {
-      if (getSide(secnum,i,0)->sector-sectors == secnum)
+      if (getSide(secnum,i,0)->sector->iSectorID == secnum)
           sec = getSector(secnum,i,1);
       else
           sec = getSector(secnum,i,0);
@@ -802,7 +802,7 @@ sector_t *P_FindModelCeilingSector(fixed_t ceildestheight,int secnum)
   {
     if ( twoSided(secnum, i) )
     {
-      if (getSide(secnum,i,0)->sector-sectors == secnum)
+      if (getSide(secnum,i,0)->sector->iSectorID == secnum)
           sec = getSector(secnum,i,1);
       else
           sec = getSector(secnum,i,0);
@@ -2680,7 +2680,7 @@ void P_SpawnSpecials (void)
       // killough 3/7/98:
       // support for drawn heights coming from different sector
       case 242:
-        sec = sides[*lines[i].sidenum].sector-sectors;
+        sec = sides[*lines[i].sidenum].sector->iSectorID;
         for (s = -1; (s = P_FindSectorFromLineTag(lines+i,s)) >= 0;)
           sectors[s].heightsec = sec;
         break;
@@ -2688,7 +2688,7 @@ void P_SpawnSpecials (void)
       // killough 3/16/98: Add support for setting
       // floor lighting independently (e.g. lava)
       case 213:
-        sec = sides[*lines[i].sidenum].sector-sectors;
+        sec = sides[*lines[i].sidenum].sector->iSectorID;
         for (s = -1; (s = P_FindSectorFromLineTag(lines+i,s)) >= 0;)
           sectors[s].floorlightsec = sec;
         break;
@@ -2696,7 +2696,7 @@ void P_SpawnSpecials (void)
       // killough 4/11/98: Add support for setting
       // ceiling lighting independently
       case 261:
-        sec = sides[*lines[i].sidenum].sector-sectors;
+        sec = sides[*lines[i].sidenum].sector->iSectorID;
         for (s = -1; (s = P_FindSectorFromLineTag(lines+i,s)) >= 0;)
           sectors[s].ceilinglightsec = sec;
         break;
@@ -2920,14 +2920,14 @@ static void P_SpawnScrollers(void)
       if (special >= 245 && special <= 249)         // displacement scrollers
         {
           special += 250-245;
-          control = sides[*l->sidenum].sector - sectors;
+          control = sides[*l->sidenum].sector->iSectorID;
         }
       else
         if (special >= 214 && special <= 218)       // accelerative scrollers
           {
             accel = 1;
             special += 250-214;
-            control = sides[*l->sidenum].sector - sectors;
+            control = sides[*l->sidenum].sector->iSectorID;
           }
 
       switch (special)

@@ -87,7 +87,7 @@ int EV_DoGenFloor
   {
     if (!(sec = line->backsector))
       return rtn;
-    secnum = sec-sectors;
+    secnum = sec->iSectorID;
     manual = true;
     goto manual_floor;
   }
@@ -292,7 +292,7 @@ int EV_DoGenCeiling
   {
     if (!(sec = line->backsector))
       return rtn;
-    secnum = sec-sectors;
+    secnum = sec->iSectorID;
     manual = true;
     goto manual_ceiling;
   }
@@ -501,7 +501,7 @@ int EV_DoGenLift
   {
     if (!(sec = line->backsector))
       return rtn;
-    secnum = sec-sectors;
+    secnum = sec->iSectorID;
     manual = true;
     goto manual_lift;
   }
@@ -660,7 +660,7 @@ int EV_DoGenStairs
   {
     if (!(sec = line->backsector))
       return rtn;
-    secnum = sec-sectors;
+    secnum = sec->iSectorID;
     manual = true;
     goto manual_stair;
   }
@@ -753,13 +753,13 @@ manual_stair:
           continue;
 
         tsec = (sec->lines[i])->frontsector;
-        newsecnum = tsec-sectors;
+        newsecnum = tsec->iSectorID;
 
         if (secnum != newsecnum)
           continue;
 
         tsec = (sec->lines[i])->backsector;
-        newsecnum = tsec - sectors;
+        newsecnum = tsec->iSectorID;
 
         if (!Igno && tsec->floorpic != texture)
           continue;
@@ -849,7 +849,7 @@ int EV_DoGenCrusher
   {
     if (!(sec = line->backsector))
       return rtn;
-    secnum = sec-sectors;
+    secnum = sec->iSectorID;
     manual = true;
     goto manual_crusher;
   }
@@ -945,7 +945,7 @@ int EV_DoGenLockedDoor
   {
     if (!(sec = line->backsector))
       return rtn;
-    secnum = sec-sectors;
+    secnum = sec->iSectorID;
     manual = true;
     goto manual_locked;
   }
@@ -1055,7 +1055,7 @@ int EV_DoGenDoor
   {
     if (!(sec = line->backsector))
       return rtn;
-    secnum = sec-sectors;
+    secnum = sec->iSectorID;
     manual = true;
     goto manual_door;
   }

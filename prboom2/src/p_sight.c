@@ -353,8 +353,8 @@ dboolean P_CheckSight_12(mobj_t *t1, mobj_t *t2)
   //
   // check for trivial rejection
   //
-  s1 = (t1->subsector->sector - sectors);
-  s2 = (t2->subsector->sector - sectors);
+  s1 = (t1->subsector->sector->iSectorID);
+  s2 = (t2->subsector->sector->iSectorID);
   pnum = s1*numsectors + s2;
   bytenum = pnum>>3;
   bitnum = 1 << (pnum&7);
@@ -618,7 +618,7 @@ dboolean P_CheckSight(mobj_t *t1, mobj_t *t2)
 
   s1 = t1->subsector->sector;
   s2 = t2->subsector->sector;
-  pnum = (s1-sectors)*numsectors + (s2-sectors);
+  pnum = (s1->iSectorID)*numsectors + (s2->iSectorID);
 
   // First check for trivial rejection.
   // Determine subsector entries in REJECT table.
