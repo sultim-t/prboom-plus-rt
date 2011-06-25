@@ -566,13 +566,15 @@ void I_CaptureFrame (void)
   snd = I_GrabSound (nsampreq);
   if (snd)
   {
-    fwrite (snd, 4, nsampreq, soundpipe.f_stdin);
+    if (fwrite (snd, nsampreq * 4, 1, soundpipe.f_stdin) != 1)
+      lprintf(LO_WARN, "I_CaptureFrame: error writing soundpipe.\n");
     //free (snd); // static buffer
   }
   vid = I_GrabScreen ();
   if (vid)
   {
-    fwrite (vid, 1, SCREENWIDTH * SCREENHEIGHT * 3, videopipe.f_stdin);
+    if (fwrite (vid, SCREENWIDTH * SCREENHEIGHT * 3, 1, videopipe.f_stdin) != 1)
+      lprintf(LO_WARN, "I_CaptureFrame: error writing videopipe.\n");
     //free (vid); // static buffer
   }
 

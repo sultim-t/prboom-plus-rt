@@ -344,63 +344,80 @@ typedef struct
 
 GLGenericImage * ReadDDSFile(const char *filename, int * bufsize, int * numMipmaps) 
 {
-  GLGenericImage * genericImage;
+  GLGenericImage * genericImage = NULL;
   DDRAW_H_DDSURFACEDESC2 ddsd;
   char filecode[4];
-  FILE *fp;
+  FILE *fp = NULL;
   int factor;
+  int result = false;
 
   /* try to open the file */
   fp = fopen(filename, "rb");
-  if (fp == NULL)
-    return NULL;
-  
-  /* verify the type of file */
-  fread(filecode, 1, 4, fp);
-  if (strncmp(filecode, "DDS ", 4) != 0) {
-    fclose(fp);
-    return NULL;
-  }
-   
-  /* get the surface desc */
-  fread(&ddsd, sizeof(ddsd), 1, fp);
-
-  genericImage = (GLGenericImage*)malloc(sizeof(GLGenericImage));
-  memset(genericImage, 0, sizeof(GLGenericImage));
-
-  switch(ddsd.u4.ddpfPixelFormat.dwFourCC)
+  if (fp != NULL)
   {
-    case DDRAW_H_FOURCC_DXT1:
-      genericImage->format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-      factor = 2;
-      break;
-    case DDRAW_H_FOURCC_DXT3:
-      genericImage->format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-      factor = 4;
-      break;
-    case DDRAW_H_FOURCC_DXT5:
-      genericImage->format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-      factor = 4;
-      break;
-    default:
-      fclose(fp);
-      return NULL;
+    if ((fread(filecode, 4, 1, fp) == 1) &&
+      (strncmp(filecode, "DDS ", 4) == 0) &&    // verify the type of file
+      (fread(&ddsd, sizeof(ddsd), 1, fp) == 1)) // get the surface desc
+    {
+      genericImage = (GLGenericImage*)malloc(sizeof(GLGenericImage));
+      if (genericImage)
+      {
+        memset(genericImage, 0, sizeof(GLGenericImage));
+
+        switch(ddsd.u4.ddpfPixelFormat.dwFourCC)
+        {
+        case DDRAW_H_FOURCC_DXT1:
+          genericImage->format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+          factor = 2;
+          break;
+        case DDRAW_H_FOURCC_DXT3:
+          genericImage->format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+          factor = 4;
+          break;
+        case DDRAW_H_FOURCC_DXT5:
+          genericImage->format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+          factor = 4;
+          break;
+        default:
+          factor = -1;
+          break;
+        }
+
+        if (factor != -1)
+        {
+          /* how big is it going to be including all mipmaps? */
+          *bufsize = ddsd.u2.dwMipMapCount > 1 ? ddsd.u1.dwLinearSize * factor : ddsd.u1.dwLinearSize;
+          genericImage->pixels = (unsigned char*)malloc(*bufsize * sizeof(unsigned char));
+
+          if (fread(genericImage->pixels, 1, *bufsize, fp) > 0)
+          {
+            genericImage->width       = ddsd.dwWidth;
+            genericImage->height      = ddsd.dwHeight;
+            genericImage->components  = (ddsd.u4.ddpfPixelFormat.dwFourCC == DDRAW_H_FOURCC_DXT1) ? 3 : 4;
+            *numMipmaps               = ddsd.u2.dwMipMapCount;
+
+            result = true;
+          }
+        }
+      }
+    }
+
+    /* close the file pointer */
+    fclose(fp);
   }
 
-  /* how big is it going to be including all mipmaps? */
-  *bufsize = ddsd.u2.dwMipMapCount > 1 ? ddsd.u1.dwLinearSize * factor : ddsd.u1.dwLinearSize;
-  genericImage->pixels = (unsigned char*)malloc(*bufsize * sizeof(unsigned char));
-  fread(genericImage->pixels, 1, *bufsize, fp);
-  /* close the file pointer */
-  fclose(fp);
-  
-  genericImage->width       = ddsd.dwWidth;
-  genericImage->height      = ddsd.dwHeight;
-  genericImage->components  = (ddsd.u4.ddpfPixelFormat.dwFourCC == DDRAW_H_FOURCC_DXT1) ? 3 : 4;
-  *numMipmaps               = ddsd.u2.dwMipMapCount;
+  if (result)
+  {
+    /* return data */
+    return genericImage;
+  }
+  else
+  {
+    if (genericImage)
+      free(genericImage);
 
-  /* return data */
-  return genericImage;
+    return NULL;
+  }
 }
 
 static SDL_PixelFormat RGBAFormat;
@@ -1159,16 +1176,21 @@ static int gld_HiRes_WriteCache(GLTexture* gltexture, GLuint* texid, const char*
         cachefp = fopen(cache_filename, "wb");
         if (cachefp)
         {
-          fwrite(&w, sizeof(w), 1, cachefp);
-          fwrite(&h, sizeof(h), 1, cachefp);
-          fwrite(&tex_stat.st_mtime, sizeof(tex_stat.st_mtime), 1, cachefp);
-          fwrite(buf, w * h * 4, 1, cachefp);
-          fclose(cachefp);
+          result =
+            (fwrite(&w, sizeof(w), 1, cachefp) == 1) &&
+            (fwrite(&h, sizeof(h), 1, cachefp) == 1) &&
+            (fwrite(&tex_stat.st_mtime, sizeof(tex_stat.st_mtime), 1, cachefp) == 1) &&
+            (fwrite(buf, w * h * 4, 1, cachefp) == 1);
 
-          result = true;
+          fclose(cachefp);
         }
       }
     }
+  }
+
+  if (!result)
+  {
+    lprintf(LO_WARN, "gld_HiRes_WriteCache: error writing '%s'.\n", cache_filename);
   }
 
   return result;

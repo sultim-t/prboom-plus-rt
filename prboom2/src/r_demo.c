@@ -890,10 +890,9 @@ void G_SetDemoFooter(const char *filename, wadtbl_t *wadtbl)
       int datasize = wadtbl->datasize;
       int lumpssize = wadtbl->header.numlumps * sizeof(wadtbl->lumps[0]);
   
-      fwrite(buffer, demosize, 1, hfile);
-
       //write pwad header, all data and lookup table to the end of a demo
       if (
+        fwrite(buffer, demosize, 1, hfile) != 1 ||
         fwrite(&wadtbl->header, headersize, 1, hfile) != 1 ||
         fwrite(wadtbl->data, datasize, 1, hfile) != 1 ||
         fwrite(wadtbl->lumps, lumpssize, 1, hfile) != 1 ||
