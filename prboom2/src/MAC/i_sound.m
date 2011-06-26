@@ -195,7 +195,7 @@ int I_RegisterSong(const void *data, size_t len)
   }
 
   /* Now play in QTKit */
-  NSError *error;
+  NSError *error = 0;
   movie = [QTMovie movieWithFile:[NSString stringWithUTF8String:music_tmp]
                    error:&error];
   if(error)
