@@ -97,11 +97,14 @@ void I_InitMusic(void)
   music_tmp = strdup("/tmp/prboom-music-XXXXXX");
   {
     int fd = mkstemp(music_tmp);
-    if (fd<0) {
+    if (fd<0)
+    {
       lprintf(LO_ERROR, "I_InitMusic: failed to create music temp file %s", music_tmp);
-      free(music_tmp); return;
-    } else
-      close(fd);
+      unlink(music_tmp);
+      free(music_tmp);
+      return;
+    }
+    close(fd);
   }
   music_tmp = realloc(music_tmp, strlen(music_tmp) + 4);
   strcat(music_tmp, ".mid");
