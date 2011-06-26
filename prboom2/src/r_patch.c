@@ -110,13 +110,13 @@ static rpatch_t *texture_composites = 0;
 void R_InitPatches(void) {
   if (!patches)
   {
-    patches = (rpatch_t*)malloc(numlumps * sizeof(rpatch_t));
+    patches = malloc(numlumps * sizeof(rpatch_t));
     // clear out new patches to signal they're uninitialized
     memset(patches, 0, sizeof(rpatch_t)*numlumps);
   }
   if (!texture_composites)
   {
-    texture_composites = (rpatch_t*)malloc(numtextures * sizeof(rpatch_t));
+    texture_composites = malloc(numtextures * sizeof(rpatch_t));
     // clear out new patches to signal they're uninitialized
     memset(texture_composites, 0, sizeof(rpatch_t)*numtextures);
   }
@@ -325,7 +325,7 @@ static void createPatch(int id) {
   columnsDataSize = sizeof(rcolumn_t) * patch->width;
 
   // count the number of posts in each column
-  numPostsInColumn = (int*)malloc(sizeof(int) * patch->width);
+  numPostsInColumn = malloc(sizeof(int) * patch->width);
   numPostsTotal = 0;
 
   for (x=0; x<patch->width; x++) {

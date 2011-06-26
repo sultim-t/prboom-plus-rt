@@ -359,7 +359,7 @@ GLGenericImage * ReadDDSFile(const char *filename, int * bufsize, int * numMipma
       (strncmp(filecode, "DDS ", 4) == 0) &&    // verify the type of file
       (fread(&ddsd, sizeof(ddsd), 1, fp) == 1)) // get the surface desc
     {
-      genericImage = (GLGenericImage*)malloc(sizeof(GLGenericImage));
+      genericImage = malloc(sizeof(GLGenericImage));
       if (genericImage)
       {
         memset(genericImage, 0, sizeof(GLGenericImage));
@@ -387,7 +387,7 @@ GLGenericImage * ReadDDSFile(const char *filename, int * bufsize, int * numMipma
         {
           /* how big is it going to be including all mipmaps? */
           *bufsize = ddsd.u2.dwMipMapCount > 1 ? ddsd.u1.dwLinearSize * factor : ddsd.u1.dwLinearSize;
-          genericImage->pixels = (unsigned char*)malloc(*bufsize * sizeof(unsigned char));
+          genericImage->pixels = malloc(*bufsize * sizeof(unsigned char));
 
           if (fread(genericImage->pixels, 1, *bufsize, fp) > 0)
           {

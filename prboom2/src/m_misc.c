@@ -1470,7 +1470,7 @@ void M_LoadDefaults (void)
 
           isstring = true;
           len = strlen(strparm);
-          newstring = (char *) malloc(len);
+          newstring = malloc(len);
           strparm[len-1] = 0; // clears trailing double-quote mark
           strcpy(newstring, strparm+1); // clears leading double-quote mark
   } else if ((strparm[0] == '0') && (strparm[1] == 'x')) {
