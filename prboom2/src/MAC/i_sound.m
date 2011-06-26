@@ -113,7 +113,7 @@ void I_PlaySong(int handle, int looping)
   inLoopedMode = looping ? YES : NO;
 
   [movie gotoBeginning];
-  [movie setAttribute:[NSNumber numberWithInteger:inLoopedMode]
+  [movie setAttribute:[NSNumber numberWithBool:inLoopedMode]
          forKey:QTMovieLoopsAttribute];
   [movie setVolume:movieVolume];
   [movie play];
@@ -208,7 +208,7 @@ int I_RegisterSong(const void *data, size_t len)
   [movie retain];
 
   [movie gotoBeginning];
-  [movie setAttribute:[NSNumber numberWithInteger:inLoopedMode]
+  [movie setAttribute:[NSNumber numberWithBool:inLoopedMode]
          forKey:QTMovieLoopsAttribute];
   [movie setVolume:movieVolume];
   [movie play];
