@@ -1171,19 +1171,16 @@ static int gld_HiRes_WriteCache(GLTexture* gltexture, GLuint* texid, const char*
     {
       memset(&tex_stat, 0, sizeof(tex_stat));
       stat(img_path, &tex_stat);
-      if (cache_filename)
+      cachefp = fopen(cache_filename, "wb");
+      if (cachefp)
       {
-        cachefp = fopen(cache_filename, "wb");
-        if (cachefp)
-        {
-          result =
-            (fwrite(&w, sizeof(w), 1, cachefp) == 1) &&
-            (fwrite(&h, sizeof(h), 1, cachefp) == 1) &&
-            (fwrite(&tex_stat.st_mtime, sizeof(tex_stat.st_mtime), 1, cachefp) == 1) &&
-            (fwrite(buf, w * h * 4, 1, cachefp) == 1);
+        result =
+          (fwrite(&w, sizeof(w), 1, cachefp) == 1) &&
+          (fwrite(&h, sizeof(h), 1, cachefp) == 1) &&
+          (fwrite(&tex_stat.st_mtime, sizeof(tex_stat.st_mtime), 1, cachefp) == 1) &&
+          (fwrite(buf, w * h * 4, 1, cachefp) == 1);
 
-          fclose(cachefp);
-        }
+         fclose(cachefp);
       }
     }
   }
