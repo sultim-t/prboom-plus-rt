@@ -575,7 +575,7 @@ static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char 
       {"%stextures/doom/flat-%s.%s", -1},
       {"%sflats/%s.%s", -1},
       {"%stextures/flat-%s.%s", -1},
-      NULL
+      {NULL}
     }},
     {pack_plut, GLDT_PATCH, {
       {"%spatches/doom/plut/%s.%s", -1},
@@ -587,7 +587,7 @@ static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char 
     }},
 
     {none, GLDT_UNREGISTERED, {
-      NULL
+      {NULL}
     }},
   };
 
