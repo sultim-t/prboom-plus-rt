@@ -147,6 +147,7 @@ void I_StopSong(int handle)
 void I_UnRegisterSong(int handle)
 {
   if(!movie) return;
+  [movie stop];
   [movie release];
   movie = 0;
 }
