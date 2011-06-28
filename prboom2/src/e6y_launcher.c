@@ -189,10 +189,10 @@ static void L_GameOnChange(void)
 {
   int index;
 
-  index = SendMessage(launcher.listIWAD, CB_GETCURSEL, 0, 0);
+  index = (int)SendMessage(launcher.listIWAD, CB_GETCURSEL, 0, 0);
   if (index != CB_ERR)
   {
-    index = SendMessage(launcher.listIWAD, CB_GETITEMDATA, index, 0);
+    index = (int)SendMessage(launcher.listIWAD, CB_GETITEMDATA, index, 0);
     if (index != CB_ERR)
     {
       L_FillFilesList(&launcher.files[index]);
@@ -206,14 +206,14 @@ static void L_FilesOnChange(void)
   int i, start, end;
 
   // блядь, как заебал этот винапи...
-  start = SendMessage(launcher.listPWAD, LB_GETANCHORINDEX, 0, 0);
-  end = SendMessage(launcher.listPWAD, LB_GETCARETINDEX, 0, 0);
+  start = (int)SendMessage(launcher.listPWAD, LB_GETANCHORINDEX, 0, 0);
+  end = (int)SendMessage(launcher.listPWAD, LB_GETCARETINDEX, 0, 0);
   
   for (i = start; (start<end?(i<=end):(i>=end)); (start<end?i++:i--))
   {
     if (SendMessage(launcher.listPWAD, LB_GETSEL, i, 0) > 0)
     {
-      index = SendMessage(launcher.listPWAD, LB_GETITEMDATA, i, 0);
+      index = (int)SendMessage(launcher.listPWAD, LB_GETITEMDATA, i, 0);
       if (index != LB_ERR)
       {
         L_SelAdd(index);
@@ -221,10 +221,10 @@ static void L_FilesOnChange(void)
     }
   }
   
-  index = SendMessage(launcher.listPWAD, LB_GETCURSEL, 0, 0);
+  index = (int)SendMessage(launcher.listPWAD, LB_GETCURSEL, 0, 0);
   if (index != LB_ERR)
   {
-    index = SendMessage(launcher.listPWAD, LB_GETITEMDATA, index, 0);
+    index = (int)SendMessage(launcher.listPWAD, LB_GETITEMDATA, index, 0);
     if (index != LB_ERR)
     {
       char path[PATH_MAX];
@@ -268,7 +268,7 @@ static void L_HistoryOnChange(void)
 {
   int index;
 
-  index = SendMessage(launcher.listHistory, CB_GETCURSEL, 0, 0);
+  index = (int)SendMessage(launcher.listHistory, CB_GETCURSEL, 0, 0);
   if (index >= 0)
   {
     waddata_t *waddata;
@@ -317,7 +317,7 @@ static void L_CommandOnChange(void)
 {
   int index;
 
-  index = SendMessage(launcher.listCMD, CB_GETCURSEL, 0, 0);
+  index = (int)SendMessage(launcher.listCMD, CB_GETCURSEL, 0, 0);
   
   switch (index)
   {
@@ -533,7 +533,7 @@ static dboolean L_GUISelect(waddata_t *waddata)
   if (!waddata->wadfiles)
     return false;
 
-  listIWADCount = SendMessage(launcher.listIWAD, CB_GETCOUNT, 0, 0);
+  listIWADCount = (int)SendMessage(launcher.listIWAD, CB_GETCOUNT, 0, 0);
   SendMessage(launcher.listIWAD, CB_SETCURSEL, -1, 0);
 
   for (k=0; !processed && k < waddata->numwadfiles; k++)
@@ -570,7 +570,7 @@ static dboolean L_GUISelect(waddata_t *waddata)
   if (!processed)
     return false;
 
-  listPWADCount = SendMessage(launcher.listPWAD, LB_GETCOUNT, 0, 0);
+  listPWADCount = (int)SendMessage(launcher.listPWAD, LB_GETCOUNT, 0, 0);
   for (i = 0; i < listPWADCount; i++)
     SendMessage(launcher.listPWAD, LB_SETSEL, false, i);
 
@@ -587,7 +587,7 @@ static dboolean L_GUISelect(waddata_t *waddata)
         processed = false;
         for (j=0; !processed && j < listPWADCount; j++)
         {
-          int index = SendMessage(launcher.listPWAD, LB_GETITEMDATA, j, 0);
+          int index = (int)SendMessage(launcher.listPWAD, LB_GETITEMDATA, j, 0);
           if (index != LB_ERR)
           {
             if (!strcasecmp(launcher.files[index].name, fullpath))
@@ -632,12 +632,12 @@ static dboolean L_PrepareToLaunch(void)
   free(wadfiles);
   wadfiles = NULL;
   
-  listPWADCount = SendMessage(launcher.listPWAD, LB_GETCOUNT, 0, 0);
+  listPWADCount = (int)SendMessage(launcher.listPWAD, LB_GETCOUNT, 0, 0);
   
-  index = SendMessage(launcher.listIWAD, CB_GETCURSEL, 0, 0);
+  index = (int)SendMessage(launcher.listIWAD, CB_GETCURSEL, 0, 0);
   if (index != CB_ERR)
   {
-    index = SendMessage(launcher.listIWAD, CB_GETITEMDATA, index, 0);
+    index = (int)SendMessage(launcher.listIWAD, CB_GETITEMDATA, index, 0);
     if (index != CB_ERR)
     {
       char *iwadname = PathFindFileName(launcher.files[index].name);
@@ -795,7 +795,7 @@ static void L_SelClearAndFree(void)
 static int L_SelGetList(int **list)
 {
   int i, j, count = 0;
-  int listPWADCount = SendMessage(launcher.listPWAD, LB_GETCOUNT, 0, 0);
+  int listPWADCount = (int)SendMessage(launcher.listPWAD, LB_GETCOUNT, 0, 0);
 
   *list = NULL;
 
@@ -866,7 +866,7 @@ static void L_FillGameList(void)
           char iwadname[128];
           int index;
           sprintf(iwadname, "%s (%s)", IWADTypeNames[j], standard_iwads[j]);
-          index = SendMessage(launcher.listIWAD, CB_ADDSTRING, 0, (LPARAM)iwadname);
+          index = (int)SendMessage(launcher.listIWAD, CB_ADDSTRING, 0, (LPARAM)iwadname);
           if (index >= 0)
             SendMessage(launcher.listIWAD, CB_SETITEMDATA, index, (LPARAM)i);
         }
@@ -890,7 +890,7 @@ static void L_FillFilesList(fileitem_t *iwad)
       (!item->doom1 && !item->doom2) ||
       item->source == source_deh)
     {
-      index = SendMessage(launcher.listPWAD, LB_ADDSTRING, 0, (LPARAM)M_Strlwr(PathFindFileName(item->name)));
+      index = (int)SendMessage(launcher.listPWAD, LB_ADDSTRING, 0, (LPARAM)M_Strlwr(PathFindFileName(item->name)));
       if (index >= 0)
       {
         SendMessage(launcher.listPWAD, LB_SETITEMDATA, index, i);
@@ -988,7 +988,7 @@ static char* L_HistoryGetStr(waddata_t *data)
   char *deh = NULL;
   char **str;
   char *result;
-  int len;
+  size_t len;
 
   for (i = 0; i < data->numwadfiles; i++)
   {
@@ -1045,7 +1045,7 @@ static char* L_HistoryGetStr(waddata_t *data)
 static void L_HistoryFreeData(void)
 {
   int i, count;
-  count = SendMessage(launcher.listHistory, CB_GETCOUNT, 0, 0);
+  count = (int)SendMessage(launcher.listHistory, CB_GETCOUNT, 0, 0);
   if (count != CB_ERR)
   {
     for (i = 0; i < count; i++)
@@ -1082,7 +1082,7 @@ static void L_FillHistoryList(void)
 
       if (p)
       {
-        index = SendMessage(launcher.listHistory, CB_ADDSTRING, 0, (LPARAM)p);
+        index = (int)SendMessage(launcher.listHistory, CB_ADDSTRING, 0, (LPARAM)p);
         if (index >= 0)
           SendMessage(launcher.listHistory, CB_SETITEMDATA, index, (LPARAM)waddata);
         
