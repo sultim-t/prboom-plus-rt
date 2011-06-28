@@ -292,7 +292,7 @@ static void R_InitSpriteDefs(const char * const * namelist)
 //
 
 static vissprite_t *vissprites, **vissprite_ptrs;  // killough
-static size_t num_vissprite, num_vissprite_alloc, num_vissprite_ptrs;
+static int num_vissprite, num_vissprite_alloc, num_vissprite_ptrs;
 
 //
 // R_InitSprites

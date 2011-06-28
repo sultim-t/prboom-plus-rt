@@ -1883,7 +1883,7 @@ void G_DoLoadGame(void)
 
     if (!strncmp((char*)save_p, vcheck, VERSIONSIZE)) {
       savegame_compatibility = version_headers[i].comp_level;
-      i = num_version_headers;
+      break;
     }
   }
   if (savegame_compatibility == -1) {
@@ -2085,7 +2085,7 @@ static void G_DoSaveGame (dboolean menu)
   char name[PATH_MAX+1];
   char name2[VERSIONSIZE];
   char *description;
-  int  length, i;
+  int  i;
   //e6y: numeric version number of package
   unsigned int packageversion = GetPackageVersion();
 
@@ -2200,10 +2200,8 @@ static void G_DoSaveGame (dboolean menu)
 
   *save_p++ = 0xe6;   // consistancy marker
 
-  length = save_p - savebuffer;
-
   Z_CheckHeap();
-  doom_printf( "%s", M_WriteFile(name, savebuffer, length)
+  doom_printf( "%s", M_WriteFile(name, savebuffer, save_p - savebuffer)
          ? s_GGSAVED /* Ty - externalised */
          : "Game save failed!"); // CPhipps - not externalised
 
