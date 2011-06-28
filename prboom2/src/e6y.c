@@ -1215,7 +1215,7 @@ char* PathFindFileName(const char* pPath)
 
 void NormalizeSlashes2(char *str)
 {
-  int l;
+  size_t l;
 
   if (!str || !(l = strlen(str)))
     return;

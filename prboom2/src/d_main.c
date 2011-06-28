@@ -823,7 +823,7 @@ void CheckIWAD(const char *iwadname,GameMode_t *gmode,dboolean *hassec)
 //
 void AddIWAD(const char *iwad)
 {
-  int i;
+  size_t i;
 
   if (!(iwad && *iwad))
     return;
@@ -871,7 +871,7 @@ void AddIWAD(const char *iwad)
 //
 static void NormalizeSlashes(char *str)
 {
-  int l;
+  size_t l;
 
   // killough 1/18/98: Neater / \ handling.
   // Remove trailing / or \ to prevent // /\ \/ \\, and change \ to /
@@ -1183,7 +1183,7 @@ static void DoLooseFiles(void)
 
   for (i = 1; i < myargc; i++)
   {
-    int arglen, extlen;
+    size_t arglen, extlen;
 
     if (*myargv[i] == '-') break;  // quit at first switch
 
@@ -1194,7 +1194,7 @@ static void DoLooseFiles(void)
     while (looses[k].ext)
     {
       extlen = strlen(looses[k].ext);
-      if (arglen - extlen >= 0 && !stricmp(&myargv[i][arglen - extlen], looses[k].ext))
+      if (arglen >= extlen && !stricmp(&myargv[i][arglen - extlen], looses[k].ext))
       {
         (*(looses[k].list))[(*looses[k].count)++] = strdup(myargv[i]);
         break;

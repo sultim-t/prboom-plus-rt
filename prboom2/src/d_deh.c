@@ -2658,7 +2658,7 @@ static void deh_procStrings(DEHFILE *fpin, FILE* fpout, char *line)
   char inbuffer[DEH_BUFFERMAX];
   uint_64_t value;    // All deh values are ints or longs
   char *strval;      // holds the string value of the line
-  static int maxstrlen = 128; // maximum string length, bumped 128 at
+  static size_t maxstrlen = 128; // maximum string length, bumped 128 at
   // a time as needed
   // holds the final result of the string after concatenation
   static char *holdstring = NULL;
@@ -2686,10 +2686,10 @@ static void deh_procStrings(DEHFILE *fpin, FILE* fpout, char *line)
               continue;
             }
         }
-      while (strlen(holdstring) + strlen(inbuffer) > (size_t)maxstrlen) // Ty03/29/98 - fix stupid error
+      while (strlen(holdstring) + strlen(inbuffer) > maxstrlen) // Ty03/29/98 - fix stupid error
         {
     // killough 11/98: allocate enough the first time
-          maxstrlen += strlen(holdstring) + strlen(inbuffer) - maxstrlen;
+          maxstrlen = strlen(holdstring) + strlen(inbuffer);
           if (fpout) fprintf(fpout,
                              "* increased buffer from to %d for buffer size %d\n",
                              maxstrlen,(int)strlen(inbuffer));
@@ -2903,7 +2903,8 @@ static void deh_procBexSounds(DEHFILE *fpin, FILE *fpout, char *line)
    uint_64_t value;    // All deh values are ints or longs
    char *strval;  // holds the string value of the line
    char candidate[7];
-   int  rover, len;
+   int  rover;
+   size_t len;
    
    if(fpout)
       fprintf(fpout,"Processing sound name substitution\n");
@@ -2962,7 +2963,8 @@ static void deh_procBexMusic(DEHFILE *fpin, FILE *fpout, char *line)
    uint_64_t value;    // All deh values are ints or longs
    char *strval;  // holds the string value of the line
    char candidate[7];
-   int  rover, len;
+   int  rover;
+   size_t len;
    
    if(fpout)
       fprintf(fpout,"Processing music name substitution\n");
