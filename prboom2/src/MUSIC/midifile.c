@@ -1063,7 +1063,7 @@ midi_file_t *MIDI_LoadFileSpecial (midimem_t *mf)
     return NULL;
   }
 
-  ret = malloc (sizeof (midi_file_t *));
+  ret = malloc (sizeof (midi_file_t));
 
   ret->header.format_type = 0;
   ret->header.num_tracks = 1;
