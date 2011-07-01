@@ -1321,6 +1321,9 @@ void gld_FlushTextures(void)
 #endif
 
   gld_InitSky();
+
+  // do not draw anything in current frame after flushing
+  gld_ResetDrawInfo();
 }
 
 static void CalcHitsCount(const byte *hitlist, int size, int *hit, int*hitcount)

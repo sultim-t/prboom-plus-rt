@@ -371,6 +371,7 @@ void gld_InitPalettedTextures(void);
 int gld_GetTexDimension(int value);
 void gld_SetTexturePalette(GLenum target);
 void gld_Precache(void);
+void gld_ResetDrawInfo(void);
 
 //gamma
 void gld_ResetGammaRamp(void);

@@ -154,7 +154,6 @@ GLfloat gl_whitecolor[4]={1.0f,1.0f,1.0f,1.0f};
 // It is more universal and much easier in use.
 GLDrawInfo gld_drawinfo;
 static void gld_FreeDrawInfo(void);
-static void gld_ResetDrawInfo(void);
 static void gld_AddDrawRange(int size);
 
 static void gld_CarveFlats(int bspnode, int numdivlines, divline_t *divlines);
@@ -2491,7 +2490,7 @@ static void gld_FreeDrawInfo(void)
 //
 // Should be used between frames (in gld_StartDrawScene)
 //
-static void gld_ResetDrawInfo(void)
+void gld_ResetDrawInfo(void)
 {
   int i;
 
