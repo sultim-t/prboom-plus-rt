@@ -1199,7 +1199,7 @@ experimental music API
 // however, a handle is maintained for the individual music players
 
 const char *snd_soundfont; // soundfont name for synths that use it
-
+const char *snd_mididev; // midi device to use (portmidiplayer)
 
 #include "mus2mid.h"
 

@@ -70,10 +70,12 @@ const music_player_t pm_player =
 
 #include <portmidi.h>
 #include <porttime.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "lprintf.h"
 #include "midifile.h"
+#include "i_sound.h" // for snd_mididev
 
 static midi_event_t **events;
 static int eventpos;
@@ -121,6 +123,8 @@ static int pm_init (int samplerate)
 {
   PmDeviceID outputdevice;
   const PmDeviceInfo *oinfo;
+  int i;
+  char devname[64];
 
   TESTDLLLOAD ("portmidi.dll", TRUE)
 
@@ -138,6 +142,27 @@ static int pm_init (int samplerate)
     Pm_Terminate ();
     return 0;
   }
+
+  // look for a device that matches the user preference
+
+  lprintf (LO_INFO, "portmidiplayer device list:\n");
+  for (i = 0; i < Pm_CountDevices (); i++)
+  {
+    oinfo = Pm_GetDeviceInfo (i);
+    if (!oinfo || !oinfo->output)
+      continue;
+    snprintf (devname, 64, "%s:%s", oinfo->interf, oinfo->name);
+    if (strlen (snd_mididev) && strstr (devname, snd_mididev))
+    {
+      outputdevice = i;
+      lprintf (LO_INFO, ">>%s\n", devname);
+    }
+    else
+    {
+      lprintf (LO_INFO, "  %s\n", devname);
+    }
+  }
+
 
   oinfo = Pm_GetDeviceInfo (outputdevice);
 

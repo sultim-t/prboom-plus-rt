@@ -383,6 +383,7 @@ default_t defaults[] =
   {"snd_midiplayer",{NULL, &snd_midiplayer},{0,"sdl"},UL,UL,def_str,ss_none},
 #endif
   {"snd_soundfont",{NULL, &snd_soundfont},{0,"TimGM6mb.sf2"},UL,UL,def_str,ss_none}, // soundfont name for synths that support it
+  {"snd_mididev",{NULL, &snd_mididev},{0,""},UL,UL,def_str,ss_none}, // midi device to use for portmidiplayer
 
 #ifdef _WIN32
   {"mus_extend_volume",{&mus_extend_volume},{0},0,1,
