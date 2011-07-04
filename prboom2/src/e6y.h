@@ -371,7 +371,7 @@ void I_AfterUpdateVideoMode(void);
 
 extern int force_singletics_to;
 
-dboolean HU_DrawDemoProgress(void);
+int HU_DrawDemoProgress(int force);
 
 #ifdef ALL_IN_ONE
 unsigned char* GetAllInOneLumpHandle(void);

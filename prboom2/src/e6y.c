@@ -1310,15 +1310,38 @@ void I_AfterUpdateVideoMode(void)
 
 int force_singletics_to = 0;
 
-dboolean HU_DrawDemoProgress(void)
+int HU_DrawDemoProgress(int force)
 {
-  int len;
+  static unsigned int last_update = 0;
+  static int prev_len = -1;
+
+  int len, tics_count, diff;
+  unsigned int tick, max_period;
   
-  if (gamestate == GS_DEMOSCREEN || !demoplayback || !hudadd_demoprogressbar)
+  if (gamestate == GS_DEMOSCREEN || (!demoplayback && !democontinue) || !hudadd_demoprogressbar)
     return false;
-  
-  len = MIN(SCREENWIDTH, 
-    (int)((int_64_t)SCREENWIDTH * demo_curr_tic / (demo_tics_count * demo_playerscount)));
+
+  tics_count = (doSkip ? demo_skiptics : demo_tics_count) * demo_playerscount;
+  len = MIN(SCREENWIDTH, (int)((int_64_t)SCREENWIDTH * demo_curr_tic / tics_count));
+
+  if (!force)
+  {
+    max_period = ((tics_count - demo_curr_tic > 35 * demo_playerscount) ? 500 : 15);
+
+    // Unnecessary updates of progress bar
+    // can slow down demo skipping and playback
+    tick = SDL_GetTicks();
+    if (tick - last_update < max_period)
+      return false;
+    last_update = tick;
+
+    // Do not update progress bar if difference is small
+    diff = len - prev_len;
+    if (diff == 0 || diff == 1) // because of static prev_len
+      return false;
+  }
+
+  prev_len = len;
   
   V_FillRect(0, 0, SCREENHEIGHT - 4, len - 0, 4, 4);
   if (len > 4)

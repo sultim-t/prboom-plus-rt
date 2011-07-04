@@ -255,14 +255,8 @@ void D_Display (void)
   extern dboolean gamekeydown[];
   if (doSkip)
   {
-    static unsigned int DemoProgressLastUpdate = 0;
-    unsigned int tick = SDL_GetTicks();
-    if (DemoProgressLastUpdate == 0 || tick - DemoProgressLastUpdate > 500)
-    {
-      DemoProgressLastUpdate = tick;
-      if (HU_DrawDemoProgress())
-        I_FinishUpdate();
-    }
+    if (HU_DrawDemoProgress(false))
+      I_FinishUpdate();
     if (!gamekeydown[key_use])
       return;
 
@@ -405,7 +399,7 @@ void D_Display (void)
   D_BuildNewTiccmds();
 #endif
 
-  HU_DrawDemoProgress(); //e6y
+  HU_DrawDemoProgress(true); //e6y
 
   // normal update
   if (!wipe)
