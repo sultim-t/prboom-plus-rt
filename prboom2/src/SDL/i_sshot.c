@@ -348,7 +348,7 @@ unsigned char *I_GrabScreen (void)
   }
 
   #ifdef GL_DOOM
-  if (V_GetMode() == VID_MODEGL)
+  if (V_GetMode() == VID_MODEGL || vid_8ingl.enabled)
   {
     return gld_ReadScreen();
   }
