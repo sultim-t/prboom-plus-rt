@@ -242,9 +242,9 @@ static void fl_pause (void)
 {
   int i;
   f_paused = 1;
-  // stray notes can hang for too long
-  for (i = 0; i < 16; i++)
-    fluid_synth_cc (f_syn, i, 123, 0); // ALL NOTES OFF
+  // instead of cutting notes, pause the synth so they can resume seamlessly
+  //for (i = 0; i < 16; i++)
+  //  fluid_synth_cc (f_syn, i, 123, 0); // ALL NOTES OFF
 }
 static void fl_resume (void)
 {
@@ -343,9 +343,10 @@ static void fl_render (void *vdest, unsigned length)
   midi_event_t *currevent;
 
   if (!f_playing || f_paused)
-  { // call synth instead of memset (0) so that any leftover ringing notes will
-    // be heard
-    fl_writesamples_ex (vdest, length);
+  { 
+    // save CPU time and allow for seamless resume after pause
+    memset (vdest, 0, length * 4);
+    //fl_writesamples_ex (vdest, length);
     return;
   }
 
