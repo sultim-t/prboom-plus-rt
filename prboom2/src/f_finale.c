@@ -321,7 +321,6 @@ typedef struct
   mobjtype_t   type;
 } castinfo_t;
 
-#define MAX_CASTORDER 18 /* Ty - hard coded for now */
 static const castinfo_t castorder[] = { // CPhipps - static const, initialised here
   { &s_CC_ZOMBIE,  MT_POSSESSED },
   { &s_CC_SHOTGUN, MT_SHOTGUY },
