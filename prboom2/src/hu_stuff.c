@@ -64,7 +64,6 @@ int hud_distributed;  //jff 3/4/98 display HUD in different places on screen
 #define HU_TITLE2 (gamemap <= 32 ? *mapnames2[gamemap-1] : "")
 #define HU_TITLEP (gamemap <= 32 ? *mapnamesp[gamemap-1] : "")
 #define HU_TITLET (gamemap <= 32 ? *mapnamest[gamemap-1] : "")
-#define HU_TITLEHEIGHT  1
 #define HU_TITLEX 0
 //jff 2/16/98 change 167 to ST_Y-1
 // CPhipps - changed to ST_TY
@@ -134,8 +133,6 @@ int hud_distributed;  //jff 3/4/98 display HUD in different places on screen
 //#define HU_INPUTTOGGLE  't' // not used                           // phares
 #define HU_INPUTX HU_MSGX
 #define HU_INPUTY (HU_MSGY + HU_MSGHEIGHT*(hu_font[0].height) +1)
-#define HU_INPUTWIDTH 64
-#define HU_INPUTHEIGHT  1
 
 #define HU_TRACERX (2)
 #define HU_TRACERY (hu_font['A'-HU_FONTSTART].height)
