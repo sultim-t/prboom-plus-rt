@@ -189,7 +189,6 @@ mline_t triangle_guy[] =
 { { (fixed_t)(0      ), (fixed_t)(    R) }, { (fixed_t)(-.867*R), (fixed_t)(-.5*R) } }
 };
 #undef R
-#define NUMTRIANGLEGUYLINES (sizeof(triangle_guy)/sizeof(mline_t))
 
 //jff 1/5/98 new symbol for keys on automap
 #define R (FRACUNIT)
