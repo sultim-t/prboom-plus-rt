@@ -106,10 +106,6 @@ int map_overlay_pos_height;
 
 int map_render_precise;
 
-//jff 4/3/98 add symbols for "no-color" for disable and "black color" for black
-#define NC 0
-#define BC 247
-
 // drawing stuff
 #define FB    0
 
