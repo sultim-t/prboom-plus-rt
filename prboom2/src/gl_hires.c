@@ -40,7 +40,6 @@
 #ifdef _MSC_VER
 //#include <ddraw.h> /* needed for DirectX's DDSURFACEDESC2 structure definition */
 #include <io.h>
-#include <direct.h>
 #else
 #include <unistd.h>
 #endif

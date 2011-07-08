@@ -47,7 +47,6 @@
 #endif
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include "doomtype.h"

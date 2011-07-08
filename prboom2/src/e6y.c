@@ -65,14 +65,12 @@
 #include "i_main.h"
 #include "m_menu.h"
 #include "lprintf.h"
-#include "d_think.h"
 #include "m_argv.h"
 #include "m_misc.h"
 #include "i_system.h"
 #include "p_maputl.h"
 #include "i_video.h"
 #include "info.h"
-#include "i_simd.h"
 #include "r_screenmultiply.h"
 #include "r_main.h"
 #include "r_things.h"
@@ -85,7 +83,6 @@
 #include "g_game.h"
 #include "r_demo.h"
 #include "e6y.h"
-#include "./../ICONS/resource.h"
 
 int REAL_SCREENWIDTH;
 int REAL_SCREENHEIGHT;

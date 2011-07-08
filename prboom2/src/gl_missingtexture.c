@@ -46,7 +46,6 @@
 #include "v_video.h"
 #include "gl_intern.h"
 #include "i_system.h"
-#include "w_wad.h"
 #include "lprintf.h"
 #include "i_video.h"
 #include "hu_lib.h"

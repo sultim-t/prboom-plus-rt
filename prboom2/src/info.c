@@ -43,7 +43,6 @@
 #include "p_mobj.h"
 #include "p_enemy.h"
 #include "p_pspr.h"
-#include "w_wad.h"
 
 #ifdef __GNUG__
 #pragma implementation "info.h"
