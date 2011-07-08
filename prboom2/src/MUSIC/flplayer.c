@@ -240,7 +240,7 @@ static void fl_unregistersong (const void *handle)
 
 static void fl_pause (void)
 {
-  int i;
+  //int i;
   f_paused = 1;
   // instead of cutting notes, pause the synth so they can resume seamlessly
   //for (i = 0; i < 16; i++)
