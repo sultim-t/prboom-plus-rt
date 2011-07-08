@@ -45,7 +45,6 @@
 #endif
 #include <sys/stat.h>
 #include <SDL.h>
-#include <SDL_opengl.h>
 #ifdef HAVE_LIBSDL_IMAGE
 #include <SDL_image.h>
 #endif

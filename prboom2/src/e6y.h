@@ -62,13 +62,6 @@
 #define DEG2RAD( a ) (( a * Pi ) / 180.0f)
 #define RAD2DEG( a ) (( a / Pi ) * 180.0f)
 
-typedef struct
-{
-  const char *wadname;
-  int map;
-  int address;
-} buf_overrun_item_t;
-
 typedef struct camera_s
 {
   long x;

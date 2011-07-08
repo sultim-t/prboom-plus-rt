@@ -39,7 +39,6 @@
 
 #include "z_zone.h"
 #include <SDL.h>
-#include <SDL_opengl.h>
 
 #ifdef HAVE_LIBSDL_IMAGE
 #include <SDL_image.h>

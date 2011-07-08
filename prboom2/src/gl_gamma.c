@@ -41,7 +41,6 @@
 #include <unistd.h>
 #endif
 #include <SDL.h>
-#include <SDL_opengl.h>
 #include "doomstat.h"
 #include "v_video.h"
 #include "gl_intern.h"

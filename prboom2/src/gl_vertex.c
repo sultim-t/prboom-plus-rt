@@ -77,7 +77,6 @@
 #include "gl_opengl.h"
 
 #include "z_zone.h"
-#include <SDL_opengl.h>
 #include "v_video.h"
 #include "gl_intern.h"
 
