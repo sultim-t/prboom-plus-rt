@@ -40,9 +40,6 @@
 #include "r_main.h"
 #include "r_draw.h"
 
-// dboolean : whether the screen is always erased
-#define noterased viewwindowx
-
 extern int  key_backspace;                                          // phares
 extern int  key_enter;                                              // phares
 

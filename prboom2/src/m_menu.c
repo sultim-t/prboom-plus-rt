@@ -2071,9 +2071,6 @@ static void M_DrawScreenItems(const setup_menu_t* src)
 
 #define VERIFYBOXXORG 66
 #define VERIFYBOXYORG 88
-#define PAL_GRAY1  91
-#define PAL_GRAY2  98
-#define PAL_GRAY3 105
 
 // And the routine to draw it.
 
@@ -3141,9 +3138,6 @@ setup_menu_t gen_settings4[] = { // General Settings screen3
 
   {0,S_SKIP|S_END,m_null}
 };
-
-static const char *gl_skytypes[] = {
-  "None", "Standard", "Skybox", "Screen", NULL};
 
 setup_menu_t gen_settings5[] = { // General Settings screen3
   {"Software Options",               S_SKIP|S_TITLE, m_null, G_X, G_Y+1*8},
