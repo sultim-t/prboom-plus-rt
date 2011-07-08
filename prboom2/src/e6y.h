@@ -55,8 +55,6 @@
 #define GL_COMBINE_ARB                    0x8570
 #define GL_RGB_SCALE_ARB                  0x8573
 
-#define NO_INDEX ((unsigned short)-1)
-
 #define FOV_CORRECTION_FACTOR (1.13776f)
 #define FOV90 (90)
 
