@@ -2382,13 +2382,14 @@ setup_menu_t keys_settings6[] =  // Key Binding screen strings
   {"RESET TO DEFAULT"     ,S_KEY     ,m_scrn,KB_X,KB_Y+ 3*8,{&key_speed_default}},
   {"STEP OF CHANGE (0-AUTO)" ,S_NUM  ,m_null,KB_X,KB_Y+ 4*8, {"speed_step"}},
   {"DEMOS"                ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y+5*8},
-  {"END LEVEL"            ,S_KEY     ,m_scrn,KB_X,KB_Y+ 6*8,{&key_demo_endlevel}},
-  {"CAMERA MODE"          ,S_KEY     ,m_scrn,KB_X,KB_Y+ 7*8,{&key_walkcamera}},
-  {"JOIN"                 ,S_KEY     ,m_scrn,KB_X,KB_Y+ 8*8,{&key_demo_jointogame}},
-  {"MISC"                 ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y+9*8},
-  {"NEXT LEVEL"           ,S_KEY     ,m_scrn,KB_X,KB_Y+ 10*8,{&key_nextlevel}},
+  {"START/STOP SKIPPING"  ,S_KEY     ,m_scrn,KB_X,KB_Y+ 6*8,{&key_demo_skip}},
+  {"END LEVEL"            ,S_KEY     ,m_scrn,KB_X,KB_Y+ 7*8,{&key_demo_endlevel}},
+  {"CAMERA MODE"          ,S_KEY     ,m_scrn,KB_X,KB_Y+ 8*8,{&key_walkcamera}},
+  {"JOIN"                 ,S_KEY     ,m_scrn,KB_X,KB_Y+ 9*8,{&key_demo_jointogame}},
+  {"MISC"                 ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y+10*8},
+  {"NEXT LEVEL"           ,S_KEY     ,m_scrn,KB_X,KB_Y+ 11*8,{&key_nextlevel}},
 #ifdef GL_DOOM
-  {"Show Alive Monsters"  ,S_KEY     ,m_scrn,KB_X,KB_Y+11*8,{&key_showalive}},
+  {"Show Alive Monsters"  ,S_KEY     ,m_scrn,KB_X,KB_Y+12*8,{&key_showalive}},
 #endif
 
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {keys_settings5}},
@@ -4673,6 +4674,23 @@ dboolean M_Responder (event_t* ev) {
         return true;
       }
     }
+
+    if (ch == key_demo_skip)
+    {
+      if (demoplayback && singledemo)
+      {
+        if (doSkip)
+        {
+          G_SkipDemoStop();
+        }
+        else
+        {
+          G_SkipDemoStart();
+        }
+        return true;
+      }
+    }
+
     if (ch == key_walkcamera)
     {
       if (demoplayback && gamestate == GS_LEVEL)

@@ -183,7 +183,7 @@ void D_PostEvent(event_t *ev)
       else
       {
         // key_use is used for seeing the current frame
-        if (ev->data1 != key_use)
+        if (ev->data1 != key_use && ev->data1 != key_demo_skip)
         {
           return;
         }
@@ -267,6 +267,7 @@ void D_Display (void)
     }
 #endif
   }
+  
   if (!doSkip || !gamekeydown[key_use])
 
   if (nodrawers)                    // for comparative timing / profiling

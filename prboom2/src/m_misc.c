@@ -872,6 +872,8 @@ default_t defaults[] =
    0,MAX_KEY,def_key,ss_keys},
   {"speed_step",{&speed_step},{0},0,1000,
    def_int,ss_none},
+  {"key_demo_skip", {&key_demo_skip}, {0},
+   0,MAX_KEY,def_key,ss_keys},
   {"key_nextlevel", {&key_nextlevel}, {KEYD_PAGEDOWN},
    0,MAX_KEY,def_key,ss_keys},
   {"key_demo_jointogame", {&key_demo_jointogame}, {'q'},
