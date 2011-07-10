@@ -1318,7 +1318,7 @@ int HU_DrawDemoProgress(int force)
   if (gamestate == GS_DEMOSCREEN || (!demoplayback && !democontinue) || !hudadd_demoprogressbar)
     return false;
 
-  tics_count = (doSkip ? demo_skiptics : demo_tics_count) * demo_playerscount;
+  tics_count = ((doSkip && demo_skiptics > 0) ? demo_skiptics : demo_tics_count) * demo_playerscount;
   len = MIN(SCREENWIDTH, (int)((int_64_t)SCREENWIDTH * demo_curr_tic / tics_count));
 
   if (!force)
