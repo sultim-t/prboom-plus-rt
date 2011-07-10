@@ -2387,9 +2387,10 @@ setup_menu_t keys_settings6[] =  // Key Binding screen strings
   {"CAMERA MODE"          ,S_KEY     ,m_scrn,KB_X,KB_Y+ 8*8,{&key_walkcamera}},
   {"JOIN"                 ,S_KEY     ,m_scrn,KB_X,KB_Y+ 9*8,{&key_demo_jointogame}},
   {"MISC"                 ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y+10*8},
-  {"NEXT LEVEL"           ,S_KEY     ,m_scrn,KB_X,KB_Y+ 11*8,{&key_nextlevel}},
+  {"RESTART CURRENT MAP"  ,S_KEY     ,m_scrn,KB_X,KB_Y+ 11*8,{&key_level_restart}},
+  {"NEXT LEVEL"           ,S_KEY     ,m_scrn,KB_X,KB_Y+ 12*8,{&key_nextlevel}},
 #ifdef GL_DOOM
-  {"Show Alive Monsters"  ,S_KEY     ,m_scrn,KB_X,KB_Y+12*8,{&key_showalive}},
+  {"Show Alive Monsters"  ,S_KEY     ,m_scrn,KB_X,KB_Y+13*8,{&key_showalive}},
 #endif
 
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {keys_settings5}},
@@ -4665,6 +4666,12 @@ dboolean M_Responder (event_t* ev) {
       }
     }
 
+    if (ch == key_level_restart)
+    {
+      if (G_ReloadLevel())
+        return true;
+    }
+ 
     if (ch == key_demo_endlevel)
     {
       if (demoplayback && !doSkip && singledemo)

@@ -112,6 +112,7 @@ int key_speed_up;
 int key_speed_down;
 int key_speed_default;
 int speed_step;
+int key_level_restart;
 int key_nextlevel;
 int key_demo_jointogame;
 int key_demo_endlevel;
@@ -372,6 +373,22 @@ void G_SkipDemoCheck(void)
        G_SkipDemoStop();
      }
   }
+}
+
+int G_ReloadLevel(void)
+{
+  int result = false;
+
+  if ((gamestate == GS_LEVEL) &&
+      !deathmatch && !netgame &&
+      !demorecording && !demoplayback &&
+      !menuactive)
+  {
+    G_DeferedInitNew(gameskill, gameepisode, gamemap);
+    result = true;
+  }
+
+  return result;
 }
 
 int G_GotoNextLevel(void)

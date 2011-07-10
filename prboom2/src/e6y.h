@@ -107,6 +107,7 @@ extern int key_speed_up;
 extern int key_speed_down;
 extern int key_speed_default;
 extern int speed_step;
+extern int key_level_restart;
 extern int key_nextlevel;
 extern int key_demo_jointogame;
 extern int key_demo_endlevel;
@@ -187,6 +188,7 @@ void e6y_I_uSleep(unsigned long usecs);
 void G_SkipDemoStart(void);
 void G_SkipDemoStop(void);
 void G_SkipDemoCheck(void);
+int G_ReloadLevel(void);
 int G_GotoNextLevel(void);
 
 #ifdef GL_DOOM
