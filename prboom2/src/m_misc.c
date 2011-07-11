@@ -872,7 +872,7 @@ default_t defaults[] =
    0,MAX_KEY,def_key,ss_keys},
   {"speed_step",{&speed_step},{0},0,1000,
    def_int,ss_none},
-  {"key_demo_skip", {&key_demo_skip}, {0},
+  {"key_demo_skip", {&key_demo_skip}, {KEYD_INSERT},
    0,MAX_KEY,def_key,ss_keys},
   {"key_level_restart", {&key_level_restart}, {KEYD_HOME},
    0,MAX_KEY,def_key,ss_keys},
