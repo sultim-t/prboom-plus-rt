@@ -313,6 +313,15 @@ void gld_DrawStripsSky(void)
       glTranslatef(wall->skyyaw, wall->skyymid / skyymid_multiplier, 0.0f);
     }
 
+#if 0
+    {
+      float r = (float)(wall->seg->sidedef - sides) / (float)(numsides - 1); 
+      float g = (float)wall->seg->linedef->iLineID / (float)(numlines - 1); 
+      float b = (float)i / (float)(gld_drawinfo.num_items[GLDIT_SWALL] - 1);
+      glColor4f(r, g, b, 1.0f);
+    }
+#endif
+
     glBegin(GL_TRIANGLE_STRIP);
     glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
     glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);

@@ -2850,15 +2850,60 @@ void gld_AddWall(seg_t *seg)
   }
   else /* twosided */
   {
-    int floor_height,ceiling_height;
+    sector_t *fs, *bs;
+    int toptexture, midtexture, bottomtexture;
+    fixed_t floor_height,ceiling_height;
+    fixed_t max_floor, min_floor, max_floor_tex;
+    fixed_t max_ceiling, min_ceiling, min_ceiling_tex;
 
     backsector=R_FakeFlat(seg->backsector, &btempsec, NULL, NULL, true); // for boom effects
     if (!backsector)
       return;
+
+    if (frontsector->floorheight > backsector->floorheight)
+    {
+      max_floor = frontsector->floorheight;
+      min_floor = backsector->floorheight;
+    }
+    else
+    {
+      max_floor = backsector->floorheight;
+      min_floor = frontsector->floorheight;
+    }
+
+    if (frontsector->ceilingheight > backsector->ceilingheight)
+    {
+      max_ceiling = frontsector->ceilingheight;
+      min_ceiling = backsector->ceilingheight;
+    }
+    else
+    {
+      max_ceiling = backsector->ceilingheight;
+      min_ceiling = frontsector->ceilingheight;
+    }
+
+    max_floor_tex = max_floor + seg->sidedef->rowoffset;
+    min_ceiling_tex = min_ceiling + seg->sidedef->rowoffset;
+
+    if (backseg)
+    {
+      fs = backsector;
+      bs = frontsector;
+    }
+    else
+    {
+      fs = frontsector;
+      bs = backsector;
+    }
+
+    toptexture = texturetranslation[seg->sidedef->toptexture];
+    midtexture = texturetranslation[seg->sidedef->midtexture];
+    bottomtexture = texturetranslation[seg->sidedef->bottomtexture];
+
     /* toptexture */
     ceiling_height=frontsector->ceilingheight;
     floor_height=backsector->ceilingheight;
-    if (frontsector->ceilingpic==skyflatnum)
+    if (frontsector->ceilingpic==skyflatnum)// || backsector->ceilingpic==skyflatnum)
     {
       wall.ytop= MAXCOORD;
       if (
@@ -2868,8 +2913,7 @@ void gld_AddWall(seg_t *seg)
           // (backsector->ceilingheight==backsector->floorheight) &&
           // (backsector->ceilingpic==skyflatnum)
           (backsector->ceilingpic==skyflatnum) &&
-          ((backsector->ceilingheight<=backsector->floorheight)/*||
-           (backsector->ceilingheight<=frontsector->floorheight)*/)
+          (backsector->ceilingheight<=backsector->floorheight)
          )
       {
         // e6y
@@ -2881,32 +2925,32 @@ void gld_AddWall(seg_t *seg)
       }
       else
       {
-        if ( (texturetranslation[seg->sidedef->toptexture]!=NO_TEXTURE) )
+        if (bs->ceilingpic == skyflatnum && fs->ceilingpic != skyflatnum &&
+          toptexture == NO_TEXTURE && midtexture == NO_TEXTURE)
         {
-          // e6y
-          // It corrects some problem with sky, but I do not remember which one
-          // old code: wall.ybottom=(float)frontsector->ceilingheight/MAP_SCALE;
-          wall.ybottom=(float)MAX(frontsector->ceilingheight,backsector->ceilingheight)/MAP_SCALE;
-
+          wall.ybottom=(float)min_ceiling/MAP_SCALE;
           gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky, SKY_CEILING);
         }
         else
-          if ( (backsector->ceilingheight <= frontsector->floorheight) ||
-               (backsector->ceilingpic != skyflatnum) )
+        {
+          if ((toptexture != NO_TEXTURE && midtexture == NO_TEXTURE) ||
+            backsector->ceilingpic != skyflatnum ||
+            backsector->ceilingheight <= frontsector->floorheight)
           {
-            wall.ybottom=(float)backsector->ceilingheight/MAP_SCALE;
+            wall.ybottom=(float)max_ceiling/MAP_SCALE;
             gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky, SKY_CEILING);
           }
+        }
       }
     }
     if (floor_height<ceiling_height)
     {
       if (!((frontsector->ceilingpic==skyflatnum) && (backsector->ceilingpic==skyflatnum)))
       {
-        temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->toptexture], true, false);
+        temptex=gld_RegisterTexture(toptexture, true, false);
         if (!temptex && gl_use_stencil && backsector &&
           !(seg->linedef->r_flags & RF_ISOLATED) &&
-          frontsector->ceilingpic != skyflatnum && backsector->ceilingpic != skyflatnum &&
+          /*frontsector->ceilingpic != skyflatnum && */backsector->ceilingpic != skyflatnum &&
           !(backsector->flags & NULL_SECTOR))
         {
           wall.ytop=((float)(ceiling_height)/(float)MAP_SCALE)+SMALLDELTA;
@@ -2945,7 +2989,7 @@ void gld_AddWall(seg_t *seg)
     // e6y
     // Animated middle textures with a zero index should be forced
     // See spacelab.wad (http://www.doomworld.com/idgames/index.php?id=6826)
-    temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->midtexture], true, true);
+    temptex=gld_RegisterTexture(midtexture, true, true);
     if (temptex && seg->sidedef->midtexture != NO_TEXTURE && backsector->ceilingheight>frontsector->floorheight)
     {
       int top, bottom;
@@ -2953,12 +2997,12 @@ void gld_AddWall(seg_t *seg)
 
       if ( (LINE->flags & ML_DONTPEGBOTTOM) >0)
       {
-        floor_height=MAX(seg->frontsector->floorheight, seg->backsector->floorheight)+(seg->sidedef->rowoffset);
+        floor_height=max_floor_tex;
         ceiling_height=floor_height+(wall.gltexture->realtexheight<<FRACBITS);
       }
       else
       {
-        ceiling_height=MIN(seg->frontsector->ceilingheight, seg->backsector->ceilingheight)+(seg->sidedef->rowoffset);
+        ceiling_height=min_ceiling_tex;
         floor_height=ceiling_height-(wall.gltexture->realtexheight<<FRACBITS);
       }
 
@@ -2973,19 +3017,34 @@ void gld_AddWall(seg_t *seg)
         b = (seg->backsector->heightsec == -1 ? seg->backsector : &btempsec);
 
         // Set up the top
-        if (seg->sidedef->toptexture == NO_TEXTURE)
-          // texture is missing - use the higher plane
-          top = MAX(f->ceilingheight, b->ceilingheight);
+        if (frontsector->ceilingpic != skyflatnum ||
+            backsector->ceilingpic != skyflatnum)
+        {
+          if (toptexture == NO_TEXTURE)
+            // texture is missing - use the higher plane
+            top = MAX(f->ceilingheight, b->ceilingheight);
+          else
+            top = MIN(f->ceilingheight, b->ceilingheight);
+        }
         else
-          top = MIN(f->ceilingheight, b->ceilingheight);
+          top = ceiling_height;
 
         // Set up the bottom
-        if (seg->sidedef->bottomtexture == NO_TEXTURE)
-          // texture is missing - use the lower plane
-          bottom = MIN(f->floorheight, b->floorheight);
+        if (frontsector->floorpic != skyflatnum ||
+            backsector->floorpic != skyflatnum ||
+            frontsector->floorheight != backsector->floorheight)
+        {
+          if (seg->sidedef->bottomtexture == NO_TEXTURE)
+            // texture is missing - use the lower plane
+            bottom = MIN(f->floorheight, b->floorheight);
+          else
+            // normal case - use the higher plane
+            bottom = MAX(f->floorheight, b->floorheight);
+        }
         else
-          // normal case - use the higher plane
-          bottom = MAX(f->floorheight, b->floorheight);
+        {
+          bottom = floor_height;
+        }
 
         //let's clip away some unnecessary parts of the polygon
         if (ceiling_height < top)
@@ -3034,26 +3093,30 @@ bottomtexture:
       }
       else
       {
-        if ( (texturetranslation[seg->sidedef->bottomtexture]!=NO_TEXTURE) )
+        if (bs->floorpic == skyflatnum &&// fs->floorpic != skyflatnum &&
+          bottomtexture == NO_TEXTURE && midtexture == NO_TEXTURE)
         {
-          wall.ytop=(float)frontsector->floorheight/MAP_SCALE;
-          gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky, SKY_FLOOR);
+          wall.ytop=(float)max_floor/MAP_SCALE;
+          gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky, SKY_CEILING);
         }
         else
-          if ( (backsector->floorheight >= frontsector->ceilingheight) ||
-               (backsector->floorpic != skyflatnum) )
+        {
+          if ((bottomtexture != NO_TEXTURE && midtexture == NO_TEXTURE) ||
+            backsector->floorpic != skyflatnum ||
+            backsector->floorheight >= frontsector->ceilingheight)
           {
-            wall.ytop=(float)backsector->floorheight/MAP_SCALE;
+            wall.ytop=(float)min_floor/MAP_SCALE;
             gld_AddSkyTexture(&wall, frontsector->sky, backsector->sky, SKY_FLOOR);
           }
+        }
       }
     }
     if (floor_height<ceiling_height)
     {
-      temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->bottomtexture], true, false);
+      temptex=gld_RegisterTexture(bottomtexture, true, false);
       if (!temptex && gl_use_stencil && backsector &&
         !(seg->linedef->r_flags & RF_ISOLATED) &&
-        frontsector->floorpic != skyflatnum && backsector->floorpic != skyflatnum &&
+        /*frontsector->floorpic != skyflatnum && */backsector->floorpic != skyflatnum &&
         !(backsector->flags & NULL_SECTOR))
       {
         wall.ytop=((float)(ceiling_height)/(float)MAP_SCALE)+SMALLDELTA;
