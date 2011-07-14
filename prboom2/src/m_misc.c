@@ -1374,13 +1374,16 @@ struct default_s *M_LookupDefault(const char *name)
 
 #define NUMCHATSTRINGS 10 // phares 4/13/98
 
+#define CFG_BUFFERMAX 32000
+
 void M_LoadDefaults (void)
 {
   int   i;
   int   len;
   FILE* f;
   char  def[80];
-  char* strparm = malloc(32768);//e6y
+  char* strparm = malloc(CFG_BUFFERMAX);
+  char* cfgline = malloc(CFG_BUFFERMAX);
   char* newstring = NULL;   // killough
   int   parm;
   dboolean isstring;
@@ -1462,7 +1465,8 @@ void M_LoadDefaults (void)
       {
       isstring = false;
       parm = 0;
-      if (fscanf (f, "%79s %[^\n]\n", def, strparm) == 2)
+      fgets(cfgline, CFG_BUFFERMAX, f);
+      if (sscanf (cfgline, "%79s %[^\n]\n", def, strparm) == 2)
         {
 
         //jff 3/3/98 skip lines not starting with an alphanum
@@ -1565,6 +1569,7 @@ void M_LoadDefaults (void)
     }
 
   free(strparm);
+  free(cfgline);
 
   //jff 3/4/98 redundant range checks for hud deleted here
   /* proff 2001/7/1 - added prboom.wad as last entry so it's always loaded and
