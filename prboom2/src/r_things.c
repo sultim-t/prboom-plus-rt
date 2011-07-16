@@ -69,12 +69,22 @@ float pspritexscale_f;
 
 int sprites_doom_order;
 
-typedef struct drawsegs_xrange_s
+typedef struct drawseg_xrange_item_s
 {
   short x1, x2;
   drawseg_t *user;
+} drawseg_xrange_item_t;
+
+typedef struct drawsegs_xrange_s
+{
+  drawseg_xrange_item_t *items;
+  int count;
 } drawsegs_xrange_t;
-static drawsegs_xrange_t *drawsegs_xrange;
+
+#define DS_RANGES_COUNT 3
+static drawsegs_xrange_t drawsegs_xranges[DS_RANGES_COUNT];
+
+static drawseg_xrange_item_t *drawsegs_xrange;
 static unsigned int drawsegs_xrange_size = 0;
 static int drawsegs_xrange_count = 0;
 
@@ -1095,8 +1105,8 @@ static void R_DrawSprite (vissprite_t* spr)
 
   if (drawsegs_xrange_size)
   {
-    const drawsegs_xrange_t *last = &drawsegs_xrange[drawsegs_xrange_count - 1];
-    drawsegs_xrange_t *curr = &drawsegs_xrange[-1];
+    const drawseg_xrange_item_t *last = &drawsegs_xrange[drawsegs_xrange_count - 1];
+    drawseg_xrange_item_t *curr = &drawsegs_xrange[-1];
     while (++curr <= last)
     {
       // determine if the drawseg obscures the sprite
@@ -1262,6 +1272,7 @@ void R_DrawMasked(void)
   extern int try_to_reduce_cpu_cache_misses;
   int i;
   drawseg_t *ds;
+  int cx = SCREENWIDTH / 2;
 
   R_SortVisSprites();
 
@@ -1269,22 +1280,44 @@ void R_DrawMasked(void)
   // Reducing of cache misses in the following R_DrawSprite()
   // Makes sense for scenes with huge amount of drawsegs.
   // ~12% of speed improvement on epic.wad map05
-  drawsegs_xrange_count = 0;
+  for(i = 0; i < DS_RANGES_COUNT; i++)
+    drawsegs_xranges[i].count = 0;
+
   if (try_to_reduce_cpu_cache_misses && num_vissprite > 0)
   {
     if (drawsegs_xrange_size < maxdrawsegs)
     {
       drawsegs_xrange_size = 2 * maxdrawsegs;
-      drawsegs_xrange = realloc(drawsegs_xrange, drawsegs_xrange_size * sizeof(drawsegs_xrange[0]));
+      for(i = 0; i < DS_RANGES_COUNT; i++)
+      {
+        drawsegs_xranges[i].items = realloc(
+          drawsegs_xranges[i].items,
+          drawsegs_xrange_size * sizeof(drawsegs_xranges[i].items[0]));
+      }
     }
     for (ds = ds_p; ds-- > drawsegs;)
     {
       if (ds->silhouette || ds->maskedtexturecol)
       {
-        drawsegs_xrange[drawsegs_xrange_count].x1 = ds->x1;
-        drawsegs_xrange[drawsegs_xrange_count].x2 = ds->x2;
-        drawsegs_xrange[drawsegs_xrange_count].user = ds;
-        drawsegs_xrange_count++;
+        drawsegs_xranges[0].items[drawsegs_xranges[0].count].x1 = ds->x1;
+        drawsegs_xranges[0].items[drawsegs_xranges[0].count].x2 = ds->x2;
+        drawsegs_xranges[0].items[drawsegs_xranges[0].count].user = ds;
+        
+        // e6y: ~13% of speed improvement on sunder.wad map10
+        if (ds->x1 < cx)
+        {
+          drawsegs_xranges[1].items[drawsegs_xranges[1].count] = 
+            drawsegs_xranges[0].items[drawsegs_xranges[0].count];
+          drawsegs_xranges[1].count++;
+        }
+        if (ds->x2 >= cx)
+        {
+          drawsegs_xranges[2].items[drawsegs_xranges[2].count] = 
+            drawsegs_xranges[0].items[drawsegs_xranges[0].count];
+          drawsegs_xranges[2].count++;
+        }
+
+        drawsegs_xranges[0].count++;
       }
     }
   }
@@ -1293,7 +1326,27 @@ void R_DrawMasked(void)
 
   rendered_vissprites = num_vissprite;
   for (i = num_vissprite ;--i>=0; )
-    R_DrawSprite(vissprite_ptrs[i]);         // killough
+  {
+    vissprite_t* spr = vissprite_ptrs[i];
+
+    if (spr->x2 < cx)
+    {
+      drawsegs_xrange = drawsegs_xranges[1].items;
+      drawsegs_xrange_count = drawsegs_xranges[1].count;
+    }
+    else if (spr->x1 >= cx)
+    {
+      drawsegs_xrange = drawsegs_xranges[2].items;
+      drawsegs_xrange_count = drawsegs_xranges[2].count;
+    }
+    else
+    {
+      drawsegs_xrange = drawsegs_xranges[0].items;
+      drawsegs_xrange_count = drawsegs_xranges[0].count;
+    }
+
+    R_DrawSprite(vissprite_ptrs[i]);
+  }
 
   // render any remaining masked mid textures
 
