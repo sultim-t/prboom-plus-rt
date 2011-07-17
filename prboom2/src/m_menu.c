@@ -3060,6 +3060,30 @@ static const char *gen_skillstrings[] = {
   "", "ITYTD", "HNTR", "HMP", "UV", "NM", NULL
 };
 
+static const char *gen_compstrings[] =
+{
+  "Default",
+  "Doom v1.2",
+  "Doom v1.666",
+  "Doom/2 v1.9",
+  "Ultimate Doom",
+  "Final Doom",
+  "DosDoom",
+  "TASDoom",
+  "Boom's vanilla",
+  "Boom v2.01",
+  "Boom",
+  "LxDoom",
+  "MBF",
+  "PrBoom 2.03b",
+  "PrBoom 2.1.x",
+  "PrBoom 2.2.x",
+  "PrBoom 2.3.x",
+  "PrBoom 2.4.0",
+  "Latest PrBoom+",
+  NULL
+};
+
 setup_menu_t gen_settings2[] = { // General Settings screen2
 
   {"Input Devices",                    S_SKIP|S_TITLE, m_null, G_X, G_Y+ 1*8},
@@ -3076,10 +3100,11 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
   {"Maximum number of player corpses", S_NUM|S_PRGWARN, m_null, G_X, G_Y+12*8, {"max_player_corpse"}},
   {"Game speed, percentage of normal", S_NUM|S_PRGWARN, m_null, G_X, G_Y+13*8, {"realtic_clock_rate"}},
   {"Default skill level",              S_CHOICE,        m_null, G_X, G_Y+14*8, {"default_skill"}, 0, 0, NULL, gen_skillstrings},
-  {"Show ENDOOM screen",               S_YESNO,         m_null, G_X, G_Y+15*8, {"showendoom"}},
-  {"Fullscreen menu background",       S_YESNO, m_null, G_X, G_Y + 16*8, {"menu_background"}},
+  {"Default compatibility level",      S_CHOICE,        m_null, G_X, G_Y+15*8, {"default_compatibility_level"}, 0, 0, NULL, &gen_compstrings[1]},
+  {"Show ENDOOM screen",               S_YESNO,         m_null, G_X, G_Y+16*8, {"showendoom"}},
+  {"Fullscreen menu background",       S_YESNO, m_null, G_X, G_Y + 17*8, {"menu_background"}},
 #ifdef USE_WINDOWS_LAUNCHER
-  {"Use In-Game Launcher",             S_CHOICE,        m_null, G_X, G_Y+ 17*8, {"launcher_enable"}, 0, 0, NULL, launcher_enable_states},
+  {"Use In-Game Launcher",             S_CHOICE,        m_null, G_X, G_Y+ 18*8, {"launcher_enable"}, 0, 0, NULL, launcher_enable_states},
 #endif
 
 
