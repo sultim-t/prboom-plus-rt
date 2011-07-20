@@ -157,6 +157,8 @@ subsector_t *R_PointInSubsector(fixed_t x, fixed_t y);
 angle_t R_PointToAngleEx(fixed_t x, fixed_t y);
 //e6y: caching
 angle_t R_GetVertexViewAngle(vertex_t *v);
+angle_t R_GetVertexViewAngleGL(vertex_t *v);
+angle_t R_PointToPseudoAngle(fixed_t x, fixed_t y);
 
 //e6y
 typedef enum { render_precise_speed, render_precise_quality } render_precise_t;

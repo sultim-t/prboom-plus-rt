@@ -367,12 +367,12 @@ static void R_AddLine (seg_t *line)
 
   curline = line;
 
-  angle1 = R_GetVertexViewAngle(line->v1);
-  angle2 = R_GetVertexViewAngle(line->v2);
-
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
+    angle1 = R_GetVertexViewAngleGL(line->v1);
+    angle2 = R_GetVertexViewAngleGL(line->v2);
+
     // Back side, i.e. backface culling	- read: endAngle >= startAngle!
     if (angle2 - angle1 < ANG180 || !line->linedef)  
     {
@@ -424,6 +424,9 @@ static void R_AddLine (seg_t *line)
     return;
   }
 #endif
+
+  angle1 = R_GetVertexViewAngle(line->v1);
+  angle2 = R_GetVertexViewAngle(line->v2);
 
   // Clip to view edges.
   span = angle1 - angle2;
@@ -535,8 +538,8 @@ static dboolean R_CheckBBox(const fixed_t *bspcoord)
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
-    angle1 = R_PointToAngleEx (bspcoord[check[0]], bspcoord[check[1]]);
-    angle2 = R_PointToAngleEx (bspcoord[check[2]], bspcoord[check[3]]);
+    angle1 = R_PointToPseudoAngle(bspcoord[check[0]], bspcoord[check[1]]);
+    angle2 = R_PointToPseudoAngle(bspcoord[check[2]], bspcoord[check[3]]);
     return gld_clipper_SafeCheckRange(angle2, angle1);
   }
 #endif
