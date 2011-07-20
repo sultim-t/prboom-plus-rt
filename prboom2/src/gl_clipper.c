@@ -190,6 +190,27 @@ void gld_clipper_SafeAddClipRange(angle_t startangle, angle_t endangle)
   }
 }
 
+angle_t gld_clipper_AngleToPseudo(angle_t ang)
+{
+  double vecx = cos(ang * M_PI / ANG180);
+  double vecy = sin(ang * M_PI / ANG180);
+
+  double result = vecy / (fabs(vecx) + fabs(vecy));
+  if (vecx < 0)
+  {
+    result = 2.f - result;
+  }
+  return (angle_t)(result * (1<<30));
+}
+
+void gld_clipper_SafeAddClipRangeRealAngles(angle_t startangle, angle_t endangle)
+{
+  gld_clipper_SafeAddClipRange(
+    gld_clipper_AngleToPseudo(startangle),
+    gld_clipper_AngleToPseudo(endangle));
+}
+
+
 static void gld_clipper_AddClipRange(angle_t start, angle_t end)
 {
   clipnode_t *node, *temp, *prevNode, *node2, *delnode;

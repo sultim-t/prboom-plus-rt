@@ -951,7 +951,7 @@ void R_RenderPlayerView (player_t* player)
     {
       angle_t a1 = gld_FrustumAngle();
       gld_clipper_Clear();
-      gld_clipper_SafeAddClipRange(viewangle + a1, viewangle - a1);
+      gld_clipper_SafeAddClipRangeRealAngles(viewangle + a1, viewangle - a1);
       gld_FrustrumSetup();
     }
   }
