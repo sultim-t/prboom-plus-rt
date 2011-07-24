@@ -510,7 +510,9 @@ void I_FinishUpdate (void)
   //e6y: new mouse code
   UpdateGrab();
 
-  if (I_SkipFrame()) return;
+  // The screen wipe following pressing the exit switch on a level
+  // is noticably jerkier with I_SkipFrame
+  // if (I_SkipFrame())return;
 
 #ifdef MONITOR_VISIBILITY
   if (!(SDL_GetAppState()&SDL_APPACTIVE)) {
