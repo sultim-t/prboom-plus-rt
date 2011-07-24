@@ -612,8 +612,6 @@ static void R_Subsector(int num)
 
 #ifdef GL_DOOM
   if (V_GetMode() != VID_MODEGL || !gl_use_stencil || sub->sector->validcount != validcount)
-#else
-  if (sub->sector->validcount != validcount)
 #endif
   {
     frontsector = sub->sector;
