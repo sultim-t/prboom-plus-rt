@@ -279,4 +279,4 @@ AC_SUBST(CFLAGS)
 AC_SUBST(DOOMWADDIR)
 
 dnl --- output
-AC_OUTPUT(Makefile src/Makefile src/POSIX/Makefile src/SDL/Makefile src/MAC/Makefile src/PCSOUND/Makefile src/TEXTSCREEN/Makefile src/MUSIC/Makefile doc/Makefile data/Makefile ICONS/Makefile VisualC6/Makefile VisualC8/Makefile prboom.spec)
+AC_OUTPUT(Makefile src/Makefile src/POSIX/Makefile src/SDL/Makefile src/MAC/Makefile src/PCSOUND/Makefile src/TEXTSCREEN/Makefile src/MUSIC/Makefile doc/Makefile data/Makefile ICONS/Makefile VisualC6/Makefile VisualC8/Makefile VisualC9/Makefile prboom.spec)
