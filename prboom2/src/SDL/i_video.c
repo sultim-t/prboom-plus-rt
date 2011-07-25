@@ -266,26 +266,6 @@ static void I_InitInputs(void)
 
   I_InitJoystick();
 }
-/////////////////////////////////////////////////////////////////////////////
-
-// I_SkipFrame
-//
-// Returns true if it thinks we can afford to skip this frame
-
-inline static boolean I_SkipFrame(void)
-{
-  static int frameno;
-
-  frameno++;
-  switch (gamestate) {
-  case GS_LEVEL:
-    if (!paused)
-      return false;
-  default:
-    // Skip odd frames
-    return (frameno & 1) ? true : false;
-  }
-}
 
 ///////////////////////////////////////////////////////////
 // Palette stuff.
@@ -367,8 +347,6 @@ static int newpal = 0;
 
 void I_FinishUpdate (void)
 {
-  if (I_SkipFrame()) return;
-
 #ifdef MONITOR_VISIBILITY
   if (!(SDL_GetAppState()&SDL_APPACTIVE)) {
     return;
