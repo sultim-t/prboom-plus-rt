@@ -91,6 +91,11 @@ typedef unsigned __int64 uint_64_t;
 /* CPhipps - use limits.h instead of depreciated values.h */
 #include <limits.h>
 
+// In case limits.h does not define PATH_MAX
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
+
 /* cph - move compatibility levels here so we can use them in d_server.c */
 typedef enum {
   doom_12_compatibility,   /* Doom v1.2 */
