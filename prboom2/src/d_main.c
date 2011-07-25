@@ -1137,6 +1137,33 @@ static void L_SetupConsoleMasks(void) {
   }
 }
 
+// killough 10/98: support .deh from wads
+//
+// A lump named DEHACKED is treated as plaintext of a .deh file embedded in
+// a wad (more portable than reading/writing info.c data directly in a wad).
+//
+// If there are multiple instances of "DEHACKED", we process each, in first
+// to last order (we must reverse the order since they will be stored in
+// last to first order in the chain). Passing NULL as first argument to
+// ProcessDehFile() indicates that the data comes from the lump number
+// indicated by the third argument, instead of from a file.
+
+static void D_ProcessDehInWad(int i)
+{
+  if (i >= 0)
+  {
+    D_ProcessDehInWad(lumpinfo[i].next);
+
+    if (!strncasecmp(lumpinfo[i].name, "DEHACKED", 8)
+        && lumpinfo[i].li_namespace == ns_global)
+      ProcessDehFile(NULL, D_dehout(), i);
+  }
+}
+
+#define D_ProcessDehInWads() \
+  D_ProcessDehInWad(lumpinfo[W_LumpNameHash("DEHACKED") \
+                    % (unsigned) numlumps].index)
+
 //
 // D_DoomMainSetup
 //
@@ -1527,8 +1554,7 @@ static void D_DoomMainSetup(void)
   // e6y 
   // option to disable automatic loading of dehacked-in-wad lump
   if (!M_CheckParm ("-nodeh"))
-    if ((p = W_CheckNumForName("DEHACKED")) != -1) // cph - add dehacked-in-a-wad support
-      ProcessDehFile(NULL, D_dehout(), p);
+    D_ProcessDehInWads(); // cph - add dehacked-in-a-wad support
 
   V_InitColorTranslation(); //jff 4/24/98 load color translation lumps
 
