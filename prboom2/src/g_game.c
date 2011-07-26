@@ -707,7 +707,6 @@ void G_RestartLevel(void)
   special_event = BT_SPECIAL | (BTS_RESTARTLEVEL & BT_SPECIALMASK);
 }
 
-#include "z_bmalloc.h"
 //
 // G_DoLoadLevel
 //
