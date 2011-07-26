@@ -779,13 +779,7 @@ static void G_DoLoadLevel (void)
   // any nodes in the freelist are gone by now, cleared
   // by Z_FreeTags() when the previous level ended or player
   // died.
-
-  {
-    DECLARE_BLOCK_MEMORY_ALLOC_ZONE(secnodezone);
-    NULL_BLOCK_MEMORY_ALLOC_ZONE(secnodezone);
-      //extern msecnode_t *headsecnode; // phares 3/25/98
-      //headsecnode = NULL;
-  }
+  P_FreeSecNodeList();
 
   P_SetupLevel (gameepisode, gamemap, 0, gameskill);
   if (!demoplayback) // Don't switch views if playing a demo

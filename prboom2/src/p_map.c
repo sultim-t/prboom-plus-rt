@@ -2066,12 +2066,22 @@ dboolean P_CheckSector(sector_t* sector,dboolean crunch)
   }
 
 
+#ifndef USE_BLOCK_MEMORY_ALLOCATOR
 // CPhipps -
 // Use block memory allocator here
 
 #include "z_bmalloc.h"
 
-IMPLEMENT_BLOCK_MEMORY_ALLOC_ZONE(secnodezone, sizeof(msecnode_t), PU_LEVEL, 32, "SecNodes");
+IMPLEMENT_BLOCK_MEMORY_ALLOC_ZONE(secnodezone, sizeof(msecnode_t), PU_LEVEL, 256, "SecNodes");
+
+//
+// P_FreeSecNodeList
+//
+void P_FreeSecNodeList(void)
+{
+  DECLARE_BLOCK_MEMORY_ALLOC_ZONE(secnodezone);
+  NULL_BLOCK_MEMORY_ALLOC_ZONE(secnodezone);
+}
 
 inline static msecnode_t* P_GetSecnode(void)
 {
@@ -2084,6 +2094,49 @@ inline static void P_PutSecnode(msecnode_t* node)
 {
   Z_BFree(&secnodezone, node);
 }
+#else // USE_BLOCK_MEMORY_ALLOCATOR
+// phares 3/21/98
+//
+// Maintain a freelist of msecnode_t's to reduce memory allocs and frees.
+
+msecnode_t *headsecnode = NULL;
+
+//
+// P_FreeSecNodeList
+//
+void P_FreeSecNodeList(void)
+{
+   headsecnode = NULL; // this is all thats needed to fix the bug
+}
+
+//
+// P_GetSecnode
+//
+// Retrieves a node from the freelist. The calling routine should make sure it
+// sets all fields properly.
+//
+// killough 11/98: reformatted
+//
+static msecnode_t *P_GetSecnode(void)
+{
+  msecnode_t *node;
+
+  return headsecnode ?
+    node = headsecnode, headsecnode = node->m_snext, node :
+  (msecnode_t *)(Z_Malloc(sizeof *node, PU_LEVEL, NULL)); 
+}
+
+//
+// P_PutSecnode
+//
+// Returns a node to the freelist.
+//
+static void P_PutSecnode(msecnode_t *node)
+{
+  node->m_snext = headsecnode;
+  headsecnode = node;
+}
+#endif // USE_BLOCK_MEMORY_ALLOCATOR
 
 // phares 3/16/98
 //
