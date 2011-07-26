@@ -2066,7 +2066,8 @@ dboolean P_CheckSector(sector_t* sector,dboolean crunch)
   }
 
 
-#ifndef USE_BLOCK_MEMORY_ALLOCATOR
+#define USE_BLOCK_MEMORY_ALLOCATOR
+#ifdef USE_BLOCK_MEMORY_ALLOCATOR
 // CPhipps -
 // Use block memory allocator here
 
