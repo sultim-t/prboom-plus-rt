@@ -451,12 +451,16 @@ void WI_drawLF(void)
   // draw <LevelName>
   /* cph - get the graphic lump name and use it */
   WI_levelNameLump(wbs->epsd, wbs->last, lname);
-  // CPhipps - patch drawing updated
-  V_DrawNamePatch((320 - V_NamePatchWidth(lname))/2, y,
-     FB, lname, CR_DEFAULT, VPT_STRETCH);
 
-  // draw "Finished!"
-  y += (5*V_NamePatchHeight(lname))/4;
+  if (W_CheckNumForName(lname) >= 0) // don't die on missing level names
+  {
+    // CPhipps - patch drawing updated
+    V_DrawNamePatch((320 - V_NamePatchWidth(lname))/2, y,
+       FB, lname, CR_DEFAULT, VPT_STRETCH);
+
+    // draw "Finished!"
+    y += (5*V_NamePatchHeight(lname))/4;
+  }
 
   // CPhipps - patch drawing updated
   V_DrawNamePatch((320 - V_NamePatchWidth(finished))/2, y,
@@ -482,6 +486,9 @@ void WI_drawEL(void)
   // CPhipps - patch drawing updated
   V_DrawNamePatch((320 - V_NamePatchWidth(entering))/2,
       y, FB, entering, CR_DEFAULT, VPT_STRETCH);
+
+  if (W_CheckNumForName(lname) < 0) // don't die on missing level names
+    return;
 
   // draw level
   y += (5*V_NamePatchHeight(lname))/4;
