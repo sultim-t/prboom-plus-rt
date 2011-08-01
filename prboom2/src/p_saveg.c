@@ -434,7 +434,10 @@ void P_UnArchiveThinkers (void)
     {
       thinker_t *next = th->next;
       if (th->function == P_MobjThinker)
+      {
         P_RemoveMobj ((mobj_t *) th);
+        P_RemoveThinkerDelayed(th); // fix mobj leak
+      }
       else
         Z_Free (th);
       th = next;
