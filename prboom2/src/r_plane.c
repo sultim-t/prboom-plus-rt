@@ -343,7 +343,6 @@ visplane_t *R_FindPlane(fixed_t height, int picnum, int lightlevel,
 {
   visplane_t *check;
   unsigned hash;                      // killough
-  int i;
 
   if (picnum == skyflatnum || picnum & PL_SKYFLAT)
     height = lightlevel = 0;         // killough 7/19/98: most skies map together
@@ -364,13 +363,19 @@ visplane_t *R_FindPlane(fixed_t height, int picnum, int lightlevel,
   check->height = height;
   check->picnum = picnum;
   check->lightlevel = lightlevel;
-  check->minx = viewwidth; // Was SCREENWIDTH -- killough 11/98
-  check->maxx = -1;
   check->xoffs = xoffs;               // killough 2/28/98: Save offsets
   check->yoffs = yoffs;
+#ifdef GL_DOOM
+  if (V_GetMode() != VID_MODEGL)
+#endif
+  {
+    int i;
+    check->minx = viewwidth; // Was SCREENWIDTH -- killough 11/98
+    check->maxx = -1;
 
-  for (i = 0; i != SCREENWIDTH; i++)
-    check->top[i] = SHRT_MAX;
+    for (i = 0; i != SCREENWIDTH; i++)
+      check->top[i] = SHRT_MAX;
+  }
 
   return check;
 }
