@@ -1440,39 +1440,6 @@ static void D_DoomMainSetup(void)
     }
   }
 
-  // e6y: DEH files preloaded in wrong order
-  // http://sourceforge.net/tracker/index.php?func=detail&aid=1418158&group_id=148658&atid=772943
-  // The dachaked stuff has been moved from above
-
-  // ty 03/09/98 do dehacked stuff
-  // Note: do this before any other since it is expected by
-  // the deh patch author that this is actually part of the EXE itself
-  // Using -deh in BOOM, others use -dehacked.
-  // Ty 03/18/98 also allow .bex extension.  .bex overrides if both exist.
-
-  p = M_CheckParm ("-deh");
-  if (p)
-    {
-      char file[PATH_MAX+1];      // cph - localised
-      // the parms after p are deh/bex file names,
-      // until end of parms or another - preceded parm
-      // Ty 04/11/98 - Allow multiple -deh files in a row
-
-      while (++p != myargc && *myargv[p] != '-')
-        {
-          AddDefaultExtension(strcpy(file, myargv[p]), ".bex");
-          if (access(file, F_OK))  // nope
-            {
-              AddDefaultExtension(strcpy(file, myargv[p]), ".deh");
-              if (access(file, F_OK))  // still nope
-                I_Error("D_DoomMainSetup: Cannot find .deh or .bex file named %s",myargv[p]);
-            }
-          // during the beta we have debug output to dehout.txt
-          ProcessDehFile(file,D_dehout(),0);
-        }
-    }
-  // ty 03/09/98 end of do dehacked stuff
-
   // add any files specified on the command line with -file wadfile
   // to the wad list
 
@@ -1530,6 +1497,38 @@ static void D_DoomMainSetup(void)
     // MBF-style DeHackEd in wad support: load all lumps, not just the last one
     for (p = -1; (p = W_ListNumFromName("DEHACKED", p)) >= 0; )
       ProcessDehFile(NULL, D_dehout(), p); // cph - add dehacked-in-a-wad support
+
+  // Load command line dehacked patches after WAD dehacked patches
+
+  // e6y: DEH files preloaded in wrong order
+  // http://sourceforge.net/tracker/index.php?func=detail&aid=1418158&group_id=148658&atid=772943
+
+  // ty 03/09/98 do dehacked stuff
+  // Using -deh in BOOM, others use -dehacked.
+  // Ty 03/18/98 also allow .bex extension.  .bex overrides if both exist.
+
+  p = M_CheckParm ("-deh");
+  if (p)
+  {
+    char file[PATH_MAX+1];      // cph - localised
+    // the parms after p are deh/bex file names,
+    // until end of parms or another - preceded parm
+    // Ty 04/11/98 - Allow multiple -deh files in a row
+
+    while (++p != myargc && *myargv[p] != '-')
+    {
+      AddDefaultExtension(strcpy(file, myargv[p]), ".bex");
+      if (access(file, F_OK))  // nope
+      {
+        AddDefaultExtension(strcpy(file, myargv[p]), ".deh");
+        if (access(file, F_OK))  // still nope
+          I_Error("D_DoomMainSetup: Cannot find .deh or .bex file named %s",
+                  myargv[p]);
+      }
+      // during the beta we have debug output to dehout.txt
+      ProcessDehFile(file,D_dehout(),0);
+    }
+  }
 
   V_InitColorTranslation(); //jff 4/24/98 load color translation lumps
 
