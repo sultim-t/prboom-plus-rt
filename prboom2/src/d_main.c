@@ -1496,7 +1496,18 @@ static void D_DoomMainSetup(void)
   if (!M_CheckParm ("-nodeh"))
     // MBF-style DeHackEd in wad support: load all lumps, not just the last one
     for (p = -1; (p = W_ListNumFromName("DEHACKED", p)) >= 0; )
-      ProcessDehFile(NULL, D_dehout(), p); // cph - add dehacked-in-a-wad support
+      // Split loading DEHACKED lumps into IWAD/autoload and PWADs/others
+      if (lumpinfo[p].source == source_iwad
+          || lumpinfo[p].source == source_pre
+          || lumpinfo[p].source == source_auto_load)
+        ProcessDehFile(NULL, D_dehout(), p); // cph - add dehacked-in-a-wad support
+
+  if (!M_CheckParm ("-nodeh"))
+    for (p = -1; (p = W_ListNumFromName("DEHACKED", p)) >= 0; )
+      if (!(lumpinfo[p].source == source_iwad
+            || lumpinfo[p].source == source_pre
+            || lumpinfo[p].source == source_auto_load))
+        ProcessDehFile(NULL, D_dehout(), p);
 
   // Load command line dehacked patches after WAD dehacked patches
 
