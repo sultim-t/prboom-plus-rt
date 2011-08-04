@@ -1416,24 +1416,20 @@ static void D_DoomMainSetup(void)
   // Some people might find this useful
   // cph - support MBF -noload parameter
   if (!M_CheckParm("-noload")) {
+    // only autoloaded wads here - autoloaded patches moved down below W_Init
     int i;
 
-    for (i=0; i<MAXLOADFILES*2; i++) {
-      const char *fname = (i < MAXLOADFILES) ? wad_files[i]
-  : deh_files[i - MAXLOADFILES];
+    for (i=0; i<MAXLOADFILES; i++) {
+      const char *fname = wad_files[i];
       char *fpath;
 
       if (!(fname && *fname)) continue;
       // Filename is now stored as a zero terminated string
-      fpath = I_FindFile(fname, (i < MAXLOADFILES) ? ".wad" : ".bex");
+      fpath = I_FindFile(fname, ".wad");
       if (!fpath)
         lprintf(LO_WARN, "Failed to autoload %s\n", fname);
       else {
-        if (i >= MAXLOADFILES)
-          ProcessDehFile(fpath, D_dehout(), 0);
-        else {
-          D_AddFile(fpath,source_auto_load);
-        }
+        D_AddFile(fpath,source_auto_load);
         modifiedgame = true;
         free(fpath);
       }
@@ -1501,6 +1497,27 @@ static void D_DoomMainSetup(void)
           || lumpinfo[p].source == source_pre
           || lumpinfo[p].source == source_auto_load)
         ProcessDehFile(NULL, D_dehout(), p); // cph - add dehacked-in-a-wad support
+
+  if (!M_CheckParm("-noload")) {
+    // now do autoloaded dehacked patches, after IWAD patches but before PWAD
+    int i;
+
+    for (i=0; i<MAXLOADFILES; i++) {
+      const char *fname = deh_files[i];
+      char *fpath;
+
+      if (!(fname && *fname)) continue;
+      // Filename is now stored as a zero terminated string
+      fpath = I_FindFile(fname, ".bex");
+      if (!fpath)
+        lprintf(LO_WARN, "Failed to autoload %s\n", fname);
+      else {
+        ProcessDehFile(fpath, D_dehout(), 0);
+        // this used to set modifiedgame here, but patches shouldn't
+        free(fpath);
+      }
+    }
+  }
 
   if (!M_CheckParm ("-nodeh"))
     for (p = -1; (p = W_ListNumFromName("DEHACKED", p)) >= 0; )
