@@ -122,8 +122,13 @@ extern int        numlumps;
 // killough 4/17/98: if W_CheckNumForName() called with only
 // one argument, pass ns_global as the default namespace
 
+#define W_FindNumFromName(name, lump) (W_FindNumFromName)(name, ns_global, lump)
+int     (W_FindNumFromName)(const char *name, int ns, int lump);
+int     W_ListNumFromName(const char *name, int lump);
 #define W_CheckNumForName(name) (W_CheckNumForName)(name, ns_global)
-int     (W_CheckNumForName)(const char* name, int);   // killough 4/17/98
+static inline
+int     (W_CheckNumForName)(const char *name, int ns)
+        { return (W_FindNumFromName)(name, ns, -1); }
 int     W_GetNumForName (const char* name);
 int     W_LumpLength (int lump);
 void    W_ReadLump (int lump, void *dest);
