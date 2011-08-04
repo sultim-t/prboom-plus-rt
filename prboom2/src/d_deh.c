@@ -1397,6 +1397,7 @@ void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum)
   static FILE *fileout;       // In case -dehout was used
   DEHFILE infile, *filein = &infile;    // killough 10/98
   char inbuffer[DEH_BUFFERMAX];  // Place to put the primary infostring
+  const char *file_or_lump;
 
   // Open output file if we're writing output
   if (outfilename && *outfilename && !fileout)
@@ -1424,16 +1425,18 @@ void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum)
           return;  // should be checked up front anyway
         }
       infile.lump = NULL;
+      file_or_lump = "file";
     }
   else  // DEH file comes from lump indicated by third argument
     {
       infile.size = W_LumpLength(lumpnum);
       infile.inp = infile.lump = W_CacheLumpNum(lumpnum);
-      filename = "(WAD)";
+      filename = lumpinfo[lumpnum].wadfile->name;
+      file_or_lump = "lump from";
     }
 
-  lprintf(LO_INFO, "Loading DEH file %s\n",filename);
-  if (fileout) fprintf(fileout,"\nLoading DEH file %s\n\n",filename);
+  lprintf(LO_INFO, "Loading DEH %s %s\n",file_or_lump,filename);
+  if (fileout) fprintf(fileout,"\nLoading DEH %s %s\n\n",file_or_lump,filename);
 
   // move deh_codeptr initialisation to D_BuildBEXTables
 
