@@ -119,10 +119,25 @@ static int fl_init (int samplerate)
   TESTDLLLOAD ("libfluidsynth.dll", TRUE)
 
   f_soundrate = samplerate;
-  if (f_soundrate < 22050)
+  // fluidsynth 1.1.4 supports sample rates as low as 8000hz.  earlier versions only go down to 22050hz
+  // since the versions are ABI compatible, detect at runtime, not compile time
+  if (1)
   {
-    lprintf (LO_INFO, "Fluidplayer: samplerates under 22050 are not supported\n");
-    return 0;
+    int sratemin;
+    int major;
+    int minor;
+    int micro;
+    fluid_version (&major, &minor, &micro);
+    lprintf (LO_INFO, "Fluidplayer: Fluidsynth version %i.%i.%i\n", major, minor, micro);
+    if (major >= 1 && minor >=1 && micro >= 4)
+      sratemin = 8000;
+    else
+      sratemin = 22050;
+    if (f_soundrate < sratemin)
+    {
+      lprintf (LO_INFO, "Fluidplayer: samplerates under %i are not supported\n", sratemin);
+      return 0;
+    }
   }
 
 
