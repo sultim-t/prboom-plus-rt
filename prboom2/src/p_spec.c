@@ -2996,7 +2996,7 @@ static void P_SpawnScrollers(void)
 //
 
 static void Add_Friction(int friction, int movefactor, int affectee)
-    {
+{
     friction_t *f = Z_Malloc(sizeof *f, PU_LEVSPEC, 0);
 
     f->thinker.function/*.acp1*/ = /*(actionf_p1) */T_Friction;
@@ -3004,7 +3004,7 @@ static void Add_Friction(int friction, int movefactor, int affectee)
     f->movefactor = movefactor;
     f->affectee = affectee;
     P_AddThinker(&f->thinker);
-    }
+}
 
 /////////////////////////////
 //
@@ -3014,7 +3014,7 @@ static void Add_Friction(int friction, int movefactor, int affectee)
 // the length of the controlling linedef.
 
 void T_Friction(friction_t *f)
-    {
+{
     sector_t *sec;
     mobj_t   *thing;
     msecnode_t* node;
@@ -3057,7 +3057,7 @@ void T_Friction(friction_t *f)
             }
         node = node->m_snext;
         }
-    }
+}
 
 
 // killough 3/7/98 -- end generalized scroll effects
@@ -3228,7 +3228,7 @@ static void P_SpawnFriction(void)
 // Add a push thinker to the thinker list
 
 static void Add_Pusher(int type, int x_mag, int y_mag, mobj_t* source, int affectee)
-    {
+{
     pusher_t *p = Z_Malloc(sizeof *p, PU_LEVSPEC, 0);
 
     p->thinker.function = T_Pusher;
@@ -3245,7 +3245,7 @@ static void Add_Pusher(int type, int x_mag, int y_mag, mobj_t* source, int affec
         }
     p->affectee = affectee;
     P_AddThinker(&p->thinker);
-    }
+}
 
 /////////////////////////////
 //
@@ -3313,7 +3313,7 @@ static dboolean PIT_PushThing(mobj_t* thing)
 //
 
 void T_Pusher(pusher_t *p)
-    {
+{
     sector_t *sec;
     mobj_t   *thing;
     msecnode_t* node;
@@ -3431,7 +3431,7 @@ void T_Pusher(pusher_t *p)
         thing->momx += xspeed<<(FRACBITS-PUSH_FACTOR);
         thing->momy += yspeed<<(FRACBITS-PUSH_FACTOR);
         }
-    }
+}
 
 /////////////////////////////
 //
@@ -3439,7 +3439,7 @@ void T_Pusher(pusher_t *p)
 // NULL otherwise.
 
 mobj_t* P_GetPushThing(int s)
-    {
+{
     mobj_t* thing;
     sector_t* sec;
 
@@ -3458,7 +3458,7 @@ mobj_t* P_GetPushThing(int s)
         thing = thing->snext;
         }
     return NULL;
-    }
+}
 
 /////////////////////////////
 //
@@ -3466,7 +3466,7 @@ mobj_t* P_GetPushThing(int s)
 //
 
 static void P_SpawnPushers(void)
-    {
+{
     int i;
     line_t *l = lines;
     register int s;
@@ -3492,7 +3492,7 @@ static void P_SpawnPushers(void)
                 }
             break;
             }
-    }
+}
 
 //
 // phares 3/20/98: End of Pusher effects

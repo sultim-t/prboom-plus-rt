@@ -1292,7 +1292,7 @@ static char* defaultfile; // CPhipps - static, const
 //
 
 void M_SaveDefaults (void)
-  {
+{
   int   i;
   FILE* f;
 
@@ -1347,7 +1347,7 @@ void M_SaveDefaults (void)
     }
 
   fclose (f);
-  }
+}
 
 /*
  * M_LookupDefault
