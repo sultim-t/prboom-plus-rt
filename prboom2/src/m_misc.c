@@ -848,7 +848,7 @@ static char *defaultfile;
 //
 
 void M_SaveDefaults (void)
-  {
+{
   int   i;
   FILE* f;
 
@@ -884,7 +884,7 @@ void M_SaveDefaults (void)
     }
 
   fclose (f);
-  }
+}
 
 /*
  * M_LookupDefault

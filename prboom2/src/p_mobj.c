@@ -54,7 +54,7 @@
 //
 
 boolean P_SetMobjState(mobj_t* mobj,statenum_t state)
-  {
+{
   state_t*  st;
 
   // killough 4/9/98: remember states seen, to detect cycles:
@@ -104,7 +104,7 @@ boolean P_SetMobjState(mobj_t* mobj,statenum_t state)
       seenstate[i] = 0;  // killough 4/9/98: erase memory of states
 
   return ret;
-  }
+}
 
 
 //
@@ -112,7 +112,7 @@ boolean P_SetMobjState(mobj_t* mobj,statenum_t state)
 //
 
 void P_ExplodeMissile (mobj_t* mo)
-  {
+{
   mo->momx = mo->momy = mo->momz = 0;
 
   P_SetMobjState (mo, mobjinfo[mo->type].deathstate);
@@ -126,7 +126,7 @@ void P_ExplodeMissile (mobj_t* mo)
 
   if (mo->info->deathsound)
     S_StartSound (mo, mo->info->deathsound);
-  }
+}
 
 
 //
@@ -136,7 +136,7 @@ void P_ExplodeMissile (mobj_t* mo)
 //
 
 static void P_XYMovement (mobj_t* mo)
-  {
+{
   player_t *player;
   fixed_t xmove, ymove;
 
@@ -406,7 +406,7 @@ static void P_XYMovement (mobj_t* mo)
       }
 
     }
-  }
+}
 
 
 //
@@ -636,7 +636,7 @@ floater:
 //
 
 static void P_NightmareRespawn(mobj_t* mobj)
-  {
+{
   fixed_t      x;
   fixed_t      y;
   fixed_t      z;
@@ -716,7 +716,7 @@ static void P_NightmareRespawn(mobj_t* mobj)
   // remove the old monster,
 
   P_RemoveMobj (mobj);
-  }
+}
 
 
 //
@@ -724,7 +724,7 @@ static void P_NightmareRespawn(mobj_t* mobj)
 //
 
 void P_MobjThinker (mobj_t* mobj)
-  {
+{
   // killough 11/98:
   // removed old code which looked at target references
   // (we use pointer reference counting now)
@@ -801,14 +801,14 @@ void P_MobjThinker (mobj_t* mobj)
     P_NightmareRespawn (mobj);
     }
 
-  }
+}
 
 
 //
 // P_SpawnMobj
 //
 mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
-  {
+{
   mobj_t*     mobj;
   state_t*    st;
   mobjinfo_t* info;
@@ -874,7 +874,7 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
   if (!((mobj->flags ^ MF_COUNTKILL) & (MF_FRIEND | MF_COUNTKILL)))
     totallive++;
   return mobj;
-  }
+}
 
 
 static mapthing_t itemrespawnque[ITEMQUESIZE];
@@ -980,7 +980,7 @@ static PUREFUNC int P_FindDoomedNum(unsigned type)
 //
 
 void P_RespawnSpecials (void)
-  {
+{
   fixed_t       x;
   fixed_t       y;
   fixed_t       z;
@@ -1034,7 +1034,7 @@ void P_RespawnSpecials (void)
   // pull it from the queue
 
   iquetail = (iquetail+1)&(ITEMQUESIZE-1);
-  }
+}
 
 //
 // P_SpawnPlayer
@@ -1046,7 +1046,7 @@ void P_RespawnSpecials (void)
 extern byte playernumtotrans[MAXPLAYERS];
 
 void P_SpawnPlayer (int n, const mapthing_t* mthing)
-  {
+{
   player_t* p;
   fixed_t   x;
   fixed_t   y;
@@ -1111,7 +1111,7 @@ void P_SpawnPlayer (int n, const mapthing_t* mthing)
     HU_Start(); // wake up the heads up text
     }
     R_SmoothPlaying_Reset(p); // e6y
-  }
+}
 
 /*
  * P_IsDoomnumAllowed()
@@ -1148,7 +1148,7 @@ boolean P_IsDoomnumAllowed(int doomnum)
 //
 
 void P_SpawnMapThing (const mapthing_t* mthing)
-  {
+{
   int     i;
   //int     bit;
   mobj_t* mobj;
@@ -1345,7 +1345,7 @@ spawnit:
   mobj->angle = ANG45 * (mthing->angle/45);
   if (options & MTF_AMBUSH)
     mobj->flags |= MF_AMBUSH;
-  }
+}
 
 
 //
@@ -1359,7 +1359,7 @@ spawnit:
 extern fixed_t attackrange;
 
 void P_SpawnPuff(fixed_t x,fixed_t y,fixed_t z)
-  {
+{
   mobj_t* th;
   // killough 5/5/98: remove dependence on order of evaluation:
   int t = P_Random(pr_spawnpuff);
@@ -1376,14 +1376,14 @@ void P_SpawnPuff(fixed_t x,fixed_t y,fixed_t z)
 
   if (attackrange == MELEERANGE)
     P_SetMobjState (th, S_PUFF3);
-  }
+}
 
 
 //
 // P_SpawnBlood
 //
 void P_SpawnBlood(fixed_t x,fixed_t y,fixed_t z,int damage)
-  {
+{
   mobj_t* th;
   // killough 5/5/98: remove dependence on order of evaluation:
   int t = P_Random(pr_spawnblood);
@@ -1399,7 +1399,7 @@ void P_SpawnBlood(fixed_t x,fixed_t y,fixed_t z,int damage)
     P_SetMobjState (th,S_BLOOD2);
   else if (damage < 9)
     P_SetMobjState (th,S_BLOOD3);
-  }
+}
 
 
 //
@@ -1409,7 +1409,7 @@ void P_SpawnBlood(fixed_t x,fixed_t y,fixed_t z,int damage)
 //
 
 void P_CheckMissileSpawn (mobj_t* th)
-  {
+{
   th->tics -= P_Random(pr_missile)&3;
   if (th->tics < 1)
     th->tics = 1;
@@ -1429,7 +1429,7 @@ void P_CheckMissileSpawn (mobj_t* th)
 
   if (!P_TryMove (th, th->x, th->y, false))
     P_ExplodeMissile (th);
-  }
+}
 
 
 //
@@ -1437,7 +1437,7 @@ void P_CheckMissileSpawn (mobj_t* th)
 //
 
 mobj_t* P_SpawnMissile(mobj_t* source,mobj_t* dest,mobjtype_t type)
-  {
+{
   mobj_t* th;
   angle_t an;
   int     dist;
@@ -1473,7 +1473,7 @@ mobj_t* P_SpawnMissile(mobj_t* source,mobj_t* dest,mobjtype_t type)
   P_CheckMissileSpawn (th);
 
   return th;
-  }
+}
 
 
 //

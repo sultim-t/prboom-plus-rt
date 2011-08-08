@@ -101,7 +101,7 @@ msecnode_t* sector_list = NULL;                             // phares 3/16/98
 static boolean telefrag;   /* killough 8/9/98: whether to telefrag at exit */
 
 boolean PIT_StompThing (mobj_t* thing)
-  {
+{
   fixed_t blockdist;
 
   // phares 9/10/98: moved this self-check to start of routine
@@ -126,7 +126,7 @@ boolean PIT_StompThing (mobj_t* thing)
   P_DamageMobj (thing, tmthing, tmthing, 10000); // Stomp!
 
   return true;
-  }
+}
 
 
 /*
@@ -254,7 +254,7 @@ int P_GetMoveFactor(mobj_t *mo, int *frictionp)
 //
 
 boolean P_TeleportMove (mobj_t* thing,fixed_t x,fixed_t y, boolean boss)
-  {
+{
   int     xl;
   int     xh;
   int     yl;
@@ -325,7 +325,7 @@ boolean P_TeleportMove (mobj_t* thing,fixed_t x,fixed_t y, boolean boss)
   thing->PrevZ = thing->floorz;
 
   return true;
-  }
+}
 
 
 //
@@ -354,7 +354,7 @@ static void SpechitOverrun(line_t *ld);
 
 static // killough 3/26/98: make static
 boolean PIT_CrossLine (line_t* ld)
-  {
+{
   if (!(ld->flags & ML_TWOSIDED) ||
       (ld->flags & (ML_BLOCKING|ML_BLOCKMONSTERS)))
     if (!(tmbbox[BOXLEFT]   > ld->bbox[BOXRIGHT]  ||
@@ -364,7 +364,7 @@ boolean PIT_CrossLine (line_t* ld)
       if (P_PointOnLineSide(pe_x,pe_y,ld) != P_PointOnLineSide(ls_x,ls_y,ld))
         return(false);  // line blocks trajectory                   //   ^
   return(true); // line doesn't block trajectory                    //   |
-  }                                                                 // phares
+}                                                                   // phares
 
 
 /* killough 8/1/98: used to test intersection between thing and line
@@ -637,7 +637,7 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
 // false.
 
 boolean Check_Sides(mobj_t* actor, int x, int y)
-  {
+{
   int bx,by,xl,xh,yl,yh;
 
   pe_x = actor->x;
@@ -667,7 +667,7 @@ boolean Check_Sides(mobj_t* actor, int x, int y)
       if (!P_BlockLinesIterator(bx,by,PIT_CrossLine))
         return true;                                                //   ^
   return(false);                                                    //   |
-  }                                                                 // phares
+}                                                                   // phares
 
 //
 // MOVEMENT CLIPPING
@@ -699,7 +699,7 @@ boolean Check_Sides(mobj_t* actor, int x, int y)
 //
 
 boolean P_CheckPosition (mobj_t* thing,fixed_t x,fixed_t y)
-  {
+{
   int     xl;
   int     xh;
   int     yl;
@@ -769,7 +769,7 @@ boolean P_CheckPosition (mobj_t* thing,fixed_t x,fixed_t y)
         return false; // doesn't fit
 
   return true;
-  }
+}
 
 
 //
@@ -1079,7 +1079,7 @@ static fixed_t   tmymove;
 //
 
 void P_HitSlideLine (line_t* ld)
-  {
+{
   int     side;
   angle_t lineangle;
   angle_t moveangle;
@@ -1184,7 +1184,7 @@ void P_HitSlideLine (line_t* ld)
     tmxmove = FixedMul (newlen, finecosine[lineangle]);
     tmymove = FixedMul (newlen, finesine[lineangle]);
     }                                                               // phares
-  }
+}
 
 
 //
@@ -1192,7 +1192,7 @@ void P_HitSlideLine (line_t* ld)
 //
 
 boolean PTR_SlideTraverse (intercept_t* in)
-  {
+{
   line_t* li;
 
   if (!in->isaline)
@@ -1237,7 +1237,7 @@ isblocking:
     }
 
   return false; // stop
-  }
+}
 
 
 //
@@ -1386,7 +1386,7 @@ static fixed_t  bottomslope;
 // Sets linetaget and aimslope when a target is aimed at.
 //
 boolean PTR_AimTraverse (intercept_t* in)
-  {
+{
   line_t* li;
   mobj_t* th;
   fixed_t slope;
@@ -1472,14 +1472,14 @@ boolean PTR_AimTraverse (intercept_t* in)
   linetarget = th;
 
   return false;   // don't go any farther
-  }
+}
 
 
 //
 // PTR_ShootTraverse
 //
 boolean PTR_ShootTraverse (intercept_t* in)
-  {
+{
   fixed_t x;
   fixed_t y;
   fixed_t z;
@@ -1591,14 +1591,14 @@ boolean PTR_ShootTraverse (intercept_t* in)
 
   // don't go any farther
   return false;
-  }
+}
 
 
 //
 // P_AimLineAttack
 //
 fixed_t P_AimLineAttack(mobj_t* t1,angle_t angle,fixed_t distance, uint_64_t mask)
-  {
+{
   fixed_t x2;
   fixed_t y2;
 
@@ -1626,7 +1626,7 @@ fixed_t P_AimLineAttack(mobj_t* t1,angle_t angle,fixed_t distance, uint_64_t mas
     return aimslope;
 
   return 0;
-  }
+}
 
 
 //
@@ -1665,7 +1665,7 @@ void P_LineAttack
 mobj_t*   usething;
 
 boolean PTR_UseTraverse (intercept_t* in)
-  {
+{
   int side;
 
   if (!in->d.line->special)
@@ -1710,7 +1710,7 @@ boolean PTR_UseTraverse (intercept_t* in)
 //
 
 boolean PTR_NoWayTraverse(intercept_t* in)
-  {
+{
   line_t *ld = in->d.line;
                                            // This linedef
   return ld->special || !(                 // Ignore specials
@@ -1721,14 +1721,14 @@ boolean PTR_NoWayTraverse(intercept_t* in)
    opentop < usething->z+usething->height  // Too low it blocks
   )
   );
-  }
+}
 
 //
 // P_UseLines
 // Looks for special lines in front of the player to activate.
 //
 void P_UseLines (player_t*  player)
-  {
+{
   int     angle;
   fixed_t x1;
   fixed_t y1;
@@ -1753,7 +1753,7 @@ void P_UseLines (player_t*  player)
   if (P_PathTraverse ( x1, y1, x2, y2, PT_ADDLINES, PTR_UseTraverse ))
     if (!comp[comp_sound] && !P_PathTraverse ( x1, y1, x2, y2, PT_ADDLINES, PTR_NoWayTraverse ))
       S_StartSound (usething, sfx_noway);
-  }
+}
 
 
 //
@@ -1771,7 +1771,7 @@ static int bombdamage;
 //
 
 boolean PIT_RadiusAttack (mobj_t* thing)
-  {
+{
   fixed_t dx;
   fixed_t dy;
   fixed_t dist;
@@ -1813,7 +1813,7 @@ boolean PIT_RadiusAttack (mobj_t* thing)
     }
 
   return true;
-  }
+}
 
 
 //
@@ -1821,7 +1821,7 @@ boolean PIT_RadiusAttack (mobj_t* thing)
 // Source is the creature that caused the explosion at spot.
 //
 void P_RadiusAttack(mobj_t* spot,mobj_t* source,int damage)
-  {
+{
   int x;
   int y;
 
@@ -1844,7 +1844,7 @@ void P_RadiusAttack(mobj_t* spot,mobj_t* source,int damage)
   for (y=yl ; y<=yh ; y++)
     for (x=xl ; x<=xh ; x++)
       P_BlockThingsIterator (x, y, PIT_RadiusAttack );
-  }
+}
 
 
 
@@ -1869,7 +1869,7 @@ static boolean crushchange, nofit;
 //
 
 boolean PIT_ChangeSector (mobj_t* thing)
-  {
+{
   mobj_t* mo;
 
   if (P_ThingHeightClip (thing))
@@ -1931,14 +1931,14 @@ boolean PIT_ChangeSector (mobj_t* thing)
 
   // keep checking (crush other things)
   return true;
-  }
+}
 
 
 //
 // P_ChangeSector
 //
 boolean P_ChangeSector(sector_t* sector,boolean crunch)
-  {
+{
   int   x;
   int   y;
 
@@ -1956,7 +1956,7 @@ boolean P_ChangeSector(sector_t* sector,boolean crunch)
       P_BlockThingsIterator (x, y, PIT_ChangeSector);
 
   return nofit;
-  }
+}
 
 //
 // P_CheckSector
@@ -1966,7 +1966,7 @@ boolean P_ChangeSector(sector_t* sector,boolean crunch)
 //
 
 boolean P_CheckSector(sector_t* sector,boolean crunch)
-  {
+{
   msecnode_t *n;
 
   if (comp[comp_floors]) /* use the old routine for old demos though */
@@ -2000,7 +2000,7 @@ boolean P_CheckSector(sector_t* sector,boolean crunch)
   while (n);  // repeat from scratch until all things left are marked valid
 
   return nofit;
-  }
+}
 
 
 // CPhipps -
@@ -2030,7 +2030,7 @@ inline static void P_PutSecnode(msecnode_t* node)
 // nodes that will get linked in later. Returns a pointer to the new node.
 
 msecnode_t* P_AddSecnode(sector_t* s, mobj_t* thing, msecnode_t* nextnode)
-  {
+{
   msecnode_t* node;
 
   node = nextnode;
@@ -2067,7 +2067,7 @@ msecnode_t* P_AddSecnode(sector_t* s, mobj_t* thing, msecnode_t* nextnode)
     node->m_snext->m_sprev = node;
   s->touching_thinglist = node;
   return(node);
-  }
+}
 
 
 // P_DelSecnode() deletes a sector node from the list of
@@ -2075,7 +2075,7 @@ msecnode_t* P_AddSecnode(sector_t* s, mobj_t* thing, msecnode_t* nextnode)
 // on the linked list, or NULL.
 
 msecnode_t* P_DelSecnode(msecnode_t* node)
-  {
+{
   msecnode_t* tp;  // prev node on thing thread
   msecnode_t* tn;  // next node on thing thread
   msecnode_t* sp;  // prev node on sector thread
@@ -2112,7 +2112,7 @@ msecnode_t* P_DelSecnode(msecnode_t* node)
     return(tn);
     }
   return(NULL);
-  }                             // phares 3/13/98
+}                               // phares 3/13/98
 
 // Delete an entire sector list
 
@@ -2133,7 +2133,7 @@ void P_DelSeclist(msecnode_t* node)
 // blocking lines.
 
 boolean PIT_GetSectors(line_t* ld)
-  {
+{
   if (tmbbox[BOXRIGHT]  <= ld->bbox[BOXLEFT]   ||
       tmbbox[BOXLEFT]   >= ld->bbox[BOXRIGHT]  ||
       tmbbox[BOXTOP]    <= ld->bbox[BOXBOTTOM] ||
@@ -2165,7 +2165,7 @@ boolean PIT_GetSectors(line_t* ld)
     sector_list = P_AddSecnode(ld->backsector, tmthing, sector_list);
 
   return true;
-  }
+}
 
 
 // phares 3/14/98

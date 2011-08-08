@@ -261,7 +261,7 @@ typedef enum {
 static int number_of_thinkers;
 
 void P_ThinkerToIndex(void)
-  {
+{
   thinker_t *th;
 
   // killough 2/14/98:
@@ -272,20 +272,20 @@ void P_ThinkerToIndex(void)
   for (th = thinkercap.next ; th != &thinkercap ; th=th->next)
     if (th->function == P_MobjThinker)
       th->prev = (thinker_t *) ++number_of_thinkers;
-  }
+}
 
 // phares 9/13/98: Moved this code outside of P_ArchiveThinkers so the
 // thinker indices could be used by the code that saves sector info.
 
 void P_IndexToThinker(void)
-  {
+{
   // killough 2/14/98: restore prev pointers
   thinker_t *th;
   thinker_t *prev = &thinkercap;
 
   for (th = thinkercap.next ; th != &thinkercap ; prev=th, th=th->next)
     th->prev = prev;
-  }
+}
 
 //
 // P_ArchiveThinkers

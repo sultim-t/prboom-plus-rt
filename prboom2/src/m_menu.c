@@ -5397,7 +5397,7 @@ void M_StopMessage(void)
 // CPhipps - patch drawing updated
 //
 void M_DrawThermo(int x,int y,int thermWidth,int thermDot )
-  {
+{
   int          xx;
   int           i;
   /*
@@ -5424,7 +5424,7 @@ void M_DrawThermo(int x,int y,int thermWidth,int thermDot )
 
   V_DrawNamePatch(xx, y, 0, "M_THERMR", CR_DEFAULT, VPT_STRETCH);
   V_DrawNamePatch((x+8)+thermDot*horizScaler,y,0,"M_THERMO",CR_DEFAULT,VPT_STRETCH);
-  }
+}
 
 //
 // Draw an empty cell in the thermometer

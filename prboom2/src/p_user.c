@@ -62,11 +62,11 @@ boolean onground; // whether player is on ground or in air
 //
 
 void P_Thrust(player_t* player,angle_t angle,fixed_t move)
-  {
+{
   angle >>= ANGLETOFINESHIFT;
   player->mo->momx += FixedMul(move,finecosine[angle]);
   player->mo->momy += FixedMul(move,finesine[angle]);
-  }
+}
 
 
 /*
@@ -96,7 +96,7 @@ static void P_Bob(player_t *player, angle_t angle, fixed_t move)
 //
 
 void P_CalcHeight (player_t* player)
-  {
+{
   int     angle;
   fixed_t bob;
 
@@ -186,7 +186,7 @@ void P_CalcHeight (player_t* player)
 
   if (player->viewz > player->mo->ceilingz-4*FRACUNIT)
     player->viewz = player->mo->ceilingz-4*FRACUNIT;
-  }
+}
 
 
 //
@@ -255,7 +255,7 @@ void P_MovePlayer (player_t* player)
 //
 
 void P_DeathThink (player_t* player)
-  {
+{
   angle_t angle;
   angle_t delta;
 
@@ -303,7 +303,7 @@ void P_DeathThink (player_t* player)
   if (player->cmd.buttons & BT_USE)
     player->playerstate = PST_REBORN;
   R_SmoothPlaying_Reset(player); // e6y
-  }
+}
 
 
 //
@@ -311,7 +311,7 @@ void P_DeathThink (player_t* player)
 //
 
 void P_PlayerThink (player_t* player)
-  {
+{
   ticcmd_t*    cmd;
   weapontype_t newweapon;
 
@@ -453,4 +453,4 @@ void P_PlayerThink (player_t* player)
   player->fixedcolormap = player->powers[pw_invulnerability] > 4*32 ||
     player->powers[pw_invulnerability] & 8 ? INVERSECOLORMAP :
     player->powers[pw_infrared] > 4*32 || player->powers[pw_infrared] & 8;
-  }
+}
