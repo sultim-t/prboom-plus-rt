@@ -297,12 +297,15 @@ static void R_InitTextures (void)
 
   // Precalculate whatever possible.
   if (devparm) // cph - If in development mode, generate now so all errors are found at once
+  {
+    R_InitPatches(); //e6y
     for (i=0 ; i<numtextures ; i++)
     {
       // proff - This is for the new renderer now
       R_CacheTextureCompositePatchNum(i);
       R_UnlockTextureCompositePatchNum(i);
     }
+  }
 
   if (errors)
     I_Error("R_InitTextures: %d errors", errors);
