@@ -2535,6 +2535,10 @@ void A_PlayerScream(mobj_t *mo)
 // killough 11/98: kill an object
 void A_Die(mobj_t *actor)
 {
+  if (compatibility_level < lxdoom_1_compatibility &&
+      !prboom_comp[PC_APPLY_MBF_CODEPOINTERS_TO_ANY_COMPLEVEL].state)
+    return;
+
   P_DamageMobj(actor, NULL, NULL, actor->health);
 }
 
@@ -2545,6 +2549,10 @@ void A_Die(mobj_t *actor)
 
 void A_Detonate(mobj_t *mo)
 {
+  if (compatibility_level < lxdoom_1_compatibility &&
+      !prboom_comp[PC_APPLY_MBF_CODEPOINTERS_TO_ANY_COMPLEVEL].state)
+    return;
+
   P_RadiusAttack(mo, mo->target, mo->info->damage);
 }
 
@@ -2562,6 +2570,10 @@ void A_Mushroom(mobj_t *actor)
     !prboom_comp[PC_DO_NOT_USE_MISC12_FRAME_PARAMETERS_IN_A_MUSHROOM].state);
   fixed_t misc1 = ((mbf && actor->state->misc1) ? actor->state->misc1 : FRACUNIT*4);
   fixed_t misc2 = ((mbf && actor->state->misc2) ? actor->state->misc2 : FRACUNIT/2);
+
+  if (compatibility_level < lxdoom_1_compatibility &&
+      !prboom_comp[PC_APPLY_MBF_CODEPOINTERS_TO_ANY_COMPLEVEL].state)
+    return;
 
   A_Explode(actor);  // First make normal explosion
 
@@ -2591,6 +2603,10 @@ void A_Mushroom(mobj_t *actor)
 
 void A_Spawn(mobj_t *mo)
 {
+  if (compatibility_level < lxdoom_1_compatibility &&
+      !prboom_comp[PC_APPLY_MBF_CODEPOINTERS_TO_ANY_COMPLEVEL].state)
+    return;
+
   if (mo->state->misc1)
     {
       mobj_t *newmobj = 
@@ -2605,16 +2621,28 @@ void A_Spawn(mobj_t *mo)
 
 void A_Turn(mobj_t *mo)
 {
+  if (compatibility_level < lxdoom_1_compatibility &&
+      !prboom_comp[PC_APPLY_MBF_CODEPOINTERS_TO_ANY_COMPLEVEL].state)
+    return;
+
   mo->angle += (unsigned int)(((uint_64_t) mo->state->misc1 << 32) / 360);
 }
 
 void A_Face(mobj_t *mo)
 {
+  if (compatibility_level < lxdoom_1_compatibility &&
+      !prboom_comp[PC_APPLY_MBF_CODEPOINTERS_TO_ANY_COMPLEVEL].state)
+    return;
+
   mo->angle = (unsigned int)(((uint_64_t) mo->state->misc1 << 32) / 360);
 }
 
 void A_Scratch(mobj_t *mo)
 {
+  if (compatibility_level < lxdoom_1_compatibility &&
+      !prboom_comp[PC_APPLY_MBF_CODEPOINTERS_TO_ANY_COMPLEVEL].state)
+    return;
+
   mo->target && (A_FaceTarget(mo), P_CheckMeleeRange(mo)) ?
     mo->state->misc2 ? S_StartSound(mo, mo->state->misc2) : (void) 0,
     P_DamageMobj(mo->target, mo, mo, mo->state->misc1) : (void) 0;
@@ -2622,11 +2650,19 @@ void A_Scratch(mobj_t *mo)
 
 void A_PlaySound(mobj_t *mo)
 {
+  if (compatibility_level < lxdoom_1_compatibility &&
+      !prboom_comp[PC_APPLY_MBF_CODEPOINTERS_TO_ANY_COMPLEVEL].state)
+    return;
+
   S_StartSound(mo->state->misc2 ? NULL : mo, mo->state->misc1);
 }
 
 void A_RandomJump(mobj_t *mo)
 {
+  if (compatibility_level < lxdoom_1_compatibility &&
+      !prboom_comp[PC_APPLY_MBF_CODEPOINTERS_TO_ANY_COMPLEVEL].state)
+    return;
+
   if (P_Random(pr_randomjump) < mo->state->misc2)
     P_SetMobjState(mo, mo->state->misc1);
 }
@@ -2640,6 +2676,11 @@ void A_LineEffect(mobj_t *mo)
   static line_t junk;
   player_t player;
   player_t *oldplayer;
+
+  if (compatibility_level < lxdoom_1_compatibility &&
+      !prboom_comp[PC_APPLY_MBF_CODEPOINTERS_TO_ANY_COMPLEVEL].state)
+    return;
+
   junk = *lines;
   oldplayer = mo->player;
   mo->player = &player;
