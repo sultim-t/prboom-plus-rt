@@ -54,6 +54,12 @@ void    P_SlideMove(mobj_t *mo);
 dboolean P_CheckSight(mobj_t *t1, mobj_t *t2);
 void    P_UseLines(player_t *player);
 
+typedef dboolean (*CrossSubsectorFunc)(int num);
+extern CrossSubsectorFunc P_CrossSubsector;
+dboolean P_CrossSubsector_Doom(int num);
+dboolean P_CrossSubsector_Boom(int num);
+dboolean P_CrossSubsector_PrBoom(int num);
+
 // killough 8/2/98: add 'mask' argument to prevent friends autoaiming at others
 fixed_t P_AimLineAttack(mobj_t *t1,angle_t angle,fixed_t distance, uint_64_t mask);
 

@@ -69,6 +69,7 @@
 #include "m_misc.h"
 #include "i_system.h"
 #include "p_maputl.h"
+#include "p_map.h"
 #include "i_video.h"
 #include "info.h"
 #include "r_screenmultiply.h"
@@ -1186,6 +1187,23 @@ void e6y_G_Compatibility(void)
     }
   }
   use_wrong_fixeddiv = &(prboom_comp[PC_WRONG_FIXEDDIV].state);
+
+  P_CrossSubsector = P_CrossSubsector_PrBoom;
+  if (!prboom_comp[PC_FORCE_LXDOOM_DEMO_COMPATIBILITY].state)
+  {
+    if (demo_compatibility)
+      P_CrossSubsector = P_CrossSubsector_Doom;
+
+    switch (compatibility_level)
+    {
+    case boom_compatibility_compatibility:
+    case boom_201_compatibility:
+    case boom_202_compatibility:
+    case mbf_compatibility:
+      P_CrossSubsector = P_CrossSubsector_Boom;
+    break;
+    }
+  }
 }
 
 dboolean zerotag_manual;
