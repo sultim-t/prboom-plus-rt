@@ -2853,8 +2853,9 @@ void gld_AddWall(seg_t *seg)
     sector_t *fs, *bs;
     int toptexture, midtexture, bottomtexture;
     fixed_t floor_height,ceiling_height;
-    fixed_t max_floor, min_floor, max_floor_tex;
-    fixed_t max_ceiling, min_ceiling, min_ceiling_tex;
+    fixed_t max_floor, min_floor;
+    fixed_t max_ceiling, min_ceiling;
+    //fixed_t max_floor_tex, min_ceiling_tex;
 
     backsector=R_FakeFlat(seg->backsector, &btempsec, NULL, NULL, true); // for boom effects
     if (!backsector)
@@ -2882,8 +2883,8 @@ void gld_AddWall(seg_t *seg)
       min_ceiling = frontsector->ceilingheight;
     }
 
-    max_floor_tex = max_floor + seg->sidedef->rowoffset;
-    min_ceiling_tex = min_ceiling + seg->sidedef->rowoffset;
+    //max_floor_tex = max_floor + seg->sidedef->rowoffset;
+    //min_ceiling_tex = min_ceiling + seg->sidedef->rowoffset;
 
     if (backseg)
     {
@@ -2997,12 +2998,14 @@ void gld_AddWall(seg_t *seg)
 
       if ( (LINE->flags & ML_DONTPEGBOTTOM) >0)
       {
-        floor_height=max_floor_tex;
+        //floor_height=max_floor_tex;
+        floor_height=MAX(seg->frontsector->floorheight, seg->backsector->floorheight)+(seg->sidedef->rowoffset);
         ceiling_height=floor_height+(wall.gltexture->realtexheight<<FRACBITS);
       }
       else
       {
-        ceiling_height=min_ceiling_tex;
+        //ceiling_height=min_ceiling_tex;
+        ceiling_height=MIN(seg->frontsector->ceilingheight, seg->backsector->ceilingheight)+(seg->sidedef->rowoffset);
         floor_height=ceiling_height-(wall.gltexture->realtexheight<<FRACBITS);
       }
 
