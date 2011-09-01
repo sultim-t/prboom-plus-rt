@@ -290,6 +290,14 @@ typedef struct
   sector_t *frontsector, *backsector;
 } seg_t;
 
+typedef struct ssline_s
+{
+  seg_t *seg;
+  line_t *linedef;
+  fixed_t x1, y1;
+  fixed_t x2, y2;
+  fixed_t bbox[4];
+} ssline_t;
 
 //
 // A SubSector.

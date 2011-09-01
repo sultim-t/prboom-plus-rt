@@ -92,6 +92,9 @@ extern line_t           *lines;
 extern int              numsides;
 extern side_t           *sides;
 
+extern int              *sslines_indexes;
+extern ssline_t         *sslines;
+
 extern byte             *map_subsectors;
 
 //

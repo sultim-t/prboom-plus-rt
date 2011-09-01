@@ -98,6 +98,12 @@ typedef unsigned __int64 uint_64_t;
 #define C_DECL
 #endif
 
+#ifdef _MSC_VER
+  #define INLINE __forceinline /* use __forceinline (VC++ specific) */
+#else
+  #define INLINE inline        /* use standard inline */
+#endif
+
 /* CPhipps - use limits.h instead of depreciated values.h */
 #include <limits.h>
 

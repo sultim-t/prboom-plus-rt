@@ -399,7 +399,7 @@ static los_t los; // cph - made static
 //
 // killough 4/19/98: made static, cleaned up
 
-inline static int P_DivlineSide(fixed_t x, fixed_t y, const divline_t *node)
+INLINE static int P_DivlineSide(fixed_t x, fixed_t y, const divline_t *node)
 {
   fixed_t left, right;
   return
@@ -410,6 +410,46 @@ inline static int P_DivlineSide(fixed_t x, fixed_t y, const divline_t *node)
     right == left ? 2 : 1;
 }
 
+INLINE static int P_DivlineCrossed(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2, divline_t *node)
+{
+  if (!node->dx)
+  {
+    if (x1 == node->x)
+      return (x2 == node->x);
+    if (x1 < node->x)
+      return (x2 < node->x);
+    return (x2 > node->x);
+  }
+
+  if (!node->dy)
+  {
+    if ((compatibility_level < prboom_4_compatibility ? x1 : y1) == node->y)
+      return (x2 == node->y);
+    if (y1 < node->y)
+      return (y2 < node->y);
+    return (y2 > node->y);
+  }
+
+  {
+    fixed_t node_dx = (node->dx >> FRACBITS);
+    fixed_t node_dy = (node->dy >> FRACBITS);
+
+    fixed_t left1  = node_dy * ((x1 - node->x) >> FRACBITS);
+    fixed_t right1 = ((y1 - node->y) >> FRACBITS) * node_dx;
+    fixed_t left2  = node_dy * ((x2 - node->x) >> FRACBITS);
+    fixed_t right2 = ((y2 - node->y) >> FRACBITS) * node_dx;
+
+    if (right1 < left1)
+      return (right2 < left2);
+
+    if (left1 == right1)
+      return (left2 == right2);
+
+    return (right2 > left2);
+  }
+}
+
+
 //
 // P_CrossSubsector
 // Returns true
@@ -419,8 +459,8 @@ inline static int P_DivlineSide(fixed_t x, fixed_t y, const divline_t *node)
 
 dboolean P_CrossSubsector_PrBoom(int num)
 {
-  seg_t *seg;
-  const seg_t *seg_last = segs + subsectors[num].firstline + subsectors[num].numlines;
+  ssline_t *ssline = &sslines[sslines_indexes[num]];
+  const ssline_t *ssline_last = &sslines[sslines_indexes[num + 1]];
   fixed_t opentop = 0, openbottom = 0;
   const sector_t *front = NULL, *back = NULL;
 
@@ -429,35 +469,53 @@ dboolean P_CrossSubsector_PrBoom(int num)
     I_Error("P_CrossSubsector: ss %i with numss = %i", num, numsubsectors);
 #endif
 
-  for (seg = segs + subsectors[num].firstline; seg < seg_last; seg++) { // check lines
-    line_t *line = seg->linedef;
+  // check lines
+  for (; ssline < ssline_last; ssline++)
+  {
     divline_t divl;
-
-   if(!line) // figgi -- skip minisegs
-     continue;
-
-    // allready checked other side?
-    if (line->validcount == validcount)
-      continue;
-
-    line->validcount = validcount;
 
     /* OPTIMIZE: killough 4/20/98: Added quick bounding-box rejection test
      * cph - this is causing demo desyncs on original Doom demos.
      *  Who knows why. Exclude test for those.
      */
-    if (line->bbox[BOXLEFT  ] > los.bbox[BOXRIGHT ] ||
-  line->bbox[BOXRIGHT ] < los.bbox[BOXLEFT  ] ||
-  line->bbox[BOXBOTTOM] > los.bbox[BOXTOP   ] ||
-  line->bbox[BOXTOP]    < los.bbox[BOXBOTTOM])
+    if (ssline->bbox[BOXLEFT  ] > los.bbox[BOXRIGHT ] ||
+        ssline->bbox[BOXRIGHT ] < los.bbox[BOXLEFT  ] ||
+        ssline->bbox[BOXBOTTOM] > los.bbox[BOXTOP   ] ||
+        ssline->bbox[BOXTOP]    < los.bbox[BOXBOTTOM])
+    {
+      ssline->linedef->validcount = validcount;
+      continue;
+    }
+
+    // Forget this line if it doesn't cross the line of sight
+    if (P_DivlineCrossed(ssline->x1, ssline->y1, ssline->x2, ssline->y2, &los.strace))
+    {
+      ssline->linedef->validcount = validcount;
+      continue;
+    }
+
+    divl.dx = ssline->x2 - (divl.x = ssline->x1);
+    divl.dy = ssline->y2 - (divl.y = ssline->y1);
+
+    // line isn't crossed?
+    if (P_DivlineCrossed(los.strace.x, los.strace.y, los.t2x, los.t2y, &divl))
+    {
+      ssline->linedef->validcount = validcount;
+      continue;
+    }
+
+    // allready checked other side?
+    if (ssline->linedef->validcount == validcount)
       continue;
 
-    // cph - do what we can before forced to check intersection
-    if (line->flags & ML_TWOSIDED) {
+    ssline->linedef->validcount = validcount;
 
+    // cph - do what we can before forced to check intersection
+    if (ssline->linedef->flags & ML_TWOSIDED)
+    {
       // crosses a two sided line
-      front = seg->frontsector;
-      back = seg->backsector;
+      front = ssline->seg->frontsector;
+      back = ssline->seg->backsector;
 
       // no wall to block sight with?
       if (front->floorheight == back->floorheight
@@ -466,40 +524,19 @@ dboolean P_CrossSubsector_PrBoom(int num)
 
       // possible occluder
       // because of ceiling height differences
-      opentop = front->ceilingheight < back->ceilingheight ?
-  front->ceilingheight : back->ceilingheight ;
+      opentop = MIN(front->ceilingheight, back->ceilingheight);
 
       // because of floor height differences
-      openbottom = front->floorheight > back->floorheight ?
-  front->floorheight : back->floorheight ;
+      openbottom = MAX(front->floorheight, back->floorheight);
 
       // cph - reject if does not intrude in the z-space of the possible LOS
       if ((opentop >= los.maxz) && (openbottom <= los.minz))
-  continue;
-    }
-
-    { // Forget this line if it doesn't cross the line of sight
-      const vertex_t *v1,*v2;
-
-      v1 = line->v1;
-      v2 = line->v2;
-
-      if (P_DivlineSide(v1->x, v1->y, &los.strace) ==
-          P_DivlineSide(v2->x, v2->y, &los.strace))
         continue;
-
-      divl.dx = v2->x - (divl.x = v1->x);
-      divl.dy = v2->y - (divl.y = v1->y);
-
-      // line isn't crossed?
-      if (P_DivlineSide(los.strace.x, los.strace.y, &divl) ==
-    P_DivlineSide(los.t2x, los.t2y, &divl))
-  continue;
     }
 
     // cph - if bottom >= top or top < minz or bottom > maxz then it must be
     // solid wrt this LOS
-    if (!(line->flags & ML_TWOSIDED) || (openbottom >= opentop) ||
+    if (!(ssline->linedef->flags & ML_TWOSIDED) || (openbottom >= opentop) ||
   (prboom_comp[PC_FORCE_LXDOOM_DEMO_COMPATIBILITY].state ?
   (opentop <= los.minz) || (openbottom >= los.maxz) :
   (opentop < los.minz) || (openbottom > los.maxz)))
@@ -512,18 +549,19 @@ dboolean P_CrossSubsector_PrBoom(int num)
 		      P_InterceptVector2(&los.strace, &divl) : 
 		      P_InterceptVector(&los.strace, &divl);
 
-      if (front->floorheight != back->floorheight) {
-        fixed_t slope = FixedDiv(openbottom - los.sightzstart , frac);
+      if (front->floorheight != back->floorheight)
+      {
+        fixed_t slope = FixedDiv(openbottom - los.sightzstart, frac);
         if (slope > los.bottomslope)
-            los.bottomslope = slope;
+          los.bottomslope = slope;
       }
 
       if (front->ceilingheight != back->ceilingheight)
-        {
-          fixed_t slope = FixedDiv(opentop - los.sightzstart , frac);
-          if (slope < los.topslope)
-            los.topslope = slope;
-        }
+      {
+        fixed_t slope = FixedDiv(opentop - los.sightzstart, frac);
+        if (slope < los.topslope)
+          los.topslope = slope;
+      }
 
       if (los.topslope <= los.bottomslope)
         return false;               // stop
@@ -535,55 +573,51 @@ dboolean P_CrossSubsector_PrBoom(int num)
 
 dboolean P_CrossSubsector_Doom(int num)
 {
-  seg_t *seg;
-  const seg_t *seg_last = segs + subsectors[num].firstline + subsectors[num].numlines;
+  ssline_t *ssline = &sslines[sslines_indexes[num]];
+  const ssline_t *ssline_last = &sslines[sslines_indexes[num + 1]];
 
 #ifdef RANGECHECK
   if (num >= numsubsectors)
     I_Error("P_CrossSubsector: ss %i with numss = %i", num, numsubsectors);
 #endif
 
-  for (seg = segs + subsectors[num].firstline; seg < seg_last; seg++) // check lines
+  for (; ssline < ssline_last; ssline++)
   {
-    line_t *line = seg->linedef;
     divline_t divl;
     fixed_t opentop, openbottom;
     const sector_t *front, *back;
-    const vertex_t *v1,*v2;
     fixed_t frac;
 
-    if(!line) // figgi -- skip minisegs
+    // line isn't crossed?
+    if (P_DivlineCrossed(ssline->x1, ssline->y1, ssline->x2, ssline->y2, &los.strace))
+    {
+      ssline->linedef->validcount = validcount;
       continue;
+    }
+
+    divl.dx = ssline->x2 - (divl.x = ssline->x1);
+    divl.dy = ssline->y2 - (divl.y = ssline->y1);
+
+    // line isn't crossed?
+    if (P_DivlineCrossed(los.strace.x, los.strace.y, los.t2x, los.t2y, &divl))
+    {
+      ssline->linedef->validcount = validcount;
+      continue;
+    }
 
     // allready checked other side?
-    if (line->validcount == validcount)
+    if (ssline->linedef->validcount == validcount)
       continue;
 
-    line->validcount = validcount;
-
-    v1 = line->v1;
-    v2 = line->v2;
-
-    // line isn't crossed?
-    if (P_DivlineSide(v1->x, v1->y, &los.strace) ==
-      P_DivlineSide(v2->x, v2->y, &los.strace))
-      continue;
-
-    divl.dx = v2->x - (divl.x = v1->x);
-    divl.dy = v2->y - (divl.y = v1->y);
-
-    // line isn't crossed?
-    if (P_DivlineSide(los.strace.x, los.strace.y, &divl) ==
-      P_DivlineSide(los.t2x, los.t2y, &divl))
-      continue;
+    ssline->linedef->validcount = validcount;
 
     // stop because it is not two sided anyway
-    if (!(line->flags & ML_TWOSIDED))
+    if (!(ssline->linedef->flags & ML_TWOSIDED))
       return false;
 
     // crosses a two sided line
-    front = seg->frontsector;
-    back = seg->backsector;
+    front = ssline->seg->frontsector;
+    back = ssline->seg->backsector;
 
     // missed back side on two-sided lines.
     if (!back)
@@ -598,12 +632,10 @@ dboolean P_CrossSubsector_Doom(int num)
 
     // possible occluder
     // because of ceiling height differences
-    opentop = front->ceilingheight < back->ceilingheight ?
-      front->ceilingheight : back->ceilingheight ;
+    opentop = MIN(front->ceilingheight, back->ceilingheight);
 
     // because of floor height differences
-    openbottom = front->floorheight > back->floorheight ?
-      front->floorheight : back->floorheight ;
+    openbottom = MAX(front->floorheight, back->floorheight);
 
     // quick test for totally closed doors
     if (openbottom >= opentop)
@@ -634,75 +666,74 @@ dboolean P_CrossSubsector_Doom(int num)
 
 dboolean P_CrossSubsector_Boom(int num)
 {
-  seg_t *seg;
-  const seg_t *seg_last = segs + subsectors[num].firstline + subsectors[num].numlines;
+  ssline_t *ssline = &sslines[sslines_indexes[num]];
+  const ssline_t *ssline_last = &sslines[sslines_indexes[num + 1]];
 
 #ifdef RANGECHECK
   if (num >= numsubsectors)
     I_Error("P_CrossSubsector: ss %i with numss = %i", num, numsubsectors);
 #endif
 
-  for (seg = segs + subsectors[num].firstline; seg < seg_last; seg++) // check lines
+  for (; ssline < ssline_last; ssline++)
   {
-    line_t *line = seg->linedef;
     divline_t divl;
     fixed_t opentop, openbottom;
     const sector_t *front, *back;
-    const vertex_t *v1,*v2;
     fixed_t frac;
-
-    if(!line) // figgi -- skip minisegs
-      continue;
-
-    // allready checked other side?
-    if (line->validcount == validcount)
-      continue;
-
-    line->validcount = validcount;
 
     // OPTIMIZE: killough 4/20/98: Added quick bounding-box rejection test
 
-    if (line->bbox[BOXLEFT  ] > los.bbox[BOXRIGHT ] ||
-        line->bbox[BOXRIGHT ] < los.bbox[BOXLEFT  ] ||
-        line->bbox[BOXBOTTOM] > los.bbox[BOXTOP   ] ||
-        line->bbox[BOXTOP]    < los.bbox[BOXBOTTOM])
+    if (ssline->bbox[BOXLEFT  ] > los.bbox[BOXRIGHT ] ||
+        ssline->bbox[BOXRIGHT ] < los.bbox[BOXLEFT  ] ||
+        ssline->bbox[BOXBOTTOM] > los.bbox[BOXTOP   ] ||
+        ssline->bbox[BOXTOP]    < los.bbox[BOXBOTTOM])
+    {
+      ssline->linedef->validcount = validcount;
       continue;
-
-    v1 = line->v1;
-    v2 = line->v2;
+    }
 
     // line isn't crossed?
-    if (P_DivlineSide(v1->x, v1->y, &los.strace) ==
-      P_DivlineSide(v2->x, v2->y, &los.strace))
+    if (P_DivlineCrossed(ssline->x1, ssline->y1, ssline->x2, ssline->y2, &los.strace))
+    {
+      ssline->linedef->validcount = validcount;
       continue;
+    }
 
-    divl.dx = v2->x - (divl.x = v1->x);
-    divl.dy = v2->y - (divl.y = v1->y);
+    divl.dx = ssline->x2 - (divl.x = ssline->x1);
+    divl.dy = ssline->y2 - (divl.y = ssline->y1);
 
     // line isn't crossed?
-    if (P_DivlineSide(los.strace.x, los.strace.y, &divl) ==
-      P_DivlineSide(los.t2x, los.t2y, &divl))
+    if (P_DivlineCrossed(los.strace.x, los.strace.y, los.t2x, los.t2y, &divl))
+    {
+      ssline->linedef->validcount = validcount;
       continue;
+    }
+
+    // allready checked other side?
+    if (ssline->linedef->validcount == validcount)
+      continue;
+
+    ssline->linedef->validcount = validcount;
 
     // stop because it is not two sided anyway
-    if (!(line->flags & ML_TWOSIDED))
+    if (!(ssline->linedef->flags & ML_TWOSIDED))
       return false;
 
     // crosses a two sided line
+    front = ssline->seg->frontsector;
+    back = ssline->seg->backsector;
+
     // no wall to block sight with?
-    if ((front = seg->frontsector)->floorheight ==
-      (back = seg->backsector)->floorheight &&
-      front->ceilingheight == back->ceilingheight)
+    if (front->floorheight == back->floorheight
+      && front->ceilingheight == back->ceilingheight)
       continue;
 
     // possible occluder
     // because of ceiling height differences
-    opentop = front->ceilingheight < back->ceilingheight ?
-      front->ceilingheight : back->ceilingheight;
+    opentop = MIN(front->ceilingheight, back->ceilingheight);
 
     // because of floor height differences
-    openbottom = front->floorheight > back->floorheight ?
-      front->floorheight : back->floorheight;
+    openbottom = MAX(front->floorheight, back->floorheight);
 
     // quick test for totally closed doors
     if (openbottom >= opentop)

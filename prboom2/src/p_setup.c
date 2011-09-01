@@ -83,6 +83,9 @@ line_t   *lines;
 int      numsides;
 side_t   *sides;
 
+int      *sslines_indexes;
+ssline_t *sslines;
+
 byte     *map_subsectors;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -2323,6 +2326,98 @@ void P_CheckLevelWadStructure(const char *mapname)
   }
 }
 
+void P_InitSubsectorsLines(void)
+{
+  int num, count;
+
+  if (sslines_indexes)
+  {
+    free(sslines_indexes);
+    sslines_indexes = NULL;
+  }
+
+  if (sslines)
+  {
+    free(sslines);
+    sslines = NULL;
+  }
+
+  count = 0;
+  sslines_indexes = malloc((numsubsectors + 1) * sizeof(sslines_indexes[0]));
+
+  for (num = 0; num < numsubsectors; num++)
+  {
+    seg_t *seg;
+    const seg_t *seg_last = segs + subsectors[num].firstline + subsectors[num].numlines;
+
+    sslines_indexes[num] = count;
+
+    for (seg = segs + subsectors[num].firstline; seg < seg_last; seg++)
+    {
+      if (!seg->linedef) continue;
+      seg->linedef->validcount = 0;
+    }
+
+    for (seg = segs + subsectors[num].firstline; seg < seg_last; seg++)
+    {
+      if (!seg->linedef) continue;
+
+      if (seg->linedef->validcount == 1)
+        continue;
+
+      seg->linedef->validcount = 1;
+      count++;
+    }
+  }
+
+  sslines_indexes[numsubsectors] = count;
+
+  sslines = malloc(count * sizeof(sslines[0]));
+  count = 0;
+
+  for (num = 0; num < numsubsectors; num++)
+  {
+    seg_t *seg;
+    const seg_t *seg_last = segs + subsectors[num].firstline + subsectors[num].numlines;
+
+    for (seg = segs + subsectors[num].firstline; seg < seg_last; seg++)
+    {
+      if (!seg->linedef) continue;
+      seg->linedef->validcount = 0;
+    }
+
+    for (seg = segs + subsectors[num].firstline; seg < seg_last; seg++)
+    {
+      ssline_t *ssline = &sslines[count];
+      if (!seg->linedef) continue;
+
+      if (seg->linedef->validcount == 1)
+        continue;
+
+      seg->linedef->validcount = 1;
+
+      ssline->seg = seg;
+      ssline->linedef = seg->linedef;
+
+      ssline->x1 = seg->linedef->v1->x;
+      ssline->y1 = seg->linedef->v1->y;
+      ssline->x2 = seg->linedef->v2->x;
+      ssline->y2 = seg->linedef->v2->y;
+      ssline->bbox[0] = seg->linedef->bbox[0];
+      ssline->bbox[1] = seg->linedef->bbox[1];
+      ssline->bbox[2] = seg->linedef->bbox[2];
+      ssline->bbox[3] = seg->linedef->bbox[3];
+
+      count++;
+    }
+  }
+
+  for (num = 0; num < numlines; num++)
+  {
+    lines[num].validcount = 0;
+  }
+}
+
 //
 // P_SetupLevel
 //
@@ -2486,6 +2581,11 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
       P_LoadNodes(lumpnum + ML_NODES);
       P_LoadSegs(lumpnum + ML_SEGS);
     }
+  }
+
+  if (!samelevel)
+  {
+    P_InitSubsectorsLines();
   }
 
 #ifdef GL_DOOM
