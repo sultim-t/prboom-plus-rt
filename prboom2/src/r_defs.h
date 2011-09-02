@@ -276,7 +276,6 @@ typedef struct
   side_t* sidedef;
   line_t* linedef;
 
-  int iSegID; // proff 11/05/2000: needed for OpenGL
   // figgi -- needed for glnodes
   float     length;
   dboolean   miniseg;

@@ -497,7 +497,6 @@ void M_ChangeRenderPrecise(void)
   if (V_GetMode() != VID_MODEGL)
   {
     gl_seamless = false;
-    //render_segs = false;
     return;
   }
   else
@@ -512,8 +511,6 @@ void M_ChangeRenderPrecise(void)
       gl_seamless = false;
       gld_CleanVertexData();
     }
-
-    //render_segs = false;
   }
 #endif // GL_DOOM
 

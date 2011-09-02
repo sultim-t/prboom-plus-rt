@@ -472,8 +472,6 @@ static void P_LoadSegs (int lump)
       int side, linedef;
       line_t *ldef;
 
-      li->iSegID = i; // proff 11/05/2000: needed for OpenGL
-
       v1 = (unsigned short)LittleShort(ml->v1);
       v2 = (unsigned short)LittleShort(ml->v2);
 
@@ -619,8 +617,6 @@ static void P_LoadSegs_V4(int lump)
     int side, linedef;
     line_t *ldef;
 
-    li->iSegID = i; // proff 11/05/2000: needed for OpenGL
-
     v1 = ml->v1;
     v2 = ml->v2;
 
@@ -750,7 +746,6 @@ static void P_LoadGLSegs(int lump)
   {             // check for gl-vertices
     segs[i].v1 = &vertexes[checkGLVertex(LittleShort(ml->v1))];
     segs[i].v2 = &vertexes[checkGLVertex(LittleShort(ml->v2))];
-    segs[i].iSegID  = i;
 
     if(ml->linedef != (unsigned short)-1) // skip minisegs
     {
@@ -1035,7 +1030,6 @@ static void P_LoadZSegs (const byte *data)
     v1 = ml->v1;
     v2 = ml->v2;
 
-    li->iSegID = i; // proff 11/05/2000: needed for OpenGL
     li->miniseg = false;
 
     linedef = (unsigned short)LittleShort(ml->linedef);

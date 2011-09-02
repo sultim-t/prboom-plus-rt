@@ -2725,7 +2725,11 @@ static void gld_DrawWall(GLWall *wall)
   (w).ybottom=((float)(floor_height)/(float)MAP_SCALE)-SMALLDELTA;\
   lineheight=((float)fabs(((ceiling_height)/(float)FRACUNIT)-((floor_height)/(float)FRACUNIT)))
 
-#define OU(w,seg) (((float)((seg)->sidedef->textureoffset+(render_segs ? (seg)->offset : 0))/(float)FRACUNIT)/(float)(w).gltexture->buffer_width)
+#ifdef RENDER_SEGS
+#define OU(w,seg) (((float)((seg)->sidedef->textureoffset+(seg)->offset)/(float)FRACUNIT)/(float)(w).gltexture->buffer_width)
+#else
+#define OU(w,seg) (((float)((seg)->sidedef->textureoffset)/(float)FRACUNIT)/(float)(w).gltexture->buffer_width)
+#endif
 #define OV(w,seg) (((float)((seg)->sidedef->rowoffset)/(float)FRACUNIT)/(float)(w).gltexture->buffer_height)
 #define OV_PEG(w,seg,v_offset) (OV((w),(seg))-(((float)(v_offset)/(float)FRACUNIT)/(float)(w).gltexture->buffer_height))
 #define URUL(w, seg, backseg, linelength)\
@@ -2782,15 +2786,17 @@ void gld_AddWall(seg_t *seg)
   int rellight = 0;
   int backseg;
 
-  if (render_segs)
+#ifdef RENDER_SEGS
   {
-    if (segrendered[seg->iSegID] == rendermarker)
+    int iSegID = seg - segs;
+    if (segrendered[iSegID] == rendermarker)
       return;
-    segrendered[seg->iSegID] = rendermarker;
-    linelength = segs[seg->iSegID].length;
-    wall.glseg=&gl_segs[seg->iSegID];
+    segrendered[iSegID] = rendermarker;
+    linelength = segs[iSegID].length;
+    wall.glseg=&gl_segs[iSegID];
+    backseg = false;
   }
-  else
+#else
   {
     int side = (seg->sidedef == &sides[seg->linedef->sidenum[0]] ? 0 : 1);
     if (linerendered[side][seg->linedef->iLineID] == rendermarker)
@@ -2798,8 +2804,9 @@ void gld_AddWall(seg_t *seg)
     linerendered[side][seg->linedef->iLineID] = rendermarker;
     linelength = lines[seg->linedef->iLineID].texel_length;
     wall.glseg=&gl_lines[seg->linedef->iLineID];
+    backseg = seg->sidedef != &sides[seg->linedef->sidenum[0]];
   }
-  backseg = !render_segs && seg->sidedef != &sides[seg->linedef->sidenum[0]];
+#endif
 
   if (!seg->frontsector)
     return;
@@ -3785,10 +3792,10 @@ void gld_ProcessWall(GLWall *wall)
   if (gl_seamless)
   {
     seg_t *seg = wall->seg;
-    vertex_t *v1, *v2;
 
-    if (render_segs)
+#ifdef RENDER_SEGS
     {
+      vertex_t *v1, *v2;
       if (seg->sidedef == &sides[seg->linedef->sidenum[0]])
       {
         v1 = seg->linedef->v1;
@@ -3806,7 +3813,7 @@ void gld_ProcessWall(GLWall *wall)
       gld_RecalcVertexHeights(seg->v1);
       gld_RecalcVertexHeights(seg->v2);
     }
-    else
+#else
     {
       wall->glseg->fracleft  = 0;
       wall->glseg->fracright = 0;
@@ -3814,6 +3821,7 @@ void gld_ProcessWall(GLWall *wall)
       gld_RecalcVertexHeights(seg->linedef->v1);
       gld_RecalcVertexHeights(seg->linedef->v2);
     }
+#endif
   }
 
   gld_DrawWall(wall);

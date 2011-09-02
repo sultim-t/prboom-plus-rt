@@ -91,7 +91,6 @@ typedef struct vertexsplit_info_s
 } vertexsplit_info_t;
 
 int gl_seamless = false;
-//int render_segs = false; // currently it is define
 
 static vertexsplit_info_t * gl_vertexsplit = NULL;
 
@@ -112,14 +111,11 @@ void gld_SplitLeftEdge(const GLWall *wall, dboolean detail)
   vertex_t *v;
   vertexsplit_info_t *vi;
 
-  if (render_segs)
-  {
-    v = wall->seg->v1;
-  }
-  else
-  {
-    v = wall->seg->linedef->v1;
-  }
+#ifdef RENDER_SEGS
+  v = wall->seg->v1;
+#else
+  v = wall->seg->linedef->v1;
+#endif
 
   if (v == NULL)
     return;
@@ -181,14 +177,11 @@ void gld_SplitRightEdge(const GLWall *wall, dboolean detail)
   vertex_t *v;
   vertexsplit_info_t * vi;
 
-  if (render_segs)
-  {
-    v = wall->seg->v2;
-  }
-  else
-  {
-    v = wall->seg->linedef->v2;
-  }
+#ifdef RENDER_SEGS
+  v = wall->seg->v2;
+#else
+  v = wall->seg->linedef->v2;
+#endif
 
   if (v == NULL)
     return;
