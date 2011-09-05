@@ -277,7 +277,6 @@ typedef struct
   line_t* linedef;
 
   // figgi -- needed for glnodes
-  float     length;
   dboolean   miniseg;
 
 

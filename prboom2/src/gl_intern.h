@@ -377,7 +377,6 @@ void gld_ResetDrawInfo(void);
 void gld_ResetGammaRamp(void);
 
 //gl_vertex
-//#define RENDER_SEGS
 void gld_SplitLeftEdge(const GLWall *wall, dboolean detail);
 void gld_SplitRightEdge(const GLWall *wall, dboolean detail);
 void gld_RecalcVertexHeights(const vertex_t *v);

@@ -584,9 +584,6 @@ static void P_LoadSegs (int lump)
         li->v2 = &vertexes[v2];
       }
 
-      //e6y: now we can calculate it
-      li->length  = GetDistance(li->v2->x - li->v1->x, li->v2->y - li->v1->y);
-
       // Recalculate seg offsets that are sometimes incorrect
       // with certain nodebuilders. Fixes among others, line 20365
       // of DV.wad, map 5
@@ -708,9 +705,6 @@ static void P_LoadSegs_V4(int lump)
       li->v2 = &vertexes[v2];
     }
 
-    //e6y: now we can calculate it
-    li->length  = GetDistance(li->v2->x - li->v1->x, li->v2->y - li->v1->y);
-
     // Recalculate seg offsets that are sometimes incorrect
     // with certain nodebuilders. Fixes among others, line 20365
     // of DV.wad, map 5
@@ -755,7 +749,6 @@ static void P_LoadGLSegs(int lump)
       segs[i].angle = R_PointToAngle2(segs[i].v1->x,segs[i].v1->y,segs[i].v2->x,segs[i].v2->y);
 
       segs[i].sidedef = &sides[ldef->sidenum[ml->side]];
-      segs[i].length  = GetDistance(segs[i].v2->x - segs[i].v1->x, segs[i].v2->y - segs[i].v1->y);
       segs[i].frontsector = sides[ldef->sidenum[ml->side]].sector;
       if (ldef->flags & ML_TWOSIDED)
         segs[i].backsector = sides[ldef->sidenum[ml->side^1]].sector;
@@ -772,7 +765,6 @@ static void P_LoadGLSegs(int lump)
       segs[i].miniseg = true;
       segs[i].angle  = 0;
       segs[i].offset  = 0;
-      segs[i].length  = 0;
       segs[i].linedef = NULL;
       segs[i].sidedef = NULL;
       segs[i].frontsector = NULL;
@@ -1082,7 +1074,6 @@ static void P_LoadZSegs (const byte *data)
     li->v1 = &vertexes[v1];
     li->v2 = &vertexes[v2];
 
-    li->length = GetDistance(li->v2->x - li->v1->x, li->v2->y - li->v1->y);
     li->offset = GetOffset(li->v1, (side ? ldef->v2 : ldef->v1));
     li->angle = R_PointToAngle2(segs[i].v1->x, segs[i].v1->y, segs[i].v2->x, segs[i].v2->y);
     //li->angle = (int)((float)atan2(li->v2->y - li->v1->y,li->v2->x - li->v1->x) * (ANG180 / M_PI));

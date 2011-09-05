@@ -2725,11 +2725,7 @@ static void gld_DrawWall(GLWall *wall)
   (w).ybottom=((float)(floor_height)/(float)MAP_SCALE)-SMALLDELTA;\
   lineheight=((float)fabs(((ceiling_height)/(float)FRACUNIT)-((floor_height)/(float)FRACUNIT)))
 
-#ifdef RENDER_SEGS
-#define OU(w,seg) (((float)((seg)->sidedef->textureoffset+(seg)->offset)/(float)FRACUNIT)/(float)(w).gltexture->buffer_width)
-#else
 #define OU(w,seg) (((float)((seg)->sidedef->textureoffset)/(float)FRACUNIT)/(float)(w).gltexture->buffer_width)
-#endif
 #define OV(w,seg) (((float)((seg)->sidedef->rowoffset)/(float)FRACUNIT)/(float)(w).gltexture->buffer_height)
 #define OV_PEG(w,seg,v_offset) (OV((w),(seg))-(((float)(v_offset)/(float)FRACUNIT)/(float)(w).gltexture->buffer_height))
 #define URUL(w, seg, backseg, linelength)\
@@ -2786,27 +2782,13 @@ void gld_AddWall(seg_t *seg)
   int rellight = 0;
   int backseg;
 
-#ifdef RENDER_SEGS
-  {
-    int iSegID = seg - segs;
-    if (segrendered[iSegID] == rendermarker)
-      return;
-    segrendered[iSegID] = rendermarker;
-    linelength = segs[iSegID].length;
-    wall.glseg=&gl_segs[iSegID];
-    backseg = false;
-  }
-#else
-  {
-    int side = (seg->sidedef == &sides[seg->linedef->sidenum[0]] ? 0 : 1);
-    if (linerendered[side][seg->linedef->iLineID] == rendermarker)
-      return;
-    linerendered[side][seg->linedef->iLineID] = rendermarker;
-    linelength = lines[seg->linedef->iLineID].texel_length;
-    wall.glseg=&gl_lines[seg->linedef->iLineID];
-    backseg = seg->sidedef != &sides[seg->linedef->sidenum[0]];
-  }
-#endif
+  int side = (seg->sidedef == &sides[seg->linedef->sidenum[0]] ? 0 : 1);
+  if (linerendered[side][seg->linedef->iLineID] == rendermarker)
+    return;
+  linerendered[side][seg->linedef->iLineID] = rendermarker;
+  linelength = lines[seg->linedef->iLineID].texel_length;
+  wall.glseg=&gl_lines[seg->linedef->iLineID];
+  backseg = seg->sidedef != &sides[seg->linedef->sidenum[0]];
 
   if (!seg->frontsector)
     return;
@@ -3793,35 +3775,11 @@ void gld_ProcessWall(GLWall *wall)
   {
     seg_t *seg = wall->seg;
 
-#ifdef RENDER_SEGS
-    {
-      vertex_t *v1, *v2;
-      if (seg->sidedef == &sides[seg->linedef->sidenum[0]])
-      {
-        v1 = seg->linedef->v1;
-        v2 = seg->linedef->v2;
-      }
-      else
-      {
-        v1 = seg->linedef->v2;
-        v2 = seg->linedef->v1;
-      }
+    wall->glseg->fracleft  = 0;
+    wall->glseg->fracright = 0;
 
-      wall->glseg->fracleft  = (seg->v1->x != v1->x) || (seg->v1->y != v1->y);
-      wall->glseg->fracright = (seg->v2->x != v2->x) || (seg->v2->y != v2->y);
-
-      gld_RecalcVertexHeights(seg->v1);
-      gld_RecalcVertexHeights(seg->v2);
-    }
-#else
-    {
-      wall->glseg->fracleft  = 0;
-      wall->glseg->fracright = 0;
-
-      gld_RecalcVertexHeights(seg->linedef->v1);
-      gld_RecalcVertexHeights(seg->linedef->v2);
-    }
-#endif
+    gld_RecalcVertexHeights(seg->linedef->v1);
+    gld_RecalcVertexHeights(seg->linedef->v2);
   }
 
   gld_DrawWall(wall);
