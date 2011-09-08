@@ -131,9 +131,24 @@ void R_InitSpritesRes(void)
 //
 
 static void R_InstallSpriteLump(int lump, unsigned frame,
-                                unsigned rotation, dboolean flipped)
+                                char rot, dboolean flipped)
 {
-  if (frame >= MAX_SPRITE_FRAMES || rotation > 8)
+  unsigned int rotation;
+
+  if (rot >= '0' && rot <= '9')
+  {
+    rotation = rot - '0';
+  }
+  else if (rot >= 'A')
+  {
+    rotation = rot - 'A' + 10;
+  }
+  else
+  {
+    rotation = 17;
+  }
+
+  if (frame >= MAX_SPRITE_FRAMES || rotation > 16)
     I_Error("R_InstallSpriteLump: Bad frame characters in lump %i", lump);
 
   if ((int) frame > maxframe)
@@ -142,11 +157,14 @@ static void R_InstallSpriteLump(int lump, unsigned frame,
   if (rotation == 0)
     {    // the lump should be used for all rotations
       int r;
-      for (r=0 ; r<8 ; r++)
-        if (sprtemp[frame].lump[r]==-1)
+      for (r = 14; r >= 0; r -= 2)
+        if (sprtemp[frame].lump[r] == -1)
           {
             sprtemp[frame].lump[r] = lump - firstspritelump;
-            sprtemp[frame].flip[r] = (byte) flipped;
+            if (flipped)
+            {
+              sprtemp[frame].flip |= (1 << r);
+            }
             sprtemp[frame].rotate = false; //jff 4/24/98 if any subbed, rotless
           }
       return;
@@ -154,10 +172,22 @@ static void R_InstallSpriteLump(int lump, unsigned frame,
 
   // the lump is only used for one rotation
 
-  if (sprtemp[frame].lump[--rotation] == -1)
+  if (rotation <= 8)
+  {
+    rotation = (rotation - 1) * 2;
+  }
+  else
+  {
+    rotation = (rotation - 9) * 2 + 1;
+  }
+
+  if (sprtemp[frame].lump[rotation] == -1)
     {
       sprtemp[frame].lump[rotation] = lump - firstspritelump;
-      sprtemp[frame].flip[rotation] = (byte) flipped;
+      if (flipped)
+      {
+        sprtemp[frame].flip |= (1 << rotation);
+      }
       sprtemp[frame].rotate = true; //jff 4/24/98 only change if rot used
     }
 }
@@ -225,12 +255,19 @@ static void R_InitSpriteDefs(const char * const * namelist)
 
   for (i=0 ; i<numsprites ; i++)
     {
+      int k;
+      int rot;
       const char *spritename = namelist[i];
       int j = hash[R_SpriteNameHash(spritename) % numentries].index;
 
       if (j >= 0)
         {
           memset(sprtemp, -1, sizeof(sprtemp));
+          for (k = 0; k < MAX_SPRITE_FRAMES; k++)
+          {
+            sprtemp[k].flip = 0;
+          }
+
           maxframe = -1;
           do
             {
@@ -246,12 +283,12 @@ static void R_InitSpriteDefs(const char * const * namelist)
                 {
                   R_InstallSpriteLump(j+firstspritelump,
                                       lump->name[4] - 'A',
-                                      lump->name[5] - '0',
+                                      lump->name[5],
                                       false);
                   if (lump->name[6])
                     R_InstallSpriteLump(j+firstspritelump,
                                         lump->name[6] - 'A',
-                                        lump->name[7] - '0',
+                                        lump->name[7],
                                         true);
                 }
             }
@@ -262,30 +299,71 @@ static void R_InitSpriteDefs(const char * const * namelist)
             {
               int frame;
               for (frame = 0; frame < maxframe; frame++)
-                switch ((int) sprtemp[frame].rotate)
+              {
+                switch (sprtemp[frame].rotate)
                   {
                   case -1:
                     // no rotations were found for that frame at all
-                    I_Error ("R_InitSprites: No patches found "
-                             "for %.8s frame %c", namelist[i], frame+'A');
+                    //I_Error ("R_InitSprites: No patches found "
+                    //         "for %.8s frame %c", namelist[i], frame+'A');
                     break;
 
                   case 0:
                     // only the first rotation is needed
+                    for (rot = 1; rot < 16; rot++)
+                    {
+                      sprtemp[frame].lump[rot] = sprtemp[frame].lump[0];
+                    }
+                    // If the frame is flipped, they all should be
+                    if (sprtemp[frame].flip & 1)
+                    {
+                      sprtemp[frame].flip = 0xFFFF;
+                    }
                     break;
 
                   case 1:
                     // must have all 8 frames
+                    for (rot = 0; rot < 8; rot++)
                     {
-                      int rotation;
-                      for (rotation=0 ; rotation<8 ; rotation++)
-                        if (sprtemp[frame].lump[rotation] == -1)
-                          I_Error ("R_InitSprites: Sprite %.8s frame %c "
-                                   "is missing rotations",
-                                   namelist[i], frame+'A');
-                      break;
+                      if (sprtemp[frame].lump[rot * 2 + 1] == -1)
+                      {
+                        sprtemp[frame].lump[rot * 2 + 1] = sprtemp[frame].lump[rot * 2];
+                        if (sprtemp[frame].flip & (1 << (rot * 2)))
+                        {
+                          sprtemp[frame].flip |= 1 << (rot * 2 + 1);
+                        }
+                      }
+                      if (sprtemp[frame].lump[rot * 2] == -1)
+                      {
+                        sprtemp[frame].lump[rot * 2] = sprtemp[frame].lump[rot * 2 + 1];
+                        if (sprtemp[frame].flip & (1 << (rot * 2 + 1)))
+                        {
+                          sprtemp[frame].flip |= 1 << (rot * 2);
+                        }
+                      }
+
                     }
+                    for (rot = 0; rot < 16; rot++)
+                    {
+                      if (sprtemp[frame].lump[rot] == -1)
+                        I_Error ("R_InitSprites: Sprite %.8s frame %c "
+                                 "is missing rotations",
+                                 namelist[i], frame+'A');
+                    }
+                    break;
                   }
+              }
+
+              for (frame = 0; frame < maxframe; frame++)
+              {
+                if (sprtemp[frame].rotate == -1)
+                {
+                  memset(&sprtemp[frame].lump, 0, sizeof(sprtemp[0].lump));
+                  sprtemp[frame].flip = 0;
+                  sprtemp[frame].rotate = 0;
+                }
+              }
+
               // allocate space for the frames present and copy sprtemp to it
               sprites[i].spriteframes =
                 Z_Malloc (maxframe * sizeof(spriteframe_t), PU_STATIC, NULL);
@@ -599,16 +677,25 @@ static void R_ProjectSprite (mobj_t* thing)
   if (sprframe->rotate)
     {
       // choose a different rotation based on player view
+      angle_t rot;
       angle_t ang = R_PointToAngle(fx, fy);
-      unsigned rot = (ang-thing->angle+(unsigned)(ANG45/2)*9)>>29;
+      if (sprframe->lump[0] == sprframe->lump[1])
+      {
+        rot = (ang - thing->angle + (angle_t)(ANG45/2)*9) >> 28;
+      }
+      else
+      {
+        rot = (ang - thing->angle + (angle_t)(ANG45 / 2) * 9 -
+          (angle_t)(ANG180 / 16)) >> 28;
+      }
       lump = sprframe->lump[rot];
-      flip = (dboolean) sprframe->flip[rot];
+      flip = (dboolean)(sprframe->flip & (1 << rot));
     }
   else
     {
       // use single rotation for all views
       lump = sprframe->lump[0];
-      flip = (dboolean) sprframe->flip[0];
+      flip = (dboolean)(sprframe->flip & 1);
     }
 
   {
@@ -820,7 +907,7 @@ static void R_DrawPSprite (pspdef_t *psp)
   sprframe = &sprdef->spriteframes[psp->state->frame & FF_FRAMEMASK];
 
   lump = sprframe->lump[0];
-  flip = (dboolean) sprframe->flip[0];
+  flip = (dboolean)(sprframe->flip & 1);
 
   {
     const rpatch_t* patch = R_CachePatchNum(lump+firstspritelump);

@@ -3607,16 +3607,25 @@ void gld_ProjectSprite(mobj_t* thing)
   if (sprframe->rotate)
   {
     // choose a different rotation based on player view
+    angle_t rot;
     angle_t ang = R_PointToAngle(fx, fy);
-    unsigned rot = (ang - thing->angle + (unsigned)(ANG45 / 2) * 9) >> 29;
+    if (sprframe->lump[0] == sprframe->lump[1])
+    {
+      rot = (ang - thing->angle + (angle_t)(ANG45/2)*9) >> 28;
+    }
+    else
+    {
+      rot = (ang - thing->angle + (angle_t)(ANG45 / 2) * 9 -
+        (angle_t)(ANG180 / 16)) >> 28;
+    }
     lump = sprframe->lump[rot];
-    flip = (dboolean) sprframe->flip[rot];
+    flip = (dboolean)(sprframe->flip & (1 << rot));
   }
   else
   {
     // use single rotation for all views
     lump = sprframe->lump[0];
-    flip = (dboolean) sprframe->flip[0];
+    flip = (dboolean)(sprframe->flip & 1);
   }
   lump += firstspritelump;
 

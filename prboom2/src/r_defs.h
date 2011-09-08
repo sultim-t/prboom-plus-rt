@@ -416,13 +416,13 @@ typedef struct
   // If false use 0 for any position.
   // Note: as eight entries are available,
   //  we might as well insert the same name eight times.
-  dboolean rotate;
+  int rotate;
 
   // Lump to use for view angles 0-7.
-  short lump[8];
+  short lump[16];
 
-  // Flip bit (1 = flip) to use for view angles 0-7.
-  byte  flip[8];
+  // Flip bit (1 = flip) to use for view angles 0-15.
+  unsigned short flip;
 
 } spriteframe_t;
 
