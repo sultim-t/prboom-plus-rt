@@ -122,4 +122,6 @@ dboolean D_TryGetWad(const char* name);
 int IsDemoPlayback(void);
 int IsDemoContinue(void);
 
+int LoadDemo(const char *name, const byte **buffer, int *length, int *lump);
+
 #endif // __R_DEMO__

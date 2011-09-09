@@ -3510,47 +3510,30 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
 
 void G_DoPlayDemo(void)
 {
-  int lump;
-  char basename[9];
-
-  ExtractFileBase(defdemoname,basename);           // killough
-  basename[8] = 0;
-
-  // check ns_demos namespace first, then ns_global
-  lump = (W_CheckNumForName)(basename, ns_demos);
-  if (lump < 0)
+  if (LoadDemo(defdemoname, &demobuffer, &demolength, &demolumpnum))
   {
-    lump = W_CheckNumForName(basename);
+    demo_p = G_ReadDemoHeaderEx(demobuffer, demolength, RDH_SAFE);
+
+    gameaction = ga_nothing;
+    usergame = false;
+
+    demoplayback = true;
+    R_SmoothPlaying_Reset(NULL); // e6y
   }
-
-  // e6y
-  // Do not exit if corresponding demo lump is not found.
-  // It makes sense for Plutonia and TNT IWADs, which have no DEMO4 lump,
-  // but DEMO4 should be in a demo cycle as real Plutonia and TNT have.
-  //
-  // Plutonia/Tnt executables exit with "W_GetNumForName: DEMO4 not found"
-  // message after playing of DEMO3, because DEMO4 is not present
-  // in the corresponding IWADs.
-  if (lump < 0)
+  else
   {
+    // e6y
+    // Do not exit if corresponding demo lump is not found.
+    // It makes sense for Plutonia and TNT IWADs, which have no DEMO4 lump,
+    // but DEMO4 should be in a demo cycle as real Plutonia and TNT have.
+    //
+    // Plutonia/Tnt executables exit with "W_GetNumForName: DEMO4 not found"
+    // message after playing of DEMO3, because DEMO4 is not present
+    // in the corresponding IWADs.
     usergame = false;
     D_StartTitle();                // Start the title screen
     gamestate = GS_DEMOSCREEN;     // And set the game state accordingly
-    return;
   }
-
-  /* cph - store lump number for unlocking later */
-  demolumpnum = lump;
-  demobuffer = W_CacheLumpNum(demolumpnum);
-  demolength = W_LumpLength(demolumpnum);
-
-  demo_p = G_ReadDemoHeaderEx(demobuffer, demolength, RDH_SAFE);
-
-  gameaction = ga_nothing;
-  usergame = false;
-
-  demoplayback = true;
-  R_SmoothPlaying_Reset(NULL); // e6y
 }
 
 /* G_CheckDemoStatus
@@ -3818,27 +3801,15 @@ void G_CheckDemoContinue(void)
 {
   if (democontinue)
   {
-    char basename[9];
-
-    ExtractFileBase(defdemoname,basename);           // killough
-    basename[8] = 0;
-
-    // check ns_demos namespace first, then ns_global
-    demolumpnum = (W_CheckNumForName)(basename, ns_demos);
-    if (demolumpnum < 0)
+    if (LoadDemo(defdemoname, &demobuffer, &demolength, &demolumpnum))
     {
-      demolumpnum = W_CheckNumForName(basename);
+      demo_continue_p = G_ReadDemoHeaderEx(demobuffer, demolength, RDH_SAFE);
+
+      singledemo = true;
+      autostart = true;
+      G_RecordDemo(democontinuename);
+      G_BeginRecording();
+      usergame = true;
     }
-
-    demobuffer = W_CacheLumpNum(demolumpnum);
-    demolength = W_LumpLength(demolumpnum);
-
-    demo_continue_p = G_ReadDemoHeaderEx(demobuffer, demolength, RDH_SAFE);
-
-    singledemo = true;
-    autostart = true;
-    G_RecordDemo(democontinuename);
-    G_BeginRecording();
-    usergame = true;
   }
 }

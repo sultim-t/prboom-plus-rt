@@ -92,6 +92,64 @@ int IsDemoContinue(void)
   return 0;
 }
 
+int LoadDemo(const char *name, const byte **buffer, int *length, int *lump)
+{
+  char basename[9];
+  char *filename = NULL;
+  int num = -1;
+  int len = 0;
+  const byte *buf = NULL;
+
+  ExtractFileBase(name, basename);
+  basename[8] = 0;
+
+  // check ns_demos namespace first, then ns_global
+  num = (W_CheckNumForName)(basename, ns_demos);
+  if (num < 0)
+  {
+    num = W_CheckNumForName(basename);
+  }
+
+  if (num < 0)
+  {
+    // Allow for demos not loaded as lumps
+    static byte *sbuf = NULL;
+    filename = I_FindFile(name, ".lmp");
+    if (filename)
+    {
+      if (sbuf)
+      {
+        free(sbuf);
+        sbuf = NULL;
+      }
+
+      len = M_ReadFile(filename, &sbuf);
+      buf = (const byte *)sbuf;
+      free(filename);
+    }
+  }
+  else
+  {
+    buf = W_CacheLumpNum(num);
+    len = W_LumpLength(num);
+  }
+
+  if (len < 0)
+    len = 0;
+
+  if (len > 0)
+  {
+    if (buffer)
+      *buffer = buf;
+    if (length)
+      *length = len;
+    if (lump)
+      *lump = num;
+  }
+
+  return (len > 0);
+}
+
 //
 // Smooth playing stuff
 //
