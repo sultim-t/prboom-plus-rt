@@ -497,8 +497,10 @@ static int R_DemoEx_GetVersion(void)
     size = W_LumpLength(lump);
     if (size > 0)
     {
+      size_t len = MIN(size, sizeof(str_ver) - 1);
       data = W_CacheLumpNum(lump);
-      strncpy(str_ver, data, MIN(size, sizeof(str_ver)));
+      strncpy(str_ver, data, len);
+      str_ver[len] = 0;
 
       if (sscanf(str_ver, "%d", &ver) == 1)
       {

@@ -661,7 +661,7 @@ static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char 
 
   if (!hiresdir)
   {
-    hiresdir = malloc(PATH_MAX + 1);
+    hiresdir = malloc(PATH_MAX);
     if (strlen(gl_texture_hires_dir) > 0)
     {
       strncpy(hiresdir, gl_texture_hires_dir, PATH_MAX - 1);
@@ -670,6 +670,9 @@ static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char 
     {
       strncpy(hiresdir, I_DoomExeDir(), PATH_MAX - 1);
     }
+    // guarantee null delimiter
+    hiresdir[PATH_MAX - 1] = 0;
+
     if (!HasTrailingSlash(hiresdir))
       strcat(hiresdir, "/");
   }
