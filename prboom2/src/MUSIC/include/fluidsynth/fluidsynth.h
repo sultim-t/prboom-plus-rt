@@ -92,7 +92,7 @@ extern "C" {
 #include "fluidsynth/mod.h"
 #include "fluidsynth/gen.h"
 #include "fluidsynth/voice.h"
-//#include "fluidsynth/version.h"
+#include "fluidsynth/version.h"
 
 
 #ifdef __cplusplus
