@@ -1130,7 +1130,11 @@ int gld_DrawBoxSkyBox(void)
   glRotatef(yaw,   0.0f, 1.0f, 0.0f);
   glScalef(-2.0f, 2.0f, 2.0f);
 
-  glRotatef(-180.0f + SkyBox.x_offset, 0.0f, 1.0f, 0.0f);
+  if (SkyBox.side)
+  {
+    float xoffset = (float)SkyBox.side->textureoffset * 180.0f / (float)ANG180;
+    glRotatef(-180.0f + xoffset, 0.0f, 1.0f, 0.0f);
+  }
 
   if (sb->faces[5][0]) 
   {

@@ -4132,7 +4132,12 @@ void gld_DrawScene(player_t *player)
 #endif
 
   //e6y: skybox
-  skybox = gld_DrawBoxSkyBox();
+  skybox = 0;
+  if (gl_drawskys != skytype_none)
+  {
+    skybox = gld_DrawBoxSkyBox();
+  }
+
   if (!skybox)
   {
     if (gl_drawskys == skytype_skydome)
