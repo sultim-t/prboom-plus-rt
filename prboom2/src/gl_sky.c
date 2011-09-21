@@ -279,6 +279,8 @@ void gld_DrawStripsSky(void)
     glEnable(GL_TEXTURE_GEN_Q);
     if (comp[comp_skymap] || !(invul_method & INVUL_BW))
       glColor4fv(gl_whitecolor);
+
+    SetTextureMode(TM_OPAQUE);
   }
 
   gld_EnableDetail(false);
@@ -350,6 +352,8 @@ void gld_DrawStripsSky(void)
 
     if (comp[comp_skymap] && gl_shared_texture_palette)
       glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
+
+    SetTextureMode(TM_MODULATE);
   }
 }
 
@@ -928,6 +932,8 @@ void gld_DrawDomeSkyBox(void)
 
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_ALPHA_TEST);
+    SetTextureMode(TM_OPAQUE);
+
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glPushMatrix();
@@ -947,6 +953,8 @@ void gld_DrawDomeSkyBox(void)
     glEnable(GL_ALPHA_TEST);
     glEnable(GL_DEPTH_TEST);
     glDepthMask(true);
+
+    SetTextureMode(TM_MODULATE);
 
     glShadeModel(shading_mode);
   }
@@ -1118,6 +1126,9 @@ int gld_DrawBoxSkyBox(void)
 
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_ALPHA_TEST);
+
+  SetTextureMode(TM_OPAQUE);
+
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   glMatrixMode(GL_MODELVIEW);
@@ -1297,6 +1308,8 @@ int gld_DrawBoxSkyBox(void)
   glEnable(GL_ALPHA_TEST);
   glEnable(GL_DEPTH_TEST);
   glDepthMask(true);
+
+  SetTextureMode(TM_MODULATE);
 
   return true;
 }

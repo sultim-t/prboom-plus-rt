@@ -143,4 +143,19 @@ void gld_EnableTexture2D(GLenum texture, int enable);
 void gld_EnableClientCoordArray(GLenum texture, int enable);
 void gld_EnableMultisample(int enable);
 
+typedef enum
+{
+  TMF_MASKBIT = 1,
+  TMF_OPAQUEBIT = 2,
+  TMF_INVERTBIT = 4,
+
+  TM_MODULATE = 0,
+  TM_MASK = TMF_MASKBIT,
+  TM_OPAQUE = TMF_OPAQUEBIT,
+  TM_INVERT = TMF_INVERTBIT,
+  //TM_INVERTMASK = TMF_MASKBIT | TMF_INVERTBIT
+  TM_INVERTOPAQUE = TMF_INVERTBIT | TMF_OPAQUEBIT,
+} tex_mode_e;
+void SetTextureMode(tex_mode_e type);
+
 #endif // _GL_OPENGL_H
