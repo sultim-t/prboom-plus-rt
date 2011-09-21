@@ -2643,6 +2643,7 @@ static void gld_DrawWall(GLWall *wall)
   rendered_segs++;
 
   has_detail =
+    scene_has_details &&
     gl_arb_multitexture &&
     (wall->flag < GLDWF_SKY) &&
     (wall->gltexture->detail) &&
@@ -3189,7 +3190,10 @@ static void gld_DrawFlat(GLFlat *flat)
 
   rendered_visplanes++;
   
-  has_detail = gl_arb_multitexture && flat->gltexture->detail;
+  has_detail =
+    scene_has_details &&
+    gl_arb_multitexture &&
+    flat->gltexture->detail;
 
   has_offset = (has_detail || (flat->flags & GLFLAT_HAVE_OFFSET));
 

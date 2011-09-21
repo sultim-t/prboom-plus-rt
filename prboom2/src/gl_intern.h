@@ -354,6 +354,7 @@ void gld_DrawItemsSortByDetail(GLDrawItemType itemtype);
 void gld_DrawWallDetail_NoARB(GLWall *wall);
 
 extern int render_usedetail;
+extern int scene_has_details;
 extern detail_t *details;
 extern int details_count;
 

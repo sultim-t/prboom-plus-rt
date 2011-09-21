@@ -102,6 +102,7 @@ void M_ChangeUseDetail(void)
     render_usedetail = gl_allow_detail_textures;
     gld_EnableDetail(true);
     gld_EnableDetail(false);
+    gld_FlushTextures();
   }
 }
 

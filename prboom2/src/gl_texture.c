@@ -744,7 +744,10 @@ void gld_SetTexFilters(GLTexture *gltexture)
     break;
   }
 
-  mag_filter = tex_filter[mip].mag_filter;
+  if (render_usedetail && gltexture->detail)
+    mag_filter = GL_LINEAR;
+  else
+    mag_filter = tex_filter[mip].mag_filter;
 
   if ((gltexture->flags & GLTEXTURE_MIPMAP) && tex_filter[mip].mipmap)
   {
