@@ -321,6 +321,9 @@ extern int gl_ztrick;
 extern int gl_preprocessed; //e6y
 
 extern GLDrawInfo gld_drawinfo;
+void gld_FreeDrawInfo(void);
+void gld_ResetDrawInfo(void);
+
 extern GLSector *sectorloops;
 extern GLMapSubsector *subsectorloops;
 
@@ -372,7 +375,6 @@ void gld_InitPalettedTextures(void);
 int gld_GetTexDimension(int value);
 void gld_SetTexturePalette(GLenum target);
 void gld_Precache(void);
-void gld_ResetDrawInfo(void);
 
 //gamma
 void gld_ResetGammaRamp(void);
@@ -539,5 +541,11 @@ extern box_skybox_t *BoxSkybox_default;
 void gld_InitDisplayLists(void);
 void gld_CleanDisplayLists(void);
 extern int flats_display_list;
+
+// preprocessing
+extern byte *segrendered; // true if sector rendered (only here for malloc)
+extern byte *linerendered[2]; // true if linedef rendered (only here for malloc)
+extern GLuint flats_vbo_id;
+void gld_PreprocessSectors(void);
 
 #endif // _GL_INTERN_H
