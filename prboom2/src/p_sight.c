@@ -419,6 +419,8 @@ INLINE static int P_DivlineCrossed(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y
   {
     if (x1 == node->x)
       return (x2 == node->x);
+    if (x2 == node->x)
+      return (x1 == node->x);
     if (x1 < node->x)
       return (x2 < node->x);
     return (x2 > node->x);
@@ -426,9 +428,24 @@ INLINE static int P_DivlineCrossed(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y
 
   if (!node->dy)
   {
-    if ((compatibility_level < prboom_4_compatibility ? x1 : y1) == node->y)
-      return (x2 == node->y);
-    if (y1 < node->y)
+    fixed_t _y1, _y2;
+    if (compatibility_level < prboom_4_compatibility)
+    {
+      _y1 = x1;
+      _y2 = x2;
+    }
+    else
+    {
+      _y1 = y1;
+      _y2 = y2;
+    }
+    //if ((compatibility_level < prboom_4_compatibility ? x1 : y1) == node->y)
+    //  return (x2 == node->y);
+    if (_y1 == node->y)
+      return (_y2 == node->y);
+    if (_y2 == node->y)
+      return (_y1 == node->y);
+    if (y1 <= node->y)
       return (y2 < node->y);
     return (y2 > node->y);
   }
