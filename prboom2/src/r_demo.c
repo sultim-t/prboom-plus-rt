@@ -940,6 +940,7 @@ void G_SetDemoFooter(const char *filename, wadtbl_t *wadtbl)
     char newfilename[PATH_MAX];
 
     strncpy(newfilename, filename, sizeof(newfilename) - 5);
+    newfilename[sizeof(newfilename) - 5] = 0;
     strcat(newfilename, ".out");
 
     hfile = fopen(newfilename, "wb");

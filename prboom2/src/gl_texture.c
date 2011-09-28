@@ -1517,7 +1517,7 @@ void gld_Precache(void)
   // Precache sprites.
   memset(hitlist, 0, numsprites);
 
-  if (hitlist && thinkercap.next)
+  if (thinkercap.next)
   {
     thinker_t *th;
     for (th = thinkercap.next ; th != &thinkercap ; th=th->next)
