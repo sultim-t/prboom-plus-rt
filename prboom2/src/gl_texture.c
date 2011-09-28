@@ -161,9 +161,7 @@ void* NewIntDynArray(int dimCount, int *dims)
 
   bufferSize += sizeof(int) * tableSize * dims[dimCount - 1];
 
-  buffer = malloc(bufferSize);
-  memset(buffer, 0, bufferSize);
-
+  buffer = calloc(1, bufferSize);
   if(!buffer)
   {
     return 0;

@@ -737,14 +737,14 @@ void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_tra
   gltexture = gld_RegisterPatch(lump, false);
   gld_BindPatch(gltexture, CR_DEFAULT);
 
+  if (!gltexture)
+    return;
+
   x = x - gltexture->leftoffset;
   y = y - gltexture->topoffset;
 
   //e6y
   boom_cm = saved_boom_cm;
-
-  if (!gltexture)
-    return;
 
   if (flags & VPT_STRETCH)
   {
