@@ -336,7 +336,7 @@ void W_AddLump(wadtbl_t *wadtbl, const char *name, const byte* data, size_t size
 {
   int lumpnum;
 
-  if (wadtbl && (name && strlen(name) > 8))
+  if (!wadtbl || (name && strlen(name) > 8))
   {
     I_Error("W_AddLump: wrong parameters.");
     return;
