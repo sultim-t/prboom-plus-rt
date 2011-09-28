@@ -40,15 +40,6 @@
 #include "gl_opengl.h"
 
 #include "z_zone.h"
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
-#ifndef CALLBACK
-#define CALLBACK
-#endif
-#include <stdio.h>
-#include <string.h>
 #include <math.h>
 #include <SDL.h>
 #include "doomtype.h"

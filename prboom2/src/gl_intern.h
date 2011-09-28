@@ -546,6 +546,5 @@ extern int flats_display_list;
 extern byte *segrendered; // true if sector rendered (only here for malloc)
 extern byte *linerendered[2]; // true if linedef rendered (only here for malloc)
 extern GLuint flats_vbo_id;
-void gld_PreprocessSectors(void);
 
 #endif // _GL_INTERN_H
