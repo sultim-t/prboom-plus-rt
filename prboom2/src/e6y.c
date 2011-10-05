@@ -63,6 +63,7 @@
 #include "s_sound.h"
 #include "i_system.h"
 #include "i_main.h"
+#include "i_sound.h"
 #include "m_menu.h"
 #include "lprintf.h"
 #include "m_argv.h"
@@ -350,7 +351,6 @@ void G_SkipDemoStop(void)
   I_Init2();
   if (!sound_inited_once && !(nomusicparm && nosfxparm))
   {
-    void I_InitSound(void);
     I_InitSound();
   }
   S_Init(snd_SfxVolume, snd_MusicVolume);
@@ -637,7 +637,7 @@ void M_ChangeSpriteClip(void)
 void ResolveColormapsHiresConflict(dboolean prefer_colormap)
 {
   gl_boom_colormaps = !r_have_internal_hires && !gl_texture_external_hires;
-  return;
+#if 0
   if (prefer_colormap)
   {
     if (gl_boom_colormaps_default)
@@ -662,6 +662,7 @@ void ResolveColormapsHiresConflict(dboolean prefer_colormap)
       gl_texture_external_hires = false;
     }
   }
+#endif
 }
 
 void M_ChangeAllowBoomColormaps(void)

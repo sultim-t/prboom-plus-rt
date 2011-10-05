@@ -47,7 +47,7 @@
 dboolean gl_use_FBO = false;
 
 #ifdef USE_FBO_TECHNIQUE
-GLint glSceneImageFBOTexID = 0;
+GLuint glSceneImageFBOTexID = 0;
 GLuint glDepthBufferFBOTexID = 0;
 GLuint glSceneImageTextureFBOTexID = 0;
 int SceneInTexture = false;

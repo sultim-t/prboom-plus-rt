@@ -407,7 +407,7 @@ int gld_ProgressEnd(void);
 #define INVUL_CM         0x00000001
 #define INVUL_INV        0x00000002
 #define INVUL_BW         0x00000004
-extern GLint glSceneImageFBOTexID;
+extern GLuint glSceneImageFBOTexID;
 extern GLuint glSceneImageTextureFBOTexID;
 
 extern unsigned int invul_method;
