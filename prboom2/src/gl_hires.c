@@ -1208,7 +1208,7 @@ static int gld_HiRes_LoadFromFile(GLTexture* gltexture, GLuint* texid, const cha
   }
   else
   {
-    surf = SDL_ConvertSurface(surf_tmp, &RGBAFormat, surf_tmp->flags);
+    surf = SDL_ConvertSurface(surf_tmp, &RGBAFormat, SDL_SRCALPHA);
     SDL_FreeSurface(surf_tmp);
 
     if (surf)
@@ -1273,7 +1273,7 @@ int gld_LoadHiresTex(GLTexture *gltexture, int cm)
             }
             else
             {
-              SDL_Surface *surf = SDL_ConvertSurface(surf_tmp, &RGBAFormat, surf_tmp->flags);
+              SDL_Surface *surf = SDL_ConvertSurface(surf_tmp, &RGBAFormat, SDL_SRCALPHA);
               SDL_FreeSurface(surf_tmp);
 
               if (surf)
