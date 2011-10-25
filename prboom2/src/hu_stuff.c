@@ -1710,9 +1710,9 @@ void HU_widget_build_monsec(void)
         fullsecretcount += players[i].secretcount;
       }
     }
-    killcolor = fullkillcount==totalkills?0x37:0x35;
-    secretcolor = fullsecretcount==totalsecret?0x37:0x35;
-    itemcolor = fullitemcount==totalitems?0x37:0x35;
+    killcolor = (fullkillcount >= totalkills ? 0x37 : 0x35);
+    secretcolor = (fullsecretcount >= totalsecret ? 0x37 : 0x35);
+    itemcolor = (fullitemcount >= totalitems ? 0x37 : 0x35);
     if (playerscount<2)
     {
       sprintf
