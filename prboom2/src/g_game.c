@@ -3024,8 +3024,25 @@ void G_BeginRecording (void)
     for (; i<MIN_MAXPLAYERS; i++)
       *demo_p++ = 0;
   } else { // cph - write old v1.9 demos (might even sync)
+    unsigned char v = 109;
     longtics = M_CheckParm("-longtics");
-    *demo_p++ = longtics ? 111 : (compatibility_level==tasdoom_compatibility?110:109); //e6y// v1.9 has best chance of syncing these
+    if (longtics)
+    {
+      v = 111;
+    }
+    else
+    {
+      switch (compatibility_level)
+      {
+      case doom_1666_compatibility:
+        v = 106;
+        break;
+      case tasdoom_compatibility:
+        v = 110;
+        break;
+      }
+    }
+    *demo_p++ = v;
     *demo_p++ = gameskill;
     *demo_p++ = gameepisode;
     *demo_p++ = gamemap;
