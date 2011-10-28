@@ -35,7 +35,9 @@
 // PRIVATE FUNCTION PROTOTYPES ---------------------------------------------
 
 static void CheckOpen(void);
-static void OpenScript(const char *name);
+static void OpenScript(void);
+static void OpenScriptByName(const char *name);
+static void OpenScriptByNum(int lump);
 
 // EXTERNAL DATA DECLARATIONS ----------------------------------------------
 
@@ -51,6 +53,7 @@ dboolean sc_FileScripts = false;
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
 
 static char ScriptName[16];
+static int ScriptLump;
 static const char *ScriptBuffer;
 static const char *ScriptPtr;
 static const char *ScriptEndPtr;
@@ -71,7 +74,12 @@ static dboolean AlreadyGot = false;
 
 void SC_OpenLump(const char *name)
 {
-  OpenScript(name);
+  OpenScriptByName(name);
+}
+
+void SC_OpenLumpByNum(int lump)
+{
+  OpenScriptByNum(lump);
 }
 
 //==========================================================================
@@ -80,14 +88,12 @@ void SC_OpenLump(const char *name)
 //
 //==========================================================================
 
-static void OpenScript(const char *name)
+static void OpenScript(void)
 {
-  SC_Close();
-
-  // Lump script
-  ScriptBuffer = W_CacheLumpName(name);
-  ScriptSize = W_LumpLength(W_GetNumForName(name));
-  strcpy(ScriptName, name);
+  ScriptBuffer = W_CacheLumpNum(ScriptLump);
+  ScriptSize = W_LumpLength(ScriptLump);
+  ScriptBuffer = W_CacheLumpNum(ScriptLump);
+  ScriptSize = W_LumpLength(ScriptLump);
 
   ScriptPtr = ScriptBuffer;
   ScriptEndPtr = ScriptPtr + ScriptSize;
@@ -96,6 +102,28 @@ static void OpenScript(const char *name)
   ScriptOpen = true;
   sc_String = StringBuffer;
   AlreadyGot = false;
+}
+
+static void OpenScriptByName(const char *name)
+{
+  SC_Close();
+
+  // Lump script
+  ScriptLump = W_GetNumForName(name);
+  strcpy(ScriptName, name);
+
+  OpenScript();
+}
+
+static void OpenScriptByNum(int lump)
+{
+  SC_Close();
+
+  // Lump script
+  ScriptLump = lump;
+  strcpy(ScriptName, W_GetLumpInfoByNum(ScriptLump)->name);
+
+  OpenScript();
 }
 
 //==========================================================================
@@ -108,7 +136,7 @@ void SC_Close(void)
 {
   if (ScriptOpen)
   {
-    W_UnlockLumpName(ScriptName);
+    W_UnlockLumpNum(ScriptLump);
     ScriptOpen = false;
   }
 }

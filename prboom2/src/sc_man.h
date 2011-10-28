@@ -2,6 +2,7 @@
 #define __SC_MAN__
 
 void SC_OpenLump(const char *name);
+void SC_OpenLumpByNum(int lump);
 void SC_Close(void);
 dboolean SC_GetString(void);
 void SC_MustGetString(void);
