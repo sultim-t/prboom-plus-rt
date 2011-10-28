@@ -1105,6 +1105,38 @@ void HU_MoveHud(int force)
   }
 }
 
+int HU_GetHealthColor(int health, int def)
+{
+  int result;
+
+  if (health < health_red)
+    result = CR_RED;
+  else if (health < health_yellow)
+    result = CR_GOLD;
+  else if (health <= health_green)
+    result = CR_GREEN;
+  else
+    result = def;
+
+  return result;
+}
+
+int HU_GetArmorColor(int armor, int def)
+{
+  int result;
+
+  if (armor < armor_red)
+    result = CR_RED;
+  else if (armor < armor_yellow)
+    result = CR_GOLD;
+  else if (armor <= armor_green)
+    result = CR_GREEN;
+  else
+    result = def;
+
+  return result;
+}
+
 void HU_widget_build_ammo(void)
 {
   int i;
@@ -1214,14 +1246,7 @@ void HU_widget_build_health(void)
   strcat(hud_healthstr,healthstr);
 
   // set the display color from the amount of health posessed
-  if (health<health_red)
-    w_health.cm = CR_RED;
-  else if (health<health_yellow)
-    w_health.cm = CR_GOLD;
-  else if (health<=health_green)
-    w_health.cm = CR_GREEN;
-  else
-    w_health.cm = CR_BLUE;
+  w_health.cm = HU_GetHealthColor(health, CR_BLUE);
 
   // transfer the init string to the widget
   s = hud_healthstr;
@@ -1252,16 +1277,7 @@ void HU_widget_build_health_big(void)
 
   // set the display color from the amount of health posessed
   if (!sts_always_red)
-  {
-    if (health<health_red)
-      w_health_big.cm = CR_RED;
-    else if (health<health_yellow)
-      w_health_big.cm = CR_GOLD;
-    else if (health<=health_green)
-      w_health_big.cm = CR_GREEN;
-    else
-      w_health_big.cm = CR_BLUE2;
-  }
+    w_health_big.cm = HU_GetHealthColor(health, CR_BLUE2);
 
   // transfer the init string to the widget
   s = healthstr;
@@ -1313,14 +1329,7 @@ void HU_widget_build_armor(void)
   strcat(hud_armorstr,armorstr);
 
   // set the display color from the amount of armor posessed
-  if (armor<armor_red)
-    w_armor.cm = CR_RED;
-  else if (armor<armor_yellow)
-    w_armor.cm = CR_GOLD;
-  else if (armor<=armor_green)
-    w_armor.cm = CR_GREEN;
-  else
-    w_armor.cm = CR_BLUE;
+  w_armor.cm = HU_GetArmorColor(armor, CR_BLUE);
 
   // transfer the init string to the widget
   s = hud_armorstr;
@@ -1350,16 +1359,7 @@ void HU_widget_build_armor_big(void)
 
   // set the display color from the amount of armor posessed
   if (!sts_always_red)
-  {
-    if (armor<armor_red)
-      w_armor_big.cm = CR_RED;
-    else if (armor<armor_yellow)
-      w_armor_big.cm = CR_GOLD;
-    else if (armor<=armor_green)
-      w_armor_big.cm = CR_GREEN;
-    else
-      w_armor_big.cm = CR_BLUE2;
-  }
+    w_armor_big.cm = HU_GetArmorColor(armor, CR_BLUE2);
 
   // transfer the init string to the widget
   s = armorstr;
