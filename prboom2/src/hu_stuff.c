@@ -1087,7 +1087,6 @@ void HU_LoadHUDDefs(void)
 
 void HU_MoveHud(int force)
 {
-  static int init = 0;
   static int ohud_num = -1;
 
   //jff 3/4/98 move displays around on F5 changing hud_distributed
