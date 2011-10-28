@@ -454,6 +454,13 @@ int W_SafeGetNumForName(const char *name)
   return i;
 }
 
+const lumpinfo_t* W_GetLumpInfoByNum(int lump)
+{
+  if (lump < 0 || lump >= numlumps)
+    I_Error("W_GetLumpInfoByNum: lump num %d out of range", lump);
+
+  return &lumpinfo[lump];
+}
 
 // W_Init
 // Loads each of the files in the wadfiles array.
