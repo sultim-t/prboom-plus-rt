@@ -100,4 +100,18 @@ HUDs
     armor_icon_small -316 -197
     armor_big -298 -198
   }
+
+  hud 9
+  {
+    tracers 2 148
+    hudadd 2 156
+    monsec 2 164
+    keys 2 172
+    weapon 208 164
+    ammo 208 172
+    medict_icon_small 2 -197
+    health_big 22 -198
+    armor_icon_small -316 -197
+    armor_big -298 -198
+  }
 }
