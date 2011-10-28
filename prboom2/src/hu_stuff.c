@@ -796,68 +796,27 @@ void HU_Start(void)
   }
 
 
-  // initialize the automaps coordinate widget
-  //jff 3/3/98 split coordstr widget into 3 parts
-  if (map_point_coordinates)
-  {
-    sprintf(hud_coordstrx,"X: %-5d",0); //jff 2/22/98 added z
-    s = hud_coordstrx;
-    while (*s)
-      HUlib_addCharToTextLine(&w_coordx, *(s++));
-    sprintf(hud_coordstry,"Y: %-5d",0); //jff 3/3/98 split x,y,z
-    s = hud_coordstry;
-    while (*s)
-      HUlib_addCharToTextLine(&w_coordy, *(s++));
-    sprintf(hud_coordstrz,"Z: %-5d",0); //jff 3/3/98 split x,y,z
-    s = hud_coordstrz;
-    while (*s)
-      HUlib_addCharToTextLine(&w_coordz, *(s++));
-  }
-
   //jff 2/16/98 initialize ammo widget
   strcpy(hud_ammostr,"AMM ");
-  s = hud_ammostr;
-  while (*s)
-    HUlib_addCharToTextLine(&w_ammo, *(s++));
 
   //jff 2/16/98 initialize health widget
   strcpy(hud_healthstr,"HEL ");
-  s = hud_healthstr;
-  while (*s)
-    HUlib_addCharToTextLine(&w_health, *(s++));
 
   //jff 2/16/98 initialize armor widget
   strcpy(hud_armorstr,"ARM ");
-  s = hud_armorstr;
-  while (*s)
-    HUlib_addCharToTextLine(&w_armor, *(s++));
 
   //jff 2/17/98 initialize weapons widget
   strcpy(hud_weapstr,"WEA ");
-  s = hud_weapstr;
-  while (*s)
-    HUlib_addCharToTextLine(&w_weapon, *(s++));
 
   //jff 2/17/98 initialize keys widget
-  if (!deathmatch) //jff 3/17/98 show frags in deathmatch mode
-    strcpy(hud_keysstr,"KEY ");
-  else
-    strcpy(hud_keysstr,"FRG ");
-  s = hud_keysstr;
-  while (*s)
-    HUlib_addCharToTextLine(&w_keys, *(s++));
+  //jff 3/17/98 show frags in deathmatch mode
+  strcpy(hud_keysstr,(deathmatch ? "FRG " : "WEA "));
 
   //jff 2/17/98 initialize graphic keys widget
   strcpy(hud_gkeysstr," ");
-  s = hud_gkeysstr;
-  while (*s)
-    HUlib_addCharToTextLine(&w_gkeys, *(s++));
 
   //jff 2/17/98 initialize kills/items/secret widget
   strcpy(hud_monsecstr,"STS ");
-  s = hud_monsecstr;
-  while (*s)
-    HUlib_addCharToTextLine(&w_monsec, *(s++));
 
   // create the chat widget
   HUlib_initIText
