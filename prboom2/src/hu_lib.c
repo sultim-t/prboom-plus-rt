@@ -86,6 +86,7 @@ void HUlib_initTextLine(hu_textline_t* t, int x, int y,
 {
   t->x = x;
   t->y = y;
+  t->val = -1;
   t->f = f;
   t->sc = sc;
   t->cm = cm;

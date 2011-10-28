@@ -1215,6 +1215,10 @@ void HU_widget_build_health(void)
   int health = plr->health;
   int healthbars = health>100? 25 : health/4;
 
+  if (w_health.val != -1 && w_health.val == health)
+    return;
+  w_health.val = health;
+
   // clear the widgets internal line
   HUlib_clearTextLine(&w_health);
 
@@ -1265,6 +1269,10 @@ void HU_widget_build_health_big(void)
   char healthstr[80];//jff
   int health = plr->health;
 
+  if (w_health_big.val != -1 && w_health_big.val == health)
+    return;
+  w_health_big.val = health;
+
   // transfer the graphic key text to the widget
   HUlib_clearTextLine(&w_health_medict);
   HUlib_addCharToTextLine(&w_health_medict, '!' + 0);
@@ -1298,6 +1306,10 @@ void HU_widget_build_armor(void)
   char armorstr[80]; //jff
   int armor = plr->armorpoints;
   int armorbars = armor>100? 25 : armor/4;
+
+  if (w_armor.val != -1 && w_armor.val == armor)
+    return;
+  w_armor.val = armor;
 
   // clear the widgets internal line
   HUlib_clearTextLine(&w_armor);
@@ -1347,6 +1359,10 @@ void HU_widget_build_armor_big(void)
   char *s;
   char armorstr[80]; //jff
   int armor = plr->armorpoints;
+
+  if (w_armor_big.val != -1 && w_armor_big.val == armor)
+    return;
+  w_armor_big.val = armor;
 
   // transfer the graphic key text to the widget
   HUlib_clearTextLine(&w_armor_armor);

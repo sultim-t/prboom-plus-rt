@@ -64,6 +64,7 @@ typedef struct
   // left-justified position of scrolling text window
   int   x;
   int   y;
+  int   val;
 
   const patchnum_t* f;                    // font
   int   sc;                             // start character
