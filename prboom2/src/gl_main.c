@@ -595,6 +595,7 @@ void gld_DrawNumPatch_f(float x, float y, int lump, int cm, enum patch_translati
   float width,height;
   float xpos, ypos;
   int cmap;
+  int leftoffset, topoffset;
 
   //e6y
   dboolean bFakeColormap;
@@ -632,19 +633,30 @@ void gld_DrawNumPatch_f(float x, float y, int lump, int cm, enum patch_translati
     fU2=gltexture->scalexfac;
   }
 
+  if (flags & VPT_NOOFFSET)
+  {
+    leftoffset = 0;
+    topoffset = 0;
+  }
+  else
+  {
+    leftoffset = gltexture->leftoffset;
+    topoffset = gltexture->topoffset;
+  }
+
   if (flags & VPT_STRETCH_MASK)
   {
     stretch_param_t *params = &stretch_params[flags & VPT_ALIGN_MASK];
 
-    xpos   = (float)((x - gltexture->leftoffset) * params->video->width)  / 320.0f + params->deltax1;
-    ypos   = (float)((y - gltexture->topoffset)  * params->video->height) / 200.0f + params->deltay1;
+    xpos   = (float)((x - leftoffset) * params->video->width)  / 320.0f + params->deltax1;
+    ypos   = (float)((y - topoffset)  * params->video->height) / 200.0f + params->deltay1;
     width  = (float)(gltexture->realtexwidth     * params->video->width)  / 320.0f;
     height = (float)(gltexture->realtexheight    * params->video->height) / 200.0f;
   }
   else
   {
-    xpos   = (float)(x - gltexture->leftoffset);
-    ypos   = (float)(y - gltexture->topoffset);
+    xpos   = (float)(x - leftoffset);
+    ypos   = (float)(y - topoffset);
     width  = (float)(gltexture->realtexwidth);
     height = (float)(gltexture->realtexheight);
   }

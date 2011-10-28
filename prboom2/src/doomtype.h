@@ -154,6 +154,7 @@ enum patch_translation_e {
   VPT_NONE    = 128, // Normal
   VPT_FLIP    = 256, // Flip image horizontally
   VPT_TRANS   = 512, // Translate image via a translation table
+  VPT_NOOFFSET = 1024,
 };
 
 #endif

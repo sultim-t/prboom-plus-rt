@@ -383,8 +383,12 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
     trans=colrngs[cm];
   else
     trans=translationtables + 256*((cm-CR_LIMIT)-1);
-  y -= patch->topoffset;
-  x -= patch->leftoffset;
+  
+  if (!(flags & VPT_NOOFFSET))
+  {
+    y -= patch->topoffset;
+    x -= patch->leftoffset;
+  }
 
   // CPhipps - auto-no-stretch if not high-res
   if ((flags & VPT_STRETCH_MASK) && SCREEN_320x200)
