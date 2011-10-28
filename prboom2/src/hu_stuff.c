@@ -45,14 +45,14 @@
 #include "g_game.h"
 #include "r_main.h"
 #include "p_inter.h"
+#include "sc_man.h"
 #include "lprintf.h"
 #include "e6y.h" //e6y
 
 // global heads up display controls
 
-int hud_active;       //jff 2/17/98 controls heads-up display mode
 int hud_displayed;    //jff 2/23/98 turns heads-up display on/off
-int hud_distributed;  //jff 3/4/98 display HUD in different places on screen
+int hud_num;
 
 //
 // Locally used constants, shortcuts.
@@ -89,48 +89,7 @@ int hud_distributed;  //jff 3/4/98 display HUD in different places on screen
 
 //jff 2/16/98 add ammo, health, armor widgets, 2/22/98 less gap
 #define HU_GAPY 8
-#define HU_HUDHEIGHT (6*HU_GAPY)
-#define HU_HUDX 2
-#define HU_HUDY (200-HU_HUDHEIGHT-1)
-#define HU_MONSECX (HU_HUDX)
-#define HU_MONSECY (HU_HUDY+0*HU_GAPY)
-#define HU_KEYSX   (HU_HUDX)
-//jff 3/7/98 add offset for graphic key widget
-#define HU_KEYSGX  (HU_HUDX+4*hu_font2['A'-HU_FONTSTART].width)
-#define HU_KEYSY   (HU_HUDY+1*HU_GAPY)
-#define HU_WEAPX   (HU_HUDX)
-#define HU_WEAPY   (HU_HUDY+2*HU_GAPY)
-#define HU_AMMOX   (HU_HUDX)
-#define HU_AMMOY   (HU_HUDY+3*HU_GAPY)
-#define HU_HEALTHX (HU_HUDX)
-#define HU_HEALTHY (HU_HUDY+4*HU_GAPY)
-#define HU_ARMORX  (HU_HUDX)
-#define HU_ARMORY  (HU_HUDY+5*HU_GAPY)
 
-//jff 3/4/98 distributed HUD positions
-#define HU_HUDX_LL 2
-#define HU_HUDY_LL (200-2*HU_GAPY-1)
-// proff/nicolas 09/20/98: Changed for high-res
-#define HU_HUDX_LR (320-112)
-#define HU_HUDY_LR (200-2*HU_GAPY-1)
-// proff/nicolas 09/20/98: Changed for high-res
-#define HU_HUDX_UR (320-96)
-#define HU_HUDY_UR 2
-#define HU_MONSECX_D (HU_HUDX_LL)
-#define HU_MONSECY_D (HU_HUDY_LL+0*HU_GAPY)
-#define HU_KEYSX_D   (HU_HUDX_LL)
-#define HU_KEYSGX_D  (HU_HUDX_LL+4*hu_font2['A'-HU_FONTSTART].width)
-#define HU_KEYSY_D   (HU_HUDY_LL+1*HU_GAPY)
-#define HU_WEAPX_D   (HU_HUDX_LR)
-#define HU_WEAPY_D   (HU_HUDY_LR+0*HU_GAPY)
-#define HU_AMMOX_D   (HU_HUDX_LR)
-#define HU_AMMOY_D   (HU_HUDY_LR+1*HU_GAPY)
-#define HU_HEALTHX_D (HU_HUDX_UR)
-#define HU_HEALTHY_D (HU_HUDY_UR+0*HU_GAPY)
-#define HU_ARMORX_D  (HU_HUDX_UR)
-#define HU_ARMORY_D  (HU_HUDY_UR+1*HU_GAPY)
-
-//#define HU_INPUTTOGGLE  't' // not used                           // phares
 #define HU_INPUTX HU_MSGX
 #define HU_INPUTY (HU_MSGY + HU_MSGHEIGHT*(hu_font[0].height) +1)
 
@@ -203,9 +162,13 @@ static hu_textline_t  w_map_time;      //e6y level time widgets automap
 static hu_textline_t  w_map_totaltime; //e6y total time widgets automap
 
 static hu_textline_t  w_health_big;
-static hu_textline_t  w_health_medict;
+static hu_textline_t  w_medict_icon_big;
+static hu_textline_t  w_medict_icon_small;
 static hu_textline_t  w_armor_big;
-static hu_textline_t  w_armor_armor;
+static hu_textline_t  w_armor_icon_big;
+static hu_textline_t  w_armor_icon_small;
+static hu_textline_t  w_medict_percent;
+static hu_textline_t  w_armor_percent;
 
 static dboolean    always_off = false;
 static char       chat_dest[MAXPLAYERS];
@@ -405,6 +368,9 @@ void HU_Init(void)
   R_SetSpriteByName(&hu_font_hud[9], "BON2A0");
   R_SetSpriteByName(&hu_font_hud[10], "BON2B0");
   R_SetSpriteByName(&hu_font_hud[11], "BON2D0");
+
+  R_SetPatchNum(&hu_font_hud[12], "STTPRCNT");
+  R_SetPatchNum(&hu_font_hud[13], "STTPRCNT");
 }
 
 //
@@ -478,8 +444,7 @@ void HU_Start(void)
   HUlib_initTextLine
   (
     &w_health,
-    hud_distributed? HU_HEALTHX_D : HU_HEALTHX,  //3/4/98 distribute
-    hud_distributed? HU_HEALTHY_D : HU_HEALTHY,
+    0, 0,
     hu_font2,
     HU_FONTSTART,
     CR_GREEN,
@@ -489,8 +454,7 @@ void HU_Start(void)
   HUlib_initTextLine
   (
     &w_health_big,
-    0,
-    0,
+    0, 0,
     hu_font_hud,
     HU_FONTSTART,
     CR_RED,
@@ -499,9 +463,18 @@ void HU_Start(void)
 
   HUlib_initTextLine
   (
-    &w_health_medict,
-    0,
-    0,
+    &w_medict_icon_big,
+    0, 0,
+    hu_font_hud,
+    HU_FONTSTART,
+    CR_RED,
+    VPT_NONE
+  );
+
+  HUlib_initTextLine
+  (
+    &w_medict_icon_small,
+    0, 0,
     hu_font_hud,
     HU_FONTSTART,
     CR_RED,
@@ -514,8 +487,7 @@ void HU_Start(void)
   HUlib_initTextLine
   (
     &w_armor,
-    hud_distributed? HU_ARMORX_D : HU_ARMORX,    //3/4/98 distribute
-    hud_distributed? HU_ARMORY_D : HU_ARMORY,
+    0, 0,
     hu_font2,
     HU_FONTSTART,
     CR_GREEN,
@@ -525,8 +497,7 @@ void HU_Start(void)
   HUlib_initTextLine
   (
     &w_armor_big,
-    0,
-    0,
+    0, 0,
     hu_font_hud,
     HU_FONTSTART,
     CR_RED,
@@ -535,9 +506,18 @@ void HU_Start(void)
 
   HUlib_initTextLine
   (
-    &w_armor_armor,
-    0,
-    0,
+    &w_armor_icon_big,
+    0, 0,
+    hu_font_hud,
+    HU_FONTSTART,
+    CR_RED,
+    VPT_NONE
+  );
+
+  HUlib_initTextLine
+  (
+    &w_armor_icon_small,
+    0, 0,
     hu_font_hud,
     HU_FONTSTART,
     CR_RED,
@@ -550,8 +530,7 @@ void HU_Start(void)
   HUlib_initTextLine
   (
     &w_ammo,
-    hud_distributed? HU_AMMOX_D : HU_AMMOX,      //3/4/98 distribute
-    hud_distributed? HU_AMMOY_D : HU_AMMOY,
+    0, 0,
     hu_font2,
     HU_FONTSTART,
     CR_GOLD,
@@ -564,8 +543,7 @@ void HU_Start(void)
   HUlib_initTextLine
   (
     &w_weapon,
-    hud_distributed? HU_WEAPX_D : HU_WEAPX,      //3/4/98 distribute
-    hud_distributed? HU_WEAPY_D : HU_WEAPY,
+    0, 0,
     hu_font2,
     HU_FONTSTART,
     CR_GRAY,
@@ -578,8 +556,7 @@ void HU_Start(void)
   HUlib_initTextLine
   (
     &w_keys,
-    hud_distributed? HU_KEYSX_D : HU_KEYSX,      //3/4/98 distribute
-    hud_distributed? HU_KEYSY_D : HU_KEYSY,
+    0, 0,
     hu_font2,
     HU_FONTSTART,
     CR_GRAY,
@@ -592,8 +569,7 @@ void HU_Start(void)
   HUlib_initTextLine
   (
     &w_gkeys,
-    hud_distributed? HU_KEYSGX_D : HU_KEYSGX,    //3/4/98 distribute
-    hud_distributed? HU_KEYSY_D : HU_KEYSY,
+    0, 0,
     hu_fontk,
     HU_FONTSTART,
     CR_RED,
@@ -606,9 +582,28 @@ void HU_Start(void)
   HUlib_initTextLine
   (
     &w_monsec,
-    hud_distributed? HU_MONSECX_D : HU_MONSECX,  //3/4/98 distribute
-    hud_distributed? HU_MONSECY_D : HU_MONSECY,
+    0, 0,
     hu_font2,
+    HU_FONTSTART,
+    CR_GRAY,
+    VPT_NONE
+  );
+
+  HUlib_initTextLine
+  (
+    &w_medict_percent,
+    0, 0,
+    hu_font_hud,
+    HU_FONTSTART,
+    CR_GRAY,
+    VPT_NONE
+  );
+
+  HUlib_initTextLine
+  (
+    &w_armor_percent,
+    0, 0,
+    hu_font_hud,
     HU_FONTSTART,
     CR_GRAY,
     VPT_NONE
@@ -744,8 +739,7 @@ void HU_Start(void)
   HUlib_initTextLine
   (
     &w_hudadd,
-    hud_distributed? HU_HUDADDX_D : HU_HUDADDX,  //3/4/98 distribute
-    hud_distributed? HU_HUDADDY_D : HU_HUDADDY,
+    0, 0,
     hu_font2,
     HU_FONTSTART,
     CR_GRAY,
@@ -848,15 +842,235 @@ void HU_Start(void)
   // now allow the heads-up display to run
   headsupactive = true;
 
+  HU_LoadHUDDefs();
+
   HU_MoveHud(true);
 }
 
 void HU_NextHud(void)
 {
-  hud_active = (hud_active + 1) % 4;    // cycle hud_active
-  if (!hud_active)                      //jff 3/4/98 add distributed
+  if (huds_count > 0)
   {
-    hud_distributed = !hud_distributed; // to cycle
+    hud_num = (hud_num + 1) % huds_count;    // cycle hud_active
+  }
+}
+
+typedef void (*HU_widget_build_func)(void);
+typedef void (*HU_widget_draw_func)(void);
+
+typedef struct hud_cfg_item_s
+{
+  char name[80];
+  int x;
+  int y;
+} hud_cfg_item_t;
+
+typedef struct hud_widget_s
+{
+  hu_textline_t *hu_textline;
+  int x;
+  int y;
+  enum patch_translation_e flags;
+  HU_widget_build_func build;
+  HU_widget_draw_func draw;
+  char *name;
+} hud_widget_t;
+
+typedef struct hud_widgets_list_s
+{
+  int count;
+  hud_widget_t *items;
+} hud_widgets_list_t;
+
+int huds_count;
+hud_widgets_list_t *huds;
+hud_widgets_list_t *hud_current;
+
+void HU_widget_build_ammo(void);
+void HU_widget_draw_ammo(void);
+void HU_widget_build_weapon(void);
+void HU_widget_draw_weapon(void);
+void HU_widget_build_keys(void);
+void HU_widget_draw_keys(void);
+void HU_widget_build_monsec(void);
+void HU_widget_draw_monsec(void);
+void HU_widget_build_health(void);
+void HU_widget_draw_health(void);
+void HU_widget_build_armor(void);
+void HU_widget_draw_armor(void);
+void HU_widget_build_hudadd(void);
+void HU_widget_draw_hudadd(void);
+
+void HU_widget_build_health_big(void);
+void HU_widget_draw_health_big(void);
+void HU_widget_build_armor_big(void);
+void HU_widget_draw_armor_big(void);
+
+void HU_widget_build_medict_icon_big(void);
+void HU_widget_draw_medict_icon_big(void);
+void HU_widget_build_armor_icon_big(void);
+void HU_widget_draw_armor_icon_big(void);
+
+void HU_widget_build_medict_icon_small(void);
+void HU_widget_draw_medict_icon_small(void);
+void HU_widget_build_armor_icon_small(void);
+void HU_widget_draw_armor_icon_small(void);
+
+void HU_widget_build_medict_percent(void);
+void HU_widget_draw_medict_percent(void);
+void HU_widget_build_armor_percent(void);
+void HU_widget_draw_armor_percent(void);
+
+static hud_widget_t hud_name_widget[] =
+{
+  {&w_ammo,   0, 0, 0, HU_widget_build_ammo,   HU_widget_draw_ammo,   "ammo"},
+  {&w_weapon, 0, 0, 0, HU_widget_build_weapon, HU_widget_draw_weapon, "weapon"},
+  {&w_keys,   0, 0, 0, HU_widget_build_keys,   HU_widget_draw_keys,   "keys"},
+  {&w_monsec, 0, 0, 0, HU_widget_build_monsec, HU_widget_draw_monsec, "monsec"},
+  {&w_health, 0, 0, 0, HU_widget_build_health, HU_widget_draw_health, "health"},
+  {&w_armor,  0, 0, 0, HU_widget_build_armor,  HU_widget_draw_armor,  "armor"},
+  {&w_hudadd, 0, 0, 0, HU_widget_build_hudadd, HU_widget_draw_hudadd, "hudadd"},
+
+  {&w_traces[0], 0, 0, 0, NULL, NULL, "tracers"},
+
+  {&w_health_big, 0, 0, VPT_NOOFFSET, HU_widget_build_health_big, HU_widget_draw_health_big, "health_big"},
+  {&w_armor_big,  0, 0, VPT_NOOFFSET, HU_widget_build_armor_big,  HU_widget_draw_armor_big,  "armor_big"},
+
+  {&w_medict_icon_big, 0, 0, VPT_NOOFFSET, HU_widget_build_medict_icon_big, HU_widget_draw_medict_icon_big, "medict_icon_big"},
+  {&w_armor_icon_big,  0, 0, VPT_NOOFFSET, HU_widget_build_armor_icon_big,  HU_widget_draw_armor_icon_big,  "armor_icon_big"},
+
+  {&w_medict_icon_small, 0, 0, VPT_NOOFFSET, HU_widget_build_medict_icon_small, HU_widget_draw_medict_icon_small, "medict_icon_small"},
+  {&w_armor_icon_small,  0, 0, VPT_NOOFFSET, HU_widget_build_armor_icon_small,  HU_widget_draw_armor_icon_small,  "armor_icon_small"},
+
+  {&w_medict_percent, 0, 0, VPT_NOOFFSET, HU_widget_build_medict_percent, HU_widget_draw_medict_percent, "medict_percent"},
+  {&w_armor_percent,  0, 0, VPT_NOOFFSET, HU_widget_build_armor_percent,  HU_widget_draw_armor_percent,  "armor_percent"},
+
+  {NULL, 0, 0, 0, NULL, NULL, NULL}
+};
+
+void HU_ParseHUD(void)
+{
+  while (SC_Check() && !SC_Compare("{"))
+    SC_GetString();
+
+  if (SC_GetString() && SC_Compare("{"))
+  {
+    while (SC_GetString() && !SC_Compare("}"))
+    {
+      if (SC_Compare("hud"))
+      {
+        // skip hud num, etc
+        while (SC_Check() && !SC_Compare("{"))
+          SC_GetString();
+
+        if (SC_GetString() && SC_Compare("{"))
+        {
+          int i, params_count;
+          hud_cfg_item_t cfg_item;
+          hud_widgets_list_t *list;
+
+          huds_count++;
+          huds = realloc(huds, huds_count * sizeof(huds[0]));
+          list = &huds[huds_count - 1];
+          list->items = NULL;
+          list->count = 0;
+
+          while (SC_GetString() && !SC_Compare("}"))
+          {
+            char st[200];
+            strncpy(st, sc_String, sizeof(st) - 1);
+            
+            while (SC_Check() && SC_GetString())
+            {
+              strncat(st, " ", sizeof(st) - 1);
+              strncat(st, sc_String, sizeof(st) - 1);
+            }
+            st[sizeof(st) - 1] = 0;
+
+            params_count = sscanf(st, "%s %d %d", &cfg_item.name[0], &cfg_item.x, &cfg_item.y);
+            if (params_count == 3)
+            {
+              for (i = 0; hud_name_widget[i].name; i++)
+              {
+                if (!strcasecmp(hud_name_widget[i].name, cfg_item.name))
+                {
+                  hud_widget_t *item;
+
+                  list->count++;
+                  list->items = realloc(list->items, list->count * sizeof(list->items[0]));
+                  
+                  item = &list->items[list->count - 1];
+
+                  item->hu_textline = hud_name_widget[i].hu_textline;
+
+                  item->x = cfg_item.x;
+                  item->y = cfg_item.y;
+
+                  if (abs(cfg_item.x) < 160)
+                  {
+                    item->flags = (abs(cfg_item.y) > 100 ? VPT_ALIGN_LEFT_BOTTOM : VPT_ALIGN_LEFT_TOP);
+                  }
+                  else
+                  {
+                    item->flags = (abs(cfg_item.y) > 100 ? VPT_ALIGN_RIGHT_BOTTOM : VPT_ALIGN_RIGHT_TOP);
+                  }
+                  item->flags |= hud_name_widget[i].flags;
+
+                  item->build = hud_name_widget[i].build;
+                  item->draw = hud_name_widget[i].draw;
+
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+void HU_LoadHUDDefs(void)
+{
+  typedef enum
+  {
+    TAG_HUD,
+    TAG_MAX
+  } hud_type_e;
+
+  // these are the core types available in the *DEFS lump
+  static const char *CoreKeywords[TAG_MAX + 1] =
+  {
+    "huds",
+    NULL
+  };
+
+  static int init = 0;
+  int lump;
+
+  if (init)
+    return;
+
+  huds_count = 0;
+  huds = NULL;
+
+  lump = (W_CheckNumForName)("-PRBHUD-", ns_prboom);
+  if (lump != -1)
+  {
+    SC_OpenLumpByNum(lump);
+
+    // Get actor class name.
+    while (SC_GetString())
+    {
+      switch (SC_MatchString(CoreKeywords))
+      {
+      case TAG_HUD:
+        HU_ParseHUD();
+        break;
+      }
+    }
+
+    SC_Close();
   }
 }
 
@@ -870,197 +1084,27 @@ void HU_NextHud(void)
 //jff 3/9/98 create this externally callable to avoid glitch
 // when menu scatter's HUD due to delay in change of position
 //
+
 void HU_MoveHud(int force)
 {
-  typedef struct hud_coords_s
-  {
-    hu_textline_t *name;
-    int x[2];
-    int y[2];
-    int flags[2];
-  } hud_coords_t;
-
-  static int ohud_distributed = -1;
-  static int ohud_active = -1;
-  static int health_y = -1;
-  size_t i;
-
-  typedef enum
-  {
-    HUD_GKEYS, HUD_AMMO, HUD_WEAPON, HUD_KEYS, HUD_MONSEC,
-    HUD_HEALTH, HUD_ARMOR, HUD_HUDADD,
-    HUD_HEALTH_BIG, HUD_ARMOR_BIG, HUD_HEALTH_MEDICT,HUD_ARMOR_ARMOR,
-    HUD_MAX,
-  } hud_elem_e;
-
-  static hud_coords_t hud[HUD_MAX] =
-  {
-    {&w_gkeys,  {-1, -1},  {HU_KEYSY, HU_KEYSY_D},     
-     {VPT_ALIGN_LEFT_BOTTOM, VPT_ALIGN_LEFT_BOTTOM}},
-
-    {&w_ammo,   {HU_AMMOX,   HU_AMMOX_D},   {HU_AMMOY, HU_AMMOY_D},     
-    {VPT_ALIGN_LEFT_BOTTOM, VPT_ALIGN_RIGHT_BOTTOM}},
-
-    {&w_weapon, {HU_WEAPX,   HU_WEAPX_D},   {HU_WEAPY, HU_WEAPY_D},     
-    {VPT_ALIGN_LEFT_BOTTOM, VPT_ALIGN_RIGHT_BOTTOM}},
-
-    {&w_keys,   {HU_KEYSX,   HU_KEYSX_D},   {HU_KEYSY, HU_KEYSY_D},     
-    {VPT_ALIGN_LEFT_BOTTOM, VPT_ALIGN_LEFT_BOTTOM}},
-
-    {&w_monsec, {HU_MONSECX, HU_MONSECX_D}, {HU_MONSECY, HU_MONSECY_D}, 
-    {VPT_ALIGN_LEFT_BOTTOM, VPT_ALIGN_LEFT_BOTTOM}},
-
-    {&w_health, {HU_HEALTHX, HU_HEALTHX_D}, {HU_HEALTHY, HU_HEALTHY_D}, 
-    {VPT_ALIGN_LEFT_BOTTOM, VPT_ALIGN_RIGHT_TOP}},
-
-    {&w_armor,  {HU_ARMORX,  HU_ARMORX_D},  {HU_ARMORY, HU_ARMORY_D},   
-     {VPT_ALIGN_LEFT_BOTTOM, VPT_ALIGN_RIGHT_TOP}},
-
-    {&w_hudadd, {HU_HUDADDX, HU_HUDADDX_D}, {HU_HUDADDY, HU_HUDADDY_D}, 
-     {VPT_ALIGN_LEFT_BOTTOM, VPT_ALIGN_LEFT_BOTTOM}},
-
-    {&w_health_big, {-1, -1}, {-1, -1},
-     {VPT_ALIGN_LEFT_BOTTOM, VPT_ALIGN_LEFT_BOTTOM}},
-
-    {&w_armor_big, {-1, -1}, {-1, -1},
-     {VPT_ALIGN_RIGHT_BOTTOM, VPT_ALIGN_RIGHT_BOTTOM}},
-
-    {&w_health_medict, {-1, -1}, {-1, -1},
-     {VPT_ALIGN_LEFT_BOTTOM, VPT_ALIGN_LEFT_BOTTOM}},
-
-    {&w_armor_armor, {-1, -1}, {-1, -1},
-     {VPT_ALIGN_RIGHT_BOTTOM, VPT_ALIGN_RIGHT_BOTTOM}},
-  };
+  static int init = 0;
+  static int ohud_num = -1;
 
   //jff 3/4/98 move displays around on F5 changing hud_distributed
-  if (force || hud_distributed != ohud_distributed || hud_active != ohud_active)
+  if ((huds_count > 0) && (force || hud_num != ohud_num))
   {
-    int y;
-    int hudnum = hud_distributed * 4 + hud_active;
+    int i;
 
-    // HUDs with icons for health and armor
-    if (hudnum == 3 || hudnum == 7)
+    hud_current = &huds[hud_num % huds_count];
+
+    for (i = 0; i < hud_current->count; i++)
     {
-      int start = (hudnum == 3 ? 4 : 8);
-      hu_font_hud[0] = hu_font_hud[start + 0];
-      hu_font_hud[1] = hu_font_hud[start + 1];
-      hu_font_hud[2] = hu_font_hud[start + 2];
-      hu_font_hud[3] = hu_font_hud[start + 3];
-      if (hu_font_hud[0].lumpnum < 0 ||
-          hu_font_hud[1].lumpnum < 0 ||
-          hu_font_hud[2].lumpnum < 0 ||
-          hu_font_hud[3].lumpnum < 0)
-      {
-        //no hud graphics?
-        HU_NextHud();
-        hudnum = hud_distributed * 4 + hud_active;
-      }
+      hud_current->items[i].hu_textline->x = hud_current->items[i].x;
+      hud_current->items[i].hu_textline->y = hud_current->items[i].y;
+      hud_current->items[i].hu_textline->flags = hud_current->items[i].flags;
     }
 
-    if (hud[0].x[0] == -1)
-    {
-      int n, max = 999;
-      char buf[16];
-      for (i = 0; i < NUMAMMO; i++)
-      {
-        max = MAX(max, maxammo[i]);
-      }
-          
-      n = SNPRINTF(buf, 10, "%d", max) - 3;
-      hud[HUD_WEAPON].x[1] -= n * 10;
-      hud[HUD_AMMO].x[1] -= n * 10;
-    }
-
-    hud[0].x[0] = HU_KEYSGX;
-    hud[0].x[1] = HU_KEYSGX_D;
-
-    if (health_y != -1)
-    {
-      // restore
-      for (i = 0; i <= HUD_HUDADD; i++)
-      {
-        hud[i].y[1] += health_y;
-      }
-      health_y = -1;
-    }
-
-    if (hudnum == 3 || hudnum == 7)
-    {
-      health_y = 0;
-      // max height for (health / no armor / green armor / blue armor) icons
-      for (i = 0; i < 4; i++)
-      {
-        health_y = MAX(health_y, hu_font_hud[i].height);
-      }
-      // big digits
-      for (i = 0; i < 10; i++)
-      {
-        health_y = MAX(health_y, hu_font_hud[i + '0' - HU_FONTSTART].height);
-      }
-      health_y += 2;
-
-      for (i = 0; i <= HUD_HUDADD; i++)
-      {
-        hud[i].y[1] -= health_y;
-      }
-
-      for (i = 0; i < 2; i++)
-      {
-        hud[HUD_HEALTH_MEDICT].x[i] = HU_HUDX_LL + hu_font_hud[0].leftoffset;
-        hud[HUD_HEALTH_MEDICT].y[i] = 200 - hu_font_hud[0].height + hu_font_hud[0].topoffset - 2;
-        hud[HUD_HEALTH_BIG].x[i] = HU_HUDX_LL + hu_font_hud[0].width + 4 ;
-        hud[HUD_HEALTH_BIG].y[i] = 200 - hu_font_hud['1'-HU_FONTSTART].height - 1;
-
-        hud[HUD_ARMOR_ARMOR].x[i] = 320 - hu_font_hud[1].width + hu_font_hud[1].leftoffset - 2;
-        hud[HUD_ARMOR_ARMOR].y[i] = 200 - hu_font_hud[1].height + hu_font_hud[1].topoffset - 2;
-        hud[HUD_ARMOR_BIG].x[i] = HU_HUDX_LR + hu_font_hud[1].width + 4;
-        hud[HUD_ARMOR_BIG].y[i] = 200 - hu_font_hud['1'-HU_FONTSTART].height - 1;
-      }
-    }
-
-    for (i = 0; i < sizeof(hud) / sizeof(hud[0]); i++)
-    {
-      int index = (hud_distributed ? 1 : 0);
-      if (hudnum == 3 && hud_active == 3)
-        index = 1;
-      hud[i].name->x = hud[i].x[index];
-      hud[i].name->y = hud[i].y[index];
-      hud[i].name->flags = hud[i].flags[index];
-    }
-
-    y = 0;
-    switch (hudnum)
-    {
-    case 1:
-      y = w_weapon.y;
-      break;
-    case 2:
-    case 3:
-    case 6:
-    case 7:
-      y = w_monsec.y;
-      break;
-    case 5:
-      y = 200;
-      break;
-    }
-
-    if (hudadd_gamespeed || hudadd_leveltime)
-    {
-      y = y - 1 * HU_GAPY;
-      w_hudadd.y = y;
-    }
-    
-    if (traces_present)
-    {
-      for (i = 0; i < NUMTRACES; i++)
-      {
-        w_traces[i].y = y - (i + 1) * HU_GAPY;
-      }
-    }
-
-    ohud_distributed = hud_distributed;
-    ohud_active = hud_active;
+    ohud_num = hud_num;
   }
 }
 
@@ -1232,15 +1276,11 @@ void HU_widget_build_health_big(void)
     return;
   w_health_big.val = health;
 
-  // transfer the graphic key text to the widget
-  HUlib_clearTextLine(&w_health_medict);
-  HUlib_addCharToTextLine(&w_health_medict, '!' + 0);
-
   // clear the widgets internal line
   HUlib_clearTextLine(&w_health_big);
 
   // build the numeric amount init string
-  sprintf(healthstr,"%3d",health);
+  sprintf(healthstr,"%d",health);
 
   // set the display color from the amount of health posessed
   if (!sts_always_red)
@@ -1254,8 +1294,31 @@ void HU_widget_build_health_big(void)
 
 void HU_widget_draw_health_big(void)
 {
-  HUlib_drawTextLine(&w_health_medict, false);
   HUlib_drawTextLine(&w_health_big, false);
+}
+
+void HU_widget_build_medict_icon_big(void)
+{
+  // transfer the graphic key text to the widget
+  HUlib_clearTextLine(&w_medict_icon_big);
+  HUlib_addCharToTextLine(&w_medict_icon_big, '!' + 0 + 4);
+}
+
+void HU_widget_draw_medict_icon_big(void)
+{
+  HUlib_drawTextLine(&w_medict_icon_big, false);
+}
+
+void HU_widget_build_medict_icon_small(void)
+{
+  // transfer the graphic key text to the widget
+  HUlib_clearTextLine(&w_medict_icon_small);
+  HUlib_addCharToTextLine(&w_medict_icon_small, '!' + 0 + 8);
+}
+
+void HU_widget_draw_medict_icon_small(void)
+{
+  HUlib_drawTextLine(&w_medict_icon_small, false);
 }
 
 void HU_widget_build_armor(void)
@@ -1273,7 +1336,7 @@ void HU_widget_build_armor(void)
   // clear the widgets internal line
   HUlib_clearTextLine(&w_armor);
   // build the numeric amount init string
-  sprintf(armorstr,"%3d",armor);
+  sprintf(armorstr,"%d",armor);
   // build the bargraph string
   // full bargraph chars
   for (i=4;i<4+armorbars/4;)
@@ -1323,10 +1386,6 @@ void HU_widget_build_armor_big(void)
     return;
   w_armor_big.val = armor;
 
-  // transfer the graphic key text to the widget
-  HUlib_clearTextLine(&w_armor_armor);
-  HUlib_addCharToTextLine(&w_armor_armor, (char)('!' + plr->armortype + 1));
-
   // clear the widgets internal line
   HUlib_clearTextLine(&w_armor_big);
   // build the numeric amount init string
@@ -1338,19 +1397,37 @@ void HU_widget_build_armor_big(void)
 
   // transfer the init string to the widget
   s = armorstr;
-  w_armor_big.x = w_armor_armor.x - hu_font_hud[plr->armortype + 1].leftoffset - 4;
   while (*s)
-  {
-    HUlib_addCharToTextLine(&w_armor_big, *s);
-    w_armor_big.x -= hu_font_hud[*s - HU_FONTSTART].width;
-    s++;
-  }
+    HUlib_addCharToTextLine(&w_armor_big, *(s++));
 }
 
 void HU_widget_draw_armor_big(void)
 {
-  HUlib_drawTextLine(&w_armor_armor, false);
   HUlib_drawTextLine(&w_armor_big, false);
+}
+
+void HU_widget_build_armor_icon_big(void)
+{
+  // transfer the graphic key text to the widget
+  HUlib_clearTextLine(&w_armor_icon_big);
+  HUlib_addCharToTextLine(&w_armor_icon_big, (char)('!' + plr->armortype + 1 + 4));
+}
+
+void HU_widget_draw_armor_icon_big(void)
+{
+  HUlib_drawTextLine(&w_armor_icon_big, false);
+}
+
+void HU_widget_build_armor_icon_small(void)
+{
+  // transfer the graphic key text to the widget
+  HUlib_clearTextLine(&w_armor_icon_small);
+  HUlib_addCharToTextLine(&w_armor_icon_small, (char)('!' + plr->armortype + 1 + 8));
+}
+
+void HU_widget_draw_armor_icon_small(void)
+{
+  HUlib_drawTextLine(&w_armor_icon_small, false);
 }
 
 
@@ -1617,6 +1694,10 @@ void HU_widget_build_keys(void)
     while (*s)
       HUlib_addCharToTextLine(&w_gkeys, *(s++));
   }
+
+  w_gkeys.x = w_keys.x + 20;
+  w_gkeys.y = w_keys.y;
+  w_gkeys.flags = w_keys.flags;
 }
 
 void HU_widget_draw_keys(void)
@@ -1727,6 +1808,10 @@ void HU_widget_build_hudadd(void)
 {
   char *s;
   hud_add[0] = 0;
+
+  if (!hudadd_gamespeed && !hudadd_leveltime)
+    return;
+
   if (hudadd_gamespeed)
     sprintf(hud_add,"\x1b\x32speed \x1b\x33%.2d ", realtic_clock_rate);
   if ((hudadd_leveltime) || (demoplayback && hudadd_demotime))
@@ -1749,8 +1834,56 @@ void HU_widget_build_hudadd(void)
 
 void HU_widget_draw_hudadd(void)
 {
-  HUlib_drawTextLine(&w_hudadd, false);
+  if (hudadd_gamespeed || hudadd_leveltime)
+  {
+    HUlib_drawTextLine(&w_hudadd, false);
+  }
 }
+
+void HU_widget_build_medict_percent(void)
+{
+  int health = plr->health;
+
+  if (w_medict_percent.val != -1 && w_medict_percent.val == health)
+    return;
+  w_medict_percent.val = health;
+
+  // transfer the graphic key text to the widget
+  HUlib_clearTextLine(&w_medict_percent);
+
+  if (!sts_always_red)
+    w_medict_percent.cm = HU_GetHealthColor(health, CR_BLUE2);
+
+  HUlib_addCharToTextLine(&w_medict_percent, (char)('!' + 12));
+}
+
+void HU_widget_draw_medict_percent(void)
+{
+  HUlib_drawTextLine(&w_medict_percent, false);
+}
+
+void HU_widget_build_armor_percent(void)
+{
+  int armor = plr->armorpoints;
+
+  if (w_armor_percent.val != -1 && w_armor_percent.val == armor)
+    return;
+  w_armor_percent.val = armor;
+
+  // transfer the graphic key text to the widget
+  HUlib_clearTextLine(&w_armor_percent);
+
+  if (!sts_always_red)
+    w_armor_percent.cm = HU_GetArmorColor(armor, CR_BLUE2);
+
+  HUlib_addCharToTextLine(&w_armor_percent, (char)('!' + 13));
+}
+
+void HU_widget_draw_armor_percent(void)
+{
+  HUlib_drawTextLine(&w_armor_percent, false);
+}
+
 
 //
 // HU_Drawer()
@@ -1763,12 +1896,10 @@ void HU_Drawer(void)
 {
   char *s;
   player_t *plr;
-  int doit;
   //jff 3/4/98 speed update up for slow systems
   //e6y: speed update for uncapped framerate
   static dboolean needupdate = false;
   if (realframe) needupdate = !needupdate;
-  doit = needupdate;
 
   // don't draw anything if there's a fullscreen menu up
   if (menuactive == mnact_full)
@@ -1881,65 +2012,29 @@ void HU_Drawer(void)
   // killough 2/21/98: really allow new hud stuff to be turned off COMPLETELY
   if
   (
-    hud_active>0 &&                  // hud optioned on
+    hud_num > 0 &&                   // hud optioned on
     hud_displayed &&                 // hud on from fullscreen key
     viewheight==SCREENHEIGHT &&      // fullscreen mode is active
     (!(automapmode & am_active) ||   // automap is not active
      (automapmode & am_overlay))
   )
   {
+    int i;
+
     HU_MoveHud(false);                  // insure HUD display coords are correct
 
-    if (doit)            //jff 8/7/98 update every time, avoid lag in update
+    if (hud_current)
     {
-      if (hud_active == 3)
+      for (i = 0; i < hud_current->count; i++)
       {
-        HU_widget_build_health_big();
-        HU_widget_build_armor_big();
-      }
-      else
-      {
-        HU_widget_build_health();
-        HU_widget_build_armor();
-      }
-
-      if (hud_active != 3 || hud_distributed == 1)
-      {
-        HU_widget_build_ammo();
-        HU_widget_build_weapon();
-
-        if (hud_active > 1)
+        if (hud_current->items[i].build && hud_current->items[i].draw)
         {
-          HU_widget_build_keys();
-          HU_widget_build_monsec();
+          if (realframe)
+          {
+            hud_current->items[i].build();
+          }
+          hud_current->items[i].draw();
         }
-      }
-    }
-
-    if (hud_active == 3)
-    {
-      HU_widget_draw_health_big();
-      HU_widget_draw_armor_big();
-    }
-    else
-    {
-      HU_widget_draw_health();
-      HU_widget_draw_armor();
-    }
-
-    if (hud_active != 3 || hud_distributed == 1)
-    {
-      HU_widget_draw_ammo();
-      HU_widget_draw_weapon();
-      if (hud_active > 1)
-      {
-        HU_widget_draw_keys();
-        HU_widget_draw_monsec();
-      }
-      if (hudadd_gamespeed || hudadd_leveltime)
-      {
-        HU_widget_build_hudadd();
-        HU_widget_draw_hudadd();
       }
     }
 
@@ -1953,6 +2048,8 @@ void HU_Drawer(void)
         {
           if (realframe)
           {
+            w_traces[num].y = w_traces[0].y - num * 8;
+
             if (traces[k].ApplyFunc)
               traces[k].ApplyFunc(k);
 

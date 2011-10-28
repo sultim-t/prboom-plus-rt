@@ -835,8 +835,6 @@ default_t defaults[] =
    def_int,ss_mess}, // number of messages in review display (1=disable)
   {"hud_list_bgon", {&hud_list_bgon}, {0},0,1,  // solid window bg ena //jff 2/26/98
    def_bool,ss_mess}, // enables background window behind message review
-  {"hud_distributed",{&hud_distributed},{0},0,1, // hud broken up into 3 displays //jff 3/4/98
-   def_bool,ss_none}, // splits HUD into three 2 line displays
 
   {"health_red",    {&health_red}   , {25},0,200, // below is red
    def_int,ss_stat}, // amount of health for red to yellow transition
@@ -856,8 +854,8 @@ default_t defaults[] =
    def_int,ss_stat}, // percent of ammo for yellow to green transition
 
   //jff 2/16/98 HUD and status feature controls
-  {"hud_active",    {&hud_active}, {2},0,3, // 0=off, 1=small, 2=full, 3=Mattias Johansson
-   def_int,ss_none}, // 0 for HUD off, 1 for HUD small, 2 for full HUD
+  {"hud_num",    {&hud_num}, {2},0,100,
+   def_int,ss_none},
   //jff 2/23/98
   {"hud_displayed", {&hud_displayed},  {0},0,1, // whether hud is displayed
    def_bool,ss_none}, // enables display of HUD

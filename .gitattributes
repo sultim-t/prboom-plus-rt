@@ -123,6 +123,7 @@ prboom2/data/graphics/stcfn125.ppm -text
 prboom2/data/graphics/stkeys6.ppm -text
 prboom2/data/graphics/stkeys7.ppm -text
 prboom2/data/graphics/stkeys8.ppm -text
+prboom2/data/lumps/-prbhud-.lmp -text
 prboom2/data/lumps/animated.lmp -text
 prboom2/data/lumps/b_end.lmp -text svneol=unset#application/octet-stream
 prboom2/data/lumps/b_start.lmp -text svneol=unset#application/octet-stream

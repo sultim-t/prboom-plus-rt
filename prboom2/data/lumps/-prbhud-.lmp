@@ -1,0 +1,103 @@
+HUDs
+{
+  hud 0
+  {
+  }
+
+  hud 1
+  {
+    tracers 2 151
+    hudadd 2 159
+    weapon 2 167
+    ammo 2 175
+    health 2 183
+    armor 2 191
+  }
+
+  hud 2
+  {
+    tracers 2 135
+    hudadd 2 143
+    monsec 2 151
+    keys 2 159
+    weapon 2 167
+    ammo 2 175
+    health 2 183
+    armor 2 191
+  }
+
+  hud 3
+  {
+    tracers 2 184
+    hudadd 2 192
+    weapon 208 183
+    ammo 208 191
+    health 224 2
+    armor 224 10
+  }
+
+  hud 4
+  {
+    tracers 2 167
+    hudadd 2 175
+    monsec 2 183
+    keys 2 191
+    weapon 208 183
+    ammo 208 191
+    health 224 2
+    armor 224 10
+  }
+
+  hud 5
+  {
+    tracers 2 167
+    medict_icon_big 4 -198
+    health_big 35 -198
+    armor_icon_big -316 -198
+    armor_big -283 -198
+  }
+
+  hud 6
+  {
+    tracers 2 151
+    hudadd 2 159
+    monsec 2 167
+    keys 2 175
+    weapon 2 183
+    ammo 2 191
+    medict_icon_big 242 -178
+    health_big -316 -178
+    armor_icon_big 240 -198
+    armor_big -316 -198
+  }
+
+  hud 7
+  {
+    tracers 2 151
+    hudadd 2 159
+    monsec 2 167
+    keys 2 175
+    weapon 2 183
+    ammo 2 191
+    armor_icon_big 226 -178
+    armor_big -302 -178
+    armor_percent -318 -178
+    medict_icon_big 228 -198
+    health_big -302 -198
+    medict_percent -318 -198
+  }
+
+  hud 8
+  {
+    tracers 2 151
+    hudadd 2 159
+    monsec 2 167
+    keys 2 175
+    weapon 2 183
+    ammo 2 191
+    medict_icon_small -315 -179
+    health_big -298 -180
+    armor_icon_small -316 -197
+    armor_big -298 -198
+  }
+}

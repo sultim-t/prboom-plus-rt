@@ -65,6 +65,7 @@ static void HUlib_init(void)
 //
 void HUlib_clearTextLine(hu_textline_t* t)
 {
+  t->w = 0;
   t->linelen =         // killough 1/23 98: support multiple lines
     t->len = 0;
   t->l[0] = 0;
@@ -111,6 +112,7 @@ dboolean HUlib_addCharToTextLine
     return false;
   else
   {
+    t->w += t->f[ch - HU_FONTSTART].width;
     t->linelen++;
     if (ch == '\n')
       t->linelen=0;
@@ -160,10 +162,12 @@ void HUlib_drawTextLine
   int     x;
   unsigned char c;
   int oc = l->cm; //jff 2/17/98 remember default color
-  int y = l->y;           // killough 1/18/98 -- support multiple lines
+  int y;          // killough 1/18/98 -- support multiple lines
 
   // draw the new stuff
-  x = l->x;
+
+  x = (l->x < 0 ? -l->x - l->w : l->x);
+  y = (l->y < 0 ? -l->y - l->f[toupper(l->l[0]) - l->sc].height : l->y);
   for (i=0;i<l->len;i++)
   {
     c = toupper(l->l[i]); //jff insure were not getting a cheap toupper conv.

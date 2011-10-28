@@ -58,6 +58,7 @@
  * Heads up text
  */
 void HU_Init(void);
+void HU_LoadHUDDefs(void);
 void HU_Start(void);
 
 dboolean HU_Responder(event_t* ev);
@@ -84,10 +85,10 @@ extern int hudcolor_chat;   /* color range of chat lines            */
 extern int hudcolor_list;   /* color of list of past messages                  */
 extern int hud_list_bgon;   /* solid window background for list of messages    */
 extern int hud_msg_lines;   /* number of message lines in window up to 16      */
-extern int hud_distributed; /* whether hud is all in lower left or distributed */
 /* jff 2/23/98 hud is currently displayed */
 extern int hud_displayed;   /* hud is displayed */
 /* jff 2/18/98 hud/status control */
-extern int hud_active;      /* hud mode 0=off, 1=small, 2=full          */
+extern int hud_num;
+extern int huds_count;
 
 #endif
