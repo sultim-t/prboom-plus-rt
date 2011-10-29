@@ -1851,7 +1851,12 @@ void HU_widget_build_medict_percent(void)
   HUlib_clearTextLine(&w_medict_percent);
 
   if (!sts_always_red)
-    w_medict_percent.cm = HU_GetHealthColor(health, CR_BLUE2);
+  {
+    if (sts_pct_always_gray)
+      w_medict_percent.cm = CR_GRAY;
+    else
+      w_medict_percent.cm = HU_GetHealthColor(health, CR_BLUE2);
+  }
 
   HUlib_addCharToTextLine(&w_medict_percent, (char)('!' + 12));
 }
@@ -1873,7 +1878,12 @@ void HU_widget_build_armor_percent(void)
   HUlib_clearTextLine(&w_armor_percent);
 
   if (!sts_always_red)
-    w_armor_percent.cm = HU_GetArmorColor(armor, CR_BLUE2);
+  {
+    if (sts_pct_always_gray)
+      w_armor_percent.cm = CR_GRAY;
+    else
+      w_armor_percent.cm = HU_GetArmorColor(armor, CR_BLUE2);
+  }
 
   HUlib_addCharToTextLine(&w_armor_percent, (char)('!' + 13));
 }
