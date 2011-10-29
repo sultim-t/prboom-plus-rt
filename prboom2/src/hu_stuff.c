@@ -804,7 +804,7 @@ void HU_Start(void)
 
   //jff 2/17/98 initialize keys widget
   //jff 3/17/98 show frags in deathmatch mode
-  strcpy(hud_keysstr,(deathmatch ? "FRG " : "WEA "));
+  strcpy(hud_keysstr,(deathmatch ? "FRG " : "KEY "));
 
   //jff 2/17/98 initialize graphic keys widget
   strcpy(hud_gkeysstr," ");
