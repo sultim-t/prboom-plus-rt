@@ -164,9 +164,11 @@ static hu_textline_t  w_map_totaltime; //e6y total time widgets automap
 static hu_textline_t  w_health_big;
 static hu_textline_t  w_medict_icon_big;
 static hu_textline_t  w_medict_icon_small;
+static hu_textline_t  w_medict_icon_custom;
 static hu_textline_t  w_armor_big;
 static hu_textline_t  w_armor_icon_big;
 static hu_textline_t  w_armor_icon_small;
+static hu_textline_t  w_armor_icon_custom;
 static hu_textline_t  w_medict_percent;
 static hu_textline_t  w_armor_percent;
 
@@ -371,6 +373,11 @@ void HU_Init(void)
 
   R_SetPatchNum(&hu_font_hud[12], "STTPRCNT");
   R_SetPatchNum(&hu_font_hud[13], "STTPRCNT");
+
+  R_SetPatchByName(&hu_font_hud[30], "HUDMED");
+  R_SetPatchByName(&hu_font_hud[31], "HUDARM1");
+  R_SetPatchByName(&hu_font_hud[32], "HUDARM1");
+  R_SetPatchByName(&hu_font_hud[33], "HUDARM2");
 }
 
 //
@@ -481,6 +488,16 @@ void HU_Start(void)
     VPT_NONE
   );
 
+  HUlib_initTextLine
+  (
+    &w_medict_icon_custom,
+    0, 0,
+    hu_font_hud,
+    HU_FONTSTART,
+    CR_RED,
+    VPT_NONE
+  );
+
   // create the hud armor widget
   // bargraph and number for amount of armor,
   // lower left or upper right of screen
@@ -517,6 +534,16 @@ void HU_Start(void)
   HUlib_initTextLine
   (
     &w_armor_icon_small,
+    0, 0,
+    hu_font_hud,
+    HU_FONTSTART,
+    CR_RED,
+    VPT_NONE
+  );
+
+  HUlib_initTextLine
+  (
+    &w_armor_icon_custom,
     0, 0,
     hu_font_hud,
     HU_FONTSTART,
@@ -916,6 +943,11 @@ void HU_widget_draw_medict_icon_small(void);
 void HU_widget_build_armor_icon_small(void);
 void HU_widget_draw_armor_icon_small(void);
 
+void HU_widget_build_medict_icon_custom(void);
+void HU_widget_draw_medict_icon_custom(void);
+void HU_widget_build_armor_icon_custom(void);
+void HU_widget_draw_armor_icon_custom(void);
+
 void HU_widget_build_medict_percent(void);
 void HU_widget_draw_medict_percent(void);
 void HU_widget_build_armor_percent(void);
@@ -941,6 +973,9 @@ static hud_widget_t hud_name_widget[] =
 
   {&w_medict_icon_small, 0, 0, VPT_NOOFFSET, HU_widget_build_medict_icon_small, HU_widget_draw_medict_icon_small, "medict_icon_small"},
   {&w_armor_icon_small,  0, 0, VPT_NOOFFSET, HU_widget_build_armor_icon_small,  HU_widget_draw_armor_icon_small,  "armor_icon_small"},
+
+  {&w_medict_icon_custom, 0, 0, VPT_NOOFFSET, HU_widget_build_medict_icon_custom, HU_widget_draw_medict_icon_custom, "medict_icon_custom"},
+  {&w_armor_icon_custom,  0, 0, VPT_NOOFFSET, HU_widget_build_armor_icon_custom,  HU_widget_draw_armor_icon_custom,  "armor_icon_custom"},
 
   {&w_medict_percent, 0, 0, VPT_NOOFFSET, HU_widget_build_medict_percent, HU_widget_draw_medict_percent, "medict_percent"},
   {&w_armor_percent,  0, 0, VPT_NOOFFSET, HU_widget_build_armor_percent,  HU_widget_draw_armor_percent,  "armor_percent"},
@@ -1318,6 +1353,30 @@ void HU_widget_build_medict_icon_small(void)
 void HU_widget_draw_medict_icon_small(void)
 {
   HUlib_drawTextLine(&w_medict_icon_small, false);
+}
+
+void HU_widget_build_medict_icon_custom(void)
+{
+  // transfer the graphic key text to the widget
+  HUlib_clearTextLine(&w_medict_icon_custom);
+  HUlib_addCharToTextLine(&w_medict_icon_custom, '!' + 0 + 30);
+}
+
+void HU_widget_draw_medict_icon_custom(void)
+{
+  HUlib_drawTextLine(&w_medict_icon_custom, false);
+}
+
+void HU_widget_build_armor_icon_custom(void)
+{
+  // transfer the graphic key text to the widget
+  HUlib_clearTextLine(&w_armor_icon_custom);
+  HUlib_addCharToTextLine(&w_armor_icon_custom, (char)('!' + plr->armortype + 1 + 30));
+}
+
+void HU_widget_draw_armor_icon_custom(void)
+{
+  HUlib_drawTextLine(&w_armor_icon_custom, false);
 }
 
 void HU_widget_build_armor(void)

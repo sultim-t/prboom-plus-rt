@@ -746,6 +746,18 @@ int R_SetSpriteByName(patchnum_t *patchnum, const char *name)
   return result;
 }
 
+int R_SetPatchByName(patchnum_t *patchnum, const char *name)
+{
+  int result = false;
+  int lump = W_CheckNumForName(name);
+  if (lump != -1)
+  {
+    R_SetPatchNum(patchnum, name);
+    result = true;
+  }
+  return result;
+}
+
 // e6y: Added for "GRNROCK" mostly
 void R_SetFloorNum(patchnum_t *patchnum, const char *name)
 {

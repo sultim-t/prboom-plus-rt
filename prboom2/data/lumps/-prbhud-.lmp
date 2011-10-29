@@ -114,4 +114,20 @@ HUDs
     armor_icon_small -316 -197
     armor_big -298 -198
   }
+
+;  hud 10
+;  {
+;    tracers 2 151
+;    hudadd 2 159
+;    monsec 2 167
+;    keys 2 175
+;    weapon 2 183
+;    ammo 2 191
+;    armor_icon_custom 230 -178
+;    armor_big -302 -178
+;    armor_percent -318 -178
+;    medict_icon_custom 232 -197
+;    health_big -302 -198
+;    medict_percent -318 -198
+;  }
 }
