@@ -900,7 +900,7 @@ typedef struct hud_widget_s
   enum patch_translation_e flags;
   HU_widget_build_func build;
   HU_widget_draw_func draw;
-  char *name;
+  const char *name;
 } hud_widget_t;
 
 typedef struct hud_widgets_list_s
