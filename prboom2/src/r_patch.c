@@ -239,7 +239,7 @@ static dboolean CheckIfPatch(int lump)
   width = LittleShort(patch->width);
   height = LittleShort(patch->height);
 
-  result = (height > 0 && height < 2048 && width > 0 && width <= 2048 && width < size / 4);
+  result = (height > 0 && height <= 16384 && width > 0 && width <= 16384 && width < size / 4);
 
   if (result)
   {
