@@ -983,108 +983,19 @@ static hud_widget_t hud_name_widget[] =
   {NULL, 0, 0, 0, NULL, NULL, NULL}
 };
 
-void HU_ParseHUD(void)
-{
-  while (SC_Check() && !SC_Compare("{"))
-    SC_GetString();
-
-  if (SC_GetString() && SC_Compare("{"))
-  {
-    while (SC_GetString() && !SC_Compare("}"))
-    {
-      if (SC_Compare("hud"))
-      {
-        // skip hud num, etc
-        while (SC_Check() && !SC_Compare("{"))
-          SC_GetString();
-
-        if (SC_GetString() && SC_Compare("{"))
-        {
-          int i, params_count;
-          hud_cfg_item_t cfg_item;
-          hud_widgets_list_t *list;
-
-          huds_count++;
-          huds = realloc(huds, huds_count * sizeof(huds[0]));
-          list = &huds[huds_count - 1];
-          list->items = NULL;
-          list->count = 0;
-
-          while (SC_GetString() && !SC_Compare("}"))
-          {
-            char st[200];
-            strncpy(st, sc_String, sizeof(st) - 1);
-            
-            while (SC_Check() && SC_GetString())
-            {
-              strncat(st, " ", sizeof(st) - 1);
-              strncat(st, sc_String, sizeof(st) - 1);
-            }
-            st[sizeof(st) - 1] = 0;
-
-            params_count = sscanf(st, "%s %d %d", &cfg_item.name[0], &cfg_item.x, &cfg_item.y);
-            if (params_count == 3)
-            {
-              for (i = 0; hud_name_widget[i].name; i++)
-              {
-                if (!strcasecmp(hud_name_widget[i].name, cfg_item.name))
-                {
-                  hud_widget_t *item;
-
-                  list->count++;
-                  list->items = realloc(list->items, list->count * sizeof(list->items[0]));
-                  
-                  item = &list->items[list->count - 1];
-
-                  item->hu_textline = hud_name_widget[i].hu_textline;
-
-                  item->x = cfg_item.x;
-                  item->y = cfg_item.y;
-
-                  if (abs(cfg_item.x) < 160)
-                  {
-                    item->flags = (abs(cfg_item.y) > 100 ? VPT_ALIGN_LEFT_BOTTOM : VPT_ALIGN_LEFT_TOP);
-                  }
-                  else
-                  {
-                    item->flags = (abs(cfg_item.y) > 100 ? VPT_ALIGN_RIGHT_BOTTOM : VPT_ALIGN_RIGHT_TOP);
-                  }
-                  item->flags |= hud_name_widget[i].flags;
-
-                  item->build = hud_name_widget[i].build;
-                  item->draw = hud_name_widget[i].draw;
-
-                  break;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
 void HU_LoadHUDDefs(void)
 {
-  typedef enum
-  {
-    TAG_HUD,
-    TAG_MAX
-  } hud_type_e;
-
-  // these are the core types available in the *DEFS lump
-  static const char *CoreKeywords[TAG_MAX + 1] =
-  {
-    "huds",
-    NULL
-  };
-
   static int init = 0;
-  int lump;
+
+  int lump, i, params_count;
+  hud_cfg_item_t cfg_item;
+  hud_widgets_list_t *list;
+  char st[200];
 
   if (init)
     return;
+
+  init = true;
 
   huds_count = 0;
   huds = NULL;
@@ -1097,11 +1008,69 @@ void HU_LoadHUDDefs(void)
     // Get actor class name.
     while (SC_GetString())
     {
-      switch (SC_MatchString(CoreKeywords))
+      // declaration of hud
+      if (SC_Compare("hud"))
       {
-      case TAG_HUD:
-        HU_ParseHUD();
-        break;
+        // skip everything after "hud" signature
+        while (SC_Check())
+          SC_GetString();
+
+        // setup new hud
+        huds_count++;
+        huds = realloc(huds, huds_count * sizeof(huds[0]));
+        list = &huds[huds_count - 1];
+        list->items = NULL;
+        list->count = 0;
+
+        // definition of hud is below
+        continue;
+      }
+
+      strncpy(st, sc_String, sizeof(st) - 1);
+
+      while (SC_Check() && SC_GetString())
+      {
+        strncat(st, " ", sizeof(st) - 1);
+        strncat(st, sc_String, sizeof(st) - 1);
+      }
+      st[sizeof(st) - 1] = 0;
+
+      // hud_widget x y
+      params_count = sscanf(st, "%s %d %d", &cfg_item.name[0], &cfg_item.x, &cfg_item.y);
+      if (params_count == 3)
+      {
+        for (i = 0; hud_name_widget[i].name; i++)
+        {
+          if (!strcasecmp(hud_name_widget[i].name, cfg_item.name))
+          {
+            hud_widget_t *item;
+
+            list->count++;
+            list->items = realloc(list->items, list->count * sizeof(list->items[0]));
+
+            item = &list->items[list->count - 1];
+
+            item->hu_textline = hud_name_widget[i].hu_textline;
+
+            item->x = cfg_item.x;
+            item->y = cfg_item.y;
+
+            if (abs(cfg_item.x) < 160)
+            {
+              item->flags = (abs(cfg_item.y) > 100 ? VPT_ALIGN_LEFT_BOTTOM : VPT_ALIGN_LEFT_TOP);
+            }
+            else
+            {
+              item->flags = (abs(cfg_item.y) > 100 ? VPT_ALIGN_RIGHT_BOTTOM : VPT_ALIGN_RIGHT_TOP);
+            }
+            item->flags |= hud_name_widget[i].flags;
+
+            item->build = hud_name_widget[i].build;
+            item->draw = hud_name_widget[i].draw;
+
+            break;
+          }
+        }
       }
     }
 
