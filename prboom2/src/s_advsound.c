@@ -87,10 +87,8 @@ void S_ParseMusInfo(const char *mapid)
           break;
         }
 
-        M_StrToInt(sc_String, &num);
-
         // Check number in range
-        if (num > 0 && num < MAX_MUS_ENTRIES)
+        if (M_StrToInt(sc_String, &num) && num > 0 && num < MAX_MUS_ENTRIES)
         {
           if (SC_GetString())
           {
