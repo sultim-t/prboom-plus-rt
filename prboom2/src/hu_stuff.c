@@ -2029,7 +2029,7 @@ void HU_widget_build_ammo_icon(void)
   if (ammo < NUMAMMO)
   {
     HUlib_clearTextLine(&w_ammo_icon);
-    HUlib_addCharToTextLine(&w_ammo_icon, '!' + ammo + 40);
+    HUlib_addCharToTextLine(&w_ammo_icon, (char)('!' + ammo + 40));
   }
   else
   {
@@ -2047,7 +2047,7 @@ void HU_widget_build_gkeys(void)
   int i, k;
   char *s;
   char gkeysstr[80];
-  unsigned int mask = 0;
+  int mask = 0;
 
   // build text string whose characters call out graphic keys from fontk
   i = 0;
