@@ -55,7 +55,7 @@ armor_big -283 -198
 gkeys -316 4
 
 hud 7
-tracers 2 167
+tracers 2 147
 medict_icon_big 4 -178
 health_big 38 -178
 armor_icon_big 4 -198
