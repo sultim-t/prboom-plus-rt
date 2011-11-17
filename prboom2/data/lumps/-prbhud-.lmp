@@ -48,7 +48,7 @@ hud 6
 tracers 2 167
 medict_icon_big 4 -198
 health_big 38 -198
-ammo_icon 85 -198
+ammo_icon -100 -198
 ammo_big 105 -198
 armor_icon_big -316 -198
 armor_big -283 -198
@@ -61,7 +61,7 @@ health_big 38 -178
 armor_icon_big 4 -198
 armor_big 38 -198
 ammo_icon -316 -198
-ammo_big -294 -198
+ammo_big -296 -198
 gkeys -316 4
 
 hud 8
