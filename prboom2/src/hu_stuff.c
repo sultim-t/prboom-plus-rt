@@ -171,6 +171,8 @@ static hu_textline_t  w_armor_icon_small;
 static hu_textline_t  w_armor_icon_custom;
 static hu_textline_t  w_medict_percent;
 static hu_textline_t  w_armor_percent;
+static hu_textline_t  w_ammo_big;
+static hu_textline_t  w_ammo_icon;
 
 static dboolean    always_off = false;
 static char       chat_dest[MAXPLAYERS];
@@ -378,6 +380,12 @@ void HU_Init(void)
   R_SetPatchByName(&hu_font_hud[31], "HUDARM1");
   R_SetPatchByName(&hu_font_hud[32], "HUDARM1");
   R_SetPatchByName(&hu_font_hud[33], "HUDARM2");
+
+  R_SetSpriteByName(&hu_font_hud[40], "CLIPA0");
+  R_SetSpriteByName(&hu_font_hud[41], "SHELA0");
+  R_SetSpriteByName(&hu_font_hud[42], "CELLA0");
+  R_SetSpriteByName(&hu_font_hud[43], "ROCKA0");
+
 }
 
 //
@@ -635,6 +643,27 @@ void HU_Start(void)
     CR_GRAY,
     VPT_NONE
   );
+
+  HUlib_initTextLine
+  (
+    &w_ammo_big,
+    0, 0,
+    hu_font_hud,
+    HU_FONTSTART,
+    CR_RED,
+    VPT_NONE
+  );
+
+  HUlib_initTextLine
+  (
+    &w_ammo_icon,
+    0, 0,
+    hu_font_hud,
+    HU_FONTSTART,
+    CR_RED,
+    VPT_NONE
+  );
+
 
   // create the hud text refresh widget
   // scrolling display of last hud_msg_lines messages received
@@ -953,6 +982,11 @@ void HU_widget_draw_medict_percent(void);
 void HU_widget_build_armor_percent(void);
 void HU_widget_draw_armor_percent(void);
 
+void HU_widget_build_ammo_big(void);
+void HU_widget_draw_ammo_big(void);
+void HU_widget_build_ammo_icon(void);
+void HU_widget_draw_ammo_icon(void);
+
 static hud_widget_t hud_name_widget[] =
 {
   {&w_ammo,   0, 0, 0, HU_widget_build_ammo,   HU_widget_draw_ammo,   "ammo"},
@@ -979,6 +1013,11 @@ static hud_widget_t hud_name_widget[] =
 
   {&w_medict_percent, 0, 0, VPT_NOOFFSET, HU_widget_build_medict_percent, HU_widget_draw_medict_percent, "medict_percent"},
   {&w_armor_percent,  0, 0, VPT_NOOFFSET, HU_widget_build_armor_percent,  HU_widget_draw_armor_percent,  "armor_percent"},
+
+  {&w_ammo_big,  0, 0, VPT_NOOFFSET, HU_widget_build_ammo_big,  HU_widget_draw_ammo_big,  "ammo_big"},
+  {&w_ammo_big,  0, 0, VPT_NOOFFSET, HU_widget_build_ammo_big,  HU_widget_draw_ammo_big,  "ammo_big"},
+  {&w_ammo_icon, 0, 0, VPT_NOOFFSET, HU_widget_build_ammo_icon, HU_widget_draw_ammo_icon, "ammo_icon"},
+  {&w_ammo_icon, 0, 0, VPT_NOOFFSET, HU_widget_build_ammo_icon, HU_widget_draw_ammo_icon, "ammo_icon"},
 
   {NULL, 0, 0, 0, NULL, NULL, NULL}
 };
@@ -1143,6 +1182,22 @@ int HU_GetArmorColor(int armor, int def)
   return result;
 }
 
+int HU_GetAmmoColor(int ammo, int fullammo)
+{
+  int result;
+
+  int ammopct = (100 * ammo) / fullammo;
+
+  if (ammopct < ammo_red)
+    result = CR_RED;
+  else if (ammopct < ammo_yellow)
+    result = CR_GOLD;
+  else
+    result = CR_GREEN;
+
+  return result;
+}
+
 void HU_widget_build_ammo(void)
 {
   int i;
@@ -1194,12 +1249,7 @@ void HU_widget_build_ammo(void)
     strcat(hud_ammostr,ammostr);
 
     // set the display color from the percentage of total ammo held
-    if (ammopct<ammo_red)
-      w_ammo.cm = CR_RED;
-    else if (ammopct<ammo_yellow)
-      w_ammo.cm = CR_GOLD;
-    else
-      w_ammo.cm = CR_GREEN;
+    w_ammo.cm = HU_GetAmmoColor(ammo, fullammo);
   }
   // transfer the init string to the widget
   s = hud_ammostr;
@@ -1919,6 +1969,62 @@ void HU_widget_build_armor_percent(void)
 void HU_widget_draw_armor_percent(void)
 {
   HUlib_drawTextLine(&w_armor_percent, false);
+}
+
+void HU_widget_build_ammo_big(void)
+{
+  char *s;
+  char ammostr[80];
+  int fullammo = plr->maxammo[weaponinfo[plr->readyweapon].ammo];
+
+  // clear the widgets internal line
+  HUlib_clearTextLine(&w_ammo_big);
+
+  if (weaponinfo[plr->readyweapon].ammo != am_noammo && fullammo != 0)
+  {
+    int ammo = plr->ammo[weaponinfo[plr->readyweapon].ammo];
+
+    // build the numeric amount init string
+    sprintf(ammostr, "%d", ammo);
+
+    // set the display color from the percentage of total ammo held
+    if (!sts_always_red)
+      w_ammo_big.cm = HU_GetAmmoColor(ammo, fullammo);
+
+    // transfer the init string to the widget
+    s = ammostr;
+    while (*s)
+      HUlib_addCharToTextLine(&w_ammo_big, *(s++));
+  }
+}
+
+void HU_widget_draw_ammo_big(void)
+{
+  HUlib_drawTextLine(&w_ammo_big, false);
+}
+
+void HU_widget_build_ammo_icon(void)
+{
+  int ammo = weaponinfo[plr->readyweapon].ammo;
+
+  if (w_ammo_icon.val != -1 && w_ammo_icon.val == ammo)
+    return;
+  w_ammo_icon.val = ammo;
+
+  if (ammo < NUMAMMO)
+  {
+    HUlib_clearTextLine(&w_ammo_icon);
+    HUlib_addCharToTextLine(&w_ammo_icon, '!' + ammo + 40);
+  }
+  else
+  {
+    HUlib_clearTextLine(&w_ammo_icon);
+  }
+}
+
+void HU_widget_draw_ammo_icon(void)
+{
+  HUlib_drawTextLine(&w_ammo_icon, false);
 }
 
 

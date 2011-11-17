@@ -44,6 +44,24 @@ armor_icon_big -316 -198
 armor_big -283 -198
 
 hud 6
+tracers 2 167
+medict_icon_big 4 -198
+health_big 35 -198
+armor_icon_big -316 -198
+armor_big -283 -198
+ammo_icon -316 4
+ammo_big -292 4
+
+hud 7
+tracers 2 167
+medict_icon_big 4 -178
+health_big 38 -178
+armor_icon_big 4 -198
+armor_big 38 -198
+ammo_icon -268 -198
+ammo_big -316 -198
+
+hud 8
 tracers 2 151
 hudadd 2 159
 monsec 2 167
@@ -55,7 +73,7 @@ health_big -316 -178
 armor_icon_big 240 -198
 armor_big -316 -198
 
-hud 7
+hud 9
 tracers 2 151
 hudadd 2 159
 monsec 2 167
@@ -69,7 +87,7 @@ medict_icon_big 228 -198
 health_big -302 -198
 medict_percent -318 -198
 
-hud 8
+hud 10
 tracers 2 151
 hudadd 2 159
 monsec 2 167
@@ -81,7 +99,7 @@ health_big -298 -180
 armor_icon_small -316 -197
 armor_big -298 -198
 
-hud 9
+hud 11
 tracers 2 148
 hudadd 2 156
 monsec 2 164
@@ -93,7 +111,8 @@ health_big 22 -198
 armor_icon_small -316 -197
 armor_big -298 -198
 
-;hud 10
+
+;hud 12
 ;tracers 2 151
 ;hudadd 2 159
 ;monsec 2 167
