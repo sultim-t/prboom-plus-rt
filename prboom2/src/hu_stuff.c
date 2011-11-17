@@ -173,6 +173,7 @@ static hu_textline_t  w_medict_percent;
 static hu_textline_t  w_armor_percent;
 static hu_textline_t  w_ammo_big;
 static hu_textline_t  w_ammo_icon;
+static hu_textline_t  w_keys_icon;
 
 static dboolean    always_off = false;
 static char       chat_dest[MAXPLAYERS];
@@ -664,6 +665,15 @@ void HU_Start(void)
     VPT_NONE
   );
 
+  HUlib_initTextLine
+  (
+    &w_keys_icon,
+    0, 0,
+    hu_fontk,
+    HU_FONTSTART,
+    CR_RED,
+    VPT_NONE
+  );
 
   // create the hud text refresh widget
   // scrolling display of last hud_msg_lines messages received
@@ -987,6 +997,9 @@ void HU_widget_draw_ammo_big(void);
 void HU_widget_build_ammo_icon(void);
 void HU_widget_draw_ammo_icon(void);
 
+void HU_widget_build_gkeys(void);
+void HU_widget_draw_gkeys(void);
+
 static hud_widget_t hud_name_widget[] =
 {
   {&w_ammo,   0, 0, 0, HU_widget_build_ammo,   HU_widget_draw_ammo,   "ammo"},
@@ -996,6 +1009,8 @@ static hud_widget_t hud_name_widget[] =
   {&w_health, 0, 0, 0, HU_widget_build_health, HU_widget_draw_health, "health"},
   {&w_armor,  0, 0, 0, HU_widget_build_armor,  HU_widget_draw_armor,  "armor"},
   {&w_hudadd, 0, 0, 0, HU_widget_build_hudadd, HU_widget_draw_hudadd, "hudadd"},
+
+  {&w_keys_icon, 0, 0, 0, HU_widget_build_gkeys, HU_widget_draw_gkeys, "gkeys"},
 
   {&w_traces[0], 0, 0, 0, NULL, NULL, "tracers"},
 
@@ -2027,6 +2042,49 @@ void HU_widget_draw_ammo_icon(void)
   HUlib_drawTextLine(&w_ammo_icon, false);
 }
 
+void HU_widget_build_gkeys(void)
+{
+  int i, k;
+  char *s;
+  char gkeysstr[80];
+  unsigned int mask = 0;
+
+  // build text string whose characters call out graphic keys from fontk
+  i = 0;
+  for (k = 0; k < 6; k++)
+  {
+    // skip keys not possessed
+    if (!plr->cards[k])
+      continue;
+
+    gkeysstr[i++] = '!' + k; // key number plus '!' is char for key
+    gkeysstr[i++] = ' ';     // spacing
+    gkeysstr[i++] = ' ';
+
+    mask |= (1 << k);
+  }
+
+  if (w_keys_icon.val != -1 && w_keys_icon.val == mask)
+    return;
+  w_keys_icon.val = mask;
+
+  gkeysstr[i] = '\0';
+  while (((--i) > 0) && (gkeysstr[i] == ' '))
+    gkeysstr[i] = '\0';
+
+  // clear the widget strings
+  HUlib_clearTextLine(&w_keys_icon);
+  // transfer the graphic key text to the widget
+  s = gkeysstr;
+  while (*s)
+    HUlib_addCharToTextLine(&w_keys_icon, *(s++));
+
+}
+
+void HU_widget_draw_gkeys(void)
+{
+  HUlib_drawTextLine(&w_keys_icon, false);
+}
 
 //
 // HU_Drawer()

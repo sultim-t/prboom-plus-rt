@@ -112,7 +112,11 @@ dboolean HUlib_addCharToTextLine
     return false;
   else
   {
-    t->w += t->f[ch - HU_FONTSTART].width;
+    if (ch == ' ')
+      t->w += 4;
+    else
+      t->w += t->f[ch - HU_FONTSTART].width;
+
     t->linelen++;
     if (ch == '\n')
       t->linelen=0;
