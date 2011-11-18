@@ -1428,7 +1428,7 @@ void HU_widget_build_armor(void)
   // clear the widgets internal line
   HUlib_clearTextLine(&w_armor);
   // build the numeric amount init string
-  sprintf(armorstr,"%d",armor);
+  sprintf(armorstr,"%3d",armor);
   // build the bargraph string
   // full bargraph chars
   for (i=4;i<4+armorbars/4;)
