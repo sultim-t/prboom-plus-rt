@@ -83,10 +83,10 @@ monsec 2 167
 keys 2 175
 weapon 2 183
 ammo 2 191
-armor_icon_big 226 -178
+armor_icon_small 240 -177
 armor_big -302 -178
 armor_percent -318 -178
-medict_icon_big 228 -198
+medict_icon_small 241 -197
 health_big -302 -198
 medict_percent -318 -198
 
