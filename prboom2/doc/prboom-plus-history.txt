@@ -1,5 +1,25 @@
 Change Log
 
+2.5.1.2 @ 2011-Nov-25
+[+] Added device selection to portmidi player. Controlled by the snd_mididev config variable. See stdout.txt for list of available devices.
+[+] Added a progress bar for demo skipping during re-recording.
+[+] Added key binding options for start/stop and fast-forward when watching demos.
+[+] Added a key binding option to restart the current map.
+[+] Added a "Default compatibility level" GUI entry.
+[+] Support for 16 sprite rotations. http://zdoom.org/wiki/Sprite#Angles
+[+] New HUDs. HUDs definitions are moved to the "prboom-plus.wad/-prbhud-" lump.
+[*] Fluidsynth player now resumes notes seamlessly after a pause.
+[*] Speed improvement on maps like sunder.wad map10 and nuts.wad.
+[*] Force GL_LINEAR for MAG filter for textures with detail.
+[-] Fixed buggy music that forgets to terminate notes held over a loop point. SDL_mixer does this as well. Fix tested against Doom2 map14 and FreeDoom2 map01, for fluidsynth, portmidi, and OPL players.
+[-] Fixed buffer overrun in OPL2 player.
+[-] Fixed crash in video capture code when "Use GL surface for software mode" is enabled.
+[-] The screen wipe after pressing the exit switch on a level was noticably jerkier.
+[-] MBF-added codepointers worked with any complevel.
+[-] Fixed HOMs on skies with transparent pixels. Sky2 @ doom2.wad, for example.
+[-] Alpha channel did not work for 8-bit PNGs with alpha.
+[-] Transferred standard sky was drawn badly when FOV > 90 (Voodoo Guns - map02).
+
 2.5.1.1 @ 2011-Jun-18
 [+] Support for ZDoom-style OGG loop points, by Nicholai Main. http://zdoom.org/wiki/Audio_loop
 [+] Ability to disable the background on Boom fullscreen menus. There is a "menu_background" config variable and in-game GUI entry.

@@ -43,6 +43,29 @@
 
 <h1>Change Log</h1>
 
+<br><span class="ver">2.5.1.2</span>
+<span class="date"> @ 2011-Nov-25</span>
+<table>
+<tr><td class="aaa">[+]</td><td>Added device selection to portmidi player. Controlled by the snd_mididev config variable. See stdout.txt for list of available devices.
+<tr><td class="aaa">[+]</td><td>Added a progress bar for demo skipping during re-recording.
+<tr><td class="aaa">[+]</td><td>Added key binding options for start/stop and fast-forward when watching demos.
+<tr><td class="aaa">[+]</td><td>Added a key binding option to restart the current map.
+<tr><td class="aaa">[+]</td><td>Added a "Default compatibility level" GUI entry.
+<tr><td class="aaa">[+]</td><td>Support for 16 sprite rotations. <a href="http://zdoom.org/wiki/Sprite#Angles">http://zdoom.org/wiki/Sprite#Angles</a>
+<tr><td class="aaa">[+]</td><td>New HUDs. HUDs definitions are moved to the "prboom-plus.wad/-prbhud-" lump.
+<tr><td class="aaa">[*]</td><td>Fluidsynth player now resumes notes seamlessly after a pause.
+<tr><td class="aaa">[*]</td><td>Speed improvement on maps like sunder.wad map10 and nuts.wad.
+<tr><td class="aaa">[*]</td><td>Force GL_LINEAR for MAG filter for textures with detail.
+<tr><td class="aaa">[-]</td><td>Fixed buggy music that forgets to terminate notes held over a loop point. SDL_mixer does this as well. Fix tested against Doom2 map14 and FreeDoom2 map01, for fluidsynth, portmidi, and OPL players.
+<tr><td class="aaa">[-]</td><td>Fixed buffer overrun in OPL2 player.
+<tr><td class="aaa">[-]</td><td>Fixed crash in video capture code when "Use GL surface for software mode" is enabled.
+<tr><td class="aaa">[-]</td><td>The screen wipe after pressing the exit switch on a level was noticably jerkier.
+<tr><td class="aaa">[-]</td><td>MBF-added codepointers worked with any complevel.
+<tr><td class="aaa">[-]</td><td>Fixed HOMs on skies with transparent pixels. Sky2 @ doom2.wad, for example.
+<tr><td class="aaa">[-]</td><td>Alpha channel did not work for 8-bit PNGs with alpha.
+<tr><td class="aaa">[-]</td><td>Transferred standard sky was drawn badly when FOV > 90 (Voodoo Guns - map02).
+</table>
+
 <br><span class="ver">2.5.1.1</span>
 <span class="date"> @ 2011-Jun-18</span>
 <table>
