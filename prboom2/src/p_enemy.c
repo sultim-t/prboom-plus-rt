@@ -2566,7 +2566,7 @@ void A_Mushroom(mobj_t *actor)
   int i, j, n = actor->info->damage;
 
   // Mushroom parameters are part of code pointer's state
-  dboolean mbf = (demo_compatibility == mbf_compatibility &&
+  dboolean mbf = (compatibility_level == mbf_compatibility &&
     !prboom_comp[PC_DO_NOT_USE_MISC12_FRAME_PARAMETERS_IN_A_MUSHROOM].state);
   fixed_t misc1 = ((mbf && actor->state->misc1) ? actor->state->misc1 : FRACUNIT*4);
   fixed_t misc2 = ((mbf && actor->state->misc2) ? actor->state->misc2 : FRACUNIT/2);
