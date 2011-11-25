@@ -1043,7 +1043,7 @@ void HU_LoadHUDDefs(void)
 
   int lump, i, params_count;
   hud_cfg_item_t cfg_item;
-  hud_widgets_list_t *list;
+  hud_widgets_list_t *list = NULL;
   char st[200];
 
   if (init)
