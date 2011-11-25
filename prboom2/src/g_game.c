@@ -792,8 +792,8 @@ static void G_DoLoadLevel (void)
   mousex = mousey = 0;
   mlooky = 0;//e6y
   special_event = 0; paused = false;
-  memset (mousebuttons, 0, sizeof(*mousebuttons));
-  memset (joybuttons, 0, sizeof(*joybuttons));
+  memset (&mousearray, 0, sizeof(mousearray));
+  memset (&joyarray, 0, sizeof(joyarray));
 
   // killough 5/13/98: in case netdemo has consoleplayer other than green
   ST_Start();
