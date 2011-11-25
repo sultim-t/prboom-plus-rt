@@ -1080,6 +1080,10 @@ void HU_LoadHUDDefs(void)
         continue;
       }
 
+      // keep going until a valid HUD declaration has been found
+      if (huds_count < 1)
+        continue;
+
       strncpy(st, sc_String, sizeof(st) - 1);
 
       while (SC_Check() && SC_GetString())
