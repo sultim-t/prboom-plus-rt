@@ -77,7 +77,9 @@
 #include "r_things.h"
 
 //e6y
+#ifdef GL_DOOM
 #include "gl_struct.h"
+#endif
 #include "g_overflow.h"
 #include "r_screenmultiply.h"
 #include "e6y.h"

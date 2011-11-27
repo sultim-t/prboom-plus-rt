@@ -76,7 +76,10 @@
 #include "am_map.h"
 #include "g_game.h"
 #include "lprintf.h"
+
+#ifdef GL_DOOM
 #include "gl_struct.h"
+#endif
 
 #include "i_simd.h"
 #include "r_screenmultiply.h"

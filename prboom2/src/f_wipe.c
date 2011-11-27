@@ -43,7 +43,9 @@
 #include "v_video.h"
 #include "m_random.h"
 #include "f_wipe.h"
+#ifdef GL_DOOM
 #include "gl_struct.h"
+#endif
 #include "e6y.h"//e6y
 
 //
