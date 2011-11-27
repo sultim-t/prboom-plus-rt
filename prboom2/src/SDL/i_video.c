@@ -113,8 +113,10 @@ int use_doublebuffer = 1; // Included not to break m_misc, but not relevant to S
 int use_fullscreen;
 int desired_fullscreen;
 SDL_Surface *screen;
+#ifdef GL_DOOM
 vid_8ingl_t vid_8ingl;
 int use_gl_surface;
+#endif
 
 ////////////////////////////////////////////////////////////////////////////
 // Input code
@@ -431,7 +433,9 @@ static void I_UploadNewPalette(int pal, int force)
     if (!colours) {
       // First call - allocate and prepare colour array
       colours = malloc(sizeof(*colours)*num_pals);
+#ifdef GL_DOOM
       vid_8ingl.colours = malloc(sizeof(vid_8ingl.colours[0]) * 4 * num_pals);
+#endif
     }
 
     // set the colormap entries
@@ -1228,11 +1232,13 @@ void I_UpdateVideoMode(void)
     SDL_FreeSurface(screen);
     screen = NULL;
 
+#ifdef GL_DOOM
     if (vid_8ingl.surface)
     {
       SDL_FreeSurface(vid_8ingl.surface);
       vid_8ingl.surface = NULL;
     }
+#endif
 
     SMP_Free();
   }
@@ -1269,7 +1275,9 @@ void I_UpdateVideoMode(void)
     putenv(buf);
   }
 
+#ifdef GL_DOOM
   vid_8ingl.enabled = false;
+#endif
 
   if (V_GetMode() == VID_MODEGL)
   {

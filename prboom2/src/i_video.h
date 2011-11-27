@@ -34,7 +34,13 @@
 #ifndef __I_VIDEO__
 #define __I_VIDEO__
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#ifdef GL_DOOM
 #include <SDL_opengl.h>
+#endif
 
 #include "doomtype.h"
 #include "v_video.h"
@@ -99,6 +105,7 @@ extern int try_to_reduce_cpu_cache_misses;
 extern dboolean window_focused;
 void UpdateGrab(void);
 
+#ifdef GL_DOOM
 typedef struct SDL_Surface *PSDL_Surface;
 typedef struct vid_8ingl_s
 {
@@ -121,5 +128,6 @@ typedef struct vid_8ingl_s
 
 extern vid_8ingl_t vid_8ingl;
 extern int use_gl_surface;
+#endif // GL_DOOM
 
 #endif

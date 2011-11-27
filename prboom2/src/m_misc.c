@@ -397,10 +397,10 @@ default_t defaults[] =
   #else
     {"videomode",{NULL, &default_videomode},{0,"8"},UL,UL,def_str,ss_none},
   #endif
+  {"use_gl_surface",{&use_gl_surface},{0},0,1,def_bool,ss_none},
 #else
   {"videomode",{NULL, &default_videomode},{0,"8"},UL,UL,def_str,ss_none},
 #endif
-  {"use_gl_surface",{&use_gl_surface},{0},0,1,def_bool,ss_none},
   /* 640x480 default resolution */
   {"screen_resolution",{NULL, &screen_resolution},{0,"640x480"},UL,UL,def_str,ss_none},
   {"use_fullscreen",{&use_fullscreen},{0},0,1, /* proff 21/05/2000 */
