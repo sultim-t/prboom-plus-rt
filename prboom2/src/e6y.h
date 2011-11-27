@@ -34,6 +34,8 @@
 #ifndef __E6Y__
 #define __E6Y__
 
+#include <stdarg.h>
+
 #include "hu_lib.h"
 #include "r_demo.h"
 
