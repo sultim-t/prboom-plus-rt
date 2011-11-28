@@ -62,7 +62,7 @@
 //
 
 // placeholder for unused option
-char *snd_mididev;
+const char *snd_mididev;
 
 const char *midiplayers[2] = {"quicktime", NULL};
 const char *snd_midiplayer = "quicktime";
