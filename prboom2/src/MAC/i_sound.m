@@ -61,6 +61,9 @@
 // MUSIC API.
 //
 
+// placeholder for unused option
+char *snd_mididev;
+
 const char *midiplayers[2] = {"quicktime", NULL};
 const char *snd_midiplayer = "quicktime";
 const char *snd_soundfont;
