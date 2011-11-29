@@ -584,11 +584,12 @@ static void I_SetAffinityMask(void)
   }
 }
 
+//
+// Sets the priority class for the prboom-plus process
+//
+
 void I_SetProcessPriority(void)
 {
-  // Set the process affinity mask so that all threads
-  // run on the same processor.  This is a workaround for a bug in 
-  // SDL_mixer that causes occasional crashes.
   if (process_priority)
   {
     const char *errbuf = NULL;
