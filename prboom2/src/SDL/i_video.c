@@ -878,6 +878,7 @@ static void I_ClosestResolution (int *width, int *height, int flags)
 }  
 
 int process_affinity_mask;
+int process_priority;
 int try_to_reduce_cpu_cache_misses;
 
 // e6y
