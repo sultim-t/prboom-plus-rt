@@ -1208,15 +1208,10 @@ int comperr_zerotag;
 int comperr_passuse;
 int comperr_hangsolid;
 
-dboolean compbad_get(int *compbad)
-{
-  return !demo_compatibility && (*compbad) && !demorecording && !demoplayback;
-}
-
 dboolean ProcessNoTagLines(line_t* line, sector_t **sec, int *secnum)
 {
   zerotag_manual = false;
-  if (line->tag == 0 && compbad_get(&comperr_zerotag))
+  if (line->tag == 0 && COMPBAD(comperr_zerotag))
   {
     if (!(*sec=line->backsector))
       return true;

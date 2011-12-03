@@ -334,7 +334,7 @@ extern int comperr_zerotag;
 extern int comperr_passuse;
 extern int comperr_hangsolid;
 
-dboolean compbad_get(int *compbad);
+#define COMPBAD(compbad) (compbad && !demorecording && !demoplayback)
 
 dboolean ProcessNoTagLines(line_t* line, sector_t **sec, int *secnum);
 
