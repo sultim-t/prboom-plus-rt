@@ -68,6 +68,7 @@
 #include "i_joy.h"
 #include "i_video.h"
 #include "i_smp.h"
+#include "i_capture.h"
 #include "z_zone.h"
 #include "s_sound.h"
 #include "sounds.h"
@@ -1213,6 +1214,9 @@ void I_UpdateVideoMode(void)
 
   if(screen)
   {
+    // video capturing cannot be continued with new screen settings
+    I_CaptureFinish();
+
 #ifdef GL_DOOM
     if (V_GetMode() == VID_MODEGL)
     {
