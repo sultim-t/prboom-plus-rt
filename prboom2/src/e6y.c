@@ -86,10 +86,6 @@
 #include "r_demo.h"
 #include "e6y.h"
 
-int REAL_SCREENWIDTH;
-int REAL_SCREENHEIGHT;
-int REAL_SCREENPITCH;
-
 dboolean wasWiped = false;
 
 int secretfound;

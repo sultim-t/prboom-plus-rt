@@ -312,7 +312,7 @@ int I_ScreenShot (const char *fname)
     if (pixel_data)
     {
       SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(
-          pixel_data, SCREENWIDTH, SCREENHEIGHT, 24, SCREENWIDTH*3,
+          pixel_data, REAL_SCREENWIDTH, REAL_SCREENHEIGHT, 24, REAL_SCREENWIDTH*3,
           0x000000ff, 0x0000ff00, 0x00ff0000, 0);
 
       if (surface)
@@ -340,7 +340,7 @@ unsigned char *I_GrabScreen (void)
   static int pixel_data_size = 0;
   int size;
 
-  size = SCREENWIDTH * SCREENHEIGHT * 3;
+  size = REAL_SCREENWIDTH * REAL_SCREENHEIGHT * 3;
   if (!pixel_data || size > pixel_data_size)
   {
     pixel_data_size = size;
@@ -372,7 +372,7 @@ unsigned char *I_GrabScreen (void)
 
       if (pal) // 8bpp
       {
-        for (i = 0; i < SCREENWIDTH * SCREENHEIGHT; i++)
+        for (i = 0; i < REAL_SCREENWIDTH * REAL_SCREENHEIGHT; i++)
         {
           *s++ = pal->colors[pixel_src[i]].r;
           *s++ = pal->colors[pixel_src[i]].g;
@@ -381,7 +381,7 @@ unsigned char *I_GrabScreen (void)
       }
       else // high/truecolor
       {
-        for (i = 0; i < SCREENWIDTH * SCREENHEIGHT; i++)
+        for (i = 0; i < REAL_SCREENWIDTH * REAL_SCREENHEIGHT; i++)
         {
           Uint32 p = *(Uint32 *) (pixel_src + i * fmt->BytesPerPixel);
           *s++ = (unsigned char) (((p & fmt->Rmask)>>fmt->Rshift)<<fmt->Rloss);

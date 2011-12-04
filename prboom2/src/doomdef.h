@@ -120,6 +120,11 @@ extern int SCREENHEIGHT;
 // of one pixel (8, 16 or 32 bit) and the padding at the
 // end of the line caused by hardware considerations
 extern int SCREENPITCH;
+
+extern int REAL_SCREENWIDTH;
+extern int REAL_SCREENHEIGHT;
+extern int REAL_SCREENPITCH;
+
 // e6y: wide-res
 extern int WIDE_SCREENWIDTH;
 extern int WIDE_SCREENHEIGHT;

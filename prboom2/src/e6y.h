@@ -79,10 +79,6 @@ typedef struct camera_s
   int type;
 } camera_t;
 
-extern int REAL_SCREENWIDTH;
-extern int REAL_SCREENHEIGHT;
-extern int REAL_SCREENPITCH;
-
 extern dboolean wasWiped;
 
 extern int totalleveltimes;

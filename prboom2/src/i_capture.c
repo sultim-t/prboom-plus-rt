@@ -87,10 +87,10 @@ static int parsecommand (char *out, const char *in, int len)
       switch (in[1])
       {
         case 'w':
-          i = SNPRINTF (out, len, "%u", SCREENWIDTH);
+          i = SNPRINTF (out, len, "%u", REAL_SCREENWIDTH);
           break;
         case 'h':
-          i = SNPRINTF (out, len, "%u", SCREENHEIGHT);
+          i = SNPRINTF (out, len, "%u", REAL_SCREENHEIGHT);
           break;
         case 's':
           i = SNPRINTF (out, len, "%u", snd_samplerate);
@@ -573,7 +573,7 @@ void I_CaptureFrame (void)
   vid = I_GrabScreen ();
   if (vid)
   {
-    if (fwrite (vid, SCREENWIDTH * SCREENHEIGHT * 3, 1, videopipe.f_stdin) != 1)
+    if (fwrite (vid, REAL_SCREENWIDTH * REAL_SCREENHEIGHT * 3, 1, videopipe.f_stdin) != 1)
       lprintf(LO_WARN, "I_CaptureFrame: error writing videopipe.\n");
     //free (vid); // static buffer
   }
