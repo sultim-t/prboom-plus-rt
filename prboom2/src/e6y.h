@@ -364,8 +364,6 @@ void D_AddDehFile (const char *file, wad_source_t source);
 
 extern int levelstarttic;
 
-void I_AfterUpdateVideoMode(void);
-
 extern int force_singletics_to;
 
 int HU_DrawDemoProgress(int force);

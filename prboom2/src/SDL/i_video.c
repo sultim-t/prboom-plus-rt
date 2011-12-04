@@ -1444,9 +1444,14 @@ void I_UpdateVideoMode(void)
   {
     gld_Init8InGLMode();
   }
-#endif
 
-  I_AfterUpdateVideoMode();//e6y
+  if (V_GetMode() == VID_MODEGL)
+  {
+    M_ChangeFOV();
+    M_ChangeRenderPrecise();
+    M_ChangeCompTranslucency();
+  }
+#endif
 }
 
 static void ActivateMouse(void)

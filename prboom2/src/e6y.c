@@ -1323,17 +1323,6 @@ void AbbreviateName(char* lpszCanon, int cchMax, int bAtLeastName)
 
 int levelstarttic;
 
-void I_AfterUpdateVideoMode(void)
-{
-#ifdef GL_DOOM
-  if (V_GetMode() == VID_MODEGL) {
-    M_ChangeFOV();
-    M_ChangeRenderPrecise();
-    M_ChangeCompTranslucency();
-  }
-#endif
-}
-
 int force_singletics_to = 0;
 
 int HU_DrawDemoProgress(int force)
