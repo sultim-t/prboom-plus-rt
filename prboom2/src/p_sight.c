@@ -412,7 +412,7 @@ INLINE static int P_DivlineSide(fixed_t x, fixed_t y, const divline_t *node)
 
 INLINE static int P_DivlineCrossed(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2, divline_t *node)
 {
-#if 0
+#if 1
    return (P_DivlineSide(x1, y1, node) == P_DivlineSide(x2, y2, node));
 #else
   if (!node->dx)
