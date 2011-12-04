@@ -1,5 +1,11 @@
 Change Log
 
+2.5.1.3 @ 2011-Dec-05
+[+] Added process_priority config variable. 0 - NORMAL_PRIORITY_CLASS; 1 - HIGH_PRIORITY_CLASS; 2 - REALTIME_PRIORITY_CLASS.
+[*] "Screen multiple factor" can be changed on the fly.
+[-] Fixed desynch on ep3-2349.lmp.
+[-] Fixed issues in screenshot and video capturing code.
+
 2.5.1.2 @ 2011-Nov-25
 [+] Added device selection to portmidi player. Controlled by the snd_mididev config variable. See stdout.txt for list of available devices.
 [+] Added a progress bar for demo skipping during re-recording.
