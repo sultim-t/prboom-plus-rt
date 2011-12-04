@@ -1682,11 +1682,6 @@ static void D_DoomMainSetup(void)
     LauncherShow(demo_footer);
 #endif
   }
-  // NSM
-  if ((p = M_CheckParm("-viddump")) && (p < myargc-1))
-  {
-    I_CapturePrep (myargv[p + 1]);
-  }
 
 
   // 1/18/98 killough: Z_Init() call moved to i_main.c
@@ -1753,6 +1748,12 @@ static void D_DoomMainSetup(void)
 
   if (!(M_CheckParm("-nodraw") && M_CheckParm("-nosound")))
     I_InitGraphics();
+
+  // NSM
+  if ((p = M_CheckParm("-viddump")) && (p < myargc-1))
+  {
+    I_CapturePrep(myargv[p + 1]);
+  }
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"ST_Init: Init status bar.\n");
