@@ -919,12 +919,6 @@ unsigned int I_TestCPUCacheMisses(int width, int height, unsigned int mintime)
 // Calculates the screen resolution, possibly using the supplied guide
 void I_CalculateRes(int width, int height)
 {
-  // e6y: how about 1680x1050?
-  /*
-  SCREENWIDTH = (width+3) & ~3;
-  SCREENHEIGHT = (height+3) & ~3;
-  */
-
 // e6y
 // GLBoom will try to set the closest supported resolution 
 // if the requested mode can't be set correctly.
@@ -1165,9 +1159,6 @@ void I_InitGraphics(void)
   {
     firsttime = 0;
 
-    // e6y: initialisation of screen_multiply
-    screen_multiply = render_screen_multiply;
-
     atexit(I_ShutdownGraphics);
     lprintf(LO_INFO, "I_InitGraphics: %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
 
@@ -1246,6 +1237,9 @@ void I_UpdateVideoMode(void)
 
     SMP_Free();
   }
+
+  // e6y: initialisation of screen_multiply
+  screen_multiply = render_screen_multiply;
 
   // Initialize SDL with this graphics mode
   if (V_GetMode() == VID_MODEGL) {

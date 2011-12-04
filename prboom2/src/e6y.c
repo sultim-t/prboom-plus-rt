@@ -515,6 +515,7 @@ void M_ChangeRenderPrecise(void)
 
 void M_ChangeScreenMultipleFactor(void)
 {
+  V_ChangeScreenResolution();
 }
 
 void M_ChangeInterlacedScanning(void)

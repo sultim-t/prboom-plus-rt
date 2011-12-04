@@ -3168,7 +3168,7 @@ setup_menu_t gen_settings4[] = { // General Settings screen3
 
 setup_menu_t gen_settings5[] = { // General Settings screen3
   {"Software Options",               S_SKIP|S_TITLE, m_null, G_X, G_Y+1*8},
-  {"Screen Multiple Factor (1-None)", S_NUM|S_PRGWARN,m_null,G_X,G_Y+2*8, {"render_screen_multiply"}, 0, 0, M_ChangeScreenMultipleFactor},
+  {"Screen Multiple Factor (1-None)", S_NUM,m_null,G_X,G_Y+2*8, {"render_screen_multiply"}, 0, 0, M_ChangeScreenMultipleFactor},
   {"Interlaced Scanning",       S_YESNO,  m_null, G_X, G_Y+3*8, {"render_interlaced_scanning"}, 0, 0, M_ChangeInterlacedScanning},
 #ifdef GL_DOOM
   {"OpenGL Options",             S_SKIP|S_TITLE,m_null,G_X,G_Y+5*8},
@@ -6009,7 +6009,6 @@ void M_Init(void)
   M_ChangeSpriteClip();
   M_ChangeAllowBoomColormaps();
 #endif
-  M_ChangeScreenMultipleFactor();
   M_ChangeInterlacedScanning();
 
   M_ChangeDemoSmoothTurns();
