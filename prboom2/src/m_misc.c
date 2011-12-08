@@ -264,7 +264,7 @@ default_t defaults[] =
    def_int,ss_none}, // 1=take special steps ensuring demo sync, 2=only during recordings
   {"endoom_mode", {&endoom_mode},{5},0,7, // CPhipps - endoom flags
    def_hex, ss_none}, // 0, +1 for colours, +2 for non-ascii chars, +4 for skip-last-line
-  {"level_precache",{(int*)&precache},{0},0,1,
+  {"level_precache",{(int*)&precache},{1},0,1,
    def_bool,ss_none}, // precache level data?
   {"demo_smoothturns", {&demo_smoothturns},  {0},0,1,
    def_bool,ss_stat},
@@ -325,7 +325,7 @@ default_t defaults[] =
    def_bool,ss_stat}, // disables doubled card and skull key display on status bar
   {"show_messages",{&showMessages},{1},0,1,
    def_bool,ss_none}, // enables message display
-  {"autorun",{&autorun},{0},0,1,  // killough 3/6/98: preserve autorun across games
+  {"autorun",{&autorun},{1},0,1,  // killough 3/6/98: preserve autorun across games
    def_bool,ss_none},
 
   {"Dehacked settings",{NULL},{0},UL,UL,def_none,ss_none},
@@ -333,7 +333,7 @@ default_t defaults[] =
    def_bool,ss_stat}, // if 0, dehacked cheat replacements are ignored.
 
   {"Compatibility settings",{NULL},{0},UL,UL,def_none,ss_none},
-  {"comp_zombie",{&default_comp[comp_zombie]},{0},0,1,def_bool,ss_comp,&comp[comp_zombie]},
+  {"comp_zombie",{&default_comp[comp_zombie]},{1},0,1,def_bool,ss_comp,&comp[comp_zombie]},
   {"comp_infcheat",{&default_comp[comp_infcheat]},{0},0,1,def_bool,ss_comp,&comp[comp_infcheat]},
   {"comp_stairs",{&default_comp[comp_stairs]},{0},0,1,def_bool,ss_comp,&comp[comp_stairs]},
   {"comp_telefrag",{&default_comp[comp_telefrag]},{0},0,1,def_bool,ss_comp,&comp[comp_telefrag]},
@@ -539,9 +539,9 @@ default_t defaults[] =
    0,MAX_KEY,def_key,ss_keys}, // key to turn right
   {"key_left",        {&key_left},           {KEYD_LEFTARROW} ,
    0,MAX_KEY,def_key,ss_keys}, // key to turn left
-  {"key_up",          {&key_up},             {KEYD_UPARROW}   ,
+  {"key_up",          {&key_up},             {'w'}   ,
    0,MAX_KEY,def_key,ss_keys}, // key to move forward
-  {"key_down",        {&key_down},           {KEYD_DOWNARROW},
+  {"key_down",        {&key_down},           {'s'},
    0,MAX_KEY,def_key,ss_keys}, // key to move backward
   {"key_mlook",       {&key_mlook},           {'\\'},
    0,MAX_KEY,def_key,ss_keys}, // key to move backward
@@ -561,9 +561,9 @@ default_t defaults[] =
    0,MAX_KEY,def_key,ss_keys}, // key to select from menu
   {"key_setup",       {&key_setup},          {0},
    0,MAX_KEY,def_key,ss_keys}, //e6y: key for entering setup menu
-  {"key_strafeleft",  {&key_strafeleft},     {','}           ,
+  {"key_strafeleft",  {&key_strafeleft},     {'a'}           ,
    0,MAX_KEY,def_key,ss_keys}, // key to strafe left
-  {"key_straferight", {&key_straferight},    {'.'}           ,
+  {"key_straferight", {&key_straferight},    {'d'}           ,
    0,MAX_KEY,def_key,ss_keys}, // key to strafe right
 
   {"key_fire",        {&key_fire},           {KEYD_RCTRL}     ,
@@ -777,16 +777,16 @@ default_t defaults[] =
    def_bool,ss_auto}, // prevents showing secret sectors till after entered
   {"map_point_coord", {&map_point_coordinates}, {0},0,1,
    def_bool,ss_auto},
-  {"map_level_stat", {&map_level_stat}, {0},0,1,
+  {"map_level_stat", {&map_level_stat}, {1},0,1,
    def_bool,ss_auto},
   //jff 1/7/98 end additions for automap
   {"automapmode", {(int*)&automapmode}, {0}, 0, 31, // CPhipps - remember automap mode
    def_hex,ss_none}, // automap mode
-  {"map_always_updates", {&map_always_updates}, {0},0,1,
+  {"map_always_updates", {&map_always_updates}, {1},0,1,
    def_bool,ss_auto},
   {"map_grid_size", {&map_grid_size}, {128},8,256,
    def_int,ss_auto},
-  {"map_scroll_speed", {&map_scroll_speed}, {4},1,32,
+  {"map_scroll_speed", {&map_scroll_speed}, {8},1,32,
    def_int,ss_auto},
   {"map_wheel_zoom", {&map_wheel_zoom}, {1},0,1,
    def_bool,ss_auto},
@@ -857,7 +857,7 @@ default_t defaults[] =
    def_int,ss_stat}, // percent of ammo for yellow to green transition
 
   //jff 2/16/98 HUD and status feature controls
-  {"hud_num",    {&hud_num}, {2},0,100,
+  {"hud_num",    {&hud_num}, {6},0,100,
    def_int,ss_none},
   //jff 2/23/98
   {"hud_displayed", {&hud_displayed},  {0},0,1, // whether hud is displayed
@@ -899,7 +899,7 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"hudadd_smarttotals", {&hudadd_smarttotals},  {0},0,1,
    def_bool,ss_stat},
-  {"hudadd_demoprogressbar", {&hudadd_demoprogressbar},  {0},0,1,
+  {"hudadd_demoprogressbar", {&hudadd_demoprogressbar},  {1},0,1,
    def_bool,ss_stat},
 
   //e6y
@@ -912,13 +912,13 @@ default_t defaults[] =
    def_bool,ss_stat},
 
   {"Prboom-plus demos settings",{NULL},{0},UL,UL,def_none,ss_none},
-  {"demo_extendedformat", {&demo_extendedformat_default},  {0},0,1,
+  {"demo_extendedformat", {&demo_extendedformat_default},  {1},0,1,
    def_bool,ss_stat},
   {"demo_demoex_filename", {NULL,&demo_demoex_filename}, {0,""},UL,UL,
    def_str,ss_none},
   {"getwad_cmdline", {NULL, &getwad_cmdline}, {0,""},UL,UL,
    def_str,ss_none},
-  {"demo_overwriteexisting", {&demo_overwriteexisting},  {0},0,1,
+  {"demo_overwriteexisting", {&demo_overwriteexisting},  {1},0,1,
    def_bool,ss_stat},
 
   {"Prboom-plus game settings",{NULL},{0},UL,UL,def_none,ss_none},
@@ -1001,7 +1001,7 @@ default_t defaults[] =
    def_int,ss_stat},
   {"movement_mouseinvert", {&movement_mouseinvert},  {0},0,1,
    def_bool,ss_stat},
-  {"render_paperitems", {&render_paperitems},  {1},0,1,
+  {"render_paperitems", {&render_paperitems},  {0},0,1,
    def_bool,ss_stat},
   {"gl_boom_colormaps", {&gl_boom_colormaps_default},  {1},0,1,
    def_bool,ss_stat},
