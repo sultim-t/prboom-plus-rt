@@ -107,6 +107,8 @@ GRAPHICS += graphics/m_colors.ppm
 GRAPHICS += graphics/m_palno.ppm
 GRAPHICS += graphics/m_palsel.ppm
 GRAPHICS += graphics/m_vbox.ppm
+
+if NONFREE_GRAPHICS
 GRAPHICS += graphics/m_generl.ppm
 GRAPHICS += graphics/m_setup.ppm
 GRAPHICS += graphics/m_auto.ppm
@@ -120,6 +122,7 @@ GRAPHICS += graphics/m_weap.ppm
 GRAPHICS += graphics/m_horsen.ppm
 GRAPHICS += graphics/m_versen.ppm
 GRAPHICS += graphics/prboom.ppm
+endif
 
 SPRITES = sprites/tnt1a0.ppm
 SPRITEP = 0,0,sprites/tnt1a0.ppm

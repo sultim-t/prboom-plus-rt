@@ -199,6 +199,14 @@ AC_DEFINE(HIGHRES,1,[Define for high resolution support])
 AC_DEFINE(SIMPLECHECKS,1,[When defined this causes quick checks which only impose significant overhead if a posible error is detected.])
 AC_DEFINE(ZONEIDCHECK,1,[Define this to perform id checks on zone blocks, to detect corrupted and illegally freed blocks])
 
+AC_ARG_ENABLE(nonfree-graphics,
+              AC_HELP_STRING([--disable-nonfree-graphics],
+                             [build prboom.wad without non-free menu text lumps]),
+              [], [enable_nonfree_graphics="yes"])
+AS_IF([test -f "$srcdir"/data/graphics/m_generl.ppm],
+      [], [enable_nonfree_graphics="no"])
+AM_CONDITIONAL(NONFREE_GRAPHICS, [test "x$enable_nonfree_graphics" = "xyes"])
+
 AC_ARG_ENABLE(dogs,AC_HELP_STRING([--disable-dogs],[disables support for helper dogs]),,enable_dogs="yes")
 if test x"$enable_dogs" = xyes
 then
