@@ -161,6 +161,7 @@ typedef struct
   //   choice=0:leftarrow,1:rightarrow
   void  (*routine)(int choice);
   char  alphaKey; // hotkey in menu
+  const char *alttext;
 } menuitem_t;
 
 typedef struct menu_s
@@ -956,16 +957,16 @@ enum
 menuitem_t OptionsMenu[]=
 {
   // killough 4/6/98: move setup to be a sub-menu of OPTIONs
-  {1,"M_GENERL", M_General, 'g'},      // killough 10/98
-  {1,"M_SETUP",  M_Setup,   's'},                          // phares 3/21/98
-  {1,"M_ENDGAM", M_EndGame,'e'},
-  {1,"M_MESSG",  M_ChangeMessages,'m'},
+  {1,"M_GENERL", M_General, 'g', "GENERAL"},      // killough 10/98
+  {1,"M_SETUP",  M_Setup,   's', "SETUP"},        // phares 3/21/98
+  {1,"M_ENDGAM", M_EndGame,'e',  "END GAME"},
+  {1,"M_MESSG",  M_ChangeMessages,'m', "MESSAGES"},
   /*    {1,"M_DETAIL",  M_ChangeDetail,'g'},  unused -- killough */
-  {2,"M_SCRNSZ", M_SizeDisplay,'s'},
+  {2,"M_SCRNSZ", M_SizeDisplay,'s', "SCREEN SIZE"},
   {-1,"",0},
-  {1,"M_MSENS",  M_ChangeSensitivity,'m'},
+  {1,"M_MSENS",  M_ChangeSensitivity,'m', "MOUSE SENSITIVITY"},
   /* {-1,"",0},  replaced with submenu -- killough */
-  {1,"M_SVOL",   M_Sound,'s'}
+  {1,"M_SVOL",   M_Sound,'s', "SOUND VOLUME"},
 };
 
 menu_t OptionsDef =
@@ -1183,9 +1184,9 @@ enum
 
 menuitem_t MouseMenu[]=
 {
-  {2,"M_HORSEN",M_MouseHoriz,'h'},
+  {2,"M_HORSEN",M_MouseHoriz,'h', "HORIZONTAL"},
   {-1,"",0},
-  {2,"M_VERSEN",M_MouseVert,'v'},
+  {2,"M_VERSEN",M_MouseVert,'v', "VERTICAL"},
   {-1,"",0}
 };
 
@@ -1503,14 +1504,14 @@ int setup_screen; // the current setup screen. takes values from setup_e
 
 menuitem_t SetupMenu[]=
 {
-  {1,"M_COMPAT",M_Compat,     'p'},
-  {1,"M_KEYBND",M_KeyBindings,'k'},
-  {1,"M_WEAP"  ,M_Weapons,    'w'},
-  {1,"M_STAT"  ,M_StatusBar,  's'},
-  {1,"M_AUTO"  ,M_Automap,    'a'},
-  {1,"M_ENEM"  ,M_Enemy,      'e'},
-  {1,"M_MESS"  ,M_Messages,   'm'},
-  {1,"M_CHAT"  ,M_ChatStrings,'c'},
+  {1,"M_COMPAT",M_Compat,     'p', "DOOM COMPATIBILITY"},
+  {1,"M_KEYBND",M_KeyBindings,'k', "KEY BINDINGS"},
+  {1,"M_WEAP"  ,M_Weapons,    'w', "WEAPONS"},
+  {1,"M_STAT"  ,M_StatusBar,  's', "STATUS BAR / HUD"},
+  {1,"M_AUTO"  ,M_Automap,    'a', "AUTOMAP"},
+  {1,"M_ENEM"  ,M_Enemy,      'e', "ENEMIES"},
+  {1,"M_MESS"  ,M_Messages,   'm', "MESSAGES"},
+  {1,"M_CHAT"  ,M_ChatStrings,'c', "CHAT STRINGS"},
 };
 
 /////////////////////////////
@@ -5300,6 +5301,7 @@ void M_Drawer (void)
     if (menuactive)
       {
   int x,y,max,i;
+  int lumps_missing = 0;
 
   menuactive = mnact_float; // Boom-style menu drawers will set mnact_full
 
@@ -5312,11 +5314,25 @@ void M_Drawer (void)
   y = currentMenu->y;
   max = currentMenu->numitems;
 
-  for (i=0;i<max;i++)
+  for (i = 0; i < max; i++)
+    if (currentMenu->menuitems[i].name[0])
+      if (W_CheckNumForName(currentMenu->menuitems[i].name) < 0)
+        lumps_missing++;
+
+  if (lumps_missing == 0)
+    for (i=0;i<max;i++)
     {
       if (currentMenu->menuitems[i].name[0])
         V_DrawNamePatch(x,y,0,currentMenu->menuitems[i].name,
             CR_DEFAULT, VPT_STRETCH);
+      y += LINEHEIGHT;
+    }
+  else
+    for (i = 0; i < max; i++)
+    {
+      const char *alttext = currentMenu->menuitems[i].alttext;
+      if (alttext)
+        M_WriteText(x, y+8-(M_StringHeight(alttext)/2), alttext, CR_DEFAULT);
       y += LINEHEIGHT;
     }
 
