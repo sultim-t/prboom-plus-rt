@@ -137,6 +137,7 @@ prboom2/data/lumps/switches.lmp -text
 prboom2/data/lumps/tangtabl.lmp -text
 prboom2/data/lumps/tantoang.lmp -text
 prboom2/data/lumps/watermap.lmp -text
+prboom2/data/palette.rgb -text svneol=unset#unset
 prboom2/data/sounds/dsdgact.wav -text
 prboom2/data/sounds/dsdgatk.wav -text
 prboom2/data/sounds/dsdgdth.wav -text
