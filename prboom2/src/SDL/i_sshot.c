@@ -115,7 +115,7 @@ static int write_png_palette(
 
 static void fill_buffer_indexed(SDL_Surface *scr, void *buffer)
 {
-  memcpy(buffer, scr->pixels, SCREENWIDTH * SCREENHEIGHT);
+  memcpy(buffer, scr->pixels, REAL_SCREENWIDTH * REAL_SCREENHEIGHT);
 }
 
 static void fill_buffer_hicolor(SDL_Surface *scr, void *buffer)
@@ -126,7 +126,7 @@ static void fill_buffer_hicolor(SDL_Surface *scr, void *buffer)
   int y;
 
   // translate SDL pixel format into png_color
-  for (y = SCREENWIDTH * SCREENHEIGHT;
+  for (y = REAL_SCREENWIDTH * REAL_SCREENHEIGHT;
       y > 0;
       pixel++, source += fmt->BytesPerPixel, y--)
   {
@@ -169,7 +169,7 @@ static int screenshot_sdl(
   int y, result = -1;
   byte *pixel_data;
 
-  pixel_data = malloc(SCREENWIDTH * SCREENHEIGHT * mode->pixel_size);
+  pixel_data = malloc(REAL_SCREENWIDTH * REAL_SCREENHEIGHT * mode->pixel_size);
 
   if (pixel_data)
   {
@@ -189,8 +189,8 @@ static int screenshot_sdl(
     {
       // Write out the buffer
       png_write_info(png_ptr, info_ptr);
-      for (y = 0; y < SCREENHEIGHT; y++)
-        png_write_row(png_ptr, pixel_data + y*SCREENWIDTH*mode->pixel_size);
+      for (y = 0; y < REAL_SCREENHEIGHT; y++)
+        png_write_row(png_ptr, pixel_data + y*REAL_SCREENWIDTH*mode->pixel_size);
       png_write_end(png_ptr, info_ptr);
 
       result = 0;
@@ -214,8 +214,8 @@ static int screenshot_gl(png_struct *png_ptr, png_info *info_ptr)
     int y;
 
     png_write_info(png_ptr, info_ptr);
-    for (y = 0; y < SCREENHEIGHT; y++)
-      png_write_row(png_ptr, pixel_data + y*SCREENWIDTH*3);
+    for (y = 0; y < REAL_SCREENHEIGHT; y++)
+      png_write_row(png_ptr, pixel_data + y*REAL_SCREENWIDTH*3);
     png_write_end(png_ptr, info_ptr);
 
     //free(pixel_data); //static buffer
@@ -254,8 +254,8 @@ int I_ScreenShot (const char *fname)
         png_set_compression_level(png_ptr, 2);
         png_init_io(png_ptr, fp);
         png_set_IHDR(
-            png_ptr, info_ptr, SCREENWIDTH, SCREENHEIGHT, 8,
-            (V_GetMode() == VID_MODE8)
+            png_ptr, info_ptr, REAL_SCREENWIDTH, REAL_SCREENHEIGHT, 8,
+            (V_GetMode() == VID_MODE8 && !vid_8ingl.enabled)
               ? PNG_COLOR_TYPE_PALETTE
               : PNG_COLOR_TYPE_RGB,
             PNG_INTERLACE_NONE,
@@ -265,27 +265,25 @@ int I_ScreenShot (const char *fname)
         png_convert_from_time_t(&ptime, time(NULL));
         png_set_tIME(png_ptr, info_ptr, &ptime);
 
-        switch (V_GetMode()) {
 #ifdef GL_DOOM
-          case VID_MODEGL:
-            result = screenshot_gl(png_ptr, info_ptr);
-            break;
+        if (V_GetMode() == VID_MODEGL || vid_8ingl.enabled)
+        {
+          result = screenshot_gl(png_ptr, info_ptr);
+        }
+        else
 #endif
-          case VID_MODE8:
+        {
+          if (V_GetMode() == VID_MODE8)
+          {
             if (write_png_palette(png_ptr, info_ptr, scr) >= 0)
               result = screenshot_sdl(png_ptr, info_ptr, scr,
                   &screenshot_sdl_funcs[SCREENSHOT_SDL_INDEXED]);
-            break;
-
-          case VID_MODE15:
-          case VID_MODE16:
-          case VID_MODE32:
+          }
+          else
+          {
             result = screenshot_sdl(png_ptr, info_ptr, scr,
                 &screenshot_sdl_funcs[SCREENSHOT_SDL_HICOLOR]);
-            break;
-
-          default:
-            break;
+          }
         }
       }
       png_destroy_write_struct(&png_ptr, NULL);
