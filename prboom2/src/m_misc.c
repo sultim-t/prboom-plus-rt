@@ -1089,6 +1089,8 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"comperr_hangsolid", {&default_comperr[comperr_hangsolid]},  {0},0,1,
    def_bool,ss_stat},
+  {"comperr_blockmap", {&default_comperr[comperr_blockmap]},  {0},0,1,
+   def_bool,ss_stat},
 
 #ifdef USE_WINDOWS_LAUNCHER
   {"Prboom-plus launcher settings",{NULL},{0},UL,UL,def_none,ss_none},

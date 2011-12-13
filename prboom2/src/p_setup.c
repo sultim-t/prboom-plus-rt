@@ -150,6 +150,19 @@ fixed_t   bmaporgx, bmaporgy;     // origin of block map
 
 mobj_t    **blocklinks;           // for thing chains
 
+// MAES: extensions to support 512x512 blockmaps.
+// They represent the maximum negative number which represents
+// a positive offset, otherwise they are left at -257, which
+// never triggers a check.
+// If a blockmap index is ever LE than either, then
+// its actual value is to be interpreted as 0x01FF&x.
+// Full 512x512 blockmaps get this value set to -1.
+// A 511x511 blockmap would still have a valid negative number
+// e.g. -1..510, so they would be set to -2
+// Non-extreme maps remain unaffected.
+int blockmapxneg = -257;
+int blockmapyneg = -257;
+
 //
 // REJECT
 // For fast sight rejection.
@@ -2003,6 +2016,20 @@ static void P_LoadBlockMap (int lump)
   // clear out mobj chains - CPhipps - use calloc
   blocklinks = calloc_IfSameLevel(blocklinks, bmapwidth * bmapheight, sizeof(*blocklinks));
   blockmap = blockmaplump+4;
+
+  // MAES: set blockmapxneg and blockmapyneg
+  // E.g. for a full 512x512 map, they should be both
+  // -1. For a 257*257, they should be both -255 etc.
+  blockmapxneg = (bmapwidth > 255 ? bmapwidth - 512 : -257);
+  blockmapyneg = (bmapheight > 255 ? bmapheight - 512 : -257);
+  if (blockmapxneg != -257 || blockmapyneg != -257)
+  {
+    lprintf(LO_WARN,
+      "P_LoadBlockMap: This map uses a large blockmap which may cause no-clipping bugs. "
+      "Toggle the \"Fix clipping problems in large levels\" option "
+      "in the \"Compatibility with common mapping errors\" menu in order to activate a fix. "
+      "That fix won't be applied during demo playback or recording.\n");
+  }
 }
 
 //

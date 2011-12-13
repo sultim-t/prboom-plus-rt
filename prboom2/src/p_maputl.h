@@ -85,6 +85,10 @@ dboolean P_BlockThingsIterator(int x, int y, dboolean func(mobj_t *));
 dboolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
                        int flags, dboolean trav(intercept_t *));
 
+// MAES: support 512x512 blockmaps.
+int P_GetSafeBlockX(int coord);
+int P_GetSafeBlockY(int coord);
+
 extern fixed_t opentop;
 extern fixed_t openbottom;
 extern fixed_t openrange;

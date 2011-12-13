@@ -316,10 +316,10 @@ dboolean P_TeleportMove (mobj_t* thing,fixed_t x,fixed_t y, dboolean boss)
 
   // stomp on any things contacted
 
-  xl = (tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS)>>MAPBLOCKSHIFT;
-  xh = (tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS)>>MAPBLOCKSHIFT;
-  yl = (tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS)>>MAPBLOCKSHIFT;
-  yh = (tmbbox[BOXTOP] - bmaporgy + MAXRADIUS)>>MAPBLOCKSHIFT;
+  xl = P_GetSafeBlockX(tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS);
+  xh = P_GetSafeBlockX(tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS);
+  yl = P_GetSafeBlockY(tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS);
+  yh = P_GetSafeBlockY(tmbbox[BOXTOP] - bmaporgy + MAXRADIUS);
 
   for (bx=xl ; bx<=xh ; bx++)
     for (by=yl ; by<=yh ; by++)
@@ -708,10 +708,10 @@ dboolean Check_Sides(mobj_t* actor, int x, int y)
 
   // Determine which blocks to look in for blocking lines
 
-  xl = (tmbbox[BOXLEFT]   - bmaporgx)>>MAPBLOCKSHIFT;
-  xh = (tmbbox[BOXRIGHT]  - bmaporgx)>>MAPBLOCKSHIFT;
-  yl = (tmbbox[BOXBOTTOM] - bmaporgy)>>MAPBLOCKSHIFT;
-  yh = (tmbbox[BOXTOP]    - bmaporgy)>>MAPBLOCKSHIFT;
+  xl = P_GetSafeBlockX(tmbbox[BOXLEFT]   - bmaporgx);
+  xh = P_GetSafeBlockX(tmbbox[BOXRIGHT]  - bmaporgx);
+  yl = P_GetSafeBlockY(tmbbox[BOXBOTTOM] - bmaporgy);
+  yh = P_GetSafeBlockY(tmbbox[BOXTOP]    - bmaporgy);
 
   // xl->xh, yl->yh determine the mapblock set to search
 
@@ -799,10 +799,10 @@ dboolean P_CheckPosition (mobj_t* thing,fixed_t x,fixed_t y)
   // based on their origin point, and can overlap
   // into adjacent blocks by up to MAXRADIUS units.
 
-  xl = (tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS)>>MAPBLOCKSHIFT;
-  xh = (tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS)>>MAPBLOCKSHIFT;
-  yl = (tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS)>>MAPBLOCKSHIFT;
-  yh = (tmbbox[BOXTOP] - bmaporgy + MAXRADIUS)>>MAPBLOCKSHIFT;
+  xl = P_GetSafeBlockX(tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS);
+  xh = P_GetSafeBlockX(tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS);
+  yl = P_GetSafeBlockY(tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS);
+  yh = P_GetSafeBlockY(tmbbox[BOXTOP] - bmaporgy + MAXRADIUS);
 
 
   for (bx=xl ; bx<=xh ; bx++)
@@ -812,10 +812,10 @@ dboolean P_CheckPosition (mobj_t* thing,fixed_t x,fixed_t y)
 
   // check lines
 
-  xl = (tmbbox[BOXLEFT] - bmaporgx)>>MAPBLOCKSHIFT;
-  xh = (tmbbox[BOXRIGHT] - bmaporgx)>>MAPBLOCKSHIFT;
-  yl = (tmbbox[BOXBOTTOM] - bmaporgy)>>MAPBLOCKSHIFT;
-  yh = (tmbbox[BOXTOP] - bmaporgy)>>MAPBLOCKSHIFT;
+  xl = P_GetSafeBlockX(tmbbox[BOXLEFT] - bmaporgx);
+  xh = P_GetSafeBlockX(tmbbox[BOXRIGHT] - bmaporgx);
+  yl = P_GetSafeBlockY(tmbbox[BOXBOTTOM] - bmaporgy);
+  yh = P_GetSafeBlockY(tmbbox[BOXTOP] - bmaporgy);
 
   for (bx=xl ; bx<=xh ; bx++)
     for (by=yl ; by<=yh ; by++)
@@ -1030,14 +1030,14 @@ static dboolean PIT_ApplyTorque(line_t *ld)
 
 void P_ApplyTorque(mobj_t *mo)
 {
-  int xl = ((tmbbox[BOXLEFT] =
-       mo->x - mo->radius) - bmaporgx) >> MAPBLOCKSHIFT;
-  int xh = ((tmbbox[BOXRIGHT] =
-       mo->x + mo->radius) - bmaporgx) >> MAPBLOCKSHIFT;
-  int yl = ((tmbbox[BOXBOTTOM] =
-       mo->y - mo->radius) - bmaporgy) >> MAPBLOCKSHIFT;
-  int yh = ((tmbbox[BOXTOP] =
-       mo->y + mo->radius) - bmaporgy) >> MAPBLOCKSHIFT;
+  int xl = P_GetSafeBlockX((tmbbox[BOXLEFT] =
+       mo->x - mo->radius) - bmaporgx);
+  int xh = P_GetSafeBlockX((tmbbox[BOXRIGHT] =
+       mo->x + mo->radius) - bmaporgx);
+  int yl = P_GetSafeBlockY((tmbbox[BOXBOTTOM] =
+       mo->y - mo->radius) - bmaporgy);
+  int yh = P_GetSafeBlockY((tmbbox[BOXTOP] =
+       mo->y + mo->radius) - bmaporgy);
   int bx,by,flags = mo->intflags; //Remember the current state, for gear-change
 
   tmthing = mo;
@@ -1910,10 +1910,10 @@ void P_RadiusAttack(mobj_t* spot,mobj_t* source,int damage)
   fixed_t dist;
 
   dist = (damage+MAXRADIUS)<<FRACBITS;
-  yh = (spot->y + dist - bmaporgy)>>MAPBLOCKSHIFT;
-  yl = (spot->y - dist - bmaporgy)>>MAPBLOCKSHIFT;
-  xh = (spot->x + dist - bmaporgx)>>MAPBLOCKSHIFT;
-  xl = (spot->x - dist - bmaporgx)>>MAPBLOCKSHIFT;
+  yh = P_GetSafeBlockY(spot->y + dist - bmaporgy);
+  yl = P_GetSafeBlockY(spot->y - dist - bmaporgy);
+  xh = P_GetSafeBlockX(spot->x + dist - bmaporgx);
+  xl = P_GetSafeBlockX(spot->x - dist - bmaporgx);
   bombspot = spot;
   bombsource = source;
   bombdamage = damage;
@@ -2326,10 +2326,10 @@ void P_CreateSecNodeList(mobj_t* thing,fixed_t x,fixed_t y)
 
   validcount++; // used to make sure we only process a line once
 
-  xl = (tmbbox[BOXLEFT] - bmaporgx)>>MAPBLOCKSHIFT;
-  xh = (tmbbox[BOXRIGHT] - bmaporgx)>>MAPBLOCKSHIFT;
-  yl = (tmbbox[BOXBOTTOM] - bmaporgy)>>MAPBLOCKSHIFT;
-  yh = (tmbbox[BOXTOP] - bmaporgy)>>MAPBLOCKSHIFT;
+  xl = P_GetSafeBlockX(tmbbox[BOXLEFT] - bmaporgx);
+  xh = P_GetSafeBlockX(tmbbox[BOXRIGHT] - bmaporgx);
+  yl = P_GetSafeBlockY(tmbbox[BOXBOTTOM] - bmaporgy);
+  yh = P_GetSafeBlockY(tmbbox[BOXTOP] - bmaporgy);
 
   for (bx=xl ; bx<=xh ; bx++)
     for (by=yl ; by<=yh ; by++)

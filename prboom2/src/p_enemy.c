@@ -615,10 +615,10 @@ static dboolean PIT_AvoidDropoff(line_t *line)
 
 static fixed_t P_AvoidDropoff(mobj_t *actor)
 {
-  int yh=((tmbbox[BOXTOP]   = actor->y+actor->radius)-bmaporgy)>>MAPBLOCKSHIFT;
-  int yl=((tmbbox[BOXBOTTOM]= actor->y-actor->radius)-bmaporgy)>>MAPBLOCKSHIFT;
-  int xh=((tmbbox[BOXRIGHT] = actor->x+actor->radius)-bmaporgx)>>MAPBLOCKSHIFT;
-  int xl=((tmbbox[BOXLEFT]  = actor->x-actor->radius)-bmaporgx)>>MAPBLOCKSHIFT;
+  int yh=P_GetSafeBlockY((tmbbox[BOXTOP]   = actor->y+actor->radius)-bmaporgy);
+  int yl=P_GetSafeBlockY((tmbbox[BOXBOTTOM]= actor->y-actor->radius)-bmaporgy);
+  int xh=P_GetSafeBlockX((tmbbox[BOXRIGHT] = actor->x+actor->radius)-bmaporgx);
+  int xl=P_GetSafeBlockX((tmbbox[BOXLEFT]  = actor->x-actor->radius)-bmaporgx);
   int bx, by;
 
   floorz = actor->z;            // remember floor height
@@ -907,8 +907,8 @@ static dboolean P_LookForMonsters(mobj_t *actor, dboolean allaround)
 
   if (cap->cnext != cap)        // Empty list? bail out early
     {
-      int x = (actor->x - bmaporgx)>>MAPBLOCKSHIFT;
-      int y = (actor->y - bmaporgy)>>MAPBLOCKSHIFT;
+      int x = P_GetSafeBlockX(actor->x - bmaporgx);
+      int y = P_GetSafeBlockY(actor->y - bmaporgy);
       int d;
 
       current_actor = actor;
@@ -1668,10 +1668,10 @@ void A_VileChase(mobj_t* actor)
       viletryy =
         actor->y + actor->info->speed*yspeed[actor->movedir];
 
-      xl = (viletryx - bmaporgx - MAXRADIUS*2)>>MAPBLOCKSHIFT;
-      xh = (viletryx - bmaporgx + MAXRADIUS*2)>>MAPBLOCKSHIFT;
-      yl = (viletryy - bmaporgy - MAXRADIUS*2)>>MAPBLOCKSHIFT;
-      yh = (viletryy - bmaporgy + MAXRADIUS*2)>>MAPBLOCKSHIFT;
+      xl = P_GetSafeBlockX(viletryx - bmaporgx - MAXRADIUS*2);
+      xh = P_GetSafeBlockX(viletryx - bmaporgx + MAXRADIUS*2);
+      yl = P_GetSafeBlockY(viletryy - bmaporgy - MAXRADIUS*2);
+      yh = P_GetSafeBlockY(viletryy - bmaporgy + MAXRADIUS*2);
 
       vileobj = actor;
       for (bx=xl ; bx<=xh ; bx++)

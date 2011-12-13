@@ -3247,6 +3247,7 @@ setup_menu_t gen_settings7[] =
   {"LINEDEFS W/O TAGS APPLY LOCALLY"   ,S_YESNO     ,m_null,G_X2,G_Y+16*8, {"comperr_zerotag"}},
   {"USE PASSES THRU ALL SPECIAL LINES" ,S_YESNO     ,m_null,G_X2,G_Y+17*8, {"comperr_passuse"}},
   {"WALK UNDER SOLID HANGING BODIES"   ,S_YESNO     ,m_null,G_X2,G_Y+18*8, {"comperr_hangsolid"}},
+  {"FIX CLIPPING PROBLEMS IN LARGE LEVELS" ,S_YESNO ,m_null,G_X2,G_Y+19*8, {"comperr_blockmap"}},
 
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
 #ifdef GL_DOOM

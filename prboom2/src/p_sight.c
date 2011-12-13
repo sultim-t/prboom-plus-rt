@@ -32,6 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 #include "doomstat.h"
+#include "doomtype.h"
 #include "r_main.h"
 #include "p_map.h"
 #include "p_maputl.h"
@@ -238,13 +239,13 @@ dboolean P_SightPathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2)
 
   x1 -= bmaporgx;
   y1 -= bmaporgy;
-  xt1 = x1>>MAPBLOCKSHIFT;
-  yt1 = y1>>MAPBLOCKSHIFT;
+  xt1 = P_GetSafeBlockX(x1);
+  yt1 = P_GetSafeBlockY(y1);
 
   x2 -= bmaporgx;
   y2 -= bmaporgy;
-  xt2 = x2>>MAPBLOCKSHIFT;
-  yt2 = y2>>MAPBLOCKSHIFT;
+  xt2 = P_GetSafeBlockX(x2);
+  yt2 = P_GetSafeBlockY(y2);
 
   // points should never be out of bounds, but check once instead of
   // each block

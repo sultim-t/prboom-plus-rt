@@ -35,6 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 #include "doomstat.h"
+#include "doomtype.h"
 #include "m_bbox.h"
 #include "r_main.h"
 #include "p_maputl.h"
@@ -323,8 +324,8 @@ void P_SetThingPosition(mobj_t *thing)
   if (!(thing->flags & MF_NOBLOCKMAP))
     {
       // inert things don't need to be in blockmap
-      int blockx = (thing->x - bmaporgx)>>MAPBLOCKSHIFT;
-      int blocky = (thing->y - bmaporgy)>>MAPBLOCKSHIFT;
+      int blockx = P_GetSafeBlockX(thing->x - bmaporgx);
+      int blocky = P_GetSafeBlockY(thing->y - bmaporgy);
       if (blockx>=0 && blockx < bmapwidth && blocky>=0 && blocky < bmapheight)
         {
         // killough 8/11/98: simpler scheme using pointer-to-pointer prev
@@ -584,6 +585,7 @@ dboolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
   fixed_t partial;
   fixed_t xintercept, yintercept;
   int     mapx, mapy;
+  int     mapx1, mapy1;
   int     mapxstep, mapystep;
   int     count;
 
@@ -601,27 +603,55 @@ dboolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
   trace.dx = x2 - x1;
   trace.dy = y2 - y1;
 
-  x1 -= bmaporgx;
-  y1 -= bmaporgy;
-  xt1 = x1>>MAPBLOCKSHIFT;
-  yt1 = y1>>MAPBLOCKSHIFT;
+  if (comperr[comperr_blockmap])
+  {
+    int_64_t _x1, _x2, _y1, _y2;
 
-  x2 -= bmaporgx;
-  y2 -= bmaporgy;
-  xt2 = x2>>MAPBLOCKSHIFT;
-  yt2 = y2>>MAPBLOCKSHIFT;
+    _x1 = (int_64_t)x1 - bmaporgx;
+    _y1 = (int_64_t)y1 - bmaporgy;
+    xt1 = (int)(_x1>>MAPBLOCKSHIFT);
+    yt1 = (int)(_y1>>MAPBLOCKSHIFT);
+
+    mapx1 = (int)(_x1>>MAPBTOFRAC);
+    mapy1 = (int)(_y1>>MAPBTOFRAC);
+
+    _x2 = (int_64_t)x2 - bmaporgx;
+    _y2 = (int_64_t)y2 - bmaporgy;
+    xt2 = (int)(_x2>>MAPBLOCKSHIFT);
+    yt2 = (int)(_y2>>MAPBLOCKSHIFT);
+
+    x1 -= bmaporgx;
+    y1 -= bmaporgy;
+    x2 -= bmaporgx;
+    y2 -= bmaporgy;
+  }
+  else
+  {
+    x1 -= bmaporgx;
+    y1 -= bmaporgy;
+    xt1 = x1>>MAPBLOCKSHIFT;
+    yt1 = y1>>MAPBLOCKSHIFT;
+
+    mapx1 = x1>>MAPBTOFRAC;
+    mapy1 = y1>>MAPBTOFRAC;
+
+    x2 -= bmaporgx;
+    y2 -= bmaporgy;
+    xt2 = x2>>MAPBLOCKSHIFT;
+    yt2 = y2>>MAPBLOCKSHIFT;
+  }
 
   if (xt2 > xt1)
     {
       mapxstep = 1;
-      partial = FRACUNIT - ((x1>>MAPBTOFRAC)&(FRACUNIT-1));
+      partial = FRACUNIT - (mapx1&(FRACUNIT-1));
       ystep = FixedDiv (y2-y1,D_abs(x2-x1));
     }
   else
     if (xt2 < xt1)
       {
         mapxstep = -1;
-        partial = (x1>>MAPBTOFRAC)&(FRACUNIT-1);
+        partial = mapx1&(FRACUNIT-1);
         ystep = FixedDiv (y2-y1,D_abs(x2-x1));
       }
     else
@@ -631,19 +661,19 @@ dboolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
         ystep = 256*FRACUNIT;
       }
 
-  yintercept = (y1>>MAPBTOFRAC) + FixedMul(partial, ystep);
+  yintercept = mapy1 + FixedMul(partial, ystep);
 
   if (yt2 > yt1)
     {
       mapystep = 1;
-      partial = FRACUNIT - ((y1>>MAPBTOFRAC)&(FRACUNIT-1));
+      partial = FRACUNIT - (mapy1&(FRACUNIT-1));
       xstep = FixedDiv (x2-x1,D_abs(y2-y1));
     }
   else
     if (yt2 < yt1)
       {
         mapystep = -1;
-        partial = (y1>>MAPBTOFRAC)&(FRACUNIT-1);
+        partial = mapy1&(FRACUNIT-1);
         xstep = FixedDiv (x2-x1,D_abs(y2-y1));
       }
     else
@@ -653,7 +683,7 @@ dboolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
         xstep = 256*FRACUNIT;
       }
 
-  xintercept = (x1>>MAPBTOFRAC) + FixedMul (partial, xstep);
+  xintercept = mapx1 + FixedMul(partial, xstep);
 
   // Step through map blocks.
   // Count is present to prevent a round off error
@@ -690,6 +720,32 @@ dboolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
 
   // go through the sorted list
   return P_TraverseIntercepts(trav, FRACUNIT);
+}
+
+// MAES: support 512x512 blockmaps.
+int P_GetSafeBlockX(int coord)
+{
+  coord >>= MAPBLOCKSHIFT;
+
+  // If x is LE than those special values, interpret as positive.
+  // Otherwise, leave it as it is.
+  if (comperr[comperr_blockmap] && coord <= blockmapxneg)
+    return coord & 0x1FF; // Broke width boundary
+
+  return coord;
+}
+
+// MAES: support 512x512 blockmaps.
+int P_GetSafeBlockY(int coord)
+{
+  coord >>= MAPBLOCKSHIFT;
+
+  // If y is LE than those special values, interpret as positive.
+  // Otherwise, leave it as it is.
+  if (comperr[comperr_blockmap] && coord <= blockmapyneg)
+    return coord & 0x1FF; // Broke width boundary
+
+  return coord;
 }
 
 // e6y
