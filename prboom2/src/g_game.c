@@ -2303,6 +2303,9 @@ void G_Compatibility(void)
     if (compatibility_level < levels[i].opt)
       comp[i] = (compatibility_level < levels[i].fix);
 
+  for (i = 0; i < COMPERR_NUM; i++)
+    comperr[i] = default_comperr[i] && !demorecording && !demoplayback && !democontinue;
+
   e6y_G_Compatibility();//e6y
 
   if (!mbf_features) {

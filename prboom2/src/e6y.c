@@ -1201,14 +1201,11 @@ void e6y_G_Compatibility(void)
 }
 
 dboolean zerotag_manual;
-int comperr_zerotag;
-int comperr_passuse;
-int comperr_hangsolid;
 
 dboolean ProcessNoTagLines(line_t* line, sector_t **sec, int *secnum)
 {
   zerotag_manual = false;
-  if (line->tag == 0 && COMPBAD(comperr_zerotag))
+  if (line->tag == 0 && comperr[comperr_zerotag])
   {
     if (!(*sec=line->backsector))
       return true;

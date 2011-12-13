@@ -123,7 +123,16 @@ enum {
   COMP_TOTAL=32  // Some extra room for additional variables
 };
 
+enum {
+  comperr_zerotag,
+  comperr_passuse,
+  comperr_hangsolid,
+
+  COMPERR_NUM
+};
+
 extern int comp[COMP_TOTAL], default_comp[COMP_TOTAL];
+extern int comperr[COMPERR_NUM], default_comperr[COMPERR_NUM];
 
 // -------------------------------------------
 // Language.

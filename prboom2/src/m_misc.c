@@ -1083,11 +1083,11 @@ default_t defaults[] =
    def_bool,ss_stat},
 
   {"Prboom-plus 'bad' compatibility settings",{NULL},{0},UL,UL,def_none,ss_none},
-  {"comperr_zerotag", {&comperr_zerotag},  {0},0,1,
+  {"comperr_zerotag", {&default_comperr[comperr_zerotag]},  {0},0,1,
    def_bool,ss_stat},
-  {"comperr_passuse", {&comperr_passuse},  {0},0,1,
+  {"comperr_passuse", {&default_comperr[comperr_passuse]},  {0},0,1,
    def_bool,ss_stat},
-  {"comperr_hangsolid", {&comperr_hangsolid},  {0},0,1,
+  {"comperr_hangsolid", {&default_comperr[comperr_hangsolid]},  {0},0,1,
    def_bool,ss_stat},
 
 #ifdef USE_WINDOWS_LAUNCHER
