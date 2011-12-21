@@ -93,6 +93,8 @@ int flats_display_list_size = 0;
 int flats_detail_display_list;
 int flats_detail_display_list_size = 0;
 
+int gl_finish;
+
 // e6y
 // This variables toggles the use of a trick to prevent the clearning of the 
 // z-buffer between frames. When this variable is set to "1", the game will not 
@@ -1089,7 +1091,10 @@ void gld_InitDrawScene(void)
 void gld_Finish(void)
 {
   gld_Set2DMode();
-  glFinish();
+  if (gl_finish)
+  {
+    glFinish();
+  }
   SDL_GL_SwapBuffers();
 }
 

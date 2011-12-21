@@ -212,6 +212,7 @@ extern const char *gl_motionblur_att_c;
 extern int gl_fog;
 extern int gl_fog_color;
 
+extern int gl_finish;
 extern int gl_clear;
 extern int gl_ztrick;
 
@@ -470,6 +471,8 @@ default_t defaults[] =
    def_bool,ss_none},
 
   {"gl_vsync",{&gl_vsync},{1},0,1,
+   def_bool,ss_none},
+  {"gl_finish",{&gl_finish},{0},0,1,
    def_bool,ss_none},
   {"gl_clear",{&gl_clear},{0},0,1,
    def_bool,ss_none},
