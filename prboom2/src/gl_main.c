@@ -2777,7 +2777,7 @@ static void gld_DrawItemsSortByTexture(GLDrawItemType itemtype)
   if (itemfuncs[itemtype] && gld_drawinfo.num_items[itemtype] > 1)
   {
     qsort(gld_drawinfo.items[itemtype], gld_drawinfo.num_items[itemtype],
-      sizeof(gld_drawinfo.items[itemtype]), itemfuncs[itemtype]);
+      sizeof(gld_drawinfo.items[itemtype][0]), itemfuncs[itemtype]);
   }
 #endif
 }
@@ -2795,7 +2795,7 @@ static int C_DECL dicmp_sprite_by_pos(const void *a, const void *b)
 static void gld_DrawItemsSort(GLDrawItemType itemtype, int (C_DECL *PtFuncCompare)(const void *, const void *))
 {
   qsort(gld_drawinfo.items[itemtype], gld_drawinfo.num_items[itemtype],
-    sizeof(gld_drawinfo.items[itemtype]), PtFuncCompare);
+    sizeof(gld_drawinfo.items[itemtype][0]), PtFuncCompare);
 }
 
 static void gld_DrawItemsSortSprites(GLDrawItemType itemtype)

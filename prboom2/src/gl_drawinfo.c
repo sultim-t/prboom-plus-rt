@@ -157,7 +157,7 @@ void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata)
     gld_drawinfo.max_items[itemtype] += 64;
     gld_drawinfo.items[itemtype] = realloc(
       gld_drawinfo.items[itemtype],
-      gld_drawinfo.max_items[itemtype] * sizeof(gld_drawinfo.items[0]));
+      gld_drawinfo.max_items[itemtype] * sizeof(gld_drawinfo.items[0][0]));
   }
 
   gld_drawinfo.items[itemtype][gld_drawinfo.num_items[itemtype]].item.item = item_p;
