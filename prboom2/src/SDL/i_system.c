@@ -483,7 +483,7 @@ char* I_FindFileInternal(const char* wfname, const char* ext, dboolean isStatic)
   size_t  i;
   size_t  pl;
 
-  char static_p[PATH_MAX];
+  static char static_p[PATH_MAX];
   char * dinamic_p = NULL;
   char *p = (isStatic ? static_p : dinamic_p);
 
