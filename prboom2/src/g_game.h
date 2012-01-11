@@ -195,7 +195,7 @@ extern int  bodyquesize;       // killough 2/8/98: adustable corpse limit
 // killough 5/2/98: moved from d_deh.c:
 // Par times (new item with BOOM) - from g_game.c
 extern int pars[4][10];  // hardcoded array size
-extern int cpars[32];    // hardcoded array size
+extern int cpars[];      // hardcoded array size
 // CPhipps - Make savedesciption visible in wider scope
 #define SAVEDESCLEN 32
 extern char savedescription[SAVEDESCLEN];  // Description to save in savegame

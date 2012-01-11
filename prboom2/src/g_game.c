@@ -1453,11 +1453,11 @@ int pars[4][10] = {
 };
 
 // DOOM II Par Times
-int cpars[32] = {
+int cpars[34] = {
   30,90,120,120,90,150,120,120,270,90,  //  1-10
   210,150,150,150,210,150,420,150,210,150,  // 11-20
   240,150,180,150,150,300,330,420,300,180,  // 21-30
-  120,30          // 31-32
+  120,30,30,30          // 31-34
 };
 
 static dboolean secretexit;
@@ -1566,9 +1566,15 @@ void G_DoCompleted (void)
   wminfo.maxfrags = 0;
 
   if ( gamemode == commercial )
-    wminfo.partime = TICRATE*cpars[gamemap-1];
+  {
+    if (gamemap >= 1 && gamemap <= 34)
+      wminfo.partime = TICRATE*cpars[gamemap-1];
+  }
   else
-    wminfo.partime = TICRATE*pars[gameepisode][gamemap];
+  {
+    if (gameepisode >= 1 && gameepisode <= 3 && gamemap >= 1 && gamemap <= 9)
+      wminfo.partime = TICRATE*pars[gameepisode][gamemap];
+  }
 
   wminfo.pnum = consoleplayer;
 
