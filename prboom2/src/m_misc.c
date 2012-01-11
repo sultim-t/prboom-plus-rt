@@ -393,6 +393,7 @@ default_t defaults[] =
   {"mus_extend_volume",{&mus_extend_volume},{0},0,1,
    def_bool,ss_none}, // e6y: apply midi volume to all midi devices
 #endif
+  {"mus_fluidsynth_gain",{&mus_fluidsynth_gain},{50},0,1000,def_int,ss_none}, // NSM  fine tune fluidsynth output level
 
   {"Video settings",{NULL},{0},UL,UL,def_none,ss_none},
 #ifdef GL_DOOM

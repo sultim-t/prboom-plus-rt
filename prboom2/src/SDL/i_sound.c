@@ -1261,7 +1261,7 @@ static const void *music_handle = NULL;
 // won't have this
 static void *song_data = NULL;
 
-
+int mus_fluidsynth_gain; // NSM  fine tune fluidsynth output level
 
 
 static void Exp_ShutdownMusic(void)

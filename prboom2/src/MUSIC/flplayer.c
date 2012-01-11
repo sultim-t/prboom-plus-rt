@@ -66,7 +66,7 @@ const music_player_t fl_player =
 #else // HAVE_LIBFLUIDSYNTH
 
 #include <fluidsynth.h>
-#include "i_sound.h" // for snd_soundfont
+#include "i_sound.h" // for snd_soundfont, mus_fluidsynth_gain
 #include "lprintf.h"
 #include "midifile.h"
 #include <stdlib.h>
@@ -149,7 +149,7 @@ static int fl_init (int samplerate)
   FSET (num, "synth.sample-rate", f_soundrate);
 
   // gain control
-  FSET (num, "synth.gain", 0.5); // 0.0 - 0.2 - 10.0
+  FSET (num, "synth.gain", mus_fluidsynth_gain / 100.0); // 0.0 - 0.2 - 10.0
   // behavior wrt bank select messages
   FSET (str, "synth-midi-bank-select", "gm"); // general midi mode
   // general midi spec says no more than 24 voices needed
