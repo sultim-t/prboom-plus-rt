@@ -34,6 +34,8 @@
 #include "opl_queue.h"
 #include "dbopl.h"
 
+#include "i_sound.h" // mus_opl_gain
+
 static int init_stage_reg_writes = 1;
 
 unsigned int opl_sample_rate = 22050;
@@ -245,7 +247,8 @@ static void OPL_AdvanceTime(unsigned int nsamples)
 static void FillBuffer(int16_t *buffer, unsigned int nsamples)
 {
     unsigned int i;
-
+    int sampval;
+    
     // FIXME???
     //assert(nsamples < opl_sample_rate);
 
@@ -255,8 +258,14 @@ static void FillBuffer(int16_t *buffer, unsigned int nsamples)
 
     for (i=0; i<nsamples; ++i)
     {
-        buffer[i * 2] = (int16_t) mix_buffer[i];
-        buffer[i * 2 + 1] = (int16_t) mix_buffer[i];
+        sampval = mix_buffer[i] * mus_opl_gain / 50;
+        // clip
+        if (sampval > 32767)
+            sampval = 32767;
+        else if (sampval < -32768)
+            sampval = -32768;
+        buffer[i * 2] = (int16_t) sampval;
+        buffer[i * 2 + 1] = (int16_t) sampval;
     }
 }
 

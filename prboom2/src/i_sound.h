@@ -134,6 +134,7 @@ extern int snd_samplerate;
 extern int use_experimental_music;
 
 extern int mus_fluidsynth_gain; // NSM  fine tune fluidsynth output level
+extern int mus_opl_gain; // NSM  fine tune OPL output level
 
 // prefered MIDI player
 typedef enum
