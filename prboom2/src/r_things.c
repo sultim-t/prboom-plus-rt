@@ -69,6 +69,11 @@ float pspritexscale_f;
 
 int sprites_doom_order;
 
+int health_bar;
+int health_bar_red;
+int health_bar_yellow;
+int health_bar_green;
+
 typedef struct drawseg_xrange_item_s
 {
   short x1, x2;

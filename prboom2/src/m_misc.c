@@ -941,6 +941,14 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"screenshot_dir", {NULL,&screenshot_dir}, {0,""},UL,UL,
    def_str,ss_none},
+  {"health_bar", {&health_bar}, {0},0,1,
+   def_bool,ss_stat},
+  {"health_bar_red", {&health_bar_red}, {50},0,100,
+   def_int,ss_stat},
+  {"health_bar_yellow", {&health_bar_yellow}, {100},0,100,
+   def_int,ss_stat},
+  {"health_bar_green", {&health_bar_green}, {100},0,100,
+   def_int,ss_stat},
 
   // NSM
   {"Video capture encoding settings",{NULL},{0},UL,UL,def_none,ss_none},

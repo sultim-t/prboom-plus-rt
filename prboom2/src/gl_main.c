@@ -140,6 +140,22 @@ static float extra_alpha=0.0f;
 
 GLfloat gl_whitecolor[4]={1.0f,1.0f,1.0f,1.0f};
 
+GLfloat cm2RGB[CR_LIMIT + 1][4] =
+{
+  {0.50f ,0.00f, 0.00f, 1.00f}, //CR_BRICK
+  {1.00f ,1.00f, 1.00f, 1.00f}, //CR_TAN
+  {1.00f ,1.00f, 1.00f, 1.00f}, //CR_GRAY
+  {0.00f ,1.00f, 0.00f, 1.00f}, //CR_GREEN
+  {0.50f ,0.20f, 1.00f, 1.00f}, //CR_BROWN
+  {1.00f ,1.00f, 0.00f, 1.00f}, //CR_GOLD
+  {1.00f ,0.00f, 0.00f, 1.00f}, //CR_RED
+  {0.80f ,0.80f, 1.00f, 1.00f}, //CR_BLUE
+  {1.00f ,0.50f, 0.25f, 1.00f}, //CR_ORANGE
+  {1.00f ,1.00f, 0.00f, 1.00f}, //CR_YELLOW
+  {0.50f ,0.50f, 1.00f, 1.00f}, //CR_BLUE2
+  {1.00f ,1.00f, 1.00f, 1.00f}, //CR_LIMIT
+};
+
 void gld_InitTextureParams(void)
 {
   typedef struct tex_filter_s
@@ -601,20 +617,6 @@ void gld_DrawNumPatch_f(float x, float y, int lump, int cm, enum patch_translati
 
   //e6y
   dboolean bFakeColormap;
-  static float cm2RGB[CR_LIMIT + 1][4] = {
-    {0.50f ,0.00f, 0.00f, 1.00f}, //CR_BRICK
-    {1.00f ,1.00f, 1.00f, 1.00f}, //CR_TAN
-    {1.00f ,1.00f, 1.00f, 1.00f}, //CR_GRAY
-    {0.00f ,1.00f, 0.00f, 1.00f}, //CR_GREEN
-    {0.50f ,0.20f, 1.00f, 1.00f}, //CR_BROWN
-    {1.00f ,1.00f, 0.00f, 1.00f}, //CR_GOLD
-    {1.00f ,0.00f, 0.00f, 1.00f}, //CR_RED
-    {0.80f ,0.80f, 1.00f, 1.00f}, //CR_BLUE
-    {1.00f ,0.50f, 0.25f, 1.00f}, //CR_ORANGE
-    {1.00f ,1.00f, 0.00f, 1.00f}, //CR_YELLOW
-    {0.50f ,0.50f, 1.00f, 1.00f}, //CR_BLUE2
-    {1.00f ,1.00f, 1.00f, 1.00f}, //CR_LIMIT
-  };
 
   cmap = ((flags & VPT_TRANS) ? cm : CR_DEFAULT);
   gltexture=gld_RegisterPatch(lump, cmap);
@@ -2407,6 +2409,68 @@ static void gld_DrawSprite(GLSprite *sprite)
   }
 }
 
+static void gld_AddHealthBar(mobj_t* thing, GLSprite *sprite)
+{
+  if (((thing->flags & (MF_COUNTKILL | MF_CORPSE)) == MF_COUNTKILL) && (thing->health > 0))
+  {
+    GLHealthBar hbar;
+    int health_percent = thing->health * 100 / thing->info->spawnhealth;
+
+    hbar.cm = -1;
+    if (health_percent < health_bar_red)
+      hbar.cm = CR_RED;
+    else if (health_percent < health_bar_yellow)
+      hbar.cm = CR_YELLOW;
+    else if (health_percent < health_bar_green)
+      hbar.cm = CR_GREEN;
+
+    if (hbar.cm >= 0)
+    {
+      float sx1 = sprite->x2 - (float)health_percent * (float)thing->radius / 100.0f / MAP_SCALE;
+      float sx2 = sprite->x2;
+
+      hbar.x1 = +(sx1 * cos_inv_yaw) + sprite->x;
+      hbar.x2 = +(sx2 * cos_inv_yaw) + sprite->x;
+
+      hbar.z1 = -(sx1 * sin_inv_yaw) + sprite->z;
+      hbar.z2 = -(sx2 * sin_inv_yaw) + sprite->z;
+
+      hbar.y = sprite->y + sprite->y1 + 2.0f / MAP_COEFF;
+
+      gld_AddDrawItem(GLDIT_HBAR, &hbar);
+    }
+  }
+}
+
+static void gld_DrawHealthBars(void)
+{
+  int i, count;
+  int cm = -1;
+
+  count = gld_drawinfo.num_items[GLDIT_HBAR];
+  if (count > 0)
+  {
+    gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
+
+    glBegin(GL_LINES);
+    for (i = count - 1; i >= 0; i--)
+    {
+      GLHealthBar *hbar = gld_drawinfo.items[GLDIT_HBAR][i].item.hbar;
+      if (hbar->cm != cm)
+      {
+        cm = hbar->cm;
+        glColor3f(cm2RGB[cm][0], cm2RGB[cm][1], cm2RGB[cm][2]);
+      }
+
+      glVertex3f(hbar->x1, hbar->y, hbar->z1);
+      glVertex3f(hbar->x2, hbar->y, hbar->z2);
+    }
+    glEnd();
+
+    gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
+  }
+}
+
 void gld_ProjectSprite(mobj_t* thing)
 {
   fixed_t   tx;
@@ -2646,6 +2710,11 @@ void gld_ProjectSprite(mobj_t* thing)
     gld_ProcessThingShadow(thing);
   }
 
+  if (health_bar)
+  {
+    gld_AddHealthBar(thing, &sprite);
+  }
+
 unlock_patch:
   R_UnlockPatchNum(lump);
 }
@@ -2755,6 +2824,7 @@ static void gld_DrawItemsSortByTexture(GLDrawItemType itemtype)
     qsort_flats_by_tex, qsort_flats_by_tex,
     qsort_sprites_by_tex, qsort_sprites_by_scale, qsort_sprites_by_tex,
     0,
+    0,
   };
 
   if (itemfuncs[itemtype] && gld_drawinfo.num_items[itemtype] > 1)
@@ -2771,6 +2841,7 @@ static void gld_DrawItemsSortByTexture(GLDrawItemType itemtype)
     dicmp_flat, dicmp_flat,
     dicmp_flat, dicmp_flat,
     dicmp_sprite, dicmp_sprite_scale, dicmp_sprite,
+    0,
     0,
   };
 
@@ -3210,6 +3281,11 @@ void gld_DrawScene(player_t *player)
     }
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
+  }
+
+  if (health_bar)
+  {
+    gld_DrawHealthBars();
   }
 
   //

@@ -122,6 +122,7 @@ void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata)
     sizeof(GLFlat), sizeof(GLFlat),
     sizeof(GLSprite), sizeof(GLSprite), sizeof(GLSprite),
     sizeof(GLShadow),
+    sizeof(GLHealthBar)
   };
 
   itemsize = itemsizes[itemtype];

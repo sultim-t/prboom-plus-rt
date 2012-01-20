@@ -218,6 +218,15 @@ typedef struct
   float light;
 } GLShadow;
 
+typedef struct
+{
+  int cm;
+
+  float x1, x2;
+  float z1, z2;
+  float y;
+} GLHealthBar;
+
 extern GLSeg *gl_segs;
 extern GLSeg *gl_lines;
 
@@ -272,6 +281,8 @@ typedef enum
 
   GLDIT_SHADOW,
 
+  GLDIT_HBAR,
+
   GLDIT_TYPES
 } GLDrawItemType;
 
@@ -284,6 +295,7 @@ typedef struct GLDrawItem_s
     GLFlat *flat;
     GLSprite *sprite;
     GLShadow *shadow;
+    GLHealthBar *hbar;
   } item;
 } GLDrawItem;
 
