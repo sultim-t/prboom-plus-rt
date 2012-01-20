@@ -946,7 +946,7 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"health_bar_red", {&health_bar_red}, {50},0,100,
    def_int,ss_stat},
-  {"health_bar_yellow", {&health_bar_yellow}, {100},0,100,
+  {"health_bar_yellow", {&health_bar_yellow}, {99},0,100,
    def_int,ss_stat},
   {"health_bar_green", {&health_bar_green}, {0},0,100,
    def_int,ss_stat},

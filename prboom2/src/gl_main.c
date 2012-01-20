@@ -2417,11 +2417,11 @@ static void gld_AddHealthBar(mobj_t* thing, GLSprite *sprite)
     int health_percent = thing->health * 100 / thing->info->spawnhealth;
 
     hbar.cm = -1;
-    if (health_percent < health_bar_red)
+    if (health_percent <= health_bar_red)
       hbar.cm = CR_RED;
-    else if (health_percent < health_bar_yellow)
+    else if (health_percent <= health_bar_yellow)
       hbar.cm = CR_YELLOW;
-    else if (health_percent < health_bar_green)
+    else if (health_percent <= health_bar_green)
       hbar.cm = CR_GREEN;
 
     if (hbar.cm >= 0)
@@ -2459,7 +2459,7 @@ static void gld_DrawHealthBars(void)
       if (hbar->cm != cm)
       {
         cm = hbar->cm;
-        glColor3f(cm2RGB[cm][0], cm2RGB[cm][1], cm2RGB[cm][2]);
+        glColor4f(cm2RGB[cm][0], cm2RGB[cm][1], cm2RGB[cm][2], 1.0f);
       }
 
       glVertex3f(hbar->x1, hbar->y, hbar->z1);
