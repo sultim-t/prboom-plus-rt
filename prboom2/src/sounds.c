@@ -237,9 +237,6 @@ sfxinfo_t S_sfx[] = {
   { "skeatk", false, 70, 0, -1, -1, 0 },
   { "radio", false, 60, 0, -1, -1, 0 },
   
-  //e6y
-  { "secret", false, 60, 0, -1, -1, 0 },
-
 #ifdef DOGS
   // killough 11/98: dog sounds
   { "dgsit",  false,   98, 0, -1, -1, 0 },
@@ -248,4 +245,7 @@ sfxinfo_t S_sfx[] = {
   { "dgdth",  false,   70, 0, -1, -1, 0 },
   { "dgpain", false,   96, 0, -1, -1, 0 },
 #endif
+
+  //e6y
+  { "secret", false, 60, 0, -1, -1, 0 },
 };
