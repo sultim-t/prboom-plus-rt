@@ -67,9 +67,6 @@ float gl_motionblur_a = 55.0f;
 float gl_motionblur_b = 1.8f;
 float gl_motionblur_c = 0.9f;
 
-//e6y
-int gl_invul_bw_method;
-
 #ifdef USE_FBO_TECHNIQUE
 
 void gld_InitMotionBlur(void);

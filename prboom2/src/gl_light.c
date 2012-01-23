@@ -249,10 +249,7 @@ void gld_StaticLightAlpha(float light, float alpha)
 #ifdef USE_FBO_TECHNIQUE
       if (SceneInTexture)
       {
-        if (gl_invul_bw_method == 0)
-          glColor4f(0.5f, 0.5f, 0.5f, alpha);
-        else
-          glColor4f(1.0f, 1.0f, 1.0f, alpha);
+        glColor4f(0.5f, 0.5f, 0.5f, alpha);
       }
       else
 #endif

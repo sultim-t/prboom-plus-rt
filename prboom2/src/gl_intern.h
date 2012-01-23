@@ -427,7 +427,6 @@ extern float bw_red;
 extern float bw_green;
 extern float bw_blue;
 extern int SceneInTexture;
-extern int gl_invul_bw_method;
 void gld_InitFBO(void);
 void gld_FreeScreenSizeFBO(void);
 

@@ -1418,10 +1418,7 @@ void gld_EndDrawScene(void)
       glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB,GL_TEXTURE);
       glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB,GL_SRC_COLOR);
 
-      if (gl_invul_bw_method == 0)
-        glColor3f(0.3f, 0.3f, 0.4f);
-      else
-        glColor3f(bw_red, bw_green, bw_blue);
+      glColor3f(0.3f, 0.3f, 0.4f);
     }
     else
     {

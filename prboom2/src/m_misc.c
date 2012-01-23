@@ -184,7 +184,6 @@ extern int gl_sky_detail;
 extern int gl_use_paletted_texture;
 extern int gl_use_shared_texture_palette;
 extern int gl_seamless;
-extern int gl_invul_bw_method;
 
 //e6y: all OpenGL extentions will be disabled with TRUE
 extern int gl_compatibility;
@@ -1048,8 +1047,6 @@ default_t defaults[] =
    def_str,ss_none},
   {"gl_motionblur_att_c", {NULL,&gl_motionblur_att_c}, {0,"0.9"},UL,UL,
    def_str,ss_none},
-  {"gl_invul_bw_method", {&gl_invul_bw_method},  {0},0,1,
-   def_int,ss_stat},
   {"gl_lightmode",{(int*)&gl_lightmode},{gl_lightmode_glboom},
    gl_lightmode_glboom, gl_lightmode_last-1, def_int,ss_none},
   {"gl_light_ambient", {&gl_light_ambient},  {20},1,255,
