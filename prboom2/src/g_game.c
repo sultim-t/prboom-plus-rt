@@ -657,6 +657,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 
   if (!walkcamera.type || menuactive) //e6y
     mousex = mousey = 0;
+  motion_blur.curr_speed_pow2 = 0;
 
   if (forward > MAXPLMOVE)
     forward = MAXPLMOVE;

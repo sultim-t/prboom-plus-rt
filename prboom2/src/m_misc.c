@@ -202,10 +202,6 @@ extern int gl_arb_pixel_buffer_object_default;
 
 //e6y: motion bloor
 extern int gl_motionblur;
-extern const char *gl_motionblur_minspeed;
-extern const char *gl_motionblur_att_a;
-extern const char *gl_motionblur_att_b;
-extern const char *gl_motionblur_att_c;
 
 //e6y: fog
 extern int gl_fog;
@@ -1039,13 +1035,15 @@ default_t defaults[] =
    {hq_scale_2x},hq_scale_none,hq_scale_max-1,def_int,ss_stat},
   {"gl_motionblur", {&gl_motionblur},  {0},0,1,
    def_bool,ss_stat},
-  {"gl_motionblur_minspeed", {NULL,&gl_motionblur_minspeed}, {0,"64.1"},UL,UL,
+  {"gl_motionblur_min_speed", {NULL,&motion_blur.str_min_speed}, {0,"21.36"},UL,UL,
    def_str,ss_none},
-  {"gl_motionblur_att_a", {NULL,&gl_motionblur_att_a}, {0,"55.0"},UL,UL,
+  {"gl_motionblur_min_angle", {NULL,&motion_blur.str_min_angle}, {0,"20.0"},UL,UL,
    def_str,ss_none},
-  {"gl_motionblur_att_b", {NULL,&gl_motionblur_att_b}, {0,"1.8"},UL,UL,
+  {"gl_motionblur_att_a", {NULL,&motion_blur.str_att_a}, {0,"55.0"},UL,UL,
    def_str,ss_none},
-  {"gl_motionblur_att_c", {NULL,&gl_motionblur_att_c}, {0,"0.9"},UL,UL,
+  {"gl_motionblur_att_b", {NULL,&motion_blur.str_att_b}, {0,"1.8"},UL,UL,
+   def_str,ss_none},
+  {"gl_motionblur_att_c", {NULL,&motion_blur.str_att_c}, {0,"0.9"},UL,UL,
    def_str,ss_none},
   {"gl_lightmode",{(int*)&gl_lightmode},{gl_lightmode_glboom},
    gl_lightmode_glboom, gl_lightmode_last-1, def_int,ss_none},

@@ -432,13 +432,6 @@ void gld_FreeScreenSizeFBO(void);
 
 //motion bloor
 extern int gl_motionblur;
-extern int gl_use_motionblur;
-extern const char *gl_motionblur_minspeed;
-extern int MotionBlurOn;
-extern int gl_motionblur_minspeed_pow2;
-extern float gl_motionblur_a;
-extern float gl_motionblur_b;
-extern float gl_motionblur_c;
 
 extern int imageformats[];
 

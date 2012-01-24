@@ -1288,15 +1288,12 @@ void gld_StartDrawScene(void)
   }
 
 #ifdef USE_FBO_TECHNIQUE
-  if (gl_use_motionblur)
-  {
-    ticcmd_t *cmd = &players[displayplayer].cmd;
-    int camera_speed = cmd->forwardmove * cmd->forwardmove + cmd->sidemove * cmd->sidemove;
-    MotionBlurOn = camera_speed > gl_motionblur_minspeed_pow2;
-  }
+  motion_blur.enabled = gl_use_motionblur &&
+    ((motion_blur.curr_speed_pow2 > motion_blur.minspeed_pow2) ||
+    (abs(players[displayplayer].cmd.angleturn) > motion_blur.minangle));
 
   SceneInTexture = (gl_ext_framebuffer_object) &&
-    ((invul_method & INVUL_BW) || (MotionBlurOn));
+    ((invul_method & INVUL_BW) || (motion_blur.enabled));
 
   // Vortex: Set FBO object
   if (SceneInTexture)
@@ -1426,14 +1423,14 @@ void gld_EndDrawScene(void)
     }
 
     //e6y: motion bloor effect for strafe50
-    if (MotionBlurOn)
+    if (motion_blur.enabled)
     {
       extern int renderer_fps;
       static float motionblur_alpha = 1.0f;
 
       if (realframe)
       {
-        motionblur_alpha = (float)((atan(-renderer_fps/gl_motionblur_a))/gl_motionblur_b)+gl_motionblur_c;
+        motionblur_alpha = (float)((atan(-renderer_fps / motion_blur.att_a)) / motion_blur.att_b) + motion_blur.att_c;
       }
 
       glBlendFunc(GL_CONSTANT_ALPHA_EXT, GL_ONE_MINUS_CONSTANT_ALPHA_EXT);
@@ -1450,7 +1447,7 @@ void gld_EndDrawScene(void)
     glEnd();
 
     
-    if (MotionBlurOn)
+    if (motion_blur.enabled)
     {
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }

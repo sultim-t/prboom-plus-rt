@@ -236,4 +236,27 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
 void gld_Init8InGLMode(void);
 void gld_Draw8InGL(void);
 
+//motion blur
+typedef struct motion_blur_params_s
+{
+  int enabled;
+
+  const char *str_min_angle;
+  const char *str_min_speed;
+  const char *str_att_a;
+  const char *str_att_b;
+  const char *str_att_c;
+
+  float curr_speed_pow2;
+  float minspeed_pow2;
+  int minangle;
+  float att_a;
+  float att_b;
+  float att_c;
+} motion_blur_params_t;
+
+extern int gl_use_motionblur;
+extern motion_blur_params_t motion_blur;
+
+
 #endif // _GL_STRUCT_H

@@ -57,15 +57,7 @@ static dboolean gld_CreateScreenSizeFBO(void);
 //e6y: motion bloor
 int gl_motionblur;
 int gl_use_motionblur = false;
-const char *gl_motionblur_minspeed;
-const char *gl_motionblur_att_a;
-const char *gl_motionblur_att_b;
-const char *gl_motionblur_att_c;
-int MotionBlurOn;
-int gl_motionblur_minspeed_pow2 = 0x32 * 0x32 + 0x28 * 0x28;
-float gl_motionblur_a = 55.0f;
-float gl_motionblur_b = 1.8f;
-float gl_motionblur_c = 0.9f;
+motion_blur_params_t motion_blur;
 
 #ifdef USE_FBO_TECHNIQUE
 
@@ -177,12 +169,15 @@ void gld_InitMotionBlur(void)
   {
     float f;
 
-    sscanf(gl_motionblur_minspeed, "%f", &f);
-    sscanf(gl_motionblur_att_a, "%f", &gl_motionblur_a);
-    sscanf(gl_motionblur_att_b, "%f", &gl_motionblur_b);
-    sscanf(gl_motionblur_att_c, "%f", &gl_motionblur_c);
+    sscanf(motion_blur.str_min_speed, "%f", &f);
+    motion_blur.minspeed_pow2 = f * f;
+    
+    sscanf(motion_blur.str_min_angle, "%f", &f);
+    motion_blur.minangle = (int)(f * 65536.0f / 360.0f);
 
-    gl_motionblur_minspeed_pow2 = (int)(f * f);
+    sscanf(motion_blur.str_att_a, "%f", &motion_blur.att_a);
+    sscanf(motion_blur.str_att_b, "%f", &motion_blur.att_b);
+    sscanf(motion_blur.str_att_c, "%f", &motion_blur.att_c);
   }
 }
 #endif
