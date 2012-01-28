@@ -2422,7 +2422,7 @@ static void gld_AddHealthBar(mobj_t* thing, GLSprite *sprite)
     {
       float sx2 = (float)thing->radius / 2.0f / MAP_SCALE;
       float sx1 = sx2 - (float)health_percent * (float)thing->radius / 100.0f / MAP_SCALE;
-      float sx3 = -(float)thing->radius / 2.0f / MAP_SCALE;
+      float sx3 = -sx2;
 
       hbar.x1 = +(sx1 * cos_inv_yaw) + sprite->x;
       hbar.x2 = +(sx2 * cos_inv_yaw) + sprite->x;
