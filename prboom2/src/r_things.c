@@ -70,6 +70,7 @@ float pspritexscale_f;
 int sprites_doom_order;
 
 int health_bar;
+int health_bar_full_length;
 int health_bar_red;
 int health_bar_yellow;
 int health_bar_green;

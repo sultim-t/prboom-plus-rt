@@ -2422,12 +2422,15 @@ static void gld_AddHealthBar(mobj_t* thing, GLSprite *sprite)
     {
       float sx2 = (float)thing->radius / 2.0f / MAP_SCALE;
       float sx1 = sx2 - (float)health_percent * (float)thing->radius / 100.0f / MAP_SCALE;
+      float sx3 = -(float)thing->radius / 2.0f / MAP_SCALE;
 
       hbar.x1 = +(sx1 * cos_inv_yaw) + sprite->x;
       hbar.x2 = +(sx2 * cos_inv_yaw) + sprite->x;
+      hbar.x3 = +(sx3 * cos_inv_yaw) + sprite->x;
 
       hbar.z1 = -(sx1 * sin_inv_yaw) + sprite->z;
       hbar.z2 = -(sx2 * sin_inv_yaw) + sprite->z;
+      hbar.z3 = -(sx3 * sin_inv_yaw) + sprite->z;
 
       hbar.y = sprite->y + sprite->y1 + 2.0f / MAP_COEFF;
 
@@ -2460,6 +2463,20 @@ static void gld_DrawHealthBars(void)
       glVertex3f(hbar->x2, hbar->y, hbar->z2);
     }
     glEnd();
+
+    if (health_bar_full_length)
+    {
+      glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
+      glBegin(GL_LINES);
+      for (i = count - 1; i >= 0; i--)
+      {
+        GLHealthBar *hbar = gld_drawinfo.items[GLDIT_HBAR][i].item.hbar;
+
+        glVertex3f(hbar->x1, hbar->y, hbar->z1);
+        glVertex3f(hbar->x3, hbar->y, hbar->z3);
+      }
+      glEnd();
+    }
 
     gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
   }

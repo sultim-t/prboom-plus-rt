@@ -222,8 +222,8 @@ typedef struct
 {
   int cm;
 
-  float x1, x2;
-  float z1, z2;
+  float x1, x2, x3;
+  float z1, z2, z3;
   float y;
 } GLHealthBar;
 

@@ -939,6 +939,8 @@ default_t defaults[] =
 #ifdef GL_DOOM
   {"health_bar", {&health_bar}, {0},0,1,
    def_bool,ss_stat},
+  {"health_bar_full_length", {&health_bar_full_length}, {1},0,1,
+   def_bool,ss_stat},
   {"health_bar_red", {&health_bar_red}, {50},0,100,
    def_int,ss_stat},
   {"health_bar_yellow", {&health_bar_yellow}, {99},0,100,
