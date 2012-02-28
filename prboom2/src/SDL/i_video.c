@@ -838,6 +838,9 @@ static void I_ClosestResolution (int *width, int *height, int flags)
   unsigned int closest = UINT_MAX;
   unsigned int dist;
 
+  if (!SDL_WasInit(SDL_INIT_VIDEO))
+    return;
+
   modes = SDL_ListModes(NULL, flags);
 
   if (modes == (SDL_Rect **)-1)
