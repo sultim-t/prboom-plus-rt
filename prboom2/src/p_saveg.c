@@ -450,8 +450,6 @@ void P_UnArchiveThinkers (void)
     for (size = 1; *save_p++ == tc_mobj; size++)  // killough 2/14/98
       {                     // skip all entries, adding up count
         PADSAVEP();
-	/* cph 2006/07/30 - see comment below for change in layout of mobj_t */
-        //e6y save_p += sizeof(mobj_t)+3*sizeof(void*)-4*sizeof(fixed_t);
         save_p += sizeof(mobj_t);//e6y
       }
 
@@ -472,33 +470,9 @@ void P_UnArchiveThinkers (void)
       mobj_p[size] = mobj;
 
       PADSAVEP();
-      /* cph 2006/07/30 - 
-       * The end of mobj_t changed from
-       *  dboolean invisible;
-       *  mobj_t* lastenemy;
-       *  mobj_t* above_monster;
-       *  mobj_t* below_monster;
-       *  void* touching_sectorlist;
-       * to
-       *  mobj_t* lastenemy;
-       *  void* touching_sectorlist;
-       *  fixed_t PrevX, PrevY, PrevZ;
-       * at prboom 2.4.4. There is code here to preserve the savegame format.
-       *
-       * touching_sectorlist is reconstructed anyway, so we now read in all 
-       * but the last 5 words from the savegame (filling all but the last 2
-       * fields of our current mobj_t. We then pull lastenemy from the 2nd of
-       * the 5 leftover words, and skip the others.
-       */
-/*e6y      memcpy (mobj, save_p, sizeof(mobj_t)-2*sizeof(void*)-4*sizeof(fixed_t));
-      save_p += sizeof(mobj_t)-sizeof(void*)-4*sizeof(fixed_t);
-      memcpy (&(mobj->lastenemy), save_p, sizeof(void*));*/
 
-      //e6y
       memcpy (mobj, save_p, sizeof(mobj_t));
       save_p += sizeof(mobj_t);
-
-//e6y      save_p += 4*sizeof(void*);
 
       mobj->state = states + (int) mobj->state;
 
