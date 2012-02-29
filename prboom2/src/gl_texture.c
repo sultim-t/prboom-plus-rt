@@ -1354,7 +1354,7 @@ void gld_Precache(void)
   int usehires = (gl_texture_external_hires) || 
     (gl_texture_internal_hires && r_have_internal_hires);
 
-  if (doSkip)
+  if (doSkip || nodrawers)
     return;
 
   if (!usehires)
