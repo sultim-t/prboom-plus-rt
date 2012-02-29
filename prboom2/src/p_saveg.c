@@ -554,7 +554,26 @@ void P_UnArchiveThinkers (void)
 
   // killough 3/26/98: Spawn icon landings:
   if (gamemode == commercial)
-    P_SpawnBrainTargets();
+  {
+    // demos with save/load tics are affected by this compatibility issue
+    if (prboom_comp[PC_RESET_MONSTERSPAWNER_PARAMS_AFTER_LOADING].state)
+    {
+      P_SpawnBrainTargets();
+    }
+    else
+    {
+      struct brain_s brain_tmp;
+
+      // P_SpawnBrainTargets overwrites brain.targeton and brain.easy with zero.
+      memcpy(&brain_tmp, &brain, sizeof(brain_tmp)); // saving
+
+      P_SpawnBrainTargets();
+
+      // restoring
+      brain.targeton = brain_tmp.targeton;
+      brain.easy = brain_tmp.easy;
+    }
+  }
 }
 
 //
