@@ -180,15 +180,6 @@ mline_t cheat_player_arrow[] =
 #undef R
 #define NUMCHEATPLYRLINES (sizeof(cheat_player_arrow)/sizeof(mline_t))
 
-#define R (FRACUNIT)
-mline_t triangle_guy[] =
-{
-{ { (fixed_t)(-.867*R), (fixed_t)(-.5*R) }, { (fixed_t)( .867*R), (fixed_t)(-.5*R) } },
-{ { (fixed_t)( .867*R), (fixed_t)(-.5*R) }, { (fixed_t)(0      ), (fixed_t)(    R) } },
-{ { (fixed_t)(0      ), (fixed_t)(    R) }, { (fixed_t)(-.867*R), (fixed_t)(-.5*R) } }
-};
-#undef R
-
 //jff 1/5/98 new symbol for keys on automap
 #define R (FRACUNIT)
 mline_t cross_mark[] =
