@@ -270,6 +270,8 @@ static dboolean stopped = true;
 angle_t am_viewangle;
 fixed_t am_viewx, am_viewy;
 
+array_t map_lines;
+
 static void AM_rotate(fixed_t* x,  fixed_t* y, angle_t a, fixed_t xorig, fixed_t yorig);
 
 
@@ -656,20 +658,6 @@ static void AM_LevelInit(void)
   if (scale_mtof > max_scale_mtof)
     scale_mtof = min_scale_mtof;
   scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
-
-#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
-  {
-    int i;
-    for (i = 0; i < MAP_COLORS_COUNT; i++)
-    {
-      if (map_lines.points[i])
-      {
-        free(map_lines.points[i]);
-      }
-    }
-    memset(&map_lines, 0, sizeof(map_lines));
-  }
-#endif
 }
 
 //
@@ -1983,13 +1971,12 @@ static void AM_drawCrosshair(int color)
   V_DrawLine(&line, color);
 }
 
-map_lines_t map_lines;
-
 void AM_BeginLines(void)
 {
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
+    M_ArrayClear(&map_lines);
     gld_BeginLines();
   }
 #endif
@@ -2001,7 +1988,6 @@ void AM_DrawLines(void)
   if (V_GetMode() == VID_MODEGL)
   {
     gld_DrawMapLines();
-    memset(map_lines.count, 0, MAP_COLORS_COUNT * sizeof(map_lines.count[0]));
   }
 #endif
 }

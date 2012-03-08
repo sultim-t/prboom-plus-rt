@@ -786,9 +786,10 @@ void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_tra
 void gld_BeginLines(void)
 {
   gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
+
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
   glEnableClientState(GL_VERTEX_ARRAY);
-  memset(map_lines.count, 0, MAP_COLORS_COUNT * sizeof(map_lines.count[0]));
+  glEnableClientState(GL_COLOR_ARRAY);
 #endif
 }
 
@@ -797,35 +798,22 @@ void gld_EndLines(void)
   gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
 
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
-  glVertexPointer(3, GL_FLOAT, sizeof(flats_vbo[0]), flats_vbo_x);
   glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_COLOR_ARRAY);
 #endif
 }
 
 void gld_DrawMapLines(void)
 {
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
-  int i;
-  const unsigned char *playpal = V_GetPlaypal();
-  
-  float alpha = ((automapmode & am_overlay) ? map_lines_overlay_trans / 100.0f : 1.0f);
-  if (alpha == 0)
-    return;
-
-  for (i = 0; i < MAP_COLORS_COUNT; i++)
+  if (map_lines.count > 0)
   {
-    if (map_lines.count[i] > 0)
-    {
-      glColor4f(
-        (float)playpal[3 * i + 0] / 255.0f,
-        (float)playpal[3 * i + 1] / 255.0f,
-        (float)playpal[3 * i + 2] / 255.0f,
-        alpha);
+    map_point_t *point = (map_point_t*)map_lines.data;
 
-      glVertexPointer(2, GL_FLOAT, 0, map_lines.points[i]);
+    glVertexPointer(2, GL_FLOAT, sizeof(point[0]), &point->x);
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(point[0]), &point->r);
 
-      glDrawArrays(GL_LINES, 0, map_lines.count[i]/2);
-    }
+    glDrawArrays(GL_LINES, 0, map_lines.count * 2);
   }
 #endif
 }
@@ -833,21 +821,33 @@ void gld_DrawMapLines(void)
 void gld_DrawLine_f(float x0, float y0, float x1, float y1, int BaseColor)
 {
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
-  if (!map_lines.points[BaseColor])
-  {
-    map_lines.points[BaseColor] = malloc(128 * 4 * sizeof(map_lines.points[0][0]));
-    map_lines.maxsize[BaseColor] = 128;
-  }
-  if (map_lines.count[BaseColor] + 4 >= map_lines.maxsize[BaseColor])
-  {
-    map_lines.maxsize[BaseColor] = map_lines.maxsize[BaseColor] * 2;
-    map_lines.points[BaseColor] = realloc(map_lines.points[BaseColor], map_lines.maxsize[BaseColor] * 4 * sizeof(map_lines.points[0][0]));
-  }
+  const unsigned char *playpal = V_GetPlaypal();
+  unsigned char r, g, b, a;
+  map_line_t *line;
+  
+  a = ((automapmode & am_overlay) ? map_lines_overlay_trans * 255 / 100 : 255);
+  if (a == 0)
+    return;
 
-  map_lines.points[BaseColor][map_lines.count[BaseColor]++] = x0;
-  map_lines.points[BaseColor][map_lines.count[BaseColor]++] = y0;
-  map_lines.points[BaseColor][map_lines.count[BaseColor]++] = x1;
-  map_lines.points[BaseColor][map_lines.count[BaseColor]++] = y1;
+  r = playpal[3 * BaseColor + 0];
+  g = playpal[3 * BaseColor + 1];
+  b = playpal[3 * BaseColor + 2];
+
+  line = M_ArrayGetNewItem(&map_lines, sizeof(line[0]));
+
+  line->point[0].x = x0;
+  line->point[0].y = y0;
+  line->point[0].r = r;
+  line->point[0].g = g;
+  line->point[0].b = b;
+  line->point[0].a = a;
+
+  line->point[1].x = x1;
+  line->point[1].y = y1;
+  line->point[1].r = r;
+  line->point[1].g = g;
+  line->point[1].b = b;
+  line->point[1].a = a;
 #else
   const unsigned char *playpal = V_GetPlaypal();
   

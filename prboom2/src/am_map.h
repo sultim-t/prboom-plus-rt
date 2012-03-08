@@ -35,17 +35,20 @@
 #define __AMMAP_H__
 
 #include "d_event.h"
+#include "m_misc.h"
 
-#define MAP_COLORS_COUNT 256
-
-typedef struct map_lines_s
+typedef struct map_point_s
 {
-  float *points[MAP_COLORS_COUNT];
-  int maxsize[MAP_COLORS_COUNT];
-  int count[MAP_COLORS_COUNT];
-} map_lines_t;
+  float x, y;
+  unsigned char r, g, b, a;
+} PACKEDATTR map_point_t;
 
-extern map_lines_t map_lines;
+typedef struct map_line_s
+{
+  map_point_t point[2];
+} PACKEDATTR map_line_t;
+
+extern array_t map_lines;
 
 #define MAPBITS 12
 #define FRACTOMAPBITS (FRACBITS-MAPBITS)
