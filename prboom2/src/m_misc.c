@@ -1748,3 +1748,45 @@ char* M_Strupr(char* str)
   for (p=str; *p; p++) *p = toupper(*p);
   return str;
 }
+
+void M_ArrayClear(array_t *data)
+{
+  data->count = 0;
+}
+
+void M_ArrayFree(array_t *data)
+{
+  if (data->data)
+  {
+    free(data->data);
+    data->data = NULL;
+  }
+
+  data->capacity = 0;
+  data->count = 0;
+}
+
+void M_ArrayAddItem(array_t *data, void *item, int itemsize)
+{
+  if (data->count + 1 >= data->capacity)
+  {
+    data->capacity = (data->capacity ? data->capacity * 2 : 128);
+    data->data = realloc(data->data, data->capacity * itemsize);
+  }
+
+  memcpy((unsigned char*)data->data + data->count * itemsize, item, itemsize);
+  data->count++;
+}
+
+void* M_ArrayGetNewItem(array_t *data, int itemsize)
+{
+  if (data->count + 1 >= data->capacity)
+  {
+    data->capacity = (data->capacity ? data->capacity * 2 : 128);
+    data->data = realloc(data->data, data->capacity * itemsize);
+  }
+
+  data->count++;
+
+  return (unsigned char*)data->data + (data->count - 1) * itemsize;
+}

@@ -127,4 +127,15 @@ char* M_Strupr(char* str);
 
 extern const char *screenshot_dir;
 
+typedef struct array_s
+{
+  void *data;
+  int capacity;
+  int count;
+} array_t;
+void M_ArrayClear(array_t *data);
+void M_ArrayFree(array_t *data);
+void M_ArrayAddItem(array_t *data, void *item, int itemsize);
+void* M_ArrayGetNewItem(array_t *data, int itemsize);
+
 #endif
