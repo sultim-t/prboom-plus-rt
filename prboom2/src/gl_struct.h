@@ -202,8 +202,6 @@ extern int gl_shadows_maxdist;
 extern int gl_shadows_factor;
 
 void gld_DrawMapLines(void);
-void gld_BeginLines(void);
-void gld_EndLines(void);
 
 //sprites
 typedef enum { spriteclip_const, spriteclip_always, spriteclip_smart } spriteclipmode_t;

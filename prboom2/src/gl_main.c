@@ -783,26 +783,6 @@ void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_tra
   glEnd();
 }
 
-void gld_BeginLines(void)
-{
-  gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
-
-#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glEnableClientState(GL_COLOR_ARRAY);
-#endif
-}
-
-void gld_EndLines(void)
-{
-  gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
-
-#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
-  glDisableClientState(GL_VERTEX_ARRAY);
-  glDisableClientState(GL_COLOR_ARRAY);
-#endif
-}
-
 void gld_DrawMapLines(void)
 {
 #if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
@@ -810,10 +790,18 @@ void gld_DrawMapLines(void)
   {
     map_point_t *point = (map_point_t*)map_lines.data;
 
+    gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+
     glVertexPointer(2, GL_FLOAT, sizeof(point[0]), &point->x);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(point[0]), &point->r);
 
     glDrawArrays(GL_LINES, 0, map_lines.count * 2);
+
+    gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
   }
 #endif
 }

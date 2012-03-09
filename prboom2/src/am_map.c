@@ -1971,33 +1971,13 @@ static void AM_drawCrosshair(int color)
   V_DrawLine(&line, color);
 }
 
-void AM_BeginLines(void)
-{
-#ifdef GL_DOOM
-  if (V_GetMode() == VID_MODEGL)
-  {
-    M_ArrayClear(&map_lines);
-    gld_BeginLines();
-  }
-#endif
-}
-
 void AM_DrawLines(void)
 {
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
     gld_DrawMapLines();
-  }
-#endif
-}
-
-void AM_EndLines(void)
-{
-#ifdef GL_DOOM
-  if (V_GetMode() == VID_MODEGL)
-  {
-    gld_EndLines();
+    M_ArrayClear(&map_lines);
   }
 #endif
 }
@@ -2075,31 +2055,15 @@ void AM_Drawer (void)
     AM_drawSubsectors();
   }
 
-  AM_BeginLines();
-
   if (automapmode & am_grid)
-  {
-    // Avoid z-fighting between grid and walls
     AM_drawGrid(mapcolor_grid);      //jff 1/7/98 grid default color
-    AM_DrawLines();
-  }
-
   AM_drawWalls();
-  AM_DrawLines();
-
   AM_drawPlayers();
-  AM_DrawLines();
-
   if (ddt_cheating==2)
-  {
     AM_drawThings(); //jff 1/5/98 default double IDDT sprite
-    AM_DrawLines();
-  }
-
   AM_drawCrosshair(mapcolor_hair);   //jff 1/7/98 default crosshair color
+  
   AM_DrawLines();
-
-  AM_EndLines();
 
   AM_drawMarks();
 }
