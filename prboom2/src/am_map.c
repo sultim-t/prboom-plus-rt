@@ -2097,7 +2097,7 @@ void AM_Drawer (void)
   AM_drawThings(); //jff 1/5/98 default double IDDT sprite
   AM_drawCrosshair(mapcolor_hair);   //jff 1/7/98 default crosshair color
   
-#ifdef GL_DOOM
+#if defined(HAVE_LIBSDL_IMAGE) && defined(GL_DOOM)
   if (V_GetMode() == VID_MODEGL)
   {
     gld_DrawMapLines();
