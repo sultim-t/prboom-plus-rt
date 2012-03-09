@@ -2308,7 +2308,7 @@ static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t 
     }
   }
 
-  fradius = MTOF(radius) / 16.0f;
+  fradius = MTOF_F(radius >> FRACTOMAPBITS);
   if (fradius < 1.0f)
     return;
   if (fradius < 4.0f)
