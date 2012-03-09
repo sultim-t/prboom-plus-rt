@@ -52,6 +52,8 @@ static dboolean gl_compatibility_mode;
 int GLEXT_CLAMP_TO_EDGE = GL_CLAMP;
 int gl_max_texture_size = 0;
 
+SDL_PixelFormat RGBAFormat;
+
 // obsolete?
 int gl_use_paletted_texture = 0;
 int gl_use_shared_texture_palette = 0;
@@ -367,6 +369,26 @@ void gld_InitOpenGL(dboolean compatibility_mode)
     gld_EnableClientCoordArray(texture, true);
     gld_EnableClientCoordArray(texture, false);
   }
+
+  //init global variables
+  RGBAFormat.palette = 0;
+#if !SDL_VERSION_ATLEAST(1, 3, 0)
+  RGBAFormat.colorkey = 0;
+  RGBAFormat.alpha = 0;
+#endif
+  RGBAFormat.BitsPerPixel = 32;
+  RGBAFormat.BytesPerPixel = 4;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+  RGBAFormat.Rmask = 0xFF000000; RGBAFormat.Rshift = 0; RGBAFormat.Rloss = 0;
+  RGBAFormat.Gmask = 0x00FF0000; RGBAFormat.Gshift = 8; RGBAFormat.Gloss = 0;
+  RGBAFormat.Bmask = 0x0000FF00; RGBAFormat.Bshift = 16; RGBAFormat.Bloss = 0;
+  RGBAFormat.Amask = 0x000000FF; RGBAFormat.Ashift = 24; RGBAFormat.Aloss = 0;
+#else
+  RGBAFormat.Rmask = 0x000000FF; RGBAFormat.Rshift = 24; RGBAFormat.Rloss = 0;
+  RGBAFormat.Gmask = 0x0000FF00; RGBAFormat.Gshift = 16; RGBAFormat.Gloss = 0;
+  RGBAFormat.Bmask = 0x00FF0000; RGBAFormat.Bshift = 8; RGBAFormat.Bloss = 0;
+  RGBAFormat.Amask = 0xFF000000; RGBAFormat.Ashift = 0; RGBAFormat.Aloss = 0;
+#endif
 }
 
 void gld_EnableTexture2D(GLenum texture, int enable)

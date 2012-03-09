@@ -82,6 +82,8 @@ extern int gl_version;
 extern int GLEXT_CLAMP_TO_EDGE;
 extern int gl_max_texture_size;
 
+extern SDL_PixelFormat RGBAFormat;
+
 // obsolete?
 extern int gl_use_paletted_texture;
 extern int gl_use_shared_texture_palette;

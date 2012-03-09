@@ -418,7 +418,6 @@ GLGenericImage * ReadDDSFile(const char *filename, int * bufsize, int * numMipma
   }
 }
 
-static SDL_PixelFormat RGBAFormat;
 static byte* RGB2PAL = NULL;
 
 static const char* gld_HiRes_GetInternalName(GLTexture *gltexture)
@@ -1016,26 +1015,6 @@ int gld_HiRes_BuildTables(void)
 
 void gld_InitHiRes(void)
 {
-  //Init RGBAFormat
-  RGBAFormat.palette = 0;
-#if !SDL_VERSION_ATLEAST(1, 3, 0)
-  RGBAFormat.colorkey = 0;
-  RGBAFormat.alpha = 0;
-#endif
-  RGBAFormat.BitsPerPixel = 32;
-  RGBAFormat.BytesPerPixel = 4;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-  RGBAFormat.Rmask = 0xFF000000; RGBAFormat.Rshift = 0; RGBAFormat.Rloss = 0;
-  RGBAFormat.Gmask = 0x00FF0000; RGBAFormat.Gshift = 8; RGBAFormat.Gloss = 0;
-  RGBAFormat.Bmask = 0x0000FF00; RGBAFormat.Bshift = 16; RGBAFormat.Bloss = 0;
-  RGBAFormat.Amask = 0x000000FF; RGBAFormat.Ashift = 24; RGBAFormat.Aloss = 0;
-#else
-  RGBAFormat.Rmask = 0x000000FF; RGBAFormat.Rshift = 24; RGBAFormat.Rloss = 0;
-  RGBAFormat.Gmask = 0x0000FF00; RGBAFormat.Gshift = 16; RGBAFormat.Gloss = 0;
-  RGBAFormat.Bmask = 0x00FF0000; RGBAFormat.Bshift = 8; RGBAFormat.Bloss = 0;
-  RGBAFormat.Amask = 0xFF000000; RGBAFormat.Ashift = 0; RGBAFormat.Aloss = 0;
-#endif
-
   gld_HiRes_BuildTables();
 
   gl_has_hires = 0;
