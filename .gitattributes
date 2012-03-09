@@ -143,6 +143,15 @@ prboom2/data/lumps/cryellow.lmp -text
 prboom2/data/lumps/endboom.lmp -text svneol=unset#application/octet-stream
 prboom2/data/lumps/gammatbl.lmp -text svneol=unset#application/octet-stream
 prboom2/data/lumps/glshadow.lmp -text
+prboom2/data/lumps/m_ammo.lmp -text
+prboom2/data/lumps/m_armour.lmp -text
+prboom2/data/lumps/m_arrow.lmp -text
+prboom2/data/lumps/m_health.lmp -text
+prboom2/data/lumps/m_key.lmp -text
+prboom2/data/lumps/m_normal.lmp -text
+prboom2/data/lumps/m_power.lmp -text
+prboom2/data/lumps/m_shadow.lmp -text
+prboom2/data/lumps/m_weap.lmp -text
 prboom2/data/lumps/sinetabl.lmp -text
 prboom2/data/lumps/switches.lmp -text
 prboom2/data/lumps/tangtabl.lmp -text

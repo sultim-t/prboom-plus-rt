@@ -256,5 +256,39 @@ typedef struct motion_blur_params_s
 extern int gl_use_motionblur;
 extern motion_blur_params_t motion_blur;
 
+// Nice map
+typedef enum
+{
+  am_icon_shadow,
+
+  am_icon_normal,
+  am_icon_health,
+  am_icon_armor,
+  am_icon_ammo,
+  am_icon_key,
+  am_icon_power,
+  am_icon_weap,
+
+  am_icon_arrow,
+  am_icon_monster,
+  am_icon_player,
+  am_icon_bullet,
+
+  am_icon_count
+};
+
+typedef struct am_icon_s
+{
+  GLuint tex_id;
+  const char* name;
+  int lumpnum;
+} am_icon_t;
+extern am_icon_t am_icons[];
+
+void gld_InitMapPics(void);
+void gld_AddNiceThing(int type, float x, float y, float radius, float angle,
+                     unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+void gld_DrawNiceThings(void);
+void gld_ClearNiceThings(void);
 
 #endif // _GL_STRUCT_H

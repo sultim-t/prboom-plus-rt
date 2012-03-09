@@ -110,6 +110,7 @@ gl_shadow.c
 gl_sky.c
 gl_soft2gl.c
 gl_fbo.c
+gl_map.c
 hu_lib.c
 hu_stuff.c
 hu_tracers.c

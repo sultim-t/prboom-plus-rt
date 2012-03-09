@@ -815,6 +815,8 @@ default_t defaults[] =
    def_int,ss_auto},
   {"map_overlay_pos_height", {&map_overlay_pos_height}, {200},0,200,
    def_int,ss_auto},
+  {"map_things_appearance", {(int*)&map_things_appearance}, {map_things_appearance_max-1},0,map_things_appearance_max-1,
+   def_int,ss_auto},
 
   {"Heads-up display settings",{NULL},{0},UL,UL,def_none,ss_none},
   //jff 2/16/98 defaults for color ranges in hud and status

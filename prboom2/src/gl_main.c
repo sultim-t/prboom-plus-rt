@@ -404,6 +404,7 @@ void gld_Init(int width, int height)
   gld_InitShadows();
 
 #ifdef HAVE_LIBSDL_IMAGE
+  gld_InitMapPics();
   gld_InitHiRes();
 #endif
 

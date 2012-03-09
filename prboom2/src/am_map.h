@@ -34,6 +34,10 @@
 #ifndef __AMMAP_H__
 #define __AMMAP_H__
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "d_event.h"
 #include "m_misc.h"
 
@@ -155,9 +159,23 @@ extern int map_overlay_pos_x;
 extern int map_overlay_pos_y;
 extern int map_overlay_pos_width;
 extern int map_overlay_pos_height;
+extern int map_type;
 void M_ChangeMapTextured(void);
 void M_ChangeMapMultisamling(void);
 
 extern angle_t am_viewangle;
+
+typedef enum
+{
+  map_things_appearance_classic,
+  map_things_appearance_scaled,
+#if defined(HAVE_LIBSDL_IMAGE) && defined(GL_DOOM)
+  map_things_appearance_icon,
+#endif
+  
+  map_things_appearance_max
+} map_things_appearance_t;
+extern map_things_appearance_t map_things_appearance;
+extern const char *map_things_appearance_list[];
 
 #endif
