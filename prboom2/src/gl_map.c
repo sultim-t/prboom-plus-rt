@@ -40,6 +40,7 @@
 #include "gl_intern.h"
 #include "w_wad.h"
 #include "m_misc.h"
+#include "am_map.h"
 #include "lprintf.h"
 
 am_icon_t am_icons[am_icon_count + 1] = 
@@ -225,4 +226,27 @@ void gld_ClearNiceThings(void)
   {
     M_ArrayClear(&map_things[type]);
   }
+}
+
+void gld_DrawMapLines(void)
+{
+#if defined(USE_VERTEX_ARRAYS) || defined(USE_VBO)
+  if (map_lines.count > 0)
+  {
+    map_point_t *point = (map_point_t*)map_lines.data;
+
+    gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+
+    glVertexPointer(2, GL_FLOAT, sizeof(point[0]), &point->x);
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(point[0]), &point->r);
+
+    glDrawArrays(GL_LINES, 0, map_lines.count * 2);
+
+    gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
+  }
+#endif
 }
