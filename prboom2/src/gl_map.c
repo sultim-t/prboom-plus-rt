@@ -98,11 +98,11 @@ void gld_InitMapPics(void)
         if (gl_arb_texture_non_power_of_two)
         {
           glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-          glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surf->w, surf->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, surf->pixels);
+          glTexImage2D(GL_TEXTURE_2D, 0, gl_tex_format, surf->w, surf->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, surf->pixels);
         }
         else
         {
-          gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, surf->w, surf->h, GL_RGBA, GL_UNSIGNED_BYTE, surf->pixels);
+          gluBuild2DMipmaps(GL_TEXTURE_2D, gl_tex_format, surf->w, surf->h, GL_RGBA, GL_UNSIGNED_BYTE, surf->pixels);
         }
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);//tex_filter[MIP_PATCH].min_filter);
