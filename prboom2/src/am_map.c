@@ -2169,9 +2169,10 @@ static void AM_DrawNiceThings(void)
 static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t y)
 {
 #ifdef GL_DOOM
+  const float shadow_scale_factor = 1.3f;
   angle_t ang;
   int i, type, radius, rotate, need_shadow;
-  float fx, fy, fradius, rot;
+  float fx, fy, fradius, rot, shadow_radius;
   unsigned char r, g, b, a;
 
   typedef struct map_nice_icon_param_s
@@ -2316,10 +2317,11 @@ static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t 
   fx = CXMTOF_F(x);
   fy = CYMTOF_F(y);
 
-  if (fx + fradius < 0 ||
-      fx - fradius > (float)SCREENWIDTH ||
-      fy + fradius < 0 ||
-      fy - fradius > (float)SCREENHEIGHT)
+  shadow_radius = fradius * shadow_scale_factor;
+  if (fx + shadow_radius < 0 ||
+      fx - shadow_radius > (float)SCREENWIDTH ||
+      fy + shadow_radius < 0 ||
+      fy - shadow_radius > (float)SCREENHEIGHT)
   {
     return;
   }
@@ -2330,7 +2332,7 @@ static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t 
   gld_AddNiceThing(type, fx, fy, fradius, rot, r, g, b, a);
   if (need_shadow)
   {
-    gld_AddNiceThing(am_icon_shadow, fx, fy, fradius * 1.3f, rot, 0, 0, 0, 128);
+    gld_AddNiceThing(am_icon_shadow, fx, fy, shadow_radius, rot, 0, 0, 0, 128);
   }
 #endif
 }
