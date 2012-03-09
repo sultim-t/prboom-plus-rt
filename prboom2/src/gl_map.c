@@ -34,7 +34,9 @@
 #include <math.h>
 
 #include "SDL.h"
+#ifdef HAVE_LIBSDL_IMAGE
 #include "SDL_image.h"
+#endif
 
 #include "gl_opengl.h"
 #include "gl_intern.h"
@@ -83,14 +85,17 @@ void gld_InitMapPics(void)
     if (lump != -1)
     {
       SDL_Surface *surf = NULL;
+#ifdef HAVE_LIBSDL_IMAGE
       SDL_Surface *surf_raw;
 
       surf_raw = IMG_Load_RW(SDL_RWFromConstMem(W_CacheLumpNum(lump), W_LumpLength(lump)), true);
 
-      W_UnlockLumpNum(lump);
-
       surf = SDL_ConvertSurface(surf_raw, &RGBAFormat, SDL_SRCALPHA);
       SDL_FreeSurface(surf_raw);
+#endif
+
+      W_UnlockLumpNum(lump);
+
       if (surf)
       {
         glGenTextures(1, &am_icons[i].tex_id);
