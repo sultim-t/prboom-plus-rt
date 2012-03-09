@@ -150,6 +150,7 @@ void gld_DrawNiceThings(void)
 {
   int i;
 
+  glDisable(GL_ALPHA_TEST);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
 
