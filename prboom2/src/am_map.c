@@ -2274,7 +2274,7 @@ static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t 
     if (mobj->flags & MF_CORPSE)
     {
       need_shadow = false;
-      type = am_icon_arrow;
+      type = am_icon_corpse;
       r = 120;
       a = 128;
     }

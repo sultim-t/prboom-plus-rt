@@ -47,6 +47,7 @@ am_icon_t am_icons[am_icon_count + 1] =
 {
   {-1, "M_SHADOW"},
 
+  {-1, "M_ARROW"},
   {-1, "M_NORMAL"},
   {-1, "M_HEALTH"},
   {-1, "M_ARMOUR"},

@@ -261,6 +261,7 @@ typedef enum
 {
   am_icon_shadow,
 
+  am_icon_corpse,
   am_icon_normal,
   am_icon_health,
   am_icon_armor,
