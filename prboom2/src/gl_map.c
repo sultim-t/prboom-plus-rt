@@ -81,17 +81,12 @@ void gld_InitMapPics(void)
     am_icons[i].lumpnum = lump;
     if (lump != -1)
     {
-      SDL_PixelFormat fmt;
       SDL_Surface *surf = NULL;
       SDL_Surface *surf_raw;
 
       surf_raw = IMG_Load_RW(SDL_RWFromConstMem(W_CacheLumpNum(lump), W_LumpLength(lump)), true);
 
       W_UnlockLumpNum(lump);
-
-      fmt = *surf_raw->format;
-      fmt.BitsPerPixel = 24;
-      fmt.BytesPerPixel = 3;
 
       surf = SDL_ConvertSurface(surf_raw, &RGBAFormat, SDL_SRCALPHA);
       SDL_FreeSurface(surf_raw);
