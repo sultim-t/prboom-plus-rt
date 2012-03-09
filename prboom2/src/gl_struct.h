@@ -257,7 +257,7 @@ extern int gl_use_motionblur;
 extern motion_blur_params_t motion_blur;
 
 // Nice map
-typedef enum
+enum
 {
   am_icon_shadow,
 
