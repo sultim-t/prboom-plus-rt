@@ -280,9 +280,6 @@ am_frame_t am_frame;
 array_t map_lines;
 
 static void AM_rotate(fixed_t* x,  fixed_t* y, angle_t a);
-static void AM_DrawNiceThings(void);
-static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t y);
-
 
 static void AM_SetMPointFloatValue(mpoint_t *p)
 {
@@ -1708,6 +1705,229 @@ static void AM_drawPlayers(void)
   }
 }
 
+static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t y)
+{
+#ifdef GL_DOOM
+  const float shadow_scale_factor = 1.3f;
+  angle_t ang;
+  int i, type, radius, rotate, need_shadow;
+  float fx, fy, fradius, rot, shadow_radius;
+  unsigned char r, g, b, a;
+
+  typedef struct map_nice_icon_param_s
+  {
+    spritenum_t sprite;
+    int icon;
+    int radius;
+    int rotate;
+    unsigned char r, g, b;
+  } map_nice_icon_param_t;
+  
+  static const map_nice_icon_param_t icons[] = 
+  {
+    {SPR_STIM, am_icon_health, 12, 0, 100, 100, 200},
+    {SPR_MEDI, am_icon_health, 16, 0, 100, 100, 200},
+    {SPR_BON1, am_icon_health, 10, 0,   0,   0, 200},
+
+    {SPR_BON2, am_icon_armor,  10, 0,   0, 200,   0},
+    {SPR_ARM1, am_icon_armor,  16, 0, 100, 200, 100},
+    {SPR_ARM2, am_icon_armor,  16, 0, 100, 100, 200},
+
+    {SPR_CLIP, am_icon_ammo,   10, 0, 180, 150,  50},
+    {SPR_AMMO, am_icon_ammo,   16, 0, 180, 150,  50},
+    {SPR_ROCK, am_icon_ammo,   10, 0, 180, 150,  50},
+    {SPR_BROK, am_icon_ammo,   16, 0, 180, 150,  50},
+
+    {SPR_CELL, am_icon_ammo,   10, 0, 180, 150,  50},
+    {SPR_CELP, am_icon_ammo,   16, 0, 180, 150,  50},
+    {SPR_SHEL, am_icon_ammo,   10, 0, 180, 150,  50},
+    {SPR_SBOX, am_icon_ammo,   16, 0, 180, 150,  50},
+    {SPR_BPAK, am_icon_ammo,   16, 0, 180, 150,  50},
+
+    {SPR_BKEY, am_icon_key,    10, 0,   0,   0, 255},
+    {SPR_BSKU, am_icon_key,    10, 0,   0,   0, 255},
+    {SPR_YKEY, am_icon_key,    10, 0, 255, 255,   0},
+    {SPR_YSKU, am_icon_key,    10, 0, 255, 255,   0},
+    {SPR_RKEY, am_icon_key,    10, 0, 255,   0,   0},
+    {SPR_RSKU, am_icon_key,    10, 0, 255,   0,   0},
+
+    {SPR_PINV, am_icon_power,  16, 0, 220, 100, 220},
+    {SPR_PSTR, am_icon_power,  16, 0, 220, 100, 220},
+    {SPR_PINS, am_icon_power,  16, 0, 220, 100, 220},
+    {SPR_SUIT, am_icon_power,  16, 0, 220, 100, 220},
+    {SPR_PMAP, am_icon_power,  16, 0, 220, 100, 220},
+    {SPR_PVIS, am_icon_power,  16, 0, 220, 100, 220},
+    {SPR_SOUL, am_icon_power,  16, 0, 220, 100, 220},
+    {SPR_MEGA, am_icon_power,  16, 0, 220, 100, 220},
+
+    {SPR_BFUG, am_icon_weap,   20, 0, 220, 180, 100},
+    {SPR_MGUN, am_icon_weap,   20, 0, 220, 180, 100},
+    {SPR_CSAW, am_icon_weap,   20, 0, 220, 180, 100},
+    {SPR_LAUN, am_icon_weap,   20, 0, 220, 180, 100},
+    {SPR_PLAS, am_icon_weap,   20, 0, 220, 180, 100},
+    {SPR_SHOT, am_icon_weap,   20, 0, 220, 180, 100},
+    {SPR_SGN2, am_icon_weap,   20, 0, 220, 180, 100},
+
+    {SPR_BLUD, am_icon_bullet,  8, 0, 255,   0,   0},
+    {SPR_PUFF, am_icon_bullet,  8, 0, 255, 255, 115},
+    {SPR_MISL, am_icon_bullet,  8, 0,  91,  71,  43},
+    {SPR_PLSS, am_icon_bullet,  8, 0, 115, 115, 255},
+    {SPR_PLSE, am_icon_bullet,  8, 0, 115, 115, 255},
+    {SPR_BFS1, am_icon_bullet, 12, 0, 119, 255, 111},
+    {SPR_BFE1, am_icon_bullet, 12, 0, 119, 255, 111},
+
+    {-1}
+  };
+
+  need_shadow = true;
+
+  type = am_icon_normal;
+  r = 220;
+  g = 180;
+  b = 100;
+  a = 255;
+  radius = mobj->radius;
+  rotate = true;
+
+  if (mobj->player)
+  {
+    player_t *p = mobj->player;
+    int color = mapcolor_plyr[p - players];
+    const unsigned char *playpal = V_GetPlaypal();
+
+    if ((deathmatch && !demoplayback) && p != plr)
+      return;
+
+    type = am_icon_player;
+
+    r = playpal[3 * color + 0];
+    g = playpal[3 * color + 1];
+    b = playpal[3 * color + 2];
+    a = p->powers[pw_invisibility] ? 128 : 255;
+
+    radius = mobj->radius;
+    rotate = true;
+  }
+  else if (mobj->flags & MF_COUNTKILL)
+  {
+    if (mobj->flags & MF_CORPSE)
+    {
+      need_shadow = false;
+      type = am_icon_corpse;
+      r = 120;
+      a = 128;
+    }
+    else
+    {
+      type = am_icon_monster;
+      r = 200;
+    }
+    g = 0;
+    b = 0;
+    radius = BETWEEN(4<<FRACBITS, 256<<FRACBITS, mobj->radius);
+    rotate = true;
+  }
+  else
+  {
+    i = 0;
+    while (icons[i].sprite > 0)
+    {
+      if (mobj->sprite == icons[i].sprite)
+      {
+        type = icons[i].icon;
+        r = icons[i].r;
+        g = icons[i].g;
+        b = icons[i].b;
+        radius = icons[i].radius << 16;
+        rotate = icons[i].rotate;
+
+        break;
+      }
+      i++;
+    }
+  }
+
+  fradius = MTOF_F(radius >> FRACTOMAPBITS);
+  if (fradius < 1.0f)
+    return;
+  if (fradius < 4.0f)
+    need_shadow = false;
+
+  fx = CXMTOF_F(x);
+  fy = CYMTOF_F(y);
+
+  shadow_radius = fradius * shadow_scale_factor;
+  if (fx + shadow_radius < 0 ||
+      fx - shadow_radius > (float)SCREENWIDTH ||
+      fy + shadow_radius < 0 ||
+      fy - shadow_radius > (float)SCREENHEIGHT)
+  {
+    return;
+  }
+
+  ang = (rotate ? angle : 0) + ((automapmode & am_rotate) ? ANG90 - am_frame.viewangle : 0);
+  rot = -(float)ang / (float)(1u << 31) * (float)M_PI;
+
+  gld_AddNiceThing(type, fx, fy, fradius, rot, r, g, b, a);
+  if (need_shadow)
+  {
+    gld_AddNiceThing(am_icon_shadow, fx, fy, shadow_radius, rot, 0, 0, 0, 128);
+  }
+#endif
+}
+
+static void AM_DrawNiceThings(void)
+{
+#ifdef GL_DOOM
+  int i;
+  mobj_t* t;
+
+  gld_ClearNiceThings();
+
+  // for all sectors
+  for (i = 0; i < numsectors; i++)
+  {
+    t = sectors[i].thinglist;
+    while (t) // for all things in that sector
+    {
+      mpoint_t p;
+      angle_t angle;
+
+      if (ddt_cheating != 2 && !t->player)
+      {
+        t = t->snext;
+        continue;
+      }
+
+      if (!paused && movement_smooth)
+      {
+        p.x = t->PrevX + FixedMul(tic_vars.frac, t->x - t->PrevX);
+        p.y = t->PrevY + FixedMul(tic_vars.frac, t->y - t->PrevY);
+        angle = (t->player ? t->player->prev_viewangle : t->angle);
+        angle = angle + FixedMul(tic_vars.frac, t->angle - angle);
+      }
+      else
+      {
+        p.x = t->x;
+        p.y = t->y;
+        angle = t->angle;
+      }
+      p.x = p.x >> FRACTOMAPBITS;
+      p.y = p.y >> FRACTOMAPBITS;
+
+      if (automapmode & am_rotate)
+      {
+        AM_rotatePoint(&p);
+      }
+
+      AM_ProcessNiceThing(t, angle, p.x, p.y);
+
+      t = t->snext;
+    }
+  }
+#endif
+}
+
 //
 // AM_drawThings()
 //
@@ -2019,7 +2239,6 @@ void AM_Drawer (void)
     m_y = (viewy >> FRACTOMAPBITS) - m_h/2;
   }
 
-  
   {
     float angle;
     am_frame.viewangle = viewangle;
@@ -2077,227 +2296,4 @@ void AM_Drawer (void)
 #endif
 
   AM_drawMarks();
-}
-
-static void AM_DrawNiceThings(void)
-{
-#ifdef GL_DOOM
-  int i;
-  mobj_t* t;
-
-  gld_ClearNiceThings();
-
-  // for all sectors
-  for (i = 0; i < numsectors; i++)
-  {
-    t = sectors[i].thinglist;
-    while (t) // for all things in that sector
-    {
-      mpoint_t p;
-      angle_t angle;
-
-      if (ddt_cheating != 2 && !t->player)
-      {
-        t = t->snext;
-        continue;
-      }
-
-      if (!paused && movement_smooth)
-      {
-        p.x = t->PrevX + FixedMul(tic_vars.frac, t->x - t->PrevX);
-        p.y = t->PrevY + FixedMul(tic_vars.frac, t->y - t->PrevY);
-        angle = (t->player ? t->player->prev_viewangle : t->angle);
-        angle = angle + FixedMul(tic_vars.frac, t->angle - angle);
-      }
-      else
-      {
-        p.x = t->x;
-        p.y = t->y;
-        angle = t->angle;
-      }
-      p.x = p.x >> FRACTOMAPBITS;
-      p.y = p.y >> FRACTOMAPBITS;
-
-      if (automapmode & am_rotate)
-      {
-        AM_rotatePoint(&p);
-      }
-
-      AM_ProcessNiceThing(t, angle, p.x, p.y);
-
-      t = t->snext;
-    }
-  }
-#endif
-}
-
-static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t y)
-{
-#ifdef GL_DOOM
-  const float shadow_scale_factor = 1.3f;
-  angle_t ang;
-  int i, type, radius, rotate, need_shadow;
-  float fx, fy, fradius, rot, shadow_radius;
-  unsigned char r, g, b, a;
-
-  typedef struct map_nice_icon_param_s
-  {
-    spritenum_t sprite;
-    int icon;
-    int radius;
-    int rotate;
-    unsigned char r, g, b;
-  } map_nice_icon_param_t;
-  
-  static const map_nice_icon_param_t icons[] = 
-  {
-    {SPR_STIM, am_icon_health, 12, 0, 100, 100, 200},
-    {SPR_MEDI, am_icon_health, 16, 0, 100, 100, 200},
-    {SPR_BON1, am_icon_health, 10, 0,   0,   0, 200},
-
-    {SPR_BON2, am_icon_armor,  10, 0,   0, 200,   0},
-    {SPR_ARM1, am_icon_armor,  16, 0, 100, 200, 100},
-    {SPR_ARM2, am_icon_armor,  16, 0, 100, 100, 200},
-
-    {SPR_CLIP, am_icon_ammo,   10, 0, 180, 150,  50},
-    {SPR_AMMO, am_icon_ammo,   16, 0, 180, 150,  50},
-    {SPR_ROCK, am_icon_ammo,   10, 0, 180, 150,  50},
-    {SPR_BROK, am_icon_ammo,   16, 0, 180, 150,  50},
-
-    {SPR_CELL, am_icon_ammo,   10, 0, 180, 150,  50},
-    {SPR_CELP, am_icon_ammo,   16, 0, 180, 150,  50},
-    {SPR_SHEL, am_icon_ammo,   10, 0, 180, 150,  50},
-    {SPR_SBOX, am_icon_ammo,   16, 0, 180, 150,  50},
-    {SPR_BPAK, am_icon_ammo,   16, 0, 180, 150,  50},
-
-    {SPR_BKEY, am_icon_key,    10, 0,   0,   0, 255},
-    {SPR_BSKU, am_icon_key,    10, 0,   0,   0, 255},
-    {SPR_YKEY, am_icon_key,    10, 0, 255, 255,   0},
-    {SPR_YSKU, am_icon_key,    10, 0, 255, 255,   0},
-    {SPR_RKEY, am_icon_key,    10, 0, 255,   0,   0},
-    {SPR_RSKU, am_icon_key,    10, 0, 255,   0,   0},
-
-    {SPR_PINV, am_icon_power,  16, 0, 220, 100, 220},
-    {SPR_PSTR, am_icon_power,  16, 0, 220, 100, 220},
-    {SPR_PINS, am_icon_power,  16, 0, 220, 100, 220},
-    {SPR_SUIT, am_icon_power,  16, 0, 220, 100, 220},
-    {SPR_PMAP, am_icon_power,  16, 0, 220, 100, 220},
-    {SPR_PVIS, am_icon_power,  16, 0, 220, 100, 220},
-    {SPR_SOUL, am_icon_power,  16, 0, 220, 100, 220},
-    {SPR_MEGA, am_icon_power,  16, 0, 220, 100, 220},
-
-    {SPR_BFUG, am_icon_weap,   20, 0, 220, 180, 100},
-    {SPR_MGUN, am_icon_weap,   20, 0, 220, 180, 100},
-    {SPR_CSAW, am_icon_weap,   20, 0, 220, 180, 100},
-    {SPR_LAUN, am_icon_weap,   20, 0, 220, 180, 100},
-    {SPR_PLAS, am_icon_weap,   20, 0, 220, 180, 100},
-    {SPR_SHOT, am_icon_weap,   20, 0, 220, 180, 100},
-    {SPR_SGN2, am_icon_weap,   20, 0, 220, 180, 100},
-
-    {SPR_BLUD, am_icon_bullet,  8, 0, 255,   0,   0},
-    {SPR_PUFF, am_icon_bullet,  8, 0, 255, 255, 115},
-    {SPR_MISL, am_icon_bullet,  8, 0,  91,  71,  43},
-    {SPR_PLSS, am_icon_bullet,  8, 0, 115, 115, 255},
-    {SPR_PLSE, am_icon_bullet,  8, 0, 115, 115, 255},
-    {SPR_BFS1, am_icon_bullet, 12, 0, 119, 255, 111},
-    {SPR_BFE1, am_icon_bullet, 12, 0, 119, 255, 111},
-
-    {-1}
-  };
-
-  need_shadow = true;
-
-  type = am_icon_normal;
-  r = 220;
-  g = 180;
-  b = 100;
-  a = 255;
-  radius = mobj->radius;
-  rotate = true;
-
-  if (mobj->player)
-  {
-    player_t *p = mobj->player;
-    int color = mapcolor_plyr[p - players];
-    const unsigned char *playpal = V_GetPlaypal();
-
-    if ((deathmatch && !demoplayback) && p != plr)
-      return;
-
-    type = am_icon_player;
-
-    r = playpal[3 * color + 0];
-    g = playpal[3 * color + 1];
-    b = playpal[3 * color + 2];
-    a = p->powers[pw_invisibility] ? 128 : 255;
-
-    radius = mobj->radius;
-    rotate = true;
-  }
-  else if (mobj->flags & MF_COUNTKILL)
-  {
-    if (mobj->flags & MF_CORPSE)
-    {
-      need_shadow = false;
-      type = am_icon_corpse;
-      r = 120;
-      a = 128;
-    }
-    else
-    {
-      type = am_icon_monster;
-      r = 200;
-    }
-    g = 0;
-    b = 0;
-    radius = BETWEEN(4<<FRACBITS, 256<<FRACBITS, mobj->radius);
-    rotate = true;
-  }
-  else
-  {
-    i = 0;
-    while (icons[i].sprite > 0)
-    {
-      if (mobj->sprite == icons[i].sprite)
-      {
-        type = icons[i].icon;
-        r = icons[i].r;
-        g = icons[i].g;
-        b = icons[i].b;
-        radius = icons[i].radius << 16;
-        rotate = icons[i].rotate;
-
-        break;
-      }
-      i++;
-    }
-  }
-
-  fradius = MTOF_F(radius >> FRACTOMAPBITS);
-  if (fradius < 1.0f)
-    return;
-  if (fradius < 4.0f)
-    need_shadow = false;
-
-  fx = CXMTOF_F(x);
-  fy = CYMTOF_F(y);
-
-  shadow_radius = fradius * shadow_scale_factor;
-  if (fx + shadow_radius < 0 ||
-      fx - shadow_radius > (float)SCREENWIDTH ||
-      fy + shadow_radius < 0 ||
-      fy - shadow_radius > (float)SCREENHEIGHT)
-  {
-    return;
-  }
-
-  ang = (rotate ? angle : 0) + ((automapmode & am_rotate) ? ANG90 - am_frame.viewangle : 0);
-  rot = -(float)ang / (float)(1u << 31) * (float)M_PI;
-
-  gld_AddNiceThing(type, fx, fy, fradius, rot, r, g, b, a);
-  if (need_shadow)
-  {
-    gld_AddNiceThing(am_icon_shadow, fx, fy, shadow_radius, rot, 0, 0, 0, 128);
-  }
-#endif
 }
