@@ -79,8 +79,6 @@ void AM_Drawer (void);
 // if the level is completed while it is up.
 void AM_Stop (void);
 
-void AM_SetRenderPrecise();
-
 // killough 2/22/98: for saving automap information in savegame:
 
 void AM_Start(void);
@@ -163,7 +161,20 @@ extern int map_type;
 void M_ChangeMapTextured(void);
 void M_ChangeMapMultisamling(void);
 
-extern angle_t am_viewangle;
+typedef struct am_frame_s
+{
+  angle_t viewangle;
+  fixed_t viewx, viewy;
+
+  fixed_t centerx, centery;
+  fixed_t sin, cos;
+
+  float centerx_f, centery_f;
+  float sin_f, cos_f;
+
+  int precise;
+} am_frame_t;
+extern am_frame_t am_frame;
 
 typedef enum
 {

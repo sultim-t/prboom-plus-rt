@@ -510,8 +510,6 @@ void M_ChangeRenderPrecise(void)
     }
   }
 #endif // GL_DOOM
-
-  AM_SetRenderPrecise();
 }
 
 void M_ChangeScreenMultipleFactor(void)

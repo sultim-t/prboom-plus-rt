@@ -113,8 +113,6 @@ const char *map_things_appearance_list[map_things_appearance_max] =
 #endif
 };
 
-int map_render_precise;
-
 // drawing stuff
 #define FB    0
 
@@ -277,12 +275,11 @@ int markpointnum_max = 0;       // killough 2/22/98
 
 static dboolean stopped = true;
 
-angle_t am_viewangle;
-fixed_t am_viewx, am_viewy;
+am_frame_t am_frame;
 
 array_t map_lines;
 
-static void AM_rotate(fixed_t* x,  fixed_t* y, angle_t a, fixed_t xorig, fixed_t yorig);
+static void AM_rotate(fixed_t* x,  fixed_t* y, angle_t a);
 static void AM_DrawNiceThings(void);
 static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t y);
 
@@ -357,8 +354,8 @@ static void AM_restoreScaleAndLoc(void)
   }
   else
   {
-    m_x = (am_viewx >> FRACTOMAPBITS) - m_w/2;//e6y
-    m_y = (am_viewy >> FRACTOMAPBITS) - m_h/2;//e6y
+    m_x = (am_frame.viewx >> FRACTOMAPBITS) - m_w/2;//e6y
+    m_y = (am_frame.viewy >> FRACTOMAPBITS) - m_h/2;//e6y
   }
   m_x2 = m_x + m_w;
   m_y2 = m_y + m_h;
@@ -480,7 +477,7 @@ static void AM_changeWindowLoc(void)
 
   if (automapmode & am_rotate)
   {
-    AM_rotate(&incx, &incy, am_viewangle - ANG90, 0, 0);
+    AM_rotate(&incx, &incy, am_frame.viewangle - ANG90);
   }
 
   if (movement_smooth)
@@ -643,11 +640,6 @@ void AM_clearMarks(void)
   markpointnum = 0;
 }
 
-void AM_SetRenderPrecise()
-{
-  map_render_precise = (V_GetMode() == VID_MODEGL);
-}
-
 //
 // AM_LevelInit()
 //
@@ -714,8 +706,6 @@ void AM_Start(void)
   }
   AM_initVariables();
   AM_loadPics();
-
-  AM_SetRenderPrecise();
 }
 
 //
@@ -915,82 +905,41 @@ dboolean AM_Responder
 //
 // CPhipps - made static & enhanced for automap rotation
 
-static void AM_rotate(fixed_t* x,  fixed_t* y, angle_t a, fixed_t xorig, fixed_t yorig)
+static void AM_rotate(fixed_t* x,  fixed_t* y, angle_t a)
 {
   fixed_t tmpx;
 
-  //e6y
-  xorig>>=FRACTOMAPBITS;
-  yorig>>=FRACTOMAPBITS;
+  tmpx = FixedMul(*x, finecosine[a>>ANGLETOFINESHIFT]) -
+    FixedMul(*y, finesine[a>>ANGLETOFINESHIFT]);
 
-  tmpx =
-    FixedMul(*x - xorig,finecosine[a>>ANGLETOFINESHIFT])
-      - FixedMul(*y - yorig,finesine[a>>ANGLETOFINESHIFT]);
+  *y = FixedMul(*x, finesine[a>>ANGLETOFINESHIFT]) +
+    FixedMul(*y, finecosine[a>>ANGLETOFINESHIFT]);
 
-  *y   = yorig +
-    FixedMul(*x - xorig,finesine[a>>ANGLETOFINESHIFT])
-      + FixedMul(*y - yorig,finecosine[a>>ANGLETOFINESHIFT]);
-
-  *x = tmpx + xorig;
-}
-
-void AM_rotatePoint_i (mpoint_t *p)
-{
-  fixed_t pivotx = m_x + m_w/2;
-  fixed_t pivoty = m_y + m_h/2;
-  p->x -= pivotx;
-  p->y -= pivoty;
-  AM_rotate(&p->x, &p->y, ANG90 - am_viewangle, 0, 0);
-  p->x += pivotx;
-  p->y += pivoty;
-}
-
-static void AM_rotate_f(float *x, float *y, angle_t a)
-{
-  static angle_t prev_angle = 0;
-  static float sinrot = 0.0f;
-  static float cosrot = 1.0f;
-
-  float rot, tmpx;
-  
-  if (a != prev_angle)
-  {
-    prev_angle = a;
-    rot = (float)a / (float)(1u << 31) * (float)M_PI;
-    sinrot = (float)sin(rot);
-    cosrot = (float)cos(rot);
-  }
-  
-  tmpx = ((*x) * cosrot) - ((*y) * sinrot);
-  *y = ((*x) * sinrot) + ((*y) * cosrot);
   *x = tmpx;
 }
 
-void AM_rotatePoint_f(mpoint_t *p)
+void AM_rotatePoint(mpoint_t *p)
 {
-  float x = (float)p->x;
-  float y = (float)p->y;
+  fixed_t tmpx;
 
-  float pivotx = (float)m_x + (float)m_w/2.0f;
-  float pivoty = (float)m_y + (float)m_h/2.0f;
-  x -= pivotx;
-  y -= pivoty;
-  AM_rotate_f(&x, &y, ANG90 - am_viewangle);
-  x += pivotx;
-  y += pivoty;
+  if (am_frame.precise)
+  {
+    float f;
 
-  p->fx = x;
-  p->fy = y;
+    p->fx = (float)p->x - am_frame.centerx_f;
+    p->fy = (float)p->y - am_frame.centery_f;
 
-  AM_rotatePoint_i(p);
-}
+    f     = (p->fx * am_frame.cos_f) - (p->fy * am_frame.sin_f) + am_frame.centerx_f;
+    p->fy = (p->fx * am_frame.sin_f) + (p->fy * am_frame.cos_f) + am_frame.centery_f;
+    p->fx = f;
+  }
 
-void AM_rotatePoint (mpoint_t *p)
-{
-  if (map_render_precise)
-    AM_rotatePoint_f(p);
-  else
-    AM_rotatePoint_i(p);
+  p->x -= am_frame.centerx;
+  p->y -= am_frame.centery;
+
+  tmpx = FixedMul(p->x, am_frame.cos) - FixedMul(p->y, am_frame.sin) + am_frame.centerx;
+  p->y = FixedMul(p->x, am_frame.sin) + FixedMul(p->y, am_frame.cos) + am_frame.centery;
+  p->x = tmpx;
 }
 
 //
@@ -1042,14 +991,14 @@ static void AM_changeWindowScale(void)
 //
 static void AM_doFollowPlayer(void)
 {
-  if (f_oldloc.x != am_viewx || f_oldloc.y != am_viewy)
+  if (f_oldloc.x != am_frame.viewx || f_oldloc.y != am_frame.viewy)
   {
-    m_x = FTOM(MTOF(am_viewx >> FRACTOMAPBITS)) - m_w/2;//e6y
-    m_y = FTOM(MTOF(am_viewy >> FRACTOMAPBITS)) - m_h/2;//e6y
+    m_x = FTOM(MTOF(am_frame.viewx >> FRACTOMAPBITS)) - m_w/2;//e6y
+    m_y = FTOM(MTOF(am_frame.viewy >> FRACTOMAPBITS)) - m_h/2;//e6y
     m_x2 = m_x + m_w;
     m_y2 = m_y + m_h;
-    f_oldloc.x = am_viewx;
-    f_oldloc.y = am_viewy;
+    f_oldloc.x = am_frame.viewx;
+    f_oldloc.y = am_frame.viewy;
   }
 }
 
@@ -1153,7 +1102,7 @@ static dboolean AM_clipMline
   fl->b.x = CXMTOF(ml->b.x);
   fl->b.y = CYMTOF(ml->b.y);
 
-  if (map_render_precise)
+  if (am_frame.precise)
   {
     fl->a.fx = CXMTOF_F(ml->a.fx);
     fl->a.fy = CYMTOF_F(ml->a.fy);
@@ -1184,7 +1133,7 @@ static dboolean AM_clipMline
       // 'int64' math to avoid overflows on long lines
       tmp.x = fl->a.x + (fixed_t)(((int_64_t)dx*(fl->a.y-f_y))/dy);
       tmp.y = f_y;
-      if (map_render_precise)
+      if (am_frame.precise)
       {
         dy_f = fl->a.fy - fl->b.fy;
         dx_f = fl->b.fx - fl->a.fx;
@@ -1198,7 +1147,7 @@ static dboolean AM_clipMline
       dx = fl->b.x - fl->a.x;
       tmp.x = fl->a.x + (fixed_t)(((int_64_t)dx*(fl->a.y-(f_y+f_h)))/dy);
       tmp.y = f_y+f_h-1;
-      if (map_render_precise)
+      if (am_frame.precise)
       {
         dy_f = fl->a.fy - fl->b.fy;
         dx_f = fl->b.fx - fl->a.fx;
@@ -1212,7 +1161,7 @@ static dboolean AM_clipMline
       dx = fl->b.x - fl->a.x;
       tmp.y = fl->a.y + (fixed_t)(((int_64_t)dy*(f_x+f_w-1 - fl->a.x))/dx);
       tmp.x = f_x+f_w-1;
-      if (map_render_precise)
+      if (am_frame.precise)
       {
         dy_f = fl->b.fy - fl->a.fy;
         dx_f = fl->b.fx - fl->a.fx;
@@ -1226,7 +1175,7 @@ static dboolean AM_clipMline
       dx = fl->b.x - fl->a.x;
       tmp.y = fl->a.y + (fixed_t)(((int_64_t)dy*(f_x-fl->a.x))/dx);
       tmp.x = f_x;
-      if (map_render_precise)
+      if (am_frame.precise)
       {
         dy_f = fl->b.fy - fl->a.fy;
         dx_f = fl->b.fx - fl->a.fx;
@@ -1627,7 +1576,7 @@ static void AM_drawLineCharacter
   int   i;
   mline_t l;
 
-  if (automapmode & am_rotate) angle -= am_viewangle - ANG90; // cph
+  if (automapmode & am_rotate) angle -= am_frame.viewangle - ANG90; // cph
 
   for (i=0;i<lineguylines;i++)
   {
@@ -1641,7 +1590,7 @@ static void AM_drawLineCharacter
     }
 
     if (angle)
-      AM_rotate(&l.a.x, &l.a.y, angle, 0, 0);
+      AM_rotate(&l.a.x, &l.a.y, angle);
 
     l.a.x += x;
     l.a.y += y;
@@ -1656,7 +1605,7 @@ static void AM_drawLineCharacter
     }
 
     if (angle)
-      AM_rotate(&l.b.x, &l.b.y, angle, 0, 0);
+      AM_rotate(&l.b.x, &l.b.y, angle);
 
     l.b.x += x;
     l.b.y += y;
@@ -1700,8 +1649,8 @@ static void AM_drawPlayers(void)
 
   if (!netgame)
   {
-    pt.x = am_viewx >> FRACTOMAPBITS;
-    pt.y = am_viewy >> FRACTOMAPBITS;
+    pt.x = am_frame.viewx >> FRACTOMAPBITS;
+    pt.y = am_frame.viewy >> FRACTOMAPBITS;
     AM_SetMPointFloatValue(&pt);
     if (automapmode & am_rotate)
     {
@@ -1709,9 +1658,9 @@ static void AM_drawPlayers(void)
     }
 
     if (ddt_cheating)
-      AM_drawLineCharacter(cheat_player_arrow, NUMCHEATPLYRLINES, scale, am_viewangle, mapcolor_sngl, pt.x, pt.y);
+      AM_drawLineCharacter(cheat_player_arrow, NUMCHEATPLYRLINES, scale, am_frame.viewangle, mapcolor_sngl, pt.x, pt.y);
     else
-      AM_drawLineCharacter(player_arrow, NUMPLYRLINES, scale, am_viewangle, mapcolor_sngl, pt.x, pt.y);
+      AM_drawLineCharacter(player_arrow, NUMPLYRLINES, scale, am_frame.viewangle, mapcolor_sngl, pt.x, pt.y);
     return;
   }
 
@@ -1942,7 +1891,7 @@ static void AM_drawMarks(void)
 
       p.x = CXMTOF(p.x) - markpoints[i].w * SCREENWIDTH / 320 / 2;
       p.y = CYMTOF(p.y) - markpoints[i].h * SCREENHEIGHT / 200 / 2;
-      if (map_render_precise)
+      if (am_frame.precise)
       {
         p.fx = CXMTOF_F(p.fx) - (float)markpoints[i].w * SCREENWIDTH / 320.0f / 2.0f;
         p.fy = CYMTOF_F(p.fy) - (float)markpoints[i].h * SCREENHEIGHT / 200.0f / 2.0f;
@@ -1960,7 +1909,7 @@ static void AM_drawMarks(void)
           if (p.x < f_x + f_w &&
               p.x + markpoints[i].widths[k] * SCREENWIDTH / 320 >= f_x)
           {
-            if (map_render_precise)
+            if (am_frame.precise)
             {
               V_DrawNamePatchPrecise(
                 (float)p.fx * 320.0f / SCREENWIDTH, (float)p.fy * 200.0f / SCREENHEIGHT,
@@ -1976,7 +1925,7 @@ static void AM_drawMarks(void)
 
           w += markpoints[i].widths[k] + 1;
           p.x += w * SCREENWIDTH / 320;
-          if (map_render_precise)
+          if (am_frame.precise)
           {
             p.fx += (float)w * SCREENWIDTH / 320.0f;
           }
@@ -2064,14 +2013,31 @@ void AM_Drawer (void)
   // CPhipps - all automap modes put into one enum
   if (!(automapmode & am_active)) return;
 
-  am_viewangle = viewangle;
-  am_viewx = viewx;
-  am_viewy = viewy;
-  
   if (automapmode & am_follow)
   {
-    m_x = (am_viewx >> FRACTOMAPBITS) - m_w/2;
-    m_y = (am_viewy >> FRACTOMAPBITS) - m_h/2;
+    m_x = (viewx >> FRACTOMAPBITS) - m_w/2;
+    m_y = (viewy >> FRACTOMAPBITS) - m_h/2;
+  }
+
+  
+  {
+    float angle;
+    am_frame.viewangle = viewangle;
+    am_frame.viewx = viewx;
+    am_frame.viewy = viewy;
+
+    angle = (float)(ANG90 - viewangle) / (float)(1u << 31) * (float)M_PI;
+    am_frame.sin_f = (float)sin(angle);
+    am_frame.cos_f = (float)cos(angle);
+    am_frame.sin = finesine[(ANG90 - viewangle)>>ANGLETOFINESHIFT];
+    am_frame.cos = finecosine[(ANG90 - viewangle)>>ANGLETOFINESHIFT];
+
+    am_frame.centerx = m_x + m_w / 2;
+    am_frame.centery = m_y + m_h / 2;
+    am_frame.centerx_f = (float)m_x + (float)m_w / 2.0f;
+    am_frame.centery_f = (float)m_y + (float)m_h / 2.0f;
+
+    am_frame.precise = (V_GetMode() == VID_MODEGL);
   }
 
 #ifdef GL_DOOM
@@ -2135,7 +2101,6 @@ static void AM_DrawNiceThings(void)
         t = t->snext;
         continue;
       }
-
 
       if (!paused && movement_smooth)
       {
@@ -2326,7 +2291,7 @@ static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t 
     return;
   }
 
-  ang = (rotate ? angle : 0) + ((automapmode & am_rotate) ? ANG90 - am_viewangle : 0);
+  ang = (rotate ? angle : 0) + ((automapmode & am_rotate) ? ANG90 - am_frame.viewangle : 0);
   rot = -(float)ang / (float)(1u << 31) * (float)M_PI;
 
   gld_AddNiceThing(type, fx, fy, fradius, rot, r, g, b, a);
