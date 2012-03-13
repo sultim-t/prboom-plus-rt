@@ -1099,6 +1099,12 @@ static dboolean AM_clipMline
   fl->b.x = CXMTOF(ml->b.x);
   fl->b.y = CYMTOF(ml->b.y);
 
+  DOOUTCODE(outcode1, fl->a.x, fl->a.y);
+  DOOUTCODE(outcode2, fl->b.x, fl->b.y);
+
+  if (outcode1 & outcode2)
+  return false;
+
   if (am_frame.precise)
   {
     fl->a.fx = CXMTOF_F(ml->a.fx);
@@ -1106,12 +1112,6 @@ static dboolean AM_clipMline
     fl->b.fx = CXMTOF_F(ml->b.fx);
     fl->b.fy = CYMTOF_F(ml->b.fy);
   }
-
-  DOOUTCODE(outcode1, fl->a.x, fl->a.y);
-  DOOUTCODE(outcode2, fl->b.x, fl->b.y);
-
-  if (outcode1 & outcode2)
-  return false;
 
   while (outcode1 | outcode2)
   {
