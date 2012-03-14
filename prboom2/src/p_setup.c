@@ -55,6 +55,7 @@
 #include "r_fps.h"
 #include "hu_tracers.h"
 #include "g_overflow.h"
+#include "am_map.h"
 #include "e6y.h"//e6y
 
 //
@@ -2131,6 +2132,11 @@ static int P_GroupLines (void)
     fixed_t *bbox = (void*)sector->blockbox; // cph - For convenience, so
                                   // I can sue the old code unchanged
     int block;
+
+    sector->bbox[0] = sector->blockbox[0] >> FRACTOMAPBITS;
+    sector->bbox[1] = sector->blockbox[1] >> FRACTOMAPBITS;
+    sector->bbox[2] = sector->blockbox[2] >> FRACTOMAPBITS;
+    sector->bbox[3] = sector->blockbox[3] >> FRACTOMAPBITS;
 
     // set the degenmobj_t to the middle of the bounding box
     if (comp[comp_sound])
