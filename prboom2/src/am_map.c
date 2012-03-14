@@ -57,6 +57,7 @@
 #include "r_fps.h"
 #include "r_demo.h"
 #include "m_misc.h"
+#include "m_bbox.h"
 
 extern dboolean gamekeydown[];
 
@@ -1370,10 +1371,25 @@ static void AM_drawWalls(void)
 {
   int i;
   static mline_t l;
+  fixed_t mx, mx2, my, my2;
+  
+  mx = m_x << FRACTOMAPBITS;
+  my = m_y << FRACTOMAPBITS;
+  mx2 = m_x2 << FRACTOMAPBITS;
+  my2 = m_y2 << FRACTOMAPBITS;
 
   // draw the unclipped visible portions of all lines
   for (i=0;i<numlines;i++)
   {
+    if (!(automapmode & am_rotate) &&
+      (lines[i].bbox[BOXLEFT] > mx2 ||
+      lines[i].bbox[BOXRIGHT] < mx ||
+      lines[i].bbox[BOXBOTTOM] > my2 ||
+      lines[i].bbox[BOXTOP] < my))
+    {
+      continue;
+    }
+
     l.a.x = lines[i].v1->x >> FRACTOMAPBITS;
     l.a.y = lines[i].v1->y >> FRACTOMAPBITS;
     l.b.x = lines[i].v2->x >> FRACTOMAPBITS;
