@@ -1903,6 +1903,15 @@ static void AM_DrawNiceThings(void)
   // for all sectors
   for (i = 0; i < numsectors; i++)
   {
+    if (!(automapmode & am_rotate) &&
+      (sectors[i].bbox[BOXLEFT] > m_x2 ||
+      sectors[i].bbox[BOXRIGHT] < m_x ||
+      sectors[i].bbox[BOXBOTTOM] > m_y2 ||
+      sectors[i].bbox[BOXTOP] < m_y))
+    {
+      continue;
+    }
+
     t = sectors[i].thinglist;
     while (t) // for all things in that sector
     {
@@ -1981,9 +1990,18 @@ static void AM_drawThings(void)
    // Stop after first pass if the current sector has no enemies
    int pass;
    int enemies = 0;
+
+   if (!(automapmode & am_rotate) &&
+     (sectors[i].bbox[BOXLEFT] > m_x2 ||
+     sectors[i].bbox[BOXRIGHT] < m_x ||
+     sectors[i].bbox[BOXBOTTOM] > m_y2 ||
+     sectors[i].bbox[BOXTOP] < m_y))
+   {
+     continue;
+   }
+
    for (pass = 0; pass < 2; pass += (enemies ? 1 : 2))
    {
-
     t = sectors[i].thinglist;
     while (t) // for all things in that sector
     {
