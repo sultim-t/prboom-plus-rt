@@ -452,7 +452,7 @@ void gld_ResetTexturedAutomap(void)
   visible_subsectors_count_prev = -1;
 }
 
-void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my, fixed_t mx2, fixed_t my2, int fw, int fh, fixed_t scale)
+void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my, int fw, int fh, fixed_t scale)
 {
   extern int ddt_cheating;
   
@@ -542,11 +542,10 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
     subsector_t *sub = visible_subsectors[i];
     int ssidx = sub - subsectors;
 
-    if (!(automapmode & am_rotate) &&
-      (sub->sector->bbox[BOXLEFT] > mx2 ||
-      sub->sector->bbox[BOXRIGHT] < mx ||
-      sub->sector->bbox[BOXBOTTOM] > my2 ||
-      sub->sector->bbox[BOXTOP] < my))
+    if (sub->sector->bbox[BOXLEFT] > am_frame.bbox[BOXRIGHT] ||
+      sub->sector->bbox[BOXRIGHT] < am_frame.bbox[BOXLEFT] ||
+      sub->sector->bbox[BOXBOTTOM] > am_frame.bbox[BOXTOP] ||
+      sub->sector->bbox[BOXTOP] < am_frame.bbox[BOXBOTTOM])
     {
       continue;
     }

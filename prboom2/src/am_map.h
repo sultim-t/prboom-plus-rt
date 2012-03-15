@@ -172,6 +172,8 @@ typedef struct am_frame_s
   float centerx_f, centery_f;
   float sin_f, cos_f;
 
+  fixed_t bbox[4];
+
   int precise;
 } am_frame_t;
 extern am_frame_t am_frame;

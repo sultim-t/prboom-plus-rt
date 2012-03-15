@@ -229,7 +229,7 @@ extern int gl_use_display_lists;
 
 void gld_ProcessTexturedMap(void);
 void gld_ResetTexturedAutomap(void);
-void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my, fixed_t mx2, fixed_t my2, int fw, int fh, fixed_t scale);
+void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my, int fw, int fh, fixed_t scale);
 
 void gld_Init8InGLMode(void);
 void gld_Draw8InGL(void);

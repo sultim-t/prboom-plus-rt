@@ -1373,19 +1373,18 @@ static void AM_drawWalls(void)
   static mline_t l;
   fixed_t mx, mx2, my, my2;
   
-  mx = m_x << FRACTOMAPBITS;
-  my = m_y << FRACTOMAPBITS;
-  mx2 = m_x2 << FRACTOMAPBITS;
-  my2 = m_y2 << FRACTOMAPBITS;
+  mx = am_frame.bbox[BOXLEFT] << FRACTOMAPBITS;
+  my = am_frame.bbox[BOXBOTTOM] << FRACTOMAPBITS;
+  mx2 = am_frame.bbox[BOXRIGHT] << FRACTOMAPBITS;
+  my2 = am_frame.bbox[BOXTOP] << FRACTOMAPBITS;
 
   // draw the unclipped visible portions of all lines
   for (i=0;i<numlines;i++)
   {
-    if (!(automapmode & am_rotate) &&
-      (lines[i].bbox[BOXLEFT] > mx2 ||
+    if (lines[i].bbox[BOXLEFT] > mx2 ||
       lines[i].bbox[BOXRIGHT] < mx ||
       lines[i].bbox[BOXBOTTOM] > my2 ||
-      lines[i].bbox[BOXTOP] < my))
+      lines[i].bbox[BOXTOP] < my)
     {
       continue;
     }
@@ -1903,11 +1902,10 @@ static void AM_DrawNiceThings(void)
   // for all sectors
   for (i = 0; i < numsectors; i++)
   {
-    if (!(automapmode & am_rotate) &&
-      (sectors[i].bbox[BOXLEFT] > m_x2 ||
-      sectors[i].bbox[BOXRIGHT] < m_x ||
-      sectors[i].bbox[BOXBOTTOM] > m_y2 ||
-      sectors[i].bbox[BOXTOP] < m_y))
+    if (sectors[i].bbox[BOXLEFT] > am_frame.bbox[BOXRIGHT] ||
+      sectors[i].bbox[BOXRIGHT] < am_frame.bbox[BOXLEFT] ||
+      sectors[i].bbox[BOXBOTTOM] > am_frame.bbox[BOXTOP] ||
+      sectors[i].bbox[BOXTOP] < am_frame.bbox[BOXBOTTOM])
     {
       continue;
     }
@@ -1991,11 +1989,10 @@ static void AM_drawThings(void)
    int pass;
    int enemies = 0;
 
-   if (!(automapmode & am_rotate) &&
-     (sectors[i].bbox[BOXLEFT] > m_x2 ||
-     sectors[i].bbox[BOXRIGHT] < m_x ||
-     sectors[i].bbox[BOXBOTTOM] > m_y2 ||
-     sectors[i].bbox[BOXTOP] < m_y))
+   if (sectors[i].bbox[BOXLEFT] > am_frame.bbox[BOXRIGHT] ||
+     sectors[i].bbox[BOXRIGHT] < am_frame.bbox[BOXLEFT] ||
+     sectors[i].bbox[BOXBOTTOM] > am_frame.bbox[BOXTOP] ||
+     sectors[i].bbox[BOXTOP] < am_frame.bbox[BOXBOTTOM])
    {
      continue;
    }
@@ -2249,7 +2246,7 @@ void AM_drawSubsectors(void)
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
-    gld_MapDrawSubsectors(plr, f_x, f_y, m_x, m_y, m_x2, m_y2, f_w, f_h, scale_mtof);
+    gld_MapDrawSubsectors(plr, f_x, f_y, m_x, m_y, f_w, f_h, scale_mtof);
   }
 #endif
 }
@@ -2275,6 +2272,7 @@ void AM_Drawer (void)
 
   {
     float angle;
+
     am_frame.viewangle = viewangle;
     am_frame.viewx = viewx;
     am_frame.viewy = viewy;
@@ -2289,6 +2287,26 @@ void AM_Drawer (void)
     am_frame.centery = m_y + m_h / 2;
     am_frame.centerx_f = (float)m_x + (float)m_w / 2.0f;
     am_frame.centery_f = (float)m_y + (float)m_h / 2.0f;
+
+
+    if (automapmode & am_rotate)
+    {
+      float dx = (float)(m_x2 - am_frame.centerx);
+      float dy = (float)(m_y2 - am_frame.centery);
+      fixed_t r = (fixed_t)sqrt(dx * dx + dy * dy);
+
+      am_frame.bbox[BOXLEFT] = am_frame.centerx - r;
+      am_frame.bbox[BOXRIGHT] = am_frame.centerx + r;
+      am_frame.bbox[BOXBOTTOM] = am_frame.centery - r;
+      am_frame.bbox[BOXTOP] = am_frame.centery + r;
+    }
+    else
+    {
+      am_frame.bbox[BOXLEFT] = m_x;
+      am_frame.bbox[BOXRIGHT] = m_x2;
+      am_frame.bbox[BOXBOTTOM] = m_y;
+      am_frame.bbox[BOXTOP] = m_y2;
+    }
 
     am_frame.precise = (V_GetMode() == VID_MODEGL);
   }
