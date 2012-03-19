@@ -284,10 +284,11 @@ static void AM_rotate(fixed_t* x,  fixed_t* y, angle_t a);
 
 static void AM_SetMPointFloatValue(mpoint_t *p)
 {
-#ifdef GL_DOOM
-  p->fx = (float)p->x;
-  p->fy = (float)p->y;
-#endif
+  if (am_frame.precise)
+  {
+    p->fx = (float)p->x;
+    p->fy = (float)p->y;
+  }
 }
 
 static void AM_SetFPointFloatValue(fpoint_t *p)
@@ -1277,12 +1278,15 @@ static void AM_drawGrid(int color)
     ml.b.x = x;
     ml.a.y = miny - exty;
     ml.b.y = ml.a.y + minlen;
-    AM_SetMPointFloatValue(&ml.a);
-    AM_SetMPointFloatValue(&ml.b);
     if (automapmode & am_rotate)
     {
       AM_rotatePoint (&ml.a);
       AM_rotatePoint (&ml.b);
+    }
+    else
+    {
+      AM_SetMPointFloatValue(&ml.a);
+      AM_SetMPointFloatValue(&ml.b);
     }
     AM_drawMline(&ml, color);
   }
@@ -1300,12 +1304,15 @@ static void AM_drawGrid(int color)
     ml.b.x = ml.a.x + minlen;
     ml.a.y = y;
     ml.b.y = y;
-    AM_SetMPointFloatValue(&ml.a);
-    AM_SetMPointFloatValue(&ml.b);
     if (automapmode & am_rotate)
     {
       AM_rotatePoint (&ml.a);
       AM_rotatePoint (&ml.b);
+    }
+    else
+    {
+      AM_SetMPointFloatValue(&ml.a);
+      AM_SetMPointFloatValue(&ml.b);
     }
     AM_drawMline(&ml, color);
   }
@@ -1394,12 +1401,15 @@ static void AM_drawWalls(void)
     l.b.x = lines[i].v2->x >> FRACTOMAPBITS;
     l.b.y = lines[i].v2->y >> FRACTOMAPBITS;
 
-    AM_SetMPointFloatValue(&l.a);
-    AM_SetMPointFloatValue(&l.b);
-
-    if (automapmode & am_rotate) {
+    if (automapmode & am_rotate)
+    {
       AM_rotatePoint(&l.a);
       AM_rotatePoint(&l.b);
+    }
+    else
+    {
+      AM_SetMPointFloatValue(&l.a);
+      AM_SetMPointFloatValue(&l.b);
     }
 
     // if line has been seen or IDDT has been used
@@ -1663,11 +1673,10 @@ static void AM_drawPlayers(void)
   {
     pt.x = am_frame.viewx >> FRACTOMAPBITS;
     pt.y = am_frame.viewy >> FRACTOMAPBITS;
-    AM_SetMPointFloatValue(&pt);
     if (automapmode & am_rotate)
-    {
       AM_rotatePoint(&pt);
-    }
+    else
+      AM_SetMPointFloatValue(&pt);
 
     if (ddt_cheating)
       AM_drawLineCharacter(cheat_player_arrow, NUMCHEATPLYRLINES, scale, am_frame.viewangle, mapcolor_sngl, pt.x, pt.y);
@@ -1706,11 +1715,11 @@ static void AM_drawPlayers(void)
 
       pt.x = pt.x >> FRACTOMAPBITS;
       pt.y = pt.y >> FRACTOMAPBITS;
-      AM_SetMPointFloatValue(&pt);
+
       if (automapmode & am_rotate)
-      {
         AM_rotatePoint(&pt);
-      }
+      else
+        AM_SetMPointFloatValue(&pt);
 
       AM_drawLineCharacter (player_arrow, NUMPLYRLINES, scale, angle,
           p->powers[pw_invisibility] ? 246 /* *close* to black */
@@ -1891,61 +1900,78 @@ static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t 
 #endif
 }
 
+INLINE static void AM_GetMobjPosition(mobj_t *mo, mpoint_t *p, angle_t *angle)
+{
+  if (!paused && movement_smooth)
+  {
+    p->x = mo->PrevX + FixedMul(tic_vars.frac, mo->x - mo->PrevX);
+    p->y = mo->PrevY + FixedMul(tic_vars.frac, mo->y - mo->PrevY);
+    *angle = (mo->player ? mo->player->prev_viewangle : mo->angle);
+    *angle = *angle + FixedMul(tic_vars.frac, mo->angle - *angle);
+  }
+  else
+  {
+    p->x = mo->x;
+    p->y = mo->y;
+    *angle = mo->angle;
+  }
+
+  p->x = p->x >> FRACTOMAPBITS;
+  p->y = p->y >> FRACTOMAPBITS;
+}
+
 static void AM_DrawNiceThings(void)
 {
 #ifdef GL_DOOM
   int i;
   mobj_t* t;
+  mpoint_t p;
+  angle_t angle;
 
   gld_ClearNiceThings();
 
-  // for all sectors
-  for (i = 0; i < numsectors; i++)
+  // draw players
+  for (i = 0; i < MAXPLAYERS; i++)
   {
-    if (sectors[i].bbox[BOXLEFT] > am_frame.bbox[BOXRIGHT] ||
-      sectors[i].bbox[BOXRIGHT] < am_frame.bbox[BOXLEFT] ||
-      sectors[i].bbox[BOXBOTTOM] > am_frame.bbox[BOXTOP] ||
-      sectors[i].bbox[BOXTOP] < am_frame.bbox[BOXBOTTOM])
-    {
+    if ((deathmatch && !demoplayback) && &players[i] != plr)
       continue;
-    }
 
-    t = sectors[i].thinglist;
-    while (t) // for all things in that sector
+    if (playeringame[i])
     {
-      mpoint_t p;
-      angle_t angle;
-
-      if (ddt_cheating != 2 && !t->player)
+      t = players[i].mo;
+      AM_GetMobjPosition(t, &p, &angle);
+      if (automapmode & am_rotate)
+        AM_rotatePoint(&p);
+      AM_ProcessNiceThing(t, angle, p.x, p.y);
+    }
+  }
+  
+  if (ddt_cheating == 2)
+  {
+    // for all sectors
+    for (i = 0; i < numsectors; i++)
+    {
+      if (!(players[displayplayer].cheats & CF_NOCLIP) &&
+        (sectors[i].bbox[BOXLEFT] > am_frame.bbox[BOXRIGHT] ||
+        sectors[i].bbox[BOXRIGHT] < am_frame.bbox[BOXLEFT] ||
+        sectors[i].bbox[BOXBOTTOM] > am_frame.bbox[BOXTOP] ||
+        sectors[i].bbox[BOXTOP] < am_frame.bbox[BOXBOTTOM]))
       {
-        t = t->snext;
         continue;
       }
 
-      if (!paused && movement_smooth)
+      t = sectors[i].thinglist;
+      while (t) // for all things in that sector
       {
-        p.x = t->PrevX + FixedMul(tic_vars.frac, t->x - t->PrevX);
-        p.y = t->PrevY + FixedMul(tic_vars.frac, t->y - t->PrevY);
-        angle = (t->player ? t->player->prev_viewangle : t->angle);
-        angle = angle + FixedMul(tic_vars.frac, t->angle - angle);
+        if (!t->player)
+        {
+          AM_GetMobjPosition(t, &p, &angle);
+          if (automapmode & am_rotate)
+            AM_rotatePoint(&p);
+          AM_ProcessNiceThing(t, angle, p.x, p.y);
+        }
+        t = t->snext;
       }
-      else
-      {
-        p.x = t->x;
-        p.y = t->y;
-        angle = t->angle;
-      }
-      p.x = p.x >> FRACTOMAPBITS;
-      p.y = p.y >> FRACTOMAPBITS;
-
-      if (automapmode & am_rotate)
-      {
-        AM_rotatePoint(&p);
-      }
-
-      AM_ProcessNiceThing(t, angle, p.x, p.y);
-
-      t = t->snext;
     }
   }
 #endif
@@ -1989,10 +2015,11 @@ static void AM_drawThings(void)
    int pass;
    int enemies = 0;
 
-   if (sectors[i].bbox[BOXLEFT] > am_frame.bbox[BOXRIGHT] ||
+   if (!(players[displayplayer].cheats & CF_NOCLIP) &&
+     (sectors[i].bbox[BOXLEFT] > am_frame.bbox[BOXRIGHT] ||
      sectors[i].bbox[BOXRIGHT] < am_frame.bbox[BOXLEFT] ||
      sectors[i].bbox[BOXBOTTOM] > am_frame.bbox[BOXTOP] ||
-     sectors[i].bbox[BOXTOP] < am_frame.bbox[BOXBOTTOM])
+     sectors[i].bbox[BOXTOP] < am_frame.bbox[BOXBOTTOM]))
    {
      continue;
    }
@@ -2006,29 +2033,6 @@ static void AM_drawThings(void)
       angle_t angle;
       fixed_t scale;
 
-      if (map_things_appearance == map_things_appearance_scaled)
-        scale = (BETWEEN(4<<FRACBITS, 256<<FRACBITS, t->radius)>>FRACTOMAPBITS);// * 16 / 20;
-      else
-        scale = 16<<MAPBITS;
-
-      if (!paused && movement_smooth)
-      {
-        p.x = t->PrevX + FixedMul(tic_vars.frac, t->x - t->PrevX);
-        p.y = t->PrevY + FixedMul(tic_vars.frac, t->y - t->PrevY);
-        angle = (t->player ? t->player->prev_viewangle : t->angle);
-        angle = angle + FixedMul(tic_vars.frac, t->angle - angle);
-      }
-      else
-      {
-        p.x = t->x;
-        p.y = t->y;
-        angle = t->angle;
-      }
-      p.x = p.x >> FRACTOMAPBITS;
-      p.y = p.y >> FRACTOMAPBITS;
-
-      AM_SetMPointFloatValue(&p);
-
       //e6y: stop if all enemies from current sector already has been drawn
       if (pass == 1 && enemies == 0)
         break;
@@ -2039,72 +2043,51 @@ static void AM_drawThings(void)
         continue;
       }
 
+      if (map_things_appearance == map_things_appearance_scaled)
+        scale = (BETWEEN(4<<FRACBITS, 256<<FRACBITS, t->radius)>>FRACTOMAPBITS);// * 16 / 20;
+      else
+        scale = 16<<MAPBITS;
+
+      AM_GetMobjPosition(t, &p, &angle);
+
       if (automapmode & am_rotate)
-      {
-        AM_rotatePoint (&p);
-      }
+        AM_rotatePoint(&p);
+      else
+        AM_SetMPointFloatValue(&p);
 
       //jff 1/5/98 case over doomednum of thing being drawn
       if (mapcolor_rkey || mapcolor_ykey || mapcolor_bkey)
       {
+        int color = -1;
         switch(t->info->doomednum)
         {
           //jff 1/5/98 treat keys special
           case 38: case 13: //jff  red key
-            AM_drawLineCharacter
-            (
-              cross_mark,
-              NUMCROSSMARKLINES,
-              scale,
-              t->angle,
-              mapcolor_rkey!=-1? mapcolor_rkey : mapcolor_sprt,
-              p.x, p.y
-            );
-            t = t->snext;
-            continue;
+            color = mapcolor_rkey != -1? mapcolor_rkey : mapcolor_sprt;
           case 39: case 6: //jff yellow key
-            AM_drawLineCharacter
-            (
-              cross_mark,
-              NUMCROSSMARKLINES,
-              scale,
-              t->angle,
-              mapcolor_ykey!=-1? mapcolor_ykey : mapcolor_sprt,
-              p.x, p.y
-            );
-            t = t->snext;
-            continue;
+            color = mapcolor_ykey != -1? mapcolor_ykey : mapcolor_sprt;
           case 40: case 5: //jff blue key
-            AM_drawLineCharacter
-            (
-              cross_mark,
-              NUMCROSSMARKLINES,
-              scale,
-              t->angle,
-              mapcolor_bkey!=-1? mapcolor_bkey : mapcolor_sprt,
-              p.x, p.y
-            );
-            t = t->snext;
-            continue;
-          default:
-            break;
+            color = mapcolor_bkey != -1? mapcolor_bkey : mapcolor_sprt;
+        }
+
+        if (color != -1)
+        {
+          AM_drawLineCharacter(cross_mark, NUMCROSSMARKLINES,
+            scale, t->angle, color, p.x, p.y);
+          t = t->snext;
+          continue;
         }
       }
       //jff 1/5/98 end added code for keys
       //jff previously entire code
-      AM_drawLineCharacter
-      (
-        thintriangle_guy,
-        NUMTHINTRIANGLEGUYLINES,
-        scale,
-        angle,
-	t->flags & MF_FRIEND && !t->player ? mapcolor_frnd : 
-	/* cph 2006/07/30 - Show count-as-kills in red. */
-          ((t->flags & (MF_COUNTKILL | MF_CORPSE)) == MF_COUNTKILL) ? mapcolor_enemy :
+      AM_drawLineCharacter(thintriangle_guy, NUMTHINTRIANGLEGUYLINES,
+        scale, angle,
+        t->flags & MF_FRIEND && !t->player ? mapcolor_frnd : 
+        /* cph 2006/07/30 - Show count-as-kills in red. */
+        ((t->flags & (MF_COUNTKILL | MF_CORPSE)) == MF_COUNTKILL) ? mapcolor_enemy :
         /* bbm 2/28/03 Show countable items in yellow. */
-          t->flags & MF_COUNTITEM ? mapcolor_item : mapcolor_sprt,
-        p.x, p.y
-      );
+        t->flags & MF_COUNTITEM ? mapcolor_item : mapcolor_sprt,
+        p.x, p.y);
       t = t->snext;
     }
    }
@@ -2135,10 +2118,11 @@ static void AM_drawMarks(void)
       
       p.x = markpoints[i].x;// - m_x + prev_m_x;
       p.y = markpoints[i].y;// - m_y + prev_m_y;
-      AM_SetMPointFloatValue(&p);
 
       if (automapmode & am_rotate)
         AM_rotatePoint(&p);
+      else
+        AM_SetMPointFloatValue(&p);
 
       p.x = CXMTOF(p.x) - markpoints[i].w * SCREENWIDTH / 320 / 2;
       p.y = CYMTOF(p.y) - markpoints[i].h * SCREENHEIGHT / 200 / 2;
