@@ -273,6 +273,7 @@ enum
   am_icon_arrow,
   am_icon_monster,
   am_icon_player,
+  am_icon_mark,
   am_icon_bullet,
 
   am_icon_count

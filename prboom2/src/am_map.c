@@ -1946,6 +1946,7 @@ static void AM_DrawNiceThings(void)
     }
   }
   
+  // walls
   if (ddt_cheating == 2)
   {
     // for all sectors
@@ -1974,6 +1975,44 @@ static void AM_DrawNiceThings(void)
       }
     }
   }
+
+  // marked locations on the automap
+  {
+    float radius;
+    int anim_flash_level = (gametic % 32);
+
+    // Flashing animation for hilight
+    // Pulsates between 0.5-1.0f (multiplied with hilight alpha)
+    if (anim_flash_level >= 16)
+    {
+      anim_flash_level = 32 - anim_flash_level;
+    }
+    anim_flash_level = 127 + anim_flash_level * 8;
+
+    // do not want to have too small marks
+    radius = MTOF_F(16 << MAPBITS);
+    radius = BETWEEN(8.0f, 128.0f, radius);
+
+    for (i = 0; i < markpointnum; i++) // killough 2/22/98: remove automap mark limit
+    {
+      if (markpoints[i].x != -1)
+      {
+        mpoint_t p;
+
+        p.x = markpoints[i].x;
+        p.y = markpoints[i].y;
+
+        if (automapmode & am_rotate)
+          AM_rotatePoint(&p);
+
+        p.fx = CXMTOF_F(p.fx);
+        p.fy = CYMTOF_F(p.fy);
+
+        gld_AddNiceThing(am_icon_mark, p.fx, p.fy, radius, 0, 255, 255, 0, anim_flash_level);
+      }
+    }
+  }
+
 #endif
 }
 
@@ -2108,6 +2147,14 @@ static void AM_drawMarks(void)
 {
   int i;
   char namebuf[16] = "AMMNUM0";
+
+#if defined(HAVE_LIBSDL_IMAGE) && defined(GL_DOOM)
+  if (V_GetMode() == VID_MODEGL)
+  {
+    if (map_things_appearance == map_things_appearance_icon)
+      return;
+  }
+#endif
 
   for (i = 0; i < markpointnum; i++) // killough 2/22/98: remove automap mark limit
   {

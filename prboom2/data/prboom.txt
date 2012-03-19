@@ -41,6 +41,7 @@ M_NORMAL
 M_SHADOW
 M_POWER
 M_WEAP
+M_MARK
 B_END
 
 # List of Sounds
