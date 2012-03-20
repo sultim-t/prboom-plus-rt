@@ -171,9 +171,9 @@ void R_SmoothPlaying_Reset(player_t *player)
 
     if (player==&players[displayplayer])
     {
-      if (players[displayplayer].mo)
+      if (player->mo)
       {
-        smooth_playing_angle = players[displayplayer].mo->angle;
+        smooth_playing_angle = player->mo->angle;
         memset(smooth_playing_turns, 0, sizeof(smooth_playing_turns[0]) * SMOOTH_PLAYING_MAXFACTOR);
         smooth_playing_sum = 0;
         smooth_playing_index = 0;
@@ -194,12 +194,12 @@ void R_SmoothPlaying_Add(int delta)
   }
 }
 
-angle_t R_SmoothPlaying_Get(angle_t defangle)
+angle_t R_SmoothPlaying_Get(player_t *player)
 {
-  if (demo_smoothturns && demoplayback)
+  if (demo_smoothturns && demoplayback && player == &players[displayplayer])
     return smooth_playing_angle;
   else
-    return defangle;
+    return player->mo->angle;
 }
 
 void R_ResetAfterTeleport(player_t *player)

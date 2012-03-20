@@ -370,14 +370,13 @@ void P_PlayerThink (player_t* player)
   ticcmd_t*    cmd;
   weapontype_t newweapon;
 
-  //e6y
-  if (movement_smooth && &players[displayplayer] == player)
+  if (movement_smooth)
   {
     player->prev_viewz = player->viewz;
-    player->prev_viewangle = R_SmoothPlaying_Get(player->mo->angle) + viewangleoffset;
+    player->prev_viewangle = R_SmoothPlaying_Get(player) + viewangleoffset;
     player->prev_viewpitch = player->mo->pitch;
 
-    if(walkcamera.type)
+    if (&players[displayplayer] == player)
     {
       P_ResetWalkcam();
     }

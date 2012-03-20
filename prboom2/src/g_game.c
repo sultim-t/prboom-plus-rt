@@ -3776,11 +3776,14 @@ void P_WalkTicker()
 
 void P_ResetWalkcam(void)
 {
-  walkcamera.PrevX = walkcamera.x;
-  walkcamera.PrevY = walkcamera.y;
-  walkcamera.PrevZ = walkcamera.z;
-  walkcamera.PrevAngle = walkcamera.angle;
-  walkcamera.PrevPitch = walkcamera.pitch;
+  if (walkcamera.type)
+  {
+    walkcamera.PrevX = walkcamera.x;
+    walkcamera.PrevY = walkcamera.y;
+    walkcamera.PrevZ = walkcamera.z;
+    walkcamera.PrevAngle = walkcamera.angle;
+    walkcamera.PrevPitch = walkcamera.pitch;
+  }
 }
 
 void P_SyncWalkcam(dboolean sync_coords, dboolean sync_sight)

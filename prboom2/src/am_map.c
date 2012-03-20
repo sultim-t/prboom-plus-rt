@@ -1697,14 +1697,7 @@ static void AM_drawPlayers(void)
       {
         pt.x = p->mo->PrevX + FixedMul(tic_vars.frac, p->mo->x - p->mo->PrevX);
         pt.y = p->mo->PrevY + FixedMul(tic_vars.frac, p->mo->y - p->mo->PrevY);
-        if (i == displayplayer)
-        {
-          angle = p->prev_viewangle + FixedMul(tic_vars.frac, R_SmoothPlaying_Get(p->mo->angle) - p->prev_viewangle);
-        }
-        else
-        {
-          angle = p->mo->angle + FixedMul(tic_vars.frac, p->mo->angle - p->mo->angle);
-        }
+        angle = p->prev_viewangle + FixedMul(tic_vars.frac, R_SmoothPlaying_Get(p) - p->prev_viewangle);
       }
       else
       {

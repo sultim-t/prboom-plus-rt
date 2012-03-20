@@ -120,10 +120,7 @@ void R_InterpolateView(player_t *player)
       player->prev_viewangle = player->mo->angle + viewangleoffset;
       player->prev_viewpitch = player->mo->pitch;
 
-      if(walkcamera.type)
-      {
-        P_ResetWalkcam();
-      }
+      P_ResetWalkcam();
     }
 
     if (walkcamera.type != 2)
@@ -146,7 +143,7 @@ void R_InterpolateView(player_t *player)
     }
     else
     {
-      viewangle = player->prev_viewangle + FixedMul (frac, R_SmoothPlaying_Get(player->mo->angle) + viewangleoffset - player->prev_viewangle);
+      viewangle = player->prev_viewangle + FixedMul (frac, R_SmoothPlaying_Get(player) + viewangleoffset - player->prev_viewangle);
       viewpitch = player->prev_viewpitch + FixedMul (frac, player->mo->pitch - player->prev_viewpitch);
     }
   }
@@ -171,7 +168,7 @@ void R_InterpolateView(player_t *player)
     }
     else
     {
-      viewangle = R_SmoothPlaying_Get(player->mo->angle);
+      viewangle = R_SmoothPlaying_Get(player);
       viewpitch = player->mo->pitch;
     }
   }

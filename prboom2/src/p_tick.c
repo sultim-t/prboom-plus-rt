@@ -277,10 +277,7 @@ void P_Ticker (void)
   if (paused || (menuactive && !demoplayback && !netgame &&
      players[consoleplayer].viewz != 1))
   {
-    if (walkcamera.type)
-    {
-      P_ResetWalkcam();
-    }
+    P_ResetWalkcam();
     return;
   }
 
