@@ -2180,8 +2180,8 @@ static void AM_drawMarks(void)
       }
 
       if (V_GetMode() == VID_MODEGL ? 
-          p.y < f_y + f_w && p.y + markpoints[i].h * SCREENHEIGHT / 200 >= f_x :
-          p.y < f_y + f_w && p.y >= f_x)
+          p.y < f_y + f_h && p.y + markpoints[i].h * SCREENHEIGHT / 200 >= f_y :
+          p.y < f_y + f_h && p.y >= f_y)
       {
         w = 0;
         for (k = 0; k < (int)strlen(markpoints[i].label); k++)
