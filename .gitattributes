@@ -148,6 +148,7 @@ prboom2/data/lumps/m_armour.lmp -text
 prboom2/data/lumps/m_arrow.lmp -text
 prboom2/data/lumps/m_health.lmp -text
 prboom2/data/lumps/m_key.lmp -text
+prboom2/data/lumps/m_mark.lmp -text
 prboom2/data/lumps/m_normal.lmp -text
 prboom2/data/lumps/m_power.lmp -text
 prboom2/data/lumps/m_shadow.lmp -text
