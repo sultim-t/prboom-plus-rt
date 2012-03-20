@@ -1997,6 +1997,8 @@ static void AM_DrawNiceThings(void)
 
         if (automapmode & am_rotate)
           AM_rotatePoint(&p);
+        else
+          AM_SetMPointFloatValue(&p);
 
         p.fx = CXMTOF_F(p.fx);
         p.fy = CYMTOF_F(p.fy);
