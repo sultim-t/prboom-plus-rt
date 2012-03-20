@@ -1641,6 +1641,28 @@ static void AM_drawLineCharacter
   }
 }
 
+INLINE static void AM_GetMobjPosition(mobj_t *mo, mpoint_t *p, angle_t *angle)
+{
+  if (!paused && movement_smooth)
+  {
+    p->x = mo->PrevX + FixedMul(tic_vars.frac, mo->x - mo->PrevX);
+    p->y = mo->PrevY + FixedMul(tic_vars.frac, mo->y - mo->PrevY);
+    if (mo->player)
+      *angle = mo->player->prev_viewangle + FixedMul(tic_vars.frac, R_SmoothPlaying_Get(mo->player) - mo->player->prev_viewangle);
+    else
+      *angle = mo->angle;
+  }
+  else
+  {
+    p->x = mo->x;
+    p->y = mo->y;
+    *angle = mo->angle;
+  }
+
+  p->x = p->x >> FRACTOMAPBITS;
+  p->y = p->y >> FRACTOMAPBITS;
+}
+
 //
 // AM_drawPlayers()
 //
@@ -1693,21 +1715,7 @@ static void AM_drawPlayers(void)
 
     if (playeringame[i])
     {
-      if (movement_smooth)
-      {
-        pt.x = p->mo->PrevX + FixedMul(tic_vars.frac, p->mo->x - p->mo->PrevX);
-        pt.y = p->mo->PrevY + FixedMul(tic_vars.frac, p->mo->y - p->mo->PrevY);
-        angle = p->prev_viewangle + FixedMul(tic_vars.frac, R_SmoothPlaying_Get(p) - p->prev_viewangle);
-      }
-      else
-      {
-        pt.x = p->mo->x;
-        pt.y = p->mo->y;
-        angle = p->mo->angle;
-      }
-
-      pt.x = pt.x >> FRACTOMAPBITS;
-      pt.y = pt.y >> FRACTOMAPBITS;
+      AM_GetMobjPosition(p->mo, &pt, &angle);
 
       if (automapmode & am_rotate)
         AM_rotatePoint(&pt);
@@ -1893,26 +1901,6 @@ static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t 
 #endif
 }
 
-INLINE static void AM_GetMobjPosition(mobj_t *mo, mpoint_t *p, angle_t *angle)
-{
-  if (!paused && movement_smooth)
-  {
-    p->x = mo->PrevX + FixedMul(tic_vars.frac, mo->x - mo->PrevX);
-    p->y = mo->PrevY + FixedMul(tic_vars.frac, mo->y - mo->PrevY);
-    *angle = (mo->player ? mo->player->prev_viewangle : mo->angle);
-    *angle = *angle + FixedMul(tic_vars.frac, mo->angle - *angle);
-  }
-  else
-  {
-    p->x = mo->x;
-    p->y = mo->y;
-    *angle = mo->angle;
-  }
-
-  p->x = p->x >> FRACTOMAPBITS;
-  p->y = p->y >> FRACTOMAPBITS;
-}
-
 static void AM_DrawNiceThings(void)
 {
 #ifdef GL_DOOM
@@ -1935,6 +1923,8 @@ static void AM_DrawNiceThings(void)
       AM_GetMobjPosition(t, &p, &angle);
       if (automapmode & am_rotate)
         AM_rotatePoint(&p);
+      else
+        AM_SetMPointFloatValue(&p);
       AM_ProcessNiceThing(t, angle, p.x, p.y);
     }
   }
