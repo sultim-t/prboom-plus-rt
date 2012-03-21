@@ -350,8 +350,8 @@ static void AM_restoreScaleAndLoc(void)
   }
   else
   {
-    m_x = (am_frame.viewx >> FRACTOMAPBITS) - m_w/2;//e6y
-    m_y = (am_frame.viewy >> FRACTOMAPBITS) - m_h/2;//e6y
+    m_x = (viewx >> FRACTOMAPBITS) - m_w/2;//e6y
+    m_y = (viewy >> FRACTOMAPBITS) - m_h/2;//e6y
   }
   m_x2 = m_x + m_w;
   m_y2 = m_y + m_h;
@@ -472,7 +472,7 @@ static void AM_changeWindowLoc(void)
 
   if (automapmode & am_rotate)
   {
-    AM_rotate(&incx, &incy, am_frame.viewangle - ANG90);
+    AM_rotate(&incx, &incy, viewangle - ANG90);
   }
 
   if (movement_smooth)
@@ -983,8 +983,8 @@ static void AM_changeWindowScale(void)
 //
 static void AM_doFollowPlayer(void)
 {
-  m_x = (am_frame.viewx >> FRACTOMAPBITS) - m_w/2;
-  m_y = (am_frame.viewy >> FRACTOMAPBITS) - m_h/2;
+  m_x = (viewx >> FRACTOMAPBITS) - m_w/2;
+  m_y = (viewy >> FRACTOMAPBITS) - m_h/2;
   m_x2 = m_x + m_w;
   m_y2 = m_y + m_h;
 }
@@ -1586,7 +1586,7 @@ static void AM_drawLineCharacter
   int   i;
   mline_t l;
 
-  if (automapmode & am_rotate) angle -= am_frame.viewangle - ANG90; // cph
+  if (automapmode & am_rotate) angle -= viewangle - ANG90; // cph
 
   for (i=0;i<lineguylines;i++)
   {
@@ -1681,17 +1681,17 @@ static void AM_drawPlayers(void)
 
   if (!netgame)
   {
-    pt.x = am_frame.viewx >> FRACTOMAPBITS;
-    pt.y = am_frame.viewy >> FRACTOMAPBITS;
+    pt.x = viewx >> FRACTOMAPBITS;
+    pt.y = viewy >> FRACTOMAPBITS;
     if (automapmode & am_rotate)
       AM_rotatePoint(&pt);
     else
       AM_SetMPointFloatValue(&pt);
 
     if (ddt_cheating)
-      AM_drawLineCharacter(cheat_player_arrow, NUMCHEATPLYRLINES, scale, am_frame.viewangle, mapcolor_sngl, pt.x, pt.y);
+      AM_drawLineCharacter(cheat_player_arrow, NUMCHEATPLYRLINES, scale, viewangle, mapcolor_sngl, pt.x, pt.y);
     else
-      AM_drawLineCharacter(player_arrow, NUMPLYRLINES, scale, am_frame.viewangle, mapcolor_sngl, pt.x, pt.y);
+      AM_drawLineCharacter(player_arrow, NUMPLYRLINES, scale, viewangle, mapcolor_sngl, pt.x, pt.y);
     return;
   }
 
@@ -1878,7 +1878,7 @@ static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t 
     return;
   }
 
-  ang = (rotate ? angle : 0) + ((automapmode & am_rotate) ? ANG90 - am_frame.viewangle : 0);
+  ang = (rotate ? angle : 0) + ((automapmode & am_rotate) ? ANG90 - viewangle : 0);
   rot = -(float)ang / (float)(1u << 31) * (float)M_PI;
 
   gld_AddNiceThing(type, fx, fy, fradius, rot, r, g, b, a);
@@ -2278,10 +2278,6 @@ void AM_Drawer (void)
 
   {
     float angle;
-
-    am_frame.viewangle = viewangle;
-    am_frame.viewx = viewx;
-    am_frame.viewy = viewy;
 
     angle = (float)(ANG90 - viewangle) / (float)(1u << 31) * (float)M_PI;
     am_frame.sin_f = (float)sin(angle);

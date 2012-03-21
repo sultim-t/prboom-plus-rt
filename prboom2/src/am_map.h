@@ -163,9 +163,6 @@ void M_ChangeMapMultisamling(void);
 
 typedef struct am_frame_s
 {
-  angle_t viewangle;
-  fixed_t viewx, viewy;
-
   fixed_t centerx, centery;
   fixed_t sin, cos;
 

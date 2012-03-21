@@ -522,7 +522,7 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
     float pivotx = (float)(fx + fw / 2);
     float pivoty = (float)(fy + fh / 2);
 
-    float rot = -(float)(ANG90 - am_frame.viewangle) / (float)(1u << 31) * 180.0f;
+    float rot = -(float)(ANG90 - viewangle) / (float)(1u << 31) * 180.0f;
 
     // Apply the automap's rotation to the vertexes.
     glTranslatef(pivotx, pivoty, 0.0f);
