@@ -475,16 +475,8 @@ static void AM_changeWindowLoc(void)
     AM_rotate(&incx, &incy, viewangle - ANG90);
   }
 
-  if (movement_smooth)
-  {
-    m_x = prev_m_x + incx;
-    m_y = prev_m_y + incy;
-  }
-  else
-  {
-    m_x += incx;
-    m_y += incy;
-  }
+  m_x = prev_m_x + incx;
+  m_y = prev_m_y + incy;
 
   if (!(automapmode & am_rotate))
   {
@@ -546,13 +538,6 @@ void AM_SetPosition(void)
   }
 }
 
-void AM_savePrevLocAndScale(void)
-{
-  prev_scale_mtof = scale_mtof;
-  prev_m_x = m_x;
-  prev_m_y = m_y;
-}
-
 //
 // AM_initVariables()
 //
@@ -585,7 +570,7 @@ static void AM_initVariables(void)
   plr = &players[pnum];
   m_x = (plr->mo->x >> FRACTOMAPBITS) - m_w/2;//e6y
   m_y = (plr->mo->y >> FRACTOMAPBITS) - m_h/2;//e6y
-  AM_savePrevLocAndScale();
+  AM_Ticker();
   AM_changeWindowLoc();
 
   // for saving & restoring
@@ -998,19 +983,9 @@ static void AM_doFollowPlayer(void)
 //
 void AM_Ticker (void)
 {
-  if (!(automapmode & am_active))
-    return;
-
-  if (automapmode & am_follow)
-    AM_doFollowPlayer();
-
-  // Change the zoom if necessary
-  if (ftom_zoommul != FRACUNIT)
-    AM_changeWindowScale();
-
-  // Change x,y location
-  if (m_paninc.x || m_paninc.y)
-    AM_changeWindowLoc();
+  prev_scale_mtof = scale_mtof;
+  prev_m_x = m_x;
+  prev_m_y = m_y;
 }
 
 //
@@ -2303,15 +2278,19 @@ static void AM_setFrameVariables(void)
 void AM_Drawer (void)
 {
   // CPhipps - all automap modes put into one enum
-  if (!(automapmode & am_active)) return;
+  if (!(automapmode & am_active))
+    return;
 
   if (automapmode & am_follow)
-  {
-    m_x = (viewx >> FRACTOMAPBITS) - m_w/2;
-    m_y = (viewy >> FRACTOMAPBITS) - m_h/2;
-    m_x2 = m_x + m_w;
-    m_y2 = m_y + m_h;
-  }
+    AM_doFollowPlayer();
+
+  // Change the zoom if necessary
+  if (ftom_zoommul != FRACUNIT)
+    AM_changeWindowScale();
+
+  // Change x,y location
+  if (m_paninc.x || m_paninc.y)
+    AM_changeWindowLoc();
 
   AM_setFrameVariables();
 

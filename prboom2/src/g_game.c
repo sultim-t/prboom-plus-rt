@@ -1150,12 +1150,9 @@ void G_Ticker (void)
     {
     case GS_LEVEL:
       P_Ticker ();
-      P_WalkTicker();//e6y
-      mlooky = 0;//e6y
-      if (!movement_smooth)
-        AM_Ticker();
-      else
-        AM_savePrevLocAndScale();
+      P_WalkTicker();
+      mlooky = 0;
+      AM_Ticker();
       ST_Ticker ();
       HU_Ticker ();
       break;
