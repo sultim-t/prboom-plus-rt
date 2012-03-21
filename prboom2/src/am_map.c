@@ -2255,6 +2255,43 @@ void AM_drawSubsectors(void)
 #endif
 }
 
+static void AM_setFrameVariables(void)
+{
+  float angle;
+
+  angle = (float)(ANG90 - viewangle) / (float)(1u << 31) * (float)M_PI;
+  am_frame.sin_f = (float)sin(angle);
+  am_frame.cos_f = (float)cos(angle);
+  am_frame.sin = finesine[(ANG90 - viewangle)>>ANGLETOFINESHIFT];
+  am_frame.cos = finecosine[(ANG90 - viewangle)>>ANGLETOFINESHIFT];
+
+  am_frame.centerx = m_x + m_w / 2;
+  am_frame.centery = m_y + m_h / 2;
+  am_frame.centerx_f = (float)m_x + (float)m_w / 2.0f;
+  am_frame.centery_f = (float)m_y + (float)m_h / 2.0f;
+
+  if (automapmode & am_rotate)
+  {
+    float dx = (float)(m_x2 - am_frame.centerx);
+    float dy = (float)(m_y2 - am_frame.centery);
+    fixed_t r = (fixed_t)sqrt(dx * dx + dy * dy);
+
+    am_frame.bbox[BOXLEFT] = am_frame.centerx - r;
+    am_frame.bbox[BOXRIGHT] = am_frame.centerx + r;
+    am_frame.bbox[BOXBOTTOM] = am_frame.centery - r;
+    am_frame.bbox[BOXTOP] = am_frame.centery + r;
+  }
+  else
+  {
+    am_frame.bbox[BOXLEFT] = m_x;
+    am_frame.bbox[BOXRIGHT] = m_x2;
+    am_frame.bbox[BOXBOTTOM] = m_y;
+    am_frame.bbox[BOXTOP] = m_y2;
+  }
+
+  am_frame.precise = (V_GetMode() == VID_MODEGL);
+}
+
 //
 // AM_Drawer()
 //
@@ -2276,42 +2313,7 @@ void AM_Drawer (void)
     m_y2 = m_y + m_h;
   }
 
-  {
-    float angle;
-
-    angle = (float)(ANG90 - viewangle) / (float)(1u << 31) * (float)M_PI;
-    am_frame.sin_f = (float)sin(angle);
-    am_frame.cos_f = (float)cos(angle);
-    am_frame.sin = finesine[(ANG90 - viewangle)>>ANGLETOFINESHIFT];
-    am_frame.cos = finecosine[(ANG90 - viewangle)>>ANGLETOFINESHIFT];
-
-    am_frame.centerx = m_x + m_w / 2;
-    am_frame.centery = m_y + m_h / 2;
-    am_frame.centerx_f = (float)m_x + (float)m_w / 2.0f;
-    am_frame.centery_f = (float)m_y + (float)m_h / 2.0f;
-
-
-    if (automapmode & am_rotate)
-    {
-      float dx = (float)(m_x2 - am_frame.centerx);
-      float dy = (float)(m_y2 - am_frame.centery);
-      fixed_t r = (fixed_t)sqrt(dx * dx + dy * dy);
-
-      am_frame.bbox[BOXLEFT] = am_frame.centerx - r;
-      am_frame.bbox[BOXRIGHT] = am_frame.centerx + r;
-      am_frame.bbox[BOXBOTTOM] = am_frame.centery - r;
-      am_frame.bbox[BOXTOP] = am_frame.centery + r;
-    }
-    else
-    {
-      am_frame.bbox[BOXLEFT] = m_x;
-      am_frame.bbox[BOXRIGHT] = m_x2;
-      am_frame.bbox[BOXBOTTOM] = m_y;
-      am_frame.bbox[BOXTOP] = m_y2;
-    }
-
-    am_frame.precise = (V_GetMode() == VID_MODEGL);
-  }
+  AM_setFrameVariables();
 
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
