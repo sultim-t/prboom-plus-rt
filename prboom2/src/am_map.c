@@ -256,9 +256,6 @@ static fixed_t  max_scale_mtof; // used to tell when to stop zooming in
 static fixed_t old_m_w, old_m_h;
 static fixed_t old_m_x, old_m_y;
 
-// old location used by the Follower routine
-static mpoint_t f_oldloc;
-
 // used by MTOF to scale from map-to-frame-buffer coords
 static fixed_t scale_mtof = (fixed_t)INITSCALEMTOF;
 // used by FTOM to scale from frame-buffer-to-map coords (=1/scale_mtof)
@@ -460,7 +457,6 @@ static void AM_changeWindowLoc(void)
   if (m_paninc.x || m_paninc.y)
   {
     automapmode &= ~am_follow;
-    f_oldloc.x = INT_MAX;
   }
 
   if (movement_smooth)
@@ -572,8 +568,6 @@ static void AM_initVariables(void)
   static event_t st_notify = { ev_keyup, AM_MSGENTERED, 0, 0 };
 
   automapmode |= am_active;
-
-  f_oldloc.x = INT_MAX;
 
   m_paninc.x = m_paninc.y = 0;
   ftom_zoommul = FRACUNIT;
@@ -814,7 +808,6 @@ dboolean AM_Responder
     else if (ch == key_map_follow)
     {
       automapmode ^= am_follow;     // CPhipps - put all automap mode stuff into one enum
-      f_oldloc.x = INT_MAX;
       // Ty 03/27/98 - externalized
       plr->message = (automapmode & am_follow) ? s_AMSTR_FOLLOWON : s_AMSTR_FOLLOWOFF;
     }
@@ -990,15 +983,10 @@ static void AM_changeWindowScale(void)
 //
 static void AM_doFollowPlayer(void)
 {
-  if (f_oldloc.x != am_frame.viewx || f_oldloc.y != am_frame.viewy)
-  {
-    m_x = FTOM(MTOF(am_frame.viewx >> FRACTOMAPBITS)) - m_w/2;//e6y
-    m_y = FTOM(MTOF(am_frame.viewy >> FRACTOMAPBITS)) - m_h/2;//e6y
-    m_x2 = m_x + m_w;
-    m_y2 = m_y + m_h;
-    f_oldloc.x = am_frame.viewx;
-    f_oldloc.y = am_frame.viewy;
-  }
+  m_x = FTOM(MTOF(am_frame.viewx >> FRACTOMAPBITS)) - m_w/2;//e6y
+  m_y = FTOM(MTOF(am_frame.viewy >> FRACTOMAPBITS)) - m_h/2;//e6y
+  m_x2 = m_x + m_w;
+  m_y2 = m_y + m_h;
 }
 
 //
