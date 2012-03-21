@@ -308,12 +308,8 @@ static void AM_SetFPointFloatValue(fpoint_t *p)
 //
 static void AM_activateNewScale(void)
 {
-  m_x += m_w/2;
-  m_y += m_h/2;
   m_w = FTOM(f_w);
   m_h = FTOM(f_h);
-  m_x -= m_w/2;
-  m_y -= m_h/2;
   m_x2 = m_x + m_w;
   m_y2 = m_y + m_h;
 }
@@ -2284,6 +2280,8 @@ void AM_Drawer (void)
   {
     m_x = (viewx >> FRACTOMAPBITS) - m_w/2;
     m_y = (viewy >> FRACTOMAPBITS) - m_h/2;
+    m_x2 = m_x + m_w;
+    m_y2 = m_y + m_h;
   }
 
   {
