@@ -940,11 +940,17 @@ void e6y_WriteStats(void)
     {
       if (playeringame[i])
       {
-        strcpy(str, strlen(tmp.kill)==0?"%s%d":"%s+%d");
+        char strtmp[200];
+        strcpy(str, tmp.kill[0] == '\0' ? "%s%d" : "%s+%d");
+
+        SNPRINTF(strtmp, sizeof(strtmp), str, tmp.kill, stats[level].kill[i]);
+        strcpy(tmp.kill, strtmp);
         
-        sprintf(tmp.kill,   str, tmp.kill,   stats[level].kill[i]  );
-        sprintf(tmp.item,   str, tmp.item,   stats[level].item[i]  );
-        sprintf(tmp.secret, str, tmp.secret, stats[level].secret[i]);
+        SNPRINTF(strtmp, sizeof(strtmp), str, tmp.item, stats[level].item[i]);
+        strcpy(tmp.item, strtmp);
+        
+        SNPRINTF(strtmp, sizeof(strtmp), str, tmp.secret, stats[level].secret[i]);
+        strcpy(tmp.secret, strtmp);
       }
     }
     if (playerscount<2)
