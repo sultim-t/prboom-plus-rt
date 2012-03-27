@@ -223,6 +223,9 @@
 #define MF_FOREGROUND      LONGLONG(0x0000004000000000)
 #define MF_PLAYERSPRITE    LONGLONG(0x0000008000000000)
 
+// This actor not targetted when it hurts something else
+#define MF_NOTARGET        LONGLONG(0x0000010000000000)
+
 #define ALIVE(thing) ((thing->health > 0) && ((thing->flags & (MF_COUNTKILL | MF_CORPSE | MF_RESSURECTED)) == MF_COUNTKILL))
 
 // killough 9/15/98: Same, but internal flags, not intended for .deh

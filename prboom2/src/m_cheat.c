@@ -89,6 +89,7 @@ static void cheat_smart();
 static void cheat_pitch();
 static void cheat_megaarmour();
 static void cheat_health();
+static void cheat_notarget();
 
 //-----------------------------------------------------------------------------
 //
@@ -178,6 +179,9 @@ cheatseq_t cheat[] = {
   CHEAT("tntice",     NULL,               cht_never, cheat_friction, 0),
   // phares 3/10/98: toggle pushers
   CHEAT("tntpush",    NULL,               cht_never, cheat_pushers, 0),
+
+  // [RH] Monsters don't target
+  CHEAT("notarget",   NULL,               cht_never, cheat_notarget, 0),
   // end-of-list marker
   {NULL}
 };
@@ -584,6 +588,15 @@ static void cheat_pitch()
 {
   plyr->message=(pitched_sounds = !pitched_sounds) ? "Pitch Effects Enabled" :
     "Pitch Effects Disabled";
+}
+
+static void cheat_notarget()
+{
+  plyr->cheats ^= CF_NOTARGET;
+  if (plyr->cheats & CF_NOTARGET)
+    plyr->message = "Notarget Mode ON";
+  else
+    plyr->message = "Notarget Mode OFF";
 }
 
 //-----------------------------------------------------------------------------
