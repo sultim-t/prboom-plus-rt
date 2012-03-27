@@ -173,6 +173,12 @@ int P_GetFriction(const mobj_t *mo, int *frictionfactor)
    * friction value (muddy has precedence over icy).
    */
 
+  if (mo->flags & MF_FLY)
+  {
+    friction = FRICTION_FLY;
+  }
+  else
+  {
   if (!(mo->flags & (MF_NOCLIP|MF_NOGRAVITY))
       && (mbf_features || (mo->player && !compatibility)) &&
       variable_friction)
@@ -184,6 +190,7 @@ int P_GetFriction(const mobj_t *mo, int *frictionfactor)
       mo->z <= sectors[sec->heightsec].floorheight &&
       mbf_features)))
   friction = sec->friction, movefactor = sec->movefactor;
+  }
 
   if (frictionfactor)
     *frictionfactor = movefactor;
@@ -845,13 +852,28 @@ dboolean P_TryMove(mobj_t* thing,fixed_t x,fixed_t y,
 
   if ( !(thing->flags & MF_NOCLIP) )
     {
+      if (thing->flags & MF_FLY)
+      {
+        // When flying, slide up or down blocking lines until the actor
+        // is not blocked.
+        if (thing->z+thing->height > tmceilingz)
+        {
+          thing->momz = -8*FRACUNIT;
+          return false;
+        }
+        else if (thing->z < tmfloorz && tmfloorz-tmdropoffz > 24*FRACUNIT)
+        {
+          thing->momz = 8*FRACUNIT;
+          return false;
+        }
+      }
       // killough 7/26/98: reformatted slightly
       // killough 8/1/98: Possibly allow escape if otherwise stuck
 
       if (tmceilingz - tmfloorz < thing->height ||     // doesn't fit
     // mobj must lower to fit
     (floatok = true, !(thing->flags & MF_TELEPORT) &&
-     tmceilingz - thing->z < thing->height) ||
+     tmceilingz - thing->z < thing->height && !(thing->flags & MF_FLY)) ||
     // too big a step up
     (!(thing->flags & MF_TELEPORT) &&
      tmfloorz - thing->z > 24*FRACUNIT))

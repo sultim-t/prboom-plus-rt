@@ -298,7 +298,10 @@ static void P_XYMovement (mobj_t* mo)
 #endif
 
   /* no friction for missiles or skulls ever, no friction when airborne */
-  if (mo->flags & (MF_MISSILE | MF_SKULLFLY) || mo->z > mo->floorz)
+  if (mo->flags & (MF_MISSILE | MF_SKULLFLY))
+    return;
+
+  if (mo->z > mo->floorz && !(mo->flags & MF_FLY))
     return;
 
   /* killough 8/11/98: add bouncers
@@ -529,6 +532,12 @@ floater:
       D_abs(delta = mo->target->z + (mo->height>>1) - mo->z)*3)
     mo->z += delta < 0 ? -FLOATSPEED : FLOATSPEED;
       }
+
+    if (mo->player && (mo->flags & MF_FLY) && (mo->z > mo->floorz))
+    {
+      mo->z += finesine[(FINEANGLES/80*gametic)&FINEMASK]/8;
+      mo->momz = FixedMul (mo->momz, FRICTION_FLY);
+    }
 
   // clip movement
 

@@ -90,6 +90,7 @@ static void cheat_pitch();
 static void cheat_megaarmour();
 static void cheat_health();
 static void cheat_notarget();
+static void cheat_fly();
 
 //-----------------------------------------------------------------------------
 //
@@ -182,6 +183,8 @@ cheatseq_t cheat[] = {
 
   // [RH] Monsters don't target
   CHEAT("notarget",   NULL,               cht_never, cheat_notarget, 0),
+  // fly mode is active
+  CHEAT("fly",        NULL,               cht_never, cheat_fly, 0),
   // end-of-list marker
   {NULL}
 };
@@ -597,6 +600,26 @@ static void cheat_notarget()
     plyr->message = "Notarget Mode ON";
   else
     plyr->message = "Notarget Mode OFF";
+}
+
+static void cheat_fly()
+{
+  if (plyr->mo != NULL)
+  {
+    plyr->cheats ^= CF_FLY;
+    if (plyr->cheats & CF_FLY)
+    {
+      plyr->mo->flags |= MF_NOGRAVITY;
+      plyr->mo->flags |= MF_FLY;
+      plyr->message = "Fly mode ON";
+    }
+    else
+    {
+      plyr->mo->flags &= ~MF_NOGRAVITY;
+      plyr->mo->flags &= ~MF_FLY;
+      plyr->message = "Fly mode OFF";
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------

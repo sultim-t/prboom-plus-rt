@@ -2245,8 +2245,10 @@ setup_menu_t keys_settings1[] =  // Key Binding screen strings
   {"AUTORUN"     ,S_KEY       ,m_scrn,KB_X,KB_Y+9*8,{&key_autorun}},
   {"180 TURN"    ,S_KEY       ,m_scrn,KB_X,KB_Y+10*8,{&key_reverse}},
   {"USE"         ,S_KEY       ,m_scrn,KB_X,KB_Y+11*8,{&key_use},&mousebuse,&joybuse},
+  {"FLY UP"      ,S_KEY       ,m_scrn,KB_X,KB_Y+12*8,{&key_flyup}},
+  {"FLY DOWN"    ,S_KEY       ,m_scrn,KB_X,KB_Y+13*8,{&key_flydown}},
 #ifdef GL_DOOM
-  {"MOUSE LOOK"  ,S_KEY       ,m_scrn,KB_X,KB_Y+12*8,{&key_mlook}},
+  {"MOUSE LOOK"  ,S_KEY       ,m_scrn,KB_X,KB_Y+14*8,{&key_mlook}},
 #endif
 
   // Button for resetting to defaults

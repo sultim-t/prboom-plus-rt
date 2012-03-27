@@ -564,6 +564,10 @@ default_t defaults[] =
   {"key_strafeleft",  {&key_strafeleft},     {'a'}           ,
    0,MAX_KEY,def_key,ss_keys}, // key to strafe left
   {"key_straferight", {&key_straferight},    {'d'}           ,
+   0,MAX_KEY,def_key,ss_keys}, // key to fly up
+  {"key_flyup",  {&key_flyup}, {'.'},
+   0,MAX_KEY,def_key,ss_keys}, // key to fly down
+  {"key_flydown", {&key_flydown}, {','},
    0,MAX_KEY,def_key,ss_keys}, // key to strafe right
 
   {"key_fire",        {&key_fire},           {KEYD_RCTRL}     ,

@@ -85,7 +85,9 @@ typedef enum
   CF_NOMOMENTUM       = 4,
 
   // [RH] Monsters don't target
-  CF_NOTARGET         = 8
+  CF_NOTARGET         = 8,
+  // [RH] Flying player
+  CF_FLY              = 16,
 } cheat_t;
 
 

@@ -59,9 +59,26 @@ dboolean onground; // whether player is on ground or in air
 // Moves the given origin along a given angle.
 //
 
+void P_SideThrust(player_t *player, angle_t angle, fixed_t move)
+{
+  angle >>= ANGLETOFINESHIFT;
+
+  player->mo->momx += FixedMul(move,finecosine[angle]);
+  player->mo->momy += FixedMul(move,finesine[angle]);
+}
+
 void P_Thrust(player_t* player,angle_t angle,fixed_t move)
 {
   angle >>= ANGLETOFINESHIFT;
+
+  if ((player->mo->flags & MF_FLY) && player->mo->pitch != 0)
+  {
+    angle_t pitch = player->mo->pitch >> ANGLETOFINESHIFT;
+    fixed_t zpush = FixedMul(move, finesine[pitch]);
+    player->mo->momz -= zpush;
+    move = FixedMul(move, finecosine[pitch]);
+  }
+
   player->mo->momx += FixedMul(move,finecosine[angle]);
   player->mo->momy += FixedMul(move,finesine[angle]);
 }
@@ -114,6 +131,12 @@ void P_CalcHeight (player_t* player)
    */
 
     player->bob = 0;
+
+    if ((player->mo->flags & MF_FLY) && !onground)
+    {
+      player->bob = FRACUNIT / 2;
+    }	
+
     if (mbf_features)
     {
       if (player_bobbing)
@@ -262,6 +285,11 @@ void P_MovePlayer (player_t* player)
 
   onground = mo->z <= mo->floorz;
 
+  if ((player->mo->flags & MF_FLY) && player == &players[consoleplayer] && upmove != 0)
+  {
+    mo->momz = upmove << 8;
+  }
+
   // killough 10/98:
   //
   // We must apply thrust to the player and bobbing separately, to avoid
@@ -273,7 +301,7 @@ void P_MovePlayer (player_t* player)
   if ((!demo_compatibility && !mbf_features && !prboom_comp[PC_PRBOOM_FRICTION].state) || 
     (cmd->forwardmove | cmd->sidemove)) // killough 10/98
     {
-      if (onground || mo->flags & MF_BOUNCES) // killough 8/9/98
+      if (onground || mo->flags & MF_BOUNCES || (mo->flags & MF_FLY)) // killough 8/9/98
       {
         int friction, movefactor = P_GetMoveFactor(mo, &friction);
 
@@ -293,7 +321,7 @@ void P_MovePlayer (player_t* player)
         if (cmd->sidemove)
         {
           P_Bob(player,mo->angle-ANG90,cmd->sidemove*bobfactor);
-          P_Thrust(player,mo->angle-ANG90,cmd->sidemove*movefactor);
+          P_SideThrust(player,mo->angle-ANG90,cmd->sidemove*movefactor);
         }
       }
       if (mo->state == states+S_PLAY)

@@ -127,6 +127,7 @@ dboolean         deathmatch;    // only if started as net death
 dboolean         netgame;       // only true if packets are broadcast
 dboolean         playeringame[MAXPLAYERS];
 player_t        players[MAXPLAYERS];
+int             upmove;
 int             consoleplayer; // player taking events and displaying
 int             displayplayer; // view being displayed
 int             gametic;
@@ -173,6 +174,8 @@ int     key_menu_escape;                                     //     |
 int     key_menu_enter;                                      // phares 3/7/98
 int     key_strafeleft;
 int     key_straferight;
+int     key_flyup;
+int     key_flydown;
 int     key_fire;
 int     key_use;
 int     key_strafe;
@@ -248,6 +251,7 @@ int     joybspeed;
 fixed_t forwardmove[2] = {0x19, 0x32};
 fixed_t sidemove[2]    = {0x18, 0x28};
 fixed_t angleturn[3]   = {640, 1280, 320};  // + slow turn
+fixed_t flyspeed[2]    = {1*256, 3*256};
 
 // CPhipps - made lots of key/button state vars static
 //e6y static
@@ -693,6 +697,12 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   cmd->forwardmove += fudgef((signed char)forward);
   cmd->sidemove += side;
   cmd->angleturn = fudgea(cmd->angleturn);
+
+  upmove = 0;
+  if (gamekeydown[key_flyup])
+    upmove += flyspeed[speed];
+  if (gamekeydown[key_flydown])
+    upmove -= flyspeed[speed];
 
   // CPhipps - special events (game new/load/save/pause)
   if (special_event & BT_SPECIAL) {

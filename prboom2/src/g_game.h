@@ -116,6 +116,8 @@ extern int  key_menu_escape;                                 //     |
 extern int  key_menu_enter;                                  // phares 3/7/98
 extern int  key_strafeleft;
 extern int  key_straferight;
+extern int  key_flyup;
+extern int  key_flydown;
 
 extern int  key_fire;
 extern int  key_use;
