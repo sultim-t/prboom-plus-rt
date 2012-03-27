@@ -257,7 +257,7 @@ extern  dboolean realframe;
 
 // Bookkeeping on players - state.
 extern  player_t  players[MAXPLAYERS];
-extern  upmove;
+extern  int       upmove;
 
 // Alive? Disconnected?
 extern  dboolean   playeringame[MAXPLAYERS];
