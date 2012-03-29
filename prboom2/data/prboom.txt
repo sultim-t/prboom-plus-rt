@@ -53,6 +53,7 @@ DSDGACT
 DSDGDTH
 DSDGPAIN
 DSSECRET
+DSGIBDTH
 
 # List of Pictures (with insertion point)
 [graphics]

@@ -301,6 +301,7 @@ typedef enum {
 
   //e6y
   sfx_secret,
+  sfx_gibdth,
 
   NUMSFX
 } sfxenum_t;

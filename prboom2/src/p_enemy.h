@@ -115,4 +115,6 @@ void A_PlaySound(mobj_t *);       // killough 11/98
 void A_RandomJump(mobj_t *);      // killough 11/98
 void A_LineEffect(mobj_t *);      // killough 11/98
 
+void A_SkullPop(mobj_t *);
+
 #endif // __P_ENEMY__

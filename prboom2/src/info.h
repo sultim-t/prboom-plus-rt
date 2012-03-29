@@ -1246,6 +1246,16 @@ typedef enum
 
   S_MUSHROOM,  /* killough 10/98: mushroom explosion effect */
 
+  S_PLAY_GDIE1,
+  S_PLAY_GDIE2,
+  S_PLAY_GDIE3,
+  S_PLAY_GDIE4,
+  S_PLAY_GDIE5,
+  S_PLAY_GDIE6,
+  S_PLAY_GDIE7,
+  S_PLAY_GDIE8,
+  S_PLAY_GDIE9,
+
   NUMSTATES  /* Counter of how many there are */
 
 } statenum_t;
@@ -1420,6 +1430,7 @@ typedef enum {
 #endif
 
   MT_MUSICSOURCE, /* MUSINFO lump */
+  MT_GIBDTH,
 
   /* proff 11/22/98: Andy Baker's stealth monsters (next 12)
    * cph - moved below the MBF stuff, no need to displace them */

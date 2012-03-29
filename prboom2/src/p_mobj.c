@@ -621,6 +621,15 @@ floater:
       }
     }
   else // still above the floor                                     // phares
+    if (mo->type == MT_GIBDTH && !demorecording && !demoplayback)
+    { // if (mo->flags & MF_LOGRAV)
+      // alternate gravity (MF2_LOGRAV from Heretic)
+      if (mo->momz == 0)
+        mo->momz = -(GRAVITY >> 3) * 2;
+      else
+        mo->momz -= GRAVITY >> 3;
+    }
+    else
     if (!(mo->flags & MF_NOGRAVITY))
       {
   if (!mo->momz)

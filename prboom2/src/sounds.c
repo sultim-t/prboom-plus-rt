@@ -248,4 +248,5 @@ sfxinfo_t S_sfx[] = {
 
   //e6y
   { "secret", false, 60, 0, -1, -1, 0 },
+  { "gibdth", false, 60, 0, -1, -1, 0 },
 };

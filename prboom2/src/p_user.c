@@ -346,14 +346,28 @@ void P_DeathThink (player_t* player)
 
   // fall to the ground
 
-  if (player->viewheight > 6*FRACUNIT)
-    player->viewheight -= FRACUNIT;
-
-  if (player->viewheight < 6*FRACUNIT)
-    player->viewheight = 6*FRACUNIT;
-
-  player->deltaviewheight = 0;
   onground = (player->mo->z <= player->mo->floorz);
+  if (player->mo->type == MT_GIBDTH)
+  {
+    // Flying bloody skull
+    player->viewheight = 6*FRACUNIT;
+    player->deltaviewheight = 0;
+    if (onground && (int)player->mo->pitch > -(int)ANG1*19)
+    {
+      player->mo->pitch -= ((int)ANG1*19 - player->mo->pitch) / 8;
+    }
+  }
+  else
+  {
+    if (player->viewheight > 6*FRACUNIT)
+      player->viewheight -= FRACUNIT;
+
+    if (player->viewheight < 6*FRACUNIT)
+      player->viewheight = 6*FRACUNIT;
+
+    player->deltaviewheight = 0;
+  }
+
   P_CalcHeight (player);
 
   if (player->attacker && player->attacker != player->mo)

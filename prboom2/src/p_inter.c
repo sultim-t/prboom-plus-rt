@@ -643,6 +643,14 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
 {
   mobjtype_t item;
   mobj_t     *mo;
+  dboolean   e6y = false;
+  
+  if (target->player && source && target->health < -target->info->spawnhealth &&
+    !demorecording && !demoplayback)
+  {
+    angle_t ang = R_PointToAngle2(target->x, target->y, source->x, source->y) - target->angle;
+    e6y = (ang > (unsigned)(ANG180 - ANG45) && ang < (unsigned)(ANG180 + ANG45));
+  }
 
   target->flags &= ~(MF_SHOOTABLE|MF_FLOAT|MF_SKULLFLY);
 
@@ -768,10 +776,17 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
         AM_Stop();    // don't die in auto map; switch view prior to dying
     }
 
-  if (target->health < -target->info->spawnhealth && target->info->xdeathstate)
-    P_SetMobjState (target, target->info->xdeathstate);
+  if (e6y)
+  {
+    P_SetMobjState (target, S_PLAY_GDIE1);
+  }
   else
-    P_SetMobjState (target, target->info->deathstate);
+  {
+    if (target->health < -target->info->spawnhealth && target->info->xdeathstate)
+      P_SetMobjState (target, target->info->xdeathstate);
+    else
+      P_SetMobjState (target, target->info->deathstate);
+  }
 
   target->tics -= P_Random(pr_killtics)&3;
 
