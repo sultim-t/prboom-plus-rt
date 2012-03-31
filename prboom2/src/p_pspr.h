@@ -115,5 +115,6 @@ void A_FirePlasma();
 void A_BFGsound();
 void A_FireBFG();
 void A_BFGSpray();
+void A_FireOldBFG();
 
 #endif

@@ -115,6 +115,9 @@ void A_PlaySound(mobj_t *);       // killough 11/98
 void A_RandomJump(mobj_t *);      // killough 11/98
 void A_LineEffect(mobj_t *);      // killough 11/98
 
+void A_BetaSkullAttack(mobj_t *); // killough 10/98: beta lost souls attacked different
+void A_Stop(mobj_t *);
+
 void A_SkullPop(mobj_t *);
 
 #endif // __P_ENEMY__

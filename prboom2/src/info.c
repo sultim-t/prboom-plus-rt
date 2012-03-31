@@ -49,6 +49,8 @@
 #endif
 #include "info.h"
 
+void A_BetaSkullAttack(); // killough 10/98: beta lost souls attacked different
+void A_Stop();
 
 // ********************************************************************
 // Sprite names
@@ -80,6 +82,12 @@ const char *sprnames[NUMSPRITES+1] = {
 #ifdef DOGS
   "DOGS", /* killough 7/19/98: Marine's best friend :) */
 #endif
+
+  "PLS1", // killough 7/19/98: first  of two plasma fireballs in the beta
+  "PLS2", // killough 7/19/98: second of two plasma fireballs in the beta
+  "BON3", // killough 7/11/98: evil sceptre in the beta version
+  "BON4", // killough 7/11/98: unholy bible in the beta version
+
   NULL
 };
 
@@ -1142,86 +1150,77 @@ state_t states[NUMSTATES] = {
 
   // add dummy beta bfg / lost soul frames for dehacked compatibility
   // fixes bug #1576151 (part 2)
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG1
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG2
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG3
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG4
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG5
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG6
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG7
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG8
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG9
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG10
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG11
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG12
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG13
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG14
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG15
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG16
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG17
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG18
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG19
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG20
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG21
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG22
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG23
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG24
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG25
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG26
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG27
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG28
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG29
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG30
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG31
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG32
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG33
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG34
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG35
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG36
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG37
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG38
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG39
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG40
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG41
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG42
-  {0,0,-1,NULL,S_NULL},  // S_OLDBFG43
 
-  {0,0,-1,NULL,S_NULL},  // S_PLS1BALL
-  {0,0,-1,NULL,S_NULL},  // S_PLS1BALL2
-  {0,0,-1,NULL,S_NULL},  // S_PLS1EXP
-  {0,0,-1,NULL,S_NULL},  // S_PLS1EXP2
-  {0,0,-1,NULL,S_NULL},  // S_PLS1EXP3
-  {0,0,-1,NULL,S_NULL},  // S_PLS1EXP4
-  {0,0,-1,NULL,S_NULL},  // S_PLS1EXP5
+#define BFGDELAY 1
+#define OLDBFG_1FRAMES(x) {SPR_BFGG,1,BFGDELAY,A_FireOldBFG,x+S_OLDBFG1+2},
+#define OLDBFG_2FRAMES(x) OLDBFG_1FRAMES(x) OLDBFG_1FRAMES(x+1)
+#define OLDBFG_4FRAMES(x) OLDBFG_2FRAMES(x) OLDBFG_2FRAMES(x+2)
+#define OLDBFG_8FRAMES(x) OLDBFG_4FRAMES(x) OLDBFG_4FRAMES(x+4)
+  {SPR_BFGG,0,10,A_BFGsound,S_OLDBFG1+1},  // S_OLDBFG1
 
-  {0,0,-1,NULL,S_NULL},  // S_PLS2BALL
-  {0,0,-1,NULL,S_NULL},  // S_PLS2BALL2
-  {0,0,-1,NULL,S_NULL},  // S_PLS2BALLX1
-  {0,0,-1,NULL,S_NULL},  // S_PLS2BALLX2
-  {0,0,-1,NULL,S_NULL},  // S_PLS2BALLX3
+  OLDBFG_8FRAMES(0)
+  OLDBFG_8FRAMES(8)
+  OLDBFG_8FRAMES(16) 
+  OLDBFG_8FRAMES(24)
+  OLDBFG_8FRAMES(32)
 
-  {0,0,-1,NULL,S_NULL},  // S_BON3
-  {0,0,-1,NULL,S_NULL},  // S_BON4
+  //{SPR_DOGS,7,2,A_Pain,S_DOGS_RUN1},
+  {SPR_BFGG,1,0,A_Light0,S_OLDBFG43}, // S_OLDBFG42
+  {SPR_BFGG,1,20,A_ReFire,S_BFG},   // S_OLDBFG43
 
-  {0,0,-1,NULL,S_NULL},  // S_BSKUL_STND
-  {0,0,-1,NULL,S_NULL},  // S_BSKUL_RUN1
-  {0,0,-1,NULL,S_NULL},  // S_BSKUL_RUN2
-  {0,0,-1,NULL,S_NULL},  // S_BSKUL_RUN3
-  {0,0,-1,NULL,S_NULL},  // S_BSKUL_RUN4
-  {0,0,-1,NULL,S_NULL},  // S_BSKUL_ATK1
-  {0,0,-1,NULL,S_NULL},  // S_BSKUL_ATK2
-  {0,0,-1,NULL,S_NULL},  // S_BSKUL_ATK3
-  {0,0,-1,NULL,S_NULL},  // S_BSKUL_PAIN1
-  {0,0,-1,NULL,S_NULL},  // S_BSKUL_PAIN2
-  {0,0,-1,NULL,S_NULL},  // S_BSKUL_PAIN3
-  {0,0,-1,NULL,S_NULL},  // S_BSKUL_DIE1
-  {0,0,-1,NULL,S_NULL},  // S_BSKUL_DIE2
-  {0,0,-1,NULL,S_NULL},  // S_BSKUL_DIE3
-  {0,0,-1,NULL,S_NULL},  // S_BSKUL_DIE4
-  {0,0,-1,NULL,S_NULL},  // S_BSKUL_DIE5
-  {0,0,-1,NULL,S_NULL},  // S_BSKUL_DIE6
-  {0,0,-1,NULL,S_NULL},  // S_BSKUL_DIE7
-  {0,0,-1,NULL,S_NULL},  // S_BSKUL_DIE8
+  // killough 7/11/98: end of beta BFG
+
+  // killough 7/19/98: First plasma fireball in the beta:
+  {SPR_PLS1,32768,6,NULL,S_PLS1BALL2},  // S_PLS1BALL
+  {SPR_PLS1,32769,6,NULL,S_PLS1BALL}, // S_PLS1BALL2
+  {SPR_PLS1,32770,4,NULL,S_PLS1EXP2}, // S_PLS1EXP
+  {SPR_PLS1,32771,4,NULL,S_PLS1EXP3}, // S_PLS1EXP2
+  {SPR_PLS1,32772,4,NULL,S_PLS1EXP4}, // S_PLS1EXP3
+  {SPR_PLS1,32773,4,NULL,S_PLS1EXP5}, // S_PLS1EXP4
+  {SPR_PLS1,32774,4,NULL,S_NULL}, // S_PLS1EXP5
+
+  // killough 7/19/98: Second plasma fireball in the beta:
+  {SPR_PLS2,32768,4,NULL,S_PLS2BALL2}, // S_PLS2BALL
+  {SPR_PLS2,32769,4,NULL,S_PLS2BALL},  // S_PLS2BALL2
+  {SPR_PLS2,32770,6,NULL,S_PLS2BALLX2},  // S_PLS2BALLX1
+  {SPR_PLS2,32771,6,NULL,S_PLS2BALLX3},  // S_PLS2BALLX2
+  {SPR_PLS2,32772,6,NULL,S_NULL}, // S_PLS2BALLX3
+
+  {SPR_BON3,0,6,NULL,S_BON3},           // S_BON3  // killough 7/11/98:
+  {SPR_BON4,0,6,NULL,S_BON4},           // S_BON4  // beta bonus items
+
+  // killough 10/98: beta lost souls attacked from a distance, 
+  // animated with colors, and stayed in the air when killed.
+  // This is an approximation, but I'm sure it can be improved.
+
+  // spawnstate
+  {SPR_SKUL,0,10,A_Look,S_BSKUL_STND},  // S_BSKUL_STND
+
+  // chasestate
+  {SPR_SKUL,1,5,A_Chase,S_BSKUL_RUN2},  // S_BSKUL_RUN1
+  {SPR_SKUL,2,5,A_Chase,S_BSKUL_RUN3},  // S_BSKUL_RUN2
+  {SPR_SKUL,3,5,A_Chase,S_BSKUL_RUN4},  // S_BSKUL_RUN3
+  {SPR_SKUL,0,5,A_Chase,S_BSKUL_RUN1},  // S_BSKUL_RUN4
+
+  // missilestate
+  {SPR_SKUL,4,4,A_FaceTarget,S_BSKUL_ATK2},     // S_BSKUL_ATK1
+  {SPR_SKUL,5,5,A_BetaSkullAttack,S_BSKUL_ATK3}, // S_BSKUL_ATK2
+  {SPR_SKUL,5,4,NULL,S_BSKUL_RUN1},              // S_BSKUL_ATK3
+
+  // painstate
+  {SPR_SKUL,6,4,NULL,S_BSKUL_PAIN2},     // S_BSKUL_PAIN1
+  {SPR_SKUL,7,2,A_Pain,S_BSKUL_RUN1},   // S_BSKUL_PAIN2
+  {SPR_SKUL,8,4,NULL,S_BSKUL_RUN1},      // S_BSKUL_PAIN3
+
+  // deathstate
+  {SPR_SKUL, 9,5,NULL,S_BSKUL_DIE2},     // S_BSKUL_DIE1
+  {SPR_SKUL,10,5,NULL,S_BSKUL_DIE3},     // S_BSKUL_DIE2
+  {SPR_SKUL,11,5,NULL,S_BSKUL_DIE4},     // S_BSKUL_DIE3
+  {SPR_SKUL,12,5,NULL,S_BSKUL_DIE5},     // S_BSKUL_DIE4
+  {SPR_SKUL,13,5,A_Scream,S_BSKUL_DIE6}, // S_BSKUL_DIE5
+  {SPR_SKUL,14,5,NULL,S_BSKUL_DIE7},     // S_BSKUL_DIE6
+  {SPR_SKUL,15,5,A_Fall,S_BSKUL_DIE8},   // S_BSKUL_DIE7
+  {SPR_SKUL,16,5,A_Stop,S_BSKUL_DIE8},   // S_BSKUL_DIE8
 
   // killough 10/98: mushroom effect
   {SPR_MISL,32769,8,A_Mushroom,S_EXPLODE2},  // S_MUSHROOM
@@ -4906,6 +4905,115 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = {
     S_DOGS_RAISE1   // raisestate
   },
 #endif
+
+  // killough 7/11/98: this is the first of two plasma fireballs in the beta
+  {   // MT_PLASMA1
+    -1,             // doomednum
+    S_PLS1BALL,     // spawnstate
+    1000,           // spawnhealth
+    S_NULL,         // seestate
+    sfx_plasma,     // seesound
+    8,              // reactiontime
+    sfx_None,       // attacksound
+    S_NULL,         // painstate
+    0,              // painchance
+    sfx_None,       // painsound
+    S_NULL,         // meleestate
+    S_NULL,         // missilestate
+    S_PLS1EXP,      // deathstate
+    S_NULL,         // xdeathstate
+    sfx_firxpl,     // deathsound
+    25*FRACUNIT,    // speed
+    13*FRACUNIT,    // radius
+    8*FRACUNIT,     // height
+    100,            // mass
+    4,              // damage
+    sfx_None,       // activesound
+    MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY|MF_BOUNCES, // flags
+    S_NULL          // raisestate
+  },
+  
+  // killough 7/11/98: this is the second of two plasma fireballs in the beta
+  {   // MT_PLASMA2
+    -1,             // doomednum
+    S_PLS2BALL,     // spawnstate
+    1000,           // spawnhealth
+    S_NULL,         // seestate
+    sfx_plasma,     // seesound
+    8,              // reactiontime
+    sfx_None,       // attacksound
+    S_NULL,         // painstate
+    0,              // painchance
+    sfx_None,       // painsound
+    S_NULL,         // meleestate
+    S_NULL,         // missilestate
+    S_PLS2BALLX1,   // deathstate
+    S_NULL,         // xdeathstate
+    sfx_firxpl,     // deathsound
+    25*FRACUNIT,    // speed
+    6*FRACUNIT,     // radius
+    8*FRACUNIT,     // height
+    100,            // mass
+    4,              // damage
+    sfx_None,       // activesound
+    MF_NOBLOCKMAP|MF_MISSILE|MF_DROPOFF|MF_NOGRAVITY|MF_BOUNCES, // flags
+    S_NULL          // raisestate
+  },
+
+  // killough 7/11/98: this is the evil sceptre in the beta version
+  {   // MT_SCEPTRE
+    2016,           // doomednum
+    S_BON3,         // spawnstate
+    1000,           // spawnhealth
+    S_NULL,         // seestate
+    sfx_None,       // seesound
+    8,              // reactiontime
+    sfx_None,       // attacksound
+    S_NULL,         // painstate
+    0,              // painchance
+    sfx_None,       // painsound
+    S_NULL,         // meleestate
+    S_NULL,         // missilestate
+    S_NULL,         // deathstate
+    S_NULL,         // xdeathstate
+    sfx_None,       // deathsound
+    0,              // speed
+    10*FRACUNIT,    // radius
+    16*FRACUNIT,    // height
+    100,            // mass
+    0,              // damage
+    sfx_None,       // activesound
+    MF_SPECIAL|MF_COUNTITEM, // flags
+    S_NULL          // raisestate
+  },
+
+  // killough 7/11/98: this is the unholy bible in the beta version
+  {   // MT_BIBLE
+    2017,           // doomednum
+    S_BON4,         // spawnstate
+    1000,           // spawnhealth
+    S_NULL,         // seestate
+    sfx_None,       // seesound
+    8,              // reactiontime
+    sfx_None,       // attacksound
+    S_NULL,         // painstate
+    0,              // painchance
+    sfx_None,       // painsound
+    S_NULL,         // meleestate
+    S_NULL,         // missilestate
+    S_NULL,         // deathstate
+    S_NULL,         // xdeathstate
+    sfx_None,       // deathsound
+    0,              // speed
+    20*FRACUNIT,    // radius
+    10*FRACUNIT,    // height
+    100,            // mass
+    0,              // damage
+    sfx_None,       // activesound
+    MF_SPECIAL|MF_COUNTITEM, // flags
+    S_NULL          // raisestate
+  },
+
 
   // MUSINFO lump
   {   // MT_MUSICSOURCE

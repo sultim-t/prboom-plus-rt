@@ -188,6 +188,11 @@ typedef enum
   SPR_DOGS, /* killough 7/19/98: Marine's best friend :) */
 #endif
 
+  SPR_PLS1, // killough 7/19/98: first  of two plasma fireballs in the beta
+  SPR_PLS2, // killough 7/19/98: second of two plasma fireballs in the beta
+  SPR_BON3, // killough 7/11/98: evil sceptre in beta version
+  SPR_BON4, // killough 7/11/98: unholy bible in beta version
+
   NUMSPRITES  /* counter of how many there are */
 
 } spritenum_t;
@@ -1428,6 +1433,11 @@ typedef enum {
 #ifdef DOGS
   MT_DOGS,    /* killough 7/19/98: Marine's best friend */
 #endif
+
+  MT_PLASMA1, // killough 7/11/98: first  of alternating beta plasma fireballs
+  MT_PLASMA2, // killough 7/11/98: second of alternating beta plasma fireballs
+  MT_SCEPTRE, // killough 7/11/98: evil sceptre in beta version
+  MT_BIBLE,   // killough 7/11/98: unholy bible in beta version
 
   MT_MUSICSOURCE, /* MUSINFO lump */
   MT_GIBDTH,
