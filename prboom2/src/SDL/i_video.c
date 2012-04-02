@@ -219,6 +219,28 @@ static void I_GetEvent(SDL_Event *Event)
   }
 }
 
+//
+// I_PrepareMouse
+// Grab or ungrab the mouse pointer, and flush the mouse motion event queue
+//
+
+static void I_PrepareMouse(int force)
+{
+  boolean should_be_grabbed = mouse_enabled &&
+    !(paused || (gamestate != GS_LEVEL) || demoplayback || menuactive);
+
+  if (mouse_currently_grabbed != should_be_grabbed || force)
+  {
+    SDL_Event e;
+
+    mouse_currently_grabbed = should_be_grabbed;
+    SDL_WM_GrabInput(should_be_grabbed ? SDL_GRAB_ON : SDL_GRAB_OFF);
+
+    // Ignore spurious mouse motion events after a state change
+    SDL_PumpEvents();
+    while (SDL_PeepEvents(&e, 1, SDL_GETEVENT, SDL_MOUSEMOTIONMASK) > 0) ;
+  }
+}
 
 //
 // I_StartTic
@@ -227,14 +249,8 @@ static void I_GetEvent(SDL_Event *Event)
 void I_StartTic (void)
 {
   SDL_Event Event;
-  {
-    boolean should_be_grabbed = mouse_enabled &&
-      !(paused || (gamestate != GS_LEVEL) || demoplayback || menuactive);
 
-    if (mouse_currently_grabbed != should_be_grabbed)
-      SDL_WM_GrabInput((mouse_currently_grabbed = should_be_grabbed)
-          ? SDL_GRAB_ON : SDL_GRAB_OFF);
-  }
+  I_PrepareMouse(0);
 
   while ( SDL_PollEvent(&Event) )
     I_GetEvent(&Event);
@@ -690,8 +706,6 @@ void I_UpdateVideoMode(void)
 
   lprintf(LO_INFO, "I_UpdateVideoMode: 0x%x, %s, %s\n", init_flags, screen->pixels ? "SDL buffer" : "own buffer", SDL_MUSTLOCK(screen) ? "lock-and-copy": "direct access");
 
-  mouse_currently_grabbed = false;
-
   // Get the info needed to render to the display
   if (!SDL_MUSTLOCK(screen))
   {
@@ -711,12 +725,7 @@ void I_UpdateVideoMode(void)
   // Hide pointer while over this window
   SDL_ShowCursor(0);
 
-  // Ignore spurious mouse motion events after a screen mode change
-  {
-    SDL_Event e;
-    SDL_PumpEvents();
-    while (SDL_PeepEvents(&e, 1, SDL_GETEVENT, SDL_MOUSEMOTIONMASK) > 0) ;
-  }
+  I_PrepareMouse(1);
 
   R_InitBuffer(SCREENWIDTH, SCREENHEIGHT);
 
