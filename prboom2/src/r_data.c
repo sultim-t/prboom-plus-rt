@@ -468,12 +468,18 @@ void R_InitTranMap(int progress)
       const byte *playpal = W_CacheLumpName("PLAYPAL");
       byte       *my_tranmap;
 
-      char fname[PATH_MAX+1];
+      char *fname;
+      int fnlen;
       struct {
         unsigned char pct;
         unsigned char playpal[256];
       } cache;
-      FILE *cachefp = fopen(strcat(strcpy(fname, I_DoomExeDir()), "/tranmap.dat"),"rb");
+      FILE *cachefp;
+
+      fnlen = doom_snprintf(NULL, 0, "%s/tranmap.dat", I_DoomExeDir());
+      fname = malloc(fnlen+1);
+      doom_snprintf(fname, fnlen+1, "%s/tranmap.dat", I_DoomExeDir());
+      cachefp = fopen(fname, "rb");
 
       main_tranmap = my_tranmap = Z_Malloc(256*256, PU_STATIC, 0);  // killough 4/11/98
 
@@ -555,6 +561,8 @@ void R_InitTranMap(int progress)
 
       if (cachefp)              // killough 11/98: fix filehandle leak
         fclose(cachefp);
+
+      free(fname);
 
       W_UnlockLumpName("PLAYPAL");
     }

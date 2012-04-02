@@ -43,7 +43,7 @@
 
 /* CPhipps - removed wadfiles[] stuff to w_wad.h */
 
-extern char basesavegame[];     // killough 2/16/98: savegame path
+extern char *basesavegame;      // killough 2/16/98: savegame path
 
 //jff 1/24/98 make command line copies of play modes available
 extern boolean clnomonsters; // checkparm of -nomonsters

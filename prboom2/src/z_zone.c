@@ -169,12 +169,15 @@ void W_PrintLump(FILE* fp, void* p);
 void Z_DumpMemory(void)
 {
   static int dump;
-  char buf[PATH_MAX + 1];
+  char *buf;
+  int len;
   FILE* fp;
   size_t total_cache = 0, total_free = 0, total_malloc = 0;
   int tag;
 
-  sprintf(buf, "%s/memdump.%d", HEAPDUMP_DIR, dump++);
+  len = doom_snprintf(NULL, 0, "%s/memdump.%d", HEAPDUMP_DIR, dump);
+  buf = malloc(len+1);
+  doom_snprintf(buf, len+1, "%s/memdump.%d", HEAPDUMP_DIR, dump);
   fp = fopen(buf, "w");
   for (tag = PU_FREE; tag < PU_MAX; tag++)
   {
@@ -216,6 +219,8 @@ void Z_DumpMemory(void)
     total_malloc, total_cache, total_free, 
     total_malloc + total_cache + total_free);
   fclose(fp);
+  free(buf);
+  dump++;
 }
 #endif
 #endif

@@ -71,8 +71,6 @@ typedef __int64 int_64_t;
 typedef unsigned __int64 uint_64_t;
 // define compiled-specific long-long contstant notation here
 #define LONGLONG(num) (uint_64_t)num
-#undef PATH_MAX
-#define PATH_MAX 1024
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
 #define S_ISDIR(x) (((sbuf.st_mode & S_IFDIR)==S_IFDIR)?1:0)
@@ -90,11 +88,6 @@ typedef unsigned __int64 uint_64_t;
 
 /* CPhipps - use limits.h instead of depreciated values.h */
 #include <limits.h>
-
-// In case limits.h does not define PATH_MAX
-#ifndef PATH_MAX
-#define PATH_MAX 4096
-#endif
 
 /* cph - move compatibility levels here so we can use them in d_server.c */
 typedef enum {

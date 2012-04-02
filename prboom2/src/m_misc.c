@@ -931,21 +931,21 @@ void M_LoadDefaults (void)
 
   // check for a custom default file
 
+#if ((defined GL_DOOM) && (defined _MSC_VER))
+#define BOOM_CFG "glboom.cfg"
+#else
+#define BOOM_CFG "prboom.cfg"
+#endif
+
   i = M_CheckParm ("-config");
   if (i && i < myargc-1)
     defaultfile = strdup(myargv[i+1]);
   else {
     const char* exedir = I_DoomExeDir();
-    defaultfile = malloc(PATH_MAX+1);
     /* get config file from same directory as executable */
-    doom_snprintf(defaultfile, PATH_MAX,
-            "%s%s%sboom.cfg", exedir, HasTrailingSlash(exedir) ? "" : "/", 
-#if ((defined GL_DOOM) && (defined _MSC_VER))
-            "gl"
-#else
-            "pr"
-#endif
-            );
+    int len = doom_snprintf(NULL, 0, "%s/" BOOM_CFG, exedir);
+    defaultfile = malloc(len+1);
+    doom_snprintf(defaultfile, len+1, "%s/" BOOM_CFG, exedir);
   }
 
   lprintf (LO_CONFIRM, " default file: %s\n",defaultfile);
@@ -1056,23 +1056,29 @@ void M_DoScreenShot (const char* fname)
 void M_ScreenShot(void)
 {
   static int shot;
-  char       lbmname[PATH_MAX + 1];
+  char       *lbmname = NULL;
   int        startshot;
+  int        success = 0;
 
   if (!access(SCREENSHOT_DIR,2))
   {
     startshot = shot; // CPhipps - prevent infinite loop
 
     do {
-      sprintf(lbmname,"%s/doom%02d" SCREENSHOT_EXT, SCREENSHOT_DIR, shot++);
+      int size = doom_snprintf(NULL, 0, "%s/doom%02d" SCREENSHOT_EXT, SCREENSHOT_DIR, shot);
+      lbmname = realloc(lbmname, size+1);
+      doom_snprintf(lbmname, size+1, "%s/doom%02d" SCREENSHOT_EXT, SCREENSHOT_DIR, shot);
+      shot++;
     } while (!access(lbmname,0) && (shot != startshot) && (shot < 10000));
 
     if (access(lbmname,0))
     {
       S_StartSound(NULL,gamemode==commercial ? sfx_radio : sfx_tink);
       M_DoScreenShot(lbmname); // cph
-      return;
+      success = 1;
     }
+    free(lbmname);
+    if (success) return;
   }
 
   doom_printf ("M_ScreenShot: Couldn't create screenshot");

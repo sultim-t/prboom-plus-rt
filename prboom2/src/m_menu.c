@@ -841,13 +841,17 @@ void M_ReadSaveStrings(void)
   int i;
 
   for (i = 0 ; i < load_end ; i++) {
-    char name[PATH_MAX+1];    // killough 3/22/98
+    char *name;               // killough 3/22/98
+    int len;
     FILE *fp;  // killough 11/98: change to use stdio
 
     /* killough 3/22/98
      * cph - add not-demoplayback parameter */
-    G_SaveGameName(name,sizeof(name),i,false);
+    len = G_SaveGameName(NULL, 0, i, false);
+    name = malloc(len+1);
+    G_SaveGameName(name, len+1, i, false);
     fp = fopen(name,"rb");
+    free(name);
     if (!fp) {   // Ty 03/27/98 - externalized:
       strcpy(&savegamestrings[i][0],s_EMPTYSTRING);
       LoadMenue[i].status = 0;
