@@ -1758,11 +1758,7 @@ void (CheckSaveGame)(size_t size, const char* file, int line)
 void G_SaveGameName(char *name, size_t size, int slot, boolean demoplayback)
 {
   const char* sgn = demoplayback ? "demosav" : savegamename;
-#ifdef HAVE_SNPRINTF
   snprintf (name, size, "%s/%s%d.dsg", basesavegame, sgn, slot);
-#else
-  sprintf (name, "%s/%s%d.dsg", basesavegame, sgn, slot);
-#endif
 }
 
 static void G_DoSaveGame (boolean menu)
@@ -2977,11 +2973,7 @@ void doom_printf(const char *s, ...)
   static char msg[MAX_MESSAGE_SIZE];
   va_list v;
   va_start(v,s);
-#ifdef HAVE_VSNPRINTF
   vsnprintf(msg,sizeof(msg),s,v);        /* print message in buffer */
-#else
-  vsprintf(msg,s,v);
-#endif
   va_end(v);
   players[consoleplayer].message = msg;  // set new message
 }

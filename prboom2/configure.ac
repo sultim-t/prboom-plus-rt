@@ -86,7 +86,7 @@ AC_CHECK_FUNC(stricmp,,AC_DEFINE(stricmp,strcasecmp,[Define to strcasecmp, if we
 AC_CHECK_FUNC(strnicmp,,AC_DEFINE(strnicmp,strncasecmp,[Define to strncasecmp, if we have it]))
 AC_CHECK_FUNC(min,AC_DEFINE(MIN,min,[If your platform has a fast version of min, define MIN to it]),)
 AC_CHECK_FUNC(max,AC_DEFINE(MAX,max,[If your platform has a fast version of max, define MAX to it]),)
-AC_CHECK_FUNCS(getopt inet_aton inet_pton inet_ntop snprintf vsnprintf mmap usleep sched_setaffinity)
+AC_CHECK_FUNCS(getopt inet_aton inet_pton inet_ntop mmap usleep sched_setaffinity)
 
 dnl --- Check for libraries
 dnl --- cph: we need pow(3) in SDL/i_sound.c; on some systems it gets pulled

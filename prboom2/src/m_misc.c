@@ -938,17 +938,14 @@ void M_LoadDefaults (void)
     const char* exedir = I_DoomExeDir();
     defaultfile = malloc(PATH_MAX+1);
     /* get config file from same directory as executable */
-#ifdef HAVE_SNPRINTF
     snprintf(defaultfile, PATH_MAX,
-#else
-    sprintf (defaultfile,
-#endif
             "%s%s%sboom.cfg", exedir, HasTrailingSlash(exedir) ? "" : "/", 
 #if ((defined GL_DOOM) && (defined _MSC_VER))
-            "gl");
+            "gl"
 #else
-            "pr");
+            "pr"
 #endif
+            );
   }
 
   lprintf (LO_CONFIRM, " default file: %s\n",defaultfile);

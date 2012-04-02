@@ -81,11 +81,7 @@ void checksum_gamestate(int tic) {
     for (i=0 ; i<MAXPLAYERS ; i++) {
         if (!playeringame[i]) continue;
 
-#ifdef HAVE_SNPRINTF
         snprintf (buffer, sizeof(buffer), "%d", players[i].health);
-#else
-        sprintf (buffer, "%d", players[i].health);
-#endif
         buffer[sizeof(buffer)-1] = 0;
 
         MD5Update(&md5ctx, (md5byte const *)&buffer, strlen(buffer));

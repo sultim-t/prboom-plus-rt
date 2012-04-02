@@ -110,12 +110,8 @@
 /* Define if you have the setsockopt function.  */
 /* #define HAVE_SETSOCKOPT 1 */
 
-/* Define if you have the snprintf function.  */
-#define HAVE_SNPRINTF 1
+/* On windows, snprintf has a different name */
 #define snprintf _snprintf
-
-/* Define if you have the vsnprintf function.  */
-#define HAVE_VSNPRINTF 1
 #define vsnprintf _vsnprintf
 
 /* Define for support for MBF helper dogs */

@@ -67,9 +67,6 @@
 #define HAVE_INET_PTON 1
 #define HAVE_SETSOCKOPT 1
 
-#define HAVE_SNPRINTF 1
-#define HAVE_VSNPRINTF 1
-
 #define HAVE_MKSTEMPS 1
 
 #define HAVE_IPv6 1
