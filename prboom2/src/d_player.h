@@ -190,6 +190,7 @@ typedef struct player_s
 
   //e6y
   int                 resurectedkillcount;
+  //not used, not removed because of savagame compatibility
   const char*         centermessage;
 
   fixed_t prev_viewz;

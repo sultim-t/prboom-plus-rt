@@ -47,6 +47,7 @@
 #include "p_enemy.h"
 #include "p_tick.h"
 #include "m_bbox.h"
+#include "hu_stuff.h"
 #include "lprintf.h"
 #include "e6y.h"//e6y
 
@@ -2168,6 +2169,23 @@ void A_SkullPop(mobj_t *actor)
     player->mo = mo;
     player->damagecount = 32;
   }
+
+#if 1
+  if (player)
+  {
+    int i;
+    int plr = player - players;
+    int delay = 4 * TICRATE;
+    static const char *msg = "e6ylity";
+
+    SetCustomMessage(plr, msg, delay, 3*TICRATE, CR_RED, sfx_secret);
+    for (i = 0; i < 6; i++)
+    {
+      delay += 1; SetCustomMessage(plr, msg, delay, 3*TICRATE, CR_GOLD, sfx_None);
+      delay += 1; SetCustomMessage(plr, msg, delay, 3*TICRATE, CR_RED, sfx_None);
+    }
+  }
+#endif
 }
 
 void A_Pain(mobj_t *actor)

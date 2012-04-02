@@ -47,8 +47,6 @@
 #define HU_HUDADDX_D (HU_HUDX_LL)
 #define HU_HUDADDY_D (HU_HUDY_LL+(-1)*HU_GAPY)
 
-#define HU_MSGCENTERTIMEOUT   (2*TICRATE)
-
 #define STSTR_SECRETFOUND   "A secret is revealed!"
 
 #define S_CANT_GL_ARB_MULTITEXTURE 0x10000000
@@ -84,7 +82,6 @@ extern dboolean wasWiped;
 extern int totalleveltimes;
 
 extern int secretfound;
-extern int messagecenter_counter;
 extern int demo_skiptics;
 extern int demo_tics_count;
 extern int demo_curr_tic;

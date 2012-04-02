@@ -57,6 +57,7 @@
 #include "m_bbox.h"                                         // phares 3/20/98
 #include "d_deh.h"
 #include "r_plane.h"
+#include "hu_stuff.h"
 #include "lprintf.h"
 #include "e6y.h"//e6y
 
@@ -2356,7 +2357,7 @@ void P_PlayerInSpecialSector (player_t* player)
         //e6y
         if (hudadd_secretarea)
         {
-          player->centermessage = STSTR_SECRETFOUND;
+          SetCustomMessage(player - players, STSTR_SECRETFOUND, 0, 2 * TICRATE, CR_GOLD, sfx_secret);
         }
 
         break;
@@ -2412,7 +2413,7 @@ void P_PlayerInSpecialSector (player_t* player)
       //e6y
       if (hudadd_secretarea)
       {
-        player->centermessage = STSTR_SECRETFOUND;
+        SetCustomMessage(player - players, STSTR_SECRETFOUND, 0, 2 * TICRATE, CR_GOLD, sfx_secret);
       }
     }
 

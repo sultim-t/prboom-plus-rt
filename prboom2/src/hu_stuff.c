@@ -45,6 +45,7 @@
 #include "g_game.h"
 #include "r_main.h"
 #include "p_inter.h"
+#include "p_tick.h"
 #include "sc_man.h"
 #include "lprintf.h"
 #include "e6y.h" //e6y
@@ -232,6 +233,9 @@ extern int map_level_stat;
 // as it was not being used and couldn't be easily tested
 //
 const char* shiftxform;
+
+static custom_message_t custom_message[MAXPLAYERS];
+static custom_message_t *custom_message_p;
 
 const char english_shiftxform[] =
 {
@@ -421,6 +425,7 @@ void HU_Start(void)
     HU_Stop();
 
   plr = &players[displayplayer];        // killough 3/7/98
+  custom_message_p = &custom_message[displayplayer];
   message_on = false;
   message_dontfuckwithme = false;
   message_nottobefuckedwith = false;
@@ -2287,7 +2292,7 @@ void HU_Drawer(void)
     HUlib_drawSText(&w_message);
 
   //e6y
-  if (messagecenter_counter)
+  if (custom_message_p->ticks > 0)
     HUlib_drawTextLine(&w_centermsg, false);
 
   // if the message review is enabled show the scrolling message review
@@ -2314,7 +2319,7 @@ void HU_Erase(void)
     HUlib_eraseMText(&w_rtext);
 
   //e6y
-  if (messagecenter_counter)
+  if (custom_message_p->ticks > 0)
     HUlib_eraseTextLine(&w_centermsg);
 
   // erase the interactive text buffer for chat entry
@@ -2375,22 +2380,29 @@ void HU_Ticker(void)
       message_dontfuckwithme = 0;
     }
   }
-  //e6y
-  if (messagecenter_counter)
-    messagecenter_counter--;
-  if (/*showMessages && */plr->centermessage)
+  
+  // centered messages
+  for (i = 0; i < MAXPLAYERS; i++)
   {
-    const char *s = plr->centermessage; 
+    if (custom_message[i].ticks > 0)
+      custom_message[i].ticks--;
+  }
+  if (custom_message_p->msg)
+  {
+    const char *s = custom_message_p->msg; 
     HUlib_clearTextLine(&w_centermsg);
     while (*s)
     {
       HUlib_addCharToTextLine(&w_centermsg, *(s++));
     }
     HUlib_setTextXCenter(&w_centermsg);
-    plr->centermessage = NULL;
-    messagecenter_counter = HU_MSGCENTERTIMEOUT;
+    w_centermsg.cm = custom_message_p->cm;
+    custom_message_p->msg = NULL;
 
-    S_StartSound(NULL, sfx_secret);
+    if (custom_message_p->sfx > 0 && custom_message_p->sfx < NUMSFX)
+    {
+      S_StartSound(NULL, custom_message_p->sfx);
+    }
   }
 
   // check for incoming chat characters
@@ -2637,4 +2649,49 @@ dboolean HU_Responder(event_t *ev)
     }
   }
   return eatkey;
+}
+
+void T_ShowMessage (message_thinker_t* message)
+{
+  if (--message->delay > 0)
+    return;
+
+  SetCustomMessage(message->plr, message->msg.msg, 0,
+    message->msg.ticks, message->msg.cm, message->msg.sfx);
+
+  P_RemoveThinker(&message->thinker); // unlink and free
+}
+
+int SetCustomMessage(int plr, const char *msg, int delay, int ticks, int cm, int sfx)
+{
+  custom_message_t item;
+
+  if (plr < 0 || plr >= MAXPLAYERS || !msg || ticks < 0 ||
+      sfx < 0 || sfx >= NUMSFX || cm < 0 || cm >= CR_LIMIT)
+  {
+    return false;
+  }
+
+  item.msg = msg;
+  item.ticks = ticks;
+  item.cm = cm;
+  item.sfx = sfx;
+
+  if (delay <= 0)
+  {
+    custom_message[plr] = item;
+  }
+  else
+  {
+    message_thinker_t *message = Z_Calloc(1, sizeof(*message), PU_LEVEL, NULL);
+    message->thinker.function = T_ShowMessage;
+    message->delay = delay;
+    message->plr = plr;
+
+    message->msg = item;
+
+    P_AddThinker(&message->thinker);
+  }
+
+  return true;
 }

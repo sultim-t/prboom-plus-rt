@@ -91,4 +91,22 @@ extern int hud_displayed;   /* hud is displayed */
 extern int hud_num;
 extern int huds_count;
 
+typedef struct custom_message_s
+{
+  int ticks;
+  int cm;
+  int sfx;
+  const char *msg;
+} custom_message_t;
+
+typedef struct message_thinker_s
+{
+  thinker_t thinker;
+  int plr;
+  int delay;
+  custom_message_t msg;
+} message_thinker_t;
+
+int SetCustomMessage(int plr, const char *msg, int delay, int ticks, int cm, int sfx);
+
 #endif

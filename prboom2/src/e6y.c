@@ -89,7 +89,6 @@
 dboolean wasWiped = false;
 
 int secretfound;
-int messagecenter_counter;
 int demo_skiptics;
 int demo_playerscount;
 int demo_tics_count;
