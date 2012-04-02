@@ -179,7 +179,7 @@ unsigned long I_GetRandomTimeSeed(void)
  */
 const char* I_GetVersionString(char* buf, size_t sz)
 {
-  snprintf(buf,sz,"%s v%s (http://prboom.sourceforge.net/)",PACKAGE,VERSION);
+  doom_snprintf(buf,sz,"%s v%s (http://prboom.sourceforge.net/)",PACKAGE,VERSION);
   return buf;
 }
 
@@ -193,7 +193,7 @@ const char* I_SigString(char* buf, size_t sz, int signum)
     strcpy(buf,sys_siglist[signum]);
   else
 #endif
-    snprintf(buf,sz,"signal %d",signum);
+    doom_snprintf(buf,sz,"signal %d",signum);
   return buf;
 }
 
