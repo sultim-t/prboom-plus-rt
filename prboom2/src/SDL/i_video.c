@@ -711,6 +711,13 @@ void I_UpdateVideoMode(void)
   // Hide pointer while over this window
   SDL_ShowCursor(0);
 
+  // Ignore spurious mouse motion events after a screen mode change
+  {
+    SDL_Event e;
+    SDL_PumpEvents();
+    while (SDL_PeepEvents(&e, 1, SDL_GETEVENT, SDL_MOUSEMOTIONMASK) > 0) ;
+  }
+
   R_InitBuffer(SCREENWIDTH, SCREENHEIGHT);
 
   if (V_GetMode() == VID_MODEGL) {

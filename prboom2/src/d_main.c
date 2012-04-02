@@ -149,8 +149,8 @@ static const int nstandard_iwads = sizeof standard_iwads/sizeof*standard_iwads;
 void D_PostEvent(event_t *ev)
 {
   /* cph - suppress all input events at game start
-   * FIXME: This is a lousy kludge */
-  if (gametic < 3) return;
+   * removed: I_UpdateVideoMode purges spurious mouse motion events instead */
+
   M_Responder(ev) ||
 	  (gamestate == GS_LEVEL && (
 				     HU_Responder(ev) ||
