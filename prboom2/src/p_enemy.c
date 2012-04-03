@@ -2170,7 +2170,7 @@ void A_SkullPop(mobj_t *actor)
     player->damagecount = 32;
   }
 
-#if 1
+#if 0
   if (player)
   {
     int i;
