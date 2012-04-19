@@ -773,7 +773,7 @@ static void IdentifyVersion (void)
   //V.Aguilar (5/30/99): In LiNUX, default to $HOME/.lxdoom
   {
     // CPhipps - use DOOMSAVEDIR if defined
-    char* p = getenv("DOOMSAVEDIR");
+    const char *p = getenv("DOOMSAVEDIR");
 
     if (p == NULL)
       p = I_DoomExeDir();
