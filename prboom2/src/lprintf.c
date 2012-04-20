@@ -375,6 +375,16 @@ void I_Error(const char *error, ...)
   I_SafeExit(-1);
 }
 
+// Attempt to compensate for lack of va_copy
+
+#ifndef va_copy
+# ifdef __va_copy
+#  define va_copy(a,b) __va_copy(a,b)
+# else
+#  define va_copy(a,b) ((a)=(b))
+# endif
+#endif
+
 // Wrapper to handle non-standard stdio implementations
 
 int doom_vsnprintf(char *buf, size_t max, const char *fmt, va_list va)
