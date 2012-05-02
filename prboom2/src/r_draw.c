@@ -1058,7 +1058,7 @@ void R_FillBackScreen (void)
     return;
 
   // e6y: wide-res
-  if (wide_ratio || wide_offsety)
+  if (ratio_multiplier != ratio_scale || wide_offsety)
   {
     extern int screenblocks;
     int only_stbar;
@@ -1097,7 +1097,8 @@ void R_FillBackScreen (void)
   V_FillFlat(grnrock.lumpnum, 1, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_NONE);
 
   // line between view and status bar
-  if ((wide_ratio || wide_offsety) && (automap || scaledviewwidth == SCREENWIDTH))
+  if ((ratio_multiplier != ratio_scale || wide_offsety) &&
+      (automap || scaledviewwidth == SCREENWIDTH))
   {
     V_FillPatch(brdr_b.lumpnum, 1, 0, SCREENHEIGHT - ST_SCALED_HEIGHT, SCREENWIDTH, brdr_b.height, VPT_NONE);
   }
@@ -1149,7 +1150,7 @@ void R_DrawViewBorder(void)
   }
 
   // e6y: wide-res
-  if ((wide_ratio || wide_offsety) &&
+  if ((ratio_multiplier != ratio_scale || wide_offsety) &&
      ((SCREENHEIGHT != viewheight) ||
      ((automapmode & am_active) && ! (automapmode & am_overlay))))
   {

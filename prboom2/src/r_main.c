@@ -89,19 +89,10 @@ const lighttable_t *fixedcolormap;
 int      centerx, centery;
 // e6y: wide-res
 int wide_centerx;
-int wide_ratio;
 int wide_offsetx;
 int wide_offset2x;
 int wide_offsety;
 int wide_offset2y;
-const base_ratio_t BaseRatioSizes[5] =
-{
-	{  960, 600, 0, 48 ,      RMUL*1.333333f }, // 4:3
-	{ 1280, 450, 0, 48*3/4,   RMUL*1.777777f }, // 16:9
-	{ 1152, 500, 0, 48*5/6,   RMUL*1.6f      }, // 16:10
-  {  960, 600, 0, 48,       RMUL*1.333333f },
-	{  960, 640, (int)(6.5*FRACUNIT), 48*15/16, RMUL*1.25f } // 5:4
-};
 
 fixed_t  centerxfrac, centeryfrac;
 fixed_t  viewheightfrac; //e6y: for correct cliping of things
@@ -578,7 +569,7 @@ static void InitStretchParam(stretch_param_t* offsets, int stretch, enum patch_t
     offsets->deltay1 = 0;
   }
 
-  if (flags == VPT_ALIGN_WIDE && !(wide_ratio & 4))
+  if (flags == VPT_ALIGN_WIDE && !tallscreen)
   {
     offsets->deltay1 = 0;
   }
@@ -645,8 +636,7 @@ void R_ExecuteSetViewSize (void)
 
   setsizeneeded = false;
 
-  // If the screen is approximately 16:9 or 16:10, consider it widescreen.
-  CheckRatio(SCREENWIDTH, SCREENHEIGHT);
+  SetRatio(SCREENWIDTH, SCREENHEIGHT);
 
   if (setblocks == 11)
     {
@@ -675,14 +665,14 @@ void R_ExecuteSetViewSize (void)
   centerxfrac = centerx<<FRACBITS;
   centeryfrac = centery<<FRACBITS;
 
-  if (wide_ratio & 4)
+  if (tallscreen)
   {
     wide_centerx = centerx;
-    cheight = SCREENHEIGHT * BaseRatioSizes[wide_ratio].multiplier / 48;
+    cheight = SCREENHEIGHT * ratio_multiplier / ratio_scale;
   }
   else
   {
-    wide_centerx = centerx * BaseRatioSizes[wide_ratio].multiplier / 48;
+    wide_centerx = centerx * ratio_multiplier / ratio_scale;
     cheight = SCREENHEIGHT;
   }
 

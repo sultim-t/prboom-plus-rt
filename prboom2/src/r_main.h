@@ -62,21 +62,11 @@ extern fixed_t  projection;
 extern fixed_t  skyiscale;
 // e6y: wide-res
 extern int wide_centerx;
-extern int wide_ratio;
 extern int wide_offsetx;
 extern int wide_offset2x;
 extern int wide_offsety;
 extern int wide_offset2y;
 #define RMUL (1.6f/1.333333f)
-typedef struct base_ratio_s
-{
-  int base_width;      // Base width (unused)
-  int base_height;     // Base height (used for wall visibility multiplier)
-  int psprite_offset;  // Psprite offset (needed for "tallscreen" modes)
-  int multiplier;      // Width or height multiplier
-  float gl_ratio;
-} base_ratio_t;
-extern const base_ratio_t BaseRatioSizes[];
 
 // proff 11/06/98: Added for high-res
 extern fixed_t  projectiony;

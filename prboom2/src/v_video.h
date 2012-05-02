@@ -94,7 +94,14 @@ extern int render_stretch_hud_default;
 extern int render_patches_scalex;
 extern int render_patches_scaley;
 
-void CheckRatio(int width, int height);
+// DWF 2012-05-01
+// SetRatio sets the following global variables based on window geometry and
+// user preferences.
+void SetRatio(int width, int height);
+extern dboolean tallscreen;
+extern unsigned int ratio_multiplier, ratio_scale;
+extern float gl_ratio;
+extern int psprite_offset; // Needed for "tallscreen" modes
 
 #define CENTERY     (SCREENHEIGHT/2)
 

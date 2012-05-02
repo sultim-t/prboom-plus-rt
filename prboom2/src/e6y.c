@@ -587,17 +587,17 @@ void M_ChangeFOV(void)
   if ((p = M_CheckParm("-aspect")) && (p+1 < myargc) && (strlen(myargv[p+1]) <= 21) &&
      (2 == sscanf(myargv[p+1], "%dx%d", &render_aspect_width, &render_aspect_height)))
   {
-    CheckRatio(SCREENWIDTH, SCREENHEIGHT);
+    SetRatio(SCREENWIDTH, SCREENHEIGHT);
     render_fovratio = (float)render_aspect_width / (float)render_aspect_height;
     render_ratio = RMUL * render_fovratio;
     render_multiplier = 64.0f / render_fovratio / RMUL;
   }
   else
   {
-    CheckRatio(SCREENWIDTH, SCREENHEIGHT);
-    render_ratio = BaseRatioSizes[wide_ratio].gl_ratio;
-    render_multiplier = (float)BaseRatioSizes[wide_ratio].multiplier;
-    if (!(wide_ratio & 4))
+    SetRatio(SCREENWIDTH, SCREENHEIGHT);
+    render_ratio = gl_ratio;
+    render_multiplier = (float)ratio_multiplier;
+    if (!tallscreen)
     {
       render_fovratio = 1.6f;
     }

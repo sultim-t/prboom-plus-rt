@@ -351,7 +351,7 @@ angle_t gld_FrustumAngle(void)
 
   // ok, this is a gross hack that barely works...
   // but at least it doesn't overestimate too much...
-  floatangle = 2.0f + (45.0f + (tilt / 1.9f)) * (float)render_fov * 48.0f / render_multiplier / 90.0f;
+  floatangle = 2.0f + (45.0f + (tilt / 1.9f)) * (float)render_fov * ratio_scale / render_multiplier / 90.0f;
   a1 = ANG1 * (int)floatangle;
   if (a1 >= ANG180)
     return 0xffffffff;

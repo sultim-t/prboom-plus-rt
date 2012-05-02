@@ -287,9 +287,9 @@ void gld_DrawStripsSky(void)
   glMatrixMode(GL_TEXTURE);
 
   skyymid_multiplier = 1.0f;
-  if (wide_ratio & 4)
+  if (tallscreen)
   {
-    skyymid_multiplier = (float)BaseRatioSizes[wide_ratio].multiplier / 48.0f;
+    skyymid_multiplier = (float)ratio_multiplier / ratio_scale;
   }
 
   for (i = gld_drawinfo.num_items[GLDIT_SWALL] - 1; i >= 0; i--)

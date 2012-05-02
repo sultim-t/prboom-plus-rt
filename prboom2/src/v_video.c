@@ -52,6 +52,14 @@
 #include "st_stuff.h"
 #include "e6y.h"
 
+// DWF 2012-05-01
+// SetRatio sets the following global variables based on window geometry and
+// user preferences.
+dboolean tallscreen;
+unsigned int ratio_multiplier, ratio_scale;
+float gl_ratio;
+int psprite_offset; // Needed for "tallscreen" modes
+
 const char *render_aspects_list[5] = {"auto", "16:9", "16:10", "4:3", "5:4"};
 const char *render_stretch_list[patch_stretch_max] = {"not adjusted", "Doom format", "fit to width"};
 
@@ -1522,55 +1530,138 @@ void V_FillBorder(int lump, byte color)
   }
 }
 
-// Tries to guess the physical dimensions of the screen based on the
-// screen's pixel dimensions. Can return:
-// 0: 4:3
-// 1: 16:9
-// 2: 16:10
-// 4: 5:4
-void CheckRatio (int width, int height)
+// DWF 2012-05-01
+// Don't know if reducing the aspect ratio fractions actually speeds anything
+// up, but it does no harm.
+// Order of parameters (numerator, denominator) doesn't matter.
+static void ReduceFraction (unsigned *num1, unsigned *num2)
 {
-  // Assume anything else is 4:3.
-  wide_ratio = 0;
-
-  if ((render_aspect >= 1) && (render_aspect <= 4))
+  static const unsigned int primes[] =
   {
-    // [SP] User wants to force aspect ratio; let them.
-    wide_ratio = (render_aspect == 3 ? 0 : (int)render_aspect);
-  }
-  else
+    2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
+    31, 37, 41, 43, 47, 53, 59, 61, 67, 71,
+    73, 79, 83, 89, 97, 0
+  };
+  unsigned int i = 0;
+  unsigned int p = primes[i];
+  while (p && p <= *num1 && p <= *num2)
   {
-    // If the size is approximately 16:9, consider it so.
-    if (abs (height * 16/9 - width) < 10)
+    if (*num1 % p || *num2 % p)
     {
-      wide_ratio = 1;
+      p = primes[++i];
     }
     else
     {
-      // 16:10 has more variance in the pixel dimensions. Grr.
-      if (abs (height * 16/10 - width) < 60)
-      {
-        // 320x200 and 640x400 are always 4:3, not 16:10
-        if ((width == 320 && height == 200) || (width == 640 && height == 400))
-        {
-          wide_ratio = 0;
-        }
-        else
-        {
-          wide_ratio = 2;
-        }
-      }
+      *num1 /= p;
+      *num2 /= p;
     }
   }
+}
 
-  if (wide_ratio & 4)
+// DWF 2012-05-01
+// C substitute for C++ std::swap.
+static void swap(unsigned int *num1, unsigned int *num2)
+{
+  unsigned int temp = *num1;
+  *num1 = *num2;
+  *num2 = temp;
+}
+
+// DWF 2012-05-01
+// Set global variables for video scaling.
+void SetRatio(int width, int height)
+{
+  lprintf(LO_INFO, "SetRatio: width/height parameters %dx%d\n", width, height);
+
+  ratio_multiplier = width;
+  ratio_scale = height;
+  ReduceFraction(&ratio_multiplier, &ratio_scale);
+
+  // The terms storage aspect ratio, pixel aspect ratio, and display aspect
+  // ratio came from Wikipedia.  SAR x PAR = DAR
+  lprintf(LO_INFO, "SetRatio: storage aspect ratio %u:%u\n", ratio_multiplier, ratio_scale);
+  if ((width == 320 && height == 200) || (width == 640 && height == 400))
   {
-    WIDE_SCREENWIDTH = SCREENWIDTH;
-    WIDE_SCREENHEIGHT = SCREENHEIGHT * BaseRatioSizes[wide_ratio].multiplier / 48;
+    lprintf(LO_INFO, "SetRatio: recognized VGA mode with pixel aspect ratio 5:6\n");
+    ratio_multiplier = 4;
+    ratio_scale = 3;
   }
   else
   {
-    WIDE_SCREENWIDTH = SCREENWIDTH * BaseRatioSizes[wide_ratio].multiplier / 48;
+    lprintf(LO_INFO, "SetRatio: assuming square pixels\n");
+  }
+  lprintf(LO_INFO, "SetRatio: display aspect ratio %u:%u\n", ratio_multiplier, ratio_scale);
+
+  // If user wants to force aspect ratio, let them.
+  {
+    unsigned int new_multiplier = ratio_multiplier;
+    unsigned int new_scale = ratio_scale;
+    // Hardcoded to match render_aspects_list
+    switch (render_aspect)
+    {
+    case 0:
+      break;
+    case 1:
+      new_multiplier = 16;
+      new_scale = 9;
+      break;
+    case 2:
+      new_multiplier = 16;
+      new_scale = 10;
+      break;
+    case 3:
+      new_multiplier = 4;
+      new_scale = 3;
+      break;
+    case 4:
+      new_multiplier = 5;
+      new_scale = 4;
+      break;
+    default:
+      lprintf(LO_ERROR, "SetRatio: render_aspect has invalid value %d\n", render_aspect);
+    }
+
+    if (ratio_multiplier != new_multiplier || ratio_scale != new_scale)
+    {
+      lprintf(LO_INFO, "SetRatio: overruled by user configuration setting\n");
+      ratio_multiplier = new_multiplier;
+      ratio_scale = new_scale;
+      lprintf(LO_INFO, "SetRatio: revised display aspect ratio %u:%u\n", ratio_multiplier, ratio_scale);
+    }
+  }
+  
+  gl_ratio = RMUL * ratio_multiplier / ratio_scale;
+  lprintf(LO_INFO, "SetRatio: gl_ratio %f\n", gl_ratio);
+
+  // Calculate modified multiplier following the pattern of the old
+  // BaseRatioSizes table in PrBoom-Plus 2.5.1.3.
+  swap(&ratio_multiplier, &ratio_scale);
+  ratio_multiplier *= 4;
+  ratio_scale *= 3;
+  ReduceFraction(&ratio_multiplier, &ratio_scale);
+
+  tallscreen = (ratio_scale < ratio_multiplier);
+  if (tallscreen)
+  {
+    lprintf(LO_INFO, "SetRatio: tallscreen aspect recognized; flipping multiplier\n");
+    swap(&ratio_multiplier, &ratio_scale);
+    psprite_offset = (int)(6.5*FRACUNIT);
+  }
+  else
+  {
+    psprite_offset = 0;
+  }
+  lprintf(LO_INFO, "SetRatio: multiplier %u/%u\n", ratio_multiplier, ratio_scale);
+
+  // The rest is carried over from CheckRatio in PrBoom-Plus 2.5.1.3.
+  if (tallscreen)
+  {
+    WIDE_SCREENWIDTH = SCREENWIDTH;
+    WIDE_SCREENHEIGHT = SCREENHEIGHT * ratio_multiplier / ratio_scale;
+  }
+  else
+  {
+    WIDE_SCREENWIDTH = SCREENWIDTH * ratio_multiplier / ratio_scale;
     WIDE_SCREENHEIGHT = SCREENHEIGHT;
   }
 
@@ -1595,7 +1686,6 @@ void CheckRatio (int width, int height)
       SCREENHEIGHT < 200 || WIDE_SCREENHEIGHT < 200)
   {
     render_stretch_hud = patch_stretch_full; 
-    //wide_ratio = 0;
   }
 
   switch (render_stretch_hud)
