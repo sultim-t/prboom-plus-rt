@@ -1956,7 +1956,7 @@ static void AM_DrawNiceThings(void)
         p.fx = CXMTOF_F(p.fx);
         p.fy = CYMTOF_F(p.fy);
 
-        gld_AddNiceThing(am_icon_mark, p.fx, p.fy, radius, 0, 255, 255, 0, anim_flash_level);
+        gld_AddNiceThing(am_icon_mark, p.fx, p.fy, radius, 0, 255, 255, 0, (unsigned char)anim_flash_level);
       }
     }
   }
