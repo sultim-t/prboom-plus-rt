@@ -153,9 +153,12 @@ void gld_AddNiceThing(int type, float x, float y, float radius, float angle,
 #undef MAP_NICE_THING_INIT
 }
 
-void gld_DrawNiceThings(void)
+void gld_DrawNiceThings(int fx, int fy, int fw, int fh)
 {
   int i;
+
+  glScissor(fx, SCREENHEIGHT - (fy + fh), fw, fh);
+  glEnable(GL_SCISSOR_TEST);
 
   glDisable(GL_ALPHA_TEST);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -218,7 +221,8 @@ void gld_DrawNiceThings(void)
   glDisableClientState(GL_COLOR_ARRAY);
 #endif
 
-   gld_ResetLastTexture();
+  gld_ResetLastTexture();
+  glDisable(GL_SCISSOR_TEST);
 }
 
 void gld_ClearNiceThings(void)

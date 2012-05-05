@@ -2325,7 +2325,7 @@ void AM_Drawer (void)
 
     if (map_things_appearance == map_things_appearance_icon)
     {
-      gld_DrawNiceThings();
+      gld_DrawNiceThings(f_x, f_y, f_w, f_h);
     }
   }
 #endif
