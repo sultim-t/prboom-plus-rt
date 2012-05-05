@@ -1119,5 +1119,7 @@ extern const char* startup5;
 extern const char* savegamename;
 
 void D_BuildBEXTables(void);
+void deh_changeCompTranslucency(void);
+void deh_applyCompatibility(void);
 
 #endif

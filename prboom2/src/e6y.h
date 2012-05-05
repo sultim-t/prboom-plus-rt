@@ -205,7 +205,6 @@ void M_ChangeScreenMultipleFactor(void);
 void M_ChangeInterlacedScanning(void);
 void M_MouseMLook(int choice);
 void M_MouseAccel(int choice);
-void M_ChangeCompTranslucency(void);
 void CheckPitch(signed int *pitch);
 void I_Init2(void);
 
@@ -309,17 +308,6 @@ void MouseAccelChanging(void);
 
 extern int mlooky;
 extern int realtic_clock_rate;
-
-extern dboolean IsDehMaxHealth;
-extern dboolean IsDehMaxSoul;
-extern dboolean IsDehMegaHealth;
-extern dboolean DEH_mobjinfo_bits[NUMMOBJTYPES];
-
-extern int deh_maxhealth;
-extern int deh_max_soul;
-extern int deh_mega_health;
-
-extern int maxhealthbonus;
 
 void e6y_G_Compatibility(void);
 

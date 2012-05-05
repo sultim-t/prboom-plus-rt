@@ -62,6 +62,7 @@ extern int idkfa_armor_class;  /* Ty - end */
 extern int initial_health;
 extern int initial_bullets;
 extern int maxhealth;
+extern int maxhealthbonus;
 extern int max_armor;
 extern int green_armor_class;
 extern int blue_armor_class;

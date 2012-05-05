@@ -84,6 +84,7 @@
 #endif
 #include "g_game.h"
 #include "r_demo.h"
+#include "d_deh.h"
 #include "e6y.h"
 
 dboolean wasWiped = false;
@@ -1074,81 +1075,9 @@ int AccelerateMouse(int val)
 
 int mlooky = 0;
 
-dboolean IsDehMaxHealth = false;
-dboolean IsDehMaxSoul = false;
-dboolean IsDehMegaHealth = false;
-dboolean DEH_mobjinfo_bits[NUMMOBJTYPES] = {0};
-
-int deh_maxhealth;
-int deh_max_soul;
-int deh_mega_health;
-
-int maxhealthbonus;
-
-void M_ChangeCompTranslucency(void)
-{
-  int i;
-  int predefined_translucency[] = {
-    MT_FIRE, MT_SMOKE, MT_FATSHOT, MT_BRUISERSHOT, MT_SPAWNFIRE,
-    MT_TROOPSHOT, MT_HEADSHOT, MT_PLASMA, MT_BFG, MT_ARACHPLAZ, MT_PUFF, 
-    MT_TFOG, MT_IFOG, MT_MISC12, MT_INV, MT_INS, MT_MEGA
-  };
-  
-  for(i = 0; (size_t)i < sizeof(predefined_translucency)/sizeof(predefined_translucency[0]); i++)
-  {
-    if (!DEH_mobjinfo_bits[predefined_translucency[i]])
-    {
-      // Transparent sprites are not visible behind transparent walls in OpenGL.
-      // It needs much work.
-#ifdef GL_DOOM
-      if (V_GetMode() == VID_MODEGL)
-      {
-        // Disabling transparency in OpenGL for original sprites
-        // which are not changed by dehacked, because it's buggy for now.
-        // Global sorting of transparent sprites and walls is needed
-        mobjinfo[predefined_translucency[i]].flags &= ~MF_TRANSLUCENT;
-      }
-      else
-#endif
-      if (comp[comp_translucency]) 
-        mobjinfo[predefined_translucency[i]].flags &= ~MF_TRANSLUCENT;
-      else 
-        mobjinfo[predefined_translucency[i]].flags |= MF_TRANSLUCENT;
-    }
-  }
-}
-
 void e6y_G_Compatibility(void)
 {
-  extern int maxhealth;
-  extern int max_soul;
-  extern int mega_health;
-
-  int comp_max = (compatibility_level == doom_12_compatibility ? 199 : 200);
-
-  max_soul = (IsDehMaxSoul ? deh_max_soul : comp_max);
-  mega_health = (IsDehMegaHealth ? deh_mega_health : comp_max);
-
-  if (comp[comp_maxhealth]) 
-  {
-    maxhealth = 100;
-    maxhealthbonus = (IsDehMaxHealth ? deh_maxhealth : comp_max);
-  }
-  else 
-  {
-    maxhealth = (IsDehMaxHealth ? deh_maxhealth : 100);
-    maxhealthbonus = maxhealth * 2;
-  }
-
-  if (!DEH_mobjinfo_bits[MT_SKULL])
-  {
-    if (compatibility_level == doom_12_compatibility)
-      mobjinfo[MT_SKULL].flags |= (MF_COUNTKILL);
-    else
-      mobjinfo[MT_SKULL].flags &= ~(MF_COUNTKILL);
-  }
-
-  M_ChangeCompTranslucency();
+  deh_applyCompatibility();
 
   if (IsDemoPlayback())
   {
