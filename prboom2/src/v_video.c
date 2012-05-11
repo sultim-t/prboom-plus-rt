@@ -52,9 +52,10 @@
 #include "st_stuff.h"
 #include "e6y.h"
 
-// DWF 2012-05-01
+// DWF 2012-05-10
 // SetRatio sets the following global variables based on window geometry and
-// user preferences.
+// user preferences. The integer ratio is hardly used anymore, so further
+// simplification may be in order.
 dboolean tallscreen;
 unsigned int ratio_multiplier, ratio_scale;
 float gl_ratio;
@@ -1530,32 +1531,22 @@ void V_FillBorder(int lump, byte color)
   }
 }
 
-// DWF 2012-05-01
-// Don't know if reducing the aspect ratio fractions actually speeds anything
-// up, but it does no harm.
+// DWF 2012-05-10
+// Euclid's algorithm to find the greatest common divisor.
+static unsigned int gcd (unsigned int n, unsigned int d) { return (d ? gcd(d, n%d) : n); }
+
+// DWF 2012-05-10
+// Reduce aspect ratio fractions to make the log messages nicer.  Even if
+// integer math were still being used for FPS scaling, this would not
+// necessarily speed it up, but it does no harm.
 // Order of parameters (numerator, denominator) doesn't matter.
 static void ReduceFraction (unsigned *num1, unsigned *num2)
 {
-  static const unsigned int primes[] =
-  {
-    2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
-    31, 37, 41, 43, 47, 53, 59, 61, 67, 71,
-    73, 79, 83, 89, 97, 0
-  };
-  unsigned int i = 0;
-  unsigned int p = primes[i];
-  while (p && p <= *num1 && p <= *num2)
-  {
-    if (*num1 % p || *num2 % p)
-    {
-      p = primes[++i];
-    }
-    else
-    {
-      *num1 /= p;
-      *num2 /= p;
-    }
-  }
+  unsigned int g;
+  assert(*num1 || *num2);
+  g = gcd (*num1, *num2);
+  *num1 /= g;
+  *num2 /= g;
 }
 
 // DWF 2012-05-01

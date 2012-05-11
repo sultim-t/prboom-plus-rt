@@ -94,9 +94,10 @@ extern int render_stretch_hud_default;
 extern int render_patches_scalex;
 extern int render_patches_scaley;
 
-// DWF 2012-05-01
+// DWF 2012-05-10
 // SetRatio sets the following global variables based on window geometry and
-// user preferences.
+// user preferences. The integer ratio is hardly used anymore, so further
+// simplification may be in order.
 void SetRatio(int width, int height);
 extern dboolean tallscreen;
 extern unsigned int ratio_multiplier, ratio_scale;
