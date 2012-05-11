@@ -46,6 +46,7 @@
 #include "gl_opengl.h"
 
 #include "z_zone.h"
+#include "doomstat.h"
 #include "gl_intern.h"
 #include "gl_struct.h"
 #include "p_maputl.h"
