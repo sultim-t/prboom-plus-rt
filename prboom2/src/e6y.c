@@ -1138,7 +1138,7 @@ dboolean zerotag_manual;
 dboolean ProcessNoTagLines(line_t* line, sector_t **sec, int *secnum)
 {
   zerotag_manual = false;
-  if (line->tag == 0 && comperr[comperr_zerotag])
+  if (line->tag == 0 && comperr(comperr_zerotag))
   {
     if (!(*sec=line->backsector))
       return true;

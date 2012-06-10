@@ -1103,7 +1103,7 @@ int P_CheckTag(line_t *line)
 {
   /* tag not zero, allowed, or
    * killough 11/98: compatibility option */
-  if (comp[comp_zerotags] || line->tag || comperr[comperr_zerotag])//e6y
+  if (comp[comp_zerotags] || line->tag || comperr(comperr_zerotag))//e6y
     return 1;
 
   switch(line->special)
@@ -1272,7 +1272,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
       if (!thing->player)
         if ((line->special & FloorChange) || !(line->special & FloorModel))
           return;     // FloorModel is "Allow Monsters" if FloorChange is 0
-      if (!comperr[comperr_zerotag] && !line->tag) //e6y //jff 2/27/98 all walk generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all walk generalized types require tag
         return;
       linefunc = EV_DoGenFloor;
     }
@@ -1281,7 +1281,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
       if (!thing->player)
         if ((line->special & CeilingChange) || !(line->special & CeilingModel))
           return;     // CeilingModel is "Allow Monsters" if CeilingChange is 0
-      if (!comperr[comperr_zerotag] && !line->tag) //e6y //jff 2/27/98 all walk generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all walk generalized types require tag
         return;
       linefunc = EV_DoGenCeiling;
     }
@@ -1294,7 +1294,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
         if (line->flags & ML_SECRET) // they can't open secret doors either
           return;
       }
-      if (!comperr[comperr_zerotag] && !line->tag) //e6y //3/2/98 move outside the monster check
+      if (!comperr(comperr_zerotag) && !line->tag) //e6y //3/2/98 move outside the monster check
         return;
       linefunc = EV_DoGenDoor;
     }
@@ -1316,7 +1316,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
       if (!thing->player)
         if (!(line->special & LiftMonster))
           return; // monsters disallowed
-      if (!comperr[comperr_zerotag] && !line->tag) //e6y //jff 2/27/98 all walk generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all walk generalized types require tag
         return;
       linefunc = EV_DoGenLift;
     }
@@ -1325,7 +1325,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
       if (!thing->player)
         if (!(line->special & StairMonster))
           return; // monsters disallowed
-      if (!comperr[comperr_zerotag] && !line->tag) //e6y //jff 2/27/98 all walk generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all walk generalized types require tag
         return;
       linefunc = EV_DoGenStairs;
     }
@@ -2145,7 +2145,7 @@ void P_ShootSpecialLine
       if (!thing->player)
         if ((line->special & FloorChange) || !(line->special & FloorModel))
           return;   // FloorModel is "Allow Monsters" if FloorChange is 0
-      if (!comperr[comperr_zerotag] && !line->tag) //e6y //jff 2/27/98 all gun generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all gun generalized types require tag
         return;
 
       linefunc = EV_DoGenFloor;
@@ -2155,7 +2155,7 @@ void P_ShootSpecialLine
       if (!thing->player)
         if ((line->special & CeilingChange) || !(line->special & CeilingModel))
           return;   // CeilingModel is "Allow Monsters" if CeilingChange is 0
-      if (!comperr[comperr_zerotag] && !line->tag) //e6y //jff 2/27/98 all gun generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all gun generalized types require tag
         return;
       linefunc = EV_DoGenCeiling;
     }
@@ -2168,7 +2168,7 @@ void P_ShootSpecialLine
         if (line->flags & ML_SECRET) // they can't open secret doors either
           return;
       }
-      if (!comperr[comperr_zerotag] && !line->tag) //e6y //jff 3/2/98 all gun generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 3/2/98 all gun generalized types require tag
         return;
       linefunc = EV_DoGenDoor;
     }
@@ -2183,7 +2183,7 @@ void P_ShootSpecialLine
       }
       else
         return;
-      if (!comperr[comperr_zerotag] && !line->tag) //e6y //jff 2/27/98 all gun generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all gun generalized types require tag
         return;
 
       linefunc = EV_DoGenLockedDoor;
@@ -2200,7 +2200,7 @@ void P_ShootSpecialLine
       if (!thing->player)
         if (!(line->special & StairMonster))
           return; // monsters disallowed
-      if (!comperr[comperr_zerotag] && !line->tag) //e6y //jff 2/27/98 all gun generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all gun generalized types require tag
         return;
       linefunc = EV_DoGenStairs;
     }
@@ -2209,7 +2209,7 @@ void P_ShootSpecialLine
       if (!thing->player)
         if (!(line->special & StairMonster))
           return; // monsters disallowed
-      if (!comperr[comperr_zerotag] && !line->tag) //e6y //jff 2/27/98 all gun generalized types require tag
+      if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all gun generalized types require tag
         return;
       linefunc = EV_DoGenCrusher;
     }
@@ -2957,7 +2957,7 @@ static void P_SpawnScrollers(void)
           // killough 3/1/98: scroll wall according to linedef
           // (same direction and speed as scrolling floors)
         case 254:
-          if (l->tag == 0 && comperr[comperr_zerotag])
+          if (l->tag == 0 && comperr(comperr_zerotag))
           {
             Add_WallScroller(dx, dy, l, control, accel);
           }

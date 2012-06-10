@@ -60,7 +60,7 @@ GameExe_t game_exe;
 int demover;
 
 int comp[COMP_TOTAL], default_comp[COMP_TOTAL];    // killough 10/98
-int comperr[COMPERR_NUM], default_comperr[COMPERR_NUM];
+int /*comperr[COMPERR_NUM], */default_comperr[COMPERR_NUM];
 
 // v1.1-like pitched sounds
 int pitched_sounds;        // killough

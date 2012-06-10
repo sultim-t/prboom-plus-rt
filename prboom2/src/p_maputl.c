@@ -42,6 +42,7 @@
 #include "p_map.h"
 #include "p_setup.h"
 #include "lprintf.h"
+#include "g_game.h"
 #include "g_overflow.h"
 #include "e6y.h"//e6y
 
@@ -603,7 +604,7 @@ dboolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
   trace.dx = x2 - x1;
   trace.dy = y2 - y1;
 
-  if (comperr[comperr_blockmap])
+  if (comperr(comperr_blockmap))
   {
     int_64_t _x1, _x2, _y1, _y2;
 
@@ -729,7 +730,7 @@ int P_GetSafeBlockX(int coord)
 
   // If x is LE than those special values, interpret as positive.
   // Otherwise, leave it as it is.
-  if (comperr[comperr_blockmap] && coord <= blockmapxneg)
+  if (comperr(comperr_blockmap) && coord <= blockmapxneg)
     return coord & 0x1FF; // Broke width boundary
 
   return coord;
@@ -742,7 +743,7 @@ int P_GetSafeBlockY(int coord)
 
   // If y is LE than those special values, interpret as positive.
   // Otherwise, leave it as it is.
-  if (comperr[comperr_blockmap] && coord <= blockmapyneg)
+  if (comperr(comperr_blockmap) && coord <= blockmapyneg)
     return coord & 0x1FF; // Broke width boundary
 
   return coord;

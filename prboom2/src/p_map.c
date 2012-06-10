@@ -46,6 +46,7 @@
 #include "m_bbox.h"
 #include "lprintf.h"
 #include "m_argv.h"
+#include "g_game.h"
 #include "g_overflow.h"
 #include "hu_tracers.h"
 #include "e6y.h"//e6y
@@ -654,7 +655,7 @@ static dboolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
   // RjY
   // comperr_hangsolid, an attempt to handle blocking hanging bodies
   // A solid hanging body will allow sufficiently small things underneath it.
-  if (comperr[comperr_hangsolid] &&
+  if (comperr(comperr_hangsolid) &&
       !((~thing->flags) & (MF_SOLID | MF_SPAWNCEILING)) // solid and hanging
       // invert everything, then both bits should be clear
       && tmthing->z + tmthing->height <= thing->z) // head height <= base
@@ -1792,7 +1793,7 @@ dboolean PTR_UseTraverse (intercept_t* in)
   //WAS can't use for than one special line in a row
   //jff 3/21/98 NOW multiple use allowed with enabling line flag
 
-  return (!demo_compatibility && ((in->d.line->flags&ML_PASSUSE) || comperr[comperr_passuse]))?//e6y
+  return (!demo_compatibility && ((in->d.line->flags&ML_PASSUSE) || comperr(comperr_passuse)))?//e6y
           true : false;
 }
 
