@@ -1152,7 +1152,7 @@ void I_SetWindowIcon(void)
 
   if (surface && mask)
   {
-    //SDL_WM_SetIcon(surface, mask);
+    SDL_WM_SetIcon(surface, mask);
   }
 }
 
