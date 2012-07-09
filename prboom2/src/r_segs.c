@@ -139,8 +139,30 @@ static fixed_t R_ScaleFromGlobalAngle(angle_t visangle)
   int     den = FixedMul(rw_distance, finesine[anglea>>ANGLETOFINESHIFT]);
 // proff 11/06/98: Changed for high-res
   fixed_t num = FixedMul(projectiony, finesine[angleb>>ANGLETOFINESHIFT]);
-  return den > num>>16 ? (num = FixedDiv(num, den)) > 64*FRACUNIT ?
-    64*FRACUNIT : num < 256 ? 256 : num : 64*FRACUNIT;
+
+  // Allow a larger scale range for line segment rendering.
+  // This allows for much more accurate rendering of line segments
+  // when looking along the length of the segment
+  // Thanks to odamex r3243 and r3246.
+#if 0
+   return den > num>>16 ? (num = FixedDiv(num, den)) > 64*FRACUNIT ?
+     64*FRACUNIT : num < 256 ? 256 : num : 64*FRACUNIT;
+#else
+  fixed_t scale;
+  static const fixed_t maxscale = 256 << FRACBITS;
+  static const fixed_t minscale = 64;
+
+  if (den == 0)
+    return maxscale;
+
+  scale = FixedDiv(num, den);
+  if (scale > maxscale)
+    scale = maxscale;
+  else if (scale < minscale)
+    scale = minscale;
+
+  return scale;
+#endif
 }
 
 //
@@ -234,7 +256,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 
         if (!fixedcolormap)
         {
-          int index = ((spryscale * 160 / wide_centerx) >> LIGHTSCALESHIFT);
+          int index = (int)(((int_64_t)spryscale * 160 / wide_centerx) >> LIGHTSCALESHIFT);
           if (index >= MAXLIGHTSCALE)
             index = MAXLIGHTSCALE - 1;
 
@@ -384,7 +406,7 @@ static void R_RenderSegLoop (void)
           // calculate lighting
           if (!fixedcolormap)
           {
-            int index = ((rw_scale * 160 / wide_centerx) >> LIGHTSCALESHIFT);
+            int index = (int)(((int_64_t)rw_scale * 160 / wide_centerx) >> LIGHTSCALESHIFT);
             if (index >= MAXLIGHTSCALE)
                index = MAXLIGHTSCALE - 1;
 
