@@ -353,7 +353,7 @@ void gld_DrawStripsSky(void)
     if (comp[comp_skymap] && gl_shared_texture_palette)
       glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
 
-    SetTextureMode(TM_MODULATE);
+    SetFrameTextureMode();
   }
 }
 
@@ -954,7 +954,7 @@ void gld_DrawDomeSkyBox(void)
     glEnable(GL_DEPTH_TEST);
     glDepthMask(true);
 
-    SetTextureMode(TM_MODULATE);
+    SetFrameTextureMode();
 
     glShadeModel(shading_mode);
   }
@@ -1309,7 +1309,7 @@ int gld_DrawBoxSkyBox(void)
   glEnable(GL_DEPTH_TEST);
   glDepthMask(true);
 
-  SetTextureMode(TM_MODULATE);
+  SetFrameTextureMode();
 
   return true;
 }
