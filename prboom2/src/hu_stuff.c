@@ -47,6 +47,7 @@
 #include "p_inter.h"
 #include "p_tick.h"
 #include "sc_man.h"
+#include "m_misc.h"
 #include "lprintf.h"
 #include "e6y.h" //e6y
 
@@ -1589,6 +1590,8 @@ void HU_widget_build_weapon(void)
     hud_weapstr[i++] = ' ';
     hud_weapstr[i] = '\0';
   }
+
+  M_StrRTrim(hud_weapstr);
 
   // transfer the init string to the widget
   s = hud_weapstr;

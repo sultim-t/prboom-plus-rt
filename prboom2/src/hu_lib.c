@@ -112,11 +112,6 @@ dboolean HUlib_addCharToTextLine
     return false;
   else
   {
-    if (ch == ' ')
-      t->w += 4;
-    else
-      t->w += t->f[ch - HU_FONTSTART].width;
-
     t->linelen++;
     if (ch == '\n')
       t->linelen=0;
@@ -167,6 +162,23 @@ void HUlib_drawTextLine
   unsigned char c;
   int oc = l->cm; //jff 2/17/98 remember default color
   int y;          // killough 1/18/98 -- support multiple lines
+
+  // calculate width of widget
+  if (l->w == 0)
+  {
+    for (i = 0; i < l->len; i++)
+    {
+      c = toupper(l->l[i]);
+      if (c == '\n')
+        continue;
+      else if (c == '\x1b')
+        i++;
+      else if (c != ' ' && c >= l->sc && c <= 127)
+        l->w += l->f[c - l->sc].width;
+      else
+        l->w += 4;
+    }
+  }
 
   // draw the new stuff
 
