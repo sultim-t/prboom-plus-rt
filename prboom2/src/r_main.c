@@ -356,8 +356,8 @@ static void R_InitTextureMapping (void)
   if (wide_centerx != centerx)
   { // wide_centerx is what centerx would be if the display was not widescreen
     fov = (int)(atan((double)centerx * tan((double)fov * M_PI / FINEANGLES) / (double)wide_centerx) * FINEANGLES / M_PI);
-    if (fov > 130 * FINEANGLES / 360)
-      fov = 130 * FINEANGLES / 360;
+    if (fov > 160 * FINEANGLES / 360)
+      fov = 160 * FINEANGLES / 360;
   }
 
   // Use tangent table to generate viewangletox:
@@ -372,10 +372,11 @@ static void R_InitTextureMapping (void)
   for (i=0 ; i<FINEANGLES/2 ; i++)
     {
       int t;
-      if (finetangent[i] > FRACUNIT*2)
+      int limit = finetangent[FINEANGLES/4 + fov/2];
+      if (finetangent[i] > limit)
         t = -1;
       else
-        if (finetangent[i] < -FRACUNIT*2)
+        if (finetangent[i] < -limit)
           t = viewwidth+1;
       else
         {
