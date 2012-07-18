@@ -1755,6 +1755,26 @@ char* M_Strupr(char* str)
   return str;
 }
 
+char *M_StrRTrim(char *str)
+{
+  char *end;
+
+  if (str)
+  {
+    // Trim trailing space
+    end = str + strlen(str) - 1;
+    while(end > str && isspace(*end))
+    {
+      end--;
+    }
+
+    // Write new null terminator
+    *(end + 1) = 0;
+  }
+
+  return str;
+}
+
 void M_ArrayClear(array_t *data)
 {
   data->count = 0;
