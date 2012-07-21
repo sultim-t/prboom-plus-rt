@@ -164,3 +164,5 @@ weaponinfo_t    weaponinfo[NUMWEAPONS+2] =
     S_NULL
   },
 };
+
+int ammopershot[NUMWEAPONS+2] = {0, 1, 1, 1, 1, 1, 40, 0, 2, 0, 0};
