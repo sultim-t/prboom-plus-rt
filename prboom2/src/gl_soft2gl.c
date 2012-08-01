@@ -277,6 +277,9 @@ void gld_Draw8InGL(void)
   // unbind texture
   glBindTexture(GL_TEXTURE_2D, 0);
 
-  glFinish();
+  if (gl_finish)
+  {
+    glFinish();
+  }
   SDL_GL_SwapBuffers();
 }

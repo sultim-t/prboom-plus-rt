@@ -329,6 +329,7 @@ extern float pitch;
 
 extern int gl_compatibility;
 extern int gl_ztrick;
+extern int gl_finish;
 
 extern int gl_preprocessed; //e6y
 
