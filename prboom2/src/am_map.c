@@ -2050,11 +2050,11 @@ static void AM_drawThings(void)
         {
           //jff 1/5/98 treat keys special
           case 38: case 13: //jff  red key
-            color = mapcolor_rkey != -1? mapcolor_rkey : mapcolor_sprt;
+            color = mapcolor_rkey != -1? mapcolor_rkey : mapcolor_sprt; break;
           case 39: case 6: //jff yellow key
-            color = mapcolor_ykey != -1? mapcolor_ykey : mapcolor_sprt;
+            color = mapcolor_ykey != -1? mapcolor_ykey : mapcolor_sprt; break;
           case 40: case 5: //jff blue key
-            color = mapcolor_bkey != -1? mapcolor_bkey : mapcolor_sprt;
+            color = mapcolor_bkey != -1? mapcolor_bkey : mapcolor_sprt; break;
         }
 
         if (color != -1)
