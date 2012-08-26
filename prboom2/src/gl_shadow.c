@@ -36,6 +36,7 @@
 #include "doomstat.h"
 #include "p_maputl.h"
 #include "w_wad.h"
+#include "r_fps.h"
 #include "r_bsp.h"
 #include "r_sky.h"
 #include "lprintf.h"
@@ -140,6 +141,7 @@ void gld_ProcessThingShadow(mobj_t *mo)
   float height, moh, halfmoh;
   sector_t *sec = mo->subsector->sector;
   int radius, z;
+  fixed_t fz;
   GLShadow shadow;
 
   if (!simple_shadows.enable || !simple_shadows.loaded)
@@ -171,10 +173,18 @@ void gld_ProcessThingShadow(mobj_t *mo)
     z = sec->floorheight;
   
   // below visible floor
-  if (mo->z < z)
+  if (!paused && movement_smooth)
+  {
+    fz = mo->PrevZ + FixedMul (tic_vars.frac, mo->z - mo->PrevZ);
+  }
+  else
+  {
+    fz = mo->z;
+  }
+  if (fz < z)
     return;
 
-  height = (mo->z - z) / (float)FRACUNIT;
+  height = (fz - z) / (float)FRACUNIT;
   moh = mo->height / (float)FRACUNIT;
   if(!moh)
     moh = 1;
