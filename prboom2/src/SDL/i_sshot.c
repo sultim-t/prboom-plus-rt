@@ -255,7 +255,11 @@ int I_ScreenShot (const char *fname)
         png_init_io(png_ptr, fp);
         png_set_IHDR(
             png_ptr, info_ptr, REAL_SCREENWIDTH, REAL_SCREENHEIGHT, 8,
-            (V_GetMode() == VID_MODE8 && !vid_8ingl.enabled)
+            (V_GetMode() == VID_MODE8
+#ifdef GL_DOOM
+             && !vid_8ingl.enabled
+#endif
+             )
               ? PNG_COLOR_TYPE_PALETTE
               : PNG_COLOR_TYPE_RGB,
             PNG_INTERLACE_NONE,
