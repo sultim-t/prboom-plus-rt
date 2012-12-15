@@ -210,7 +210,7 @@ unsigned long I_GetRandomTimeSeed(void)
  */
 const char* I_GetVersionString(char* buf, size_t sz)
 {
-  doom_snprintf(buf,sz,"%s v%s (http://prboom-plus.sourceforge.net/)",PACKAGE_NAME,PACKAGE_VERSION);
+  snprintf(buf,sz,"%s v%s (http://prboom-plus.sourceforge.net/)",PACKAGE_NAME,PACKAGE_VERSION);
   return buf;
 }
 
