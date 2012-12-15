@@ -145,14 +145,11 @@
  * instead. */
 #define PACKEDATTR
 
-/* Name of package */
-#define PACKAGE "prboom-plus"
-
-/* Version number of package */
-#define VERSION "2.5.1.4"
-
 /* Define to the full name of this package. */
 #define PACKAGE_NAME "PrBoom-Plus"
+
+/* Define to the one symbol short name of this package. */
+#define PACKAGE_TARNAME "prboom-plus"
 
 /* Define to the version of this package. */
 #define PACKAGE_VERSION "2.5.1.4"
