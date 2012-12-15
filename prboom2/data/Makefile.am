@@ -42,6 +42,9 @@ SOUNDS += sounds/dsdgact.wav
 SOUNDS += sounds/dsdgdth.wav
 SOUNDS += sounds/dsdgpain.wav
 
+SOUNDS += sounds/dssecret.wav
+SOUNDS += sounds/dsgibdth.wav
+
 GRAPHICS = graphics/dig0.ppm
 GRAPHICS += graphics/dig1.ppm
 GRAPHICS += graphics/dig2.ppm
@@ -244,6 +247,31 @@ SPRITES += sprites/dogsl0.ppm
 SPRITEP += 32,59,sprites/dogsl0.ppm
 SPRITES += sprites/dogsm0.ppm
 SPRITEP += 32,59,sprites/dogsm0.ppm
+
+SPRITES += sprites/pls1a0.ppm
+SPRITES += 8,12,sprites/pls1a0.ppm
+SPRITES += sprites/pls1b0.ppm
+SPRITES += 9,12,sprites/pls1b0.ppm
+SPRITES += sprites/pls1c0.ppm
+SPRITES += 8,12,sprites/pls1c0.ppm
+SPRITES += sprites/pls1d0.ppm
+SPRITES += 9,12,sprites/pls1d0.ppm
+SPRITES += sprites/pls1e0.ppm
+SPRITES += 25,37,sprites/pls1e0.ppm
+SPRITES += sprites/pls1f0.ppm
+SPRITES += 25,37,sprites/pls1f0.ppm
+SPRITES += sprites/pls1g0.ppm
+SPRITES += 26,42,sprites/pls1g0.ppm
+SPRITES += sprites/pls2a0.ppm
+SPRITES += 7,10,sprites/pls2a0.ppm
+SPRITES += sprites/pls2b0.ppm
+SPRITES += 6,8,sprites/pls2b0.ppm
+SPRITES += sprites/pls2c0.ppm
+SPRITES += 5,6,sprites/pls2c0.ppm
+SPRITES += sprites/pls2d0.ppm
+SPRITES += 7,10,sprites/pls2d0.ppm
+SPRITES += sprites/pls2e0.ppm
+SPRITES += 11,16,sprites/pls2e0.ppm
 
 WAD_SRC = $(PALETTE) $(LUMPS) $(COLORMAPS) $(TABLES) \
           $(SOUNDS) $(GRAPHICS) $(SPRITES)
