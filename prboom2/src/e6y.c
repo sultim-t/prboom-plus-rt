@@ -708,10 +708,6 @@ void MouseAccelChanging(void)
   mouse_accelfactor = (float)mouse_acceleration/100.0f+1.0f;
 }
 
-void M_DemosBrowse(void)
-{
-}
-
 float viewPitch;
 dboolean transparentpresent;
 

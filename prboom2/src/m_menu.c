@@ -171,6 +171,7 @@ typedef struct
   //   choice=0:leftarrow,1:rightarrow
   void  (*routine)(int choice);
   char  alphaKey; // hotkey in menu
+  const char *alttext;
 } menuitem_t;
 
 typedef struct menu_s
@@ -262,9 +263,11 @@ void M_SetupNextMenu(menu_t *menudef);
 void M_DrawThermo(int x,int y,int thermWidth,int thermDot);
 void M_DrawEmptyCell(menu_t *menu,int item);
 void M_DrawSelCell(menu_t *menu,int item);
-void M_WriteText(int x, int y, const char *string);
+void M_WriteText(int x, int y, const char *string, int cm);
 int  M_StringWidth(const char *string);
 int  M_StringHeight(const char *string);
+void M_DrawTitle(int x, int y, const char *patch, int cm,
+                 const char *alttext, int altcm);
 void M_StartMessage(const char *string,void *routine,dboolean input);
 void M_StopMessage(void);
 void M_ClearMenus (void);
@@ -745,7 +748,7 @@ void M_DrawLoad(void)
   V_DrawNamePatch(72 ,LOADGRAPHIC_Y, 0, "M_LOADG", CR_DEFAULT, VPT_STRETCH);
   for (i = 0 ; i < load_end ; i++) {
     M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
-    M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i]);
+    M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i], CR_DEFAULT);
   }
 }
 
@@ -891,13 +894,13 @@ void M_DrawSave(void)
   for (i = 0 ; i < load_end ; i++)
     {
     M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
-    M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i]);
+    M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i], CR_DEFAULT);
     }
 
   if (saveStringEnter)
     {
     i = M_StringWidth(savegamestrings[saveSlot]);
-    M_WriteText(LoadDef.x + i,LoadDef.y+LINEHEIGHT*saveSlot,"_");
+    M_WriteText(LoadDef.x + i,LoadDef.y+LINEHEIGHT*saveSlot,"_", CR_DEFAULT);
     }
 }
 
@@ -976,16 +979,16 @@ enum
 menuitem_t OptionsMenu[]=
 {
   // killough 4/6/98: move setup to be a sub-menu of OPTIONs
-  {1,"M_GENERL", M_General, 'g'},      // killough 10/98
-  {1,"M_SETUP",  M_Setup,   's'},                          // phares 3/21/98
-  {1,"M_ENDGAM", M_EndGame,'e'},
-  {1,"M_MESSG",  M_ChangeMessages,'m'},
+  {1,"M_GENERL", M_General, 'g', "GENERAL"},      // killough 10/98
+  {1,"M_SETUP",  M_Setup,   's', "SETUP"},        // phares 3/21/98
+  {1,"M_ENDGAM", M_EndGame,'e',  "END GAME"},
+  {1,"M_MESSG",  M_ChangeMessages,'m', "MESSAGES"},
   /*    {1,"M_DETAIL",  M_ChangeDetail,'g'},  unused -- killough */
-  {2,"M_SCRNSZ", M_SizeDisplay,'s'},
+  {2,"M_SCRNSZ", M_SizeDisplay,'s', "SCREEN SIZE"},
   {-1,"",0},
-  {1,"M_MSENS",  M_ChangeSensitivity,'m'},
+  {1,"M_MSENS",  M_ChangeSensitivity,'m', "MOUSE SENSITIVITY"},
   /* {-1,"",0},  replaced with submenu -- killough */
-  {1,"M_SVOL",   M_Sound,'s'}
+  {1,"M_SVOL",   M_Sound,'s', "SOUND VOLUME"},
 };
 
 menu_t OptionsDef =
@@ -1213,16 +1216,16 @@ enum
 
 menuitem_t MouseMenu[]=
 {
-  {2,"M_HORSEN",M_MouseHoriz,'h'},
+  {2,"M_HORSEN",M_MouseHoriz,'h', "HORIZONTAL"},
   {-1,"",0},
-  {2,"M_VERSEN",M_MouseVert,'v'},
+  {2,"M_VERSEN",M_MouseVert,'v', "VERTICAL"},
   {-1,"",0}
 
   //e6y
   ,
-  {2,"M_LOKSEN",M_MouseMLook,'l'},
+  {2,"M_LOKSEN",M_MouseMLook,'l', "MOUSE LOOK"},
   {-1,"",0},
-  {2,"M_ACCEL",M_MouseAccel,'a'},
+  {2,"M_ACCEL",M_MouseAccel,'a', "ACCELERATION"},
   {-1,"",0}
 };
 
@@ -1549,14 +1552,14 @@ int setup_screen; // the current setup screen. takes values from setup_e
 
 menuitem_t SetupMenu[]=
 {
-  {1,"M_COMPAT",M_Compat,     'p'},
-  {1,"M_KEYBND",M_KeyBindings,'k'},
-  {1,"M_WEAP"  ,M_Weapons,    'w'},
-  {1,"M_STAT"  ,M_StatusBar,  's'},
-  {1,"M_AUTO"  ,M_Automap,    'a'},
-  {1,"M_ENEM"  ,M_Enemy,      'e'},
-  {1,"M_MESS"  ,M_Messages,   'm'},
-  {1,"M_CHAT"  ,M_ChatStrings,'c'},
+  {1,"M_COMPAT",M_Compat,     'p', "DOOM COMPATIBILITY"},
+  {1,"M_KEYBND",M_KeyBindings,'k', "KEY BINDINGS"},
+  {1,"M_WEAP"  ,M_Weapons,    'w', "WEAPONS"},
+  {1,"M_STAT"  ,M_StatusBar,  's', "STATUS BAR / HUD"},
+  {1,"M_AUTO"  ,M_Automap,    'a', "AUTOMAP"},
+  {1,"M_ENEM"  ,M_Enemy,      'e', "ENEMIES"},
+  {1,"M_MESS"  ,M_Messages,   'm', "MESSAGES"},
+  {1,"M_CHAT"  ,M_ChatStrings,'c', "CHAT STRINGS"},
 };
 
 /////////////////////////////
@@ -1709,7 +1712,7 @@ menu_t CompatDef =                                           // killough 10/98
 void M_DrawSetup(void)
 {
   // CPhipps - patch drawing updated
-  V_DrawNamePatch(124, 15, 0, "M_SETUP", CR_DEFAULT, VPT_STRETCH);
+  M_DrawTitle(124, 15, "M_SETUP", CR_DEFAULT, "SETUP", CR_GOLD);
 }
 
 /////////////////////////////
@@ -2450,7 +2453,7 @@ void M_DrawKeybnd(void)
   M_DrawBackground("FLOOR4_6", 0); // Draw background
 
   // proff/nicolas 09/20/98 -- changed for hi-res
-  V_DrawNamePatch(84, 2, 0, "M_KEYBND", CR_DEFAULT, VPT_STRETCH);
+  M_DrawTitle(84, 2, "M_KEYBND", CR_DEFAULT, "KEY BINDINGS", CR_GOLD);
   M_DrawInstructions();
   M_DrawScreenItems(current_setup_menu);
 
@@ -2560,7 +2563,7 @@ void M_DrawWeapons(void)
   M_DrawBackground("FLOOR4_6", 0); // Draw background
 
   // proff/nicolas 09/20/98 -- changed for hi-res
-  V_DrawNamePatch(109, 2, 0, "M_WEAP", CR_DEFAULT, VPT_STRETCH);
+  M_DrawTitle(109, 2, "M_WEAP", CR_DEFAULT, "WEAPONS", CR_GOLD);
   M_DrawInstructions();
   M_DrawScreenItems(current_setup_menu);
 
@@ -2669,7 +2672,7 @@ void M_DrawStatusHUD(void)
   M_DrawBackground("FLOOR4_6", 0); // Draw background
 
   // proff/nicolas 09/20/98 -- changed for hi-res
-  V_DrawNamePatch(59, 2, 0, "M_STAT", CR_DEFAULT, VPT_STRETCH);
+  M_DrawTitle(59, 2, "M_STAT", CR_DEFAULT, "STATUS BAR / HUD", CR_GOLD);
   M_DrawInstructions();
   M_DrawScreenItems(current_setup_menu);
 
@@ -2853,7 +2856,7 @@ void M_DrawAutoMap(void)
   M_DrawBackground("FLOOR4_6", 0); // Draw background
 
   // CPhipps - patch drawing updated
-  V_DrawNamePatch(109, 2, 0, "M_AUTO", CR_DEFAULT, VPT_STRETCH);
+  M_DrawTitle(109, 2, "M_AUTO", CR_DEFAULT, "AUTOMAP", CR_GOLD);
   M_DrawInstructions();
   M_DrawScreenItems(current_setup_menu);
 
@@ -2980,7 +2983,7 @@ void M_DrawEnemy(void)
   M_DrawBackground("FLOOR4_6", 0); // Draw background
 
   // proff/nicolas 09/20/98 -- changed for hi-res
-  V_DrawNamePatch(114, 2, 0, "M_ENEM", CR_DEFAULT, VPT_STRETCH);
+  M_DrawTitle(114, 2, "M_ENEM", CR_DEFAULT, "ENEMIES", CR_GOLD);
   M_DrawInstructions();
   M_DrawScreenItems(current_setup_menu);
 
@@ -3333,7 +3336,7 @@ void M_DrawGeneral(void)
   M_DrawBackground("FLOOR4_6", 0); // Draw background
 
   // proff/nicolas 09/20/98 -- changed for hi-res
-  V_DrawNamePatch(114, 2, 0, "M_GENERL", CR_DEFAULT, VPT_STRETCH);
+  M_DrawTitle(114, 2, "M_GENERL", CR_DEFAULT, "GENERAL", CR_GOLD);
   M_DrawInstructions();
   M_DrawScreenItems(current_setup_menu);
 
@@ -3538,7 +3541,7 @@ void M_DrawCompat(void)
 
   M_DrawBackground("FLOOR4_6", 0); // Draw background
 
-  V_DrawNamePatch(52,2,0,"M_COMPAT", CR_DEFAULT, VPT_STRETCH);
+  M_DrawTitle(52, 2, "M_COMPAT", CR_DEFAULT, "DOOM COMPATIBILITY", CR_GOLD);
   M_DrawInstructions();
   M_DrawScreenItems(current_setup_menu);
 
@@ -3660,7 +3663,7 @@ void M_DrawMessages(void)
   M_DrawBackground("FLOOR4_6", 0); // Draw background
 
   // CPhipps - patch drawing updated
-  V_DrawNamePatch(103, 2, 0, "M_MESS", CR_DEFAULT, VPT_STRETCH);
+  M_DrawTitle(103, 2, "M_MESS", CR_DEFAULT, "MESSAGES", CR_GOLD);
   M_DrawInstructions();
   M_DrawScreenItems(current_setup_menu);
   if (default_verify)
@@ -3734,7 +3737,7 @@ void M_DrawChatStrings(void)
   M_DrawBackground("FLOOR4_6", 0); // Draw background
 
   // CPhipps - patch drawing updated
-  V_DrawNamePatch(83, 2, 0, "M_CHAT", CR_DEFAULT, VPT_STRETCH);
+  M_DrawTitle(83, 2, "M_CHAT", CR_DEFAULT, "CHAT STRINGS", CR_GOLD);
   M_DrawInstructions();
   M_DrawScreenItems(current_setup_menu);
 
@@ -4305,7 +4308,14 @@ void M_DrawCredits(void)     // killough 10/98: credit screen
   inhelpscreens = true;
   // Use V_DrawBackground here deliberately to force drawing a background
   V_DrawBackground(gamemode==shareware ? "CEIL5_1" : "MFLR8_4", 0);
-  V_DrawNamePatch(81,9,0, "PRBOOM",CR_GOLD, VPT_TRANS | VPT_STRETCH);
+  if(1)
+  {
+    V_DrawNamePatch(81,9,0, "PRBOOM",CR_GOLD, VPT_TRANS | VPT_STRETCH);
+  }
+  else
+  {
+    M_DrawTitle(115, 9, "PRBOOM", CR_GOLD, PACKAGE_NAME " v" PACKAGE_VERSION, CR_GOLD);
+  }
   M_DrawScreenItems(cred_settings);
 }
 
@@ -5684,7 +5694,7 @@ void M_Drawer (void)
         while ((c = *p) && *p != '\n')
           p++;
         *p = 0;
-        M_WriteText(160 - M_StringWidth(string)/2, y, string);
+        M_WriteText(160 - M_StringWidth(string)/2, y, string, CR_DEFAULT);
         y += hu_font[0].height;
         if ((*p = c))
           p++;
@@ -5695,6 +5705,7 @@ void M_Drawer (void)
     if (menuactive)
       {
   int x,y,max,i;
+  int lumps_missing = 0;
 
   menuactive = mnact_float; // Boom-style menu drawers will set mnact_full
 
@@ -5707,11 +5718,25 @@ void M_Drawer (void)
   y = currentMenu->y;
   max = currentMenu->numitems;
 
-  for (i=0;i<max;i++)
+  for (i = 0; i < max; i++)
+    if (currentMenu->menuitems[i].name[0])
+      if (W_CheckNumForName(currentMenu->menuitems[i].name) < 0)
+        lumps_missing++;
+
+  if (lumps_missing == 0)
+    for (i=0;i<max;i++)
     {
       if (currentMenu->menuitems[i].name[0])
         V_DrawNamePatch(x,y,0,currentMenu->menuitems[i].name,
             CR_DEFAULT, VPT_STRETCH);
+      y += LINEHEIGHT;
+    }
+  else
+    for (i = 0; i < max; i++)
+    {
+      const char *alttext = currentMenu->menuitems[i].alttext;
+      if (alttext)
+        M_WriteText(x, y+8-(M_StringHeight(alttext)/2), alttext, CR_DEFAULT);
       y += LINEHEIGHT;
     }
 
@@ -5884,17 +5909,22 @@ int M_StringHeight(const char* string)
 //
 //    Write a string using the hu_font
 //
-void M_WriteText (int x,int y,const char* string)
+void M_WriteText (int x,int y, const char* string, int cm)
 {
   int   w;
   const char* ch;
   int   c;
   int   cx;
   int   cy;
+  int   flags;
 
   ch = string;
   cx = x;
   cy = y;
+
+  flags = VPT_STRETCH;
+  if (cm != CR_DEFAULT)
+    flags |= VPT_TRANS;
 
   while(1) {
     c = *ch++;
@@ -5917,8 +5947,29 @@ void M_WriteText (int x,int y,const char* string)
       break;
     // proff/nicolas 09/20/98 -- changed for hi-res
     // CPhipps - patch drawing updated
-    V_DrawNumPatch(cx, cy, 0, hu_font[c].lumpnum, CR_DEFAULT, VPT_STRETCH);
+    V_DrawNumPatch(cx, cy, 0, hu_font[c].lumpnum, cm, flags);
     cx+=w;
+  }
+}
+
+void M_DrawTitle(int x, int y, const char *patch, int cm,
+                 const char *alttext, int altcm)
+{
+  int lumpnum = W_CheckNumForName(patch);
+
+  if (lumpnum >= 0)
+  {
+    int flags = VPT_STRETCH;
+    if (cm != CR_DEFAULT)
+      flags |= VPT_TRANS;
+    V_DrawNumPatch(x, y, 0, lumpnum, cm, flags);
+  }
+  else
+  {
+    // patch doesn't exist, draw some text in place of it
+    M_WriteText(160-(M_StringWidth(alttext)/2),
+                y+8-(M_StringHeight(alttext)/2), // assumes patch height 16
+                alttext, altcm);
   }
 }
 

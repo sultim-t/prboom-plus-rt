@@ -1394,15 +1394,12 @@ int gld_PrecacheGUIPatches(void)
     "M_EPI4",
 
     //prboom's M_*
-    "M_ABOUT",  "M_ACCEL",  "M_AUTO",   "M_BUTT1",
-    "M_BUTT2",  "M_CHAT",   "M_COLORS", "M_COMPAT",
-    "M_COMPAT", "M_DEMOS",  "M_ENEM",   "M_FEAT",
-    "M_GENERL", "M_HORSEN", "M_HUD",    "M_KEYBND",
-    "M_KEYBND", "M_LOKSEN", "M_MESS",   "M_MOUSE",
-    "M_MULTI",  "M_PALNO",  "M_PALSEL", "M_SETUP",
-    "M_SLIDEL", "M_SLIDEM", "M_SLIDEO", "M_SLIDER",
-    "M_SOUND",  "M_STAT",   "M_STAT",   "M_VBOX",
-    "M_VERSEN", "M_VIDEO",  "M_WAD",    "M_WEAP",
+    "M_ACCEL",  "M_AUTO",   "M_BUTT1",  "M_BUTT2",
+    "M_CHAT",   "M_COLORS", "M_COMPAT", "M_COMPAT",
+    "M_ENEM",   "M_GENERL", "M_HORSEN", "M_KEYBND",
+    "M_KEYBND", "M_LOKSEN", "M_MESS",   "M_PALNO",
+    "M_PALSEL", "M_SETUP",  "M_STAT",   "M_STAT",
+    "M_VBOX",   "M_VERSEN", "M_WEAP",
 
     NULL
   };

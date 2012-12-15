@@ -152,12 +152,14 @@
 /* Name of package */
 #define PACKAGE "prboom-plus"
 
+/* Version number of package */
+#define VERSION "2.5.1.4"
+
 /* Define to the full name of this package. */
 #define PACKAGE_NAME "PrBoom-Plus"
 
-//e6y
-/* Version number of package */
-#define VERSION "2.5.1.4"
+/* Define to the version of this package. */
+#define PACKAGE_VERSION "2.5.1.4"
 
 /* Define if you have the SDL image library -lSDL_image */
 #define HAVE_LIBSDL_IMAGE
