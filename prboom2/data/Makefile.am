@@ -36,11 +36,19 @@ TABLES += lumps/tangtabl.lmp
 TABLES += lumps/tantoang.lmp
 TABLES += lumps/gammatbl.lmp
 
+if NONFREE_GRAPHICS
 SOUNDS = sounds/dsdgsit.wav
 SOUNDS += sounds/dsdgatk.wav
 SOUNDS += sounds/dsdgact.wav
 SOUNDS += sounds/dsdgdth.wav
 SOUNDS += sounds/dsdgpain.wav
+else
+SOUNDS = sounds/free/dsdgsit.wav
+SOUNDS += sounds/free/dsdgatk.wav
+SOUNDS += sounds/free/dsdgact.wav
+SOUNDS += sounds/free/dsdgdth.wav
+SOUNDS += sounds/free/dsdgpain.wav
+endif
 
 SOUNDS += sounds/dssecret.wav
 SOUNDS += sounds/dsgibdth.wav
