@@ -23,7 +23,7 @@ prboom2/VisualC9/prboom_server.vcproj eol=crlf
 prboom2/autotools/ac_c_compile_flags.m4 eol=lf
 prboom2/autotools/ac_cpu_optimisations.m4 eol=lf
 prboom2/data/Makefile.am eol=lf
-prboom2/data/flats/-n0_tex-.bmp -text
+prboom2/data/flats/-n0_tex-.ppm -text svneol=unset#unset
 prboom2/data/graphics/boxcc.ppm -text svneol=unset#application/octet-stream
 prboom2/data/graphics/boxcl.ppm -text svneol=unset#application/octet-stream
 prboom2/data/graphics/boxcr.ppm -text svneol=unset#application/octet-stream

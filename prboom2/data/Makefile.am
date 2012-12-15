@@ -129,6 +129,8 @@ GRAPHICS += graphics/m_accel.ppm
 GRAPHICS += graphics/m_loksen.ppm
 endif
 
+FLATS = flats/-n0_tex-.ppm
+
 SPRITES = sprites/tnt1a0.ppm
 SPRITEP = 0,0,sprites/tnt1a0.ppm
 SPRITES += sprites/dogsd5.ppm
@@ -274,7 +276,7 @@ SPRITES += sprites/pls2e0.ppm
 SPRITEP += 11,16,sprites/pls2e0.ppm
 
 WAD_SRC = $(PALETTE) $(LUMPS) $(COLORMAPS) $(TABLES) \
-          $(SOUNDS) $(GRAPHICS) $(SPRITES)
+          $(SOUNDS) $(GRAPHICS) $(FLATS) $(SPRITES)
 
 WAD_CMDLINE = -palette $(PALETTE)
 WAD_CMDLINE += -lumps $(LUMPS)
@@ -282,6 +284,7 @@ WAD_CMDLINE += -marker C_START -lumps $(COLORMAPS) -marker C_END
 WAD_CMDLINE += -marker B_START -lumps $(TABLES) -marker B_END
 WAD_CMDLINE += -sounds $(SOUNDS)
 WAD_CMDLINE += -graphics $(GRAPHICS)
+WAD_CMDLINE += -marker FF_START -flats $(FLATS) -marker FF_END
 WAD_CMDLINE += -marker SS_START -sprites $(SPRITEP) -marker SS_END
 
 prboom-plus.wad : rdatawad $(WAD_SRC)
