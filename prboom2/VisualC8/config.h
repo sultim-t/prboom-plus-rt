@@ -138,3 +138,13 @@
 
 /* Version number of package */
 #define VERSION "2.5.0"
+
+/* Define to the full name of this package. */
+#define PACKAGE_NAME "prboom"
+
+/* Define to the full name and version of this package. */
+#define PACKAGE_STRING "prboom 2.5.0"
+
+/* Define to the version of this package. */
+#define PACKAGE_VERSION "2.5.0"
+

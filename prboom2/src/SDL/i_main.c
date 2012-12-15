@@ -40,6 +40,7 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#include "SDL.h"
 #include "doomdef.h"
 #include "m_argv.h"
 #include "d_main.h"
