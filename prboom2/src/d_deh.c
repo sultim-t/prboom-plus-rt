@@ -474,7 +474,7 @@ const char *startup5     = "";
 
 /* Ty 05/03/98 - externalized
  * cph - updated for prboom */
-const char *savegamename = PACKAGE"-savegame";
+const char *savegamename = PACKAGE_TARNAME"-savegame";
 
 // end d_deh.h variable declarations
 // ====================================================================

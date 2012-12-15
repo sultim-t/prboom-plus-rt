@@ -1106,9 +1106,9 @@ void I_SetWindowCaption(void)
 {
   char *buf;
 
-  buf = malloc(strlen(PACKAGE_NAME) + strlen(VERSION) + 10);
+  buf = malloc(strlen(PACKAGE_NAME) + strlen(PACKAGE_VERSION) + 10);
 
-  sprintf(buf, "%s %s", PACKAGE_NAME, VERSION);
+  sprintf(buf, "%s %s", PACKAGE_NAME, PACKAGE_VERSION);
 
   SDL_WM_SetCaption(buf, NULL);
 

@@ -281,9 +281,9 @@ int Init_ConsoleWin(void)
 
     width=100;
     height=100;
-    strcpy(titlebuffer,PACKAGE);
+    strcpy(titlebuffer,PACKAGE_NAME);
     strcat(titlebuffer," ");
-    strcat(titlebuffer,VERSION);
+    strcat(titlebuffer,PACKAGE_VERSION);
     strcat(titlebuffer," console");
     con_hWnd = CreateWindow(szConName, titlebuffer,
              WS_CAPTION | WS_POPUP,

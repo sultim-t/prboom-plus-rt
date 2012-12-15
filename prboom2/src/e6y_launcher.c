@@ -1463,7 +1463,7 @@ void LauncherShow(unsigned int params)
   launcher_params = params;
 
   InitCommonControls();
-  sprintf(launchercachefile,"%s/"PACKAGE".cache", I_DoomExeDir());
+  sprintf(launchercachefile,"%s/"PACKAGE_TARNAME".cache", I_DoomExeDir());
 
   result = DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_LAUNCHERSERVERDIALOG), NULL, (DLGPROC)LauncherServerCallback);
 

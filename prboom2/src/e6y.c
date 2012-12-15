@@ -1085,7 +1085,7 @@ void e6y_G_Compatibility(void)
       {
 #ifdef RANGECHECK
         if (b[i] >= 256)
-          I_Error("Wrong version number of package: %s", VERSION);
+          I_Error("Wrong version number of package: %s", PACKAGE_VERSION);
 #endif
         emulated_version += b[i] * k;
       }

@@ -1200,7 +1200,7 @@ void G_WriteDemoFooter(FILE *file)
 
   //process port name
   W_AddLump(&demoex, DEMOEX_PORTNAME_LUMPNAME,
-    (const byte*)(PACKAGE_NAME" "VERSION), strlen(PACKAGE_NAME" "VERSION));
+    (const byte*)(PACKAGE_NAME" "PACKAGE_VERSION), strlen(PACKAGE_NAME" "PACKAGE_VERSION));
   W_AddLump(&demoex, NULL, (const byte*)DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
 
   //process iwad, pwads, dehs and critical for demos params like -spechit, etc
@@ -1566,7 +1566,7 @@ int CheckAutoDemo(void)
   if (M_CheckParm("-auto"))
 #ifndef HAVE_LIBPCREPOSIX
     I_Error("Cannot process -auto - "
-        PACKAGE " was compiled without LIBPCRE support");
+        PACKAGE_NAME " was compiled without LIBPCRE support");
 #else
   {
     int i;
