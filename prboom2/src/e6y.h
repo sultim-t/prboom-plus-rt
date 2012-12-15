@@ -91,7 +91,6 @@ extern char demo_len_st[80];
 extern int avi_shot_time;
 extern int avi_shot_num;
 extern const char *avi_shot_fname;
-extern char avi_shot_curr_fname[PATH_MAX];
 
 extern dboolean doSkip;
 extern dboolean demo_stoponnext;

@@ -1870,18 +1870,21 @@ void G_DoLoadGame(void)
 {
   int  length, i;
   // CPhipps - do savegame filename stuff here
-  char name[PATH_MAX+1];     // killough 3/22/98
+  char *name;                // killough 3/22/98
   int savegame_compatibility = -1;
   //e6y: numeric version number of package should be zero before initializing from savegame
   unsigned int packageversion = 0;
 
-  G_SaveGameName(name,sizeof(name),savegameslot, demoplayback);
+  length = G_SaveGameName(NULL, 0, savegameslot, demoplayback);
+  name = malloc(length+1);
+  G_SaveGameName(name, length+1, savegameslot, demoplayback);
 
   gameaction = ga_nothing;
 
   length = M_ReadFile(name, &savebuffer);
   if (length<=0)
     I_Error("Couldn't read file %s: %s", name, "(Unknown Error)");
+  free(name);
   save_p = savebuffer + SAVESTRINGSIZE;
 
   // CPhipps - read the description field, compare with supported ones
@@ -2083,25 +2086,27 @@ void (CheckSaveGame)(size_t size, const char* file, int line)
  * cph - Avoid possible buffer overflow problems by passing
  * size to this function and using snprintf */
 
-void G_SaveGameName(char *name, size_t size, int slot, dboolean demoplayback)
+int G_SaveGameName(char *name, size_t size, int slot, dboolean demoplayback)
 {
   const char* sgn = demoplayback ? "demosav" : savegamename;
-  doom_snprintf (name, size, "%s/%s%d.dsg", basesavegame, sgn, slot);
+  return doom_snprintf (name, size, "%s/%s%d.dsg", basesavegame, sgn, slot);
 }
 
 static void G_DoSaveGame (dboolean menu)
 {
-  char name[PATH_MAX+1];
+  char *name;
   char name2[VERSIONSIZE];
   char *description;
-  int  i;
+  int  length, i;
   //e6y: numeric version number of package
   unsigned int packageversion = GetPackageVersion();
 
   gameaction = ga_nothing; // cph - cancel savegame at top of this function,
     // in case later problems cause a premature exit
 
-  G_SaveGameName(name,sizeof(name),savegameslot, demoplayback && !menu);
+  length = G_SaveGameName(NULL, 0, savegameslot, demoplayback && !menu);
+  name = malloc(length+1);
+  G_SaveGameName(name, length+1, savegameslot, demoplayback && !menu);
 
   description = savedescription;
 
@@ -2218,6 +2223,7 @@ static void G_DoSaveGame (dboolean menu)
   savebuffer = save_p = NULL;
 
   savedescription[0] = 0;
+  free(name);
 }
 
 static skill_t d_skill;
@@ -2663,8 +2669,9 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
 
 void G_RecordDemo (const char* name)
 {
-  char demoname[PATH_MAX];
+  char *demoname;
   usergame = false;
+  demoname = malloc(strlen(name)+4+1);
   AddDefaultExtension(strcpy(demoname, name), ".lmp");  // 1/18/98 killough
   demorecording = true;
   
@@ -2761,6 +2768,7 @@ void G_RecordDemo (const char* name)
   {
     I_Error("G_RecordDemo: failed to open %s", name);
   }
+  free(demoname);
 }
 
 // These functions are used to read and write game-specific options in demos

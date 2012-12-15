@@ -1456,6 +1456,12 @@ void M_LoadDefaults (void)
 
   // check for a custom default file
 
+#if ((defined GL_DOOM) && (defined _MSC_VER))
+#define BOOM_CFG "glboom-plus.cfg"
+#else
+#define BOOM_CFG "prboom-plus.cfg"
+#endif
+
   i = M_CheckParm ("-config");
   if (i && i < myargc-1)
   {
@@ -1464,15 +1470,10 @@ void M_LoadDefaults (void)
   else
   {
     const char* exedir = I_DoomExeDir();
-    defaultfile = malloc(PATH_MAX+1);
     /* get config file from same directory as executable */
-    doom_snprintf(defaultfile, PATH_MAX,
-            "%s%s%sboom-plus.cfg", exedir, HasTrailingSlash(exedir) ? "" : "/", 
-#if ((defined GL_DOOM) && (defined _MSC_VER))
-            "gl");
-#else
-            "pr");
-#endif
+    int len = doom_snprintf(NULL, 0, "%s/" BOOM_CFG, exedir);
+    defaultfile = malloc(len+1);
+    doom_snprintf(defaultfile, len+1, "%s/" BOOM_CFG, exedir);
   }
 
   lprintf (LO_CONFIRM, " default file: %s\n",defaultfile);
@@ -1678,10 +1679,11 @@ const char* M_CheckWritableDir(const char *dir)
 void M_ScreenShot(void)
 {
   static int shot;
-  char       lbmname[PATH_MAX + 1];
+  char       *lbmname = NULL;
   int        startshot;
   const char *shot_dir = NULL;
   int p;
+  int        success = 0;
 
   if ((p = M_CheckParm("-shotdir")) && (p < myargc - 1))
     shot_dir = M_CheckWritableDir(myargv[p + 1]);
@@ -1699,15 +1701,20 @@ void M_ScreenShot(void)
     startshot = shot; // CPhipps - prevent infinite loop
 
     do {
-      sprintf(lbmname,"%s/doom%02d" SCREENSHOT_EXT, shot_dir, shot++);
+      int size = doom_snprintf(NULL, 0, "%s/doom%02d" SCREENSHOT_EXT, shot_dir, shot);
+      lbmname = realloc(lbmname, size+1);
+      doom_snprintf(lbmname, size+1, "%s/doom%02d" SCREENSHOT_EXT, shot_dir, shot);
+      shot++;
     } while (!access(lbmname,0) && (shot != startshot) && (shot < 10000));
 
     if (access(lbmname,0))
     {
       S_StartSound(NULL,gamemode==commercial ? sfx_radio : sfx_tink);
       M_DoScreenShot(lbmname); // cph
-      return;
+      success = 1;
     }
+    free(lbmname);
+    if (success) return;
   }
 
   doom_printf ("M_ScreenShot: Couldn't create screenshot");

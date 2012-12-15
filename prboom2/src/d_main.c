@@ -131,10 +131,7 @@ int ffmap;
 
 dboolean advancedemo;
 
-char    wadfile[PATH_MAX+1];       // primary wad file
-char    mapdir[PATH_MAX+1];        // directory of development maps
-char    baseiwad[PATH_MAX+1];      // jff 3/23/98: iwad directory
-char    basesavegame[PATH_MAX+1];  // killough 2/16/98: savegame directory
+char    *basesavegame;             // killough 2/16/98: savegame directory
 
 //jff 4/19/98 list of standard IWAD names
 const char *const standard_iwads[]=
@@ -478,9 +475,14 @@ static void D_DoomLoop(void)
 //e6y
       if (avi_shot_fname && !doSkip)
       {
+        int len;
+        char *avi_shot_curr_fname;
         avi_shot_num++;
+        len = snprintf(NULL, 0, "%s%06d.tga", avi_shot_fname, avi_shot_num);
+        avi_shot_curr_fname = malloc(len+1);
         sprintf(avi_shot_curr_fname, "%s%06d.tga", avi_shot_fname, avi_shot_num);
         M_DoScreenShot(avi_shot_curr_fname);
+        free(avi_shot_curr_fname);
       }
       // NSM
       if (capturing_video && !doSkip)
@@ -933,18 +935,20 @@ static void IdentifyVersion (void)
   //V.Aguilar (5/30/99): In LiNUX, default to $HOME/.lxdoom
   {
     // CPhipps - use DOOMSAVEDIR if defined
-    char* p = getenv("DOOMSAVEDIR");
+    const char *p = getenv("DOOMSAVEDIR");
 
-    if (p != NULL)
-      if (strlen(p) > PATH_MAX-12) p = NULL;
+    if (p == NULL)
+      p = I_DoomExeDir();
 
-    strcpy(basesavegame,(p == NULL) ? I_DoomExeDir() : p);
+    free(basesavegame);
+    basesavegame = strdup(p);
   }
   if ((i=M_CheckParm("-save")) && i<myargc-1) //jff 3/24/98 if -save present
   {
     if (!stat(myargv[i+1],&sbuf) && S_ISDIR(sbuf.st_mode)) // and is a dir
     {
-      strcpy(basesavegame,myargv[i+1]);  //jff 3/24/98 use that for savegame
+      free(basesavegame);
+      basesavegame = strdup(myargv[i+1]);//jff 3/24/98 use that for savegame
       NormalizeSlashes(basesavegame);    //jff 9/22/98 fix c:\ not working
     }
     //jff 9/3/98 use logical output routine
@@ -998,8 +1002,9 @@ static void FindResponseFile (void)
         const char **moreargs = malloc(myargc * sizeof(const char*));
         char **newargv;
         // proff 04/05/2000: Added for searching responsefile
-        char fname[PATH_MAX+1];
+        char *fname;
 
+        fname = malloc(strlen(&myargv[i][i])+4+1);
         strcpy(fname,&myargv[i][1]);
         AddDefaultExtension(fname,".rsp");
 
@@ -1010,7 +1015,11 @@ static void FindResponseFile (void)
         // proff 04/05/2000: Added for searching responsefile
         if (size < 0)
         {
-          doom_snprintf(fname, sizeof(fname), "%s/%s", I_DoomExeDir(), &myargv[i][1]);
+          size_t fnlen = doom_snprintf(NULL, 0, "%s/%s",
+                                       I_DoomExeDir(), &myargv[i][1]);
+          fname = realloc(fname, fnlen+4+1);
+          doom_snprintf(fname, fnlen+1, "%s/%s",
+                        I_DoomExeDir(), &myargv[i][1]);
           AddDefaultExtension(fname,".rsp");
 	  size = M_ReadFile(fname, &file);
         }
@@ -1024,6 +1033,7 @@ static void FindResponseFile (void)
         }
         //jff 9/3/98 use logical output routine
         lprintf(LO_CONFIRM,"Found response file %s\n",fname);
+        free(fname);
         // proff 04/05/2000: Added check for empty rsp file
         if (size<=0)
         {
@@ -1656,7 +1666,7 @@ static void D_DoomMainSetup(void)
 
   if (p && p < myargc-1)
     {
-      char file[PATH_MAX+1];      // cph - localised
+      char *file = malloc(strlen(myargv[p+1])+4+1); // cph - localised
       strcpy(file,myargv[p+1]);
       AddDefaultExtension(file,".lmp");     // killough
       D_AddFile (file,source_lmp);
@@ -1665,7 +1675,7 @@ static void D_DoomMainSetup(void)
       if ((p = M_CheckParm ("-ffmap")) && p < myargc-1) {
         ffmap = atoi(myargv[p+1]);
       }
-
+      free(file);
     }
 
   // internal translucency set to config file value               // phares

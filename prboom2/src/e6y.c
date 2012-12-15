@@ -99,7 +99,6 @@ char demo_len_st[80];
 int avi_shot_time;
 int avi_shot_num;
 const char *avi_shot_fname;
-char avi_shot_curr_fname[PATH_MAX];
 
 dboolean doSkip;
 dboolean demo_stoponnext;
