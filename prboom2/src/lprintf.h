@@ -34,6 +34,8 @@
 #ifndef __LPRINTF__
 #define __LPRINTF__
 
+#include <stdarg.h>
+
 typedef enum                /* Logical output levels */
 {
   LO_INFO=1,                /* One of these is used in each physical output    */
@@ -65,4 +67,6 @@ int Init_ConsoleWin(void);
 void Done_ConsoleWin(void);
 #endif
 
+int doom_vsnprintf(char *buf, size_t max, const char *fmt, va_list va);
+int doom_snprintf(char *buf, size_t max, const char *fmt, ...) __attribute__((format(printf,3,4)));
 #endif

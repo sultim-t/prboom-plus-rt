@@ -753,7 +753,7 @@ int StepwiseSum(int value, int direction, int step, int minval, int maxval, int 
 void I_vWarning(const char *message, va_list argList)
 {
   char msg[1024];
-  vsnprintf(msg,sizeof(msg),message,argList);
+  doom_vsnprintf(msg,sizeof(msg),message,argList);
   lprintf(LO_ERROR, "%s\n", msg);
 #ifdef _MSC_VER
   I_MessageBox(msg, PRB_MB_OK);
@@ -935,13 +935,13 @@ void e6y_WriteStats(void)
         char strtmp[200];
         strcpy(str, tmp.kill[0] == '\0' ? "%s%d" : "%s+%d");
 
-        snprintf(strtmp, sizeof(strtmp), str, tmp.kill, stats[level].kill[i]);
+        doom_snprintf(strtmp, sizeof(strtmp), str, tmp.kill, stats[level].kill[i]);
         strcpy(tmp.kill, strtmp);
         
-        snprintf(strtmp, sizeof(strtmp), str, tmp.item, stats[level].item[i]);
+        doom_snprintf(strtmp, sizeof(strtmp), str, tmp.item, stats[level].item[i]);
         strcpy(tmp.item, strtmp);
         
-        snprintf(strtmp, sizeof(strtmp), str, tmp.secret, stats[level].secret[i]);
+        doom_snprintf(strtmp, sizeof(strtmp), str, tmp.secret, stats[level].secret[i]);
         strcpy(tmp.secret, strtmp);
       }
     }
@@ -969,7 +969,7 @@ void e6y_WriteStats(void)
   max.stat[TT_TOTALTIME] = max.stat[TT_TOTALTIME]/TICRATE/60;
   
   for(i=0; i<TT_MAX; i++) {
-    snprintf(str, 200, "%d", max.stat[i]);
+    doom_snprintf(str, 200, "%d", max.stat[i]);
     max.stat[i] = strlen(str);
   }
 

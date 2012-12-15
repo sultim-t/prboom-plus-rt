@@ -76,7 +76,6 @@
 #include "lprintf.h"
 #include "doomtype.h"
 #include "doomdef.h"
-#include "lprintf.h"
 #ifndef PRBOOM_SERVER
 #include "d_player.h"
 #include "m_fixed.h"

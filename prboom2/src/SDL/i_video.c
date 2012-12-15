@@ -769,7 +769,7 @@ static void I_FillScreenResolutionsList(void)
     {
       int in_list = false;
 
-      snprintf(mode, sizeof(mode), "%dx%d", modes[i]->w, modes[i]->h);
+      doom_snprintf(mode, sizeof(mode), "%dx%d", modes[i]->w, modes[i]->h);
 
       if (i == count - 1)
       {
@@ -802,7 +802,7 @@ static void I_FillScreenResolutionsList(void)
   
   if (list_size == 0)
   {
-    snprintf(mode, sizeof(mode), "%dx%d", desired_screenwidth, desired_screenheight);
+    doom_snprintf(mode, sizeof(mode), "%dx%d", desired_screenwidth, desired_screenheight);
     screen_resolutions_list[0] = strdup(mode);
     current_resolution_index = 0;
     list_size = 1;
@@ -810,7 +810,7 @@ static void I_FillScreenResolutionsList(void)
 
   if (current_resolution_index == -1)
   {
-    snprintf(mode, sizeof(mode), "%dx%d", desired_screenwidth, desired_screenheight);
+    doom_snprintf(mode, sizeof(mode), "%dx%d", desired_screenwidth, desired_screenheight);
 
     // make it first
     list_size++;
