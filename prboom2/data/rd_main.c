@@ -26,6 +26,7 @@ enum argtype
   ARG_LUMP,
   ARG_GRAPHIC,
   ARG_SOUND,
+  ARG_FLAT,
   ARG_SPRITE,
 };
 
@@ -40,6 +41,7 @@ static void ATTR((noreturn)) usage(int exitcode)
           "  -lumps <file>...\n"
           "  -graphics <ppmfile>...\n"
           "  -sounds <wavfile>...\n"
+          "  -flats <ppmfile>...\n"
           "  -sprites <x,y,ppmfile>...\n");
   exit(exitcode);
 }
@@ -75,6 +77,8 @@ int main(int argc, char **argv)
         argtype = ARG_GRAPHIC;
       else if (!strcmp(arg, "-sounds"))
         argtype = ARG_SOUND;
+      else if (!strcmp(arg, "-flats"))
+        argtype = ARG_FLAT;
       else if (!strcmp(arg, "-sprites"))
         argtype = ARG_SPRITE;
       else if (!strcmp(arg, "-help") || !strcmp(arg, "-version"))
@@ -127,6 +131,14 @@ int main(int argc, char **argv)
         {
           void *data = NULL;
           size_t size = wav_to_doom(&data, arg);
+          output_add(arg, data, size);
+        }
+        break;
+
+      case ARG_FLAT:
+        {
+          void *data = NULL;
+          size_t size = ppm_to_bitmap(&data, arg);
           output_add(arg, data, size);
         }
         break;

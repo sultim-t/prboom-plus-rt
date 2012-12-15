@@ -164,3 +164,30 @@ size_t ppm_to_patch(void **lumpdata, const char *filename,
   *lumpdata = patch;
   return 8+4*width+totalcolumnsize;
 }
+
+//
+// ppm_to_bitmap
+//
+// convert an 8-bit PPM to a raw map of Doom palette indices (for flats)
+//
+
+size_t ppm_to_bitmap(void **lumpdata, const char *filename)
+{
+  void *data;
+  size_t size = read_or_die(&data, filename);
+
+  int i, j, width, height;
+  unsigned char *pixels, *bitmap;
+
+  pixels = parseppm(data, size, filename, &width, &height);
+  bitmap = xmalloc(width * height);
+
+  for (j = 0; j < height; j++)
+    for (i = 0; i < width; i++)
+      bitmap[width*j+i] = palette_getindex(&pixels[3*(width*j+i)]);
+
+  free(data);
+
+  *lumpdata = bitmap;
+  return width * height;
+}
