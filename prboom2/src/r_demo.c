@@ -1087,7 +1087,7 @@ static int G_ReadDemoFooter(const char *filename)
         strcat(tmp_path, "/");
       }
 
-      SNPRINTF(demoex_filename, sizeof(demoex_filename), template_format, tmp_path);
+      snprintf(demoex_filename, sizeof(demoex_filename), template_format, tmp_path);
       mktemp(demoex_filename);
 
       free(tmp_path);

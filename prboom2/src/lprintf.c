@@ -329,11 +329,7 @@ int lprintf(OutputLevels pri, const char *s, ...)
 
   va_list v;
   va_start(v,s);
-#ifdef HAVE_VSNPRINTF
   vsnprintf(msg,sizeof(msg),s,v);         /* print message in buffer  */
-#else
-  vsprintf(msg,s,v);
-#endif
   va_end(v);
 
   if (lvl&cons_output_mask)               /* mask output as specified */
@@ -367,11 +363,7 @@ void I_Error(const char *error, ...)
   char errmsg[MAX_MESSAGE_SIZE];
   va_list argptr;
   va_start(argptr,error);
-#ifdef HAVE_VSNPRINTF
   vsnprintf(errmsg,sizeof(errmsg),error,argptr);
-#else
-  vsprintf(errmsg,error,argptr);
-#endif
   va_end(argptr);
   lprintf(LO_ERROR, "%s\n", errmsg);
 #ifdef _MSC_VER
@@ -380,19 +372,4 @@ void I_Error(const char *error, ...)
   }
 #endif
   I_SafeExit(-1);
-}
-
-// e6y
-int SNPRINTF(char *s, size_t n, const char *format, ...)
-{
-  int result;
-  va_list argptr;
-  va_start(argptr, format);
-#ifdef HAVE_VSNPRINTF
-  result = vsnprintf(s, n, format, argptr);
-#else
-  result = vsprintf(s, format, argptr);
-#endif
-  va_end(argptr);
-  return result;
 }

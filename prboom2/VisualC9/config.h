@@ -114,13 +114,12 @@
 /* Define if you have the setsockopt function.  */
 /* #define HAVE_SETSOCKOPT 1 */
 
-/* Define if you have the snprintf function.  */
-#define HAVE_SNPRINTF 1
+/* On windows, snprintf has a different name */
 #define snprintf _snprintf
 
 /* Define if you have the vsnprintf function.  */
-#define HAVE_VSNPRINTF 1
 #if _MSC_VER < 1400 /* not needed for Visual Studio 2008 */
+/* On windows, vsnprintf has a different name */
 #define vsnprintf _vsnprintf
 #endif
 

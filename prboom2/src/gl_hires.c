@@ -685,7 +685,7 @@ static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char 
     
     if (checklist->exists == -1)
     {
-      SNPRINTF(checkName, sizeof(checkName), checklist->path, hiresdir, "", "");
+      snprintf(checkName, sizeof(checkName), checklist->path, hiresdir, "", "");
       if (!access(checkName, F_OK))
         checklist->exists = 1;
       else
@@ -700,7 +700,7 @@ static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char 
 
       if (GLEXT_glCompressedTexImage2DARB && dds_path[0] == '\0')
       {
-        SNPRINTF(checkName, sizeof(checkName), checklist->path, hiresdir, texname, "dds");
+        snprintf(checkName, sizeof(checkName), checklist->path, hiresdir, texname, "dds");
         if (!access(checkName, F_OK))
         {
           strcpy(dds_path, checkName);
@@ -709,7 +709,7 @@ static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char 
       
       for (extp = extensions; *extp; extp++)
       {
-        SNPRINTF(checkName, sizeof(checkName), checklist->path, hiresdir, texname, *extp);
+        snprintf(checkName, sizeof(checkName), checklist->path, hiresdir, texname, *extp);
 
         if (!access(checkName, F_OK))
         {
@@ -919,7 +919,7 @@ int gld_HiRes_BuildTables(void)
 
     if (gl_hires_24bit_colormap)
     {
-      SNPRINTF(fname, sizeof(fname), "%s/"RGB2PAL_NAME".dat", I_DoomExeDir());
+      snprintf(fname, sizeof(fname), "%s/"RGB2PAL_NAME".dat", I_DoomExeDir());
       RGB2PAL_fp = fopen(fname, "wb");
       ok = RGB2PAL_fp != NULL;
     }
@@ -1143,7 +1143,7 @@ static int gld_HiRes_WriteCache(GLTexture* gltexture, GLuint* texid, const char*
   struct stat tex_stat;
   FILE *cachefp;
 
-  SNPRINTF(cache_filename, sizeof(cache_filename), "%s.cache", img_path);
+  snprintf(cache_filename, sizeof(cache_filename), "%s.cache", img_path);
   if (access(cache_filename, F_OK))
   {
     buf = gld_GetTextureBuffer(*texid, 0, &w, &h);

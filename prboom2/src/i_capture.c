@@ -87,19 +87,19 @@ static int parsecommand (char *out, const char *in, int len)
       switch (in[1])
       {
         case 'w':
-          i = SNPRINTF (out, len, "%u", REAL_SCREENWIDTH);
+          i = snprintf (out, len, "%u", REAL_SCREENWIDTH);
           break;
         case 'h':
-          i = SNPRINTF (out, len, "%u", REAL_SCREENHEIGHT);
+          i = snprintf (out, len, "%u", REAL_SCREENHEIGHT);
           break;
         case 's':
-          i = SNPRINTF (out, len, "%u", snd_samplerate);
+          i = snprintf (out, len, "%u", snd_samplerate);
           break;
         case 'f':
-          i = SNPRINTF (out, len, "%s", vid_fname);
+          i = snprintf (out, len, "%s", vid_fname);
           break;
         case '%':
-          i = SNPRINTF (out, len, "%%");
+          i = snprintf (out, len, "%%");
           break;
         default:
           return 0;

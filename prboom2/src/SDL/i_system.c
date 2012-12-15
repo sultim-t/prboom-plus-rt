@@ -211,11 +211,7 @@ unsigned long I_GetRandomTimeSeed(void)
  */
 const char* I_GetVersionString(char* buf, size_t sz)
 {
-#ifdef HAVE_SNPRINTF
   snprintf(buf,sz,"%s v%s (http://prboom-plus.sourceforge.net/)",PACKAGE,VERSION);
-#else
-  sprintf(buf,"%s v%s (http://prboom-plus.sourceforge.net/)",PACKAGE,VERSION);
-#endif
   return buf;
 }
 
@@ -229,11 +225,7 @@ const char* I_SigString(char* buf, size_t sz, int signum)
     strcpy(buf,sys_siglist[signum]);
   else
 #endif
-#ifdef HAVE_SNPRINTF
-    snprintf(buf,sz,"signal %d",signum);
-#else
-    sprintf(buf,"signal %d",signum);
-#endif
+  snprintf(buf,sz,"signal %d",signum);
   return buf;
 }
 
