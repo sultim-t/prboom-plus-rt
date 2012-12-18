@@ -4312,14 +4312,7 @@ void M_DrawCredits(void)     // killough 10/98: credit screen
   inhelpscreens = true;
   // Use V_DrawBackground here deliberately to force drawing a background
   V_DrawBackground(gamemode==shareware ? "CEIL5_1" : "MFLR8_4", 0);
-  if(1)
-  {
-    V_DrawNamePatch(81,9,0, "PRBOOM",CR_GOLD, VPT_TRANS | VPT_STRETCH);
-  }
-  else
-  {
-    M_DrawTitle(115, 9, "PRBOOM", CR_GOLD, PACKAGE_NAME " v" PACKAGE_VERSION, CR_GOLD);
-  }
+  M_DrawTitle(81, 9, "PRBOOM", CR_GOLD, PACKAGE_NAME " v" PACKAGE_VERSION, CR_GOLD);
   M_DrawScreenItems(cred_settings);
 }
 
