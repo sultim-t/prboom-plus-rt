@@ -559,4 +559,31 @@ extern byte *segrendered; // true if sector rendered (only here for malloc)
 extern byte *linerendered[2]; // true if linedef rendered (only here for malloc)
 extern GLuint flats_vbo_id;
 
+#ifdef USE_SHADERS
+
+typedef struct GLShader_s
+{
+  char name[256];
+  GLhandleARB hShader;
+  GLhandleARB hVertProg;
+  GLhandleARB hFragProg;
+
+  int lightlevel_index;
+} GLShader;
+
+extern GLShader *sh_main;
+
+int glsl_Init(void);
+void glsl_SetActiveShader(GLShader *shader);
+void glsl_SetLightLevel(float lightlevel);
+int glsl_IsActive(void);
+
+#else
+
+#define glsl_Init() 0
+#define glsl_SetActiveShader(shader)
+#define glsl_SetLightLevel(lightlevel)
+
+#endif // USE_SHADERS
+
 #endif // _GL_INTERN_H

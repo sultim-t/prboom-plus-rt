@@ -123,7 +123,9 @@ prboom2/data/lumps/crtan.lmp -text
 prboom2/data/lumps/cryellow.lmp -text
 prboom2/data/lumps/endboom.lmp -text svneol=unset#application/octet-stream
 prboom2/data/lumps/gammatbl.lmp -text svneol=unset#application/octet-stream
+prboom2/data/lumps/glfp.lmp -text
 prboom2/data/lumps/glshadow.lmp -text
+prboom2/data/lumps/glvp.lmp -text
 prboom2/data/lumps/m_ammo.lmp -text
 prboom2/data/lumps/m_armour.lmp -text
 prboom2/data/lumps/m_arrow.lmp -text
@@ -419,6 +421,7 @@ prboom2/src/PCRELIB/ucptable.c -text
 prboom2/src/PCSOUND/Makefile.am eol=lf
 prboom2/src/POSIX/Makefile.am eol=lf
 prboom2/src/SDL/Makefile.am eol=lf
+prboom2/src/gl_shader.c -text
 prboom2/src/hu_tracers.c -text
 prboom2/src/hu_tracers.h -text
 prboom2/src/i_simd.c -text

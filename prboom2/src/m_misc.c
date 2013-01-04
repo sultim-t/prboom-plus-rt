@@ -1056,7 +1056,7 @@ default_t defaults[] =
    def_str,ss_none},
   {"gl_motionblur_att_c", {NULL,&motion_blur.str_att_c}, {0,"0.9"},UL,UL,
    def_str,ss_none},
-  {"gl_lightmode",{(int*)&gl_lightmode},{gl_lightmode_glboom},
+  {"gl_lightmode",{(int*)&gl_lightmode_default},{gl_lightmode_glboom},
    gl_lightmode_glboom, gl_lightmode_last-1, def_int,ss_none},
   {"gl_light_ambient", {&gl_light_ambient},  {20},1,255,
    def_int,ss_stat},

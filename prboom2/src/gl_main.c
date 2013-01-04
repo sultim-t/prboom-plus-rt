@@ -1371,7 +1371,9 @@ void gld_EndDrawScene(void)
   if (viewangleoffset <= 1024<<ANGLETOFINESHIFT ||
     viewangleoffset >=-1024<<ANGLETOFINESHIFT)
   { // don't draw on side views
+    glsl_SetActiveShader(sh_main);
     R_DrawPlayerSprites();
+    glsl_SetActiveShader(NULL);
   }
 
   // e6y
@@ -3119,6 +3121,8 @@ void gld_DrawScene(player_t *player)
   }
 #endif
 
+  glsl_SetActiveShader(sh_main);
+
   //
   // opaque stuff
   //
@@ -3246,7 +3250,9 @@ void gld_DrawScene(player_t *player)
   {
     rendered_segs += gld_drawinfo.num_items[GLDIT_SWALL];
     // fake strips of sky
+    glsl_SetActiveShader(NULL);
     gld_DrawStripsSky();
+    glsl_SetActiveShader(sh_main);
   }
 
   // opaque sprites
@@ -3285,7 +3291,9 @@ void gld_DrawScene(player_t *player)
 
   if (health_bar)
   {
+    glsl_SetActiveShader(NULL);
     gld_DrawHealthBars();
+    glsl_SetActiveShader(sh_main);
   }
 
   //
@@ -3333,7 +3341,9 @@ void gld_DrawScene(player_t *player)
     gld_DrawProjectedWalls(GLDIT_FAWALL);
   }
 
+  glsl_SetActiveShader(NULL);
   gld_RenderShadows();
+  glsl_SetActiveShader(sh_main);
 
   if (gld_drawinfo.num_items[GLDIT_TWALL] > 0 || gld_drawinfo.num_items[GLDIT_TSPRITE] > 0)
   {
@@ -3393,4 +3403,6 @@ void gld_DrawScene(player_t *player)
     glDisableClientState(GL_COLOR_ARRAY);
   }
 #endif
+
+  glsl_SetActiveShader(NULL);
 }

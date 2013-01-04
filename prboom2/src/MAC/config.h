@@ -57,6 +57,12 @@
 /* Define if you have the SDL image library -lSDL_image */
 #define HAVE_LIBSDL_IMAGE
 
+/* Define if you want to use FBO for some tricks in OpenGL */
+#define USE_FBO_TECHNIQUE 1
+
+/* Define if you want to use hardware shaders in OpenGL */
+#define USE_SHADERS 1
+
 /**/
 #define HIGHRES 1
 #define GL_DOOM 1

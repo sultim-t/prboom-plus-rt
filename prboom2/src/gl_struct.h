@@ -65,13 +65,16 @@ typedef enum
   gl_lightmode_glboom,
   gl_lightmode_gzdoom,
   gl_lightmode_fogbased,
+  gl_lightmode_shaders,
 
   gl_lightmode_last
 } gl_lightmode_t;
+
 extern int gl_skymode;
 extern int gl_drawskys;
 extern int gl_hardware_gamma;
 extern gl_lightmode_t gl_lightmode;
+extern gl_lightmode_t gl_lightmode_default;
 extern const char *gl_lightmodes[];
 extern int gl_light_ambient;
 extern int useglgamma;

@@ -106,6 +106,7 @@ gl_clipper.c
 gl_light.c
 gl_hqresize.c
 gl_preprocess.c
+gl_shaders.c
 gl_shadow.c
 gl_sky.c
 gl_soft2gl.c

@@ -44,10 +44,12 @@
 #include "v_video.h"
 #include "r_main.h"
 #include "gl_intern.h"
+#include "gl_opengl.h"
 #include "e6y.h"
 
 gl_lightmode_t gl_lightmode;
-const char *gl_lightmodes[] = {"glboom", "gzdoom", "fog based"};
+gl_lightmode_t gl_lightmode_default;
+const char *gl_lightmodes[] = {"glboom", "gzdoom", "fog based", "shaders"};
 int gl_light_ambient;
 int gl_rellight;
 
@@ -83,6 +85,7 @@ static void gld_InitLightTable_fogbased(void);
 static float gld_CalcLightLevel_glboom(int lightlevel);
 static float gld_CalcLightLevel_gzdoom(int lightlevel);
 static float gld_CalcLightLevel_fogbased(int lightlevel);
+static float gld_CalcLightLevel_shaders(int lightlevel);
 
 static float gld_CalcFogDensity_glboom(sector_t *sector, int lightlevel, GLDrawItemType type);
 static float gld_CalcFogDensity_gzdoom(sector_t *sector, int lightlevel, GLDrawItemType type);
@@ -106,6 +109,12 @@ static GLLight gld_light[gl_lightmode_last] = {
    gld_InitLightTable_fogbased,
    gld_CalcLightLevel_fogbased, gld_CalcLightLevel_gzdoom,
    gld_CalcFogDensity_fogbased},
+
+   //gl_lightmode_shaders
+  {true, 16,
+   gld_InitLightTable_glboom,
+   gld_CalcLightLevel_shaders, gld_CalcLightLevel_glboom,
+   gld_CalcFogDensity_glboom},
 };
 
 int gl_hardware_gamma = false;
@@ -114,12 +123,27 @@ gld_CalcFogDensity_f gld_CalcFogDensity = gld_CalcFogDensity_glboom;
 
 void M_ChangeLightMode(void)
 {
-  if (gl_compatibility && gl_lightmode == gl_lightmode_fogbased)
+  if (gl_compatibility)
   {
-
-    gl_lightmode = gl_lightmode_glboom;
-    lprintf(LO_INFO, "M_ChangeLightMode: \"Fog Based\" sector light mode is not allowed in gl_compatibility mode\n");
+    if (gl_lightmode_default == gl_lightmode_fogbased ||
+      gl_lightmode_default == gl_lightmode_shaders)
+    {
+      lprintf(LO_INFO,
+        "M_ChangeLightMode: '%s' sector light mode is not allowed in gl_compatibility mode\n",
+        gl_lightmodes[gl_lightmode_default]);
+      gl_lightmode_default = gl_lightmode_glboom;
+    }
   }
+
+  if (gl_lightmode_default == gl_lightmode_shaders)
+  {
+    if (!glsl_Init())
+    {
+      gl_lightmode_default = gl_lightmode_glboom;
+    }
+  }
+
+  gl_lightmode = gl_lightmode_default;
 
   gl_hardware_gamma = gld_light[gl_lightmode].use_hwgamma;
   gl_rellight = gld_light[gl_lightmode].rellight;
@@ -229,14 +253,24 @@ static float gld_CalcLightLevel_fogbased(int lightlevel)
   }
 }
 
+static float gld_CalcLightLevel_shaders(int lightlevel)
+{
+  int light;
+  
+  light = BETWEEN(0, 255, lightlevel);
+
+  return (float)light/255.0f;
+}
+
 void gld_StaticLightAlpha(float light, float alpha)
 {
-  player_t *player;
-  player = &players[displayplayer];
+  player_t *player = &players[displayplayer];
+  int shaders = (gl_lightmode == gl_lightmode_shaders);
 
   if (!player->fixedcolormap)
   {
-    glColor4f(light, light, light, alpha);
+    float ll = (shaders ? 1.0f : light);
+    glColor4f(ll, ll, ll, alpha);
   }
   else
   {
@@ -257,6 +291,11 @@ void gld_StaticLightAlpha(float light, float alpha)
         glColor4f(bw_red, bw_green, bw_blue, alpha);
       }
     }
+  }
+
+  if (shaders)
+  {
+    glsl_SetLightLevel((player->fixedcolormap ? 1.0f : light));
   }
 }
 
