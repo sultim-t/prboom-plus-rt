@@ -100,6 +100,7 @@ extern dboolean gl_ext_blend_color;
 extern dboolean gl_use_stencil;
 extern dboolean gl_ext_arb_vertex_buffer_object;
 extern dboolean gl_arb_pixel_buffer_object;
+extern dboolean gl_arb_shader_objects;
 
 // obsolete?
 extern PFNGLCOLORTABLEEXTPROC              GLEXT_glColorTableEXT;
@@ -138,6 +139,33 @@ extern PFNGLGETBUFFERPARAMETERIVARBPROC    GLEXT_glGetBufferParameterivARB;
 extern PFNGLMAPBUFFERARBPROC               GLEXT_glMapBufferARB;
 extern PFNGLUNMAPBUFFERARBPROC             GLEXT_glUnmapBufferARB;
 
+/* GL_ARB_shader_objects */
+#ifdef USE_SHADERS
+extern PFNGLDELETEOBJECTARBPROC            GLEXT_glDeleteObjectARB;
+extern PFNGLGETHANDLEARBPROC               GLEXT_glGetHandleARB;
+extern PFNGLDETACHOBJECTARBPROC            GLEXT_glDetachObjectARB;
+extern PFNGLCREATESHADEROBJECTARBPROC      GLEXT_glCreateShaderObjectARB;
+extern PFNGLSHADERSOURCEARBPROC            GLEXT_glShaderSourceARB;
+extern PFNGLCOMPILESHADERARBPROC           GLEXT_glCompileShaderARB;
+extern PFNGLCREATEPROGRAMOBJECTARBPROC     GLEXT_glCreateProgramObjectARB;
+extern PFNGLATTACHOBJECTARBPROC            GLEXT_glAttachObjectARB;
+extern PFNGLLINKPROGRAMARBPROC             GLEXT_glLinkProgramARB;
+extern PFNGLUSEPROGRAMOBJECTARBPROC        GLEXT_glUseProgramObjectARB;
+extern PFNGLVALIDATEPROGRAMARBPROC         GLEXT_glValidateProgramARB;
+
+extern PFNGLUNIFORM1FARBPROC               GLEXT_glUniform1fARB;
+extern PFNGLUNIFORM2FARBPROC               GLEXT_glUniform2fARB;
+extern PFNGLUNIFORM1IARBPROC               GLEXT_glUniform1iARB;
+
+extern PFNGLGETOBJECTPARAMETERFVARBPROC     GLEXT_glGetObjectParameterfvARB;
+extern PFNGLGETOBJECTPARAMETERIVARBPROC     GLEXT_glGetObjectParameterivARB;
+extern PFNGLGETINFOLOGARBPROC               GLEXT_glGetInfoLogARB;
+extern PFNGLGETATTACHEDOBJECTSARBPROC       GLEXT_glGetAttachedObjectsARB;
+extern PFNGLGETUNIFORMLOCATIONARBPROC       GLEXT_glGetUniformLocationARB;
+extern PFNGLGETACTIVEUNIFORMARBPROC         GLEXT_glGetActiveUniformARB;
+extern PFNGLGETUNIFORMFVARBPROC             GLEXT_glGetUniformfvARB;
+#endif
+  
 void gld_InitOpenGL(dboolean compatibility_mode);
 
 //states

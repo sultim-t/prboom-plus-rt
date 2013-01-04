@@ -70,6 +70,7 @@ dboolean gl_ext_blend_color = false;
 dboolean gl_use_stencil = false;
 dboolean gl_ext_arb_vertex_buffer_object = false;
 dboolean gl_arb_pixel_buffer_object = false;
+dboolean gl_arb_shader_objects = false;
 
 // cfg values
 int gl_ext_texture_filter_anisotropic_default;
@@ -82,6 +83,7 @@ int gl_ext_blend_color_default;
 int gl_use_stencil_default;
 int gl_ext_arb_vertex_buffer_object_default;
 int gl_arb_pixel_buffer_object_default;
+int gl_arb_shader_objects_default;
 
 int active_texture_enabled[32];
 int clieant_active_texture_enabled[32];
@@ -124,6 +126,32 @@ PFNGLGETBUFFERPARAMETERIVARBPROC    GLEXT_glGetBufferParameterivARB    = NULL;
 PFNGLMAPBUFFERARBPROC               GLEXT_glMapBufferARB               = NULL;
 PFNGLUNMAPBUFFERARBPROC             GLEXT_glUnmapBufferARB             = NULL;
 
+/* GL_ARB_shader_objects */
+#ifdef USE_SHADERS
+PFNGLDELETEOBJECTARBPROC        GLEXT_glDeleteObjectARB = NULL;
+PFNGLGETHANDLEARBPROC           GLEXT_glGetHandleARB = NULL;
+PFNGLDETACHOBJECTARBPROC        GLEXT_glDetachObjectARB = NULL;
+PFNGLCREATESHADEROBJECTARBPROC  GLEXT_glCreateShaderObjectARB = NULL;
+PFNGLSHADERSOURCEARBPROC        GLEXT_glShaderSourceARB = NULL;
+PFNGLCOMPILESHADERARBPROC       GLEXT_glCompileShaderARB = NULL;
+PFNGLCREATEPROGRAMOBJECTARBPROC GLEXT_glCreateProgramObjectARB = NULL;
+PFNGLATTACHOBJECTARBPROC        GLEXT_glAttachObjectARB = NULL;
+PFNGLLINKPROGRAMARBPROC         GLEXT_glLinkProgramARB = NULL;
+PFNGLUSEPROGRAMOBJECTARBPROC    GLEXT_glUseProgramObjectARB = NULL;
+PFNGLVALIDATEPROGRAMARBPROC     GLEXT_glValidateProgramARB = NULL;
+
+PFNGLUNIFORM1FARBPROC           GLEXT_glUniform1fARB = NULL;
+PFNGLUNIFORM2FARBPROC           GLEXT_glUniform2fARB = NULL;
+PFNGLUNIFORM1IARBPROC           GLEXT_glUniform1iARB = NULL;
+
+PFNGLGETOBJECTPARAMETERFVARBPROC GLEXT_glGetObjectParameterfvARB = NULL;
+PFNGLGETOBJECTPARAMETERIVARBPROC GLEXT_glGetObjectParameterivARB = NULL;
+PFNGLGETINFOLOGARBPROC           GLEXT_glGetInfoLogARB = NULL;
+PFNGLGETATTACHEDOBJECTSARBPROC   GLEXT_glGetAttachedObjectsARB = NULL;
+PFNGLGETUNIFORMLOCATIONARBPROC   GLEXT_glGetUniformLocationARB = NULL;
+PFNGLGETACTIVEUNIFORMARBPROC     GLEXT_glGetActiveUniformARB = NULL;
+PFNGLGETUNIFORMFVARBPROC         GLEXT_glGetUniformfvARB = NULL;
+#endif
 
 void gld_InitOpenGLVersion(void)
 {
@@ -328,6 +356,67 @@ void gld_InitOpenGL(dboolean compatibility_mode)
 
   gl_use_stencil = gl_use_stencil_default;
 
+  //
+  // GL_ARB_shader_objects
+  //
+#ifdef USE_SHADERS
+  gl_arb_shader_objects = gl_arb_shader_objects_default &&
+    (gl_version >= OPENGL_VERSION_2_0) &&
+    isExtensionSupported ("GL_ARB_shader_objects") &&
+    isExtensionSupported ("GL_ARB_vertex_shader") &&
+    isExtensionSupported ("GL_ARB_fragment_shader") &&
+    isExtensionSupported ("GL_ARB_shading_language_100");
+  if (gl_arb_shader_objects)
+  {
+		GLEXT_glDeleteObjectARB        = SDL_GL_GetProcAddress("glDeleteObjectARB");
+		GLEXT_glGetHandleARB           = SDL_GL_GetProcAddress("glGetHandleARB");
+		GLEXT_glDetachObjectARB        = SDL_GL_GetProcAddress("glDetachObjectARB");
+		GLEXT_glCreateShaderObjectARB  = SDL_GL_GetProcAddress("glCreateShaderObjectARB");
+		GLEXT_glShaderSourceARB        = SDL_GL_GetProcAddress("glShaderSourceARB");
+		GLEXT_glCompileShaderARB       = SDL_GL_GetProcAddress("glCompileShaderARB");
+		GLEXT_glCreateProgramObjectARB = SDL_GL_GetProcAddress("glCreateProgramObjectARB");
+		GLEXT_glAttachObjectARB        = SDL_GL_GetProcAddress("glAttachObjectARB");
+		GLEXT_glLinkProgramARB         = SDL_GL_GetProcAddress("glLinkProgramARB");
+		GLEXT_glUseProgramObjectARB    = SDL_GL_GetProcAddress("glUseProgramObjectARB");
+		GLEXT_glValidateProgramARB     = SDL_GL_GetProcAddress("glValidateProgramARB");
+
+		GLEXT_glUniform1fARB = SDL_GL_GetProcAddress("glUniform1fARB");
+		GLEXT_glUniform2fARB = SDL_GL_GetProcAddress("glUniform2fARB");
+		GLEXT_glUniform1iARB = SDL_GL_GetProcAddress("glUniform1iARB");
+
+		GLEXT_glGetObjectParameterfvARB = SDL_GL_GetProcAddress("glGetObjectParameterfvARB");
+		GLEXT_glGetObjectParameterivARB = SDL_GL_GetProcAddress("glGetObjectParameterivARB");
+		GLEXT_glGetInfoLogARB           = SDL_GL_GetProcAddress("glGetInfoLogARB");
+		GLEXT_glGetAttachedObjectsARB   = SDL_GL_GetProcAddress("glGetAttachedObjectsARB");
+		GLEXT_glGetUniformLocationARB   = SDL_GL_GetProcAddress("glGetUniformLocationARB");
+		GLEXT_glGetActiveUniformARB     = SDL_GL_GetProcAddress("glGetActiveUniformARB");
+		GLEXT_glGetUniformfvARB         = SDL_GL_GetProcAddress("glGetUniformfvARB");
+
+    if (!GLEXT_glDeleteObjectARB || !GLEXT_glGetHandleARB ||
+        !GLEXT_glDetachObjectARB || !GLEXT_glCreateShaderObjectARB ||
+        !GLEXT_glShaderSourceARB || !GLEXT_glCompileShaderARB ||
+        !GLEXT_glCreateProgramObjectARB || !GLEXT_glAttachObjectARB ||
+        !GLEXT_glLinkProgramARB || !GLEXT_glUseProgramObjectARB ||
+        !GLEXT_glValidateProgramARB ||
+        !GLEXT_glUniform1fARB || !GLEXT_glUniform2fARB ||
+        !GLEXT_glUniform1iARB ||
+        !GLEXT_glGetObjectParameterfvARB || !GLEXT_glGetObjectParameterivARB ||
+        !GLEXT_glGetInfoLogARB || !GLEXT_glGetAttachedObjectsARB ||
+        !GLEXT_glGetUniformLocationARB || !GLEXT_glGetActiveUniformARB ||
+        !GLEXT_glGetUniformfvARB)
+      gl_arb_shader_objects = false;
+  }
+  if (gl_arb_shader_objects)
+  {
+    lprintf(LO_INFO,"using GL_ARB_shader_objects\n");
+    lprintf(LO_INFO,"using GL_ARB_vertex_shader\n");
+    lprintf(LO_INFO,"using GL_ARB_fragment_shader\n");
+    lprintf(LO_INFO,"using GL_ARB_shading_language_100\n");
+  }
+#else
+  gl_arb_shader_objects = false;
+#endif
+
   // GL_CLAMP_TO_EDGE
   GLEXT_CLAMP_TO_EDGE = (gl_version >= OPENGL_VERSION_1_2 ? GL_CLAMP_TO_EDGE : GL_CLAMP);
 
@@ -353,6 +442,7 @@ void gld_InitOpenGL(dboolean compatibility_mode)
     gl_use_stencil = false;
     gl_ext_arb_vertex_buffer_object = false;
     gl_arb_pixel_buffer_object = false;
+    gl_arb_shader_objects = false;
     GLEXT_CLAMP_TO_EDGE = GL_CLAMP;
     gl_version = OPENGL_VERSION_1_1;
   }
