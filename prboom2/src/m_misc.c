@@ -701,6 +701,10 @@ default_t defaults[] =
    def_int,ss_keys}, // joystick button number to use for fire
   {"joyb_strafe",{&joybstrafe},{1},0,UL,
    def_int,ss_keys}, // joystick button number to use for strafing
+  {"joyb_strafeleft",{&joybstrafeleft},{4},0,UL,
+   def_int,ss_keys}, // joystick button number to use for strafe left
+  {"joyb_straferight",{&joybstraferight},{5},0,UL,
+   def_int,ss_keys}, // joystick button number to use for strafe right
   {"joyb_speed",{&joybspeed},{2},0,UL,
    def_int,ss_keys}, // joystick button number to use for running
   {"joyb_use",{&joybuse},{3},0,UL,

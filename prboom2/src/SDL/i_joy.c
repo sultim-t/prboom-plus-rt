@@ -74,7 +74,11 @@ void I_PollJoystick(void)
     (SDL_JoystickGetButton(joystick, 0)<<0) |
     (SDL_JoystickGetButton(joystick, 1)<<1) |
     (SDL_JoystickGetButton(joystick, 2)<<2) |
-    (SDL_JoystickGetButton(joystick, 3)<<3);
+    (SDL_JoystickGetButton(joystick, 3)<<3) |
+    (SDL_JoystickGetButton(joystick, 4)<<4) |
+    (SDL_JoystickGetButton(joystick, 5)<<5) |
+    (SDL_JoystickGetButton(joystick, 6)<<6) |
+    (SDL_JoystickGetButton(joystick, 7)<<7);
   axis_value = SDL_JoystickGetAxis(joystick, 0) / 3000;
   if (abs(axis_value)<10) axis_value=0;
   ev.data2 = axis_value;
