@@ -46,6 +46,7 @@
 #include "g_game.h"
 #include "p_enemy.h"
 #include "p_tick.h"
+#include "i_sound.h"
 #include "m_bbox.h"
 #include "hu_stuff.h"
 #include "lprintf.h"
@@ -2145,11 +2146,13 @@ void A_SkullPop(mobj_t *actor)
 {
   mobj_t *mo;
   player_t *player;
+  int sfx_id;
 
   if (demorecording || demoplayback)
     return;
 
-  S_StartSound(actor, sfx_gibdth);
+  sfx_id = (I_GetSfxLumpNum(&S_sfx[sfx_gibdth]) < 0 ? sfx_pldeth : sfx_gibdth);
+  S_StartSound(actor, sfx_id);
 
   actor->flags &= ~MF_SOLID;
   mo = P_SpawnMobj(actor->x, actor->y, actor->z + 48 * FRACUNIT, MT_GIBDTH);
