@@ -54,6 +54,7 @@
 #include "p_inter.h"
 #include "s_sound.h"
 #include "sounds.h"
+#include "i_sound.h"
 #include "m_bbox.h"                                         // phares 3/20/98
 #include "d_deh.h"
 #include "r_plane.h"
@@ -2357,7 +2358,8 @@ void P_PlayerInSpecialSector (player_t* player)
         //e6y
         if (hudadd_secretarea)
         {
-          SetCustomMessage(player - players, STSTR_SECRETFOUND, 0, 2 * TICRATE, CR_GOLD, sfx_secret);
+          int sfx_id = (I_GetSfxLumpNum(&S_sfx[sfx_secret]) < 0 ? sfx_itmbk : sfx_secret);
+          SetCustomMessage(player - players, STSTR_SECRETFOUND, 0, 2 * TICRATE, CR_GOLD, sfx_id);
         }
 
         break;
@@ -2413,7 +2415,8 @@ void P_PlayerInSpecialSector (player_t* player)
       //e6y
       if (hudadd_secretarea)
       {
-        SetCustomMessage(player - players, STSTR_SECRETFOUND, 0, 2 * TICRATE, CR_GOLD, sfx_secret);
+        int sfx_id = (I_GetSfxLumpNum(&S_sfx[sfx_secret]) < 0 ? sfx_itmbk : sfx_secret);
+        SetCustomMessage(player - players, STSTR_SECRETFOUND, 0, 2 * TICRATE, CR_GOLD, sfx_id);
       }
     }
 
