@@ -50,8 +50,10 @@ SOUNDS += sounds/free/dsdgdth.wav
 SOUNDS += sounds/free/dsdgpain.wav
 endif
 
+if NONFREE_GRAPHICS
 SOUNDS += sounds/dssecret.wav
 SOUNDS += sounds/dsgibdth.wav
+endif
 
 GRAPHICS = graphics/dig0.ppm
 GRAPHICS += graphics/dig1.ppm
@@ -378,6 +380,7 @@ SPRITES += sprites/free/dogsn0.ppm
 SPRITEP += 13,15,sprites/free/dogsn0.ppm
 endif
 
+if NONFREE_GRAPHICS
 SPRITES += sprites/pls1a0.ppm
 SPRITEP += 8,12,sprites/pls1a0.ppm
 SPRITES += sprites/pls1b0.ppm
@@ -402,6 +405,7 @@ SPRITES += sprites/pls2d0.ppm
 SPRITEP += 7,10,sprites/pls2d0.ppm
 SPRITES += sprites/pls2e0.ppm
 SPRITEP += 11,16,sprites/pls2e0.ppm
+endif
 
 WAD_SRC = $(PALETTE) $(LUMPS) $(COLORMAPS) $(TABLES) \
           $(SOUNDS) $(GRAPHICS) $(FLATS) $(SPRITES)
