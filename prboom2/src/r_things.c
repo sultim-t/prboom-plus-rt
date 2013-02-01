@@ -825,6 +825,10 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
   mobj_t *thing;
   int lightnum;
 
+  if (compatibility_level <= boom_202_compatibility)
+  {
+    lightlevel = sec->lightlevel;
+  }
   lightnum = (lightlevel >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT);
   spritelights = scalelight[BETWEEN(0, LIGHTLEVELS - 1, lightnum)];
 
