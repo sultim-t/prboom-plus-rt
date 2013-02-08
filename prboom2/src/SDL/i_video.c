@@ -1688,7 +1688,11 @@ static void ApplyWindowResize(SDL_Event *resize_event)
       }
       else
       {
-        sprintf((char*)screen_resolution, mode);
+        union { const char *c; char *s; } u; // type punning via unions
+        u.c = screen_resolutions_list[0];
+        free(u.s);
+        screen_resolutions_list[0] = strdup(mode);
+        screen_resolution = screen_resolutions_list[0];
       }
     }
 
