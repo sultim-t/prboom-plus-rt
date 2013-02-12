@@ -36,18 +36,21 @@ TABLES += lumps/tangtabl.lmp
 TABLES += lumps/tantoang.lmp
 TABLES += lumps/gammatbl.lmp
 
+SOUNDS =
+if DOGS
 if NONFREE_GRAPHICS
-SOUNDS = sounds/dsdgsit.wav
+SOUNDS += sounds/dsdgsit.wav
 SOUNDS += sounds/dsdgatk.wav
 SOUNDS += sounds/dsdgact.wav
 SOUNDS += sounds/dsdgdth.wav
 SOUNDS += sounds/dsdgpain.wav
 else
-SOUNDS = sounds/free/dsdgsit.wav
+SOUNDS += sounds/free/dsdgsit.wav
 SOUNDS += sounds/free/dsdgatk.wav
 SOUNDS += sounds/free/dsdgact.wav
 SOUNDS += sounds/free/dsdgdth.wav
 SOUNDS += sounds/free/dsdgpain.wav
+endif
 endif
 
 if NONFREE_GRAPHICS
@@ -144,6 +147,7 @@ FLATS = flats/-n0_tex-.ppm
 SPRITES = sprites/tnt1a0.ppm
 SPRITEP = 0,0,sprites/tnt1a0.ppm
 
+if DOGS
 if NONFREE_GRAPHICS
 SPRITES += sprites/dogsd5.ppm
 SPRITEP += 32,59,sprites/dogsd5.ppm
@@ -378,6 +382,7 @@ SPRITES += sprites/free/dogsm0.ppm
 SPRITEP += 12,15,sprites/free/dogsm0.ppm
 SPRITES += sprites/free/dogsn0.ppm
 SPRITEP += 13,15,sprites/free/dogsn0.ppm
+endif
 endif
 
 if NONFREE_GRAPHICS

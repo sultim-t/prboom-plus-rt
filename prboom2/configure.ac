@@ -265,6 +265,7 @@ if test x"$enable_dogs" = xyes
 then
 	AC_DEFINE(DOGS,1,[Define for support for MBF helper dogs])
 fi
+AM_CONDITIONAL(DOGS, [test "x$enable_dogs" = "xyes"])
 
 AC_ARG_ENABLE(heapcheck,AC_HELP_STRING([--enable-heapcheck],[turns on continuous heap checking (very slow)]),,enable_heapcheck="no")
 AC_ARG_ENABLE(heapdump,AC_HELP_STRING([--enable-heapdump],[turns on dumping the heap state for debugging]),,enable_heapdump="no")
