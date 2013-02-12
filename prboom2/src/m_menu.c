@@ -986,7 +986,7 @@ menuitem_t OptionsMenu[]=
   {1,"M_GENERL", M_General, 'g', "GENERAL"},      // killough 10/98
   {1,"M_SETUP",  M_Setup,   's', "SETUP"},        // phares 3/21/98
   {1,"M_ENDGAM", M_EndGame,'e',  "END GAME"},
-  {1,"M_MESSG",  M_ChangeMessages,'m', "MESSAGES"},
+  {1,"M_MESSG",  M_ChangeMessages,'m', "MESSAGES:"},
   /*    {1,"M_DETAIL",  M_ChangeDetail,'g'},  unused -- killough */
   {2,"M_SCRNSZ", M_SizeDisplay,'s', "SCREEN SIZE"},
   {-1,"",0},
@@ -1018,8 +1018,17 @@ void M_DrawOptions(void)
   // proff/nicolas 09/20/98 -- changed for hi-res
   V_DrawNamePatch(108, 15, 0, "M_OPTTTL", CR_DEFAULT, VPT_STRETCH);
 
-  V_DrawNamePatch(OptionsDef.x + 120, OptionsDef.y+LINEHEIGHT*messages, 0,
+  if ((W_CheckNumForName("M_GENERL") < 0) || (W_CheckNumForName("M_SETUP") < 0))
+  {
+    M_WriteText(OptionsDef.x + M_StringWidth("MESSAGES: "),
+      OptionsDef.y+8-(M_StringHeight("ONOFF")/2)+LINEHEIGHT*messages,
+      showMessages ? "ON" : "OFF", CR_DEFAULT);
+  }
+  else
+  {
+    V_DrawNamePatch(OptionsDef.x + 120, OptionsDef.y+LINEHEIGHT*messages, 0,
       msgNames[showMessages], CR_DEFAULT, VPT_STRETCH);
+  }
 
   M_DrawThermo(OptionsDef.x,OptionsDef.y+LINEHEIGHT*(scrnsize+1),
    9,screenSize);
