@@ -344,7 +344,7 @@ static void writesysex (unsigned char *data, int len)
   }
   if (!didrespond)
   {
-    lprintf (LO_WARN, "fluidplayer: SYSEX message recieved but not understood\n");
+    lprintf (LO_WARN, "fluidplayer: SYSEX message received but not understood\n");
   }
 }  
 
