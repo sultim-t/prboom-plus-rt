@@ -518,6 +518,13 @@ uid_t stored_euid = -1;
 
 static void I_SetAffinityMask(void)
 {
+  // Forcing single core only for "SDL MIDI Player"
+  process_affinity_mask = 0;
+  if (!strcasecmp(snd_midiplayer, midiplayers[midi_player_sdl]))
+  {
+    process_affinity_mask = 1;
+  }
+
   // Set the process affinity mask so that all threads
   // run on the same processor.  This is a workaround for a bug in 
   // SDL_mixer that causes occasional crashes.
