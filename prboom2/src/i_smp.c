@@ -61,7 +61,7 @@ typedef enum
 
 static smp_item_t smp_data[SMP_DATA_MAX];
 
-int use_smp_defauls;
+int use_smp_default;
 int use_smp;
 
 static void SMP_ResetBuffers(void)
@@ -229,7 +229,7 @@ void SMP_Init(void)
 
   use_smp = 0;
 
-  if (use_smp_defauls)
+  if (use_smp_default)
   {
     if (process_affinity_mask)
     {
@@ -249,7 +249,7 @@ void SMP_Init(void)
 
   if (V_GetMode() != VID_MODEGL)
   {
-    if (use_smp_defauls && !smp_thread)
+    if (use_smp_default && !smp_thread)
     {
       int i;
 

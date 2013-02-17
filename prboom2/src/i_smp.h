@@ -52,7 +52,7 @@ typedef struct smp_item_s
 } smp_item_t;
 
 extern int use_smp;
-extern int use_smp_defauls;
+extern int use_smp_default;
 
 void SMP_Init(void);
 void SMP_Free(void);

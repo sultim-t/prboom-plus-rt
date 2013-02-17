@@ -241,7 +241,7 @@ default_t defaults[] =
   //e6y
   {"System settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"process_priority", {&process_priority},{0},0,2,def_int,ss_none},
-  {"render_smp", {&use_smp_defauls},{0},0,1,def_bool,ss_none},
+  {"render_smp", {&use_smp_default},{0},0,1,def_bool,ss_none},
   {"try_to_reduce_cpu_cache_misses", {&try_to_reduce_cpu_cache_misses},{1},0,1,def_bool,ss_none},
   
   {"Misc settings",{NULL},{0},UL,UL,def_none,ss_none},
