@@ -163,6 +163,9 @@
 /* Define if you want to use hardware shaders in OpenGL */
 #define USE_SHADERS 1
 
+/* Define if you want to use Joystick */
+#define HAVE_SDL_JOYSTICKGETAXIS 1
+
 /* Define if you want to use PC Speaker */
 #define USE_WIN32_PCSOUND_DRIVER
 
