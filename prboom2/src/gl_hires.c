@@ -583,6 +583,26 @@ static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char 
       {NULL}
     }},
 
+    {hacx, GLDT_TEXTURE, {
+      {"%stextures/hacx/%s.%s", -1},
+      {"%stextures/hacx/%s-ck.%s", -1},
+      {"%stextures/%s.%s", -1},
+      {"%stextures/%s-ck.%s", -1},
+      {NULL}
+    }},
+    {hacx, GLDT_FLAT, {
+      {"%sflats/hacx/%s.%s", -1},
+      {"%stextures/hacx/flat-%s.%s", -1},
+      {"%sflats/%s.%s", -1},
+      {"%stextures/flat-%s.%s", -1},
+      {NULL}
+    }},
+    {hacx, GLDT_PATCH, {
+      {"%spatches/hacx/%s.%s", -1},
+      {"%spatches/%s.%s", -1},
+      {NULL}
+    }},
+
     {none, GLDT_UNREGISTERED, {
       {NULL}
     }},

@@ -78,6 +78,7 @@ typedef enum {
   doom2,        // DOOM 2
   pack_tnt,     // TNT mission pack
   pack_plut,    // Plutonia pack
+  hacx,         // HACX - Twitch 'n Kill
   none
 } GameMission_t;
 

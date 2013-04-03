@@ -144,6 +144,7 @@ const char *const standard_iwads[]=
   "doom1.wad",
   "doomu.wad", /* CPhipps - alow doomu.wad */
   "freedoom.wad", /* wart@kobold.org:  added freedoom for Fedora Extras */
+  "hacx.wad",
 };
 //e6y static 
 const int nstandard_iwads = sizeof standard_iwads/sizeof*standard_iwads;
@@ -736,7 +737,7 @@ void CheckIWAD(const char *iwadname,GameMode_t *gmode,dboolean *hassec)
 {
   if ( !access (iwadname,R_OK) )
   {
-    int ud=0,rg=0,sw=0,cm=0,sc=0;
+    int ud=0,rg=0,sw=0,cm=0,sc=0,hx=0;
     dboolean noiwad=0;
     FILE* fp;
 
@@ -796,6 +797,8 @@ void CheckIWAD(const char *iwadname,GameMode_t *gmode,dboolean *hassec)
 
           if (!strncmp(fileinfo[length].name,"DMENUPIC",8))
             bfgedition++;
+          if (!strncmp(fileinfo[length].name,"HACX",4))
+            hx++;
         }
         free(fileinfo);
 
@@ -813,7 +816,7 @@ void CheckIWAD(const char *iwadname,GameMode_t *gmode,dboolean *hassec)
 
     *gmode = indetermined;
     *hassec = false;
-    if (cm>=30)
+    if (cm>=30 || (cm>=20 && hx))
     {
       *gmode = commercial;
       *hassec = sc>=2;
@@ -862,6 +865,8 @@ void AddIWAD(const char *iwad)
       gamemission = pack_tnt;
     else if (i>=12 && !strnicmp(iwad+i-12,"plutonia.wad",12))
       gamemission = pack_plut;
+    else if (i>=8 && !strnicmp(iwad+i-8,"hacx.wad",8))
+      gamemission = hacx;
     break;
   default:
     gamemission = none;
@@ -1410,6 +1415,9 @@ static void D_DoomMainSetup(void)
           break;
         case pack_tnt:
           doomverstr = "DOOM 2: TNT - Evilution";
+          break;
+        case hacx:
+          doomverstr = "HACX - Twitch 'n Kill";
           break;
         default:
           doomverstr = "DOOM 2: Hell on Earth";
