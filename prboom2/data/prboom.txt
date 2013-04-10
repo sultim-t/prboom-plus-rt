@@ -27,6 +27,7 @@ C_END
 
 # PrBoom internal data lumps (large data lumps removed from the source code)
 B_START
+CHEXDEH
 SINETABL
 TANGTABL
 TANTOANG

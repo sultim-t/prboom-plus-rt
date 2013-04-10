@@ -1741,8 +1741,19 @@ static void D_DoomMainSetup(void)
   // e6y 
   // option to disable automatic loading of dehacked-in-wad lump
   if (!M_CheckParm ("-nodeh"))
+  {
     if ((p = W_CheckNumForName("DEHACKED")) != -1) // cph - add dehacked-in-a-wad support
       ProcessDehFile(NULL, D_dehout(), p);
+
+    if (gamemission == chex)
+    {
+      int lump = (W_CheckNumForName)("CHEXDEH", ns_prboom);
+      if (lump != -1)
+      {
+        ProcessDehFile(NULL, D_dehout(), lump);
+      }
+    }
+  }
 
   V_InitColorTranslation(); //jff 4/24/98 load color translation lumps
 
