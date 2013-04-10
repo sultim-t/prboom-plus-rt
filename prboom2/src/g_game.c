@@ -1514,14 +1514,28 @@ void G_DoCompleted (void)
     AM_Stop();
 
   if (gamemode != commercial) // kilough 2/7/98
-    switch(gamemap)
+  {
+    // Chex Quest ends after 5 levels, rather than 8.
+    if (gamemission == chex)
+    {
+      if (gamemap == 5)
       {
-  // cph - Remove ExM8 special case, so it gets summary screen displayed
+        gameaction = ga_victory;
+        return;
+      }
+    }
+    else
+    {
+      switch(gamemap)
+      {
+      // cph - Remove ExM8 special case, so it gets summary screen displayed
       case 9:
         for (i=0 ; i<MAXPLAYERS ; i++)
           players[i].didsecret = true;
         break;
       }
+    }
+  }
 
   wminfo.didsecret = players[consoleplayer].didsecret;
   wminfo.epsd = gameepisode -1;

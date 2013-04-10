@@ -841,7 +841,9 @@ static void L_FillGameList(void)
 
   int i, j;
   
-  //"doom2f.wad", "doom2.wad", "plutonia.wad", "tnt.wad", "doom.wad", "doom1.wad", "doomu.wad", "freedoom.wad", "hacx.wad"
+  // "doom2f.wad", "doom2.wad", "plutonia.wad",
+  // "tnt.wad", "doom.wad", "doom1.wad", "doomu.wad",
+  // "freedoom.wad", "hacx.wad", "chex.wad"
   const char *IWADTypeNames[] =
   {
     "DOOM 2: French Version",
@@ -853,6 +855,7 @@ static void L_FillGameList(void)
     "The Ultimate DOOM",
     "Freedoom",
     "HACX - Twitch 'n Kill",
+    "Chex Quest",
   };
   
   for (i = 0; (size_t)i < launcher.filescount; i++)

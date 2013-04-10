@@ -52,9 +52,6 @@ dboolean modifiedgame;
 // CPhipps - compatibility vars
 complevel_t compatibility_level, default_compatibility_level;
 
-//e6y: hacked exe to emulate
-GameExe_t game_exe;
-
 // e6y
 // it's required for demos recorded in "demo compatibility" mode by boom201 for example
 int demover;

@@ -776,7 +776,7 @@ static void ST_doPaletteStuff(void)
   // as though the player is being covered in goo by an
   // attacking flemoid.
 
-  if (game_exe == EXE_CHEX
+  if (gamemission == chex
     && palette >= STARTREDPALS && palette < STARTREDPALS + NUMREDPALS)
   {
     palette = RADIATIONPAL;

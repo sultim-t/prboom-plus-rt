@@ -794,7 +794,7 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
     target->tics = 1;
 
   // In Chex Quest, monsters don't drop items.
-  if (game_exe == EXE_CHEX)
+  if (gamemission == chex)
   {
     return;
   }

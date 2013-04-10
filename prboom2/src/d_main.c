@@ -145,6 +145,7 @@ const char *const standard_iwads[]=
   "doomu.wad", /* CPhipps - alow doomu.wad */
   "freedoom.wad", /* wart@kobold.org:  added freedoom for Fedora Extras */
   "hacx.wad",
+  "chex.wad",
 };
 //e6y static 
 const int nstandard_iwads = sizeof standard_iwads/sizeof*standard_iwads;
@@ -737,7 +738,7 @@ void CheckIWAD(const char *iwadname,GameMode_t *gmode,dboolean *hassec)
 {
   if ( !access (iwadname,R_OK) )
   {
-    int ud=0,rg=0,sw=0,cm=0,sc=0,hx=0;
+    int ud=0,rg=0,sw=0,cm=0,sc=0,hx=0,cq=0;
     dboolean noiwad=0;
     FILE* fp;
 
@@ -799,10 +800,13 @@ void CheckIWAD(const char *iwadname,GameMode_t *gmode,dboolean *hassec)
             bfgedition++;
           if (!strncmp(fileinfo[length].name,"HACX",4))
             hx++;
+          if (!strncmp(fileinfo[length].name,"W94_1",5) ||
+              !strncmp(fileinfo[length].name,"POSSH0M0",8))
+            cq++;
         }
         free(fileinfo);
 
-        if (noiwad && !bfgedition)
+        if (noiwad && !bfgedition && cq < 2)
           I_Error("CheckIWAD: IWAD tag %s not present", iwadname);
 
       }
@@ -849,15 +853,17 @@ void AddIWAD(const char *iwad)
   /* jff 8/23/98 set gamemission global appropriately in all cases
   * cphipps 12/1999 - no version output here, leave that to the caller
   */
+  i = strlen(iwad);
   switch(gamemode)
   {
   case retail:
   case registered:
   case shareware:
     gamemission = doom;
+    if (i>=8 && !strnicmp(iwad+i-8,"chex.wad",8))
+      gamemission = chex;
     break;
   case commercial:
-    i = strlen(iwad);
     gamemission = doom2;
     if (i>=10 && !strnicmp(iwad+i-10,"doom2f.wad",10))
       language=french;
@@ -1418,6 +1424,9 @@ static void D_DoomMainSetup(void)
           break;
         case hacx:
           doomverstr = "HACX - Twitch 'n Kill";
+          break;
+        case chex:
+          doomverstr = "Chex Quest";
           break;
         default:
           doomverstr = "DOOM 2: Hell on Earth";

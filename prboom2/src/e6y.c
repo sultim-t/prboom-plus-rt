@@ -283,16 +283,6 @@ void e6y_InitCommandLine(void)
   InitTracers();
 
   shorttics = movement_shorttics || M_CheckParm("-shorttics");
-
-  // What hacked exe are we emulating?
-  game_exe = EXE_NONE;
-  if ((p = M_CheckParm("-exe")) && (p < myargc-1))
-  {
-    if (!strcasecmp(myargv[p + 1], "chex") || !strcasecmp(myargv[p + 1], "chex.exe"))
-    {
-      game_exe = EXE_CHEX;
-    }
-  }
 }
 
 static dboolean saved_fastdemo;

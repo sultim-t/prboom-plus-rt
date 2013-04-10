@@ -661,7 +661,8 @@ void M_NewGame(int choice)
     return;
   }
 
-  if ( gamemode == commercial )
+  // Chex Quest disabled the episode select screen, as did Doom II.
+  if (gamemode == commercial || gamemission == chex)
     M_SetupNextMenu(&NewDef);
   else
     M_SetupNextMenu(&EpiDef);

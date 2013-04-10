@@ -66,6 +66,7 @@ int hud_num;
 #define HU_TITLE2 (gamemap <= 32 ? *mapnames2[gamemap-1] : "")
 #define HU_TITLEP (gamemap <= 32 ? *mapnamesp[gamemap-1] : "")
 #define HU_TITLET (gamemap <= 32 ? *mapnamest[gamemap-1] : "")
+#define HU_TITLEC (*mapnames[gamemap-1])
 #define HU_TITLEX 0
 //jff 2/16/98 change 167 to ST_Y-1
 // CPhipps - changed to ST_TY
@@ -721,6 +722,14 @@ void HU_Start(void)
           (gamemission==pack_plut) ? HU_TITLEP : HU_TITLE2;
       break;
   } else s = "";
+
+  // Chex.exe always uses the episode 1 level title
+  // eg. E2M1 gives the title for E1M1
+  if (gamemission == chex)
+  {
+    s = HU_TITLEC;
+  }
+
   while (*s)
     HUlib_addCharToTextLine(&w_title, *(s++));
 
