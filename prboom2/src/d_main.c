@@ -1603,11 +1603,6 @@ static void D_DoomMainSetup(void)
     }
   }
 
-//e6y
-#ifdef ALL_IN_ONE
-  D_AddFile("$$$all_in_one_lump$$$", source_pre);
-#endif
-
   // add any files specified on the command line with -file wadfile
   // to the wad list
 

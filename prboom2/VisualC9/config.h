@@ -234,9 +234,6 @@
 
 #ifdef _WIN32
 
-/* Define if you want to have PrBoom-Plus.wad in the exe  */
-//#define ALL_IN_ONE 1
-
 #ifdef _MSC_VER
 
 //#define ALL_WARNINGS

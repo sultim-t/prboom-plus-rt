@@ -342,10 +342,6 @@ extern int force_singletics_to;
 
 int HU_DrawDemoProgress(int force);
 
-#ifdef ALL_IN_ONE
-unsigned char* GetAllInOneLumpHandle(void);
-#endif
-
 #ifdef _MSC_VER
 int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t BufferLength);
 #endif

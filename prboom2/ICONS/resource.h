@@ -4,7 +4,6 @@
 #define IDI_ICON4                       104
 #define IDI_ICON5                       105
 #define IDI_ICON6                       106
-#define IDR_ALL_IN_ONE_LUMP             110
 #define IDD_LAUNCHERSERVERDIALOG        120
 #define IDD_LAUNCHERCLIENTDIALOG        121
 #define IDC_TAB1                        1003

@@ -1273,31 +1273,6 @@ int HU_DrawDemoProgress(int force)
   return true;
 }
 
-#ifdef ALL_IN_ONE
-unsigned char* GetAllInOneLumpHandle(void)
-{
-  static unsigned char* AllInOneLumpHandle = NULL;
-
-  if (!AllInOneLumpHandle)
-  {
-    HRSRC hrsrc = FindResource(NULL, MAKEINTRESOURCE(IDR_ALL_IN_ONE_LUMP), RT_RCDATA);
-    if (hrsrc)
-    {
-      HGLOBAL hglobal = LoadResource(NULL, hrsrc);
-      if (hglobal)
-      {
-        AllInOneLumpHandle = LockResource(hglobal);
-      }
-    }
-  }
-  
-  if (!AllInOneLumpHandle)
-    I_Error("Can't load internal data.");
-
-  return AllInOneLumpHandle;
-}
-#endif
-
 #ifdef _MSC_VER
 int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t BufferLength)
 {

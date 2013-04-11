@@ -143,15 +143,6 @@ static void W_AddFile(wadfile_info_t *wadfile)
 
   // open the file and add to directory
 
-//e6y
-#ifdef ALL_IN_ONE
-  unsigned char *handle;
-  dboolean predefined_lump = (wadfile->src == source_pre);
-  if(predefined_lump)
-    handle = GetAllInOneLumpHandle();
-  else {
-#endif
-
   wadfile->handle = open(wadfile->name,O_RDONLY | O_BINARY);
 
 #ifdef HAVE_NET
@@ -177,11 +168,6 @@ static void W_AddFile(wadfile_info_t *wadfile)
 	I_Error("W_AddFile: couldn't open %s",wadfile->name);
       return;
     }
-
-//e6y
-#ifdef ALL_IN_ONE
-  }
-#endif
 
   //jff 8/3/98 use logical output routine
   lprintf (LO_INFO," adding %s\n",wadfile->name);
