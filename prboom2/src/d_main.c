@@ -1376,6 +1376,8 @@ static void D_DoomMainSetup(void)
     forceOldBsp = true;
   }
 
+  D_BuildBEXTables(); // haleyjd
+
   DoLooseFiles();  // Ty 08/29/98 - handle "loose" files on command line
   IdentifyVersion();
 
@@ -1582,26 +1584,20 @@ static void D_DoomMainSetup(void)
   // Some people might find this useful
   // cph - support MBF -noload parameter
   if (!M_CheckParm("-noload")) {
+    // only autoloaded wads here - autoloaded patches moved down below W_Init
     int i;
 
-    for (i=0; i<MAXLOADFILES*2; i++) {
-      const char *fname = (i < MAXLOADFILES) ? wad_files[i]
-  : deh_files[i - MAXLOADFILES];
+    for (i=0; i<MAXLOADFILES; i++) {
+      const char *fname = wad_files[i];
       char *fpath;
 
       if (!(fname && *fname)) continue;
       // Filename is now stored as a zero terminated string
-      fpath = I_FindFile(fname, (i < MAXLOADFILES) ? ".wad" : ".bex");
+      fpath = I_FindFile(fname, ".wad");
       if (!fpath)
         lprintf(LO_WARN, "Failed to autoload %s\n", fname);
       else {
-        if (i >= MAXLOADFILES)
-          ProcessDehFile(fpath, D_dehout(), 0);
-        else {
-          D_AddFile(fpath,source_auto_load);
-          if (i != MAXLOADFILES - 1)
-            modifiedgame = true;
-        }
+        D_AddFile(fpath,source_auto_load);
         free(fpath);
       }
     }
@@ -1611,46 +1607,6 @@ static void D_DoomMainSetup(void)
 #ifdef ALL_IN_ONE
   D_AddFile("$$$all_in_one_lump$$$", source_pre);
 #endif
-
-  // e6y: DEH files preloaded in wrong order
-  // http://sourceforge.net/tracker/index.php?func=detail&aid=1418158&group_id=148658&atid=772943
-  // The dachaked stuff has been moved from above
-
-  // ty 03/09/98 do dehacked stuff
-  // Note: do this before any other since it is expected by
-  // the deh patch author that this is actually part of the EXE itself
-  // Using -deh in BOOM, others use -dehacked.
-  // Ty 03/18/98 also allow .bex extension.  .bex overrides if both exist.
-
-  D_BuildBEXTables(); // haleyjd
-
-  p = M_CheckParm ("-deh");
-  if (p)
-  {
-    // the parms after p are deh/bex file names,
-    // until end of parms or another - preceded parm
-    // Ty 04/11/98 - Allow multiple -deh files in a row
-    //
-    // e6y
-    // reorganization of the code for looking for bex/deh patches
-    // in all standard dirs (%DOOMWADDIR%, etc)
-    while (++p != myargc && *myargv[p] != '-')
-    {
-      char *file = NULL;
-      if ((file = I_FindFile(myargv[p], ".bex")) ||
-          (file = I_FindFile(myargv[p], ".deh")))
-      {
-        // during the beta we have debug output to dehout.txt
-        ProcessDehFile(file,D_dehout(),0);
-        free(file);
-      }
-      else
-      {
-        I_Error("D_DoomMainSetup: Cannot find .deh or .bex file named %s",myargv[p]);
-      }
-    }
-  }
-  // ty 03/09/98 end of do dehacked stuff
 
   // add any files specified on the command line with -file wadfile
   // to the wad list
@@ -1744,7 +1700,11 @@ static void D_DoomMainSetup(void)
   {
     // MBF-style DeHackEd in wad support: load all lumps, not just the last one
     for (p = -1; (p = W_ListNumFromName("DEHACKED", p)) >= 0; )
-      ProcessDehFile(NULL, D_dehout(), p); // cph - add dehacked-in-a-wad support
+      // Split loading DEHACKED lumps into IWAD/autoload and PWADs/others
+      if (lumpinfo[p].source == source_iwad
+          || lumpinfo[p].source == source_pre
+          || lumpinfo[p].source == source_auto_load)
+        ProcessDehFile(NULL, D_dehout(), p); // cph - add dehacked-in-a-wad support
 
     if (gamemission == chex)
     {
@@ -1753,6 +1713,66 @@ static void D_DoomMainSetup(void)
       {
         ProcessDehFile(NULL, D_dehout(), lump);
       }
+    }
+  }
+
+  if (!M_CheckParm("-noload")) {
+    // now do autoloaded dehacked patches, after IWAD patches but before PWAD
+    int i;
+
+    for (i=0; i<MAXLOADFILES; i++) {
+      const char *fname = deh_files[i];
+      char *fpath;
+
+      if (!(fname && *fname)) continue;
+      // Filename is now stored as a zero terminated string
+      fpath = I_FindFile(fname, ".bex");
+      if (!fpath)
+        lprintf(LO_WARN, "Failed to autoload %s\n", fname);
+      else {
+        ProcessDehFile(fpath, D_dehout(), 0);
+        // this used to set modifiedgame here, but patches shouldn't
+        free(fpath);
+      }
+    }
+  }
+
+  if (!M_CheckParm ("-nodeh"))
+    for (p = -1; (p = W_ListNumFromName("DEHACKED", p)) >= 0; )
+      if (!(lumpinfo[p].source == source_iwad
+            || lumpinfo[p].source == source_pre
+            || lumpinfo[p].source == source_auto_load))
+        ProcessDehFile(NULL, D_dehout(), p);
+
+  // Load command line dehacked patches after WAD dehacked patches
+
+  // e6y: DEH files preloaded in wrong order
+  // http://sourceforge.net/tracker/index.php?func=detail&aid=1418158&group_id=148658&atid=772943
+
+  // ty 03/09/98 do dehacked stuff
+  // Using -deh in BOOM, others use -dehacked.
+  // Ty 03/18/98 also allow .bex extension.  .bex overrides if both exist.
+
+  p = M_CheckParm ("-deh");
+  if (p)
+  {
+    char file[PATH_MAX+1];      // cph - localised
+    // the parms after p are deh/bex file names,
+    // until end of parms or another - preceded parm
+    // Ty 04/11/98 - Allow multiple -deh files in a row
+
+    while (++p != myargc && *myargv[p] != '-')
+    {
+      AddDefaultExtension(strcpy(file, myargv[p]), ".bex");
+      if (access(file, F_OK))  // nope
+      {
+        AddDefaultExtension(strcpy(file, myargv[p]), ".deh");
+        if (access(file, F_OK))  // still nope
+          I_Error("D_DoomMainSetup: Cannot find .deh or .bex file named %s",
+                  myargv[p]);
+      }
+      // during the beta we have debug output to dehout.txt
+      ProcessDehFile(file,D_dehout(),0);
     }
   }
 
