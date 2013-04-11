@@ -336,8 +336,6 @@ void AbbreviateName(char* lpszCanon, int cchMax, int bAtLeastName);
 
 extern dboolean isskytexture;
 
-void D_AddDehFile (const char *file, wad_source_t source);
-
 extern int levelstarttic;
 
 extern int force_singletics_to;
