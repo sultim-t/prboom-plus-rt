@@ -381,13 +381,23 @@ unsigned W_LumpNameHash(const char *s)
 // between different resources such as flats, sprites, colormaps
 //
 
-int (W_CheckNumForName)(const char *name, li_namespace_e li_namespace)
+// W_FindNumFromName, an iterative version of W_CheckNumForName
+// returns list of lump numbers for a given name (latest first)
+//
+int (W_FindNumFromName)(const char *name, int li_namespace, int i)
 {
   // Hash function maps the name to one of possibly numlump chains.
   // It has been tuned so that the average chain length never exceeds 2.
 
   // proff 2001/09/07 - check numlumps==0, this happens when called before WAD loaded
-  register int i = (numlumps==0)?(-1):(lumpinfo[W_LumpNameHash(name) % (unsigned) numlumps].index);
+  if (numlumps == 0)
+    i = -1;
+  else
+  {
+    if (i < 0)
+      i = lumpinfo[W_LumpNameHash(name) % (unsigned) numlumps].index;
+    else
+      i = lumpinfo[i].next;
 
   // We search along the chain until end, looking for case-insensitive
   // matches which also match a namespace tag. Separate hash tables are
@@ -398,6 +408,7 @@ int (W_CheckNumForName)(const char *name, li_namespace_e li_namespace)
   while (i >= 0 && (strncasecmp(lumpinfo[i].name, name, 8) ||
                     lumpinfo[i].li_namespace != li_namespace))
     i = lumpinfo[i].next;
+  }
 
   // Return the matching lump, or -1 if none found.
 
@@ -460,6 +471,20 @@ const lumpinfo_t* W_GetLumpInfoByNum(int lump)
     I_Error("W_GetLumpInfoByNum: lump num %d out of range", lump);
 
   return &lumpinfo[lump];
+}
+
+// W_ListNumFromName
+// calls W_FindNumFromName and returns the lumps in ascending order
+//
+int W_ListNumFromName(const char *name, int lump)
+{
+  int i, next;
+
+  for (i = -1; (next = W_FindNumFromName(name, i)) >= 0; i = next)
+    if (next == lump)
+      break;
+
+  return i;
 }
 
 // W_Init

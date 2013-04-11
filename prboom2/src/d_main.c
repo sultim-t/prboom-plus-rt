@@ -1742,8 +1742,9 @@ static void D_DoomMainSetup(void)
   // option to disable automatic loading of dehacked-in-wad lump
   if (!M_CheckParm ("-nodeh"))
   {
-    if ((p = W_CheckNumForName("DEHACKED")) != -1) // cph - add dehacked-in-a-wad support
-      ProcessDehFile(NULL, D_dehout(), p);
+    // MBF-style DeHackEd in wad support: load all lumps, not just the last one
+    for (p = -1; (p = W_ListNumFromName("DEHACKED", p)) >= 0; )
+      ProcessDehFile(NULL, D_dehout(), p); // cph - add dehacked-in-a-wad support
 
     if (gamemission == chex)
     {
