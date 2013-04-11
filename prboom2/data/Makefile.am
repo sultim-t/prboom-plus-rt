@@ -36,6 +36,22 @@ TABLES += lumps/tangtabl.lmp
 TABLES += lumps/tantoang.lmp
 TABLES += lumps/gammatbl.lmp
 
+TABLES += lumps/chexdeh.lmp
+TABLES += lumps/glshadow.lmp
+TABLES += lumps/glfp.lmp
+TABLES += lumps/glvp.lmp
+TABLES += lumps/-prbhud-.lmp
+TABLES += lumps/m_ammo.lmp
+TABLES += lumps/m_armour.lmp
+TABLES += lumps/m_arrow.lmp
+TABLES += lumps/m_health.lmp
+TABLES += lumps/m_key.lmp
+TABLES += lumps/m_normal.lmp
+TABLES += lumps/m_shadow.lmp
+TABLES += lumps/m_power.lmp
+TABLES += lumps/m_weap.lmp
+TABLES += lumps/m_mark.lmp
+
 SOUNDS =
 if DOGS
 if NONFREE_GRAPHICS
