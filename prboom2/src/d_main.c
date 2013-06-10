@@ -1751,23 +1751,27 @@ static void D_DoomMainSetup(void)
   p = M_CheckParm ("-deh");
   if (p)
   {
-    char file[PATH_MAX+1];      // cph - localised
     // the parms after p are deh/bex file names,
     // until end of parms or another - preceded parm
     // Ty 04/11/98 - Allow multiple -deh files in a row
-
+    //
+    // e6y
+    // reorganization of the code for looking for bex/deh patches
+    // in all standard dirs (%DOOMWADDIR%, etc)
     while (++p != myargc && *myargv[p] != '-')
     {
-      AddDefaultExtension(strcpy(file, myargv[p]), ".bex");
-      if (access(file, F_OK))  // nope
+      char *file = NULL;
+      if ((file = I_FindFile(myargv[p], ".bex")) ||
+          (file = I_FindFile(myargv[p], ".deh")))
       {
-        AddDefaultExtension(strcpy(file, myargv[p]), ".deh");
-        if (access(file, F_OK))  // still nope
-          I_Error("D_DoomMainSetup: Cannot find .deh or .bex file named %s",
-                  myargv[p]);
+        // during the beta we have debug output to dehout.txt
+        ProcessDehFile(file,D_dehout(),0);
+        free(file);
       }
-      // during the beta we have debug output to dehout.txt
-      ProcessDehFile(file,D_dehout(),0);
+      else
+      {
+        I_Error("D_DoomMainSetup: Cannot find .deh or .bex file named %s",myargv[p]);
+      }
     }
   }
 
