@@ -81,11 +81,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *  This product includes software developed by the University of
- *  California, Berkeley and its contributors.
- * 4. Neither the name of the University nor the names of its contributors
+ * 3. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -103,10 +99,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-#if 0
 static char sccsid[] = "@(#)getopt.c  8.3 (Berkeley) 4/27/95";
-#endif
-static const char rcsid[] = "$FreeBSD$";
 #endif /* LIBC_SCCS and not lint */
 
 int opterr = 1,   /* if error message should be printed */
@@ -128,67 +121,77 @@ char *__progname="prboom_server";
 int
 getopt(nargc, nargv, ostr)
   int nargc;
-  char * const *nargv;
+  char * const nargv[];
   const char *ostr;
 {
   extern char *__progname;
   static char *place = EMSG;    /* option letter processing */
   char *oli;        /* option letter list index */
-  int ret;
 
-  if (optreset || !*place) {    /* update scanning pointer */
+  if (optreset || *place == 0) {    /* update scanning pointer */
     optreset = 0;
-    if (optind >= nargc || *(place = nargv[optind]) != '-') {
+    place = nargv[optind];
+    if (optind >= nargc || *place++ != '-') {
+      /* Argument is absent or is not an option */
       place = EMSG;
       return (-1);
     }
-    if (place[1] && *++place == '-') {  /* found "--" */
+    optopt = *place++;
+    if (optopt == '-' && *place == 0) {
+      /* "--" => end of options */
       ++optind;
       place = EMSG;
       return (-1);
     }
-  }         /* option letter okay? */
-  if ((optopt = (int)*place++) == (int)':' ||
-      !(oli = strchr(ostr, optopt))) {
-    /*
-     * if the user didn't specify '-' as an option,
-     * assume it means -1.
-     */
-    if (optopt == (int)'-')
-      return (-1);
-    if (!*place)
+    if (optopt == 0) {
+      /* Solitary '-', treat as a '-' option
+         if the program (eg su) is looking for it. */
+      place = EMSG;
+      if (strchr(ostr, '-') == NULL)
+        return (-1);
+      optopt = '-';
+    }
+  } else
+    optopt = *place++;
+
+  /* See if option letter is one the caller wanted... */
+  if (optopt == ':' || (oli = strchr(ostr, optopt)) == NULL) {
+    if (*place == 0)
       ++optind;
     if (opterr && *ostr != ':')
       (void)fprintf(stderr,
           "%s: illegal option -- %c\n", __progname, optopt);
     return (BADCH);
   }
-  if (*++oli != ':') {      /* don't need argument */
+
+  /* Does this option need an argument? */
+  if (oli[1] != ':') {
+    /* don't need argument */
     optarg = NULL;
-    if (!*place)
+    if (*place == 0)
       ++optind;
-  }
-  else {          /* need an argument */
-    if (*place)     /* no white space */
+  } else {
+    /* Option-argument is either the rest of this argument or the
+       entire next argument. */
+    if (*place)
       optarg = place;
-    else if (nargc <= ++optind) { /* no arg */
+    else if (nargc > ++optind)
+      optarg = nargv[optind];
+    else {
+      /* option-argument absent */
       place = EMSG;
       if (*ostr == ':')
-        ret = BADARG;
-      else
-        ret = BADCH;
+        return (BADARG);
       if (opterr)
         (void)fprintf(stderr,
             "%s: option requires an argument -- %c\n",
             __progname, optopt);
-      return (ret);
+      return (BADCH);
     }
-    else        /* white space */
-      optarg = nargv[optind];
     place = EMSG;
     ++optind;
   }
-  return (optopt);      /* dump back option letter */
+  return (optopt);      /* return option letter */
 }
 #else
 #include <unistd.h>
