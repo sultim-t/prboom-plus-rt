@@ -806,16 +806,9 @@ void R_SetupFreelook(void)
   fixed_t dy;
   int i;
 
-  //if (camera != NULL)
+  if (GetMouseLook())
   {
     dy = FixedMul(focallength, finetangent[(ANG90-viewpitch)>>ANGLETOFINESHIFT]);
-  }
-  /*else
-  {
-    dy = 0;
-  }*/
-
-  if (GetMouseLook()){
     centeryfrac = (viewheight << (FRACBITS-1)) + dy;
     centery = centeryfrac >> FRACBITS;
   }
@@ -828,10 +821,9 @@ void R_SetupFreelook(void)
   if (centery != old_centery)
   {
     old_centery = centery;
-    for (i=0 ; i<viewheight ; i++)
-    {   // killough 5/2/98: reformatted
-      fixed_t dy = D_abs(((i-centery)<<FRACBITS)+FRACUNIT/2);
-      // proff 08/17/98: Changed for high-res
+    for (i=0; i<viewheight; i++)
+    {
+      dy = D_abs(((i-centery)<<FRACBITS)+FRACUNIT/2);
       yslope[i] = FixedDiv(projectiony, dy);
     }
   }
