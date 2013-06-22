@@ -185,10 +185,11 @@ void G_SkipDemoCheck(void);
 int G_ReloadLevel(void);
 int G_GotoNextLevel(void);
 
-#ifdef GL_DOOM
 void M_ChangeMouseLook(void);
 void M_ChangeMaxViewPitch(void);
 void M_ChangeMouseInvert(void);
+
+#ifdef GL_DOOM
 void M_ChangeFOV(void);
 void M_ChangeUseDetail(void);
 void M_ChangeMultiSample(void);
@@ -207,13 +208,8 @@ void M_MouseAccel(int choice);
 void CheckPitch(signed int *pitch);
 void I_Init2(void);
 
-#ifdef GL_DOOM
 dboolean GetMouseLook(void);
 dboolean HaveMouseLook(void);
-#else
-#define GetMouseLook() (0)
-#define HaveMouseLook() (0)
-#endif
 
 extern float viewPitch;
 extern dboolean transparentpresent;

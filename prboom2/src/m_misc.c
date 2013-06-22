@@ -75,6 +75,7 @@
 #include "r_fps.h"
 #include "r_main.h"
 #include "r_things.h"
+#include "r_sky.h"
 
 //e6y
 #ifdef GL_DOOM
@@ -1001,8 +1002,17 @@ default_t defaults[] =
   def_int,ss_stat},
   {"render_patches_scaley", {&render_patches_scaley},{0},0,16,
   def_int,ss_stat},
+  {"render_stretchsky",{&r_stretchsky},{1},0,1,
+   def_bool,ss_none},
   {"sprites_doom_order", {&sprites_doom_order}, {DOOM_ORDER_STATIC},0,DOOM_ORDER_LAST - 1,
    def_int,ss_stat},
+
+  {"movement_mouselook", {&movement_mouselook},  {0},0,1,
+   def_bool,ss_stat},
+  {"movement_maxviewpitch", {&movement_maxviewpitch},  {90},0,90,
+   def_int,ss_stat},
+  {"movement_mouseinvert", {&movement_mouseinvert},  {0},0,1,
+   def_bool,ss_stat},
 
 #ifdef GL_DOOM
   {"Prboom-plus OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
@@ -1018,12 +1028,6 @@ default_t defaults[] =
    {"gl_spriteclip_threshold", {&gl_spriteclip_threshold},  {10},0,100,
    def_int,ss_stat},
    {"gl_sprites_frustum_culling", {&gl_sprites_frustum_culling},  {1},0,1,
-   def_bool,ss_stat},
-  {"movement_mouselook", {&movement_mouselook},  {0},0,1,
-   def_bool,ss_stat},
-  {"movement_maxviewpitch", {&movement_maxviewpitch},  {90},0,90,
-   def_int,ss_stat},
-  {"movement_mouseinvert", {&movement_mouseinvert},  {0},0,1,
    def_bool,ss_stat},
   {"render_paperitems", {&render_paperitems},  {0},0,1,
    def_bool,ss_stat},

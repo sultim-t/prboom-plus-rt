@@ -553,6 +553,13 @@ static void R_DrawVisSprite(vissprite_t *vis)
   spryscale = vis->scale;
   sprtopscreen = centeryfrac - FixedMul(dcvars.texturemid,spryscale);
 
+  // check to see if weapon is a vissprite
+  if(vis->mobjflags & MF_PLAYERSPRITE)
+  {
+    dcvars.texturemid += FixedMul(((centery - viewheight/2)<<FRACBITS), dcvars.iscale);
+    sprtopscreen += (viewheight/2 - centery)<<FRACBITS;
+  }
+
   for (dcvars.x=vis->x1 ; dcvars.x<=vis->x2 ; dcvars.x++, frac += vis->xiscale)
     {
       texturecolumn = frac>>FRACBITS;

@@ -229,8 +229,7 @@ void P_SetPitch(player_t *player)
 {
   mobj_t *mo = player->mo;
 
-#ifdef GL_DOOM
-  if (V_GetMode() == VID_MODEGL && player == &players[consoleplayer])
+  if (player == &players[consoleplayer])
   {
     if (!(demoplayback || democontinue))
     {
@@ -259,9 +258,6 @@ void P_SetPitch(player_t *player)
   {
     mo->pitch = 0;
   }
-#else // GL_DOOM
-  mo->pitch = 0;
-#endif // GL_DOOM
 }
 
 //

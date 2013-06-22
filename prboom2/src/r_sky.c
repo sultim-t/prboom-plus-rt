@@ -38,6 +38,8 @@
 #pragma implementation "r_sky.h"
 #endif
 #include "r_sky.h"
+#include "r_main.h"
+#include "e6y.h"
 
 //
 // sky mapping
@@ -46,11 +48,62 @@ int skyflatnum;
 int skytexture;
 int skytexturemid;
 
+int r_stretchsky = 1;
+int skystretch;
+fixed_t freelookviewheight;
+
 //
 // R_InitSkyMap
 // Called whenever the view size changes.
 //
-void R_InitSkyMap (void)
+void R_InitSkyMap(void)
 {
-  skytexturemid = 100*FRACUNIT;
+  int skyheight;
+
+  if (!textureheight)
+    return;
+
+	// There are various combinations for sky rendering depending on how tall the sky is:
+	//        h <  128: Unstretched and tiled, centered on horizon
+	// 128 <= h <  200: Can possibly be stretched. When unstretched, the baseline is
+	//                  28 rows below the horizon so that the top of the texture
+	//                  aligns with the top of the screen when looking straight ahead.
+	//                  When stretched, it is scaled to 228 pixels with the baseline
+	//                  in the same location as an unstretched 128-tall sky, so the top
+	//					of the texture aligns with the top of the screen when looking
+	//                  fully up.
+	//        h == 200: Unstretched, baseline is on horizon, and top is at the top of
+	//                  the screen when looking fully up.
+	//        h >  200: Unstretched, but the baseline is shifted down so that the top
+	//                  of the texture is at the top of the screen when looking fully up.
+  
+  skyheight = textureheight[skytexture]>>FRACBITS;
+  skystretch = false;
+  skytexturemid = 0;
+  if (skyheight >= 128 && skyheight < 200)
+  {
+    skystretch = (r_stretchsky && skyheight >= 128 && GetMouseLook());
+    skytexturemid = -28*FRACUNIT;
+  }
+  else if (skyheight > 200)
+  {
+    skytexturemid = (200 - skyheight) << FRACBITS;
+  }
+
+  if (viewwidth != 0 && viewheight != 0)
+  {
+    //skyiscale = (200*FRACUNIT) / ((freelookviewheight * viewwidth) / viewwidth);
+    skyiscale = 200 * FRACUNIT / freelookviewheight;
+    skyiscale = (int_64_t)skyiscale * FieldOfView / 2048;
+  }
+
+  if (skystretch)
+  {
+    skyiscale = (int_64_t)skyiscale * skyheight / SKYSTRETCH_HEIGHT;
+    skytexturemid = (int_64_t)skytexturemid * skyheight / SKYSTRETCH_HEIGHT;
+  }
+  else
+  {
+    skytexturemid = 100*FRACUNIT;
+  }
 }

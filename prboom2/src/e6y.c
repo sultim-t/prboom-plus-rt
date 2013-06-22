@@ -76,6 +76,7 @@
 #include "r_screenmultiply.h"
 #include "r_main.h"
 #include "r_things.h"
+#include "r_sky.h"
 #include "am_map.h"
 #include "hu_tracers.h"
 #ifdef GL_DOOM
@@ -452,15 +453,18 @@ void M_ChangeSpeed(void)
   }
 }
 
-#ifdef GL_DOOM
 void M_ChangeMouseLook(void)
 {
   viewpitch = 0;
 
+  R_InitSkyMap();
+
+#ifdef GL_DOOM
   if (gl_skymode == skytype_auto)
     gl_drawskys = (movement_mouselook ? skytype_skydome : skytype_standard);
   else
     gl_drawskys = gl_skymode;
+#endif // GL_DOOM
 }
 
 void M_ChangeMouseInvert(void)
@@ -469,13 +473,27 @@ void M_ChangeMouseInvert(void)
 
 void M_ChangeMaxViewPitch(void)
 {
-  int angle = (int)((float)movement_maxviewpitch / 45.0f * ANG45);
-  maxViewPitch = (angle - (1<<ANGLETOFINESHIFT));
-  minViewPitch = (-angle + (1<<ANGLETOFINESHIFT));
+  int max_up, max_dn, angle_up, angle_dn;
+  
+  if (V_GetMode() == VID_MODEGL)
+  {
+    max_up = movement_maxviewpitch;
+    max_dn = movement_maxviewpitch;
+  }
+  else
+  {
+    max_up = MIN(movement_maxviewpitch, 61);
+    max_dn = MIN(movement_maxviewpitch, 36);
+  }
+
+  angle_up = (int)((float)max_up / 45.0f * ANG45);
+  angle_dn = (int)((float)max_dn / 45.0f * ANG45);
+
+  maxViewPitch = (+angle_up - (1<<ANGLETOFINESHIFT));
+  minViewPitch = (-angle_dn + (1<<ANGLETOFINESHIFT));
 
   viewpitch = 0;
 }
-#endif // GL_DOOM
 
 void M_ChangeRenderPrecise(void)
 {
@@ -512,7 +530,6 @@ void M_ChangeInterlacedScanning(void)
     interlaced_scanning_requires_clearing = 1;
 }
 
-#ifdef GL_DOOM
 dboolean GetMouseLook(void)
 {
   return movement_mouselook;
@@ -521,20 +538,16 @@ dboolean HaveMouseLook(void)
 {
   return (viewpitch != 0);
 }
-#endif
 
 void CheckPitch(signed int *pitch)
 {
-  if (V_GetMode() == VID_MODEGL)
-  {
-    if(*pitch > maxViewPitch)
-      *pitch = maxViewPitch;
-    if(*pitch < minViewPitch)
-      *pitch = minViewPitch;
+  if(*pitch > maxViewPitch)
+    *pitch = maxViewPitch;
+  if(*pitch < minViewPitch)
+    *pitch = minViewPitch;
 
-    (*pitch) >>= 16;
-    (*pitch) <<= 16;
-  }
+  (*pitch) >>= 16;
+  (*pitch) <<= 16;
 }
 
 int render_aspect;

@@ -94,6 +94,7 @@ int wide_offset2x;
 int wide_offsety;
 int wide_offset2y;
 
+fixed_t  focallength;
 fixed_t  centerxfrac, centeryfrac;
 fixed_t  viewheightfrac; //e6y: for correct cliping of things
 fixed_t  projection;
@@ -106,6 +107,8 @@ fixed_t  viewcos, viewsin;
 player_t *viewplayer;
 // e6y: Added for more precise flats drawing
 float viewfocratio;
+
+int FieldOfView;
 
 extern const lighttable_t **walllights;
 extern const lighttable_t **walllightsnext;
@@ -347,17 +350,16 @@ angle_t R_GetVertexViewAngle(vertex_t *v)
 
 static void R_InitTextureMapping (void)
 {
-  register int i,x;
-  fixed_t focallength;
-  int fov = FIELDOFVIEW;
+  int i,x;
+  FieldOfView = FIELDOFVIEW;
 
   // For widescreen displays, increase the FOV so that the middle part of the
   // screen that would be visible on a 4:3 display has the requested FOV.
   if (wide_centerx != centerx)
   { // wide_centerx is what centerx would be if the display was not widescreen
-    fov = (int)(atan((double)centerx * tan((double)fov * M_PI / FINEANGLES) / (double)wide_centerx) * FINEANGLES / M_PI);
-    if (fov > 160 * FINEANGLES / 360)
-      fov = 160 * FINEANGLES / 360;
+    FieldOfView = (int)(atan((double)centerx * tan((double)FieldOfView * M_PI / FINEANGLES) / (double)wide_centerx) * FINEANGLES / M_PI);
+    if (FieldOfView > 160 * FINEANGLES / 360)
+      FieldOfView = 160 * FINEANGLES / 360;
   }
 
   // Use tangent table to generate viewangletox:
@@ -367,12 +369,12 @@ static void R_InitTextureMapping (void)
   // Calc focallength
   //  so FIELDOFVIEW angles covers SCREENWIDTH.
 
-  focallength = FixedDiv(centerxfrac, finetangent[FINEANGLES/4 + fov/2]);
+  focallength = FixedDiv(centerxfrac, finetangent[FINEANGLES/4 + FieldOfView/2]);
 
   for (i=0 ; i<FINEANGLES/2 ; i++)
     {
       int t;
-      int limit = finetangent[FINEANGLES/4 + fov/2];
+      int limit = finetangent[FINEANGLES/4 + FieldOfView/2];
       if (finetangent[i] > limit)
         t = -1;
       else
@@ -643,18 +645,21 @@ void R_ExecuteSetViewSize (void)
     {
       scaledviewwidth = SCREENWIDTH;
       viewheight = SCREENHEIGHT;
+      freelookviewheight = viewheight;
     }
 // proff 09/24/98: Added for high-res
   else if (setblocks == 10)
     {
       scaledviewwidth = SCREENWIDTH;
       viewheight = SCREENHEIGHT-ST_SCALED_HEIGHT;
+      freelookviewheight = SCREENHEIGHT;
     }
   else
     {
 // proff 08/17/98: Changed for high-res
       scaledviewwidth = setblocks*SCREENWIDTH/10;
       viewheight = (setblocks*(SCREENHEIGHT-ST_SCALED_HEIGHT)/10) & ~7;
+      freelookviewheight = setblocks*SCREENHEIGHT/10;
     }
 
   viewwidth = scaledviewwidth;
@@ -705,17 +710,12 @@ void R_ExecuteSetViewSize (void)
 
   skyiscale = (fixed_t)(((uint_64_t)FRACUNIT * SCREENWIDTH * 200) / (viewwidth * SCREENHEIGHT));
 
+	// [RH] Sky height fix for screens not 200 (or 240) pixels tall
+	R_InitSkyMap();
+
   // thing clipping
   for (i=0 ; i<viewwidth ; i++)
     screenheightarray[i] = viewheight;
-
-  // planes
-  for (i=0 ; i<viewheight ; i++)
-    {   // killough 5/2/98: reformatted
-      fixed_t dy = D_abs(((i-viewheight/2)<<FRACBITS)+FRACUNIT/2);
-// proff 08/17/98: Changed for high-res
-      yslope[i] = FixedDiv(projectiony, dy);
-    }
 
   for (i=0 ; i<viewwidth ; i++)
     {
@@ -797,6 +797,47 @@ subsector_t *R_PointInSubsector(fixed_t x, fixed_t y)
 }
 
 //
+// R_SetupFreelook
+//
+
+void R_SetupFreelook(void)
+{
+  static int old_centery = 0;
+  fixed_t dy;
+  int i;
+
+  //if (camera != NULL)
+  {
+    dy = FixedMul(focallength, finetangent[(ANG90-viewpitch)>>ANGLETOFINESHIFT]);
+  }
+  /*else
+  {
+    dy = 0;
+  }*/
+
+  if (GetMouseLook()){
+    centeryfrac = (viewheight << (FRACBITS-1)) + dy;
+    centery = centeryfrac >> FRACBITS;
+  }
+  else
+  {
+    centery = viewheight / 2;
+    centeryfrac = centery<<FRACBITS;
+  }
+
+  if (centery != old_centery)
+  {
+    old_centery = centery;
+    for (i=0 ; i<viewheight ; i++)
+    {   // killough 5/2/98: reformatted
+      fixed_t dy = D_abs(((i-centery)<<FRACBITS)+FRACUNIT/2);
+      // proff 08/17/98: Changed for high-res
+      yslope[i] = FixedDiv(projectiony, dy);
+    }
+  }
+}
+
+//
 // R_SetupFrame
 //
 
@@ -810,6 +851,8 @@ static void R_SetupFrame (player_t *player)
 
   viewsin = finesine[viewangle>>ANGLETOFINESHIFT];
   viewcos = finecosine[viewangle>>ANGLETOFINESHIFT];
+
+  R_SetupFreelook();
 
   // killough 3/20/98, 4/4/98: select colormap based on player status
 

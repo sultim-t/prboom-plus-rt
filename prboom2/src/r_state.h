@@ -111,6 +111,8 @@ extern int              viewangletox[FINEANGLES/2];
 // e6y: resolution limitation is removed
 extern angle_t          *xtoviewangle;  // killough 2/8/98
 
+extern int              FieldOfView;
+
 extern fixed_t          rw_distance;
 extern angle_t          rw_normalangle;
 

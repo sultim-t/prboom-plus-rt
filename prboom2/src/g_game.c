@@ -768,6 +768,9 @@ static void G_DoLoadLevel (void)
         break;
       }//jff 3/27/98 end sky setting fix
 
+	// [RH] Set up details about sky rendering
+	R_InitSkyMap ();
+
 #ifdef GL_DOOM
   R_SetBoxSkybox(skytexture);
 #endif
