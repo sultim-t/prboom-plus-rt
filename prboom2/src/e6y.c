@@ -155,9 +155,6 @@ hu_textline_t  w_precache;
 char hud_add[80];
 char hud_centermsg[80];
 
-fixed_t sidemove_normal[2]    = {0x18, 0x28};
-fixed_t sidemove_strafe50[2]    = {0x19, 0x32};
-
 int mouseSensitivity_mlook;
 angle_t viewpitch;
 float skyscale;
@@ -438,19 +435,7 @@ int G_GotoNextLevel(void)
 
 void M_ChangeSpeed(void)
 {
-  extern int sidemove[2];
-
-  if(movement_strafe50)
-  {
-    sidemove[0] = sidemove_strafe50[0];
-    sidemove[1] = sidemove_strafe50[1];
-  }
-  else
-  {
-    movement_strafe50onturns = false;
-    sidemove[0] = sidemove_normal[0];
-    sidemove[1] = sidemove_normal[1];
-  }
+  G_SetSpeed();
 }
 
 void M_ChangeMouseLook(void)

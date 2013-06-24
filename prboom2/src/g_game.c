@@ -255,6 +255,10 @@ fixed_t sidemove[2]    = {0x18, 0x28};
 fixed_t angleturn[3]   = {640, 1280, 320};  // + slow turn
 fixed_t flyspeed[2]    = {1*256, 3*256};
 
+fixed_t forwardmove_normal[2] = {0x19, 0x32};
+fixed_t sidemove_normal[2]    = {0x18, 0x28};
+fixed_t sidemove_strafe50[2]  = {0x19, 0x32};
+
 // CPhipps - made lots of key/button state vars static
 //e6y static
 dboolean gamekeydown[NUMKEYS];
@@ -352,6 +356,36 @@ static inline signed short fudgea(signed short b)
   else
   {
     return b;
+  }
+}
+
+void G_SetSpeed(void)
+{
+  int p;
+
+  if(movement_strafe50)
+  {
+    sidemove[0] = sidemove_strafe50[0];
+    sidemove[1] = sidemove_strafe50[1];
+  }
+  else
+  {
+    movement_strafe50onturns = false;
+    sidemove[0] = sidemove_normal[0];
+    sidemove[1] = sidemove_normal[1];
+  }
+
+  if ((p = M_CheckParm ("-turbo")))
+  {
+    int scale = ((p < myargc - 1) ? atoi(myargv[p + 1]) : 200);
+    scale = BETWEEN(10, 400, scale);
+
+    //jff 9/3/98 use logical output routine
+    lprintf (LO_CONFIRM,"turbo scale: %i%%\n",scale);
+    forwardmove[0] = forwardmove_normal[0]*scale/100;
+    forwardmove[1] = forwardmove_normal[1]*scale/100;
+    sidemove[0] = sidemove[0]*scale/100;
+    sidemove[1] = sidemove[1]*scale/100;
   }
 }
 

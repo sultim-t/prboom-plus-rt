@@ -88,6 +88,7 @@ void G_MakeSpecialEvent(buttoncode_t bc, ...); /* cph - new event stuff */
 extern dboolean democontinue;
 extern char democontinuename[];
 void G_CheckDemoContinue(void);
+void G_SetSpeed(void);
 
 //e6y
 #define RDH_SAFE 0x00000001

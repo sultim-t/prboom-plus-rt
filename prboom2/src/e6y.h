@@ -146,9 +146,6 @@ extern int palette_onpowers;
 
 extern camera_t walkcamera;
 
-extern fixed_t sidemove_normal[2];
-extern fixed_t sidemove_strafe50[2];
-
 extern int PitchSign;
 extern int mouseSensitivity_mlook;
 extern angle_t viewpitch;
