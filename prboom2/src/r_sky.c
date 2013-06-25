@@ -92,15 +92,14 @@ void R_InitSkyMap(void)
 
   if (viewwidth != 0 && viewheight != 0)
   {
-    //skyiscale = (200*FRACUNIT) / ((freelookviewheight * viewwidth) / viewwidth);
     skyiscale = 200 * FRACUNIT / freelookviewheight;
-    skyiscale = (int_64_t)skyiscale * FieldOfView / 2048;
+    skyiscale = (fixed_t)((int_64_t)skyiscale * FieldOfView / 2048);
   }
 
   if (skystretch)
   {
-    skyiscale = (int_64_t)skyiscale * skyheight / SKYSTRETCH_HEIGHT;
-    skytexturemid = (int_64_t)skytexturemid * skyheight / SKYSTRETCH_HEIGHT;
+    skyiscale = (fixed_t)((int_64_t)skyiscale * skyheight / SKYSTRETCH_HEIGHT);
+    skytexturemid = (int)((int_64_t)skytexturemid * skyheight / SKYSTRETCH_HEIGHT);
   }
   else
   {
