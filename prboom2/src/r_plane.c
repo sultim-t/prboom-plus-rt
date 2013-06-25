@@ -481,7 +481,7 @@ static void R_DoDrawPlane(visplane_t *pl)
         if (skystretch)
         {
           int skyheight = textureheight[texture]>>FRACBITS;
-          dcvars.texturemid = (int_64_t)dcvars.texturemid * skyheight / SKYSTRETCH_HEIGHT;
+          dcvars.texturemid = (int)((int_64_t)dcvars.texturemid * skyheight / SKYSTRETCH_HEIGHT);
         }
       }
       else
