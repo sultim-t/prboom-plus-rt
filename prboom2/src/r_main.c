@@ -802,29 +802,32 @@ subsector_t *R_PointInSubsector(fixed_t x, fixed_t y)
 
 void R_SetupFreelook(void)
 {
-  static int old_centery = 0;
-  fixed_t dy;
-  int i;
+  if (V_GetMode() != VID_MODEGL)
+  {
+    static int old_centery = 0;
+    fixed_t dy;
+    int i;
 
-  if (GetMouseLook())
-  {
-    dy = FixedMul(focallength, finetangent[(ANG90-viewpitch)>>ANGLETOFINESHIFT]);
-    centeryfrac = (viewheight << (FRACBITS-1)) + dy;
-    centery = centeryfrac >> FRACBITS;
-  }
-  else
-  {
-    centery = viewheight / 2;
-    centeryfrac = centery<<FRACBITS;
-  }
-
-  if (centery != old_centery)
-  {
-    old_centery = centery;
-    for (i=0; i<viewheight; i++)
+    if (GetMouseLook())
     {
-      dy = D_abs(((i-centery)<<FRACBITS)+FRACUNIT/2);
-      yslope[i] = FixedDiv(projectiony, dy);
+      dy = FixedMul(focallength, finetangent[(ANG90-viewpitch)>>ANGLETOFINESHIFT]);
+      centeryfrac = (viewheight << (FRACBITS-1)) + dy;
+      centery = centeryfrac >> FRACBITS;
+    }
+    else
+    {
+      centery = viewheight / 2;
+      centeryfrac = centery<<FRACBITS;
+    }
+
+    if (centery != old_centery)
+    {
+      old_centery = centery;
+      for (i=0; i<viewheight; i++)
+      {
+        dy = D_abs(((i-centery)<<FRACBITS)+FRACUNIT/2);
+        yslope[i] = FixedDiv(projectiony, dy);
+      }
     }
   }
 }
