@@ -807,17 +807,13 @@ void R_SetupFreelook(void)
     fixed_t dy;
     int i;
 
+    centery = viewheight / 2;
     if (GetMouseLook())
     {
       dy = FixedMul(focallength, finetangent[(ANG90-viewpitch)>>ANGLETOFINESHIFT]);
-      centeryfrac = (viewheight << (FRACBITS-1)) + dy;
-      centery = centeryfrac >> FRACBITS;
+      centery += dy >> FRACBITS;
     }
-    else
-    {
-      centery = viewheight / 2;
-      centeryfrac = centery<<FRACBITS;
-    }
+    centeryfrac = centery<<FRACBITS;
 
     for (i=0; i<viewheight; i++)
     {
