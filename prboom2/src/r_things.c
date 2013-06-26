@@ -740,8 +740,9 @@ static void R_ProjectSprite (mobj_t* thing)
   // killough 4/9/98: clip things which are out of view due to height
   // e6y: fix of hanging decoration disappearing in Batman Doom MAP02
   // centeryfrac -> viewheightfrac
-  if (fz  > viewz + FixedDiv(viewheightfrac, xscale) ||
-      gzt < viewz - FixedDiv(viewheightfrac-viewheight, xscale))
+  // [kb] add +1 so sprites are shown even with the extended freelook
+  if (thing->z > viewz + FixedDiv(viewheight << (FRACBITS + 1), xscale) ||
+    gzt < viewz - FixedDiv((viewheight << (FRACBITS + 1)) - viewheight, xscale))
     return;
 
     // killough 3/27/98: exclude things totally separated
