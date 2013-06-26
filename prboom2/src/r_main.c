@@ -804,7 +804,6 @@ void R_SetupFreelook(void)
 {
   if (V_GetMode() != VID_MODEGL)
   {
-    static int old_centery = 0;
     fixed_t dy;
     int i;
 
@@ -820,14 +819,10 @@ void R_SetupFreelook(void)
       centeryfrac = centery<<FRACBITS;
     }
 
-    if (centery != old_centery)
+    for (i=0; i<viewheight; i++)
     {
-      old_centery = centery;
-      for (i=0; i<viewheight; i++)
-      {
-        dy = D_abs(((i-centery)<<FRACBITS)+FRACUNIT/2);
-        yslope[i] = FixedDiv(projectiony, dy);
-      }
+      dy = D_abs(((i-centery)<<FRACBITS)+FRACUNIT/2);
+      yslope[i] = FixedDiv(projectiony, dy);
     }
   }
 }
