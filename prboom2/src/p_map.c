@@ -1445,6 +1445,7 @@ void P_SlideMove(mobj_t *mo)
 // P_LineAttack
 //
 mobj_t*   linetarget; // who got hit (or NULL)
+mobj_t*   crosshair_target;
 static mobj_t*   shootthing;
 
 /* killough 8/2/98: for more intelligent autoaiming */

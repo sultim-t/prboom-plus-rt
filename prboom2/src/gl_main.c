@@ -69,6 +69,7 @@
 #include "am_map.h"
 #include "sc_man.h"
 #include "st_stuff.h"
+#include "hu_stuff.h"
 #include "e6y.h"//e6y
 #ifdef USE_CUSTOM_QSORT
 #include "qsort.h"
@@ -155,6 +156,54 @@ GLfloat cm2RGB[CR_LIMIT + 1][4] =
   {0.50f ,0.50f, 1.00f, 1.00f}, //CR_BLUE2
   {1.00f ,1.00f, 1.00f, 1.00f}, //CR_LIMIT
 };
+
+int gld_PointToScreen(float objx, float objy, float objz, float *winx, float *winy)
+{
+  // Get the matrices and viewport
+  GLdouble modelView[16];
+  GLdouble projection[16];
+  GLint viewport[4];
+  GLdouble x, y, z;
+
+  glGetDoublev(GL_MODELVIEW_MATRIX, modelView);
+  glGetDoublev(GL_PROJECTION_MATRIX, projection);
+  glGetIntegerv(GL_VIEWPORT, viewport);
+
+  gluProject((GLdouble)objx, (GLdouble)objz, (GLdouble)objy,
+    modelView, projection, viewport, &x, &y, &z);
+
+  *winx = (float)x;
+  *winy = (float)y;
+
+  return (z > 0);
+}
+
+void gld_SetCrosshairTarget(void)
+{
+  crosshair.target_screen_x = 0;
+  crosshair.target_screen_y = 0;
+
+  if (hudadd_crosshair_lock_target && crosshair.target_sprite >= 0)
+  {
+    float x, y, z;
+    float wx, wy;
+    int lump, height;
+
+    lump = sprites[crosshair.target_sprite].spriteframes[0].lump[0] + firstspritelump;
+    height = R_NumPatchHeight(lump);
+
+    x = -(float)crosshair.target_x / MAP_SCALE;
+    y = (float)crosshair.target_y / MAP_SCALE;
+    z = (float)(crosshair.target_z + 0.75f * height * FRACUNIT) / MAP_SCALE;
+
+    if (gld_PointToScreen(x, y, z, &wx, &wy))
+    {
+      stretch_param_t *params = &stretch_params[crosshair.flags & VPT_ALIGN_MASK];
+      crosshair.target_screen_x = (wx - params->deltax1) * 320.0f / params->video->width;
+      crosshair.target_screen_y = 200 - (wy - params->deltay1) * 200.0f / params->video->height;
+    }
+  }
+}
 
 void SetFrameTextureMode(void)
 {
@@ -1323,6 +1372,8 @@ void gld_StartDrawScene(void)
   scene_has_overlapped_sprites = false;
   scene_has_wall_details = 0;
   scene_has_flat_details = 0;
+
+  gld_SetCrosshairTarget();
 }
 
 //e6y

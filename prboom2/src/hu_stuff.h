@@ -111,6 +111,15 @@ typedef struct message_thinker_s
   custom_message_t msg;
 } message_thinker_t;
 
+typedef struct crosshair_s
+{
+  int lump;
+  int x, y, flags;
+  int target_x, target_y, target_z, target_sprite;
+  float target_screen_x, target_screen_y;
+} crosshair_t;
+extern crosshair_t crosshair;
+
 int SetCustomMessage(int plr, const char *msg, int delay, int ticks, int cm, int sfx);
 
 #endif

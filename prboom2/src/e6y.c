@@ -127,6 +127,7 @@ int hudadd_demoprogressbar;
 int hudadd_crosshair;
 int hudadd_crosshair_health;
 int hudadd_crosshair_target;
+int hudadd_crosshair_lock_target;
 int movement_strafe50;
 int movement_shorttics;
 int movement_strafe50onturns;

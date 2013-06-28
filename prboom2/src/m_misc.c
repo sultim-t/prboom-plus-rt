@@ -920,6 +920,8 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"hudadd_crosshair_target", {&hudadd_crosshair_target},  {0},0,1,
    def_bool,ss_stat},
+  {"hudadd_crosshair_lock_target", {&hudadd_crosshair_lock_target},  {0},0,1,
+   def_bool,ss_stat},
 
   //e6y
   {"Prboom-plus mouse settings",{NULL},{0},UL,UL,def_none,ss_none},

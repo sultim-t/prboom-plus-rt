@@ -2117,29 +2117,32 @@ void HU_widget_draw_gkeys(void)
 
 const char *crosshair_nam[HU_CROSSHAIRS]= { NULL, "CROSS1", "CROSS2", "CROSS3" };
 const char *crosshair_str[HU_CROSSHAIRS]= {"none", "cross", "angle", "dot" };
-int crosshair_lmp, crosshair_x, crosshair_yc, crosshair_flg;
+crosshair_t crosshair;
 
 void HU_init_crosshair(void)
 {
   if (!hudadd_crosshair || !crosshair_nam[hudadd_crosshair])
     return;
 
-  crosshair_lmp = W_CheckNumForName(crosshair_nam[hudadd_crosshair]);
-  if (crosshair_lmp == -1)
+  crosshair.lump = W_CheckNumForName(crosshair_nam[hudadd_crosshair]);
+  if (crosshair.lump == -1)
     return;
 
-  crosshair_x  = (int)((     ST_WIDTH   - R_NumPatchWidth (crosshair_lmp))/2);
-  crosshair_yc = (int)(((200-ST_HEIGHT) - R_NumPatchHeight(crosshair_lmp))/2);
+  crosshair.x = (ST_WIDTH - R_NumPatchWidth(crosshair.lump))/2;
+  crosshair.y = ((200-ST_HEIGHT) - R_NumPatchHeight(crosshair.lump))/2;
 
-  crosshair_flg = (hudadd_crosshair_health || hudadd_crosshair_target ? VPT_TRANS : VPT_NONE) | VPT_STRETCH;
+  crosshair.flags = (hudadd_crosshair_health || hudadd_crosshair_target ? VPT_TRANS : VPT_NONE) | VPT_STRETCH;
+  //crosshair.flags |= VPT_ALIGN_WIDE;
 }
 
 void HU_draw_crosshair(void)
 {
-  int crosshair_col, crosshair_y;
+  int cm;
   extern int screenSize;
 
-  if (!crosshair_nam[hudadd_crosshair] || crosshair_lmp == -1 ||
+  crosshair.target_sprite = -1;
+
+  if (!crosshair_nam[hudadd_crosshair] || crosshair.lump == -1 ||
     custom_message_p->ticks > 0 || automapmode & am_active ||
     menuactive != mnact_inactive || paused ||
     plr->readyweapon == wp_chainsaw || plr->readyweapon == wp_fist)
@@ -2147,18 +2150,31 @@ void HU_draw_crosshair(void)
     return;
   }
 
-  crosshair_y = crosshair_yc + (screenSize >= 8 ? ST_HEIGHT/2 : 0);
-  crosshair_col = hudadd_crosshair_health ? HU_GetHealthColor(plr->health, CR_BLUE2) : CR_DEFAULT;
+  cm = hudadd_crosshair_health ? HU_GetHealthColor(plr->health, CR_BLUE2) : CR_DEFAULT;
 
   if (hudadd_crosshair_target)
   {
     if (P_AimLineAttack(plr->mo, plr->mo->angle, 16*64*FRACUNIT, 0))
     {
-      crosshair_col = CR_YELLOW;
+      crosshair.target_x = linetarget->x;
+      crosshair.target_y = linetarget->y;
+      crosshair.target_z = linetarget->z;
+      crosshair.target_sprite = linetarget->sprite;
+
+      cm = CR_YELLOW;
     }
   }
 
-  V_DrawNumPatch(crosshair_x, crosshair_y, 0, crosshair_lmp, crosshair_col, crosshair_flg);
+  if (crosshair.target_screen_x != 0)
+  {
+    V_DrawNumPatchPrecise(crosshair.target_screen_x, crosshair.target_screen_y,
+      0, crosshair.lump, cm, crosshair.flags);
+  }
+  else
+  {
+    int y = crosshair.y + (screenSize >= 8 ? ST_HEIGHT/2 : 0);
+    V_DrawNumPatch(crosshair.x, y, 0, crosshair.lump, cm, crosshair.flags);
+  }
 }
 
 //
