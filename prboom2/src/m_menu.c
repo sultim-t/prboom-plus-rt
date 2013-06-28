@@ -2647,10 +2647,14 @@ setup_menu_t stat_settings2[] =
   {"SHOW DEMOTIME"               ,S_YESNO     ,m_null,ADVHUD_X,ST_Y+ 6*8, {"hudadd_demotime"}},
   {"SHOW PROGRESS BAR DURING DEMO PLAYBACK" ,S_YESNO     ,m_null,ADVHUD_X,ST_Y+ 7*8, {"hudadd_demoprogressbar"}},
 
-  {"CROSSHAIR SETTINGS"          ,S_SKIP|S_TITLE,m_null,ADVHUD_X,ST_Y+9*8},
-  {"SHOW CROSSHAIR"              ,S_CHOICE   ,m_null,ADVHUD_X,ST_Y+10*8, {"hudadd_crosshair"}, 0, 0, 0, crosshair_str},
-  {"CHANGE COLOR BY HEALTH"      ,S_YESNO    ,m_null,ADVHUD_X,ST_Y+11*8, {"hudadd_crosshair_health"}},
-  {"CHANGE COLOR ON TARGET"      ,S_YESNO    ,m_null,ADVHUD_X,ST_Y+12*8, {"hudadd_crosshair_target"}},
+  {"CROSSHAIR SETTINGS"            ,S_SKIP|S_TITLE,m_null,ADVHUD_X,ST_Y+9*8},
+  {"SHOW CROSSHAIR"                ,S_CHOICE   ,m_null,ADVHUD_X,ST_Y+10*8, {"hudadd_crosshair"}, 0, 0, 0, crosshair_str},
+  {"DEFAULT COLOR"                 ,S_CRITEM   ,m_null,ADVHUD_X,ST_Y+11*8, {"hudadd_crosshair_color"}},
+  {"CHANGE COLOR BY PLAYER HEALTH" ,S_YESNO    ,m_null,ADVHUD_X,ST_Y+12*8, {"hudadd_crosshair_health"}},
+  {"CHANGE COLOR ON TARGET"        ,S_YESNO    ,m_null,ADVHUD_X,ST_Y+13*8, {"hudadd_crosshair_target"}},
+  {"TARGET COLOR"                  ,S_CRITEM   ,m_null,ADVHUD_X,ST_Y+14*8, {"hudadd_crosshair_target_color"}},
+  {"LOCK ON TARGET (GL)"           ,S_YESNO    ,m_null,ADVHUD_X,ST_Y+15*8, {"hudadd_crosshair_lock_target"}},
+  {"LOCK ON TARGET COLOR"          ,S_CRITEM   ,m_null,ADVHUD_X,ST_Y+16*8, {"hudadd_crosshair_lock_target_color"}},
 
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings1}},

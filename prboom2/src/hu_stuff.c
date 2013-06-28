@@ -2116,7 +2116,7 @@ void HU_widget_draw_gkeys(void)
 }
 
 const char *crosshair_nam[HU_CROSSHAIRS]= { NULL, "CROSS1", "CROSS2", "CROSS3" };
-const char *crosshair_str[HU_CROSSHAIRS]= {"none", "cross", "angle", "dot" };
+const char *crosshair_str[HU_CROSSHAIRS]= { "none", "cross", "angle", "dot" };
 crosshair_t crosshair;
 
 void HU_init_crosshair(void)
@@ -2131,8 +2131,7 @@ void HU_init_crosshair(void)
   crosshair.x = (ST_WIDTH - R_NumPatchWidth(crosshair.lump))/2;
   crosshair.y = ((200-ST_HEIGHT) - R_NumPatchHeight(crosshair.lump))/2;
 
-  crosshair.flags = (hudadd_crosshair_health || hudadd_crosshair_target ? VPT_TRANS : VPT_NONE) | VPT_STRETCH;
-  //crosshair.flags |= VPT_ALIGN_WIDE;
+  crosshair.flags = VPT_TRANS | VPT_STRETCH;
 }
 
 void HU_draw_crosshair(void)
@@ -2150,7 +2149,10 @@ void HU_draw_crosshair(void)
     return;
   }
 
-  cm = hudadd_crosshair_health ? HU_GetHealthColor(plr->health, CR_BLUE2) : CR_DEFAULT;
+  if (hudadd_crosshair_health)
+    cm = HU_GetHealthColor(plr->health, CR_BLUE2);
+  else
+    cm = hudadd_crosshair_color;
 
   if (hudadd_crosshair_target)
   {
@@ -2161,12 +2163,13 @@ void HU_draw_crosshair(void)
       crosshair.target_z = linetarget->z;
       crosshair.target_sprite = linetarget->sprite;
 
-      cm = CR_YELLOW;
+      cm = hudadd_crosshair_target_color;
     }
   }
 
   if (crosshair.target_screen_x != 0)
   {
+    cm = hudadd_crosshair_lock_target_color;
     V_DrawNumPatchPrecise(crosshair.target_screen_x, crosshair.target_screen_y,
       0, crosshair.lump, cm, crosshair.flags);
   }

@@ -916,12 +916,18 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"hudadd_crosshair", {&hudadd_crosshair},  {0},0,HU_CROSSHAIRS-1,
    def_bool,ss_stat},
+  {"hudadd_crosshair_color", {&hudadd_crosshair_color},  {3},0,9,
+   def_int,ss_stat},
   {"hudadd_crosshair_health", {&hudadd_crosshair_health},  {0},0,1,
    def_bool,ss_stat},
   {"hudadd_crosshair_target", {&hudadd_crosshair_target},  {0},0,1,
    def_bool,ss_stat},
+   {"hudadd_crosshair_target_color", {&hudadd_crosshair_target_color}, {9},0,9,
+   def_int,ss_stat},
   {"hudadd_crosshair_lock_target", {&hudadd_crosshair_lock_target},  {0},0,1,
    def_bool,ss_stat},
+   {"hudadd_crosshair_lock_target_color", {&hudadd_crosshair_lock_target_color}, {6},0,9,
+   def_int,ss_stat},
 
   //e6y
   {"Prboom-plus mouse settings",{NULL},{0},UL,UL,def_none,ss_none},
