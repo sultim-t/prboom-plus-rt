@@ -121,7 +121,6 @@ extern int hudadd_crosshair_health;
 extern int hudadd_crosshair_target;
 extern int hudadd_crosshair_target_color;
 extern int hudadd_crosshair_lock_target;
-extern int hudadd_crosshair_lock_target_color;
 extern int movement_strafe50;
 extern int movement_shorttics;
 extern int movement_strafe50onturns;

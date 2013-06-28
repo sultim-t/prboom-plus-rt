@@ -2154,7 +2154,7 @@ void HU_draw_crosshair(void)
   else
     cm = hudadd_crosshair_color;
 
-  if (hudadd_crosshair_target)
+  if (hudadd_crosshair_target || hudadd_crosshair_lock_target)
   {
     if (P_AimLineAttack(plr->mo, plr->mo->angle, 16*64*FRACUNIT, 0))
     {
@@ -2163,13 +2163,13 @@ void HU_draw_crosshair(void)
       crosshair.target_z = linetarget->z;
       crosshair.target_sprite = linetarget->sprite;
 
-      cm = hudadd_crosshair_target_color;
+      if (hudadd_crosshair_target)
+        cm = hudadd_crosshair_target_color;
     }
   }
 
   if (crosshair.target_screen_x != 0)
   {
-    cm = hudadd_crosshair_lock_target_color;
     V_DrawNumPatchPrecise(crosshair.target_screen_x, crosshair.target_screen_y,
       0, crosshair.lump, cm, crosshair.flags);
   }
