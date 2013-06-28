@@ -33,6 +33,9 @@ prboom2/data/graphics/boxlr.ppm -text svneol=unset#application/octet-stream
 prboom2/data/graphics/boxuc.ppm -text svneol=unset#application/octet-stream
 prboom2/data/graphics/boxul.ppm -text svneol=unset#application/octet-stream
 prboom2/data/graphics/boxur.ppm -text svneol=unset#application/octet-stream
+prboom2/data/graphics/cross1.ppm -text
+prboom2/data/graphics/cross2.ppm -text
+prboom2/data/graphics/cross3.ppm -text
 prboom2/data/graphics/dig0.ppm -text
 prboom2/data/graphics/dig1.ppm -text
 prboom2/data/graphics/dig2.ppm -text

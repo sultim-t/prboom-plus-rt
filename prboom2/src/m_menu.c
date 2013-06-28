@@ -2647,6 +2647,11 @@ setup_menu_t stat_settings2[] =
   {"SHOW DEMOTIME"               ,S_YESNO     ,m_null,ADVHUD_X,ST_Y+ 6*8, {"hudadd_demotime"}},
   {"SHOW PROGRESS BAR DURING DEMO PLAYBACK" ,S_YESNO     ,m_null,ADVHUD_X,ST_Y+ 7*8, {"hudadd_demoprogressbar"}},
 
+  {"CROSSHAIR SETTINGS"          ,S_SKIP|S_TITLE,m_null,ADVHUD_X,ST_Y+9*8},
+  {"SHOW CROSSHAIR"              ,S_CHOICE   ,m_null,ADVHUD_X,ST_Y+10*8, {"hudadd_crosshair"}, 0, 0, 0, crosshair_str},
+  {"CHANGE COLOR BY HEALTH"      ,S_YESNO    ,m_null,ADVHUD_X,ST_Y+11*8, {"hudadd_crosshair_health"}},
+  {"CHANGE COLOR ON TARGET"      ,S_YESNO    ,m_null,ADVHUD_X,ST_Y+12*8, {"hudadd_crosshair_target"}},
+
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings1}},
   {0,S_SKIP|S_END,m_null}

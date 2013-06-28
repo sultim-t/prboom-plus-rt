@@ -29,6 +29,10 @@ static unsigned char *parseppm(char *ppm, size_t size, const char *file,
   if (size < 2 || !(*pos++ == 'P' && *pos++ == '6'))
     die("Not a PPM: %s\n", file);
 
+  // Ignore comments like "# Created by GIMP ..." in line 2
+  if (*pos++ == '\n' && *pos == '#')
+    while (*pos != '\n') pos++;
+
   numpixels  =  *width = strtol(pos, &pos, 0);
   numpixels *= *height = strtol(pos, &pos, 0);
   maxcol = strtol(pos, &pos, 0);

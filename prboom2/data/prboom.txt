@@ -141,6 +141,9 @@ M_VERSEN	0	0
 PRBOOM	0	0
 M_ACCEL	0	0
 M_LOKSEN	0	0
+CROSS1	0	0
+CROSS2	0	0
+CROSS3	0	0
 
 # List of Sprites
 [sprites]

@@ -46,6 +46,7 @@
 #include "r_main.h"
 #include "p_inter.h"
 #include "p_tick.h"
+#include "p_map.h"
 #include "sc_man.h"
 #include "m_misc.h"
 #include "lprintf.h"
@@ -238,6 +239,7 @@ const char* shiftxform;
 
 static custom_message_t custom_message[MAXPLAYERS];
 static custom_message_t *custom_message_p;
+void HU_init_crosshair(void);
 
 const char english_shiftxform[] =
 {
@@ -920,6 +922,8 @@ void HU_Start(void)
       &always_off
     );
 
+  HU_init_crosshair();
+  
   // now allow the heads-up display to run
   headsupactive = true;
 
@@ -2111,6 +2115,52 @@ void HU_widget_draw_gkeys(void)
   HUlib_drawTextLine(&w_keys_icon, false);
 }
 
+const char *crosshair_nam[HU_CROSSHAIRS]= { NULL, "CROSS1", "CROSS2", "CROSS3" };
+const char *crosshair_str[HU_CROSSHAIRS]= {"none", "cross", "angle", "dot" };
+int crosshair_lmp, crosshair_x, crosshair_yc, crosshair_flg;
+
+void HU_init_crosshair(void)
+{
+  if (!hudadd_crosshair || !crosshair_nam[hudadd_crosshair])
+    return;
+
+  crosshair_lmp = W_CheckNumForName(crosshair_nam[hudadd_crosshair]);
+  if (crosshair_lmp == -1)
+    return;
+
+  crosshair_x  = (int)((     ST_WIDTH   - R_NumPatchWidth (crosshair_lmp))/2);
+  crosshair_yc = (int)(((200-ST_HEIGHT) - R_NumPatchHeight(crosshair_lmp))/2);
+
+  crosshair_flg = (hudadd_crosshair_health || hudadd_crosshair_target ? VPT_TRANS : VPT_NONE) | VPT_STRETCH;
+}
+
+void HU_draw_crosshair(void)
+{
+  int crosshair_col, crosshair_y;
+  extern int screenSize;
+
+  if (!crosshair_nam[hudadd_crosshair] || crosshair_lmp == -1 ||
+    custom_message_p->ticks > 0 || automapmode & am_active ||
+    menuactive != mnact_inactive || paused ||
+    plr->readyweapon == wp_chainsaw || plr->readyweapon == wp_fist)
+  {
+    return;
+  }
+
+  crosshair_y = crosshair_yc + (screenSize >= 8 ? ST_HEIGHT/2 : 0);
+  crosshair_col = hudadd_crosshair_health ? HU_GetHealthColor(plr->health, CR_BLUE2) : CR_DEFAULT;
+
+  if (hudadd_crosshair_target)
+  {
+    if (P_AimLineAttack(plr->mo, plr->mo->angle, 16*64*FRACUNIT, 0))
+    {
+      crosshair_col = CR_YELLOW;
+    }
+  }
+
+  V_DrawNumPatch(crosshair_x, crosshair_y, 0, crosshair_lmp, crosshair_col, crosshair_flg);
+}
+
 //
 // HU_Drawer()
 //
@@ -2310,6 +2360,9 @@ void HU_Drawer(void)
   //e6y
   if (custom_message_p->ticks > 0)
     HUlib_drawTextLine(&w_centermsg, false);
+
+  if (hudadd_crosshair)
+    HU_draw_crosshair();
 
   // if the message review is enabled show the scrolling message review
   if (hud_msg_lines>1 && message_list)

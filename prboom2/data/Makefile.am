@@ -139,6 +139,9 @@ GRAPHICS += graphics/m_colors.ppm
 GRAPHICS += graphics/m_palno.ppm
 GRAPHICS += graphics/m_palsel.ppm
 GRAPHICS += graphics/m_vbox.ppm
+GRAPHICS += graphics/cross1.ppm
+GRAPHICS += graphics/cross2.ppm
+GRAPHICS += graphics/cross3.ppm
 
 if NONFREE_GRAPHICS
 GRAPHICS += graphics/m_generl.ppm
