@@ -199,6 +199,12 @@ void gld_SetCrosshairTarget(void)
     if (gld_PointToScreen(x, y, z, &wx, &wy))
     {
       stretch_param_t *params = &stretch_params[crosshair.flags & VPT_ALIGN_MASK];
+
+      int h = crosshair.h;
+      if (hudadd_crosshair_scale)
+        h *= params->video->height / 200;
+      wy = BETWEEN(ST_SCALED_HEIGHT + h, SCREENHEIGHT, wy);
+
       if (!hudadd_crosshair_scale)
       {
         crosshair.target_screen_x = wx;

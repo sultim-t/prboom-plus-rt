@@ -2121,6 +2121,8 @@ crosshair_t crosshair;
 
 void HU_init_crosshair(void)
 {
+  //int size;
+
   if (!hudadd_crosshair || !crosshair_nam[hudadd_crosshair])
     return;
 
@@ -2178,11 +2180,7 @@ void HU_draw_crosshair(void)
   }
   else
   {
-    int x, y, w, h, size;
-
-    size = (hudadd_crosshair_scale ? SCREENHEIGHT * FRACUNIT / 200 : FRACUNIT);
-    w = ((crosshair.w * size) >> FRACBITS) / 2;
-    h = ((crosshair.h * size) >> FRACBITS) / 2;
+    int x, y;
 
     if (!hudadd_crosshair_scale)
     {
