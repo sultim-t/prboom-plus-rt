@@ -2649,11 +2649,12 @@ setup_menu_t stat_settings2[] =
 
   {"CROSSHAIR SETTINGS"            ,S_SKIP|S_TITLE,m_null,ADVHUD_X,ST_Y+9*8},
   {"ENABLE CROSSHAIR"              ,S_CHOICE   ,m_null,ADVHUD_X,ST_Y+10*8, {"hudadd_crosshair"}, 0, 0, 0, crosshair_str},
-  {"DEFAULT COLOR"                 ,S_CRITEM   ,m_null,ADVHUD_X,ST_Y+11*8, {"hudadd_crosshair_color"}},
-  {"CHANGE COLOR BY PLAYER HEALTH" ,S_YESNO    ,m_null,ADVHUD_X,ST_Y+12*8, {"hudadd_crosshair_health"}},
-  {"CHANGE COLOR ON TARGET"        ,S_YESNO    ,m_null,ADVHUD_X,ST_Y+13*8, {"hudadd_crosshair_target"}},
-  {"LOCK ON TARGET (GL ONLY)"      ,S_YESNO    ,m_null,ADVHUD_X,ST_Y+14*8, {"hudadd_crosshair_lock_target"}},
-  {"TARGET COLOR"                  ,S_CRITEM   ,m_null,ADVHUD_X,ST_Y+15*8, {"hudadd_crosshair_target_color"}},
+  {"SCALE CROSSHAIR"               ,S_YESNO    ,m_null,ADVHUD_X,ST_Y+11*8, {"hudadd_crosshair_scale"}},
+  {"CHANGE CROSSHAIR COLOR BY PLAYER HEALTH" ,S_YESNO    ,m_null,ADVHUD_X,ST_Y+12*8, {"hudadd_crosshair_health"}},
+  {"CHANGE CROSSHAIR COLOR ON TARGET"        ,S_YESNO    ,m_null,ADVHUD_X,ST_Y+13*8, {"hudadd_crosshair_target"}},
+  {"LOCK CROSSHAIR ON TARGET (GL ONLY)"      ,S_YESNO    ,m_null,ADVHUD_X,ST_Y+14*8, {"hudadd_crosshair_lock_target"}},
+  {"DEFAULT CROSSHAIR COLOR"                 ,S_CRITEM   ,m_null,ADVHUD_X,ST_Y+15*8, {"hudadd_crosshair_color"}},
+  {"TARGET CROSSHAIR COLOR"                  ,S_CRITEM   ,m_null,ADVHUD_X,ST_Y+16*8, {"hudadd_crosshair_target_color"}},
 
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings1}},

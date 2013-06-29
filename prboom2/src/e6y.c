@@ -125,6 +125,7 @@ int hudadd_secretarea;
 int hudadd_smarttotals;
 int hudadd_demoprogressbar;
 int hudadd_crosshair;
+int hudadd_crosshair_scale;
 int hudadd_crosshair_color;
 int hudadd_crosshair_health;
 int hudadd_crosshair_target;

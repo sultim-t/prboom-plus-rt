@@ -116,6 +116,7 @@ extern int hudadd_secretarea;
 extern int hudadd_smarttotals;
 extern int hudadd_demoprogressbar;
 extern int hudadd_crosshair;
+extern int hudadd_crosshair_scale;
 extern int hudadd_crosshair_color;
 extern int hudadd_crosshair_health;
 extern int hudadd_crosshair_target;

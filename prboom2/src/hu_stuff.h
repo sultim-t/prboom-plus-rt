@@ -114,7 +114,7 @@ typedef struct message_thinker_s
 typedef struct crosshair_s
 {
   int lump;
-  int x, y, flags;
+  int w, h, flags;
   int target_x, target_y, target_z, target_sprite;
   float target_screen_x, target_screen_y;
 } crosshair_t;

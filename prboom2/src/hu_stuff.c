@@ -2128,10 +2128,12 @@ void HU_init_crosshair(void)
   if (crosshair.lump == -1)
     return;
 
-  crosshair.x = (ST_WIDTH - R_NumPatchWidth(crosshair.lump))/2;
-  crosshair.y = ((200-ST_HEIGHT) - R_NumPatchHeight(crosshair.lump))/2;
+  crosshair.w = R_NumPatchWidth(crosshair.lump);
+  crosshair.h = R_NumPatchHeight(crosshair.lump);
 
-  crosshair.flags = VPT_TRANS | VPT_STRETCH;
+  crosshair.flags = VPT_TRANS;
+  if (hudadd_crosshair_scale)
+    crosshair.flags |= VPT_STRETCH;
 }
 
 void HU_draw_crosshair(void)
@@ -2170,13 +2172,31 @@ void HU_draw_crosshair(void)
 
   if (crosshair.target_screen_x != 0)
   {
-    V_DrawNumPatchPrecise(crosshair.target_screen_x, crosshair.target_screen_y,
-      0, crosshair.lump, cm, crosshair.flags);
+    float x = crosshair.target_screen_x;
+    float y = crosshair.target_screen_y;
+    V_DrawNumPatchPrecise(x, y, 0, crosshair.lump, cm, crosshair.flags);
   }
   else
   {
-    int y = crosshair.y + (screenSize >= 8 ? ST_HEIGHT/2 : 0);
-    V_DrawNumPatch(crosshair.x, y, 0, crosshair.lump, cm, crosshair.flags);
+    int x, y, w, h, size;
+
+    size = (hudadd_crosshair_scale ? SCREENHEIGHT * FRACUNIT / 200 : FRACUNIT);
+    w = ((crosshair.w * size) >> FRACBITS) / 2;
+    h = ((crosshair.h * size) >> FRACBITS) / 2;
+
+    if (!hudadd_crosshair_scale)
+    {
+      x = (SCREENWIDTH - crosshair.w) / 2;
+      y = ((SCREENHEIGHT - ST_SCALED_HEIGHT) - crosshair.h) / 2;
+    }
+    else
+    {
+      x = (ST_WIDTH - crosshair.w)/2;
+      y = ((200 - ST_HEIGHT) - crosshair.h) / 2;
+    }
+    y += (screenSize >= 8 ? ST_SCALED_HEIGHT/2 : 0);
+
+    V_DrawNumPatch(x, y, 0, crosshair.lump, cm, crosshair.flags);
   }
 }
 
