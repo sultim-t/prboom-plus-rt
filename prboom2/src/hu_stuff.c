@@ -2121,8 +2121,6 @@ crosshair_t crosshair;
 
 void HU_init_crosshair(void)
 {
-  //int size;
-
   if (!hudadd_crosshair || !crosshair_nam[hudadd_crosshair])
     return;
 
@@ -2141,7 +2139,6 @@ void HU_init_crosshair(void)
 void HU_draw_crosshair(void)
 {
   int cm;
-  extern int screenSize;
 
   crosshair.target_sprite = -1;
 
@@ -2180,19 +2177,20 @@ void HU_draw_crosshair(void)
   }
   else
   {
-    int x, y;
+    int x, y, st_height;
 
     if (!hudadd_crosshair_scale)
     {
+      st_height = (viewheight != SCREENHEIGHT ? ST_SCALED_HEIGHT : 0);
       x = (SCREENWIDTH - crosshair.w) / 2;
-      y = ((SCREENHEIGHT - ST_SCALED_HEIGHT) - crosshair.h) / 2;
+      y = (SCREENHEIGHT - st_height - crosshair.h) / 2;
     }
     else
     {
-      x = (ST_WIDTH - crosshair.w)/2;
-      y = ((200 - ST_HEIGHT) - crosshair.h) / 2;
+      st_height = (viewheight != SCREENHEIGHT ? ST_HEIGHT : 0);
+      x = (320 - crosshair.w) / 2;
+      y = (200 - st_height - crosshair.h) / 2;
     }
-    y += (screenSize >= 8 ? ST_SCALED_HEIGHT/2 : 0);
 
     V_DrawNumPatch(x, y, 0, crosshair.lump, cm, crosshair.flags);
   }
