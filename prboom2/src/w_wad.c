@@ -142,11 +142,6 @@ static void W_AddFile(wadfile_info_t *wadfile)
   filelump_t  singleinfo;
   int         flags = 0;
 
-  if (wadfile->src == source_auto_load && !strcasecmp(wadfile->name, "prboom-plus.wad"))
-  {
-    flags = LUMP_PRBOOM;
-  }
-
   // open the file and add to directory
 
   wadfile->handle = open(wadfile->name,O_RDONLY | O_BINARY);
@@ -178,6 +173,20 @@ static void W_AddFile(wadfile_info_t *wadfile)
   //jff 8/3/98 use logical output routine
   lprintf (LO_INFO," adding %s\n",wadfile->name);
   startlump = numlumps;
+
+  // mark lumps from internal resource
+  if (wadfile->src == source_auto_load)
+  {
+    int len = strlen(PACKAGE_TARNAME ".wad");
+    int len_file = strlen(wadfile->name);
+    if (len_file >= len)
+    {
+      if (!strcasecmp(wadfile->name + len_file - len, PACKAGE_TARNAME ".wad"))
+      {
+        flags = LUMP_PRBOOM;
+      }
+    }
+  }
 
   if (  strlen(wadfile->name)<=4 || 
 	      (
