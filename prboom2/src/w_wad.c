@@ -140,6 +140,12 @@ static void W_AddFile(wadfile_info_t *wadfile)
   int         startlump;
   filelump_t  *fileinfo, *fileinfo2free=NULL; //killough
   filelump_t  singleinfo;
+  int         flags = 0;
+
+  if (wadfile->src == source_auto_load && !strcasecmp(wadfile->name, "prboom-plus.wad"))
+  {
+    flags = LUMP_PRBOOM;
+  }
 
   // open the file and add to directory
 
@@ -222,7 +228,7 @@ static void W_AddFile(wadfile_info_t *wadfile)
 
     for (i=startlump ; (int)i<numlumps ; i++,lump_p++, fileinfo++)
       {
-        lump_p->flags = 0; //e6y
+        lump_p->flags = flags;
         lump_p->wadfile = wadfile;                    //  killough 4/25/98
         lump_p->position = LittleLong(fileinfo->filepos);
         lump_p->size = LittleLong(fileinfo->size);
@@ -463,6 +469,22 @@ const lumpinfo_t* W_GetLumpInfoByNum(int lump)
     I_Error("W_GetLumpInfoByNum: lump num %d out of range", lump);
 
   return &lumpinfo[lump];
+}
+
+// W_CheckNumForNameInternal
+// checks only internal resource
+//
+int W_CheckNumForNameInternal(const char *name)
+{
+  int p;
+  for (p = -1; (p = W_ListNumFromName(name, p)) >= 0; )
+  {
+    if (lumpinfo[p].flags == LUMP_PRBOOM)
+    {
+      return p;
+    }
+  }
+  return -1;
 }
 
 // W_ListNumFromName

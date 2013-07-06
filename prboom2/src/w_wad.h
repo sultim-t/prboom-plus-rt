@@ -130,6 +130,7 @@ typedef struct
 // e6y: lump flags
 #define LUMP_STATIC 0x00000001 /* assigned gltexture should be static */
 #define LUMP_CM2RGB 0x00000002 /* for fake colormap for hires patches */
+#define LUMP_PRBOOM 0x00000004 /* from internal resource */
 
 extern lumpinfo_t *lumpinfo;
 extern int        numlumps;
@@ -139,6 +140,7 @@ extern int        numlumps;
 
 #define W_FindNumFromName(name, lump) (W_FindNumFromName)(name, ns_global, lump)
 int     (W_FindNumFromName)(const char *name, int ns, int lump);
+int     W_CheckNumForNameInternal(const char *name);
 int     W_ListNumFromName(const char *name, int lump);
 #define W_CheckNumForName(name) (W_CheckNumForName)(name, ns_global)
 static inline
