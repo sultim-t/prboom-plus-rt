@@ -2208,7 +2208,7 @@ void HU_draw_crosshair(void)
   if (hudadd_crosshair_target || hudadd_crosshair_lock_target)
   {
     fixed_t slope = P_AimLineAttack(plr->mo, plr->mo->angle, 16*64*FRACUNIT, 0);
-    if (linetarget)
+    if (linetarget && !(linetarget->flags & MF_SHADOW))
     {
       crosshair.target_x = linetarget->x;
       crosshair.target_y = linetarget->y;
