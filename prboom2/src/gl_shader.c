@@ -62,7 +62,7 @@ int glsl_Init(void)
 {
   static int init = false;
 
-  if (!init)
+  //if (!init)
   {
     init = true;
 
