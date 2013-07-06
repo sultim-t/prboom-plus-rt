@@ -39,6 +39,7 @@
 #include "r_fps.h"
 #include "r_bsp.h"
 #include "r_sky.h"
+#include "r_main.h"
 #include "lprintf.h"
 
 int gl_shadows_maxdist;

@@ -2652,7 +2652,7 @@ setup_menu_t stat_settings2[] =
   {"SCALE CROSSHAIR"               ,S_YESNO    ,m_null,ADVHUD_X,ST_Y+11*8, {"hudadd_crosshair_scale"}},
   {"CHANGE CROSSHAIR COLOR BY PLAYER HEALTH" ,S_YESNO    ,m_null,ADVHUD_X,ST_Y+12*8, {"hudadd_crosshair_health"}},
   {"CHANGE CROSSHAIR COLOR ON TARGET"        ,S_YESNO    ,m_null,ADVHUD_X,ST_Y+13*8, {"hudadd_crosshair_target"}},
-  {"LOCK CROSSHAIR ON TARGET (GL ONLY)"      ,S_YESNO    ,m_null,ADVHUD_X,ST_Y+14*8, {"hudadd_crosshair_lock_target"}},
+  {"LOCK CROSSHAIR ON TARGET"                ,S_YESNO    ,m_null,ADVHUD_X,ST_Y+14*8, {"hudadd_crosshair_lock_target"}},
   {"DEFAULT CROSSHAIR COLOR"                 ,S_CRITEM   ,m_null,ADVHUD_X,ST_Y+15*8, {"hudadd_crosshair_color"}},
   {"TARGET CROSSHAIR COLOR"                  ,S_CRITEM   ,m_null,ADVHUD_X,ST_Y+16*8, {"hudadd_crosshair_target_color"}},
 

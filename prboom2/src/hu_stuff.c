@@ -49,6 +49,7 @@
 #include "p_map.h"
 #include "sc_man.h"
 #include "m_misc.h"
+#include "r_main.h"
 #include "lprintf.h"
 #include "e6y.h" //e6y
 
@@ -2124,7 +2125,7 @@ void HU_init_crosshair(void)
   if (!hudadd_crosshair || !crosshair_nam[hudadd_crosshair])
     return;
 
-  crosshair.lump = W_CheckNumForName(crosshair_nam[hudadd_crosshair]);
+  crosshair.lump = W_CheckNumForNameInternal(crosshair_nam[hudadd_crosshair]);
   if (crosshair.lump == -1)
     return;
 
@@ -2134,6 +2135,55 @@ void HU_init_crosshair(void)
   crosshair.flags = VPT_TRANS;
   if (hudadd_crosshair_scale)
     crosshair.flags |= VPT_STRETCH;
+}
+
+void SetCrosshairTarget(void)
+{
+  crosshair.target_screen_x = 0.0f;
+  crosshair.target_screen_y = 0.0f;
+
+  if (hudadd_crosshair_lock_target && crosshair.target_sprite >= 0)
+  {
+    float x, y, z;
+    float winx, winy, winz;
+
+    R_BuildModelViewMatrix();
+
+    x = -(float)crosshair.target_x / MAP_SCALE;
+    z =  (float)crosshair.target_y / MAP_SCALE;
+    y =  (float)crosshair.target_z / MAP_SCALE;
+
+    if (R_Project(x, y, z, &winx, &winy, &winz))
+    {
+      int top, bottom, h;
+      stretch_param_t *params = &stretch_params[crosshair.flags & VPT_ALIGN_MASK];
+
+      if (V_GetMode() != VID_MODEGL)
+      {
+        winy += (float)(viewheight/2 - centery);
+      }
+
+      top = SCREENHEIGHT - viewwindowy;
+      h = crosshair.h;
+      if (hudadd_crosshair_scale)
+      {
+        h = h * params->video->height / 200;
+      }
+      bottom = top - viewheight + h;
+      winy = BETWEEN(bottom, top, winy);
+
+      if (!hudadd_crosshair_scale)
+      {
+        crosshair.target_screen_x = winx;
+        crosshair.target_screen_y = SCREENHEIGHT - winy;
+      }
+      else
+      {
+        crosshair.target_screen_x = (winx - params->deltax1) * 320.0f / params->video->width;
+        crosshair.target_screen_y = 200 - (winy - params->deltay1) * 200.0f / params->video->height;
+      }
+    }
+  }
 }
 
 void HU_draw_crosshair(void)
@@ -2157,17 +2207,21 @@ void HU_draw_crosshair(void)
 
   if (hudadd_crosshair_target || hudadd_crosshair_lock_target)
   {
-    if (P_AimLineAttack(plr->mo, plr->mo->angle, 16*64*FRACUNIT, 0))
+    fixed_t slope = P_AimLineAttack(plr->mo, plr->mo->angle, 16*64*FRACUNIT, 0);
+    if (linetarget)
     {
       crosshair.target_x = linetarget->x;
       crosshair.target_y = linetarget->y;
       crosshair.target_z = linetarget->z;
+      crosshair.target_z += linetarget->height / 2 + linetarget->height / 8;
       crosshair.target_sprite = linetarget->sprite;
 
       if (hudadd_crosshair_target)
         cm = hudadd_crosshair_target_color;
     }
   }
+
+  SetCrosshairTarget();
 
   if (crosshair.target_screen_x != 0)
   {

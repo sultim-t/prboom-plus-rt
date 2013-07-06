@@ -109,6 +109,9 @@ player_t *viewplayer;
 float viewfocratio;
 
 int FieldOfView;
+int viewport[4];
+float modelMatrix[16];
+float projMatrix[16];
 
 extern const lighttable_t **walllights;
 extern const lighttable_t **walllightsnext;
@@ -628,6 +631,148 @@ void R_SetupViewScaling(void)
   GenLookup(video_full.y1lookup, video_full.y2lookup, video_full.height, 200, video_full.ystep);
 }
 
+void R_MultMatrixVecd(const float matrix[16], const float in[4], float out[4])
+{
+  int i;
+
+  for (i = 0; i < 4; i++)
+  {
+    out[i] =
+      in[0] * matrix[0*4+i] +
+      in[1] * matrix[1*4+i] +
+      in[2] * matrix[2*4+i] +
+      in[3] * matrix[3*4+i];
+  }
+}
+
+int R_Project(float objx, float objy, float objz, float *winx, float *winy, float *winz)
+{
+  float in[4];
+  float out[4];
+
+  in[0] = objx;
+  in[1] = objy;
+  in[2] = objz;
+  in[3] = 1.0f;
+  
+  R_MultMatrixVecd(modelMatrix, in, out);
+  R_MultMatrixVecd(projMatrix, out, in);
+  
+  if (in[3] == 0.0f)
+    return false;
+
+  in[0] /= in[3];
+  in[1] /= in[3];
+  in[2] /= in[3];
+  
+  /* Map x, y and z to range 0-1 */
+  in[0] = in[0] * 0.5f + 0.5f;
+  in[1] = in[1] * 0.5f + 0.5f;
+  in[2] = in[2] * 0.5f + 0.5f;
+
+  /* Map x,y to viewport */
+  in[0] = in[0] * viewport[2] + viewport[0];
+  in[1] = in[1] * viewport[3] + viewport[1];
+
+  *winx = in[0];
+  *winy = in[1];
+  *winz = in[2];
+
+  return true;
+}
+
+void R_SetupViewport(void)
+{
+  extern int screenblocks;
+  int height;
+
+  if (screenblocks == 11)
+    height = SCREENHEIGHT;
+  else if (screenblocks == 10)
+    height = SCREENHEIGHT;
+  else
+    height = (screenblocks*SCREENHEIGHT/10) & ~7;
+
+  viewport[0] = viewwindowx;
+  viewport[1] = SCREENHEIGHT-(height+viewwindowy-((height-viewheight)/2));
+  viewport[2] = viewwidth;
+  viewport[3] = height;
+}
+
+void R_SetupPerspective(float fovy, float aspect, float znear)
+{
+  int i;
+  float focallength = 1.0f / (float)tan(fovy * (float)M_PI / 360.0f);
+  float *m = projMatrix;
+
+  for (i = 0; i < 16; i++)
+    m[i] = 0.0f;
+
+  m[0] = focallength / aspect;
+  m[5] = focallength;
+  m[10] = -1;
+  m[11] = -1;
+  m[14] = -2 * znear;
+}
+
+void R_BuildModelViewMatrix(void)
+{
+  float x, y, z;
+  float yaw, pitch;
+  float A, B, C, D;
+  float *m = modelMatrix;
+
+  yaw = 270.0f - (float)(viewangle>>ANGLETOFINESHIFT) * 360.0f / FINEANGLES;
+  yaw *= (float)M_PI / 180.0f;
+  pitch = 0;
+  if (V_GetMode() == VID_MODEGL)
+  {
+    pitch = (float)(viewpitch>>ANGLETOFINESHIFT) * 360.0f / FINEANGLES;
+    pitch *= (float)M_PI / 180.0f;
+  }
+
+  x =  (float)viewx / MAP_SCALE;
+  z = -(float)viewy / MAP_SCALE;
+  y = -(float)viewz / MAP_SCALE;
+
+/*  
+  R_LoadIdentity(modelMatrix);
+  R_Rotate(modelMatrix, pitch, 0);
+  R_Rotate(modelMatrix, yaw, 1);
+  R_Translate(modelMatrix, x, y, z);
+*/
+
+  A = (float)cos(pitch);
+  B = (float)sin(pitch);
+  C = (float)cos(yaw);
+  D = (float)sin(yaw);
+  
+  m[0] = C;
+  m[1] = D*B;
+  m[2] = -D*A;
+  m[3] = 0;
+
+  m[4] = 0;
+  m[5] = A;
+  m[6] = B;
+  m[7] = 0;
+
+  m[8] = D;
+  m[9] = -C*B;
+  m[10] = A*C;
+  m[11] = 0;
+
+  m[12] = 0;
+  m[13] = 0;
+  m[14] = 0;
+  m[15] = 1;
+
+  m[12] = m[0] * x + m[4] * y + m[8]  * z + m[12];
+  m[13] = m[1] * x + m[5] * y + m[9]  * z + m[13];
+  m[14] = m[2] * x + m[6] * y + m[10] * z + m[14];
+  m[15] = m[3] * x + m[7] * y + m[11] * z + m[15];
+}
+
 //
 // R_ExecuteSetViewSize
 //
@@ -824,6 +969,36 @@ void R_SetupFreelook(void)
 }
 
 //
+// R_SetupMatrix
+//
+
+void R_SetupMatrix(void)
+{
+  float fovy, aspect, znear;
+
+  R_SetupViewport();
+
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL)
+  {
+    extern int gl_nearclip;
+    fovy = render_fovy;
+    aspect = render_ratio;
+    znear = (float)gl_nearclip / 100.0f;
+  }
+  else
+#endif
+  {
+    fovy = (float)FieldOfView * 360.0f / FINEANGLES;
+    fovy = (float)(2.0f * RAD2DEG(atan(tan(DEG2RAD(fovy) / 2.0f) / 1.6f)));
+    aspect = 1.6f;
+    znear = 5.0f / 100.0f;
+  }
+
+  R_SetupPerspective(fovy, aspect, znear);
+}
+
+//
 // R_SetupFrame
 //
 
@@ -885,6 +1060,9 @@ static void R_SetupFrame (player_t *player)
     fixedcolormap = 0;
 
   R_SetClipPlanes();
+
+  if (V_GetMode() == VID_MODEGL || hudadd_crosshair)
+    R_SetupMatrix();
 
   validcount++;
 }

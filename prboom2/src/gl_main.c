@@ -157,71 +157,6 @@ GLfloat cm2RGB[CR_LIMIT + 1][4] =
   {1.00f ,1.00f, 1.00f, 1.00f}, //CR_LIMIT
 };
 
-int gld_PointToScreen(float objx, float objy, float objz, float *winx, float *winy)
-{
-  // Get the matrices and viewport
-  GLdouble modelView[16];
-  GLdouble projection[16];
-  GLint viewport[4];
-  GLdouble x, y, z;
-
-  glGetDoublev(GL_MODELVIEW_MATRIX, modelView);
-  glGetDoublev(GL_PROJECTION_MATRIX, projection);
-  glGetIntegerv(GL_VIEWPORT, viewport);
-
-  gluProject((GLdouble)objx, (GLdouble)objz, (GLdouble)objy,
-    modelView, projection, viewport, &x, &y, &z);
-
-  *winx = (float)x;
-  *winy = (float)y;
-
-  return (z > 0);
-}
-
-void gld_SetCrosshairTarget(void)
-{
-  crosshair.target_screen_x = 0;
-  crosshair.target_screen_y = 0;
-
-  if (hudadd_crosshair_lock_target && crosshair.target_sprite >= 0)
-  {
-    float x, y, z;
-    float wx, wy;
-    int lump, height;
-
-    lump = sprites[crosshair.target_sprite].spriteframes[0].lump[0] + firstspritelump;
-    height = R_NumPatchHeight(lump);
-
-    x = -(float)crosshair.target_x / MAP_SCALE;
-    y = (float)crosshair.target_y / MAP_SCALE;
-    z = (float)(crosshair.target_z + 0.75f * height * FRACUNIT) / MAP_SCALE;
-
-    if (gld_PointToScreen(x, y, z, &wx, &wy))
-    {
-      int top, bottom, h;
-      stretch_param_t *params = &stretch_params[crosshair.flags & VPT_ALIGN_MASK];
-
-      top = SCREENHEIGHT - viewwindowy;
-      h = crosshair.h;
-      if (hudadd_crosshair_scale)
-        h = h * params->video->height / 200;
-      bottom = top - viewheight + h;
-      wy = BETWEEN(bottom, top, wy);
-
-      if (!hudadd_crosshair_scale)
-      {
-        crosshair.target_screen_x = wx;
-        crosshair.target_screen_y = SCREENHEIGHT - wy;
-      }
-      else
-      {
-        crosshair.target_screen_x = (wx - params->deltax1) * 320.0f / params->video->width;
-        crosshair.target_screen_y = 200 - (wy - params->deltay1) * 200.0f / params->video->height;
-      }
-    }
-  }
-}
-
 void SetFrameTextureMode(void)
 {
 #ifdef USE_FBO_TECHNIQUE
@@ -1185,43 +1120,6 @@ float cos_paperitems_pitch, sin_paperitems_pitch;
 
 #define __glPi 3.14159265358979323846
 
-static void infinitePerspective(GLdouble fovy, GLdouble aspect, GLdouble znear)
-{
-	GLdouble left, right, bottom, top;
-	GLdouble m[16];
-
-	top = znear * tan(fovy * __glPi / 360.0);
-	bottom = -top;
-	left = bottom * aspect;
-	right = top * aspect;
-
-	//qglFrustum(left, right, bottom, top, znear, zfar);
-
-	m[ 0] = (2 * znear) / (right - left);
-	m[ 4] = 0;
-	m[ 8] = (right + left) / (right - left);
-	m[12] = 0;
-
-	m[ 1] = 0;
-	m[ 5] = (2 * znear) / (top - bottom);
-	m[ 9] = (top + bottom) / (top - bottom);
-	m[13] = 0;
-
-	m[ 2] = 0;
-	m[ 6] = 0;
-	//m[10] = - (zfar + znear) / (zfar - znear);
-	//m[14] = - (2 * zfar * znear) / (zfar - znear);
-	m[10] = -1;
-	m[14] = -2 * znear;
-
-	m[ 3] = 0;
-	m[ 7] = 0;
-	m[11] = -1;
-	m[15] = 0;
-
-	glMultMatrixd(m);
-}
-
 void gld_Clear(void)
 {
   int clearbits = 0;
@@ -1269,7 +1167,6 @@ void gld_Clear(void)
 void gld_StartDrawScene(void)
 {
   extern int screenblocks;
-  int height;
 
   gld_MultisamplingSet();
 
@@ -1277,14 +1174,7 @@ void gld_StartDrawScene(void)
     glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
   gld_SetPalette(-1);
 
-  if (screenblocks == 11)
-    height = SCREENHEIGHT;
-  else if (screenblocks == 10)
-    height = SCREENHEIGHT;
-  else
-    height = (screenblocks*SCREENHEIGHT/10) & ~7;
-
-  glViewport(viewwindowx, SCREENHEIGHT-(height+viewwindowy-((height-viewheight)/2)), viewwidth, height);
+  glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
   glScissor(viewwindowx, SCREENHEIGHT-(viewheight+viewwindowy), viewwidth, viewheight);
   glEnable(GL_SCISSOR_TEST);
   // Player coordinates
@@ -1321,7 +1211,7 @@ void gld_StartDrawScene(void)
     skyXShift = -2.0f * ((yaw + 90.0f) / 90.0f / skyscale);
     skyYShift = f / 128.0f + 200.0f / 320.0f / skyscale;
 
-    pitch = (float)(float)(viewpitch>>ANGLETOFINESHIFT) * 360.0f / FINEANGLES;
+    pitch = (float)(viewpitch>>ANGLETOFINESHIFT) * 360.0f / FINEANGLES;
     paperitems_pitch = ((pitch > 87.0f && pitch <= 90.0f) ? 87.0f : pitch);
     viewPitch = (pitch > 180 ? pitch - 360 : pitch);
   }
@@ -1374,9 +1264,7 @@ void gld_StartDrawScene(void)
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-
-//e6y  infinitePerspective(64.0f, 320.0f/200.0f, (float)gl_nearclip/100.0f);
-  infinitePerspective(render_fovy, render_ratio, (float)gl_nearclip/100.0f);//e6y
+  glMultMatrixf(projMatrix);
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -1389,8 +1277,6 @@ void gld_StartDrawScene(void)
   scene_has_overlapped_sprites = false;
   scene_has_wall_details = 0;
   scene_has_flat_details = 0;
-
-  gld_SetCrosshairTarget();
 }
 
 //e6y

@@ -58,10 +58,6 @@
 #define FOV_CORRECTION_FACTOR (1.13776f)
 #define FOV90 (90)
 
-#define Pi 3.14159265358979323846f
-#define DEG2RAD( a ) (( a * Pi ) / 180.0f)
-#define RAD2DEG( a ) (( a / Pi ) * 180.0f)
-
 typedef struct camera_s
 {
   long x;

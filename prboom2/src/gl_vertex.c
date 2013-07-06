@@ -79,6 +79,7 @@
 #include "z_zone.h"
 #include "v_video.h"
 #include "gl_intern.h"
+#include "r_main.h"
 
 typedef struct vertexsplit_info_s
 {

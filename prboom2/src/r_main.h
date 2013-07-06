@@ -169,4 +169,16 @@ void R_ExecuteSetViewSize(void);             // cph - called by D_Display to com
 void R_ShowStats(void);
 void R_ClearStats(void);
 
+#define Pi 3.14159265358979323846f
+#define DEG2RAD(a) ((a * Pi) / 180.0f)
+#define RAD2DEG(a) ((a / Pi) * 180.0f)
+#define MAP_COEFF 128.0f
+#define MAP_SCALE (MAP_COEFF*(float)FRACUNIT)
+
+extern int viewport[4];
+extern float modelMatrix[16];
+extern float projMatrix[16];
+void R_BuildModelViewMatrix(void);
+int R_Project(float objx, float objy, float objz, float *winx, float *winy, float *winz);
+
 #endif
