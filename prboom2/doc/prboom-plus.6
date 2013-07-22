@@ -86,8 +86,8 @@ the length of the demo (in gametics) afterwards.
 Record a movie file, it requires external command-line encoding tools,
 oggenc2 (ogg vorbis audio encoder), x264 (h264 video encoder) and
 mkvmerge (mkv muxer).
-It is meant to be used with -timedemo, e.g.
-"prboom-plus -timedemo anydemo.lmp -viddump filename.mkv".
+It is meant to be used with \-timedemo, e.g.
+"prboom-plus \-timedemo anydemo.lmp \-viddump filename.mkv".
 .TP
 .BI \-fastdemo\  demofile
 Play the recorded demo \fIdemofile.lmp\fR as fast as possible. Useful for
@@ -124,10 +124,10 @@ on times, kills, items and secrets.
 Provides a spechits magic number, overriding the program's default value.
 .TP
 .BI \-nomonsters
-For playback of -nomonsters demos recorded with Doom.exe 1.2.
+For playback of \-nomonsters demos recorded with Doom.exe 1.2.
 .TP
 .BI \-respawn
-For playback of -respawn demos recorded with Doom.exe 1.2.
+For playback of \-respawn demos recorded with Doom.exe 1.2.
 .TP
 .BI \-auto
 Enables the autoloading of wads according to the lmp file-name. See below
@@ -136,7 +136,7 @@ for information.
 .TP
 .BI \-emulate\  prboom_ver
 For viewing old desynching PrBoom demos with all recording bugs from a
-particular version emulated. For example, "-emulate 2.2.6" would be used
+particular version emulated. For example, "\-emulate 2.2.6" would be used
 to play back a desynching demo recorded with PrBoom 2.2.6. This would be
 instead of using the various command-line options for each recording bug
 (see below) from that version.
@@ -180,7 +180,7 @@ Forces the Boom DEH parser.
 .TP
 .BI \-setmem\  system
 The desynch in fez1-924.lmp @ fez1.wad is gone, but you still need to add
-"-setmem dosbox" or "-setmem dos71" command line parameter, because the
+"\-setmem dosbox" or "\-setmem dos71" command line parameter, because the
 default "dos622" memory layout causes a desynch.
 .SH MULTIPLAYER OPTIONS
 .TP
@@ -270,22 +270,22 @@ or \fB-3\fP to enlarge the window.
 Suppress all graphical display. Only for debugging & demo testing.
 .TP
 .BI \-aspect\  NxM
-For using a different aspect ratio; e.g. -aspect 5x4, -aspect 8x5 or -aspect 2x1.
+For using a different aspect ratio; e.g. \-aspect 5x4, \-aspect 8x5 or \-aspect 2x1.
 .TP
 .BI \-videodriver\  name
 For setting up the videodriver name that SDL will use (See SDL documentation).
-"-videodriver default" can be used to force SDL behaviour by default.
+"\-videodriver default" can be used to force SDL behaviour by default.
 .TP
 .BI \-resetgamma
 Restores the original gamma after a crash.
 .TP
 .BI \-geom\  NxM
 Basic syntax, for temporarily using a particular resolution without saving
-this in the cfg; e.g. -geom 1280x1024.
+this in the cfg; e.g. \-geom 1280x1024.
 .TP
 .BI \-geom\  WidthxHeight[w|f]
-Advanced syntax, w - windowed, f - fullscreen. Examples: -geom 320x200f,
--geom 640x480w.
+Advanced syntax, w - windowed, f - fullscreen. Examples: \-geom 320x200f,
+\-geom 640x480w.
 .SH I/O OPTIONS
 .TP
 .BI \-nosound
@@ -307,7 +307,7 @@ Prevents the mouse being grabbed by the PrBoom+ window.
 .TP
 .BI \-shorttics
 Forces the same mouse behaviour as when recording (i.e. the converse of
-"-longtics").
+"\-longtics").
 .SH CONFIGURATION
 .TP
 .BI \-config\  myconf
@@ -336,12 +336,12 @@ written to the named file as PrBoom+ runs.
 .BI \-nodrawers
 Causes no rendering to be done. The only conceivable use of this is (a)
 a multiplayer server (b) to test the speed of the other routines in the
-program, when combined with \fB-timedemo\fP.
+program, when combined with \fB\-timedemo\fP.
 .TP
 .BI \-noblit
 Causes no copying to the screen from the rendering buffer to be performed.
 The only conceivable use of this is (a) a multiplayer server (b) to test
-the speed of the other routines in the program, when combined with \fB-timedemo\fP.
+the speed of the other routines in the program, when combined with \fB\-timedemo\fP.
 .TP
 .BI \-bexout\  bexdbg
 Causes diagnostics related to bex and dehacked file processing to be written 

@@ -19,13 +19,13 @@ parameter:
 \fBprboom-plus.cfg\fP consists of a number of variables and values. Each
 line is of the following format:
 .PP
-[
-{ 
+{
 {{# | ; | [}
 .I comment_text}
-|
+| {
 .I variable 
-{\fIdecimal_integer\fR | 0x\fIhex_integer\fR | "\fIstring_text\fR"}}]
+{\fIdecimal_integer\fR | 0x\fIhex_integer\fR | "\fIstring_text\fR"}}
+}
 .PP
 Any line beginning with a non-alphabetic character is treated as a comment
 and ignored; for future compatibility you should start comments with a
