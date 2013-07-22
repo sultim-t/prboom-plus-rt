@@ -1,124 +1,204 @@
-.TH PRBOOM 6 local
+.TH PRBOOM-PLUS 6 "2011-06-27"
 .SH NAME
-prboom \- PrBoom, a version of Doom for Unix, Linux and Windows systems
+prboom-plus \- PrBoom+, a version of Doom for Unix, Linux and Windows systems
 .SH SYNOPSIS
-.B prboom
-[\| \-complevel \fIlvl\fR \|]
-.BR
-[\| \-width \fIw\fR \|] [\| \-height \fIh\fR \|] [\| \-viewangle \fIn\fR \|] [\| \-vidmode \fIgl\fR \|] [\| \-[\|no\|]fullscreen \|] [\| \-[\|no\|]window \|]
-.BR
-[\| \-iwad \fIiwadname\fR \|] [\| \-file \fIwad1 \&...\fR \|] [\| \-deh \fIdeh_file\fR \|] [\| \-noload \|]
-.BR
-[\| \-loadgame {0,1,2,3,4,5,6,7} \|] [\| \-warp { \fImap\fR | \fIepis level\fR } \-skill {1,2,3,4,5} \|]
-.BR
-[\| {\-fastdemo,\-timedemo,\-playdemo} \fIdemofile\fR [\| \-ffmap \fInum\fR \|] \|] [\| \-record \fIdemofile\fR \|] [\| \-solonet \|]
-.BR
-[\| \-net \fIhostname\fR[\|:\fIport\fR\|] \|]
-[\| \-deathmatch [\| \-altdeath \|] \|] [\| { \-timer \fImins\fR | \-avg }\|] \|]
-.BR
-[ \-nosound \|] [ \-nosfx \|] [ \-nomusic\|] [ \-nojoy \|] [ \-nomouse \|]
-[\| \-noaccel ] [\| \-nodraw ]
-.BR
-[\| \-config \fImyconf\fR \|] [\| \-save \fIsavedir\fR \|] 
-.BR
-[\| \-bexout \fIbexdbg\fR \|] [\| \-debugfile \fIdebug_file\fR \|] [\| \-devparm \|] [\| \-noblit \|] [\| \-nodrawers \|]
+.B prboom-plus
+[options] [values|files]
 .SH DESCRIPTION
 .B PrBoom
-is a version of the 3D shoot'em'up Doom, originally by iD software. 
+is a version of the first-person shooter game Doom, originally released by iD software in 1993.
 It is based on Boom, a version of Doom adapted by TeamTNT 
-(http://www.teamtnt.com/) for DOS. PrBoom uses the SDL library, 
+(http://www.teamtnt.com/) for Dos. PrBoom uses the SDL library,
 meaning it can run on a variety of different systems, 
-including Windows, X11, Linux/SVGALib.
-.SH Options
+including Windows and Unix/X11.
+.PP
+.B PrBoom+
+is a Doom source port developed from the original PrBoom project.
+It adds uncapped framerate, variable gamespeed, re-record, walkcam, chasecam,
+full mouselook, FOV and other features without loss of compatibility
+with original Doom.
+.SH GAME OPTIONS
 .TP
 .BI \-complevel\  lvl
-This sets the compatibility mode that PrBoom runs in. If you need to change
+This sets the compatibility mode that PrBoom+ runs in. If you need to change
 this, see \fBREADME.compat\fP.
-
-.SH Video Options
 .TP
-.BI \-width\  w
-Specifies the width of the PrBoom window, in pixels. Default is \fB320\fP, the
-width must be greater than 320..
+\fB\-loadgame\fP { \fI0,1,2,3,4,5,6,7\fR }
+Instructs PrBoom+ to load the specified saved game immediately.
 .TP
-.BI \-height\  h
-Specifies the height of the PrBoom window, in pixels. Default is \fB200\fP, the
-height must be greater than 200.
+\fB\-warp\fP { \fImap\fR | \fIepis\fR \fIlevel\fR }
+Tells PrBoom+ to begin a new game immediately. For Doom 1 or The Ultimate Doom,
+you must specify the \fIepis\fRode and \fIlevel\fR number to begin at
+(\fIepis\fR is \fB1\fP for Knee-Deep in the Dead, \fB2\fP for Shores of Hell,
+\fB3\fP for Inferno, \fB4\fP for Thy flesh Consumed; \fIlevel\fR is between
+\fB1\fP and \fB9\fP). For Doom 2 or Final Doom, you must specify the
+\fImap\fR to begin at, which is between \fB1\fP and \fB32\fP (\fB30\fP for
+German Doom 2).
 .TP
-.BI \-viewangle\  n
-Causes the player view to be rotated by a given offset (specified in 45degree
-increments, in the range 0..7) from the way the player is facing.
+.BI \-skill\  n
+Tells PrBoom+ to begin the game
+at skill level \fIn\fR (\fB1\fP for I'm Too Young To Die; \fB2\fP for Hey, Not Too Rough;
+\fB3\fP for Hurt Me Plenty; \fB4\fP for Ultra-Violent; \fB5\fP for Nightmare!).
 .TP
-.BI \-vidmode\  gl
-Use the OpenGL video mode. The default is to use the software video mode.
+.BI \-respawn
+Tells PrBoom+ that monsters that die should respawn (come back to life)
+after a while. Not for the inexperienced.
 .TP
-.BI \-fullscreen,\ \-nofullscreen
-These options toggle fullscreen mode. The default is fullscreen.
+.BI \-fast
+Tells PrBoom+ to make all the monsters move and
+react faster. Not for the inexperienced.
 .TP
-.BI \-window,\ \-nowindow
-This pair of options also toggle fullscreen mode. They only take effect for
-this prboom session and do not alter your configuration file.
-.SH WAD Options
+.BI \-nomonsters
+Tells PrBoom+ to include no monsters in the game.
+.TP
+.BI \-nocheats
+Disable applying cheats from dehacked files.
+.SH WAD OPTIONS
 .TP
 .BI \-iwad\  iwadname
-Specifies the location of the IWAD file, typically doom.wad or doom2.wad (or
-doom2f.wad). This tells prboom where the main .wad file that came with the
-version of Doom that you own is. 
+Specifies the location of the IWAD file, typically doom.wad or doom2.wad
+(or doom2f.wad). This tells PrBoom+ where the main .wad file that came
+with the version of Doom that you own is.
 .TP
 .BI \-file\  wad1\ \&...
 Specifies a list of PWAD files to load in addition to the IWAD file. PWAD
 files modify the existing Doom game, by adding levels or new sounds or
 graphics. PWAD files are widely available for download; try
-ftp.cdrom.com/pub/idgames for starters.
+http://www.doomworld.com/idgames/ for starters.
 .TP
 .BI \-deh\  deh_file
-Tells PrBoom to load the dehacked patch \fIdeh_file\fR.
-.SH Game Options
+Tells PrBoom+ to load the dehacked patch \fIdeh_file\fR.
+.SH DEMO (LMP) OPTIONS
 .TP
-.BI \-loadgame\  { 0,1,2,3,4,5,6,7 }
-Instructs PrBoom to load the specified saved game immediately. 
+.BI \-record\  demofile
+Instructs PrBoom+ to begin recording a demo, to be stored in \fIdemofile.lmp\fR.
+You should specify \fBgame options\fR to specify which level and skill
+to record at.
 .TP
-\fB\-warp\fP { \fImap\fR | \fIepis\fR \fIlevel\fR }
-Tells PrBoom to begin a new game immediately. For Doom 1 or Ultimate Doom,
-you must specify the \fIepis\fRode and \fIlevel\fR number to begin at
-(\fIepis\fR is \fB1\fP for Knee-Deep in the Dead, \fB2\fP for Shores of Hell, \fB3\fP for
-Inferno, \fB4\fP for Ultimate Doom; \fIlevel\fR is between \fB1\fP and \fB9\fP). For Doom ][ or
-Final Doom, you must specify the \fImap\fR to begin at, which is between \fB1\fP and
-\fB2\fP (\fB0\fP for German Doom ][).
+.BI \-playdemo\  demofile
+Play the recorded demo \fIdemofile.lmp\fR.
 .TP
-.BI \-skill\  n
-Tells PrBoom to begin the game
-at skill level \fIn\fR (\fB1\fP for ITYTD, \fB2\fP for Not Too Rough, \fB3\fP for Hurt Me
-Plenty, \fB4\fP for Ultraviolent, \fB5\fP for Nightmare). 
+.BI \-timedemo\  demofile
+Play the recorded demo \fIdemofile.lmp\fR, reporting information about
+the length of the demo (in gametics) afterwards.
 .TP
-.BI \-respawn 
-Tells PrBoom that
-monsters that die should respawn (come back to life) after a while. Not for
-the inexperienced.
+.BI \-viddump\  filename
+Record a movie file, it requires external command-line encoding tools,
+oggenc2 (ogg vorbis audio encoder), x264 (h264 video encoder) and
+mkvmerge (mkv muxer).
+It is meant to be used with -timedemo, e.g.
+"prboom-plus -timedemo anydemo.lmp -viddump filename.mkv".
 .TP
-.BI \-fast
-Tells PrBoom to make all the monsters move \&
-react faster. Not for the inexperienced. 
+.BI \-fastdemo\  demofile
+Play the recorded demo \fIdemofile.lmp\fR as fast as possible. Useful for
+benchmarking PrBoom+, as compared to other versions of Doom.
+.TP
+.BI \-ffmap\  num
+Fast forward the demo (play at max speed) until reaching map \fInum\fR
+(note that this takes just a number, not a map name, so so \fB-ffmap 7\fP
+to go fast until MAP07 or ExM7).
+.TP
+.BI \-warp\  x
+Warps directly to the start of map x of a recording without rendering any
+of the play up to that point. Pressing Use (<Space> by default) during
+skipping shows the current frame.
+.TP
+.BI \-avidemo\  fileprefix
+Grabbing of the screenshots to frmXXXX.tga.
+.TP
+.BI \-skipsec\  x
+Skip X secs during viewing of the demo.
+.TP
+.BI \-warp\  x \ -skipsec\  y
+Will skip y seconds on level x.
+.TP
+.BI \-recordfromto\  n.lmp\ m
+Play back the demo n.lmp, allowing the user to take over the controls at
+a point of his choosing, and save the resulting demo as m.lmp.
+.TP
+.BI \-levelstat
+Outputs a text-file called levelstat.txt containing level-by-level information
+on times, kills, items and secrets.
+.TP
+.BI \-spechit\  xxx
+Provides a spechits magic number, overriding the program's default value.
 .TP
 .BI \-nomonsters
-Tells PrBoom to include no monsters in the game.
-.SH Multiplayer Options
+For playback of -nomonsters demos recorded with Doom.exe 1.2.
+.TP
+.BI \-respawn
+For playback of -respawn demos recorded with Doom.exe 1.2.
+.TP
+.BI \-auto
+Enables the autoloading of wads according to the lmp file-name. See below
+for information.
+.SS DEMOS OLD VERSIONS COMPATIBILITY PARAMETERS
+.TP
+.BI \-emulate\  prboom_ver
+For viewing old desynching PrBoom demos with all recording bugs from a
+particular version emulated. For example, "-emulate 2.2.6" would be used
+to play back a desynching demo recorded with PrBoom 2.2.6. This would be
+instead of using the various command-line options for each recording bug
+(see below) from that version.
+.TP
+.BI \-force_monster_avoid_hazards
+For viewing old desynching doom-compatible PrBoom demos recorded with
+"monster_avoid_hazards 1" in config.
+.TP
+.BI \-force_remove_slime_trails
+For viewing old desynching doom-compatible demos recorded with old versions
+of PrBoom (< 2.4.6) or PrBoom+ (< 2.4.6.1) that are affected by the
+"remove slime trails" incompatibility.
+.TP
+.BI \-reject_pad_with_ff
+For viewing old desynching doom-compatible demos recorded with old versions
+of PrBoom (including 2.2.5 and 2.2.6) that padded a short REJECT with ones
+instead of zeroes.
+.TP
+.BI \-force_truncated_sector_specials
+For emulation of old buggy behaviour whereby Boom's generalized effects
+could work instead of failing in a compatibility mode in the case of a
+bad action number.
+.TP
+.BI \-force_no_dropoff
+For emulation of MBF_compatibility behaviour in PrBoom 2.2.2 - 2.4.7,
+whereby things did not drop off ledges when they would have done in MBF.
+.TP
+.BI \-force_prboom_friction
+For emulation of old buggy behaviour whereby Boom's friction and bobbing
+code were not faithfully replicated.
+.TP
+.BI \-force_force_boom_brainawake
+For emulation of Boom's behaviour with respect to the Monster Spawner,
+which differed slightly from that of "vanilla" Doom.
+.TP
+.BI \-force_lxdoom_demo_compatibility
+For emulation of all bugs in demo compatibility mode in lxdoom.
+.TP
+.BI \-boom_deh_parser
+Forces the Boom DEH parser.
+.TP
+.BI \-setmem\  system
+The desynch in fez1-924.lmp @ fez1.wad is gone, but you still need to add
+"-setmem dosbox" or "-setmem dos71" command line parameter, because the
+default "dos622" memory layout causes a desynch.
+.SH MULTIPLAYER OPTIONS
 .TP
 \fB\-net\fP \fIhostname\fR[:\fIport\fR]
-Specifies that a TCP/IP network game is to be started. \fIhostname\fR is the 
-name of the machine on which the network game server is running 
-(\fBprboom-game-server\fP). For more information about this, see 
-.BR prboom-game-server (6)
-and the \fBREADME\fP that came with prboom. \fIport\fR is the 
-port number on the remote machine to which to connect; if not specified, the 
-default of \fB5030\fP (which is the default for 
-.BR prboom-game-server (6)
+Specifies that a TCP/IP network game is to be started. \fIhostname\fR is
+the name of the machine on which the network game server is running
+(\fBprboom-plus-game-server\fP). For more information about this, see
+.BR prboom-plus-game-server (6)
+and the \fBREADME\fP that came with PrBoom+. \fIport\fR is the
+port number on the remote machine to which to connect; if not specified,
+the default of \fB5030\fP (which is the default for
+.BR prboom-plus-game-server (6)
 ) is assumed. 
-The server will configure your PrBoom settings, so that all the players have 
-the same game settings (skill, map etc). 
+The server will configure your PrBoom+ settings, so that all the players
+have the same game settings (skill, map etc).
 .PP
-Also, the server may specify additional PWAD files to play with; if you do 
-not have the required .WAD file, PrBoom will ask the server for a download 
+Also, the server may specify additional PWAD files to play with; if you
+do not have the required .WAD file, PrBoom+ will ask the server for a download
 path, and attempt to use 
 .BR wget(1)
 and if necessary 
@@ -129,45 +209,84 @@ to download and extract the required WAD.
 Specifies the local port to use to communicate with the server in a netgame.
 .TP
 .BI \-deathmatch
-No longer used. Tells PrBoom to begin a deathmatch game, but this is overridden 
-by the server's settings. Only works for single play (!).
+No longer used. Tells PrBoom+ to begin a deathmatch game, but this is
+overridden by the server's settings. Only works for single play (!).
 .TP
 .BI \-altdeath
-Similar to \fB\-deathmatch\fP, but implies a different set of rules for the 
-deathmatch game. No longer used (specified by the server).
+Similar to \fB\-deathmatch\fP, but implies a different set of rules for
+the deathmatch game. No longer used (specified by the server).
 .TP
 .BI \-timer\  mins
-No longer used. Specifies that levels will end after \fImins\fR minutes of
-play if the level is still being played, but is overridden by the server in 
-a netgame. Not really useful for single play.
+No longer used. Specifies that levels will end after \fImins\fR minutes
+of play if the level is still being played, but is overridden by the server
+in a netgame. Not really useful for single play.
 .TP
 .BI \-avg
-Equivalent to \fB-timer 20\fP
+Equivalent to \fB-timer 20\fP.
 .TP
 .BI \-solo-net
-Used to run a single-player network game, without a network game server. This
-enables network game items & options for an otherwise single-player game; some
-demos are recorded like this.
-.SH Demo (LMP) Options
+Used to run a single-player network game, without a network game server.
+This enables network game items & options for an otherwise single-player
+game; some demos are recorded like this.
+.SH VIDEO OPTIONS
 .TP
-.BI \-record\  demofile
-Instructs PrBoom to begin recording a demo, to be stored in \fIdemofile.lmp\fR. You should specify \fBgame options\fR to specify which level and skill to record at.
+.BI \-width\  w
+Specifies the width of the PrBoom+ window, in pixels. Default is \fB320\fP,
+the width must be greater than 320.
 .TP
-.BI \-playdemo\  demofile
-Play the recorded demo \fIdemofile.lmp\fR
+.BI \-height\  h
+Specifies the height of the PrBoom+ window, in pixels. Default is \fB200\fP,
+the height must be greater than 200.
 .TP
-.BI \-timedemo\  demofile
-Play the recorded demo \fIdemofile.lmp\fR, reporting information about the length of the demo (in gametics) afterwards.
+.BI \-viewangle\  n
+Causes the player view to be rotated by a given offset (specified in
+45degree increments, in the range 0..7) from the way the player is facing.
 .TP
-.BI \-fastdemo\  demofile
-Play the recorded demo \fIdemofile.lmp\fR as fast as possible. Useful for 
-benchmarking PrBoom, as compared to other versions of Doom.
+.BI \-vidmode\  gl
+Use the OpenGL video mode. The default is to use the software video mode.
 .TP
-.BI \-ffmap\  num
-Fast forward the demo (play at max speed) until reaching map \fInum\fR
-(note that this takes just a number, not a map name, so so \fB-ffmap 7\fP to go fast
-until MAP07 or ExM7).
-.SH I/O Options
+.BI \-fullscreen,\ \-nofullscreen
+These options toggle fullscreen mode. The default is fullscreen.
+.TP
+.BI \-window,\ \-nowindow
+This pair of options also toggle fullscreen mode. They only take effect
+for this PrBoom+ session and do not alter your configuration file.
+.TP
+.BI \-noaccel
+For PrBoom+, this prevents it using the MITShm server extension for passing
+the screen data to the X server. This option may be required if the X server
+is not local. For lsdoom, this tells lsdoom not to use the accelerated
+graphics functions that SVGALib provides even when they are supported for
+your video card (normally this is autodetected).
+.TP
+.BR \-1 ,\  \-2 ,\  \-3
+Specifies the scale factor by which to enlarge the window. The default,
+\fB-1\fP, displays the normal 320x200 pixel Doom screen (or whatever size
+is specified by the \fB-width\fP and \fB-height\fP parameters or in the
+config file for PrBoom+).  If this window is too small, try using \fB-2\fP
+or \fB-3\fP to enlarge the window.
+.TP
+.BI \-nodraw
+Suppress all graphical display. Only for debugging & demo testing.
+.TP
+.BI \-aspect\  NxM
+For using a different aspect ratio; e.g. -aspect 5x4, -aspect 8x5 or -aspect 2x1.
+.TP
+.BI \-videodriver\  name
+For setting up the videodriver name that SDL will use (See SDL documentation).
+"-videodriver default" can be used to force SDL behaviour by default.
+.TP
+.BI \-resetgamma
+Restores the original gamma after a crash.
+.TP
+.BI \-geom\  NxM
+Basic syntax, for temporarily using a particular resolution without saving
+this in the cfg; e.g. -geom 1280x1024.
+.TP
+.BI \-geom\  WidthxHeight[w|f]
+Advanced syntax, w - windowed, f - fullscreen. Examples: -geom 320x200f,
+-geom 640x480w.
+.SH I/O OPTIONS
 .TP
 .BI \-nosound
 Disables all sound effects and in-game music. This prevents the sound server 
@@ -184,35 +303,26 @@ Disables playing of music in the game.
 Disables joystick support.
 .TP
 .BI \-nomouse
-Prevents the mouse being grabbed by the prboom window.
+Prevents the mouse being grabbed by the PrBoom+ window.
 .TP
-.BI \-noaccel
-For prboom, this prevents it using the MITShm server extension for passing
-the screen data to the X server. This option may be required if the X server
-is not local. For lsdoom, this tells lsdoom not to use the accelerated
-graphics functions that SVGALib provides even when they are supported for
-your video card (normally this is autodetected).
-.TP
-.BR \-1 ,\  \-2 ,\  \-3
-Specifies the scale factor by which to enlarge the window. The default,
-\fB-1\fP, displays the normal 320x200 pixel Doom screen (or whatever size is
-specified by the \fB-width\fP and \fB-height\fP parameters or in the config
-file for prboom).  If this window is too small, try using \fB-2\fP or \fB-3\fP
-to enlarge the window.
-.BI \-nodraw
-Suppress all graphical display. Only for debugging & demo testing.
-.SH Configuration
+.BI \-shorttics
+Forces the same mouse behaviour as when recording (i.e. the converse of
+"-longtics").
+.SH CONFIGURATION
 .TP
 .BI \-config\  myconf
 Loads an alternative configuration file, named \fImyconf\fR. The default is 
-.BR boom.cfg (5),
-taken from the same directory as PrBoom was run from, except when running with OpenGL, then the default is 
-.BR glboom.cfg (5).
+.BR prboom-plus.cfg (5),
+taken from the same directory as PrBoom+ was run from.
 .TP
 .BI \-save\  savedir
-Causes prboom to save games in the directory specified by \fIsavedir\fR 
-instead of \fB~/.prboom/\fP.
-.SH Debugging/Profiling Options
+Causes PrBoom+ to save games in the directory specified by \fIsavedir\fR
+instead of \fB~/.prboom-plus/\fP.
+.TP
+.BI \-shotdir\  shotdir
+Causes PrBoom+ to save screenshots in \fIshotdir\fR instead of the current
+directory.
+.SH DEBUGGING/PROFILING OPTIONS
 .TP
 .BI \-devparm
 Development mode. Mostly redundant these days, but it does force non-lazy
@@ -220,26 +330,32 @@ generation of texture lookups which can be useful for level authors debugging
 PWADs.
 .TP
 .BI \-debugfile\  debug_file
-Causes some debugging information, mainly network info I believe, to be written to the named file as prboom runs.
+Causes some debugging information, mainly network info, to be
+written to the named file as PrBoom+ runs.
 .TP
 .BI \-nodrawers
-Causes no rendering to be done. The only conceivable use of this is (a) a multiplayer server (b) to test the speed of the other routines in the program, when combined with \fB-timedemo\fP.
+Causes no rendering to be done. The only conceivable use of this is (a)
+a multiplayer server (b) to test the speed of the other routines in the
+program, when combined with \fB-timedemo\fP.
 .TP
 .BI \-noblit
-Causes no copying to the screen from the rendering buffer to be performed. The only conceivable use of this is (a) a multiplayer server (b) to test the speed of the other routines in the program, when combined with \fB-timedemo\fP.
+Causes no copying to the screen from the rendering buffer to be performed.
+The only conceivable use of this is (a) a multiplayer server (b) to test
+the speed of the other routines in the program, when combined with \fB-timedemo\fP.
 .TP
 .BI \-bexout\  bexdbg
 Causes diagnostics related to bex and dehacked file processing to be written 
 to the names file.
-.SH More Information
-.BR wget (1),
-.BR unzip (1),
-.BR boom.cfg (5),
-.BR prboom-game-server (6)
+.TP
+.BI \-blockmap
+Use if PrBoom-Plus reports a buggy blockmap.
+.SH SEE ALSO
+.BR prboom-plus.cfg (5),
+.BR prboom-plus-game-server (6)
 .PP
-For more information, see the \fBREADME\fP that came with PrBoom, the Boom 
+For more information, see the \fBREADME\fP that came with PrBoom+, the Boom
 documentation, and your original Doom documentation.
 .PP
 Doom is a registered trademark of id software (http://www.idsoftware.com/).
-.SH Author
-See the file \fBAUTHORS\fP included with the PrBoom distribution.
+.SH AUTHORS
+See the file \fBAUTHORS\fP included with the PrBoom+ distribution.
