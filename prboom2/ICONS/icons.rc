@@ -15,11 +15,6 @@
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_ICON1               ICON    DISCARDABLE     "prboom-plus.ico"
-IDI_ICON2               ICON    DISCARDABLE     "fouch.ico"
-IDI_ICON3               ICON    DISCARDABLE     "god.ico"
-IDI_ICON4               ICON    DISCARDABLE     "skull.ico"
-IDI_ICON5               ICON    DISCARDABLE     "Heada1.ico"
-IDI_ICON6               ICON    DISCARDABLE     "barrel.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
