@@ -846,7 +846,7 @@ static void WI_drawTimeStats(int cnt_time, int cnt_total_time, int cnt_par)
 
   if (!(modifiedgame && !deh_pars))
   {
-    if (wbs->epsd < 3)
+    if (wbs->epsd < 4)
     {
       V_DrawNamePatch(320/2 + SP_TIMEX, SP_TIMEY, FB, par, CR_DEFAULT, VPT_STRETCH);
       WI_drawTime(320 - SP_TIMEX, SP_TIMEY, cnt_par);

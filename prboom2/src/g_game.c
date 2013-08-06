@@ -1498,11 +1498,13 @@ void G_DoReborn (int playernum)
 }
 
 // DOOM Par Times
-int pars[4][10] = {
+int pars[5][10] = {
   {0},
   {0,30,75,120,90,165,180,180,30,165},
   {0,90,90,90,120,90,360,240,30,170},
-  {0,90,45,90,150,90,90,165,30,135}
+  {0,90,45,90,150,90,90,165,30,135},
+  // from Doom 3 BFG Edition
+  {0,165,255,135,150,180,390,135,360,180}
 };
 
 // DOOM II Par Times
@@ -1639,7 +1641,7 @@ void G_DoCompleted (void)
   }
   else
   {
-    if (gameepisode >= 1 && gameepisode <= 3 && gamemap >= 1 && gamemap <= 9)
+    if (gameepisode >= 1 && gameepisode <= 4 && gamemap >= 1 && gamemap <= 9)
       wminfo.partime = TICRATE*pars[gameepisode][gamemap];
   }
 
