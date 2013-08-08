@@ -1933,6 +1933,8 @@ void G_DoLoadGame(void)
   int savegame_compatibility = -1;
   //e6y: numeric version number of package should be zero before initializing from savegame
   unsigned int packageversion = 0;
+  char maplump[8];
+  int time, ttime;
 
   length = G_SaveGameName(NULL, 0, savegameslot, demoplayback);
   name = malloc(length+1);
@@ -2070,6 +2072,18 @@ void G_DoLoadGame(void)
 
   if (*save_p != 0xe6)
     I_Error ("G_DoLoadGame: Bad savegame");
+
+  /* Print some information about the save game */
+  if (gamemode == commercial)
+    sprintf(maplump, "MAP%02d", gamemap);
+  else
+    sprintf(maplump, "E%dM%d", gameepisode, gamemap);
+  time = leveltime / TICRATE;
+  ttime = (totalleveltimes + leveltime) / TICRATE;
+
+  lprintf(LO_INFO, "G_DoLoadGame: [%d] %s (%s), Skill %d, Level Time %02d:%02d:%02d, Total Time %02d:%02d:%02d\n",
+    savegameslot + 1, maplump, W_GetLumpInfoByNum(W_GetNumForName(maplump))->wadfile->name, gameskill,
+    time/3600, (time%3600)/60, time%60, ttime/3600, (ttime%3600)/60, ttime%60);
 
   // done
   Z_Free (savebuffer);
