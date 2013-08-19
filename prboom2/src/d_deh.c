@@ -1546,7 +1546,10 @@ void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum)
 
   while (dehfgets(inbuffer,sizeof(inbuffer),filein))
     {
+      dboolean match;
       unsigned i;
+      static unsigned last_i = DEH_BLOCKMAX-1;
+      static long filepos = 0;
 
       lfstrip(inbuffer);
       if (fileout) fprintf(fileout,"Line='%s'\n",inbuffer);
@@ -1597,15 +1600,30 @@ void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum)
           continue;
         }
 
-      for (i=0; i<DEH_BLOCKMAX; i++)
+      for (match=0, i=0; i<DEH_BLOCKMAX; i++)
         if (!strncasecmp(inbuffer,deh_blocks[i].key,strlen(deh_blocks[i].key)))
           { // matches one
-            if (fileout)
-              fprintf(fileout,"Processing function [%d] for %s\n",
-                      i, deh_blocks[i].key);
-            deh_blocks[i].fptr(filein,fileout,inbuffer);  // call function
+            if (i < DEH_BLOCKMAX-1)
+              match = 1;
             break;  // we got one, that's enough for this block
           }
+
+      if (match) // inbuffer matches a valid block code name
+        last_i = i;
+      else
+        { // process that same line again with the last valid block code handler
+          i = last_i;
+          if (!filein->lump)
+            fseek(filein->f, filepos, SEEK_SET);
+        }
+
+      if (fileout)
+        fprintf(fileout,"Processing function [%d] for %s\n",
+                i, deh_blocks[i].key);
+      deh_blocks[i].fptr(filein,fileout,inbuffer);  // call function
+
+      if (!filein->lump) // back up line start
+        filepos = ftell(filein->f);
     }
 
   if (infile.lump)
@@ -2757,7 +2775,7 @@ static void deh_procStrings(DEHFILE *fpin, FILE* fpout, char *line)
       if (!dehfgets(inbuffer, sizeof(inbuffer), fpin)) break;
       if (*inbuffer == '#') continue;  // skip comment lines
       lfstrip(inbuffer);
-      if (!*inbuffer) break;  // killough 11/98
+      if (!*inbuffer && !*holdstring) break;  // killough 11/98
       if (!*holdstring) // first one--get the key
         {
           if (!deh_GetData(inbuffer,key,&value,&strval,fpout)) // returns TRUE if ok
