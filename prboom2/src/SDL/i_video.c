@@ -86,6 +86,7 @@
 #include "i_simd.h"
 #include "r_screenmultiply.h"
 #include "e6y.h"//e6y
+#include "i_main.h"
 
 //e6y: new mouse code
 static SDL_Cursor* cursors[2] = {NULL, NULL};
@@ -259,6 +260,12 @@ while (SDL_PollEvent(Event))
       else if (Event->key.keysym.sym == SDLK_RETURN)
       {
         V_ToggleFullscreen();
+        break;
+      }
+      // Immediately exit on Alt+F4 ("Boss Key")
+      else if (Event->key.keysym.sym == SDLK_F4)
+      {
+        I_SafeExit(0);
         break;
       }
     }
