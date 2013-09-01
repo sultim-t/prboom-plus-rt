@@ -2147,8 +2147,6 @@ void SetCrosshairTarget(void)
     float x, y, z;
     float winx, winy, winz;
 
-    R_BuildModelViewMatrix();
-
     x = -(float)crosshair.target_x / MAP_SCALE;
     z =  (float)crosshair.target_y / MAP_SCALE;
     y =  (float)crosshair.target_z / MAP_SCALE;

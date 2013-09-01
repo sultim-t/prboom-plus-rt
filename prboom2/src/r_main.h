@@ -178,7 +178,6 @@ void R_ClearStats(void);
 extern int viewport[4];
 extern float modelMatrix[16];
 extern float projMatrix[16];
-void R_BuildModelViewMatrix(void);
 int R_Project(float objx, float objy, float objz, float *winx, float *winy, float *winz);
 
 #endif

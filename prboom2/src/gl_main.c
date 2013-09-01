@@ -1263,15 +1263,10 @@ void gld_StartDrawScene(void)
   glEnable(GL_DEPTH_TEST);
 
   glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glMultMatrixf(projMatrix);
+  glLoadMatrixf(projMatrix);
 
   glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-  glRotatef(roll,  0.0f, 0.0f, 1.0f);
-  glRotatef(pitch, 1.0f, 0.0f, 0.0f);
-  glRotatef(yaw,   0.0f, 1.0f, 0.0f);
-  glTranslatef(-xCamera, -zCamera, -yCamera);
+  glLoadMatrixf(modelMatrix);
 
   rendermarker++;
   scene_has_overlapped_sprites = false;

@@ -996,6 +996,7 @@ void R_SetupMatrix(void)
   }
 
   R_SetupPerspective(fovy, aspect, znear);
+  R_BuildModelViewMatrix();
 }
 
 //

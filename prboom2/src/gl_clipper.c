@@ -72,10 +72,9 @@
 #include <math.h>
 #include "v_video.h"
 #include "gl_intern.h"
+#include "r_main.h"
 #include "e6y.h"
 
-static GLdouble viewMatrix[16];
-static GLdouble projMatrix[16];
 float frustum[6][4];
 
 typedef struct clipnode_s
@@ -363,10 +362,10 @@ angle_t gld_FrustumAngle(void)
 //
 
 #define CALCMATRIX(a, b, c, d, e, f, g, h)\
-  (float)(viewMatrix[a] * projMatrix[b] + \
-  viewMatrix[c] * projMatrix[d] + \
-  viewMatrix[e] * projMatrix[f] + \
-  viewMatrix[g] * projMatrix[h])
+  (float)(modelMatrix[a] * projMatrix[b] + \
+  modelMatrix[c] * projMatrix[d] + \
+  modelMatrix[e] * projMatrix[f] + \
+  modelMatrix[g] * projMatrix[h])
 
 #define NORMALIZE_PLANE(i)\
   t = (float)sqrt(\
@@ -382,9 +381,6 @@ void gld_FrustrumSetup(void)
 {
   float t;
   float clip[16];
-
-  glGetDoublev(GL_PROJECTION_MATRIX, projMatrix);
-  glGetDoublev(GL_MODELVIEW_MATRIX, viewMatrix);
 
   clip[0]  = CALCMATRIX(0, 0, 1, 4, 2, 8, 3, 12);
   clip[1]  = CALCMATRIX(0, 1, 1, 5, 2, 9, 3, 13);
