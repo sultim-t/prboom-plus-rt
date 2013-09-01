@@ -94,7 +94,7 @@ int flats_display_list_size = 0;
 int flats_detail_display_list;
 int flats_detail_display_list_size = 0;
 
-int gl_finish;
+int gl_finish = 1;
 
 // e6y
 // This variables toggles the use of a trick to prevent the clearning of the 
