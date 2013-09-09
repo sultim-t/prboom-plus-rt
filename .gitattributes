@@ -2,6 +2,7 @@
 prboom2/ICONS/Makefile.am eol=lf
 prboom2/ICONS/prboom-plus.exe.manifest -text
 prboom2/ICONS/prboom-plus.ico -text
+prboom2/ICONS/prboom-plus.svg -text
 prboom2/Makefile.am eol=lf
 prboom2/VisualC6/Doom.dsp eol=crlf
 prboom2/VisualC6/Doom.dsw eol=crlf
