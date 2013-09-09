@@ -1612,7 +1612,8 @@ void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum)
         last_i = i;
       else
         { // process that same line again with the last valid block code handler
-          i = last_i;
+          if (last_i >= 10) // restrict to BEX style lumps
+            i = last_i;
           if (!filein->lump)
             fseek(filein->f, filepos, SEEK_SET);
         }
