@@ -135,6 +135,7 @@ static void R_InitTextures (void)
   int  numtextures1, numtextures2;
   const int *directory;
   int  errors = 0;
+  extern char *doomverstr;
 
   // Load the patch names from pnames.lmp.
   name[8] = 0;
@@ -288,7 +289,13 @@ static void R_InitTextures (void)
       W_UnlockLumpNum(maptex_lump[i]);
 
   if (errors)
+  {
+    const lumpinfo_t* info = W_GetLumpInfoByNum(names_lump);
+    lprintf(LO_INFO, "\nR_InitTextures: The file %s seems to be incompatible with \"%s\".\n",
+      info->wadfile->name,
+      (doomverstr ? doomverstr : "DOOM"));
     I_Error("R_InitTextures: %d errors", errors);
+  }
 
   // Precalculate whatever possible.
   if (devparm) // cph - If in development mode, generate now so all errors are found at once
@@ -599,8 +606,16 @@ int PUREFUNC R_CheckTextureNumForName(const char *name)
 int PUREFUNC R_TextureNumForName(const char *name)  // const added -- killough
 {
   int i = R_CheckTextureNumForName(name);
+  extern char *doomverstr;
   if (i == -1)
+  {
+    int lump = W_GetNumForName("TEXTURE1");
+    const lumpinfo_t* info = W_GetLumpInfoByNum(lump);
+    lprintf(LO_INFO, "R_TextureNumForName: The file %s seems to be incompatible with \"%s\".\n",
+      info->wadfile->name,
+      (doomverstr ? doomverstr : "DOOM"));
     I_Error("R_TextureNumForName: %.8s not found", name);
+  }
   return i;
 }
 

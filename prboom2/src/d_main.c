@@ -1339,6 +1339,7 @@ static void L_SetupConsoleMasks(void) {
 //
 // CPhipps - the old contents of D_DoomMain, but moved out of the main
 //  line of execution so its stack space can be freed
+const char* doomverstr = NULL;
 
 static void D_DoomMainSetup(void)
 {
@@ -1400,11 +1401,6 @@ static void D_DoomMainSetup(void)
       deathmatch = 1;
 
   {
-    // CPhipps - localise title variable
-    // print title for every printed line
-    // cph - code cleaned and made smaller
-    const char* doomverstr;
-
     switch ( gamemode ) {
     case retail:
       doomverstr = "The Ultimate DOOM";
