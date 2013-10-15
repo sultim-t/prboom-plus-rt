@@ -1610,7 +1610,7 @@ void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum)
 
       if (match) // inbuffer matches a valid block code name
         last_i = i;
-      else if (last_i >= 10) // restrict to BEX style lumps
+      else if (last_i >= 10 && last_i < DEH_BLOCKMAX-1) // restrict to BEX style lumps
         { // process that same line again with the last valid block code handler
           i = last_i;
           if (!filein->lump)
