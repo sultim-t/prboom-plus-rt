@@ -1590,6 +1590,10 @@ void G_DoCompleted (void)
             wminfo.next = 30; break;
           case 31:
             wminfo.next = 31; break;
+          case 2:
+            if (bfgedition)
+              wminfo.next = 32;
+            break;
           }
       else
         switch(gamemap)
@@ -1597,6 +1601,8 @@ void G_DoCompleted (void)
           case 31:
           case 32:
             wminfo.next = 15; break;
+          case 33:
+            wminfo.next = 2; break;
           default:
             wminfo.next = gamemap;
           }

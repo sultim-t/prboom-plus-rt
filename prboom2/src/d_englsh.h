@@ -222,6 +222,7 @@
 
 #define HUSTR_31    "level 31: wolfenstein"
 #define HUSTR_32    "level 32: grosse"
+#define HUSTR_33    "level 33: betray"
 
 #define PHUSTR_1    "level 1: congo"
 #define PHUSTR_2    "level 2: well of souls"

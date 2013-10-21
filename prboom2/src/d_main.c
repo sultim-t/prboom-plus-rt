@@ -501,7 +501,7 @@ static void D_DoomLoop(void)
 static int  demosequence;         // killough 5/2/98: made static
 static int  pagetic;
 static const char *pagename; // CPhipps - const
-static dboolean bfgedition;
+dboolean bfgedition = 0;
 
 //
 // D_PageTicker

@@ -300,6 +300,7 @@ const char *s_HUSTR_29    = HUSTR_29;
 const char *s_HUSTR_30    = HUSTR_30;
 const char *s_HUSTR_31    = HUSTR_31;
 const char *s_HUSTR_32    = HUSTR_32;
+const char *s_HUSTR_33    = HUSTR_33;
 const char *s_PHUSTR_1    = PHUSTR_1;
 const char *s_PHUSTR_2    = PHUSTR_2;
 const char *s_PHUSTR_3    = PHUSTR_3;
@@ -644,6 +645,7 @@ static deh_strs deh_strlookup[] = {
   {&s_HUSTR_30,"HUSTR_30"},
   {&s_HUSTR_31,"HUSTR_31"},
   {&s_HUSTR_32,"HUSTR_32"},
+  {&s_HUSTR_33,"HUSTR_33"},
   {&s_PHUSTR_1,"PHUSTR_1"},
   {&s_PHUSTR_2,"PHUSTR_2"},
   {&s_PHUSTR_3,"PHUSTR_3"},
@@ -909,6 +911,7 @@ const char **const mapnames2[] = // DOOM 2 map names.
   &s_HUSTR_30,
   &s_HUSTR_31,
   &s_HUSTR_32,
+  &s_HUSTR_33,
 };
 
 // CPhipps - const**const

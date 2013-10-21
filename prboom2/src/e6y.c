@@ -386,11 +386,11 @@ int G_ReloadLevel(void)
 
 int G_GotoNextLevel(void)
 {
-  static byte doom2_next[32] = {
+  static byte doom2_next[33] = {
     2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
     12, 13, 14, 15, 31, 17, 18, 19, 20, 21,
     22, 23, 24, 25, 26, 27, 28, 29, 30, 1,
-    32, 16
+    32, 16, 3
   };
   static byte doom_next[4][9] = {
     {12, 13, 19, 15, 16, 17, 18, 21, 14},
@@ -403,6 +403,7 @@ int G_GotoNextLevel(void)
 
   // secret level
   doom2_next[14] = (haswolflevels ? 31 : 16);
+  doom2_next[1] = (bfgedition ? 33 : 3);
   
   // shareware doom has only episode 1
   doom_next[0][7] = (gamemode == shareware ? 11 : 21);
@@ -424,7 +425,7 @@ int G_GotoNextLevel(void)
     if (gamemode == commercial)
     {
       epsd = 1;
-      map = doom2_next[BETWEEN(0, 31, map)];
+      map = doom2_next[BETWEEN(0, 32, map)];
     }
     else
     {
