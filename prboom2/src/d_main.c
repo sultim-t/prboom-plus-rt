@@ -1403,7 +1403,15 @@ static void D_DoomMainSetup(void)
   {
     switch ( gamemode ) {
     case retail:
-      doomverstr = "The Ultimate DOOM";
+      switch (gamemission)
+      {
+        case chex:
+          doomverstr = "Chex Quest";
+          break;
+        default:
+          doomverstr = "The Ultimate DOOM";
+          break;
+      }
       break;
     case shareware:
       doomverstr = "DOOM Shareware";
@@ -1422,9 +1430,6 @@ static void D_DoomMainSetup(void)
           break;
         case hacx:
           doomverstr = "HACX - Twitch 'n Kill";
-          break;
-        case chex:
-          doomverstr = "Chex Quest";
           break;
         default:
           doomverstr = "DOOM 2: Hell on Earth";
