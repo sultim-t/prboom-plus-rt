@@ -107,6 +107,7 @@ prboom2/data/lumps/-prbhud-.lmp -text
 prboom2/data/lumps/animated.lmp -text
 prboom2/data/lumps/b_end.lmp -text svneol=unset#application/octet-stream
 prboom2/data/lumps/b_start.lmp -text svneol=unset#application/octet-stream
+prboom2/data/lumps/bfgdeh.lmp -text
 prboom2/data/lumps/c_end.lmp -text svneol=unset#application/octet-stream
 prboom2/data/lumps/c_start.lmp -text svneol=unset#application/octet-stream
 prboom2/data/lumps/chexdeh.lmp -text

@@ -1,0 +1,12 @@
+Patch File for DeHackEd v3.0
+
+# Note: Use the pound sign ('#') to start comment lines.
+
+Doom version = 19
+Patch format = 6
+
+Text 21 15
+level 31: wolfensteinlevel 31: idkfa
+
+Text 16 14
+level 32: grosselevel 32: keen
