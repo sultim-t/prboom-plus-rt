@@ -1,0 +1,33 @@
+[STRINGS]
+HUSTR_1 = level 1: the earth base
+HUSTR_2 = level 2: the pain labs
+HUSTR_3 = level 3: canyon of the dead
+HUSTR_4 = level 4: hell mountain
+HUSTR_5 = level 5: vivisection
+HUSTR_6 = level 6: inferno of blood
+HUSTR_7 = level 7: baron's banquet
+HUSTR_8 = level 8: tomb of malevolence
+HUSTR_9 = level 9: march of the demons
+C6TEXT = trouble was brewing again in your favorite\nvacation spot... hell. some cyberdemon\npunk thought he could turn hell into a\npersonal amusement park, and make earth\nthe ticket booth.\n\nwell that half-robot freak show didn't\nknow who was coming to the fair. there's\nnothing like a shooting gallery full of\nhellspawn to get the blood pumping...\n\nnow the walls of the demon's labyrinth\necho with the sound of his metallic limbs\nhitting the floor. his death moan gurgles\nout through the mess you left of his face.\n\nthis ride is closed.
+
+[PARS]
+par 1 75
+par 2 105
+par 3 120
+par 4 105
+par 5 210
+par 6 105
+par 7 165
+par 8 105
+par 9 135
+
+[MUSIC]
+runnin = messag
+stalks = ddtblu
+countd = doom
+betwee = shawn
+doom = in_cit
+#the_da = the_da
+shawn = in_cit
+ddtblu = shawn2
+in_cit = ddtbl2

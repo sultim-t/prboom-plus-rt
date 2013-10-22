@@ -685,12 +685,20 @@ void D_StartTitle (void)
 void D_AddFile (const char *file, wad_source_t source)
 {
   char *gwa_filename=NULL;
+  int len;
 
   wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
   wadfiles[numwadfiles].name =
     AddDefaultExtension(strcpy(malloc(strlen(file)+5), file), ".wad");
   wadfiles[numwadfiles].src = source; // Ty 08/29/98
   wadfiles[numwadfiles].handle = 0;
+
+  // No Rest For The Living
+  len=strlen(wadfiles[numwadfiles].name);
+  if (len>=9 && !strnicmp(wadfiles[numwadfiles].name+len-9,"nerve.wad",9))
+    if (bfgedition)
+      gamemission = pack_nerve;
+
   numwadfiles++;
   // proff: automatically try to add the gwa files
   // proff - moved from w_wad.c
@@ -1708,6 +1716,14 @@ static void D_DoomMainSetup(void)
       if (lump != -1)
       {
         ProcessDehFile(NULL, D_dehout(), lump);
+      }
+      if (gamemission == pack_nerve)
+      {
+        lump = (W_CheckNumForName)("NERVEBEX", ns_prboom);
+        if (lump != -1)
+        {
+          ProcessDehFile(NULL, D_dehout(), lump);
+        }
       }
     }
     if (gamemission == chex)

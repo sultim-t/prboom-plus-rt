@@ -1594,6 +1594,10 @@ void G_DoCompleted (void)
             if (bfgedition)
               wminfo.next = 32;
             break;
+          case 4:
+            if (gamemission == pack_nerve)
+              wminfo.next = 8;
+            break;
           }
       else
         switch(gamemap)
@@ -1606,6 +1610,8 @@ void G_DoCompleted (void)
           default:
             wminfo.next = gamemap;
           }
+        if (gamemission == pack_nerve && gamemap == 9)
+          wminfo.next = 4;
     }
   else
     {
@@ -1714,6 +1720,8 @@ void G_WorldDone (void)
           F_StartFinale ();
           break;
         }
+       if (gamemission == pack_nerve && gamemap == 8)
+         F_StartFinale ();
     }
   else if (gamemap == 8)
     gameaction = ga_victory; // cph - after ExM8 summary screen, show victory stuff

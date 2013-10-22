@@ -375,6 +375,8 @@ static void cheat_clev(char buf[3])
 
   if (!bfgedition && map == 33)
     return;
+  if (gamemission == pack_nerve && map > 9)
+    return;
 
   // Chex.exe always warps to episode 1.
   if (gamemission == chex)

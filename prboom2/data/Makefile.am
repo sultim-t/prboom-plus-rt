@@ -38,6 +38,7 @@ TABLES += lumps/gammatbl.lmp
 
 TABLES += lumps/chexdeh.lmp
 TABLES += lumps/bfgdeh.lmp
+TABLES += lumps/nervebex.lmp
 TABLES += lumps/glshadow.lmp
 TABLES += lumps/glfp.lmp
 TABLES += lumps/glvp.lmp

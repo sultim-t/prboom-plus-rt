@@ -844,7 +844,7 @@ static void WI_drawTimeStats(int cnt_time, int cnt_total_time, int cnt_par)
   // killough 2/22/98: skip drawing par times on pwads
   // Ty 03/17/98: unless pars changed with deh patch
 
-  if (!(modifiedgame && !deh_pars))
+  if (!(modifiedgame && !deh_pars) || gamemission == pack_nerve)
   {
     if (wbs->epsd < 4)
     {
@@ -962,8 +962,9 @@ void WI_drawShowNextLoc(void)
   }
 
   // draws which level you are entering..
-  if ( (gamemode != commercial)
+  if ( (gamemode != commercial
      || wbs->next != 30)  // check for MAP30 end game
+     && !(gamemission == pack_nerve && wbs->next == 8))
   WI_drawEL();
 }
 

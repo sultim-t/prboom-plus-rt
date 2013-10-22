@@ -403,8 +403,17 @@ int G_GotoNextLevel(void)
 
   // secret level
   doom2_next[14] = (haswolflevels ? 31 : 16);
-  doom2_next[1] = (bfgedition ? 33 : 3);
   
+  if (bfgedition)
+    if (gamemission == pack_nerve)
+    {
+      doom2_next[3] = 9;
+      doom2_next[7] = 1;
+      doom2_next[8] = 5;
+    }
+    else
+      doom2_next[1] = 33;
+
   // shareware doom has only episode 1
   doom_next[0][7] = (gamemode == shareware ? 11 : 21);
   
