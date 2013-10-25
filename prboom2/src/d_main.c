@@ -1712,7 +1712,7 @@ static void D_DoomMainSetup(void)
 
     if (bfgedition)
     {
-      int lump = (W_CheckNumForName)("BFGDEH", ns_prboom);
+      int lump = (W_CheckNumForName)("BFGBEX", ns_prboom);
       if (lump != -1)
       {
         ProcessDehFile(NULL, D_dehout(), lump);

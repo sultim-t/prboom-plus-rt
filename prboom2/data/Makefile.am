@@ -37,7 +37,7 @@ TABLES += lumps/tantoang.lmp
 TABLES += lumps/gammatbl.lmp
 
 TABLES += lumps/chexdeh.lmp
-TABLES += lumps/bfgdeh.lmp
+TABLES += lumps/bfgbex.lmp
 TABLES += lumps/nervebex.lmp
 TABLES += lumps/glshadow.lmp
 TABLES += lumps/glfp.lmp
