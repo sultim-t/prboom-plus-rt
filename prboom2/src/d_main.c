@@ -1414,7 +1414,7 @@ static void D_DoomMainSetup(void)
       switch (gamemission)
       {
         case chex:
-          doomverstr = "Chex Quest";
+          doomverstr = "Chex(R) Quest";
           break;
         default:
           doomverstr = "The Ultimate DOOM";
@@ -1431,10 +1431,10 @@ static void D_DoomMainSetup(void)
       switch (gamemission)
       {
         case pack_plut:
-    doomverstr = "DOOM 2: Plutonia Experiment";
+          doomverstr = "Final DOOM - The Plutonia Experiment";
           break;
         case pack_tnt:
-          doomverstr = "DOOM 2: TNT - Evilution";
+          doomverstr = "Final DOOM - TNT: Evilution";
           break;
         case hacx:
           doomverstr = "HACX - Twitch 'n Kill";
@@ -1447,6 +1447,16 @@ static void D_DoomMainSetup(void)
     default:
       doomverstr = "Public DOOM";
       break;
+    }
+
+    if (bfgedition)
+    {
+      char *tempverstr, bfgverstr[]=" (BFG Edition)";
+      tempverstr = malloc(sizeof(char) * (strlen(doomverstr)+strlen(bfgverstr)+1));
+      strcpy (tempverstr, doomverstr);
+      strcat (tempverstr, bfgverstr);
+      doomverstr = tempverstr;
+      free (tempverstr);
     }
 
     /* cphipps - the main display. This shows the build date, copyright, and game type */
