@@ -735,9 +735,9 @@ int st_palette = 0;
 static void ST_doPaletteStuff(void)
 {
   int         palette;
-  int cnt = plyr->damagecount;
+  int cnt = palette_ondamage ? plyr->damagecount : 0;
 
-  if (plyr->powers[pw_strength])
+  if (palette_onpowers && plyr->powers[pw_strength])
     {
       // slowly fade the berzerk out
       int bzc = 12 - (plyr->powers[pw_strength]>>6);
@@ -758,7 +758,7 @@ static void ST_doPaletteStuff(void)
       palette += STARTREDPALS;
     }
   else
-    if (plyr->bonuscount)
+    if (palette_onbonus && plyr->bonuscount)
       {
         palette = (plyr->bonuscount+7)>>3;
         if (palette >= NUMBONUSPALS)
@@ -766,7 +766,7 @@ static void ST_doPaletteStuff(void)
         palette += STARTBONUSPALS;
       }
     else
-      if (plyr->powers[pw_ironfeet] > 4*32 || plyr->powers[pw_ironfeet] & 8)
+      if (palette_onpowers && (plyr->powers[pw_ironfeet] > 4*32 || plyr->powers[pw_ironfeet] & 8))
         palette = RADIATIONPAL;
       else
         palette = 0;
@@ -776,22 +776,13 @@ static void ST_doPaletteStuff(void)
   // as though the player is being covered in goo by an
   // attacking flemoid.
 
-  if (gamemission == chex
+  if (palette_onpowers && gamemission == chex
     && palette >= STARTREDPALS && palette < STARTREDPALS + NUMREDPALS)
   {
     palette = RADIATIONPAL;
   }
 
-  //e6y
-  if ((palette != st_palette) && (
-      (palette == 0) || 
-      (palette_ondamage && plyr->damagecount > 0) ||
-      (palette_onbonus && !cnt && plyr->bonuscount > 0) ||
-      (palette_onpowers &&
-        ((plyr->powers[pw_strength] && palette <= STARTREDPALS + 2) ||
-         (plyr->powers[pw_ironfeet] && palette == RADIATIONPAL)))
-     ))
-  {
+  if (palette != st_palette) {
     V_SetPalette(st_palette = palette); // CPhipps - use new palette function
 
     // have to redraw the entire status bar when the palette changes
@@ -799,6 +790,11 @@ static void ST_doPaletteStuff(void)
     if (V_GetMode() == VID_MODE15 || V_GetMode() == VID_MODE16 || V_GetMode() == VID_MODE32)
       st_firsttime = true;
   }
+}
+
+void M_ChangeApplyPalette(void)
+{
+  ST_doPaletteStuff();
 }
 
 static void ST_drawWidgets(dboolean refresh)

@@ -552,11 +552,6 @@ void P_PlayerThink (player_t* player)
 
   // Handling colormaps.
   // killough 3/20/98: reformat to terse C syntax
-
-//e6y  player->fixedcolormap = player->powers[pw_invulnerability] > 4*32 ||
-//e6y    player->powers[pw_invulnerability] & 8 ? INVERSECOLORMAP :
-//e6y    player->powers[pw_infrared] > 4*32 || player->powers[pw_infrared] & 8;
-//e6y
   player->fixedcolormap = palette_onpowers &&
     (player->powers[pw_invulnerability] > 4*32 ||
     player->powers[pw_invulnerability] & 8) ? INVERSECOLORMAP :
