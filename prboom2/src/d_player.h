@@ -196,6 +196,7 @@ typedef struct player_s
   fixed_t prev_viewz;
   angle_t prev_viewangle;
   angle_t prev_viewpitch;
+  fixed_t jumpTics;      // delay the next jump for a moment
 } player_t;
 
 

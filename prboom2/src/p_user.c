@@ -260,6 +260,8 @@ void P_SetPitch(player_t *player)
   }
 }
 
+int ext_movement_jumpstyle;
+
 //
 // P_MovePlayer
 //
@@ -284,6 +286,22 @@ void P_MovePlayer (player_t* player)
   if ((player->mo->flags & MF_FLY) && player == &players[consoleplayer] && upmove != 0)
   {
     mo->momz = upmove << 8;
+  }
+
+  if (ext_movement_jumpstyle > jump_none && !demorecording && !netgame)
+  {
+    if (upmove > 0 && onground && player == &players[consoleplayer] && !(player->mo->flags & MF_FLY))
+    {
+      if (ext_movement_jumpstyle == jump_hexen && !player->jumpTics)
+      {
+        mo->momz = 9 * FRACUNIT;
+        player->jumpTics = 18;
+      }
+      else if (ext_movement_jumpstyle == jump_strife && !player->deltaviewheight)
+      {
+        mo->momz += 8 * FRACUNIT;
+      }
+    }
   }
 
   // killough 10/98:
@@ -318,6 +336,30 @@ void P_MovePlayer (player_t* player)
         {
           P_Bob(player,mo->angle-ANG90,cmd->sidemove*bobfactor);
           P_SideThrust(player,mo->angle-ANG90,cmd->sidemove*movefactor);
+        }
+      }
+      else if (ext_movement_jumpstyle > jump_none && !demorecording && !netgame)
+      {
+        if (!onground)
+        {
+          if (ext_movement_jumpstyle == jump_hexen)
+          {
+            if (cmd->forwardmove)
+            {
+              P_Thrust(player, mo->angle, FRACUNIT >> 8);
+            }
+            if (cmd->sidemove)
+            {
+              P_Thrust(player, mo->angle, FRACUNIT >> 8);
+            }
+          }
+          else if (ext_movement_jumpstyle == jump_strife)
+          {
+            if (cmd->forwardmove)
+            {
+              P_Thrust(player, player->mo->angle, 256);
+            }
+          }
         }
       }
       if (mo->state == states+S_PLAY)
@@ -443,6 +485,10 @@ void P_PlayerThink (player_t* player)
     return;
     }
 
+    if (player->jumpTics)
+    {
+        player->jumpTics--;
+    }
   // Move around.
   // Reactiontime is used to prevent movement
   //  for a bit after a teleport.

@@ -976,6 +976,10 @@ default_t defaults[] =
    def_int,ss_stat},
 #endif
 
+  {"Prboom-plus extended settings",{NULL},{0},UL,UL,def_none,ss_none},
+  {"ext_movement_jumpstyle", {&ext_movement_jumpstyle},  {0},0,jump_max-1,
+   def_bool,ss_none},
+
   // NSM
   {"Video capture encoding settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"cap_soundcommand",{NULL, &cap_soundcommand},{0,"oggenc2 -r -R %s -q 5 - -o output.ogg"},UL,UL,def_str,ss_none},

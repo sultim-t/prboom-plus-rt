@@ -132,6 +132,14 @@ extern int render_wipescreen;
 extern int mouse_acceleration;
 extern int demo_overwriteexisting;
 
+extern int ext_movement_jumpstyle;
+enum {
+  jump_none,
+  jump_hexen,
+  jump_strife,
+  jump_max
+} jumpstyles_t;
+
 extern int render_fov;
 extern int render_aspect;
 extern float render_ratio;
