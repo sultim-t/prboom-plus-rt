@@ -283,6 +283,15 @@ const char english_shiftxform[] =
   '{', '|', '}', '~', 127
 };
 
+static void HU_SetLumpTrans(const char *name)
+{
+  int lump = W_CheckNumForName(name);
+  if (lump > 0)
+  {
+    lumpinfo[lump].flags |= LUMP_CM2RGB;
+  }
+}
+
 //
 // HU_Init()
 //
@@ -360,6 +369,20 @@ void HU_Init(void)
     else
       hu_font[i] = hu_font[0]; //jff 2/16/98 account for gap
   }
+
+  // these patches require cm to rgb translation
+  for (i = 33; i < 96; i++)
+  {
+    sprintf(buffer, "STCFN%.3d", i);
+    HU_SetLumpTrans(buffer);
+  }
+  for (i = 0; i < 10; i++)
+  {
+    sprintf(buffer, "STTNUM%d", i);
+    HU_SetLumpTrans(buffer);
+  }
+  HU_SetLumpTrans("STTPRCNT");
+  HU_SetLumpTrans("STTMINUS");
 
   // CPhipps - load patches for message background
   for (i=0; i<9; i++) {

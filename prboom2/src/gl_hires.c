@@ -1404,15 +1404,6 @@ int gld_LoadHiresTex(GLTexture *gltexture, int cm)
   return result;
 }
 
-static void gld_Mark_CM2RGB_Lump(const char *name)
-{
-  int lump = W_CheckNumForName(name);
-  if (lump > 0)
-  {
-    lumpinfo[lump].flags |= LUMP_CM2RGB;
-  }
-}
-
 int gld_PrecacheGUIPatches(void)
 {
   static const char * staticpatches[] = {
@@ -1445,8 +1436,7 @@ int gld_PrecacheGUIPatches(void)
   };
 
   const char ** patch_p;
-  char namebuf[16];
-  int i, count, total;
+  int count, total;
 
   if (!gl_texture_external_hires)
     return 0;
@@ -1476,18 +1466,6 @@ int gld_PrecacheGUIPatches(void)
       }
     }
   }
-
-  for (i = 33; i < 96; i++)
-  {
-    sprintf(namebuf, "STCFN%.3d", i);
-    gld_Mark_CM2RGB_Lump(namebuf);
-  }
-  for (i = 0; i < 10; i++)
-  {
-    sprintf(namebuf, "STTNUM%d", i);
-    gld_Mark_CM2RGB_Lump(namebuf);
-  }
-  gld_Mark_CM2RGB_Lump("STTPRCNT");
 
   gld_ProgressEnd();
 
