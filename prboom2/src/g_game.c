@@ -2187,6 +2187,8 @@ static void G_DoSaveGame (dboolean menu)
   int  length, i;
   //e6y: numeric version number of package
   unsigned int packageversion = GetPackageVersion();
+  char maplump[8];
+  int time, ttime;
 
   gameaction = ga_nothing; // cph - cancel savegame at top of this function,
     // in case later problems cause a premature exit
@@ -2305,6 +2307,18 @@ static void G_DoSaveGame (dboolean menu)
   doom_printf( "%s", M_WriteFile(name, savebuffer, save_p - savebuffer)
          ? s_GGSAVED /* Ty - externalised */
          : "Game save failed!"); // CPhipps - not externalised
+
+  /* Print some information about the save game */
+  if (gamemode == commercial)
+    sprintf(maplump, "MAP%02d", gamemap);
+  else
+    sprintf(maplump, "E%dM%d", gameepisode, gamemap);
+  time = leveltime / TICRATE;
+  ttime = (totalleveltimes + leveltime) / TICRATE;
+
+  lprintf(LO_INFO, "G_DoSaveGame: [%d] %s (%s), Skill %d, Level Time %02d:%02d:%02d, Total Time %02d:%02d:%02d\n",
+    savegameslot + 1, maplump, W_GetLumpInfoByNum(W_GetNumForName(maplump))->wadfile->name, gameskill + 1,
+    time/3600, (time%3600)/60, time%60, ttime/3600, (ttime%3600)/60, ttime%60);
 
   free(savebuffer);  // killough
   savebuffer = save_p = NULL;
