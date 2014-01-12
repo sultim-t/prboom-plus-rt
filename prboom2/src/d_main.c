@@ -1451,11 +1451,12 @@ static void D_DoomMainSetup(void)
 
     if (bfgedition)
     {
-      char *tempverstr, bfgverstr[]=" (BFG Edition)";
+      char *tempverstr;
+      const char bfgverstr[]=" (BFG Edition)";
       tempverstr = malloc(sizeof(char) * (strlen(doomverstr)+strlen(bfgverstr)+1));
       strcpy (tempverstr, doomverstr);
       strcat (tempverstr, bfgverstr);
-      doomverstr = tempverstr;
+      doomverstr = strdup (tempverstr);
       free (tempverstr);
     }
 

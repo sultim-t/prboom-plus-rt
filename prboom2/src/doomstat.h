@@ -61,6 +61,7 @@ extern  dboolean devparm;  // DEBUG: launched with -devparm
 
 extern GameMode_t gamemode;
 extern GameMission_t  gamemission;
+extern const char *doomverstr;
 
 // Set if homebrew PWAD stuff has been added.
 extern  dboolean modifiedgame;
