@@ -2096,7 +2096,7 @@ void G_DoLoadGame(void)
   ttime = (totalleveltimes + leveltime) / TICRATE;
 
   lprintf(LO_INFO, "G_DoLoadGame: [%d] %s (%s), Skill %d, Level Time %02d:%02d:%02d, Total Time %02d:%02d:%02d\n",
-    savegameslot + 1, maplump, W_GetLumpInfoByNum(W_GetNumForName(maplump))->wadfile->name, gameskill,
+    savegameslot + 1, maplump, W_GetLumpInfoByNum(W_GetNumForName(maplump))->wadfile->name, gameskill + 1,
     time/3600, (time%3600)/60, time%60, ttime/3600, (ttime%3600)/60, ttime%60);
 
   // done
