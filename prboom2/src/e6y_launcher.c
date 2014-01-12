@@ -865,7 +865,7 @@ static void L_FillGameList(void)
     "Chex Quest",
 
     "DOOM 2: BFG Edition",
-    "Ultimate DOOM - BFG Edition version",
+    "DOOM 1: BFG Edition",
   };
   
   for (i = 0; (size_t)i < launcher.filescount; i++)
