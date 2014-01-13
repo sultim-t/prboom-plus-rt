@@ -145,8 +145,8 @@ const char *const standard_iwads[]=
   "doom1.wad",
   "doomu.wad", /* CPhipps - alow doomu.wad */
 
-  "freedoom.wad", /* wart@kobold.org:  added freedoom for Fedora Extras */
-  "freedoomu.wad",
+  "freedoom2.wad", /* wart@kobold.org:  added freedoom for Fedora Extras */
+  "freedoom1.wad",
   "freedm.wad",
 
   "hacx.wad",

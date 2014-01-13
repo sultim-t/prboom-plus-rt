@@ -843,7 +843,7 @@ static void L_FillGameList(void)
   
   // "doom2f.wad", "doom2.wad", "plutonia.wad", "tnt.wad",
   // "doom.wad", "doom1.wad", "doomu.wad",
-  // "freedoom.wad", "freedoomu.wad", "freedm.wad"
+  // "freedoom2.wad", "freedoom1.wad", "freedm.wad"
   // "hacx.wad", "chex.wad"
   // "bfgdoom2.wad", "bfgdoom.wad"
   const char *IWADTypeNames[] =
@@ -857,12 +857,12 @@ static void L_FillGameList(void)
     "DOOM Shareware",
     "The Ultimate DOOM",
 
-    "Freedoom",
-    "Ultimate Freedoom",
+    "Freedoom: Phase 2",
+    "Freedoom: Phase 1",
     "FreeDM",
 
     "HACX - Twitch 'n Kill",
-    "Chex Quest",
+    "Chex(R) Quest",
 
     "DOOM 2: BFG Edition",
     "DOOM 1: BFG Edition",
