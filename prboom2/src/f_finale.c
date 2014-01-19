@@ -34,6 +34,7 @@
 
 #include "doomstat.h"
 #include "d_event.h"
+#include "g_game.h"
 #include "v_video.h"
 #include "w_wad.h"
 #include "s_sound.h"
@@ -250,7 +251,7 @@ void F_Ticker(void)
           if (!demo_compatibility && midstage)
             {
             next_level:
-              if (gamemap == 30 || (gamemission == pack_nerve && gamemap == 8))
+              if (gamemap == 30 || (gamemission == pack_nerve && singleplayer && gamemap == 8))
                 F_StartCast();              // cast of Doom 2 characters
               else
                 gameaction = ga_worlddone;  // next level, e.g. MAP07

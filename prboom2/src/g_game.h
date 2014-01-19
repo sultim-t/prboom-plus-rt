@@ -220,6 +220,7 @@ extern int shorttics;
 extern int longtics;
 extern int bytes_per_tic;
 
+#define singleplayer (!demorecording && !demoplayback && !democontinue && !netgame)
 #define comperr(i) (default_comperr[i] && !demorecording && !demoplayback && !democontinue && !netgame)
 
 #endif

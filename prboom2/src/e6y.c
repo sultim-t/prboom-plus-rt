@@ -404,7 +404,7 @@ int G_GotoNextLevel(void)
   // secret level
   doom2_next[14] = (haswolflevels ? 31 : 16);
   
-  if (bfgedition)
+  if (bfgedition && singleplayer)
     if (gamemission == pack_nerve)
     {
       doom2_next[3] = 9;

@@ -1591,11 +1591,11 @@ void G_DoCompleted (void)
           case 31:
             wminfo.next = 31; break;
           case 2:
-            if (bfgedition)
+            if (bfgedition && singleplayer)
               wminfo.next = 32;
             break;
           case 4:
-            if (gamemission == pack_nerve)
+            if (gamemission == pack_nerve && singleplayer)
               wminfo.next = 8;
             break;
           }
@@ -1606,11 +1606,15 @@ void G_DoCompleted (void)
           case 32:
             wminfo.next = 15; break;
           case 33:
-            wminfo.next = 2; break;
+            if (bfgedition && singleplayer)
+            {
+              wminfo.next = 2;
+              break;
+            }
           default:
             wminfo.next = gamemap;
           }
-        if (gamemission == pack_nerve && gamemap == 9)
+        if (gamemission == pack_nerve && singleplayer && gamemap == 9)
           wminfo.next = 4;
     }
   else
@@ -1720,7 +1724,7 @@ void G_WorldDone (void)
           F_StartFinale ();
           break;
         }
-       if (gamemission == pack_nerve && gamemap == 8)
+       if (gamemission == pack_nerve && singleplayer && gamemap == 8)
          F_StartFinale ();
     }
   else if (gamemap == 8)
