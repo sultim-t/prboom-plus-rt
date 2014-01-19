@@ -134,11 +134,6 @@ void I_Init(void)
   }
 
   R_InitInterpolation();
-
-  //e6y
-#ifdef SIMD_INSTRUCTIONS
-  I_InitSIMD();
-#endif
 }
 
 //e6y

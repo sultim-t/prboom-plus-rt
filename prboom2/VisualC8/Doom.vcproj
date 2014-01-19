@@ -2198,14 +2198,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\i_simd.c"
-				>
-			</File>
-			<File
-				RelativePath="..\src\i_simd.h"
-				>
-			</File>
-			<File
 				RelativePath="..\src\i_smp.c"
 				>
 			</File>

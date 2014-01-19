@@ -55,7 +55,7 @@ COMMON_SRC = \
  md5.c          md5.h              p_checksum.h     p_checksum.c \
  r_patch.c      r_patch.h          r_fps.c          r_fps.h \
  r_filter.c     r_filter.h \
- e6y.c          e6y.h              i_simd.c         i_simd.h \
+ e6y.c          e6y.h \
  i_pcsound.c    i_pcsound.h        r_screenmultiply.c r_screenmultiply.h \
  g_overflow.c   g_overflow.h       hu_tracers.c     hu_tracers.h \
  s_advsound.c   s_advsound.h       i_capture.c      i_capture.h \
