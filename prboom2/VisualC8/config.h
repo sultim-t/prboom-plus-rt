@@ -242,21 +242,12 @@
   #define LINK_LIBRARY(x) comment(lib, x".lib")
 #endif
 
-#ifdef ALL_IN_ONE
-  #pragma LINK_LIBRARY("SDL_static" )
-  #pragma LINK_LIBRARY("SDL_mixer_static" )
-  #pragma LINK_LIBRARY("SDL_net_static" )
-#ifdef HAVE_LIBSDL_IMAGE
-  #pragma LINK_LIBRARY("SDL_image_static" )
-#endif // HAVE_LIBSDL_IMAGE
-#else // ALL_IN_ONE
-  #pragma comment( lib, "SDL.lib" )
-  #pragma comment( lib, "SDL_mixer.lib" )
-  #pragma comment( lib, "SDL_net.lib" )
+#pragma comment( lib, "SDL.lib" )
+#pragma comment( lib, "SDL_mixer.lib" )
+#pragma comment( lib, "SDL_net.lib" )
 #ifdef HAVE_LIBSDL_IMAGE
   #pragma comment( lib, "SDL_image.lib" )
 #endif // HAVE_LIBSDL_IMAGE
-#endif // ALL_IN_ONE
 
 #endif // _MSC_VER
 
