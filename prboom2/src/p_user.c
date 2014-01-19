@@ -260,8 +260,6 @@ void P_SetPitch(player_t *player)
   }
 }
 
-int ext_movement_jumpstyle;
-
 //
 // P_MovePlayer
 //
@@ -288,18 +286,14 @@ void P_MovePlayer (player_t* player)
     mo->momz = upmove << 8;
   }
 
-  if (ext_movement_jumpstyle > jump_none && !demorecording && !netgame)
+  if (comperr(comperr_allowjump))
   {
     if (upmove > 0 && onground && player == &players[consoleplayer] && !(player->mo->flags & MF_FLY))
     {
-      if (ext_movement_jumpstyle == jump_hexen && !player->jumpTics)
+      if (!player->jumpTics)
       {
         mo->momz = 9 * FRACUNIT;
         player->jumpTics = 18;
-      }
-      else if (ext_movement_jumpstyle == jump_strife && !player->deltaviewheight)
-      {
-        mo->momz += 8 * FRACUNIT;
       }
     }
   }
@@ -338,27 +332,17 @@ void P_MovePlayer (player_t* player)
           P_SideThrust(player,mo->angle-ANG90,cmd->sidemove*movefactor);
         }
       }
-      else if (ext_movement_jumpstyle > jump_none && !demorecording && !netgame)
+      else if (comperr(comperr_allowjump))
       {
         if (!onground)
         {
-          if (ext_movement_jumpstyle == jump_hexen)
+          if (cmd->forwardmove)
           {
-            if (cmd->forwardmove)
-            {
-              P_Thrust(player, mo->angle, FRACUNIT >> 8);
-            }
-            if (cmd->sidemove)
-            {
-              P_Thrust(player, mo->angle, FRACUNIT >> 8);
-            }
+            P_Thrust(player, mo->angle, FRACUNIT >> 8);
           }
-          else if (ext_movement_jumpstyle == jump_strife)
+          if (cmd->sidemove)
           {
-            if (cmd->forwardmove)
-            {
-              P_Thrust(player, player->mo->angle, 256);
-            }
+            P_Thrust(player, mo->angle, FRACUNIT >> 8);
           }
         }
       }

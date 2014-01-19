@@ -2263,7 +2263,7 @@ setup_menu_t keys_settings1[] =  // Key Binding screen strings
   {"AUTORUN"     ,S_KEY       ,m_scrn,KB_X,KB_Y+9*8,{&key_autorun}},
   {"180 TURN"    ,S_KEY       ,m_scrn,KB_X,KB_Y+10*8,{&key_reverse}},
   {"USE"         ,S_KEY       ,m_scrn,KB_X,KB_Y+11*8,{&key_use},&mousebuse,&joybuse},
-  {"FLY UP"      ,S_KEY       ,m_scrn,KB_X,KB_Y+12*8,{&key_flyup}},
+  {"JUMP/FLY UP" ,S_KEY       ,m_scrn,KB_X,KB_Y+12*8,{&key_flyup}},
   {"FLY DOWN"    ,S_KEY       ,m_scrn,KB_X,KB_Y+13*8,{&key_flydown}},
   {"MOUSE LOOK"  ,S_KEY       ,m_scrn,KB_X,KB_Y+17*8,{&key_mlook}},
 
@@ -3026,7 +3026,8 @@ extern int usejoystick, usemouse, default_mus_card, default_snd_card;
 extern int detect_voices, realtic_clock_rate, tran_filter_pct;
 
 setup_menu_t gen_settings1[], gen_settings2[], gen_settings3[];
-setup_menu_t gen_settings4[], gen_settings5[], gen_settings6[], gen_settings7[]; //e6y
+setup_menu_t gen_settings4[], gen_settings5[], gen_settings6[];
+setup_menu_t gen_settings7[], gen_settings8[];
 
 setup_menu_t* gen_settings[] =
 {
@@ -3037,6 +3038,7 @@ setup_menu_t* gen_settings[] =
   gen_settings5,
   gen_settings6,
   gen_settings7,
+  gen_settings8,
   NULL
 };
 
@@ -3187,7 +3189,7 @@ setup_menu_t gen_settings4[] = { // General Settings screen3
   {"Change Palette On Powers",   S_YESNO,  m_null, G_X, G_Y+17*8, {"palette_onpowers"}, 0, 0, M_ChangeApplyPalette},
 
   {"<- PREV",S_SKIP|S_PREV, m_null, KB_PREV, KB_Y+20*8, {gen_settings3}},
-  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings5}},//e6y
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings5}},
   // Final entry
 
   {0,S_SKIP|S_END,m_null}
@@ -3213,10 +3215,43 @@ setup_menu_t gen_settings5[] = { // General Settings screen3
 #endif
 
   {"<- PREV",S_SKIP|S_PREV, m_null,KB_PREV, KB_Y+20*8, {gen_settings4}},
-#ifdef GL_DOOM
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings6}},
-#else
+  {0,S_SKIP|S_END,m_null}
+};
+
+setup_menu_t gen_settings6[] =
+{
+  {"EMULATION"                         ,S_SKIP|S_TITLE,m_null,G_X2,G_Y+ 1*8},
+  {"WARN ON SPECHITS OVERFLOW"         ,S_YESNO     ,m_null,G_X2,G_Y+ 2*8, {"overrun_spechit_warn"}},
+  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,G_X2,G_Y+ 3*8, {"overrun_spechit_emulate"}},
+  {"WARN ON REJECT OVERFLOW"           ,S_YESNO     ,m_null,G_X2,G_Y+ 4*8, {"overrun_reject_warn"}},
+  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,G_X2,G_Y+ 5*8, {"overrun_reject_emulate"}},
+  {"WARN ON INTERCEPTS OVERFLOW"       ,S_YESNO     ,m_null,G_X2,G_Y+ 6*8, {"overrun_intercept_warn"}},
+  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,G_X2,G_Y+ 7*8, {"overrun_intercept_emulate"}},
+  {"WARN ON PLAYERINGAME OVERFLOW"     ,S_YESNO     ,m_null,G_X2,G_Y+ 8*8, {"overrun_playeringame_warn"}},
+  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,G_X2,G_Y+ 9*8, {"overrun_playeringame_emulate"}},
+  {"WARN ON DONUT OVERFLOW"            ,S_YESNO     ,m_null,G_X2,G_Y+10*8, {"overrun_donut_warn"}},
+  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,G_X2,G_Y+11*8, {"overrun_donut_emulate"}},
+  {"WARN ON MISSEDBACKSIDE OVERFLOW"   ,S_YESNO     ,m_null,G_X2,G_Y+12*8, {"overrun_missedbackside_warn"}},
+  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,G_X2,G_Y+13*8, {"overrun_missedbackside_emulate"}},
+
+  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {gen_settings5}},
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings7}},
+  {0,S_SKIP|S_END,m_null}
+};
+
+setup_menu_t gen_settings7[] =
+{
+  {"COMPATIBILITY WITH COMMON MAPPING ERRORS" ,S_SKIP|S_TITLE,m_null,G_X2,G_Y+1*8},
+  {"LINEDEFS W/O TAGS APPLY LOCALLY"   ,S_YESNO     ,m_null,G_X2,G_Y+2*8, {"comperr_zerotag"}},
+  {"USE PASSES THRU ALL SPECIAL LINES" ,S_YESNO     ,m_null,G_X2,G_Y+3*8, {"comperr_passuse"}},
+  {"WALK UNDER SOLID HANGING BODIES"   ,S_YESNO     ,m_null,G_X2,G_Y+4*8, {"comperr_hangsolid"}},
+  {"FIX CLIPPING PROBLEMS IN LARGE LEVELS" ,S_YESNO ,m_null,G_X2,G_Y+5*8, {"comperr_blockmap"}},
+  {"ALLOW JUMP"                        ,S_YESNO     ,m_null,G_X2,G_Y+6*8, {"comperr_allowjump"}},
+
+  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {gen_settings6}},
+#ifdef GL_DOOM
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings8}},
 #endif
   {0,S_SKIP|S_END,m_null}
 };
@@ -3227,7 +3262,7 @@ static const char *gltexfilters[] = {
 static const char *gltexfilters_anisotropics[] = 
   {"Off", "2x", "4x", "8x", "16x", NULL};
 
-setup_menu_t gen_settings6[] = { // General Settings screen4
+setup_menu_t gen_settings8[] = { // General Settings screen4
 #ifdef GL_DOOM
   {"Texture Options",  S_SKIP|S_TITLE,m_null,G_X,G_Y+ 1*8},
   {"Texture Filter Mode",        S_CHOICE, m_null, G_X, G_Y+2 *8, {"gl_texture_filter"}, 0, 0, M_ChangeTextureParams, gltexfilters},
@@ -3250,39 +3285,7 @@ setup_menu_t gen_settings6[] = { // General Settings screen4
   {"Blend Animations",           S_YESNO,  m_null, G_X, G_Y+19*8, {"gl_blend_animations"}},
 #endif //GL_DOOM
 
-  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {gen_settings5}},
-  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings7}},
-  {0,S_SKIP|S_END,m_null}
-};
-
-setup_menu_t gen_settings7[] =
-{
-  {"EMULATION"                         ,S_SKIP|S_TITLE,m_null,G_X2,G_Y+ 1*8},
-  {"WARN ON SPECHITS OVERFLOW"         ,S_YESNO     ,m_null,G_X2,G_Y+ 2*8, {"overrun_spechit_warn"}},
-  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,G_X2,G_Y+ 3*8, {"overrun_spechit_emulate"}},
-  {"WARN ON REJECT OVERFLOW"           ,S_YESNO     ,m_null,G_X2,G_Y+ 4*8, {"overrun_reject_warn"}},
-  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,G_X2,G_Y+ 5*8, {"overrun_reject_emulate"}},
-  {"WARN ON INTERCEPTS OVERFLOW"       ,S_YESNO     ,m_null,G_X2,G_Y+ 6*8, {"overrun_intercept_warn"}},
-  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,G_X2,G_Y+ 7*8, {"overrun_intercept_emulate"}},
-  {"WARN ON PLAYERINGAME OVERFLOW"     ,S_YESNO     ,m_null,G_X2,G_Y+ 8*8, {"overrun_playeringame_warn"}},
-  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,G_X2,G_Y+ 9*8, {"overrun_playeringame_emulate"}},
-  {"WARN ON DONUT OVERFLOW"            ,S_YESNO     ,m_null,G_X2,G_Y+10*8, {"overrun_donut_warn"}},
-  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,G_X2,G_Y+11*8, {"overrun_donut_emulate"}},
-  {"WARN ON MISSEDBACKSIDE OVERFLOW"   ,S_YESNO     ,m_null,G_X2,G_Y+12*8, {"overrun_missedbackside_warn"}},
-  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,G_X2,G_Y+13*8, {"overrun_missedbackside_emulate"}},
-
-  {"COMPATIBILITY WITH COMMON MAPPING ERRORS" ,S_SKIP|S_TITLE,m_null,G_X2,G_Y+15*8},
-  {"LINEDEFS W/O TAGS APPLY LOCALLY"   ,S_YESNO     ,m_null,G_X2,G_Y+16*8, {"comperr_zerotag"}},
-  {"USE PASSES THRU ALL SPECIAL LINES" ,S_YESNO     ,m_null,G_X2,G_Y+17*8, {"comperr_passuse"}},
-  {"WALK UNDER SOLID HANGING BODIES"   ,S_YESNO     ,m_null,G_X2,G_Y+18*8, {"comperr_hangsolid"}},
-  {"FIX CLIPPING PROBLEMS IN LARGE LEVELS" ,S_YESNO ,m_null,G_X2,G_Y+19*8, {"comperr_blockmap"}},
-
-  {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
-#ifdef GL_DOOM
-  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {gen_settings6}},
-#else
-  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {gen_settings5}},
-#endif
+  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {gen_settings7}},
   {0,S_SKIP|S_END,m_null}
 };
 

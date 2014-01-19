@@ -976,10 +976,6 @@ default_t defaults[] =
    def_int,ss_stat},
 #endif
 
-  {"Prboom-plus extended settings",{NULL},{0},UL,UL,def_none,ss_none},
-  {"ext_movement_jumpstyle", {&ext_movement_jumpstyle},  {0},0,jump_max-1,
-   def_bool,ss_none},
-
   // NSM
   {"Video capture encoding settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"cap_soundcommand",{NULL, &cap_soundcommand},{0,"oggenc2 -r -R %s -q 5 - -o output.ogg"},UL,UL,def_str,ss_none},
@@ -1136,6 +1132,8 @@ default_t defaults[] =
   {"comperr_hangsolid", {&default_comperr[comperr_hangsolid]},  {0},0,1,
    def_bool,ss_stat},
   {"comperr_blockmap", {&default_comperr[comperr_blockmap]},  {0},0,1,
+   def_bool,ss_stat},
+  {"comperr_allowjump", {&default_comperr[comperr_allowjump]},  {0},0,1,
    def_bool,ss_stat},
 
 #ifdef USE_WINDOWS_LAUNCHER
