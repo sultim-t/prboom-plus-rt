@@ -426,8 +426,6 @@ prboom2/src/SDL/Makefile.am eol=lf
 prboom2/src/gl_shader.c -text
 prboom2/src/hu_tracers.c -text
 prboom2/src/hu_tracers.h -text
-prboom2/src/i_simd.c -text
-prboom2/src/i_simd.h -text
 prboom2/tests/demo-testing.csv -text
 prboom2/tests/donut_av.wad -text
 prboom2/tests/heightlist_overflow.wad -text
