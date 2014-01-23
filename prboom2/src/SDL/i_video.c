@@ -83,7 +83,6 @@
 #include "gl_struct.h"
 #endif
 
-#include "i_simd.h"
 #include "r_screenmultiply.h"
 #include "e6y.h"//e6y
 #include "i_main.h"

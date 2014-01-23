@@ -38,7 +38,6 @@
 
 #include "r_screenmultiply.h"
 #include "doomdef.h"
-#include "i_simd.h"
 #include "lprintf.h"
 
 int render_screen_multiply;

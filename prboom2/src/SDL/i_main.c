@@ -75,7 +75,6 @@ typedef BOOL (WINAPI *SetAffinityFunc)(HANDLE hProcess, DWORD mask);
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "i_simd.h"
 #include "e6y.h"
 
 /* Most of the following has been rewritten by Lee Killough
