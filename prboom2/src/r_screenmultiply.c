@@ -267,7 +267,7 @@ void R_ProcessScreenMultiply(byte* pixels_src, byte* pixels_dest,
     // two pages must be cleared
     interlaced_scanning_requires_clearing = (interlaced_scanning_requires_clearing + 1)%3;
 
-    memset_fast(pixels_dest, 0, pitch_dest * screen_multiply * SCREENHEIGHT);
+    memset(pixels_dest, 0, pitch_dest * screen_multiply * SCREENHEIGHT);
   }
 
   switch (screen_multiply)
