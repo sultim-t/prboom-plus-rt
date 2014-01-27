@@ -566,7 +566,7 @@ void I_FinishUpdate (void)
         h=screen->h;
         for (; h>0; h--)
         {
-          memcpy_fast(dest,src,SCREENWIDTH*V_GetPixelDepth()); //e6y
+          memcpy(dest,src,SCREENWIDTH*V_GetPixelDepth()); //e6y
           dest+=screen->pitch;
           src+=screens[0].byte_pitch;
         }

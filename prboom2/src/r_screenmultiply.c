@@ -105,7 +105,7 @@ int interlaced_scanning_requires_clearing;
       byte *pdest_saved = (byte *)pdest;\
       SCREENTYPE *psrc = (SCREENTYPE*)(pixels_src + y * pitch_src);\
       PROCESS_LINE_2X_ ## PIXELDEPTH;\
-      memcpy_fast(pdest_saved + pitch_dest, pdest_saved, pitch_dest);\
+      memcpy(pdest_saved + pitch_dest, pdest_saved, pitch_dest);\
     }\
   }\
 }\
@@ -179,7 +179,7 @@ static void R_ProcessScreenMultiplyBlock2x(byte* pixels_src, byte* pixels_dest,
     if (!interlaced)\
     {\
       for (i = 1; i < screen_multiply; i++)\
-        memcpy_fast(pdest_saved + i * pitch_dest, pdest_saved, pitch_dest);\
+        memcpy(pdest_saved + i * pitch_dest, pdest_saved, pitch_dest);\
     }\
   }\
 }\
@@ -225,7 +225,7 @@ static void R_ProcessScreenMultiplyBlock4x(byte* pixels_src, byte* pixels_dest,
     if (!render_interlaced_scanning)\
     {\
       for (i = 1; i < screen_multiply; i++)\
-        memcpy_fast(pdest_saved + i * pitch_dest, pdest_saved, pitch_dest);\
+        memcpy(pdest_saved + i * pitch_dest, pdest_saved, pitch_dest);\
     }\
     pdest = (SCREENTYPE *)(pdest_saved - pitch_dest * screen_multiply);\
     pdest_saved = (byte *)pdest;\
@@ -295,7 +295,7 @@ void R_ProcessScreenMultiply(byte* pixels_src, byte* pixels_dest,
         {
           tmpbuf = malloc(pitch_src);
         }
-        memcpy_fast(tmpbuf, pixels_src, pitch_src);
+        memcpy(tmpbuf, pixels_src, pitch_src);
         R_ProcessScreenMultiplyBlock(tmpbuf, pixels_dest, pixel_depth,
           pitch_src, pitch_dest, 0, 0, render_interlaced_scanning);
       }
