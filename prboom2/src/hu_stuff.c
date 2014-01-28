@@ -1244,15 +1244,17 @@ int HU_GetArmorColor(int armor, int def)
   return result;
 }
 
-int HU_GetAmmoColor(int ammo, int fullammo)
+int HU_GetAmmoColor(int ammo, int fullammo, int def,int tofire)
 {
   int result;
 
   int ammopct = (100 * ammo) / fullammo;
 
-  /*if (ammo == 0)
+  if (ammo < tofire)
     result = CR_BROWN;
-  else */if (ammopct < ammo_red)
+  else if (ammo==fullammo)
+    result=def;
+  else if (ammopct < ammo_red)
     result = CR_RED;
   else if (ammopct < ammo_yellow)
     result = CR_GOLD;
@@ -1313,7 +1315,8 @@ void HU_widget_build_ammo(void)
     strcat(hud_ammostr,ammostr);
 
     // set the display color from the percentage of total ammo held
-    w_ammo.cm = HU_GetAmmoColor(ammo, fullammo);
+    w_ammo.cm = HU_GetAmmoColor(ammo, fullammo,CR_BLUE,
+				ammopershot[plr->readyweapon]);
   }
   // transfer the init string to the widget
   s = hud_ammostr;
@@ -1619,6 +1622,8 @@ void HU_widget_build_weapon(void)
     hud_weapstr[i++] = '\x1b'; //jff 3/26/98 use ESC not '\' for paths
     if (weaponinfo[w].ammo==am_noammo) //jff 3/14/98 show berserk on HUD
       hud_weapstr[i++] = plr->powers[pw_strength]? '0'+CR_GREEN : '0'+CR_GRAY;
+    else if (fullammo && ammo==fullammo)
+      hud_weapstr[i++] = '0'+CR_BLUE;
     else if (ammo<ammopershot[w])
       hud_weapstr[i++] = '0'+CR_BROWN;
     else if (ammopct<ammo_red)
@@ -2057,7 +2062,8 @@ void HU_widget_build_ammo_big(void)
 
     // set the display color from the percentage of total ammo held
     if (!sts_always_red)
-      w_ammo_big.cm = HU_GetAmmoColor(ammo, fullammo);
+      w_ammo_big.cm = HU_GetAmmoColor(ammo, fullammo,CR_BLUE2,
+				      ammopershot[plr->readyweapon]);
 
     // transfer the init string to the widget
     s = ammostr;
