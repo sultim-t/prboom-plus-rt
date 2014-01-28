@@ -218,10 +218,6 @@
 
 #endif // USE_EXPERIMENTAL_MUSIC
 
-
-/* MSVC6' implementation of qsort is much slower (up to 32x) than it should be */
-#define USE_CUSTOM_QSORT 1
-
 /* Shut up warnings */
 #ifdef __INTEL_COMPILER
   #pragma warning(disable : 94 144 175 177 186 188 279 556 589 810)

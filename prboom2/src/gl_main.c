@@ -71,9 +71,6 @@
 #include "st_stuff.h"
 #include "hu_stuff.h"
 #include "e6y.h"//e6y
-#ifdef USE_CUSTOM_QSORT
-#include "qsort.h"
-#endif
 
 // All OpenGL extentions will be disabled in gl_compatibility mode
 int gl_compatibility = 0;
@@ -457,19 +454,11 @@ void gld_InitCommandLine(void)
 // Textured automap
 //
 
-#ifdef USE_CUSTOM_QSORT
-void qsort_subsectors_by_pic(subsector_t **arr, unsigned int n)
-{
-  #define cmp_subsectors_by_pic(a, b) ((*a)->sector->floorpic > (*b)->sector->floorpic)
-  QSORT(subsector_t*, arr, n, cmp_subsectors_by_pic);
-}
-#else
 static int C_DECL dicmp_visible_subsectors_by_pic(const void *a, const void *b)
 {
   return (*((const subsector_t *const *)b))->sector->floorpic -
          (*((const subsector_t *const *)a))->sector->floorpic;
 }
-#endif
 
 static int visible_subsectors_count_prev = -1;
 void gld_ResetTexturedAutomap(void)
@@ -529,12 +518,8 @@ void gld_MapDrawSubsectors(player_t *plr, int fx, int fy, fixed_t mx, fixed_t my
     }
 
     // sort subsectors by texture
-#ifdef USE_CUSTOM_QSORT
-    qsort_subsectors_by_pic(visible_subsectors, visible_subsectors_count);
-#else
     qsort(visible_subsectors, visible_subsectors_count,
       sizeof(visible_subsectors[0]), dicmp_visible_subsectors_by_pic);
-#endif
   }
 
   glMatrixMode(GL_MODELVIEW);
@@ -2699,34 +2684,6 @@ void gld_ProcessWall(GLWall *wall)
   gld_DrawWall(wall);
 }
 
-#ifdef USE_CUSTOM_QSORT
-void qsort_walls_by_tex(GLDrawItem *arr, unsigned int n)
-{
-  #define cmp_walls_by_tex(a, b) ((a)->item.wall->gltexture > (b)->item.wall->gltexture)
-  QSORT(GLDrawItem, arr, n, cmp_walls_by_tex);
-}
-
-void qsort_flats_by_tex(GLDrawItem *arr, unsigned int n)
-{
-  #define cmp_flats_by_tex(a, b) ((a)->item.flat->gltexture > (b)->item.flat->gltexture)
-  QSORT(GLDrawItem, arr, n, cmp_flats_by_tex);
-}
-
-void qsort_sprites_by_tex(GLDrawItem *arr, unsigned int n)
-{
-  #define cmp_sprites_by_tex(a, b) ((a)->item.sprite->gltexture > (b)->item.sprite->gltexture)
-  QSORT(GLDrawItem, arr, n, cmp_sprites_by_tex);
-}
-
-void qsort_sprites_by_scale(GLDrawItem *arr, unsigned int n)
-{
-  #define cmp_sprites_by_scale(a, b) ( \
-    (a)->item.sprite->scale != (b)->item.sprite->scale ? \
-    (a)->item.sprite->scale > (b)->item.sprite->scale : \
-    (a)->item.sprite->gltexture > (b)->item.sprite->gltexture )
-  QSORT(GLDrawItem, arr, n, cmp_sprites_by_scale);
-}
-#else
 static int C_DECL dicmp_wall(const void *a, const void *b)
 {
   GLTexture *tx1 = ((const GLDrawItem *)a)->item.wall->gltexture;
@@ -2760,29 +2717,9 @@ static int C_DECL dicmp_sprite_scale(const void *a, const void *b)
     return sprite1->gltexture - sprite2->gltexture;
   }
 }
-#endif
 
 static void gld_DrawItemsSortByTexture(GLDrawItemType itemtype)
 {
-#ifdef USE_CUSTOM_QSORT
-  typedef void(*DICMP_ITEM)(GLDrawItem *arr, unsigned int n);
-
-  static DICMP_ITEM itemfuncs[GLDIT_TYPES] = {
-    0,
-    qsort_walls_by_tex, qsort_walls_by_tex, qsort_walls_by_tex, qsort_walls_by_tex, qsort_walls_by_tex,
-    qsort_walls_by_tex, qsort_walls_by_tex,
-    qsort_flats_by_tex, qsort_flats_by_tex,
-    qsort_flats_by_tex, qsort_flats_by_tex,
-    qsort_sprites_by_tex, qsort_sprites_by_scale, qsort_sprites_by_tex,
-    0,
-    0,
-  };
-
-  if (itemfuncs[itemtype] && gld_drawinfo.num_items[itemtype] > 1)
-  {
-    (itemfuncs[itemtype])(gld_drawinfo.items[itemtype], gld_drawinfo.num_items[itemtype]);
-  }
-#else
   typedef int(C_DECL *DICMP_ITEM)(const void *a, const void *b);
 
   static DICMP_ITEM itemfuncs[GLDIT_TYPES] = {
@@ -2801,7 +2738,6 @@ static void gld_DrawItemsSortByTexture(GLDrawItemType itemtype)
     qsort(gld_drawinfo.items[itemtype], gld_drawinfo.num_items[itemtype],
       sizeof(gld_drawinfo.items[itemtype][0]), itemfuncs[itemtype]);
   }
-#endif
 }
 
 static int no_overlapped_sprites;
