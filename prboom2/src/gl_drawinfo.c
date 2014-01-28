@@ -109,6 +109,7 @@ static void gld_AddDrawRange(int size)
 // gld_AddDrawItem
 //
 #define NEWSIZE (MAX(64 * 1024, itemsize))
+#define SIZEOF8(type) ((sizeof(type)+7)&~7)
 void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata)
 {
   int itemsize = 0;
@@ -116,13 +117,13 @@ void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata)
 
   static int itemsizes[GLDIT_TYPES] = {
     0,
-    sizeof(GLWall), sizeof(GLWall), sizeof(GLWall), sizeof(GLWall), sizeof(GLWall),
-    sizeof(GLWall), sizeof(GLWall),
-    sizeof(GLFlat), sizeof(GLFlat),
-    sizeof(GLFlat), sizeof(GLFlat),
-    sizeof(GLSprite), sizeof(GLSprite), sizeof(GLSprite),
-    sizeof(GLShadow),
-    sizeof(GLHealthBar)
+    SIZEOF8(GLWall), SIZEOF8(GLWall), SIZEOF8(GLWall), SIZEOF8(GLWall), SIZEOF8(GLWall),
+    SIZEOF8(GLWall), SIZEOF8(GLWall),
+    SIZEOF8(GLFlat), SIZEOF8(GLFlat),
+    SIZEOF8(GLFlat), SIZEOF8(GLFlat),
+    SIZEOF8(GLSprite), SIZEOF8(GLSprite), SIZEOF8(GLSprite),
+    SIZEOF8(GLShadow),
+    SIZEOF8(GLHealthBar)
   };
 
   itemsize = itemsizes[itemtype];
@@ -164,4 +165,5 @@ void gld_AddDrawItem(GLDrawItemType itemtype, void *itemdata)
   gld_drawinfo.items[itemtype][gld_drawinfo.num_items[itemtype]].item.item = item_p;
   gld_drawinfo.num_items[itemtype]++;
 }
+#undef SIZEOF8
 #undef NEWSIZE
