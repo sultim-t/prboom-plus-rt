@@ -12,10 +12,6 @@ prboom2/VisualC8/Doom.sln eol=crlf
 prboom2/VisualC8/Doom.vcproj eol=crlf
 prboom2/VisualC8/Makefile.am -text
 prboom2/VisualC8/prboom_server.vcproj eol=crlf
-prboom2/VisualC9/Doom.sln -text
-prboom2/VisualC9/Doom.vcproj eol=crlf
-prboom2/VisualC9/Makefile.am -text
-prboom2/VisualC9/prboom_server.vcproj eol=crlf
 prboom2/autotools/ac_c_compile_flags.m4 eol=lf
 prboom2/autotools/ac_cpu_optimisations.m4 eol=lf
 prboom2/data/Makefile.am eol=lf
