@@ -261,7 +261,6 @@ prboom_comp_t prboom_comp[PC_MAX] = {
   {0x00000000, 0x02040802, 0, "-allow_sky_transfer_in_boom"},
   {0x00000000, 0x02040803, 0, "-apply_green_armor_class_to_armor_bonuses"},
   {0x00000000, 0x02040803, 0, "-apply_blue_armor_class_to_megasphere"},
-  {0x02050001, 0x02050003, 0, "-wrong_fixeddiv"},
   {0x02020200, 0x02050003, 0, "-force_incorrect_bobbing_in_boom"},
   {0xffffffff, 0x00000000, 0, "-boom_deh_parser"},
   {0x00000000, 0x02050007, 0, "-mbf_remove_thinker_in_killmobj"},
@@ -271,7 +270,6 @@ prboom_comp_t prboom_comp[PC_MAX] = {
   {0x00000000, 0x02050104, 0, "-reset_monsterspawner_params_after_loading"},
 };
 
-dboolean *use_wrong_fixeddiv;
 void e6y_InitCommandLine(void)
 {
   int p;
@@ -1109,7 +1107,6 @@ void e6y_G_Compatibility(void)
         prboom_comp[i].state = true;
     }
   }
-  use_wrong_fixeddiv = &(prboom_comp[PC_WRONG_FIXEDDIV].state);
 
   P_CrossSubsector = P_CrossSubsector_PrBoom;
   if (!prboom_comp[PC_FORCE_LXDOOM_DEMO_COMPATIBILITY].state)
