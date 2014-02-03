@@ -1709,7 +1709,7 @@ void G_WorldDone (void)
   if (secretexit)
     players[consoleplayer].didsecret = true;
 
-  if (gamemode == commercial)
+  if (gamemode == commercial && gamemission != pack_nerve)
     {
       switch (gamemap)
         {
@@ -1724,9 +1724,9 @@ void G_WorldDone (void)
           F_StartFinale ();
           break;
         }
-       if (gamemission == pack_nerve && singleplayer && gamemap == 8)
-         F_StartFinale ();
     }
+  else if (gamemission == pack_nerve && singleplayer && gamemap == 8)
+         F_StartFinale ();
   else if (gamemap == 8)
     gameaction = ga_victory; // cph - after ExM8 summary screen, show victory stuff
 }
