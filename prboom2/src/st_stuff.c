@@ -335,6 +335,13 @@ int armor_red;     // armor amount less than which status is red
 int armor_yellow;  // armor amount less than which status is yellow
 int armor_green;   // armor amount above is blue, below is green
 
+ammo_colour_behaviour_t ammo_colour_behaviour;
+const char *ammo_colour_behaviour_list[ammo_colour_behaviour_max] = {
+  "no",
+  "full ammo only",
+  "yes"
+};
+
  // in deathmatch only, summary of frags stats
 static st_number_t w_frags;
 
@@ -800,6 +807,7 @@ void M_ChangeApplyPalette(void)
 static void ST_drawWidgets(dboolean refresh)
 {
   int i;
+  int ammopct = 0;
 
   // used by w_arms[] widgets
   st_armson = st_statusbaron && !deathmatch;
@@ -808,15 +816,23 @@ static void ST_drawWidgets(dboolean refresh)
   st_fragson = deathmatch && st_statusbaron;
 
   //jff 2/16/98 make color of ammo depend on amount
-  if (*w_ready.num*100 < ammo_red*plyr->maxammo[weaponinfo[w_ready.data].ammo])
-    STlib_updateNum(&w_ready, CR_RED, refresh);
-  else
-    if (*w_ready.num*100 <
-        ammo_yellow*plyr->maxammo[weaponinfo[w_ready.data].ammo])
-      STlib_updateNum(&w_ready, CR_GOLD, refresh);
+  if ((*w_ready.num == plyr->maxammo[weaponinfo[w_ready.data].ammo]) ||
+    (ammo_colour_behaviour == ammo_colour_behaviour_no && plyr->backpack &&
+    *w_ready.num*2 >= plyr->maxammo[weaponinfo[w_ready.data].ammo]))
+    STlib_updateNum(&w_ready, CR_BLUE2, refresh);
+  else {
+    if (plyr->maxammo[weaponinfo[w_ready.data].ammo])
+      ammopct = (*w_ready.num*100)/plyr->maxammo[weaponinfo[w_ready.data].ammo];
+    if (plyr->backpack && ammo_colour_behaviour != ammo_colour_behaviour_yes)
+      ammopct *= 2;
+    if (ammopct < ammo_red)
+      STlib_updateNum(&w_ready, CR_RED, refresh);
     else
-      STlib_updateNum(&w_ready, CR_GREEN, refresh);
-
+      if (ammopct < ammo_yellow)
+        STlib_updateNum(&w_ready, CR_GOLD, refresh);
+      else
+        STlib_updateNum(&w_ready, CR_GREEN, refresh);
+  }
   for (i=0;i<4;i++)
     {
       STlib_updateNum(&w_ammo[i], CR_DEFAULT, refresh);   //jff 2/16/98 no xlation

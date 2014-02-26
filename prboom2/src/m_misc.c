@@ -868,6 +868,9 @@ default_t defaults[] =
    def_int,ss_stat}, // percent of ammo for red to yellow transition
   {"ammo_yellow",   {&ammo_yellow}  , {50},0,100, // below 50% is yellow, above green
    def_int,ss_stat}, // percent of ammo for yellow to green transition
+  {"ammo_colour_behaviour",{(int*)&ammo_colour_behaviour},
+   {ammo_colour_behaviour_max-1}, // whether backpack changes thresholds above
+   0,ammo_colour_behaviour_max-1,def_int,ss_stat},
 
   //jff 2/16/98 HUD and status feature controls
   {"hud_num",    {&hud_num}, {6},0,100,

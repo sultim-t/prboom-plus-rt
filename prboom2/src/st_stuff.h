@@ -106,6 +106,15 @@ extern int sts_traditional_keys;  // display keys the traditional way
 
 extern int st_palette;    // cph 2006/04/06 - make palette visible
 
+typedef enum {
+  ammo_colour_behaviour_no,
+  ammo_colour_behaviour_full_only,
+  ammo_colour_behaviour_yes,
+  ammo_colour_behaviour_max
+} ammo_colour_behaviour_t;
+extern ammo_colour_behaviour_t ammo_colour_behaviour;
+extern const char *ammo_colour_behaviour_list[];
+
 // e6y: makes sense for wide resolutions
 extern patchnum_t grnrock;
 extern patchnum_t brdr_t, brdr_b, brdr_l, brdr_r;
