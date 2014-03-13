@@ -1293,6 +1293,12 @@ static void P_LoadThings (int lump)
       if (!P_IsDoomnumAllowed(mt.type))
         continue;
 
+      // Although all resources of the Wolf SS have been removed
+      // off the BFG Edition, there is still one left in MAP33.
+      // Replace with a Former Human instead.
+      if (bfgedition && singleplayer && mt.type == 84)
+        mt.type = 3004;
+
       // Do spawn all other stuff.
       mobj = P_SpawnMapThing(&mt, i);
       if (mobj && mobj->info->speed == 0)
