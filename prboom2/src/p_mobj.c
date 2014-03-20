@@ -578,6 +578,9 @@ floater:
   if (mo->flags & MF_TOUCHY && mo->intflags & MIF_ARMED && mo->health > 0)
     P_DamageMobj(mo, NULL, NULL, mo->health);
   else
+  {
+    if (mo->player)
+        mo->player->jumpTics = 7;
     if (mo->player && /* killough 5/12/98: exclude voodoo dolls */
         // e6y
         // Restoring original visual behaviour for demo_compatibility.
@@ -600,6 +603,7 @@ floater:
         if (comp[comp_sound] || (mo->health>0)) /* cph - prevent "oof" when dead */
     S_StartSound (mo, sfx_oof);
       }
+  }
   mo->momz = 0;
       }
     mo->z = mo->floorz;
