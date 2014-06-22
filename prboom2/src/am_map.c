@@ -1341,20 +1341,14 @@ static void AM_drawWalls(void)
 {
   int i;
   static mline_t l;
-  fixed_t mx, mx2, my, my2;
-  
-  mx = am_frame.bbox[BOXLEFT] << FRACTOMAPBITS;
-  my = am_frame.bbox[BOXBOTTOM] << FRACTOMAPBITS;
-  mx2 = am_frame.bbox[BOXRIGHT] << FRACTOMAPBITS;
-  my2 = am_frame.bbox[BOXTOP] << FRACTOMAPBITS;
 
   // draw the unclipped visible portions of all lines
   for (i=0;i<numlines;i++)
   {
-    if (lines[i].bbox[BOXLEFT] > mx2 ||
-      lines[i].bbox[BOXRIGHT] < mx ||
-      lines[i].bbox[BOXBOTTOM] > my2 ||
-      lines[i].bbox[BOXTOP] < my)
+    if (lines[i].bbox[BOXLEFT] >> FRACTOMAPBITS > am_frame.bbox[BOXRIGHT] ||
+      lines[i].bbox[BOXRIGHT] >> FRACTOMAPBITS < am_frame.bbox[BOXLEFT] ||
+      lines[i].bbox[BOXBOTTOM] >> FRACTOMAPBITS > am_frame.bbox[BOXTOP] ||
+      lines[i].bbox[BOXTOP] >> FRACTOMAPBITS < am_frame.bbox[BOXBOTTOM])
     {
       continue;
     }
