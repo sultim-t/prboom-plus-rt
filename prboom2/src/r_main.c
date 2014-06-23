@@ -261,12 +261,12 @@ angle_t R_PointToAngle2(fixed_t viewx, fixed_t viewy, fixed_t x, fixed_t y)
 
 angle_t R_PointToAngleEx(fixed_t x, fixed_t y)
 {
-  static int old_y_viewy;
-  static int old_x_viewx;
+  static int_64_t old_y_viewy;
+  static int_64_t old_x_viewx;
   static int old_result;
 
-  int y_viewy = y - viewy;
-  int x_viewx = x - viewx;
+  int_64_t y_viewy = (int_64_t)y - viewy;
+  int_64_t x_viewx = (int_64_t)x - viewx;
 
   if (!render_precise)
   {
@@ -284,7 +284,7 @@ angle_t R_PointToAngleEx(fixed_t x, fixed_t y)
     old_y_viewy = y_viewy;
     old_x_viewx = x_viewx;
 
-    old_result = (int)((float)atan2(y_viewy, x_viewx) * (ANG180/M_PI));
+    old_result = (int)((float)atan2((float)y_viewy, (float)x_viewx) * (ANG180/M_PI));
   }
   return old_result;
 }
@@ -305,8 +305,8 @@ angle_t R_PointToAngleEx(fixed_t x, fixed_t y)
 angle_t R_PointToPseudoAngle (fixed_t x, fixed_t y)
 {
   // Note: float won't work here as it's less precise than the BAM values being passed as parameters
-  double vecx = (double)(x - viewx);
-  double vecy = (double)(y - viewy);
+  double vecx = (double)x - viewx;
+  double vecy = (double)y - viewy;
 
   if (vecx == 0 && vecy == 0)
   {
