@@ -2884,8 +2884,6 @@ void G_RecordDemo (const char* name)
 // byte(s) should still be skipped over or padded with 0's.
 // Lee Killough 3/1/98
 
-extern int forceOldBsp;
-
 byte *G_WriteOptions(byte *demo_p)
 {
   byte *target = demo_p + GAME_OPTION_SIZE;

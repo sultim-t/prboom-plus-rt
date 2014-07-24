@@ -1388,10 +1388,7 @@ static void D_DoomMainSetup(void)
 
   // figgi 09/18/00-- added switch to force classic bsp nodes
   if (M_CheckParm ("-forceoldbsp"))
-  {
-    extern dboolean forceOldBsp;
     forceOldBsp = true;
-  }
 
   D_BuildBEXTables(); // haleyjd
 
