@@ -530,9 +530,17 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   if (joyymove > 0)
     forward -= forwardmove[speed];
   if (gamekeydown[key_straferight] || joybuttons[joybstraferight])
+  {
     side += sidemove[speed];
+    if (strafe) // Two-key strafe50
+      side += sidemove[speed];
+  }
   if (gamekeydown[key_strafeleft] || joybuttons[joybstrafeleft])
+  {
     side -= sidemove[speed];
+    if (strafe) // Two-key strafe50
+      side -= sidemove[speed];
+  }
 
     // buttons
   cmd->chatchar = HU_dequeueChatChar();
