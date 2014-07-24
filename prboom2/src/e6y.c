@@ -275,7 +275,15 @@ void e6y_InitCommandLine(void)
   int p;
 
   if ((p = M_CheckParm("-skipsec")) && (p < myargc-1))
-    demo_skiptics = (int)(atof(myargv[p + 1]) * 35);
+  {
+    float min, sec;
+
+    if (sscanf(myargv[p+1], "%f:%f", &min, &sec) == 2)
+      demo_skiptics = (int) ((60 * min + sec) * TICRATE);
+    else if (sscanf(myargv[p+1], "%f", &sec) == 1)
+      demo_skiptics = (int) (sec * TICRATE);
+  }
+
   if ((IsDemoPlayback() || IsDemoContinue()) && (startmap > 1 || demo_skiptics))
     G_SkipDemoStart();
   if ((p = M_CheckParm("-avidemo")) && (p < myargc-1))
