@@ -3293,7 +3293,7 @@ void G_SaveRestoreGameOptions(int save)
 #endif
     {1, 0, &monkeys},
   
-    {2, 0, &forceOldBsp},
+    {2, 0, (int*)&forceOldBsp},
     {-1, -1, NULL}
   };
 
