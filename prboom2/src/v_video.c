@@ -1656,6 +1656,9 @@ void SetRatio(int width, int height)
     WIDE_SCREENHEIGHT = SCREENHEIGHT;
   }
 
+  WIDE_SCREENWIDTH = MAX(1, WIDE_SCREENWIDTH);
+  WIDE_SCREENHEIGHT = MAX(1, WIDE_SCREENHEIGHT);
+
   patches_scalex = MIN(SCREENWIDTH / 320, SCREENHEIGHT / 200);
   patches_scalex = MAX(1, patches_scalex);
   patches_scaley = patches_scalex;
