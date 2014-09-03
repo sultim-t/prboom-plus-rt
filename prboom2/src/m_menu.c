@@ -6080,8 +6080,8 @@ void M_Init(void)
   M_ChangeMaxViewPitch();
   M_ChangeMouseLook();
   M_ChangeMouseInvert();
-#ifdef GL_DOOM
   M_ChangeFOV();
+#ifdef GL_DOOM
   M_ChangeSpriteClip();
   M_ChangeAllowBoomColormaps();
 #endif

@@ -139,7 +139,7 @@ int movement_mouseinvert;
 int movement_maxviewpitch;
 int mouse_handler;
 int mouse_doubleclick_as_use;
-int render_fov;
+int render_fov = 90;
 int render_multisampling;
 int render_paperitems;
 int render_wipescreen;
@@ -568,9 +568,7 @@ void M_ChangeAspectRatio(void)
 {
   extern int screenblocks;
 
-#ifdef GL_DOOM
   M_ChangeFOV();
-#endif
 
   R_SetViewSize(screenblocks);
 }
@@ -582,11 +580,6 @@ void M_ChangeStretch(void)
   render_stretch_hud = render_stretch_hud_default;
 
   R_SetViewSize(screenblocks);
-}
-
-#ifdef GL_DOOM
-void M_ChangeMultiSample(void)
-{
 }
 
 void M_ChangeFOV(void)
@@ -632,6 +625,11 @@ void M_ChangeFOV(void)
   skyUpShift = (float)tan(DEG2RAD(render_fovy)/2.0f);
 
   skyscale = 1.0f / (float)tan(DEG2RAD(render_fov / 2));
+}
+
+#ifdef GL_DOOM
+void M_ChangeMultiSample(void)
+{
 }
 
 void M_ChangeSpriteClip(void)

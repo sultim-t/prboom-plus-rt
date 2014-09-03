@@ -189,8 +189,9 @@ void M_ChangeMouseLook(void);
 void M_ChangeMaxViewPitch(void);
 void M_ChangeMouseInvert(void);
 
-#ifdef GL_DOOM
 void M_ChangeFOV(void);
+
+#ifdef GL_DOOM
 void M_ChangeUseDetail(void);
 void M_ChangeMultiSample(void);
 void M_ChangeSpriteClip(void);

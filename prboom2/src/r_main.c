@@ -108,6 +108,8 @@ player_t *viewplayer;
 // e6y: Added for more precise flats drawing
 float viewfocratio;
 
+int r_nearclip = 5;
+
 int FieldOfView;
 int viewport[4];
 float modelMatrix[16];
@@ -975,25 +977,21 @@ void R_SetupFreelook(void)
 void R_SetupMatrix(void)
 {
   float fovy, aspect, znear;
+  int r_nearclip = 5;
 
   R_SetupViewport();
 
-#ifdef GL_DOOM
+  #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
     extern int gl_nearclip;
-    fovy = render_fovy;
-    aspect = render_ratio;
-    znear = (float)gl_nearclip / 100.0f;
+    r_nearclip = gl_nearclip;
   }
-  else
-#endif
-  {
-    fovy = (float)FieldOfView * 360.0f / FINEANGLES;
-    fovy = (float)(2.0f * RAD2DEG(atan(tan(DEG2RAD(fovy) / 2.0f) / 1.6f)));
-    aspect = 1.6f;
-    znear = 5.0f / 100.0f;
-  }
+  #endif
+
+  fovy = render_fovy;
+  aspect = render_ratio;
+  znear = (float)r_nearclip / 100.0f;
 
   R_SetupPerspective(fovy, aspect, znear);
   R_BuildModelViewMatrix();
