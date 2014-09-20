@@ -98,6 +98,12 @@ static fixed_t  bottomfrac;
 static fixed_t  bottomstep;
 static int      *maskedtexturecol; // dropoff overflow
 
+//[kb] hack to improve rendering precision (wall wiggle)
+static int	max_rwscale = 64 * FRACUNIT;
+static int	HEIGHTBITS = 12;
+static int	HEIGHTUNIT = (1 << 12);
+static int	invhgtbits = 4;
+
 const lighttable_t** GetLightTable(int lightlevel)
 {
   int lightnum = (lightlevel >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT);
@@ -122,6 +128,53 @@ const lighttable_t** GetLightTable(int lightlevel)
   return scalelight[BETWEEN(0, LIGHTLEVELS - 1, lightnum)];
 }
 
+//[kb] Adjusts renderer wall/texture precision based on the maximum difference in height
+// of all adjoining sectors. P_SetupWiggleFix() passes max_diff, which is what is needed
+// to make the renderer as precise as possible without overflowing the 16.16 fixed point
+// coordinate system. As a bonus, this also allows the render to display sectors that are
+// up to 32767 units tall (or greater, maybe), improving an old bug. Doom doesn't allow
+// anything to pass through a sector any taller than 32767 units, so this limit is ok.
+// Of course, levels with sectors this large WILL suffer from some wall wiggle...
+// e6y - rewrited original kb1's code
+void R_SetWiggleHack(int max_diff)
+{
+  static int max_diff_last = INT_MIN;
+
+  if (max_diff == max_diff_last)
+    return;
+
+  max_diff_last = max_diff;
+
+  //[kb] scale calculation. The higher the max_scale the better, but go too far and
+  // overflow the texture scaling variables. Attempt to get max_scale at least to
+  // 1024. On the other side, h_bits is made less precise - go too far and the top
+  // and bottom of textures start to wiggle. Originally set to 12, 11 and 10 seem ok.
+  // Only use 9 for levels with really tall walls, because that is where height
+  // precision starts to become apparent.
+  if (max_diff < 256){
+    max_rwscale = 2048 << FRACBITS; HEIGHTBITS = 12;
+  } else if (max_diff < 512) {
+    max_rwscale = 2048 << FRACBITS; HEIGHTBITS = 11;
+  } else if (max_diff < 1024) {
+    max_rwscale = 2048 << FRACBITS; HEIGHTBITS = 10;
+  } else if (max_diff < 2048) {
+    max_rwscale = 2048 << FRACBITS; HEIGHTBITS = 9;
+  } else if (max_diff < 4096) {
+    max_rwscale = 1024 << FRACBITS; HEIGHTBITS = 9;
+  } else if (max_diff < 8192) {
+    max_rwscale =  512 << FRACBITS; HEIGHTBITS = 9;
+  } else if (max_diff < 16384) {
+    max_rwscale =  256 << FRACBITS; HEIGHTBITS = 9;
+  } else if (max_diff < 32768) {
+    max_rwscale =  128 << FRACBITS; HEIGHTBITS = 9;
+  } else {
+    max_rwscale =   64 << FRACBITS; HEIGHTBITS = 9;
+  }
+
+  HEIGHTUNIT = 1 << HEIGHTBITS;
+  invhgtbits = 16 - HEIGHTBITS;
+}
+
 //
 // R_ScaleFromGlobalAngle
 // Returns the texture mapping scale
@@ -139,8 +192,8 @@ static fixed_t R_ScaleFromGlobalAngle(angle_t visangle)
   int     den = FixedMul(rw_distance, finesine[anglea>>ANGLETOFINESHIFT]);
 // proff 11/06/98: Changed for high-res
   fixed_t num = FixedMul(projectiony, finesine[angleb>>ANGLETOFINESHIFT]);
-  return den > num>>16 ? (num = FixedDiv(num, den)) > 64*FRACUNIT ?
-    64*FRACUNIT : num < 256 ? 256 : num : 64*FRACUNIT;
+  return den > num>>16 ? (num = FixedDiv(num, den)) > max_rwscale ?
+    max_rwscale : num < 256 ? 256 : num : max_rwscale;
 }
 
 //
@@ -234,7 +287,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 
         if (!fixedcolormap)
         {
-          int index = ((spryscale * 160 / wide_centerx) >> LIGHTSCALESHIFT);
+          int index = (int)(((int_64_t)spryscale * 160 / wide_centerx) >> LIGHTSCALESHIFT);
           if (index >= MAXLIGHTSCALE)
             index = MAXLIGHTSCALE - 1;
 
@@ -305,8 +358,6 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 // CALLED: CORE LOOPING ROUTINE.
 //
 
-#define HEIGHTBITS 12
-#define HEIGHTUNIT (1<<HEIGHTBITS)
 static int didsolidcol; /* True if at least one column was marked solid */
 
 static void R_RenderSegLoop (void)
@@ -384,7 +435,7 @@ static void R_RenderSegLoop (void)
           // calculate lighting
           if (!fixedcolormap)
           {
-            int index = ((rw_scale * 160 / wide_centerx) >> LIGHTSCALESHIFT);
+            int index = (int)(((int_64_t)rw_scale * 160 / wide_centerx) >> LIGHTSCALESHIFT);
             if (index >= MAXLIGHTSCALE)
                index = MAXLIGHTSCALE - 1;
 
@@ -624,6 +675,11 @@ void R_StoreWallRange(const int start, const int stop)
       }
   }  // killough: end of code to remove limits on openings
 
+  worldtop = frontsector->ceilingheight - viewz;
+  worldbottom = frontsector->floorheight - viewz;
+  
+  R_SetWiggleHack((worldtop - worldbottom) >> 16);
+
   // calculate scale at both ends and step
 
   ds_p->scale1 = rw_scale =
@@ -639,9 +695,6 @@ void R_StoreWallRange(const int start, const int stop)
 
   // calculate texture boundaries
   //  and decide if floor / ceiling marks are needed
-
-  worldtop = frontsector->ceilingheight - viewz;
-  worldbottom = frontsector->floorheight - viewz;
 
   midtexture = toptexture = bottomtexture = maskedtexture = 0;
   ds_p->maskedtexturecol = NULL;
@@ -835,28 +888,28 @@ void R_StoreWallRange(const int start, const int stop)
     }
 
   // calculate incremental stepping values for texture edges
-  worldtop >>= 4;
-  worldbottom >>= 4;
+  worldtop >>= invhgtbits;
+  worldbottom >>= invhgtbits;
 
   topstep = -FixedMul (rw_scalestep, worldtop);
-  topfrac = (centeryfrac>>4) - FixedMul (worldtop, rw_scale);
+  topfrac = (centeryfrac>>invhgtbits) - FixedMul (worldtop, rw_scale);
 
   bottomstep = -FixedMul (rw_scalestep,worldbottom);
-  bottomfrac = (centeryfrac>>4) - FixedMul (worldbottom, rw_scale);
+  bottomfrac = (centeryfrac>>invhgtbits) - FixedMul (worldbottom, rw_scale);
 
   if (backsector)
     {
-      worldhigh >>= 4;
-      worldlow >>= 4;
+      worldhigh >>= invhgtbits;
+      worldlow >>= invhgtbits;
 
       if (worldhigh < worldtop)
         {
-          pixhigh = (centeryfrac>>4) - FixedMul (worldhigh, rw_scale);
+          pixhigh = (centeryfrac>>invhgtbits) - FixedMul (worldhigh, rw_scale);
           pixhighstep = -FixedMul (rw_scalestep,worldhigh);
         }
       if (worldlow > worldbottom)
         {
-          pixlow = (centeryfrac>>4) - FixedMul (worldlow, rw_scale);
+          pixlow = (centeryfrac>>invhgtbits) - FixedMul (worldlow, rw_scale);
           pixlowstep = -FixedMul (rw_scalestep,worldlow);
         }
     }
