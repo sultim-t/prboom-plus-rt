@@ -136,14 +136,14 @@ const lighttable_t** GetLightTable(int lightlevel)
 // anything to pass through a sector any taller than 32767 units, so this limit is ok.
 // Of course, levels with sectors this large WILL suffer from some wall wiggle...
 // e6y - rewrited original kb1's code
-void R_SetWiggleHack(int max_diff)
+void R_SetWiggleHack(int height)
 {
-  static int max_diff_last = INT_MIN;
+  static int height_last = INT_MIN;
 
-  if (max_diff == max_diff_last)
+  if (height == height_last)
     return;
 
-  max_diff_last = max_diff;
+  height_last = height;
 
   //[kb] scale calculation. The higher the max_scale the better, but go too far and
   // overflow the texture scaling variables. Attempt to get max_scale at least to
@@ -151,26 +151,27 @@ void R_SetWiggleHack(int max_diff)
   // and bottom of textures start to wiggle. Originally set to 12, 11 and 10 seem ok.
   // Only use 9 for levels with really tall walls, because that is where height
   // precision starts to become apparent.
-  if (max_diff < 256){
-    max_rwscale = 2048 << FRACBITS; HEIGHTBITS = 12;
-  } else if (max_diff < 512) {
-    max_rwscale = 2048 << FRACBITS; HEIGHTBITS = 11;
-  } else if (max_diff < 1024) {
-    max_rwscale = 2048 << FRACBITS; HEIGHTBITS = 10;
-  } else if (max_diff < 2048) {
-    max_rwscale = 2048 << FRACBITS; HEIGHTBITS = 9;
-  } else if (max_diff < 4096) {
-    max_rwscale = 1024 << FRACBITS; HEIGHTBITS = 9;
-  } else if (max_diff < 8192) {
-    max_rwscale =  512 << FRACBITS; HEIGHTBITS = 9;
-  } else if (max_diff < 16384) {
-    max_rwscale =  256 << FRACBITS; HEIGHTBITS = 9;
-  } else if (max_diff < 32768) {
-    max_rwscale =  128 << FRACBITS; HEIGHTBITS = 9;
+  if (height < 256) {
+    max_rwscale = 2048; HEIGHTBITS = 12;
+  } else if (height < 512) {
+    max_rwscale = 2048; HEIGHTBITS = 11;
+  } else if (height < 1024) {
+    max_rwscale = 2048; HEIGHTBITS = 10;
+  } else if (height < 2048) {
+    max_rwscale = 2048; HEIGHTBITS = 9;
+  } else if (height < 4096) {
+    max_rwscale = 1024; HEIGHTBITS = 9;
+  } else if (height < 8192) {
+    max_rwscale =  512; HEIGHTBITS = 9;
+  } else if (height < 16384) {
+    max_rwscale =  256; HEIGHTBITS = 9;
+  } else if (height < 32768) {
+    max_rwscale =  128; HEIGHTBITS = 9;
   } else {
-    max_rwscale =   64 << FRACBITS; HEIGHTBITS = 9;
+    max_rwscale =   64; HEIGHTBITS = 9;
   }
 
+  max_rwscale <<= FRACBITS;
   HEIGHTUNIT = 1 << HEIGHTBITS;
   invhgtbits = 16 - HEIGHTBITS;
 }
