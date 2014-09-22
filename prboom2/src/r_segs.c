@@ -176,6 +176,31 @@ void R_SetWiggleHack(int height)
   invhgtbits = 16 - HEIGHTBITS;
 }
 
+void R_SetWiggleHack_DeBruijn(int height)
+{
+  static const int MultiplyDeBruijnBitPosition[16] = {
+    0, 6, 1, 12, 7, 9, 2, 13, 5, 11, 8, 4, 10, 3, 15, 14};
+  static const int scaled_heightbits[16] = {
+    12, 12, 12, 12, 12, 12, 12, 12, 11, 10, 9, 9, 9, 9, 9, 9};
+  static const int scaled_max_scale[16] = {
+    2048, 2048, 2048, 2048, 2048, 2048, 2048, 2048,
+    2048, 2048, 2048, 1024, 512, 256, 128, 64};
+
+  int n;
+  
+  height |= height >> 1;
+  height |= height >> 2;
+  height |= height >> 4;
+  height |= height >> 8;
+
+  n = MultiplyDeBruijnBitPosition[(unsigned int)(height * 0xe59fcb4u) >> 28];
+
+  max_rwscale = scaled_max_scale[n] << FRACBITS;
+  HEIGHTBITS = scaled_heightbits[n];
+  HEIGHTUNIT = (1 << HEIGHTBITS);
+  invhgtbits = 16 - HEIGHTBITS;
+}
+
 //
 // R_ScaleFromGlobalAngle
 // Returns the texture mapping scale
@@ -679,7 +704,7 @@ void R_StoreWallRange(const int start, const int stop)
   worldtop = frontsector->ceilingheight - viewz;
   worldbottom = frontsector->floorheight - viewz;
   
-  R_SetWiggleHack((worldtop - worldbottom) >> 16);
+  R_SetWiggleHack_DeBruijn((worldtop - worldbottom) >> 16);
 
   // calculate scale at both ends and step
 
