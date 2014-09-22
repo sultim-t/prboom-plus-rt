@@ -180,11 +180,13 @@ void R_SetWiggleHack_DeBruijn(int height)
 {
   static const int MultiplyDeBruijnBitPosition[16] = {
     0, 6, 1, 12, 7, 9, 2, 13, 5, 11, 8, 4, 10, 3, 15, 14};
-  static const int scaled_heightbits[16] = {
-    12, 12, 12, 12, 12, 12, 12, 12, 11, 10, 9, 9, 9, 9, 9, 9};
-  static const int scaled_max_scale[16] = {
-    2048, 2048, 2048, 2048, 2048, 2048, 2048, 2048,
-    2048, 2048, 2048, 1024, 512, 256, 128, 64};
+
+  static const int pairs[16][2] = {
+    {2048, 12}, {2048, 12}, {2048, 12}, {2048, 12},
+    {2048, 12}, {2048, 12}, {2048, 12}, {2048, 12},
+    {2048, 11}, {2048, 10}, {2048, 9},  {1024, 9},
+    {512, 9},   {256, 9},   {128, 9},   {64, 9},
+  };
 
   int n;
   
@@ -195,8 +197,8 @@ void R_SetWiggleHack_DeBruijn(int height)
 
   n = MultiplyDeBruijnBitPosition[(unsigned int)(height * 0xe59fcb4u) >> 28];
 
-  max_rwscale = scaled_max_scale[n] << FRACBITS;
-  HEIGHTBITS = scaled_heightbits[n];
+  max_rwscale = pairs[n][0] << FRACBITS;
+  HEIGHTBITS = pairs[n][1];
   HEIGHTUNIT = (1 << HEIGHTBITS);
   invhgtbits = 16 - HEIGHTBITS;
 }
