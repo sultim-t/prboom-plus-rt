@@ -38,8 +38,6 @@
 #endif
 #include "SDL.h"
 
-#include <math.h>
-
 #include "doomstat.h"
 #include "r_main.h"
 #include "r_bsp.h"
@@ -148,11 +146,14 @@ void R_FixWiggle(sector_t *sec)
 {
   static int  lastheight = 0;
 
-  static const int scale_values[16][2] = {
-    {2048, 12}, {2048, 12}, {2048, 12}, {2048, 12},
-    {2048, 12}, {2048, 12}, {2048, 12}, {2048, 12},
-    {2048, 11}, {2048, 10}, {2048, 9},  {1024, 9},
-    {512, 9},   {256, 9},   {128, 9},   {64, 9},
+  static const struct
+  {
+    int clamp;
+    int heightbits;
+  } scale_values[9] = {
+    {2048, 12}, {2048, 11}, {2048, 10},
+    {2048, 9},  {1024, 9},  {512, 9},
+    {256, 9},   {128, 9},   {64, 9},
   };
 
   int height = (sec->ceilingheight - sec->floorheight) >> FRACBITS;
@@ -167,17 +168,14 @@ void R_FixWiggle(sector_t *sec)
     if (height != sec->cachedheight)
     {
       frontsector->cachedheight = height;
-#if 1
-      frontsector->scaleindex = (int)(log(height) * 1.44269504088896); // * INV_LOG2
-#else
       frontsector->scaleindex = 0;
+      height >>= 7;
       while ((height >>= 1))
         frontsector->scaleindex++;
-#endif
     }
 
-    max_rwscale = scale_values[frontsector->scaleindex][0] << 16;
-    HEIGHTBITS = scale_values[frontsector->scaleindex][1];
+    max_rwscale = scale_values[frontsector->scaleindex].clamp << 16;
+    HEIGHTBITS = scale_values[frontsector->scaleindex].heightbits;
     HEIGHTUNIT = 1 << HEIGHTBITS;
     invhgtbits = 16 - HEIGHTBITS;
   }
