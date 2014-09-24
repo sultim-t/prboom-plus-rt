@@ -161,6 +161,7 @@ typedef struct
   short oldspecial;      //jff 2/16/98 remembers if sector WAS secret (automap)
   short tag;
 
+  // [kb] For R_FixWiggle
   int cachedheight;
   int scaleindex;
 

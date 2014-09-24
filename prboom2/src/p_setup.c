@@ -890,6 +890,10 @@ static void P_LoadSectors (int lump)
 
       // killough 10/98: sky textures coming from sidedefs:
       ss->sky = 0;
+
+      // [kb] For R_WiggleFix
+      ss->cachedheight = 0;
+      ss->scaleindex = 0;
     }
 
   W_UnlockLumpNum(lump); // cph - release the data
