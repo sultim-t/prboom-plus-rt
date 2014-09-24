@@ -159,11 +159,10 @@ void R_SetWiggleHack(sector_t *sec)
   // precision starts to become apparent.
   if (height != sec->cachedheight)
   {
-#if 1
     frontsector->cachedheight = height;
+#if 1
     frontsector->scaleindex = (int)(log(height|1) * 1.44269504088896); // * INV_LOG2
 #else
-    frontsector->cachedheight = height;
     frontsector->scaleindex = 0;
     while ((height >>= 1))
       frontsector->scaleindex++;
