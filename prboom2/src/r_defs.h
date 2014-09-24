@@ -161,6 +161,9 @@ typedef struct
   short oldspecial;      //jff 2/16/98 remembers if sector WAS secret (automap)
   short tag;
 
+  int cachedheight;
+  int scaleindex;
+
   //e6y
   int INTERP_SectorFloor;
   int INTERP_SectorCeiling;

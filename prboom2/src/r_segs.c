@@ -38,6 +38,8 @@
 #endif
 #include "SDL.h"
 
+#include <math.h>
+
 #include "doomstat.h"
 #include "r_main.h"
 #include "r_bsp.h"
@@ -135,15 +137,19 @@ const lighttable_t** GetLightTable(int lightlevel)
 // up to 32767 units tall (or greater, maybe), improving an old bug. Doom doesn't allow
 // anything to pass through a sector any taller than 32767 units, so this limit is ok.
 // Of course, levels with sectors this large WILL suffer from some wall wiggle...
-// e6y - rewrited original kb1's code
-void R_SetWiggleHack(int height)
+void R_SetWiggleHack(sector_t *sec)
 {
-  static int height_last = INT_MIN;
+  static const int scale_values[16][2] = {
+    {2048, 12}, {2048, 12}, {2048, 12}, {2048, 12},
+    {2048, 12}, {2048, 12}, {2048, 12}, {2048, 12},
+    {2048, 11}, {2048, 10}, {2048, 9},  {1024, 9},
+    {512, 9},   {256, 9},   {128, 9},   {64, 9},
+  };
 
-  if (height == height_last)
-    return;
+  int height = (sec->ceilingheight - sec->floorheight) >> FRACBITS;
 
-  height_last = height;
+  if (height < 0)
+    height = 0;
 
   //[kb] scale calculation. The higher the max_scale the better, but go too far and
   // overflow the texture scaling variables. Attempt to get max_scale at least to
@@ -151,57 +157,25 @@ void R_SetWiggleHack(int height)
   // and bottom of textures start to wiggle. Originally set to 12, 11 and 10 seem ok.
   // Only use 9 for levels with really tall walls, because that is where height
   // precision starts to become apparent.
-  if (height < 256) {
-    max_rwscale = 2048; HEIGHTBITS = 12;
-  } else if (height < 512) {
-    max_rwscale = 2048; HEIGHTBITS = 11;
-  } else if (height < 1024) {
-    max_rwscale = 2048; HEIGHTBITS = 10;
-  } else if (height < 2048) {
-    max_rwscale = 2048; HEIGHTBITS = 9;
-  } else if (height < 4096) {
-    max_rwscale = 1024; HEIGHTBITS = 9;
-  } else if (height < 8192) {
-    max_rwscale =  512; HEIGHTBITS = 9;
-  } else if (height < 16384) {
-    max_rwscale =  256; HEIGHTBITS = 9;
-  } else if (height < 32768) {
-    max_rwscale =  128; HEIGHTBITS = 9;
-  } else {
-    max_rwscale =   64; HEIGHTBITS = 9;
+  if (height != sec->cachedheight)
+  {
+#if 1
+    frontsector->cachedheight = height;
+    frontsector->scaleindex = (int)(log(height|1) * 1.44269504088896); // * INV_LOG2
+#else
+    frontsector->cachedheight = height;
+    frontsector->scaleindex = 0;
+    while ((height >>= 1))
+      frontsector->scaleindex++;
+#endif
   }
 
-  max_rwscale <<= FRACBITS;
+  max_rwscale = scale_values[frontsector->scaleindex][0] << 16;
+  HEIGHTBITS = scale_values[frontsector->scaleindex][1];
   HEIGHTUNIT = 1 << HEIGHTBITS;
   invhgtbits = 16 - HEIGHTBITS;
 }
 
-void R_SetWiggleHack_DeBruijn(int height)
-{
-  static const int MultiplyDeBruijnBitPosition[16] = {
-    0, 6, 1, 12, 7, 9, 2, 13, 5, 11, 8, 4, 10, 3, 15, 14};
-
-  static const int pairs[16][2] = {
-    {2048, 12}, {2048, 12}, {2048, 12}, {2048, 12},
-    {2048, 12}, {2048, 12}, {2048, 12}, {2048, 12},
-    {2048, 11}, {2048, 10}, {2048, 9},  {1024, 9},
-    {512, 9},   {256, 9},   {128, 9},   {64, 9},
-  };
-
-  int n;
-  
-  height |= height >> 1;
-  height |= height >> 2;
-  height |= height >> 4;
-  height |= height >> 8;
-
-  n = MultiplyDeBruijnBitPosition[(unsigned int)(height * 0xe59fcb4u) >> 28];
-
-  max_rwscale = pairs[n][0] << FRACBITS;
-  HEIGHTBITS = pairs[n][1];
-  HEIGHTUNIT = (1 << HEIGHTBITS);
-  invhgtbits = 16 - HEIGHTBITS;
-}
 
 //
 // R_ScaleFromGlobalAngle
@@ -706,7 +680,7 @@ void R_StoreWallRange(const int start, const int stop)
   worldtop = frontsector->ceilingheight - viewz;
   worldbottom = frontsector->floorheight - viewz;
   
-  R_SetWiggleHack_DeBruijn((worldtop - worldbottom) >> 16);
+  R_SetWiggleHack(frontsector);
 
   // calculate scale at both ends and step
 
