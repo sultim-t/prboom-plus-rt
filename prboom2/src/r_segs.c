@@ -151,30 +151,35 @@ void R_FixWiggle(sector_t *sec)
     int clamp;
     int heightbits;
   } scale_values[9] = {
-    {2048, 12}, {2048, 11}, {2048, 10},
-    {2048, 9},  {1024, 9},  {512, 9},
-    {256, 9},   {128, 9},   {64, 9},
+    {2048 * FRACUNIT, 12}, {1024 * FRACUNIT, 12}, {1024 * FRACUNIT, 11},
+    { 512 * FRACUNIT, 11}, { 512 * FRACUNIT, 10}, { 256 * FRACUNIT, 10},
+    { 256 * FRACUNIT, 9},  { 128 * FRACUNIT, 9},  {  64 * FRACUNIT, 9},
   };
 
   int height = (sec->ceilingheight - sec->floorheight) >> FRACBITS;
 
+  // disallow negative heights, force cache initialization
   if (height < 1)
     height = 1;
 
+  // early out?
   if (height != lastheight)
   {
     lastheight = height;
 
+    // initialize, or handle moving sector
     if (height != sec->cachedheight)
     {
       frontsector->cachedheight = height;
       frontsector->scaleindex = 0;
       height >>= 7;
+      // calculate adjustment
       while ((height >>= 1))
         frontsector->scaleindex++;
     }
 
-    max_rwscale = scale_values[frontsector->scaleindex].clamp << 16;
+    // fine-tune renderer for this wall
+    max_rwscale = scale_values[frontsector->scaleindex].clamp;
     HEIGHTBITS = scale_values[frontsector->scaleindex].heightbits;
     HEIGHTUNIT = 1 << HEIGHTBITS;
     invhgtbits = 16 - HEIGHTBITS;
