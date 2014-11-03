@@ -80,10 +80,10 @@ void I_PollJoystick(void)
     (SDL_JoystickGetButton(joystick, 6)<<6) |
     (SDL_JoystickGetButton(joystick, 7)<<7);
   axis_value = SDL_JoystickGetAxis(joystick, 0) / 3000;
-  if (abs(axis_value)<10) axis_value=0;
+  if (abs(axis_value)<7) axis_value=0;
   ev.data2 = axis_value;
   axis_value = SDL_JoystickGetAxis(joystick, 1) / 3000;
-  if (abs(axis_value)<10) axis_value=0;
+  if (abs(axis_value)<7) axis_value=0;
   ev.data3 = axis_value;
 
   D_PostEvent(&ev);
