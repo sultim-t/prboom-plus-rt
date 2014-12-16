@@ -52,6 +52,7 @@
 #include "r_main.h"
 #include "lprintf.h"
 #include "e6y.h" //e6y
+#include "g_overflow.h"
 
 // global heads up display controls
 
@@ -2245,7 +2246,13 @@ void HU_draw_crosshair(void)
 
   if (hudadd_crosshair_target || hudadd_crosshair_lock_target)
   {
-    fixed_t slope = P_AimLineAttack(plr->mo, plr->mo->angle, 16*64*FRACUNIT, 0);
+    fixed_t slope;
+    
+    // intercepts overflow guard
+    overflows_enabled = false;
+    slope = P_AimLineAttack(plr->mo, plr->mo->angle, 16*64*FRACUNIT, 0);
+    overflows_enabled = true;
+
     if (linetarget && !(linetarget->flags & MF_SHADOW))
     {
       crosshair.target_x = linetarget->x;

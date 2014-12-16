@@ -46,6 +46,8 @@
 #include "m_misc.h"
 #include "e6y.h"
 
+int overflows_enabled = true;
+
 overrun_param_t overflows[OVERFLOW_MAX];
 const char *overflow_cfgname[OVERFLOW_MAX] =
 {
