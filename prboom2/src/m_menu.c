@@ -5963,7 +5963,7 @@ void M_WriteText (int x,int y, const char* string, int cm)
     }
 
     w = hu_font[c].width;
-    if (cx+w > SCREENWIDTH)
+    if (cx+w > BASE_WIDTH)
       break;
     // proff/nicolas 09/20/98 -- changed for hi-res
     // CPhipps - patch drawing updated
