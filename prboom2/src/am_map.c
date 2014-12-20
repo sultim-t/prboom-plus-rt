@@ -634,12 +634,6 @@ static void AM_LevelInit(void)
 
   AM_SetPosition();
   AM_SetScale();
-
-  AM_findMinMaxBoundaries();
-  scale_mtof = FixedDiv(min_scale_mtof, (int) (0.7*FRACUNIT));
-  if (scale_mtof > max_scale_mtof)
-    scale_mtof = min_scale_mtof;
-  scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
 }
 
 //
@@ -682,6 +676,7 @@ void AM_Start(void)
     lastlevel = gamemap;
     lastepisode = gameepisode;
   }
+  AM_SetPosition();
   AM_initVariables();
   AM_loadPics();
 }
