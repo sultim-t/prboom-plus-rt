@@ -237,7 +237,6 @@ void HUlib_drawTextLine
 //
 void HUlib_eraseTextLine(hu_textline_t* l)
 {
-  int lh;
   int y;
 
   // Only erases when NOT in automap and the screen is reduced,
@@ -246,9 +245,21 @@ void HUlib_eraseTextLine(hu_textline_t* l)
 
   if (!(automapmode & am_active) && viewwindowx && l->needsupdate)
   {
-    lh = l->f[0].height + 1;
-    for (y=l->y; y<l->y+lh ; y++)
-      {
+    int top = l->y;
+    int bottom = l->y + l->f[0].height - 1;
+
+    top = BETWEEN(0, 200-1, top);
+    bottom = BETWEEN(0, 200-1, bottom);
+
+    if (l->flags & VPT_STRETCH_MASK)
+    {
+      stretch_param_t *params = &stretch_params[l->flags & VPT_ALIGN_MASK];
+      top = params->video->y1lookup[top] + params->deltay1;
+      bottom = params->video->y2lookup[bottom] + params->deltay1;
+    }
+
+    for (y=top; y<=bottom; y++)
+    {
       if (y < viewwindowy || y >= viewwindowy + viewheight)
         R_VideoErase(0, y, SCREENWIDTH); // erase entire line
       else
