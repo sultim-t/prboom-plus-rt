@@ -278,6 +278,7 @@ typedef struct
   vertex_t *v1, *v2;
   fixed_t offset;
   angle_t angle;
+  fixed_t length;
   side_t* sidedef;
   line_t* linedef;
 

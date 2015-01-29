@@ -630,6 +630,28 @@ static fixed_t R_PointToDist(fixed_t x, fixed_t y)
                                 + ANG90) >> ANGLETOFINESHIFT]);
 }
 
+fixed_t R_DistToSeg(seg_t* seg)
+{
+  // if wall is horizontal or vertical, finding the distance to it is trivial
+  if (seg->v1->y == seg->v2->y)
+    return D_abs(viewy - seg->v1->y);
+  else if (seg->v1->x == seg->v2->x)
+    return D_abs(viewx - seg->v1->x);
+  else
+  {
+    // to avoid possibility of int64 overflow in dist calculation
+    const int shift_bits = 1;
+
+    int_64_t dx = (seg->v2->x - seg->v1->x) >> shift_bits;
+    int_64_t dy = (seg->v2->y - seg->v1->y) >> shift_bits;
+    int_64_t dx1 = (viewx - seg->v1->x) >> shift_bits;
+    int_64_t dy1 = (viewy - seg->v1->y) >> shift_bits;
+    int_64_t dist = (dy * dx1 - dx * dy1) / (seg->length >> shift_bits);
+
+    return (fixed_t)(dist << shift_bits);
+  }
+}
+
 //
 // R_StoreWallRange
 // A wall segment will be drawn
@@ -637,7 +659,6 @@ static fixed_t R_PointToDist(fixed_t x, fixed_t y)
 //
 void R_StoreWallRange(const int start, const int stop)
 {
-  fixed_t hyp;
   angle_t offsetangle;
 
   if (ds_p == drawsegs+maxdrawsegs)   // killough 1/98 -- fix 2s line HOM
@@ -683,9 +704,8 @@ void R_StoreWallRange(const int start, const int stop)
   if (D_abs(offsetangle) > ANG90)
     offsetangle = ANG90;
 
-  hyp = (viewx==curline->v1->x && viewy==curline->v1->y)?
-    0 : R_PointToDist (curline->v1->x, curline->v1->y);
-  rw_distance = FixedMul(hyp, finecosine[offsetangle>>ANGLETOFINESHIFT]);
+  // [Linguica] Fix long wall error
+  rw_distance = R_DistToSeg(curline);
 
   ds_p->x1 = rw_x = start;
   ds_p->x2 = stop;
@@ -898,6 +918,9 @@ void R_StoreWallRange(const int start, const int stop)
 
   if (segtextured)
     {
+      fixed_t hyp = (viewx==curline->v1->x && viewy==curline->v1->y)?
+        0 : R_PointToDist(curline->v1->x, curline->v1->y);
+
       rw_offset = FixedMul (hyp, -finesine[offsetangle >>ANGLETOFINESHIFT]);
 
       rw_offset += sidedef->textureoffset + curline->offset;

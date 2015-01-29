@@ -2264,6 +2264,18 @@ static void P_RemoveSlimeTrails(void)         // killough 10/98
   free(hit);
 }
 
+static void R_CalcSegsLength(void)
+{
+  int i;
+  for (i=0; i<numsegs; i++)
+  {
+    seg_t *li = segs+i;
+    fixed_t dx = li->v2->x - li->v1->x;
+    fixed_t dy = li->v2->y - li->v1->y;
+    li->length = (fixed_t)sqrt((double)dx*dx + (double)dy*dy);
+  }
+}
+
 //
 // P_CheckLumpsForSameSource
 //
@@ -2630,6 +2642,9 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   // http://www.doomworld.com/vb/showthread.php?s=&postid=627257#post627257
   if (compatibility_level>=lxdoom_1_compatibility || prboom_comp[PC_REMOVE_SLIME_TRAILS].state)
     P_RemoveSlimeTrails();    // killough 10/98: remove slime trails from wad
+
+  // should be after P_RemoveSlimeTrails, because it changes vertexes
+  R_CalcSegsLength();
 
   // Note: you don't need to clear player queue slots --
   // a much simpler fix is in g_game.c -- killough 10/98
