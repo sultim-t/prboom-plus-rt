@@ -441,7 +441,7 @@ static vissprite_t *R_NewVisSprite(void)
 int   *mfloorclip;   // dropoff overflow
 int   *mceilingclip; // dropoff overflow
 fixed_t spryscale;
-fixed_t sprtopscreen;
+int_64_t sprtopscreen;
 
 void R_DrawMaskedColumn(
   const rpatch_t *patch,
@@ -453,8 +453,8 @@ void R_DrawMaskedColumn(
 )
 {
   int     i;
-  int     topscreen;
-  int     bottomscreen;
+  int_64_t     topscreen;
+  int_64_t     bottomscreen;
   fixed_t basetexturemid = dcvars->texturemid;
 
   dcvars->texheight = patch->height; // killough 11/98
@@ -465,8 +465,8 @@ void R_DrawMaskedColumn(
       topscreen = sprtopscreen + spryscale*post->topdelta;
       bottomscreen = topscreen + spryscale*post->length;
 
-      dcvars->yl = (topscreen+FRACUNIT-1)>>FRACBITS;
-      dcvars->yh = (bottomscreen-1)>>FRACBITS;
+      dcvars->yl = (int)((topscreen+FRACUNIT-1)>>FRACBITS);
+      dcvars->yh = (int)((bottomscreen-1)>>FRACBITS);
 
       if (dcvars->yh >= mfloorclip[dcvars->x])
         dcvars->yh = mfloorclip[dcvars->x]-1;

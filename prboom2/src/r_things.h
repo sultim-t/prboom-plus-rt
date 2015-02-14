@@ -55,7 +55,7 @@ extern int *screenheightarray; /* change to MAX_*  */ // dropoff overflow
 extern int     *mfloorclip;    // dropoff overflow
 extern int     *mceilingclip;  // dropoff overflow
 extern fixed_t spryscale;
-extern fixed_t sprtopscreen;
+extern int_64_t sprtopscreen;
 extern fixed_t pspriteiscale;
 /* proff 11/06/98: Added for high-res */
 extern fixed_t pspritexscale;
