@@ -158,7 +158,6 @@ static void stopchan(int i)
   if (channelinfo[i].data) /* cph - prevent excess unlocks */
   {
     channelinfo[i].data = NULL;
-    W_UnlockLumpNum(S_sfx[channelinfo[i].id].lumpnum);
   }
 }
 
