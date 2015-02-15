@@ -686,10 +686,10 @@ void R_StoreWallRange(const int start, const int stop)
 
   // [Linguica] Fix long wall error
   // shift right to avoid possibility of int64 overflow in rw_distance calculation
-  dx = (curline->v2->x - curline->v1->x) >> shift_bits;
-  dy = (curline->v2->y - curline->v1->y) >> shift_bits;
-  dx1 = (viewx - curline->v1->x) >> shift_bits;
-  dy1 = (viewy - curline->v1->y) >> shift_bits;
+  dx = (curline->v2->px - curline->v1->px) >> shift_bits;
+  dy = (curline->v2->py - curline->v1->py) >> shift_bits;
+  dx1 = (viewx - curline->v1->px) >> shift_bits;
+  dy1 = (viewy - curline->v1->py) >> shift_bits;
   len = curline->length >> shift_bits;
   
   rw_distance = (fixed_t)(((dy * dx1 - dx * dy1) / len) << shift_bits);
