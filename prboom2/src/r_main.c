@@ -342,7 +342,7 @@ angle_t R_GetVertexViewAngle(vertex_t *v)
   if (v->angletime != r_frame_count)
   {
     v->angletime = r_frame_count;
-    v->viewangle = R_PointToAngleEx(v->x, v->y);
+    v->viewangle = R_PointToAngleEx(v->px, v->py);
   }
   return v->viewangle;
 }

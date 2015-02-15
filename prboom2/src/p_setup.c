@@ -2232,6 +2232,17 @@ static void P_RemoveSlimeTrails(void)         // killough 10/98
 {
   byte *hit = calloc(1, numvertexes);         // Hitlist for vertices
   int i;
+  // Correction of desync on dv04-423.lmp/dv.wad
+  // http://www.doomworld.com/vb/showthread.php?s=&postid=627257#post627257
+  int apply_for_real_vertexes = (compatibility_level>=lxdoom_1_compatibility || prboom_comp[PC_REMOVE_SLIME_TRAILS].state);
+
+  for (i=0; i<numvertexes; i++)
+  {
+    // [crispy] initialize pseudovertexes with actual vertex coordinates
+    vertexes[i].px = vertexes[i].x;
+    vertexes[i].py = vertexes[i].y;
+  }
+
   for (i=0; i<numsegs; i++)                   // Go through each seg
   {
     const line_t *l;
@@ -2254,8 +2265,13 @@ static void P_RemoveSlimeTrails(void)         // killough 10/98
         int_64_t dxy = (l->dx >> FRACBITS) * (l->dy >> FRACBITS);
         int_64_t s = dx2 + dy2;
         int x0 = v->x, y0 = v->y, x1 = l->v1->x, y1 = l->v1->y;
-        v->x = (int)((dx2 * x0 + dy2 * x1 + dxy * (y0 - y1)) / s);
-        v->y = (int)((dy2 * y0 + dx2 * y1 + dxy * (x0 - x1)) / s);
+        v->px = (int)((dx2 * x0 + dy2 * x1 + dxy * (y0 - y1)) / s);
+        v->py = (int)((dy2 * y0 + dx2 * y1 + dxy * (x0 - x1)) / s);
+        if (apply_for_real_vertexes)
+        {
+          v->x = v->px;
+          v->y = v->py;
+        }
       }
         }  // Obsfucated C contest entry:   :)
     while ((v != segs[i].v2) && (v = segs[i].v2));
@@ -2637,11 +2653,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   // P_GroupLines modified to return a number the underflow padding needs
   P_LoadReject(lumpnum, P_GroupLines());
 
-  // e6y
-  // Correction of desync on dv04-423.lmp/dv.wad
-  // http://www.doomworld.com/vb/showthread.php?s=&postid=627257#post627257
-  if (compatibility_level>=lxdoom_1_compatibility || prboom_comp[PC_REMOVE_SLIME_TRAILS].state)
-    P_RemoveSlimeTrails();    // killough 10/98: remove slime trails from wad
+  P_RemoveSlimeTrails();    // killough 10/98: remove slime trails from wad
 
   // should be after P_RemoveSlimeTrails, because it changes vertexes
   R_CalcSegsLength();
