@@ -223,7 +223,9 @@ typedef struct line_s
   int iLineID;           // proff 04/05/2000: needed for OpenGL
   vertex_t *v1, *v2;     // Vertices, from v1 to v2.
   fixed_t dx, dy;        // Precalculated v2 - v1 for side checking.
-  fixed_t texel_length;
+#ifdef GL_DOOM
+  float texel_length;
+#endif
   unsigned short flags;           // Animation related.
   short special;
   short tag;
