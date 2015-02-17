@@ -2286,8 +2286,8 @@ static void R_CalcSegsLength(void)
   for (i=0; i<numsegs; i++)
   {
     seg_t *li = segs+i;
-    fixed_t dx = li->v2->x - li->v1->x;
-    fixed_t dy = li->v2->y - li->v1->y;
+    fixed_t dx = li->v2->px - li->v1->px;
+    fixed_t dy = li->v2->py - li->v1->py;
     li->length = (fixed_t)sqrt((double)dx*dx + (double)dy*dy);
   }
 }
