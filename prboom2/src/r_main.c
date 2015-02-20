@@ -106,7 +106,7 @@ angle_t  viewangle;
 fixed_t  viewcos, viewsin;
 player_t *viewplayer;
 // e6y: Added for more precise flats drawing
-float viewfocratio;
+fixed_t viewfocratio;
 
 int r_nearclip = 5;
 
@@ -836,7 +836,7 @@ void R_ExecuteSetViewSize (void)
   // calculate projectiony using int_64_t math to avoid overflow when SCREENWIDTH>4228
   projectiony = (fixed_t)((((int_64_t)cheight * centerx * 320) / 200) / SCREENWIDTH * FRACUNIT);
   // e6y: this is a precalculated value for more precise flats drawing (see R_MapPlane)
-  viewfocratio = (1.6f * centerx / wide_centerx) / ((float)SCREENWIDTH / (float)cheight);
+  viewfocratio = projectiony / wide_centerx;
 
   R_SetupViewScaling();
 

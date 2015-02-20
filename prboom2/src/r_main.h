@@ -72,7 +72,7 @@ extern int wide_offset2y;
 extern fixed_t  projectiony;
 extern int      validcount;
 // e6y: Added for more precise flats drawing
-extern float viewfocratio;
+extern fixed_t viewfocratio;
 
 //
 // Rendering stats
