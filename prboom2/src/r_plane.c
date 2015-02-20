@@ -104,9 +104,6 @@ static fixed_t planeheight;
 
 static fixed_t basexscale, baseyscale;
 static fixed_t *cachedheight = NULL;
-static fixed_t *cacheddistance = NULL;
-static fixed_t *cachedxstep = NULL;
-static fixed_t *cachedystep = NULL;
 static fixed_t xoffs,yoffs;    // killough 2/28/98: flat offsets
 
 // e6y: resolution limitation is removed
@@ -120,9 +117,6 @@ void R_InitPlanesRes(void)
   if (spanstart) free(spanstart);
 
   if (cachedheight) free(cachedheight);
-  if (cacheddistance) free(cacheddistance);
-  if (cachedxstep) free(cachedxstep);
-  if (cachedystep) free(cachedystep);
 
   if (yslope) free(yslope);
   if (distscale) free(distscale);
@@ -132,9 +126,6 @@ void R_InitPlanesRes(void)
   spanstart = calloc(1, SCREENHEIGHT * sizeof(*spanstart));
 
   cachedheight = calloc(1, SCREENHEIGHT * sizeof(*cachedheight));
-  cacheddistance = calloc(1, SCREENHEIGHT * sizeof(*cacheddistance));
-  cachedxstep = calloc(1, SCREENHEIGHT * sizeof(*cachedxstep));
-  cachedystep = calloc(1, SCREENHEIGHT * sizeof(*cachedystep));
 
   yslope = calloc(1, SCREENHEIGHT * sizeof(*yslope));
   distscale = calloc(1, SCREENWIDTH * sizeof(*distscale));
@@ -197,6 +188,8 @@ static void R_MapPlane(int y, int x1, int x2, draw_span_vars_t *dsvars)
   // Visplanes with the same texture now match up far better than before.
   //
   // See cchest2.wad/map02/room with sector #265
+  if (centery == y)
+    return;
   den = (int_64_t)FRACUNIT * FRACUNIT * D_abs(centery - y);
   distance = FixedMul (planeheight, yslope[y]);
   
