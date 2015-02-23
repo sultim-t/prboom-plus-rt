@@ -148,6 +148,9 @@ static int fl_init (int samplerate)
 
   FSET (num, "synth.sample-rate", f_soundrate);
 
+  FSET (int, "synth.chorus.active", mus_fluidsynth_chorus);
+  FSET (int, "synth.reverb.active", mus_fluidsynth_reverb);
+
   // gain control
   FSET (num, "synth.gain", mus_fluidsynth_gain / 100.0); // 0.0 - 0.2 - 10.0
   // behavior wrt bank select messages
