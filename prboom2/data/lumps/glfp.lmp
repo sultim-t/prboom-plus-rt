@@ -10,7 +10,8 @@ void main()
   // Doom lighting equation ripped from EDGE.
   float L = 63.0 * lightlevel;
   float min_L = clamp(36.0 - L, 0.0, 31.0);
-  float index = 59.0 + DOOMLIGHTFACTOR - L - DOOMLIGHTFACTOR / gl_FragCoord.z;
+  float dist = max(0.0, gl_FragCoord.z);
+  float index = 59.0 + DOOMLIGHTFACTOR - L - DOOMLIGHTFACTOR / dist;
   color.rgb *= (1.0 - clamp(index, min_L, 31.0) / 31.0);
 
   gl_FragColor = color * texture2D(tex, gl_TexCoord[0].st);
