@@ -365,7 +365,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
           if (t + (int_64_t) textureheight[texnum] * spryscale < 0 ||
               t > (int_64_t) SCREENHEIGHT << FRACBITS*2)
             continue;        // skip if the texture is out of screen's range
-          sprtopscreen = (int_64_t)(t >> FRACBITS);
+          sprtopscreen = (int_64_t)(t >> FRACBITS); // R_WiggleFix
         }
 
         dcvars.iscale = 0xffffffffu / (unsigned) spryscale;

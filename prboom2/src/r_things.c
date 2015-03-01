@@ -441,7 +441,7 @@ static vissprite_t *R_NewVisSprite(void)
 int   *mfloorclip;   // dropoff overflow
 int   *mceilingclip; // dropoff overflow
 fixed_t spryscale;
-int_64_t sprtopscreen;
+int_64_t sprtopscreen; // R_WiggleFix
 
 void R_DrawMaskedColumn(
   const rpatch_t *patch,
@@ -453,8 +453,8 @@ void R_DrawMaskedColumn(
 )
 {
   int     i;
-  int_64_t     topscreen;
-  int_64_t     bottomscreen;
+  int_64_t     topscreen; // R_WiggleFix
+  int_64_t     bottomscreen; // R_WiggleFix
   fixed_t basetexturemid = dcvars->texturemid;
 
   dcvars->texheight = patch->height; // killough 11/98
