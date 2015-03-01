@@ -92,9 +92,9 @@ static fixed_t  pixhigh;
 static fixed_t  pixlow;
 static fixed_t  pixhighstep;
 static fixed_t  pixlowstep;
-static fixed_t  topfrac;
+static int_64_t  topfrac; // R_WiggleFix
 static fixed_t  topstep;
-static fixed_t  bottomfrac;
+static int_64_t  bottomfrac; // R_WiggleFix
 static fixed_t  bottomstep;
 static int      *maskedtexturecol; // dropoff overflow
 
@@ -424,8 +424,8 @@ static void R_RenderSegLoop (void)
 
        // mark floor / ceiling areas
 
-      int yh = bottomfrac>>HEIGHTBITS;
-      int yl = (topfrac+HEIGHTUNIT-1)>>HEIGHTBITS;
+      int yh = (int)(bottomfrac>>HEIGHTBITS);
+      int yl = (int)((topfrac+HEIGHTUNIT-1)>>HEIGHTBITS);
 
       // no space above wall?
       int bottom,top = ceilingclip[rw_x]+1;
