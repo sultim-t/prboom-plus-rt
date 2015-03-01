@@ -88,8 +88,8 @@ static int      worldtop;
 static int      worldbottom;
 static int      worldhigh;
 static int      worldlow;
-static fixed_t  pixhigh;
-static fixed_t  pixlow;
+static int_64_t  pixhigh; // R_WiggleFix
+static int_64_t  pixlow; // R_WiggleFix
 static fixed_t  pixhighstep;
 static fixed_t  pixlowstep;
 static int_64_t  topfrac; // R_WiggleFix
@@ -528,7 +528,7 @@ static void R_RenderSegLoop (void)
           if (toptexture)
             {
               // top wall
-              int mid = pixhigh>>HEIGHTBITS;
+              int mid = (int)(pixhigh>>HEIGHTBITS);
               pixhigh += pixhighstep;
 
               if (mid >= floorclip[rw_x])
@@ -562,7 +562,7 @@ static void R_RenderSegLoop (void)
 
           if (bottomtexture)          // bottom wall
             {
-              int mid = (pixlow+HEIGHTUNIT-1)>>HEIGHTBITS;
+              int mid = (int)((pixlow+HEIGHTUNIT-1)>>HEIGHTBITS);
               pixlow += pixlowstep;
 
               // no space above wall?
@@ -948,10 +948,10 @@ void R_StoreWallRange(const int start, const int stop)
   worldbottom >>= invhgtbits;
 
   topstep = -FixedMul (rw_scalestep, worldtop);
-  topfrac = (centeryfrac>>invhgtbits) - FixedMul (worldtop, rw_scale);
+  topfrac = ((int_64_t)centeryfrac>>invhgtbits) - (((int_64_t)worldtop*rw_scale)>>FRACBITS); // R_WiggleFix
 
   bottomstep = -FixedMul (rw_scalestep,worldbottom);
-  bottomfrac = (centeryfrac>>invhgtbits) - FixedMul (worldbottom, rw_scale);
+  bottomfrac = ((int_64_t)centeryfrac>>invhgtbits) - (((int_64_t)worldbottom*rw_scale)>>FRACBITS); // R_WiggleFix
 
   if (backsector)
     {
@@ -960,12 +960,12 @@ void R_StoreWallRange(const int start, const int stop)
 
       if (worldhigh < worldtop)
         {
-          pixhigh = (centeryfrac>>invhgtbits) - FixedMul (worldhigh, rw_scale);
+          pixhigh = ((int_64_t)centeryfrac>>invhgtbits) - (((int_64_t)worldhigh*rw_scale)>>FRACBITS); // R_WiggleFix
           pixhighstep = -FixedMul (rw_scalestep,worldhigh);
         }
       if (worldlow > worldbottom)
         {
-          pixlow = (centeryfrac>>invhgtbits) - FixedMul (worldlow, rw_scale);
+          pixlow = ((int_64_t)centeryfrac>>invhgtbits) - (((int_64_t)worldlow*rw_scale)>>FRACBITS); // R_WiggleFix
           pixlowstep = -FixedMul (rw_scalestep,worldlow);
         }
     }
