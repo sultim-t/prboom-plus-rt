@@ -1225,8 +1225,8 @@ static void AM_drawGrid(int color)
 
   // Figure out start of vertical gridlines
   start = minx - extx;
-  if ((start - bmaporgx) % gridsize)
-    start -= ((start - bmaporgx) % gridsize);
+  if ((start - (bmaporgx>>FRACTOMAPBITS)) % gridsize)
+    start -= ((start - (bmaporgx>>FRACTOMAPBITS)) % gridsize);
   end = minx + minlen - extx;
 
   // draw vertical gridlines
@@ -1251,8 +1251,8 @@ static void AM_drawGrid(int color)
 
   // Figure out start of horizontal gridlines
   start = miny - exty;
-  if ((start - bmaporgy) % gridsize)
-    start -= ((start - bmaporgy) % gridsize);
+  if ((start - (bmaporgy>>FRACTOMAPBITS)) % gridsize)
+    start -= ((start - (bmaporgy>>FRACTOMAPBITS)) % gridsize);
   end = miny + minlen - exty;
 
   // draw horizontal gridlines
