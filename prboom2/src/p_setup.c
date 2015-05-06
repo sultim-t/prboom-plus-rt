@@ -2289,6 +2289,8 @@ static void R_CalcSegsLength(void)
     fixed_t dx = li->v2->px - li->v1->px;
     fixed_t dy = li->v2->py - li->v1->py;
     li->length = (fixed_t)sqrt((double)dx*dx + (double)dy*dy);
+    // [crispy] re-calculate angle used for rendering
+    li->pangle = R_PointToAngle2(li->v1->px, li->v1->py, li->v2->px, li->v2->py);
   }
 }
 

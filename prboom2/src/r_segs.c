@@ -677,7 +677,7 @@ void R_StoreWallRange(const int start, const int stop)
   linedef->flags |= ML_MAPPED;
 
   // calculate rw_distance for scale calculation
-  rw_normalangle = curline->angle + ANG90;
+  rw_normalangle = curline->pangle + ANG90; // [crispy] use re-calculated angle
 
   offsetangle = rw_normalangle-rw_angle1;
 
