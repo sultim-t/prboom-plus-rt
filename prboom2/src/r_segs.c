@@ -639,7 +639,6 @@ void R_StoreWallRange(const int start, const int stop)
 {
   const int shift_bits = 1;
   int_64_t dx, dy, dx1, dy1, len;
-  angle_t offsetangle;
 
   if (ds_p == drawsegs+maxdrawsegs)   // killough 1/98 -- fix 2s line HOM
     {
@@ -678,11 +677,6 @@ void R_StoreWallRange(const int start, const int stop)
 
   // calculate rw_distance for scale calculation
   rw_normalangle = curline->pangle + ANG90; // [crispy] use re-calculated angle
-
-  offsetangle = rw_normalangle-rw_angle1;
-
-  if (D_abs(offsetangle) > ANG90)
-    offsetangle = ANG90;
 
   // [Linguica] Fix long wall error
   // shift right to avoid possibility of int64 overflow in rw_distance calculation
