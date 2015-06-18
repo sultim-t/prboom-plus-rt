@@ -242,12 +242,6 @@ static void W_AddFile(wadfile_info_t *wadfile)
         }
         strncpy (lump_p->name, fileinfo->name, 8);
 	lump_p->source = wadfile->src;                    // Ty 08/29/98
-    // IWAD file used as recource PWAD must not override TEXTURE1 or PNAMES
-    if (wadfile->src != source_iwad && !strncmp(header.identification,"IWAD",4) &&
-      (!strnicmp(fileinfo->name,"TEXTURE1",8) || !strnicmp(fileinfo->name,"PNAMES",6)))
-    {
-      strncpy (lump_p->name, "-IGNORE-", 8);
-    }
       }
 
     free(fileinfo2free);      // killough
