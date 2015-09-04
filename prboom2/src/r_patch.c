@@ -216,9 +216,9 @@ static int getColumnEdgeSlope(const column_t *prevcolumn, const column_t *nextco
 }
 
 //---------------------------------------------------------------------------
-static void FillEmptySpace(const rpatch_t *patch)
+static void FillEmptySpace(rpatch_t *patch)
 {
-  int x, y, w, h, numpix, pass, transparent;
+  int x, y, w, h, numpix, pass, transparent, has_holes;
   byte *orig, *copy, *src, *dest, *prev, *next;
 
   // loop over patch looking for transparent pixels next to solid ones
@@ -246,6 +246,7 @@ static void FillEmptySpace(const rpatch_t *patch)
     prev = src - h; // only valid when x > 0
     next = src + h; // only valid when x < w-1
 
+    has_holes = 0; // if the patch has any holes at all
     transparent = 0; // number of pixels this pass did not handle
 
     // detect transparent pixels on edges, copy solid colour into the space
@@ -254,6 +255,8 @@ static void FillEmptySpace(const rpatch_t *patch)
     {
       for (y = 0; y < h; y++)
       {
+        if (*src == 0xff) has_holes = 1;
+
         if (*src != 0xff) // already a solid pixel, just copy it over
           *dest = *src;
         else if (y > 0 && *(src-1) != 0xff) // solid pixel above
@@ -293,6 +296,9 @@ static void FillEmptySpace(const rpatch_t *patch)
     else if (*src == 0xff && *dest != 0xff) // top transparent, bottom solid
       *src = *dest;
   }
+
+  if (has_holes)
+    patch->flags |= PATCH_HASHOLES;
 }
 
 //==========================================================================
