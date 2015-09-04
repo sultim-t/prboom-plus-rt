@@ -215,6 +215,75 @@ static int getColumnEdgeSlope(const column_t *prevcolumn, const column_t *nextco
   return 0;
 }
 
+//---------------------------------------------------------------------------
+static void FillEmptySpace(const rpatch_t *patch)
+{
+  int x, y, w, h, numpix, pass, transparent;
+  byte *orig, *copy, *src, *dest, *prev, *next;
+
+  // loop over patch looking for transparent pixels next to solid ones
+  // copy solid pixels into the spaces, dilating the patch outwards
+  // repeat either a fixed number of times or until all space is filled
+  // this eliminates artifacts surrounding weapon sprites (e.g. chainsaw)
+
+  w = patch->width;
+  h = patch->height;
+  numpix = w * h;
+
+  // alternate between two buffers to avoid "overlapping memcpy"-like symptoms
+  orig = patch->pixels;
+  copy = malloc(numpix);
+
+  for (pass = 0; pass < 8; pass++) // arbitrarily chosen limit (must be even)
+  {
+    // copy src to dest, then switch them on next pass
+    // (this requires an even number of passes)
+    src  = ((pass & 1) == 0) ? orig : copy;
+    dest = ((pass & 1) == 0) ? copy : orig;
+
+    // previous and next columns adjacent to current column x
+    // these pointers must not be dereferenced without appropriate checks
+    prev = src - h; // only valid when x > 0
+    next = src + h; // only valid when x < w-1
+
+    transparent = 0; // number of pixels this pass did not handle
+
+    // detect transparent pixels on edges, copy solid colour into the space
+    // the order of directions (up,down,left,right) is arbitrarily chosen
+    for (x = 0; x < w; x++)
+    {
+      for (y = 0; y < h; y++)
+      {
+        if (*src != 0xff) // already a solid pixel, just copy it over
+          *dest = *src;
+        else if (y > 0 && *(src-1) != 0xff) // solid pixel above
+          *dest = *(src - 1);
+        else if (y < h-1 && *(src+1) != 0xff) // solid pixel below
+          *dest = *(src + 1);
+        else if (x > 0 && *prev != 0xff) // solid pixel to left
+          *dest = *prev;
+        else if (x < w-1 && *next != 0xff) // solid pixel to right
+          *dest = *next;
+        else // transparent pixel with no adjacent solid pixels
+          *dest = *src, transparent++; // count unhandled pixels
+
+        prev++, src++, next++, dest++;
+      }
+    }
+
+    if (transparent == 0) // no more transparent pixels to fill
+    {
+      if ((pass & 1) == 0) // dest was copy, src was orig: orig needs update
+        memcpy(orig, copy, numpix);
+      break;
+    }
+    else if (transparent == numpix)
+      break; // avoid infinite loop on entirely transparent patches (STBR127)
+  }
+
+  free(copy);
+}
+
 //==========================================================================
 //
 // Checks if the lump can be a Doom patch
@@ -429,55 +498,7 @@ static void createPatch(int id) {
     }
   }
 
-  if (1 || (patch->flags&PATCH_ISNOTTILEABLE)) {
-    const rcolumn_t *column, *prevColumn;
-
-    // copy the patch image down and to the right where there are
-    // holes to eliminate the black halo from bilinear filtering
-    for (x=0; x<patch->width; x++) {
-      //oldColumn = (const column_t *)((const byte *)oldPatch + oldPatch->columnofs[x]);
-
-      column = R_GetPatchColumnClamped(patch, x);
-      prevColumn = R_GetPatchColumnClamped(patch, x-1);
-
-      if (column->pixels[0] == 0xff) {
-        // e6y: marking of all patches with holes
-        patch->flags |= PATCH_HASHOLES;
-
-        // force the first pixel (which is a hole), to use
-        // the color from the next solid spot in the column
-        for (y=0; y<patch->height; y++) {
-          if (column->pixels[y] != 0xff) {
-            column->pixels[0] = column->pixels[y];
-            break;
-          }
-        }
-      }
-
-      // copy from above or to the left
-      for (y=1; y<patch->height; y++) {
-        //if (getIsSolidAtSpot(oldColumn, y)) continue;
-        if (column->pixels[y] != 0xff) continue;
-
-        // this pixel is a hole
-
-        // e6y: marking of all patches with holes
-        patch->flags |= PATCH_HASHOLES;
-
-        if (x && prevColumn->pixels[y-1] != 0xff) {
-          // copy the color from the left
-          column->pixels[y] = prevColumn->pixels[y];
-        }
-        else {
-          // copy the color from above
-          column->pixels[y] = column->pixels[y-1];
-        }
-      }
-    }
-
-    // verify that the patch truly is non-rectangular since
-    // this determines tiling later on
-  }
+  FillEmptySpace(patch);
 
   W_UnlockLumpNum(patchNum);
   free(numPostsInColumn);
@@ -762,55 +783,7 @@ static void createTextureCompositePatch(int id) {
     }
   }
 
-  if (1 || (composite_patch->flags&PATCH_ISNOTTILEABLE)) {
-    const rcolumn_t *column, *prevColumn;
-
-    // copy the patch image down and to the right where there are
-    // holes to eliminate the black halo from bilinear filtering
-    for (x=0; x<composite_patch->width; x++) {
-      //oldColumn = (const column_t *)((const byte *)oldPatch + oldPatch->columnofs[x]);
-
-      column = R_GetPatchColumnClamped(composite_patch, x);
-      prevColumn = R_GetPatchColumnClamped(composite_patch, x-1);
-
-      if (column->pixels[0] == 0xff) {
-        // e6y: marking of all patches with holes
-        composite_patch->flags |= PATCH_HASHOLES;
-
-        // force the first pixel (which is a hole), to use
-        // the color from the next solid spot in the column
-        for (y=0; y<composite_patch->height; y++) {
-          if (column->pixels[y] != 0xff) {
-            column->pixels[0] = column->pixels[y];
-            break;
-          }
-        }
-      }
-
-      // copy from above or to the left
-      for (y=1; y<composite_patch->height; y++) {
-        //if (getIsSolidAtSpot(oldColumn, y)) continue;
-        if (column->pixels[y] != 0xff) continue;
-
-        // this pixel is a hole
-
-        // e6y: marking of all patches with holes
-        composite_patch->flags |= PATCH_HASHOLES;
-
-        if (x && prevColumn->pixels[y-1] != 0xff) {
-          // copy the color from the left
-          column->pixels[y] = prevColumn->pixels[y];
-        }
-        else {
-          // copy the color from above
-          column->pixels[y] = column->pixels[y-1];
-        }
-      }
-    }
-
-    // verify that the patch truly is non-rectangular since
-    // this determines tiling later on
-  }
+  FillEmptySpace(composite_patch);
 
   free(countsInColumn);
 }
