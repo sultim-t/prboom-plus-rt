@@ -282,6 +282,17 @@ static void FillEmptySpace(const rpatch_t *patch)
   }
 
   free(copy);
+
+  // copy top row of patch into any space at bottom, and vice versa
+  // a hack to fix erroneous row of pixels at top of firing chaingun
+
+  for (x = 0, src = orig, dest = src + h-1; x < w; x++, src += h, dest += h)
+  {
+    if (*src != 0xff && *dest == 0xff) // bottom transparent, top solid
+      *dest = *src;
+    else if (*src == 0xff && *dest != 0xff) // top transparent, bottom solid
+      *src = *dest;
+  }
 }
 
 //==========================================================================
