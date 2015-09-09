@@ -2267,6 +2267,16 @@ static void P_RemoveSlimeTrails(void)         // killough 10/98
         int x0 = v->x, y0 = v->y, x1 = l->v1->x, y1 = l->v1->y;
         v->px = (int)((dx2 * x0 + dy2 * x1 + dxy * (y0 - y1)) / s);
         v->py = (int)((dy2 * y0 + dx2 * y1 + dxy * (x0 - x1)) / s);
+        
+        // [crispy] wait a minute... moved more than 8 map units?
+        // maybe that's a linguortal then, back to the original coordinates
+        // http://www.doomworld.com/vb/doom-editing/74354-stupid-bsp-tricks/
+        if (!apply_for_real_vertexes && (D_abs(v->px - v->x) > 8*FRACUNIT || D_abs(v->py - v->y) > 8*FRACUNIT))
+        {
+          v->px = v->x;
+          v->py = v->y;
+        }
+
         if (apply_for_real_vertexes)
         {
           v->x = v->px;
