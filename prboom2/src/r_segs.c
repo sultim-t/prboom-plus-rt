@@ -638,7 +638,7 @@ static fixed_t R_PointToDist(fixed_t x, fixed_t y)
 void R_StoreWallRange(const int start, const int stop)
 {
   const int shift_bits = 1;
-  int_64_t dx, dy, dx1, dy1, len;
+  int_64_t dx, dy, dx1, dy1, len, dist;
 
   if (ds_p == drawsegs+maxdrawsegs)   // killough 1/98 -- fix 2s line HOM
     {
@@ -686,7 +686,8 @@ void R_StoreWallRange(const int start, const int stop)
   dy1 = (viewy - curline->v1->py) >> shift_bits;
   len = curline->length >> shift_bits;
   
-  rw_distance = (fixed_t)(((dy * dx1 - dx * dy1) / len) << shift_bits);
+  dist = (((dy * dx1 - dx * dy1) / len) << shift_bits);
+  rw_distance = (fixed_t)BETWEEN(INT_MIN, INT_MAX, dist);
 
   ds_p->x1 = rw_x = start;
   ds_p->x2 = stop;
