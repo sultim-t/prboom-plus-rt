@@ -116,4 +116,9 @@ inline static CONSTFUNC fixed_t FixedMod(fixed_t a, fixed_t b)
     return (a & (b-1));
 }
 
+static CONSTFUNC fixed_t Scale(fixed_t a, fixed_t b, fixed_t c)
+{
+	return (fixed_t)(((int_64_t)a*b)/c);
+}
+
 #endif

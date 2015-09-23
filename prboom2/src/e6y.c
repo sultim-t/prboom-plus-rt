@@ -490,8 +490,8 @@ void M_ChangeMaxViewPitch(void)
   }
   else
   {
-    max_up = MIN(movement_maxviewpitch, 61);
-    max_dn = MIN(movement_maxviewpitch, 36);
+    max_up = MIN(movement_maxviewpitch, 56);
+    max_dn = MIN(movement_maxviewpitch, 32);
   }
 
   angle_up = (int)((float)max_up / 45.0f * ANG45);

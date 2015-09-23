@@ -95,7 +95,9 @@ int wide_offsety;
 int wide_offset2y;
 
 fixed_t  focallength;
+fixed_t  focallengthy;
 fixed_t  centerxfrac, centeryfrac;
+fixed_t  yaspectmul;
 fixed_t  viewheightfrac; //e6y: for correct cliping of things
 fixed_t  projection;
 // proff 11/06/98: Added for high-res
@@ -375,6 +377,7 @@ static void R_InitTextureMapping (void)
   //  so FIELDOFVIEW angles covers SCREENWIDTH.
 
   focallength = FixedDiv(centerxfrac, finetangent[FINEANGLES/4 + FieldOfView/2]);
+  focallengthy = Scale(centerxfrac, yaspectmul, finetangent[FINEANGLES/4 + FieldOfView/2]);
 
   for (i=0 ; i<FINEANGLES/2 ; i++)
     {
@@ -958,7 +961,7 @@ void R_SetupFreelook(void)
     centery = viewheight / 2;
     if (GetMouseLook())
     {
-      dy = FixedMul(focallength, finetangent[(ANG90-viewpitch)>>ANGLETOFINESHIFT]);
+      dy = FixedMul(focallengthy, finetangent[(ANG90-viewpitch)>>ANGLETOFINESHIFT]);
       centery += dy >> FRACBITS;
     }
     centeryfrac = centery<<FRACBITS;
