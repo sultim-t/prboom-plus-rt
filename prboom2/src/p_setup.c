@@ -2162,19 +2162,19 @@ static int P_GroupLines (void)
     }
 
     // adjust bounding box to map blocks
-    block = (bbox[BOXTOP]-bmaporgy+MAXRADIUS)>>MAPBLOCKSHIFT;
+    block = P_GetSafeBlockY(bbox[BOXTOP]-bmaporgy+MAXRADIUS);
     block = block >= bmapheight ? bmapheight-1 : block;
     sector->blockbox[BOXTOP]=block;
 
-    block = (bbox[BOXBOTTOM]-bmaporgy-MAXRADIUS)>>MAPBLOCKSHIFT;
+    block = P_GetSafeBlockY(bbox[BOXBOTTOM]-bmaporgy-MAXRADIUS);
     block = block < 0 ? 0 : block;
     sector->blockbox[BOXBOTTOM]=block;
 
-    block = (bbox[BOXRIGHT]-bmaporgx+MAXRADIUS)>>MAPBLOCKSHIFT;
+    block = P_GetSafeBlockX(bbox[BOXRIGHT]-bmaporgx+MAXRADIUS);
     block = block >= bmapwidth ? bmapwidth-1 : block;
     sector->blockbox[BOXRIGHT]=block;
 
-    block = (bbox[BOXLEFT]-bmaporgx-MAXRADIUS)>>MAPBLOCKSHIFT;
+    block = P_GetSafeBlockX(bbox[BOXLEFT]-bmaporgx-MAXRADIUS);
     block = block < 0 ? 0 : block;
     sector->blockbox[BOXLEFT]=block;
   }
