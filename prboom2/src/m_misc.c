@@ -1140,6 +1140,8 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"comperr_allowjump", {&default_comperr[comperr_allowjump]},  {0},0,1,
    def_bool,ss_stat},
+  {"comperr_freeaim", {&default_comperr[comperr_freeaim]},  {0},0,1,
+   def_bool,ss_stat},
 
 #ifdef USE_WINDOWS_LAUNCHER
   {"Prboom-plus launcher settings",{NULL},{0},UL,UL,def_none,ss_none},

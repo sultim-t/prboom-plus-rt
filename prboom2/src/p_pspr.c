@@ -44,6 +44,7 @@
 #include "sounds.h"
 #include "d_event.h"
 #include "r_demo.h"
+#include "g_game.h"
 #include "lprintf.h"
 #include "e6y.h"//e6y
 
@@ -737,6 +738,9 @@ static void P_BulletSlope(mobj_t *mo)
   bulletslope = P_AimLineAttack(mo, an -= 2<<26, 16*64*FRACUNIT, mask);
     }
   while (mask && (mask=0, !linetarget));  /* killough 8/2/98 */
+  
+  if (!linetarget && comperr(comperr_freeaim))
+    bulletslope = finetangent[(ANG90 - mo->pitch) >> ANGLETOFINESHIFT];
 }
 
 //

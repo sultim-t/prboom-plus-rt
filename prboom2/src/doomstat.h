@@ -127,6 +127,7 @@ enum {
   comperr_hangsolid,
   comperr_blockmap,
   comperr_allowjump,
+  comperr_freeaim,
 
   COMPERR_NUM
 };

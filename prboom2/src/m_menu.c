@@ -3251,6 +3251,7 @@ setup_menu_t gen_settings7[] =
   {"WALK UNDER SOLID HANGING BODIES"   ,S_YESNO     ,m_null,G_X2,G_Y+4*8, {"comperr_hangsolid"}},
   {"FIX CLIPPING PROBLEMS IN LARGE LEVELS" ,S_YESNO ,m_null,G_X2,G_Y+5*8, {"comperr_blockmap"}},
   {"ALLOW JUMP"                        ,S_YESNO     ,m_null,G_X2,G_Y+6*8, {"comperr_allowjump"}},
+  {"ALLOW VERTICAL AIMING"             ,S_YESNO     ,m_null,G_X2,G_Y+7*8, {"comperr_freeaim"}},
 
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {gen_settings6}},
 #ifdef GL_DOOM

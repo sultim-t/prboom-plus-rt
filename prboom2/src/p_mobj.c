@@ -1626,6 +1626,9 @@ void P_SpawnPlayerMissile(mobj_t* source,mobjtype_t type)
       an = source->angle, slope = 0;
   }
       while (mask && (mask=0, !linetarget));  // killough 8/2/98
+
+      if (!linetarget && comperr(comperr_freeaim))
+        slope = finetangent[(ANG90 - source->pitch) >> ANGLETOFINESHIFT];
     }
 
   x = source->x;
