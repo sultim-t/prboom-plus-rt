@@ -1521,7 +1521,7 @@ static void gld_DrawWall(GLWall *wall)
       glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
 
       // split left edge of wall
-      if (gl_seamless && !wall->glseg->fracleft)
+      if (!wall->glseg->fracleft)
         gld_SplitLeftEdge(wall, false);
 
       // upper left corner
@@ -1533,7 +1533,7 @@ static void gld_DrawWall(GLWall *wall)
       glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
 
       // split right edge of wall
-      if (gl_seamless && !wall->glseg->fracright)
+      if (!wall->glseg->fracright)
         gld_SplitRightEdge(wall, false);
 
       // lower right corner
@@ -2670,16 +2670,13 @@ void gld_ProcessWall(GLWall *wall)
   // otherwise there are rendering artifacts worse than anything that could be seen 
   // on Geforce 2's! Made this a menu option because the speed impact is quite severe
   // and this special handling is not necessary on modern NVidia cards.
-  if (gl_seamless)
-  {
-    seg_t *seg = wall->seg;
+  seg_t *seg = wall->seg;
 
-    wall->glseg->fracleft  = 0;
-    wall->glseg->fracright = 0;
+  wall->glseg->fracleft  = 0;
+  wall->glseg->fracright = 0;
 
-    gld_RecalcVertexHeights(seg->linedef->v1);
-    gld_RecalcVertexHeights(seg->linedef->v2);
-  }
+  gld_RecalcVertexHeights(seg->linedef->v1);
+  gld_RecalcVertexHeights(seg->linedef->v2);
 
   gld_DrawWall(wall);
 }

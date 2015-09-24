@@ -184,7 +184,6 @@ extern const char *gl_tex_format_string;
 extern int gl_sky_detail;
 extern int gl_use_paletted_texture;
 extern int gl_use_shared_texture_palette;
-extern int gl_seamless;
 
 //e6y: all OpenGL extentions will be disabled with TRUE
 extern int gl_compatibility;
@@ -1007,8 +1006,6 @@ default_t defaults[] =
    def_int,ss_stat},
   {"render_interlaced_scanning", {&render_interlaced_scanning},  {0},0,1,
    def_bool,ss_stat},
-  {"render_precise",{(int*)&render_precise},{render_precise_quality},
-   render_precise_speed, render_precise_quality, def_int,ss_none},
   {"render_aspect", {&render_aspect},  {0},0,4,
    def_int,ss_stat},
   {"render_doom_lightmaps", {&render_doom_lightmaps},  {0},0,1,

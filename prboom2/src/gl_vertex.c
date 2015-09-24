@@ -91,8 +91,6 @@ typedef struct vertexsplit_info_s
   byte validcount;
 } vertexsplit_info_t;
 
-int gl_seamless = false;
-
 static vertexsplit_info_t * gl_vertexsplit = NULL;
 
 typedef struct splitsbysector_s
@@ -335,7 +333,7 @@ void gld_InitVertexData()
   int ** vt_sectorlists;
   unsigned int * vt_sectorlists_size;
 
-  if (!gl_seamless || gl_vertexsplit)
+  if (gl_vertexsplit)
     return;
 
   vt_sectorlists = calloc(sizeof(vt_sectorlists[0]), numvertexes);

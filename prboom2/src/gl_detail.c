@@ -177,7 +177,7 @@ void gld_DrawTriangleStripARB(GLWall *wall, gl_strip_coords_t *c1, gl_strip_coor
   glVertex3fv((const GLfloat*)&c1->v[0]);
 
   // split left edge of wall
-  //if (gl_seamless && !wall->glseg->fracleft)
+  //if (!wall->glseg->fracleft)
   //  gld_SplitLeftEdge(wall, true);
 
   // upper left corner
@@ -191,7 +191,7 @@ void gld_DrawTriangleStripARB(GLWall *wall, gl_strip_coords_t *c1, gl_strip_coor
   glVertex3fv((const GLfloat*)&c1->v[2]);
 
   // split right edge of wall
-  //if (gl_seamless && !wall->glseg->fracright)
+  //if (!wall->glseg->fracright)
   //  gld_SplitRightEdge(wall, true);
 
   // lower right corner
@@ -279,7 +279,7 @@ void gld_DrawWallWithDetail(GLWall *wall)
     glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
 
     // split left edge of wall
-    if (gl_seamless && !wall->glseg->fracleft)
+    if (!wall->glseg->fracleft)
       gld_SplitLeftEdge(wall, true);
 
     // upper left corner
@@ -293,7 +293,7 @@ void gld_DrawWallWithDetail(GLWall *wall)
     glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
 
     // split right edge of wall
-    if (gl_seamless && !wall->glseg->fracright)
+    if (!wall->glseg->fracright)
       gld_SplitRightEdge(wall, true);
 
     // lower right corner
@@ -365,7 +365,7 @@ void gld_DrawWallDetail_NoARB(GLWall *wall)
       glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
 
       // split left edge of wall
-      if (gl_seamless && !wall->glseg->fracleft)
+      if (!wall->glseg->fracleft)
         gld_SplitLeftEdge(wall, true);
 
       // upper left corner
@@ -377,7 +377,7 @@ void gld_DrawWallDetail_NoARB(GLWall *wall)
       glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
 
       // split right edge of wall
-      if (gl_seamless && !wall->glseg->fracright)
+      if (!wall->glseg->fracright)
         gld_SplitRightEdge(wall, true);
 
       // lower right corner

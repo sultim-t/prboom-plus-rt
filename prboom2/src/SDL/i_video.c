@@ -1439,7 +1439,6 @@ void I_UpdateVideoMode(void)
   if (V_GetMode() == VID_MODEGL)
   {
     M_ChangeFOV();
-    M_ChangeRenderPrecise();
     deh_changeCompTranslucency();
   }
 #endif

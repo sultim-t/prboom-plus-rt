@@ -3185,11 +3185,10 @@ setup_menu_t gen_settings4[] = { // General Settings screen3
   {"Flashing HOM indicator",     S_YESNO,  m_null, G_X, G_Y+10*8, {"flashing_hom"}},
 
   // prboom-plus 
-  {"Rendering quality",          S_CHOICE, m_null, G_X, G_Y+12*8, {"render_precise"}, 0, 0, M_ChangeRenderPrecise, render_precises},
-  {"Wipe Screen Effect",         S_YESNO,  m_null, G_X, G_Y+13*8, {"render_wipescreen"}},
-  {"Change Palette On Pain",     S_YESNO,  m_null, G_X, G_Y+15*8, {"palette_ondamage"}, 0, 0, M_ChangeApplyPalette},
-  {"Change Palette On Bonus",    S_YESNO,  m_null, G_X, G_Y+16*8, {"palette_onbonus"}, 0, 0, M_ChangeApplyPalette},
-  {"Change Palette On Powers",   S_YESNO,  m_null, G_X, G_Y+17*8, {"palette_onpowers"}, 0, 0, M_ChangeApplyPalette},
+  {"Wipe Screen Effect",         S_YESNO,  m_null, G_X, G_Y+12*8, {"render_wipescreen"}},
+  {"Change Palette On Pain",     S_YESNO,  m_null, G_X, G_Y+14*8, {"palette_ondamage"}, 0, 0, M_ChangeApplyPalette},
+  {"Change Palette On Bonus",    S_YESNO,  m_null, G_X, G_Y+15*8, {"palette_onbonus"}, 0, 0, M_ChangeApplyPalette},
+  {"Change Palette On Powers",   S_YESNO,  m_null, G_X, G_Y+16*8, {"palette_onpowers"}, 0, 0, M_ChangeApplyPalette},
 
   {"<- PREV",S_SKIP|S_PREV, m_null, KB_PREV, KB_Y+20*8, {gen_settings3}},
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings5}},

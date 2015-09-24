@@ -147,11 +147,6 @@ subsector_t *R_PointInSubsector(fixed_t x, fixed_t y);
 angle_t R_PointToAngleEx(fixed_t x, fixed_t y);
 angle_t R_PointToPseudoAngle(fixed_t x, fixed_t y);
 
-//e6y
-typedef enum { render_precise_speed, render_precise_quality } render_precise_t;
-extern render_precise_t render_precise;
-extern const char *render_precises[];
-
 extern int r_have_internal_hires;
 
 //

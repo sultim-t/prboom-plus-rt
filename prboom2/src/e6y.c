@@ -300,7 +300,6 @@ static dboolean saved_fastdemo;
 static dboolean saved_nodrawers;
 static dboolean saved_nosfxparm;
 static dboolean saved_nomusicparm;
-static int saved_render_precise;
 
 void G_SkipDemoStart(void)
 {
@@ -308,7 +307,6 @@ void G_SkipDemoStart(void)
   saved_nodrawers = nodrawers;
   saved_nosfxparm = nosfxparm;
   saved_nomusicparm = nomusicparm;
-  saved_render_precise = render_precise;
 
   paused = false;
   
@@ -319,9 +317,6 @@ void G_SkipDemoStart(void)
   nodrawers = true;
   nosfxparm = true;
   nomusicparm = true;
-
-  render_precise = false;
-  M_ChangeRenderPrecise();
 
   I_Init2();
 }
@@ -335,9 +330,6 @@ void G_SkipDemoStop(void)
   nosfxparm = saved_nosfxparm;
   nomusicparm = saved_nomusicparm;
   
-  render_precise = saved_render_precise;
-  M_ChangeRenderPrecise();
-
   demo_stoponnext = false;
   demo_stoponend = false;
   demo_warp = false;
@@ -501,30 +493,6 @@ void M_ChangeMaxViewPitch(void)
   minViewPitch = (-angle_dn + (1<<ANGLETOFINESHIFT));
 
   viewpitch = 0;
-}
-
-void M_ChangeRenderPrecise(void)
-{
-#ifdef GL_DOOM
-  if (V_GetMode() != VID_MODEGL)
-  {
-    gl_seamless = false;
-    return;
-  }
-  else
-  {
-    if (render_precise)
-    {
-      gl_seamless = true;
-      gld_InitVertexData();
-    }
-    else
-    {
-      gl_seamless = false;
-      gld_CleanVertexData();
-    }
-  }
-#endif // GL_DOOM
 }
 
 void M_ChangeScreenMultipleFactor(void)

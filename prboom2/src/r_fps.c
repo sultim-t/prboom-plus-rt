@@ -299,15 +299,12 @@ static void R_DoAnInterpolation (int i, fixed_t smoothratio)
   }
 
 #ifdef GL_DOOM
-  if (gl_seamless)
+  switch (curipos[i].type)
   {
-    switch (curipos[i].type)
-    {
-    case INTERP_SectorFloor:
-    case INTERP_SectorCeiling:
-      gld_UpdateSplitData(((sector_t*)curipos[i].address));
-      break;
-    }
+  case INTERP_SectorFloor:
+  case INTERP_SectorCeiling:
+    gld_UpdateSplitData(((sector_t*)curipos[i].address));
+    break;
   }
 #endif
 }

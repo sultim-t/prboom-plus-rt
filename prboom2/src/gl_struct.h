@@ -88,7 +88,6 @@ void M_ChangeLightMode(void);
 extern int gl_detail_maxdist;
 extern int gl_allow_detail_textures;
 
-extern int gl_seamless;
 void gld_InitVertexData();
 void gld_CleanVertexData();
 void gld_UpdateSplitData(sector_t *sector);
