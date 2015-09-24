@@ -48,8 +48,6 @@
 #include "config.h"
 #endif
 
-#include "i_smp.h"
-
 #include "z_zone.h"  /* memory allocation wrappers -- killough */
 
 #include "doomstat.h"
@@ -224,7 +222,7 @@ static void R_MapPlane(int y, int x1, int x2, draw_span_vars_t *dsvars)
   dsvars->x2 = x2;
 
   if (V_GetMode() != VID_MODEGL)
-    SMP_SpanFunc(dsvars);
+    R_DrawSpan(dsvars);
 }
 
 //
@@ -481,8 +479,7 @@ static void R_DoDrawPlane(visplane_t *pl)
               dcvars.source = R_GetTextureColumn(tex_patch, ((an + xtoviewangle[x])^flip) >> ANGLETOSKYSHIFT);
               dcvars.prevsource = R_GetTextureColumn(tex_patch, ((an + xtoviewangle[x-1])^flip) >> ANGLETOSKYSHIFT);
               dcvars.nextsource = R_GetTextureColumn(tex_patch, ((an + xtoviewangle[x+1])^flip) >> ANGLETOSKYSHIFT);
-              dcvars.colfunc = colfunc;
-              SMP_ColFunc(&dcvars);
+              colfunc(&dcvars);
             }
 
       R_UnlockTextureCompositePatchNum(texture);

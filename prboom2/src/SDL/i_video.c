@@ -68,7 +68,6 @@
 #include "d_deh.h"
 #include "i_joy.h"
 #include "i_video.h"
-#include "i_smp.h"
 #include "i_capture.h"
 #include "z_zone.h"
 #include "s_sound.h"
@@ -1231,8 +1230,6 @@ void I_UpdateVideoMode(void)
       vid_8ingl.surface = NULL;
     }
 #endif
-
-    SMP_Free();
   }
 
   // e6y: initialisation of screen_multiply
@@ -1347,8 +1344,6 @@ void I_UpdateVideoMode(void)
   if(screen == NULL) {
     I_Error("Couldn't set %dx%d video mode [%s]", REAL_SCREENWIDTH, REAL_SCREENHEIGHT, SDL_GetError());
   }
-
-  SMP_Init();
 
 #if SDL_VERSION_ATLEAST(1, 3, 0)
 #ifdef GL_DOOM

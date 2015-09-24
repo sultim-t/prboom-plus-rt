@@ -47,7 +47,6 @@
 #include "r_draw.h"
 #include "w_wad.h"
 #include "v_video.h"
-#include "i_smp.h"
 #include "lprintf.h"
 
 // OPTIMIZE: closed two sided lines as single sided
@@ -514,8 +513,7 @@ static void R_RenderSegLoop (void)
           dcvars.prevsource = R_GetTextureColumn(tex_patch, texturecolumn-1);
           dcvars.nextsource = R_GetTextureColumn(tex_patch, texturecolumn+1);
           dcvars.texheight = midtexheight;
-          dcvars.colfunc = colfunc;
-          SMP_ColFunc(&dcvars);
+          colfunc(&dcvars);
           R_UnlockTextureCompositePatchNum(midtexture);
           tex_patch = NULL;
           ceilingclip[rw_x] = viewheight;
@@ -544,8 +542,7 @@ static void R_RenderSegLoop (void)
                   dcvars.prevsource = R_GetTextureColumn(tex_patch,texturecolumn-1);
                   dcvars.nextsource = R_GetTextureColumn(tex_patch,texturecolumn+1);
                   dcvars.texheight = toptexheight;
-                  dcvars.colfunc = colfunc;
-                  SMP_ColFunc(&dcvars);
+                  colfunc(&dcvars);
                   R_UnlockTextureCompositePatchNum(toptexture);
                   tex_patch = NULL;
                   ceilingclip[rw_x] = mid;
@@ -579,8 +576,7 @@ static void R_RenderSegLoop (void)
                   dcvars.prevsource = R_GetTextureColumn(tex_patch, texturecolumn-1);
                   dcvars.nextsource = R_GetTextureColumn(tex_patch, texturecolumn+1);
                   dcvars.texheight = bottomtexheight;
-                  dcvars.colfunc = colfunc;
-                  SMP_ColFunc(&dcvars);
+                  colfunc(&dcvars);
                   R_UnlockTextureCompositePatchNum(bottomtexture);
                   tex_patch = NULL;
                   floorclip[rw_x] = mid;

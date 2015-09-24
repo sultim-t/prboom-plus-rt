@@ -53,7 +53,6 @@
 #include "st_stuff.h"
 #include "i_main.h"
 #include "i_system.h"
-#include "i_smp.h"
 #include "g_game.h"
 #include "r_demo.h"
 #include "r_fps.h"
@@ -1102,23 +1101,15 @@ void R_RenderPlayerView (player_t* player)
   }
 #endif
 
-  SMP_WakeRenderer();
-
   // The head node is the last node output.
   R_RenderBSPNode (numnodes-1);
 
 #ifdef HAVE_NET
-  if (!use_smp)
-  {
-    NetUpdate ();
-  }
+  NetUpdate ();
 #endif
 
   if (V_GetMode() != VID_MODEGL)
     R_DrawPlanes();
-
-  // sleep until the renderer has completed
-  SMP_FrontEndSleep();
 
   R_ResetColumnBuffer();
 

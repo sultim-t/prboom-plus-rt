@@ -540,14 +540,6 @@ SOURCE=..\src\i_pcsound.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\i_smp.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\i_smp.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\SDL\i_sound.c
 # End Source File
 # Begin Source File

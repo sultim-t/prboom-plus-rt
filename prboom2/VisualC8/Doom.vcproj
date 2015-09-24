@@ -2198,14 +2198,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\i_smp.c"
-				>
-			</File>
-			<File
-				RelativePath="..\src\i_smp.h"
-				>
-			</File>
-			<File
 				RelativePath="..\src\SDL\i_sound.c"
 				>
 				<FileConfiguration
