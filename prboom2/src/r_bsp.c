@@ -370,8 +370,8 @@ static void R_AddLine (seg_t *line)
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
-    angle1 = R_GetVertexViewAngleGL(line->v1);
-    angle2 = R_GetVertexViewAngleGL(line->v2);
+    angle1 = R_PointToPseudoAngle(line->v1->x, line->v1->y);
+    angle2 = R_PointToPseudoAngle(line->v2->x, line->v2->y);
 
     // Back side, i.e. backface culling	- read: endAngle >= startAngle!
     if (angle2 - angle1 < ANG180 || !line->linedef)  
@@ -425,8 +425,8 @@ static void R_AddLine (seg_t *line)
   }
 #endif
 
-  angle1 = R_GetVertexViewAngle(line->v1);
-  angle2 = R_GetVertexViewAngle(line->v2);
+  angle1 = R_PointToAngleEx(line->v1->px, line->v1->py);
+  angle2 = R_PointToAngleEx(line->v2->px, line->v2->py);
 
   // Clip to view edges.
   span = angle1 - angle2;

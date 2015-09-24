@@ -90,6 +90,8 @@ extern fixed_t finetangent[FINEANGLES/2];
 extern angle_t tantoangle[SLOPERANGE+1];
 
 // Utility function, called by R_PointToAngle.
-int SlopeDiv(unsigned num, unsigned den);
+typedef int (*slope_div_fn)(unsigned int num, unsigned int den);
+int SlopeDiv(unsigned int num, unsigned int den);
+int SlopeDivEx(unsigned int num, unsigned int den);
 
 #endif

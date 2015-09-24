@@ -74,8 +74,6 @@
 typedef struct
 {
   fixed_t x, y;
-  angle_t viewangle;   // e6y: precalculated angle for clipping
-  int angletime;       // e6y: recalculation time for view angle 
   // [crispy] remove slime trails
   // pseudovertexes are dummies that have their coordinates modified to get
   // moved towards the linedef associated with their seg by projecting them

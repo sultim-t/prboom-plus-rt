@@ -2493,7 +2493,7 @@ void gld_ProjectSprite(mobj_t* thing)
   {
     // choose a different rotation based on player view
     angle_t rot;
-    angle_t ang = R_PointToAngle(fx, fy);
+    angle_t ang = R_PointToAngle2(viewx, viewy, fx, fy);
     if (sprframe->lump[0] == sprframe->lump[1])
     {
       rot = (ang - thing->angle + (angle_t)(ANG45/2)*9) >> 28;

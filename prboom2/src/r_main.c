@@ -225,73 +225,44 @@ PUREFUNC int R_PointOnSegSide(fixed_t x, fixed_t y, const seg_t *line)
 //
 // killough 5/2/98: reformatted, cleaned up
 
-angle_t R_PointToAngle(fixed_t x, fixed_t y)
+angle_t R_PointToAngleSlope(fixed_t x1, fixed_t y1, fixed_t x, fixed_t y, slope_div_fn slope_div)
 {
-  return (y -= viewy, (x -= viewx) || y) ?
+  return (y -= y1, (x -= x1) || y) ?
     x >= 0 ?
       y >= 0 ?
-        (x > y) ? tantoangle[SlopeDiv(y,x)] :                      // octant 0
-                ANG90-1-tantoangle[SlopeDiv(x,y)] :                // octant 1
-        x > (y = -y) ? 0-tantoangle[SlopeDiv(y,x)] :                // octant 8
-                       ANG270+tantoangle[SlopeDiv(x,y)] :          // octant 7
-      y >= 0 ? (x = -x) > y ? ANG180-1-tantoangle[SlopeDiv(y,x)] : // octant 3
-                            ANG90 + tantoangle[SlopeDiv(x,y)] :    // octant 2
-        (x = -x) > (y = -y) ? ANG180+tantoangle[ SlopeDiv(y,x)] :  // octant 4
-                              ANG270-1-tantoangle[SlopeDiv(x,y)] : // octant 5
+        (x > y) ? tantoangle[slope_div(y,x)] :                      // octant 0
+                ANG90-1-tantoangle[slope_div(x,y)] :                // octant 1
+        x > (y = -y) ? 0-tantoangle[slope_div(y,x)] :               // octant 8
+                       ANG270+tantoangle[slope_div(x,y)] :          // octant 7
+      y >= 0 ? (x = -x) > y ? ANG180-1-tantoangle[slope_div(y,x)] : // octant 3
+                            ANG90 + tantoangle[slope_div(x,y)] :    // octant 2
+        (x = -x) > (y = -y) ? ANG180+tantoangle[slope_div(y,x)] :   // octant 4
+                              ANG270-1-tantoangle[slope_div(x,y)] : // octant 5
     0;
 }
 
-angle_t R_PointToAngle2(fixed_t viewx, fixed_t viewy, fixed_t x, fixed_t y)
+angle_t R_PointToAngle2(fixed_t x1, fixed_t y1, fixed_t x, fixed_t y)
 {
-  return (y -= viewy, (x -= viewx) || y) ?
-    x >= 0 ?
-      y >= 0 ?
-        (x > y) ? tantoangle[SlopeDiv(y,x)] :                      // octant 0
-                ANG90-1-tantoangle[SlopeDiv(x,y)] :                // octant 1
-        x > (y = -y) ? 0-tantoangle[SlopeDiv(y,x)] :                // octant 8
-                       ANG270+tantoangle[SlopeDiv(x,y)] :          // octant 7
-      y >= 0 ? (x = -x) > y ? ANG180-1-tantoangle[SlopeDiv(y,x)] : // octant 3
-                            ANG90 + tantoangle[SlopeDiv(x,y)] :    // octant 2
-        (x = -x) > (y = -y) ? ANG180+tantoangle[ SlopeDiv(y,x)] :  // octant 4
-                              ANG270-1-tantoangle[SlopeDiv(x,y)] : // octant 5
-    0;
+  return R_PointToAngleSlope(x1, y1, x, y, SlopeDiv);
 }
-
-// e6y
-// The precision of the code above is abysmal so use the CRT atan2 function instead!
-
-// FIXME - use of this function should be disabled on architectures with
-// poor floating point support! Imagine how slow this would be on ARM, say.
 
 angle_t R_PointToAngleEx(fixed_t x, fixed_t y)
 {
-  static int_64_t old_y_viewy;
-  static int_64_t old_x_viewx;
-  static int old_result;
+  // [crispy] fix overflows for very long distances
+  int64_t y_viewy = (int64_t)y - viewy;
+  int64_t x_viewx = (int64_t)x - viewx;
 
-  int_64_t y_viewy = (int_64_t)y - viewy;
-  int_64_t x_viewx = (int_64_t)x - viewx;
-
-  if (!render_precise)
+  // [crispy] the worst that could happen is e.g. INT_MIN-INT_MAX = 2*INT_MIN
+  if (x_viewx < INT_MIN || x_viewx > INT_MAX ||y_viewy < INT_MIN || y_viewy > INT_MAX)
   {
-    // e6y: here is where "slime trails" can SOMETIMES occur
-#ifdef GL_DOOM
-    if (V_GetMode() != VID_MODEGL)
-#endif
-      if (y_viewy < INT_MAX/4 && x_viewx < INT_MAX/4
-          && y_viewy > -INT_MAX/4 && x_viewx > -INT_MAX/4)
-        return R_PointToAngle(x, y);
+    // [crispy] preserving the angle by halfing the distance in both directions
+    x = (int)(x_viewx / 2 + viewx);
+    y = (int)(y_viewy / 2 + viewy);
   }
 
-  if (old_y_viewy != y_viewy || old_x_viewx != x_viewx)
-  {
-    old_y_viewy = y_viewy;
-    old_x_viewx = x_viewx;
-
-    old_result = (int)((float)atan2((float)y_viewy, (float)x_viewx) * (ANG180/M_PI));
-  }
-  return old_result;
+  return R_PointToAngleSlope(viewx, viewy, x, y, SlopeDivEx);
 }
+
 
 //-----------------------------------------------------------------------------
 //
@@ -326,29 +297,6 @@ angle_t R_PointToPseudoAngle (fixed_t x, fixed_t y)
     return (angle_t)(result * (1 << 30));
   }
 }
-
-angle_t R_GetVertexViewAngleGL(vertex_t *v)
-{
-  if (v->angletime != r_frame_count)
-  {
-    v->angletime = r_frame_count;
-    v->viewangle = R_PointToPseudoAngle(v->x, v->y);
-  }
-  return v->viewangle;
-}
-
-
-// e6y: caching
-angle_t R_GetVertexViewAngle(vertex_t *v)
-{
-  if (v->angletime != r_frame_count)
-  {
-    v->angletime = r_frame_count;
-    v->viewangle = R_PointToAngleEx(v->px, v->py);
-  }
-  return v->viewangle;
-}
-
 
 //
 // R_InitTextureMapping

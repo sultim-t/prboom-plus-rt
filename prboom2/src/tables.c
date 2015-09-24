@@ -55,7 +55,7 @@
 
 // killough 5/3/98: reformatted
 
-int SlopeDiv(unsigned num, unsigned den)
+int SlopeDiv(unsigned int num, unsigned int den)
 {
   unsigned ans;
 
@@ -63,6 +63,16 @@ int SlopeDiv(unsigned num, unsigned den)
     return SLOPERANGE;
   ans = (num<<3)/(den>>8);
   return ans <= SLOPERANGE ? ans : SLOPERANGE;
+}
+
+// [crispy] catch SlopeDiv overflows, only used in rendering
+int SlopeDivEx(unsigned int num, unsigned int den)
+{
+  uint_64_t ans;
+  if (den < 512)
+    return SLOPERANGE;
+  ans = ((uint_64_t)num<<3)/(den>>8);
+  return ans <= SLOPERANGE ? (int)ans : SLOPERANGE;
 }
 
 fixed_t finetangent[4096];
