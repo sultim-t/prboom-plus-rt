@@ -2247,10 +2247,18 @@ void HU_draw_crosshair(void)
   if (hudadd_crosshair_target || hudadd_crosshair_lock_target)
   {
     fixed_t slope;
+    angle_t an = plr->mo->angle;
     
     // intercepts overflow guard
     overflows_enabled = false;
-    slope = P_AimLineAttack(plr->mo, plr->mo->angle, 16*64*FRACUNIT, 0);
+    slope = P_AimLineAttack(plr->mo, an, 16*64*FRACUNIT, 0);
+    if (plr->readyweapon == wp_missile || plr->readyweapon == wp_plasma || plr->readyweapon == wp_bfg)
+    {
+      if (!linetarget)
+        slope = P_AimLineAttack(plr->mo, an += 1<<26, 16*64*FRACUNIT, 0);
+      if (!linetarget)
+        slope = P_AimLineAttack(plr->mo, an -= 2<<26, 16*64*FRACUNIT, 0);
+    }
     overflows_enabled = true;
 
     if (linetarget && !(linetarget->flags & MF_SHADOW))
