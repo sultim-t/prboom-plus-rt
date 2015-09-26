@@ -1,4 +1,3 @@
 #
 
-EXTRA_DIST = barrel.ico fouch.ico god.ico heada1.ico icons.rc resource.h skull.ico
-
+EXTRA_DIST = icons.rc resource.h prboom-plus.svg prboom-plus.ico prboom-plus.exe.manifest
