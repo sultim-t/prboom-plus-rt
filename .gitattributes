@@ -1,5 +1,6 @@
 * text=auto !eol
 prboom2/ICONS/Makefile.am eol=lf
+prboom2/ICONS/prboom-plus.desktop -text
 prboom2/ICONS/prboom-plus.exe.manifest -text
 prboom2/ICONS/prboom-plus.ico -text
 prboom2/ICONS/prboom-plus.svg -text
