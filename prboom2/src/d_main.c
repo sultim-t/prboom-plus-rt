@@ -704,8 +704,7 @@ void D_AddFile (const char *file, wad_source_t source)
   // No Rest For The Living
   len=strlen(wadfiles[numwadfiles].name);
   if (len>=9 && !strnicmp(wadfiles[numwadfiles].name+len-9,"nerve.wad",9))
-    if (bfgedition)
-      gamemission = pack_nerve;
+    gamemission = pack_nerve;
 
   numwadfiles++;
   // proff: automatically try to add the gwa files
@@ -1733,13 +1732,13 @@ static void D_DoomMainSetup(void)
       {
         ProcessDehFile(NULL, D_dehout(), lump);
       }
-      if (gamemission == pack_nerve)
+    }
+    if (gamemission == pack_nerve)
+    {
+      int lump = (W_CheckNumForName)("NERVEBEX", ns_prboom);
+      if (lump != -1)
       {
-        lump = (W_CheckNumForName)("NERVEBEX", ns_prboom);
-        if (lump != -1)
-        {
-          ProcessDehFile(NULL, D_dehout(), lump);
-        }
+        ProcessDehFile(NULL, D_dehout(), lump);
       }
     }
     if (gamemission == chex)
