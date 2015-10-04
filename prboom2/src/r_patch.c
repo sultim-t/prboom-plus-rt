@@ -129,22 +129,30 @@ void R_InitPatches(void) {
     int lump = W_GetNumForName("PLAYPAL");
     const byte *playpal = W_CacheLumpNum(lump);
 
-    // find a palette entry that is the duplicate of palette entry zero,
-    // so we can use zero as a transparency index in FillEmptySpace
+    // find two duplicate palette entries. use one for transparency.
+    // rewrite source pixels in patches to the other on composition.
 
-    int i;
+    int i, j, found = 0;
 
-    for (i = 1; i < 256; i++)
+    for (i = 0; i < 256; i++)
     {
-      if (playpal[3*i+0] == playpal[0] &&
-          playpal[3*i+1] == playpal[1] &&
-          playpal[3*i+2] == playpal[2])
+      for (j = i+1; j < 256; j++)
+      {
+        if (playpal[3*i+0] == playpal[3*j+0] &&
+            playpal[3*i+1] == playpal[3*j+1] &&
+            playpal[3*i+2] == playpal[3*j+2])
+        {
+          found = 1;
+          break;
+        }
+      }
+      if (found)
         break;
     }
 
-    if (i < 256) { // found duplicate
-      playpal_transparent = 0;
-      playpal_duplicate   = i;
+    if (found) { // found duplicate
+      playpal_transparent = i;
+      playpal_duplicate   = j;
     } else { // no duplicate: use 255 for transparency, as done previously
       playpal_transparent = 255;
       playpal_duplicate   = -1;
