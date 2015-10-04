@@ -287,18 +287,18 @@ static void FillEmptySpace(rpatch_t *patch)
     {
       for (y = 0; y < h; y++)
       {
-        if (*src == 0xff) has_holes = 1;
+        if (*src == playpal_transparent) has_holes = 1;
 
-        if (*src != 0xff) // already a solid pixel, just copy it over
-          *dest = *src;
-        else if (y > 0 && *(src-1) != 0xff) // solid pixel above
-          *dest = *(src - 1);
-        else if (y < h-1 && *(src+1) != 0xff) // solid pixel below
-          *dest = *(src + 1);
-        else if (x > 0 && *prev != 0xff) // solid pixel to left
-          *dest = *prev;
-        else if (x < w-1 && *next != 0xff) // solid pixel to right
-          *dest = *next;
+        if (*src != playpal_transparent)
+          *dest = *src; // already a solid pixel, just copy it over
+        else if (y > 0 && *(src-1) != playpal_transparent)
+          *dest = *(src - 1); // solid pixel above
+        else if (y < h-1 && *(src+1) != playpal_transparent)
+          *dest = *(src + 1); // solid pixel below
+        else if (x > 0 && *prev != playpal_transparent)
+          *dest = *prev; // solid pixel to left
+        else if (x < w-1 && *next != playpal_transparent)
+          *dest = *next; // solid pixel to right
         else // transparent pixel with no adjacent solid pixels
           *dest = *src, transparent++; // count unhandled pixels
 
@@ -323,10 +323,10 @@ static void FillEmptySpace(rpatch_t *patch)
 
   for (x = 0, src = orig, dest = src + h-1; x < w; x++, src += h, dest += h)
   {
-    if (*src != 0xff && *dest == 0xff) // bottom transparent, top solid
-      *dest = *src;
-    else if (*src == 0xff && *dest != 0xff) // top transparent, bottom solid
-      *src = *dest;
+    if (*src != playpal_transparent && *dest == playpal_transparent)
+      *dest = *src; // bottom transparent, top solid
+    else if (*src == playpal_transparent && *dest != playpal_transparent)
+      *src = *dest; // top transparent, bottom solid
   }
 
   if (has_holes)
