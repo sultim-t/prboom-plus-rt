@@ -385,6 +385,15 @@ static dboolean CheckIfPatch(int lump)
 }
 
 //---------------------------------------------------------------------------
+static void StorePixel(rpatch_t *patch, int x, int y, byte color)
+{
+  // write pixel to patch, substituting for playpal_transparent as needed
+  if (color == playpal_transparent && playpal_duplicate >= 0)
+    color = playpal_duplicate;
+  patch->pixels[x * patch->height + y] = color;
+}
+
+//---------------------------------------------------------------------------
 static void createPatch(int id) {
   rpatch_t *patch;
   const int patchNum = id;
@@ -471,7 +480,8 @@ static void createPatch(int id) {
   // sanity check that we've got all the memory allocated we need
   assert((((byte*)patch->posts  + numPostsTotal*sizeof(rpost_t)) - (byte*)patch->data) == dataSize);
 
-  memset(patch->pixels, 0xff, (patch->width*patch->height));
+  if (playpal_transparent != 0)
+    memset(patch->pixels, playpal_transparent, (patch->width*patch->height));
 
   // fill in the pixels, posts, and columns
   numPostsUsedSoFar = 0;
@@ -539,7 +549,7 @@ static void createPatch(int id) {
         // fill in the post's pixels
         oldColumnPixelData = (const byte *)oldColumn + 3;
         for (y=0; y<len; y++) {
-          patch->pixels[x * patch->height + top + y] = oldColumnPixelData[y];
+          StorePixel(patch, x, top + y, oldColumnPixelData[y]);
         }
       }
       oldColumn = (const column_t *)((const byte *)oldColumn + oldColumn->length + 4);
@@ -675,7 +685,9 @@ static void createTextureCompositePatch(int id) {
   // sanity check that we've got all the memory allocated we need
   assert((((byte*)composite_patch->posts + numPostsTotal*sizeof(rpost_t)) - (byte*)composite_patch->data) == dataSize);
 
-  memset(composite_patch->pixels, 0xff, (composite_patch->width*composite_patch->height));
+  if (playpal_transparent != 0)
+    memset(composite_patch->pixels, playpal_transparent,
+           (composite_patch->width*composite_patch->height));
 
   numPostsUsedSoFar = 0;
 
@@ -743,7 +755,7 @@ static void createTextureCompositePatch(int id) {
                 continue;
               if (ty >= composite_patch->height)
                 break;
-              composite_patch->pixels[tx * composite_patch->height + ty] = oldColumnPixelData[y];
+              StorePixel(composite_patch, tx, ty, oldColumnPixelData[y]);
             }
           }
           // do the buggy clipping
@@ -788,7 +800,7 @@ static void createTextureCompositePatch(int id) {
             continue;
           if (ty >= composite_patch->height)
             break;
-          composite_patch->pixels[tx * composite_patch->height + ty] = oldColumnPixelData[y];
+          StorePixel(composite_patch, tx, ty, oldColumnPixelData[y]);
         }
 
         oldColumn = (const column_t *)((const byte *)oldColumn + oldColumn->length + 4);
