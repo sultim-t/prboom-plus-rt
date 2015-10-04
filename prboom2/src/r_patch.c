@@ -106,6 +106,9 @@ static rpatch_t *patches = 0;
 
 static rpatch_t *texture_composites = 0;
 
+// indices of two duplicate PLAYPAL entries, second is -1 if none found
+static int playpal_transparent, playpal_duplicate;
+
 //---------------------------------------------------------------------------
 void R_InitPatches(void) {
   if (!patches)
@@ -119,6 +122,35 @@ void R_InitPatches(void) {
     texture_composites = malloc(numtextures * sizeof(rpatch_t));
     // clear out new patches to signal they're uninitialized
     memset(texture_composites, 0, sizeof(rpatch_t)*numtextures);
+  }
+
+  if (!playpal_duplicate)
+  {
+    int lump = W_GetNumForName("PLAYPAL");
+    const byte *playpal = W_CacheLumpNum(lump);
+
+    // find a palette entry that is the duplicate of palette entry zero,
+    // so we can use zero as a transparency index in FillEmptySpace
+
+    int i;
+
+    for (i = 1; i < 256; i++)
+    {
+      if (playpal[3*i+0] == playpal[0] &&
+          playpal[3*i+1] == playpal[1] &&
+          playpal[3*i+2] == playpal[2])
+        break;
+    }
+
+    if (i < 256) { // found duplicate
+      playpal_transparent = 0;
+      playpal_duplicate   = i;
+    } else { // no duplicate: use 255 for transparency, as done previously
+      playpal_transparent = 255;
+      playpal_duplicate   = -1;
+    }
+
+    W_UnlockLumpNum(lump);
   }
 }
 
