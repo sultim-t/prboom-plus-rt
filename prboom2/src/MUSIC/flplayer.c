@@ -67,6 +67,7 @@ const music_player_t fl_player =
 
 #include <fluidsynth.h>
 #include "i_sound.h" // for snd_soundfont, mus_fluidsynth_gain
+#include "i_system.h" // for I_FindFile()
 #include "lprintf.h"
 #include "midifile.h"
 #include <stdlib.h>
@@ -104,6 +105,7 @@ static const char *fl_name (void)
 
 static int fl_init (int samplerate)
 {
+  const char *filename;
 #ifdef _WIN32
   #ifndef _MSC_VER
   int __stdcall GetVersion (void);
@@ -176,7 +178,8 @@ static int fl_init (int samplerate)
     return 0;
   }
 
-  f_font = fluid_synth_sfload (f_syn, snd_soundfont, 1);
+  filename = I_FindFile2(snd_soundfont, ".sf2");
+  f_font = fluid_synth_sfload (f_syn, filename, 1);
 
   if (f_font == FLUID_FAILED)
   {
