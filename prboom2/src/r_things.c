@@ -494,6 +494,13 @@ void R_DrawMaskedColumn(
   dcvars->texturemid = basetexturemid;
 }
 
+static void R_SetSpritelights(int lightlevel)
+{
+  int lightnum = (lightlevel >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT);
+  spritelights = scalelight[BETWEEN(0, LIGHTLEVELS - 1, lightnum)];
+}
+
+
 //
 // R_DrawVisSprite
 //  mfloorclip and mceilingclip should also be set.
@@ -601,7 +608,7 @@ void R_SetClipPlanes(void)
 // Generates a vissprite for a thing if it might be visible.
 //
 
-static void R_ProjectSprite (mobj_t* thing)
+static void R_ProjectSprite (mobj_t* thing, int lightlevel)
 {
   fixed_t   gzt;               // killough 3/27/98
   fixed_t   tx;
@@ -627,7 +634,7 @@ static void R_ProjectSprite (mobj_t* thing)
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
-    gld_ProjectSprite(thing);
+    gld_ProjectSprite(thing, lightlevel);
     return;
   }
 #endif
@@ -806,6 +813,8 @@ static void R_ProjectSprite (mobj_t* thing)
     vis->startfrac += vis->xiscale*(vis->x1-x1);
   vis->patch = lump;
 
+  R_SetSpritelights(lightlevel);
+
   // get light level
   if (thing->flags & MF_SHADOW)
       vis->colormap = NULL;             // shadow draw
@@ -831,14 +840,9 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
 {
   sector_t* sec=subsec->sector;
   mobj_t *thing;
-  int lightnum;
 
   if (compatibility_level <= boom_202_compatibility)
-  {
     lightlevel = sec->lightlevel;
-  }
-  lightnum = (lightlevel >> LIGHTSEGSHIFT) + (extralight * LIGHTBRIGHT);
-  spritelights = scalelight[BETWEEN(0, LIGHTLEVELS - 1, lightnum)];
 
   // Handle all things in sector.
 
@@ -850,7 +854,7 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
       for (thing = sec->thinglist; thing; thing = thing->snext)
       {
         if (!ALIVE(thing))
-          R_ProjectSprite(thing);
+          R_ProjectSprite(thing, lightlevel);
       }
     }
   }
@@ -859,7 +863,7 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
   {
     for (thing = sec->thinglist; thing; thing = thing->snext)
     {
-      R_ProjectSprite(thing);
+      R_ProjectSprite(thing, lightlevel);
     }
   }
 }
@@ -882,7 +886,7 @@ void R_AddAllAliveMonstersSprites(void)
       if (ALIVE(thing))
       {
         thing->flags |= MF_NO_DEPTH_TEST;
-        R_ProjectSprite(thing);
+        R_ProjectSprite(thing, 255);
         thing->flags &= ~MF_NO_DEPTH_TEST;
       }
     }
@@ -1065,17 +1069,14 @@ static void R_DrawPSprite (pspdef_t *psp)
 
 void R_DrawPlayerSprites(void)
 {
-  int i, lightnum;
+  int i;
   pspdef_t *psp;
 
   if (walkcamera.type != 0)
     return;
 
   // get light level
-  lightnum = (viewplayer->mo->subsector->sector->lightlevel >> LIGHTSEGSHIFT)
-    + (extralight * LIGHTBRIGHT);
-
-  spritelights = scalelight[BETWEEN(0, LIGHTLEVELS - 1, lightnum)];
+  R_SetSpritelights(viewplayer->mo->subsector->sector->lightlevel);
 
   // clip to screen bounds
   mfloorclip = screenheightarray;

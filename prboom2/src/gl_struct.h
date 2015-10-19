@@ -126,7 +126,7 @@ void gld_InitDrawScene(void);
 void gld_StartDrawScene(void);
 void gld_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling);
 void gld_AddWall(seg_t *seg);
-void gld_ProjectSprite(mobj_t* thing);
+void gld_ProjectSprite(mobj_t* thing, int lightlevel);
 void gld_DrawScene(player_t *player);
 void gld_EndDrawScene(void);
 void gld_Finish();

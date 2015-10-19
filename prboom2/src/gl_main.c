@@ -2407,7 +2407,7 @@ static void gld_DrawHealthBars(void)
   }
 }
 
-void gld_ProjectSprite(mobj_t* thing)
+void gld_ProjectSprite(mobj_t* thing, int lightlevel)
 {
   fixed_t   tx;
   spritedef_t   *sprdef;
@@ -2607,8 +2607,8 @@ void gld_ProjectSprite(mobj_t* thing)
   }
   else
   {
-    sprite.light = gld_CalcLightLevel(thing->subsector->sector->lightlevel+(extralight<<5));
-    sprite.fogdensity = gld_CalcFogDensity(thing->subsector->sector, thing->subsector->sector->lightlevel, GLDIT_SPRITE);
+    sprite.light = gld_CalcLightLevel(lightlevel+(extralight<<5));
+    sprite.fogdensity = gld_CalcFogDensity(thing->subsector->sector, lightlevel, GLDIT_SPRITE);
   }
   sprite.cm = CR_LIMIT + (int)((thing->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
   sprite.gltexture = gld_RegisterPatch(lump, sprite.cm);
