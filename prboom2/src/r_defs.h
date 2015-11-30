@@ -284,7 +284,7 @@ typedef struct
   fixed_t offset;
   angle_t angle;
   angle_t pangle; // re-calculated angle used for rendering
-  fixed_t length; // fix long wall wobble
+  int_64_t length; // fix long wall wobble
   side_t* sidedef;
   line_t* linedef;
 

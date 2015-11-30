@@ -243,19 +243,24 @@ angle_t R_PointToAngle2(fixed_t x1, fixed_t y1, fixed_t x, fixed_t y)
 
 angle_t R_PointToAngleEx(fixed_t x, fixed_t y)
 {
+  return R_PointToAngleEx2(viewx, viewy, x, y);
+}
+
+angle_t R_PointToAngleEx2(fixed_t x1, fixed_t y1, fixed_t x, fixed_t y)
+{
   // [crispy] fix overflows for very long distances
-  int64_t y_viewy = (int64_t)y - viewy;
-  int64_t x_viewx = (int64_t)x - viewx;
+  int64_t y_viewy = (int64_t)y - y1;
+  int64_t x_viewx = (int64_t)x - x1;
 
   // [crispy] the worst that could happen is e.g. INT_MIN-INT_MAX = 2*INT_MIN
   if (x_viewx < INT_MIN || x_viewx > INT_MAX ||y_viewy < INT_MIN || y_viewy > INT_MAX)
   {
     // [crispy] preserving the angle by halfing the distance in both directions
-    x = (int)(x_viewx / 2 + viewx);
-    y = (int)(y_viewy / 2 + viewy);
+    x = (int)(x_viewx / 2 + x1);
+    y = (int)(y_viewy / 2 + y1);
   }
 
-  return R_PointToAngleSlope(viewx, viewy, x, y, SlopeDivEx);
+  return R_PointToAngleSlope(x1, y1, x, y, SlopeDivEx);
 }
 
 
