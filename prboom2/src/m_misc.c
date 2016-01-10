@@ -470,8 +470,8 @@ default_t defaults[] =
 
   {"gl_vsync",{&gl_vsync},{1},0,1,
    def_bool,ss_none},
-  /*{"gl_finish",{&gl_finish},{1},0,1,
-   def_bool,ss_none},*/
+  {"gl_finish",{&gl_finish},{1},0,1,
+   def_bool,ss_none},
   {"gl_clear",{&gl_clear},{0},0,1,
    def_bool,ss_none},
   {"gl_ztrick",{&gl_ztrick},{0},0,1,
