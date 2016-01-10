@@ -1,5 +1,43 @@
 Change Log
 
+2.5.1.4 @ 2016-Jan-10
+[+] Added "Fix clipping problems in large levels" option.
+[+] Added "gl_finish" config variable.
+[+] Added "mus_fluidsynth_gain" and "mus_opl_gain cfg" config variables to fine tune output of fluidsynth and opl2 midi. Values allowed are 0 to 1000. 50 (default) exactly matches old behavior.
+[+] Added a "Health Bar Above Monsters" option (health_bar* config variables).
+[+] Added a "Things appearance" automap option. Possible values: "classic", "scaled" and "icons".
+[+] Added "notarget" and "fly" cheat codes.
+[+] Added MBF's "-beta" codepointers.
+[+] Added a new HUD.
+[+] Added "shaders" sector light mode.
+[+] Support "Classic Doom" WAD files of Doom 3 BFG Edition, by Fabian Greffrath.
+[+] Support for HACX 1.2 IWAD, by Fabian Greffrath.
+[+] Support up to eight joystick buttons instead of just four, by Fabian Greffrath. The fifth and sixth buttons are mapped to strafe left and right.
+[+] Mouse look now is available in software mode.
+[+] Added a crosshair. Three different crosshair graphics are for choice: cross, angle and dot. Extra features are changing crosshair colors according to the player's health and/or on sight of a target.
+[+] Added "Allow Jump" option on "Prboom-plus 'bad' compatibility settings" page. Implemented by Fabian Greffrath.
+[+] Added a "Backpack Changes Thresholds" option.
+[+] -skipsec accepts a minutes prefix followed by a colon.
+[+] Two-key strafe50: StrafeOn + MoveLR = strafe50
+[+] Added "Allow Vertical Aiming" option on "Prboom-plus 'bad' compatibility settings" page.
+[*] Update to newest SDL libraries: SDL_mixer 1.2.12, SDL_image 1.2.12, SDL_net 1.2.8.
+[*] Brown color for weapons that cannot be fired on weapon HUD widget.
+[*] "Use GL surface for software mode" mode now works much faster if gl_finish is 0 in config.
+[*] process_affinity_mask config variable is removed. Single CPU core will be automatically forced if SDL MIDI player is used.
+[*] Better support for Chex Quest, by Fabian Greffrath. Embed chex.deh by fraggle in prboom-plus.wad.
+[*] Redo MBF-style multiple DEHACKED lumps. Load command line DeHackEd patches after DEHACKED lumps.
+[*] Improved rendering precision (wall wiggle), by kb1.
+[*] Realign automap grid with blockmap.
+[-] 'Max Health', 'Max Soulsphere' and 'Megasphere Health' DEH parameters did not work after warping to level from command line since 2.4.8.1.
+[-] Buggy invulnerability effect if hi-res textures are used and there is no support for GL_ARB_framebuffer_object.
+[-] Simple shadows flicker during lowering lifts.
+[-] "Change palette on pain/bonus/power" settings did not work.
+[-] Lines of walls on automap were not displayed on Planisphere 2 at some zoom.
+[-] Fixed HOMs on Planisphere 2.
+[-] Incorrect clipping of automap in opaque mode after changing view window size. Affects only software mode.
+[-] Fixed long wall error.
+[-] Boom's ability to change floor and ceiling lighting independently was not applied to things in opengl.
+
 2.5.1.3 @ 2011-Dec-05
 [+] Added process_priority config variable. 0 - normal (default); 1 - high; 2 - realtime.
 [*] "Screen multiple factor" can be changed on the fly.
