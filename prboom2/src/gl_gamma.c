@@ -191,6 +191,9 @@ int gld_SetGammaRamp(int gamma)
 
     CalculateGammaRamp(g, gammatable);
 
+    // has no effect sometimes on Intel Graphics
+    // do it twice!
+    SDL_SetGammaRamp(gammatable, gammatable, gammatable);
     succeeded = (SDL_SetGammaRamp(gammatable, gammatable, gammatable) != -1);
     if (!succeeded)
     {
