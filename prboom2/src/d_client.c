@@ -83,8 +83,6 @@ int ticdup = 1;
 static int xtratics = 0;
 int              wanted_player_number;
 
-static dboolean isExtraDDisplay = false;
-
 static void D_QuitNetGame (void);
 
 #ifndef HAVE_NET
@@ -502,7 +500,7 @@ void TryRunTics (void)
         if (movement_smooth && gamestate==wipegamestate)
         {
           isExtraDDisplay = true;
-          D_Display();
+          D_Display(I_GetTimeFrac());
           isExtraDDisplay = false;
         }
       }

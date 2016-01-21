@@ -39,10 +39,12 @@
 #include "r_demo.h"
 #include "r_fps.h"
 #include "i_system.h"
+#include "i_capture.h"
 #include "e6y.h"
 
 int movement_smooth_default;
 int movement_smooth;
+dboolean isExtraDDisplay = false;
 
 typedef enum
 {
@@ -69,11 +71,14 @@ tic_vars_t tic_vars;
 static void R_DoAnInterpolation (int i, fixed_t smoothratio);
 
 extern int realtic_clock_rate;
-void D_Display(void);
+void D_Display(fixed_t frac);
 
 void M_ChangeUncappedFrameRate(void)
 {
-  movement_smooth = (singletics ? false : movement_smooth_default);
+  if (capturing_video)
+    movement_smooth = true;
+  else
+    movement_smooth = (singletics ? false : movement_smooth_default);
 }
 
 void R_InitInterpolation(void)
@@ -90,10 +95,9 @@ static dboolean NoInterpolateView;
 static dboolean didInterp;
 dboolean WasRenderedInTryRunTics;
 
-void R_InterpolateView(player_t *player)
+void R_InterpolateView(player_t *player, fixed_t frac)
 {
   static mobj_t *oviewer;
-  fixed_t frac;
 
   dboolean NoInterpolate = (paused && !walkcamera.type) || (menuactive && !demoplayback);
 
@@ -104,11 +108,10 @@ void R_InterpolateView(player_t *player)
     R_ResetViewInterpolation();
     oviewer = player->mo;
   }
-  tic_vars.frac = I_GetTimeFrac();
-  if (NoInterpolate)
-    tic_vars.frac = FRACUNIT;
 
-  frac = tic_vars.frac;
+  if (NoInterpolate)
+    frac = FRACUNIT;
+  tic_vars.frac = frac;
 
   if (movement_smooth)
   {
@@ -191,6 +194,7 @@ void R_InterpolateView(player_t *player)
 void R_ResetViewInterpolation ()
 {
   NoInterpolateView = true;
+  cap_frac = 0;
 }
 
 static void R_CopyInterpToOld (int i)

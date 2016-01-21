@@ -250,7 +250,7 @@ gamestate_t    wipegamestate = GS_DEMOSCREEN;
 extern dboolean setsizeneeded;
 extern int     showMessages;
 
-void D_Display (void)
+void D_Display (fixed_t frac)
 {
   static dboolean isborderstate        = false;
   static dboolean borderwillneedredraw = false;
@@ -350,7 +350,7 @@ void D_Display (void)
     // Boom colormaps should be applied for everything in R_RenderPlayerView
     use_boom_cm=true;
 
-    R_InterpolateView(&players[displayplayer]);
+    R_InterpolateView(&players[displayplayer], frac);
 
     R_ClearStats();
 
@@ -471,10 +471,30 @@ static void D_DoomLoop(void)
       if (players[displayplayer].mo) // cph 2002/08/10
         S_UpdateSounds(players[displayplayer].mo);// move positional sounds
 
+      // Update display, next frame, with current state.
       if (!movement_smooth || !WasRenderedInTryRunTics || gamestate != wipegamestate)
+      {
+        // NSM
+        if (capturing_video && !doSkip)
         {
-        // Update display, next frame, with current state.
-        D_Display();
+          dboolean first = true;
+          int cap_step = TICRATE * FRACUNIT / cap_fps;
+          cap_frac += cap_step;
+          while(cap_frac <= FRACUNIT)
+          {
+            isExtraDDisplay = !first;
+            first = false;
+            D_Display(cap_frac);
+            isExtraDDisplay = false;
+            I_CaptureFrame();
+            cap_frac += cap_step;
+          }
+          cap_frac -= FRACUNIT + cap_step;
+        }
+        else
+        {
+          D_Display(I_GetTimeFrac());
+        }
       }
 
       // CPhipps - auto screenshot
@@ -493,11 +513,6 @@ static void D_DoomLoop(void)
         sprintf(avi_shot_curr_fname, "%s%06d.tga", avi_shot_fname, avi_shot_num);
         M_DoScreenShot(avi_shot_curr_fname);
         free(avi_shot_curr_fname);
-      }
-      // NSM
-      if (capturing_video && !doSkip)
-      {
-        I_CaptureFrame ();
       }
 }
 }

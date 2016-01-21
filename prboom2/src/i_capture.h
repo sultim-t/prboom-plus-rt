@@ -42,6 +42,8 @@ extern const char *cap_muxcommand;
 extern const char *cap_tempfile1;
 extern const char *cap_tempfile2;
 extern int cap_remove_tempfiles;
+extern int cap_fps;
+extern int cap_frac;
 
 // true if we're capturing video
 extern int capturing_video;

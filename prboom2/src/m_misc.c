@@ -980,11 +980,12 @@ default_t defaults[] =
   // NSM
   {"Video capture encoding settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"cap_soundcommand",{NULL, &cap_soundcommand},{0,"oggenc2 -r -R %s -q 5 - -o output.ogg"},UL,UL,def_str,ss_none},
-  {"cap_videocommand",{NULL, &cap_videocommand},{0,"x264 -o output.mp4 --crf 22 --muxer mp4 --demuxer raw --input-csp rgb --input-depth 8 --input-res %wx%h --fps 35 -"},UL,UL,def_str,ss_none},
+  {"cap_videocommand",{NULL, &cap_videocommand},{0,"x264 -o output.mp4 --crf 18 --muxer mp4 --demuxer raw --input-csp rgb --input-depth 8 --input-res %wx%h --fps %r -"},UL,UL,def_str,ss_none},
   {"cap_muxcommand",{NULL, &cap_muxcommand},{0,"mkvmerge -o %f output.mp4 output.ogg"},UL,UL,def_str,ss_none},
   {"cap_tempfile1",{NULL, &cap_tempfile1},{0,"output.ogg"},UL,UL,def_str,ss_none},
   {"cap_tempfile2",{NULL, &cap_tempfile2},{0,"output.mp4"},UL,UL,def_str,ss_none},
   {"cap_remove_tempfiles", {&cap_remove_tempfiles},{1},0,1,def_bool,ss_none},
+  {"cap_fps", {&cap_fps},{60},16,300,def_int,ss_none},
 
   {"Prboom-plus video settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"sdl_videodriver", {NULL,&sdl_videodriver}, {0,"default"},UL,UL,

@@ -34,6 +34,7 @@
 #ifndef __D_MAIN__
 #define __D_MAIN__
 
+#include "m_fixed.h"
 #include "d_event.h"
 #include "w_wad.h"
 
@@ -67,7 +68,7 @@ void D_DoAdvanceDemo (void);
 // BASE LEVEL
 //
 
-void D_Display(void);
+void D_Display(fixed_t frac);
 void D_PageTicker(void);
 void D_StartTitle(void);
 void D_DoomMain(void);

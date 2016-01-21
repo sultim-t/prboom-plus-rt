@@ -67,6 +67,8 @@ const char *cap_muxcommand;
 const char *cap_tempfile1;
 const char *cap_tempfile2;
 int cap_remove_tempfiles;
+int cap_fps;
+int cap_frac;
 
 // parses a command with simple printf-style replacements.
 
@@ -97,6 +99,9 @@ static int parsecommand (char *out, const char *in, int len)
           break;
         case 'f':
           i = doom_snprintf (out, len, "%s", vid_fname);
+          break;
+        case 'r':
+          i = doom_snprintf (out, len, "%u", cap_fps);
           break;
         case '%':
           i = doom_snprintf (out, len, "%%");
@@ -555,11 +560,11 @@ void I_CaptureFrame (void)
   if (!capturing_video)
     return;
 
-  nsampreq = snd_samplerate / 35;
-  partsof35 += snd_samplerate % 35;
-  if (partsof35 >= 35)
+  nsampreq = snd_samplerate / cap_fps;
+  partsof35 += snd_samplerate % cap_fps;
+  if (partsof35 >= cap_fps)
   {
-    partsof35 -= 35;
+    partsof35 -= cap_fps;
     nsampreq++;
   }
 
