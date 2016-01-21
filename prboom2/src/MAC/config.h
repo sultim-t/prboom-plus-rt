@@ -6,7 +6,7 @@
 #define PACKAGE_TARNAME "prboom-plus"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "2.5.1.4"
+#define PACKAGE_VERSION "2.5.1.5"
 
 #ifdef DEBUG
 
