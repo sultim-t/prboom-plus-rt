@@ -58,48 +58,6 @@ int gl_DeviceSupportsGamma = false;
 
 static Uint16 gl_oldHardwareGamma[3][256];
 
-static void CalculateGammaRamp (float gamma, Uint16 *ramp)
-{
-  int i;
-
-  // 0.0 gamma is all black
-  if (gamma <= 0.0f)
-  {
-    for (i = 0; i < 256; i++)
-    {
-      ramp[i] = 0;
-    }
-    return;
-  }
-  else
-  {
-    // 1.0 gamma is identity
-    if (gamma == 1.0f)
-    {
-      for (i = 0; i < 256; i++)
-      {
-        ramp[i] = (i << 8) | i;
-      }
-      return;
-    }
-    else
-    {
-      // Calculate a real gamma ramp
-      int value;
-      gamma = 1.0f / gamma;
-      for (i = 0; i < 256; i++)
-      {
-        value = (int)(pow((double)i / 256.0, gamma) * 65535.0 + 0.5);
-        if (value > 65535)
-        {
-          value = 65535;
-        }
-        ramp[i] = (Uint16)value;
-      }
-    }
-  }
-}
-
 //
 // gld_CheckHardwareGamma
 //
@@ -107,7 +65,7 @@ static void CalculateGammaRamp (float gamma, Uint16 *ramp)
 //
 void gld_CheckHardwareGamma(void)
 {
-  gl_DeviceSupportsGamma = (-1 != SDL_GetGammaRamp(gl_oldHardwareGamma[0], gl_oldHardwareGamma[1], gl_oldHardwareGamma[2]));
+  gl_DeviceSupportsGamma = (-1 != SDL_GetWindowGammaRamp(sdl_window, gl_oldHardwareGamma[0], gl_oldHardwareGamma[1], gl_oldHardwareGamma[2]));
 
   if (gl_DeviceSupportsGamma)
   {
@@ -166,7 +124,7 @@ int gld_SetGammaRamp(int gamma)
 
   if (gamma == -1)
   {
-    succeeded = (SDL_SetGammaRamp(gl_oldHardwareGamma[0], gl_oldHardwareGamma[1], gl_oldHardwareGamma[2]) != -1);
+    succeeded = (SDL_SetWindowGammaRamp(sdl_window, gl_oldHardwareGamma[0], gl_oldHardwareGamma[1], gl_oldHardwareGamma[2]) != -1);
   }
   else
   {
@@ -186,15 +144,15 @@ int gld_SetGammaRamp(int gamma)
       // trust that we will be able to properly set the gamma later
       first = false;
       memset(gammatable, 0, sizeof(gammatable));
-      SDL_SetGammaRamp(NULL, NULL, gammatable);
+      SDL_SetWindowGammaRamp(sdl_window, NULL, NULL, gammatable);
     }
 
-    CalculateGammaRamp(g, gammatable);
+    SDL_CalculateGammaRamp(g, gammatable);
 
     // has no effect sometimes on Intel Graphics
     // do it twice!
-    SDL_SetGammaRamp(gammatable, gammatable, gammatable);
-    succeeded = (SDL_SetGammaRamp(gammatable, gammatable, gammatable) != -1);
+    SDL_SetWindowGammaRamp(sdl_window, gammatable, gammatable, gammatable);
+    succeeded = (SDL_SetWindowGammaRamp(sdl_window, gammatable, gammatable, gammatable) != -1);
     if (!succeeded)
     {
       lprintf(LO_WARN, "gld_SetGammaRamp: hardware gamma adjustment is not supported\n");
@@ -227,7 +185,7 @@ void gld_ApplyGammaRamp(byte *buf, int pitch, int width, int height)
     byte *pixel;
     Uint16 r[256], g[256], b[256];
 
-    SDL_GetGammaRamp(&r[0], &g[0], &b[0]);
+    SDL_GetWindowGammaRamp(sdl_window, &r[0], &g[0], &b[0]);
 
     for (h = 0; h < height; h++)
     {

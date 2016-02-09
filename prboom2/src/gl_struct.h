@@ -180,9 +180,6 @@ dboolean gld_SphereInFrustum(float x, float y, float z, float radius);
 extern dboolean gl_use_stencil;
 sector_t* GetBestFake(sector_t *sector, int ceiling, int validcount);
 
-//vertical sync for GL
-extern int gl_vsync;
-
 //shadows
 typedef struct shadow_params_s
 {

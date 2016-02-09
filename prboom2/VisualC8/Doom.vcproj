@@ -141,7 +141,6 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../VisualC8;../src;../src/PCRELIB;../src/MUSIC/include/portmidi;../src/MUSIC/include/dumb;../src/MUSIC/include/libmad;../src/MUSIC/include/fluidsynth;../src/MUSIC/include/vorbis"
 				PreprocessorDefinitions="NDEBUG;GL_DOOM;WIN32;_WINDOWS;HAVE_CONFIG_H;I386_ASM;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
@@ -150,7 +149,6 @@
 				WarningLevel="3"
 				WarnAsError="false"
 				SuppressStartupBanner="true"
-				DebugInformationFormat="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -171,6 +169,7 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="../src/PCRELIB/VisualC8/Lib;../src/MUSIC/lib"
+				GenerateDebugInformation="true"
 				GenerateMapFile="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -548,7 +547,6 @@
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="../src/PCRELIB/VisualC8/Lib;../src/MUSIC/lib"
 				GenerateManifest="true"
-				GenerateDebugInformation="true"
 				GenerateMapFile="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -708,7 +706,6 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../VisualC8;../src;../src/PCRELIB;../src/MUSIC/include/portmidi;../src/MUSIC/include/dumb;../src/MUSIC/include/libmad;../src/MUSIC/include/fluidsynth;../src/MUSIC/include/vorbis"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;HAVE_CONFIG_H;I386_ASM;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
@@ -5138,14 +5135,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\r_screenmultiply.c"
-				>
-			</File>
-			<File
-				RelativePath="..\src\r_screenmultiply.h"
-				>
-			</File>
-			<File
 				RelativePath="..\src\r_segs.c"
 				>
 				<FileConfiguration
@@ -7058,42 +7047,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\gl_soft2gl.c"
-				>
-				<FileConfiguration
-					Name="Release NOASM|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug NOASM|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\src\gl_struct.h"
 				>
 				<FileConfiguration
@@ -7427,39 +7380,7 @@
 			Name="TextScreen Source Files"
 			>
 			<File
-				RelativePath="..\src\TEXTSCREEN\textscreen.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_button.c"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_button.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_checkbox.c"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_checkbox.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_desktop.c"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_desktop.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_dropdown.c"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_dropdown.h"
+				RelativePath="..\src\TEXTSCREEN\doomkeys.h"
 				>
 			</File>
 			<File
@@ -7467,55 +7388,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\TEXTSCREEN\txt_gui.c"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_gui.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_inputbox.c"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_inputbox.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_io.c"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_io.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_label.c"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_label.h"
+				RelativePath="..\src\TEXTSCREEN\txt_largefont.h"
 				>
 			</File>
 			<File
 				RelativePath="..\src\TEXTSCREEN\txt_main.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_radiobutton.c"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_radiobutton.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_scrollpane.c"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_scrollpane.h"
 				>
 			</File>
 			<File
@@ -7527,63 +7404,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\TEXTSCREEN\txt_separator.c"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_separator.h"
-				>
-			</File>
-			<File
 				RelativePath="..\src\TEXTSCREEN\txt_smallfont.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_spinctrl.c"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_spinctrl.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_strut.c"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_strut.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_table.c"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_table.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_widget.c"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_widget.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_window.c"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_window.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_window_action.c"
-				>
-			</File>
-			<File
-				RelativePath="..\src\TEXTSCREEN\txt_window_action.h"
 				>
 			</File>
 		</Filter>
@@ -7676,7 +7497,11 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath="..\src\SDL\SDL_win32_main.c"
+			RelativePath=".\VTune\Doom.vpj"
+			>
+		</File>
+		<File
+			RelativePath="..\src\SDL\SDL_windows_main.c"
 			>
 		</File>
 	</Files>

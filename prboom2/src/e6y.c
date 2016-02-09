@@ -73,7 +73,6 @@
 #include "p_map.h"
 #include "i_video.h"
 #include "info.h"
-#include "r_screenmultiply.h"
 #include "r_main.h"
 #include "r_things.h"
 #include "r_sky.h"
@@ -204,10 +203,6 @@ const char* WINError(void)
 }
 #endif
 
-//--------------------------------------------------
-#ifdef _WIN32
-HWND WIN32_GetHWND(void);
-#endif
 //--------------------------------------------------
 
 void e6y_assert(const char *format, ...) 
@@ -498,12 +493,6 @@ void M_ChangeMaxViewPitch(void)
 void M_ChangeScreenMultipleFactor(void)
 {
   V_ChangeScreenResolution();
-}
-
-void M_ChangeInterlacedScanning(void)
-{
-  if (render_interlaced_scanning)
-    interlaced_scanning_requires_clearing = 1;
 }
 
 dboolean GetMouseLook(void)
@@ -1010,25 +999,6 @@ void e6y_G_DoWorldDone(void)
 }
 
 //--------------------------------------------------
-
-#ifdef _WIN32
-HWND WIN32_GetHWND(void)
-{
-  static HWND Window = NULL; 
-  if(!Window)
-  {
-    SDL_SysWMinfo wminfo;
-    SDL_VERSION(&wminfo.version);
-    SDL_GetWMInfo(&wminfo);
-#if SDL_VERSION_ATLEAST(1, 3, 0)
-    Window = wminfo.info.win.window;
-#else
-    Window = wminfo.window;
-#endif
-  }
-  return Window;
-}
-#endif
 
 int AccelerateMouse(int val)
 {

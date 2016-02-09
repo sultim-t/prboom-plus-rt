@@ -91,7 +91,7 @@ void gld_InitMapPics(void)
 
       surf_raw = IMG_Load_RW(SDL_RWFromConstMem(W_CacheLumpNum(lump), W_LumpLength(lump)), true);
 
-      surf = SDL_ConvertSurface(surf_raw, &RGBAFormat, SDL_SRCALPHA);
+      surf = SDL_ConvertSurface(surf_raw, &RGBAFormat, 0);
       SDL_FreeSurface(surf_raw);
 #endif
 

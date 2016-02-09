@@ -56,7 +56,7 @@ COMMON_SRC = \
  r_patch.c      r_patch.h          r_fps.c          r_fps.h \
  r_filter.c     r_filter.h \
  e6y.c          e6y.h \
- i_pcsound.c    i_pcsound.h        r_screenmultiply.c r_screenmultiply.h \
+ i_pcsound.c    i_pcsound.h \
  g_overflow.c   g_overflow.h       hu_tracers.c     hu_tracers.h \
  s_advsound.c   s_advsound.h       i_capture.c      i_capture.h \
  sc_man.c       sc_man.h
@@ -68,7 +68,7 @@ USE_GL_SRC = \
   gl_opengl.c   gl_opengl.h \
   gl_detail.c   gl_intern.h  gl_main.c    gl_struct.h  gl_texture.c         gl_vertex.c \
   gl_wipe.c     gl_hires.c   gl_clipper.c gl_gamma.c   gl_missingtexture.c  gl_light.c \
-  gl_hqresize.c gl_sky.c     gl_fbo.c     gl_shadow.c  gl_soft2gl.c         gl_map.c \
+  gl_hqresize.c gl_sky.c     gl_fbo.c     gl_shadow.c  gl_map.c \
   gl_preprocess.c  gl_drawinfo.c  gl_shader.c
 else
 USE_GL_SRC =

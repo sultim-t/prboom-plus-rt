@@ -153,7 +153,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="sdl.lib sdl_net.lib"
+				AdditionalDependencies="sdl2.lib sdl2_net.lib"
 				OutputFile="$(OutDir)\prboom-plus_server.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -299,7 +299,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\SDL\SDL_win32_main.c"
+				RelativePath="..\src\SDL\SDL_windows_main.c"
 				>
 			</File>
 		</Filter>

@@ -47,11 +47,7 @@
 #include "SDL_audio.h"
 #include "SDL_mutex.h"
 
-#if SDL_VERSION_ATLEAST(1, 3, 0)
 #include "SDL_endian.h"
-#else
-#include "SDL_byteorder.h"
-#endif
 
 #include "SDL_version.h"
 #include "SDL_thread.h"
@@ -1017,7 +1013,7 @@ int I_RegisterSong(const void *data, size_t len)
         rw_midi = SDL_RWFromConstMem(data, len);
         if (rw_midi)
         {
-          music[0] = Mix_LoadMUS_RW(rw_midi);
+          music[0] = Mix_LoadMUS_RW(rw_midi, SDL_FALSE);
         }
       }
 
@@ -1086,7 +1082,7 @@ int I_RegisterSong(const void *data, size_t len)
       rw_midi = SDL_RWFromMem(outbuf, outbuf_len);
       if (rw_midi)
       {
-        music[0] = Mix_LoadMUS_RW(rw_midi);
+        music[0] = Mix_LoadMUS_RW(rw_midi, SDL_FALSE);
       }
       
       if (!music[0])

@@ -39,7 +39,9 @@
 
 #include "z_zone.h"
 #ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN 1
+#endif
 #include <windows.h>
 #endif
 #ifndef CALLBACK

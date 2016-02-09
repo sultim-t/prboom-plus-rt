@@ -44,10 +44,18 @@
 
 #include "doomtype.h"
 #include "v_video.h"
+#include "SDL.h"
 
 #ifdef __GNUG__
 #pragma interface
 #endif
+
+extern int render_vsync;
+extern int render_screen_multiply;
+extern int screen_multiply;
+
+extern SDL_Window *sdl_window;
+extern SDL_Renderer *sdl_renderer;
 
 extern const char *screen_resolutions_list[];
 extern const char *screen_resolution;
@@ -92,7 +100,6 @@ void I_StartTic (void);
 
 void I_StartFrame (void);
 
-extern int use_doublebuffer;  /* proff 2001-7-4 - controls wether to use doublebuffering*/
 extern int use_fullscreen;  /* proff 21/05/2000 */
 extern int desired_fullscreen; //e6y
 
@@ -105,30 +112,5 @@ extern int try_to_reduce_cpu_cache_misses;
 
 extern dboolean window_focused;
 void UpdateGrab(void);
-
-#ifdef GL_DOOM
-typedef struct SDL_Surface *PSDL_Surface;
-typedef struct vid_8ingl_s
-{
-  int enabled;
-
-  PSDL_Surface screen;
-  PSDL_Surface surface;
-
-  GLuint texid;
-  GLuint pboids[2];
-
-  int width, height, size;
-  unsigned char *buf;
-
-  byte *colours;
-  int palette;
-
-  float fU1, fU2, fV1, fV2;
-} vid_8ingl_t;
-
-extern vid_8ingl_t vid_8ingl;
-extern int use_gl_surface;
-#endif // GL_DOOM
 
 #endif

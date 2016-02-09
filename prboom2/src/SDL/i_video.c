@@ -37,7 +37,9 @@
 #endif
 
 #ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN 1
+#endif
 #include <windows.h>
 #endif // _WIN32
 
@@ -82,7 +84,6 @@
 #include "gl_struct.h"
 #endif
 
-#include "r_screenmultiply.h"
 #include "e6y.h"//e6y
 #include "i_main.h"
 
@@ -90,6 +91,7 @@
 static SDL_Cursor* cursors[2] = {NULL, NULL};
 
 dboolean window_focused;
+int mouse_currently_grabbed = true;
 
 // Window resize state.
 static void ApplyWindowResize(SDL_Event *resize_event);
@@ -100,7 +102,6 @@ const char *sdl_video_window_pos;
 static void ActivateMouse(void);
 static void DeactivateMouse(void);
 //static int AccelerateMouse(int val);
-static void CenterMouse(void);
 static void I_ReadMouse(void);
 static dboolean MouseShouldBeGrabbed();
 static void UpdateFocus(void);
@@ -109,18 +110,22 @@ int gl_colorbuffer_bits=16;
 int gl_depthbuffer_bits=16;
 
 extern void M_QuitDOOM(int choice);
-#ifdef DISABLE_DOUBLEBUFFER
-int use_doublebuffer = 0;
-#else
-int use_doublebuffer = 1; // Included not to break m_misc, but not relevant to SDL
-#endif
 int use_fullscreen;
 int desired_fullscreen;
+int render_vsync;
+int screen_multiply;
+int render_screen_multiply;
 SDL_Surface *screen;
-#ifdef GL_DOOM
-vid_8ingl_t vid_8ingl;
-int use_gl_surface;
-#endif
+SDL_Surface *surface;
+SDL_Surface *buffer;
+SDL_Window *sdl_window;
+SDL_Renderer *sdl_renderer;
+SDL_Texture *sdl_texture;
+SDL_Texture *sdl_texture_upscaled;
+SDL_GLContext sdl_glcontext;
+unsigned int windowid = 0;
+SDL_Rect src_rect = { 0, 0, 0, 0 };
+SDL_Rect dst_rect = { 0, 0, 0, 0 };
 
 ////////////////////////////////////////////////////////////////////////////
 // Input code
@@ -139,7 +144,7 @@ int I_GetModeFromString(const char *modestr);
 //  Translates the key currently in key
 //
 
-static int I_TranslateKey(SDL_keysym* key)
+static int I_TranslateKey(SDL_Keysym* key)
 {
   int rc = 0;
 
@@ -173,16 +178,16 @@ static int I_TranslateKey(SDL_keysym* key)
   case SDLK_PAUSE:  rc = KEYD_PAUSE;  break;
   case SDLK_EQUALS: rc = KEYD_EQUALS; break;
   case SDLK_MINUS:  rc = KEYD_MINUS;  break;
-  case SDLK_KP0:  rc = KEYD_KEYPAD0;  break;
-  case SDLK_KP1:  rc = KEYD_KEYPAD1;  break;
-  case SDLK_KP2:  rc = KEYD_KEYPAD2;  break;
-  case SDLK_KP3:  rc = KEYD_KEYPAD3;  break;
-  case SDLK_KP4:  rc = KEYD_KEYPAD4;  break;
-  case SDLK_KP5:  rc = KEYD_KEYPAD5;  break;
-  case SDLK_KP6:  rc = KEYD_KEYPAD6;  break;
-  case SDLK_KP7:  rc = KEYD_KEYPAD7;  break;
-  case SDLK_KP8:  rc = KEYD_KEYPAD8;  break;
-  case SDLK_KP9:  rc = KEYD_KEYPAD9;  break;
+  case SDLK_KP_0:  rc = KEYD_KEYPAD0;  break;
+  case SDLK_KP_1:  rc = KEYD_KEYPAD1;  break;
+  case SDLK_KP_2:  rc = KEYD_KEYPAD2;  break;
+  case SDLK_KP_3:  rc = KEYD_KEYPAD3;  break;
+  case SDLK_KP_4:  rc = KEYD_KEYPAD4;  break;
+  case SDLK_KP_5:  rc = KEYD_KEYPAD5;  break;
+  case SDLK_KP_6:  rc = KEYD_KEYPAD6;  break;
+  case SDLK_KP_7:  rc = KEYD_KEYPAD7;  break;
+  case SDLK_KP_8:  rc = KEYD_KEYPAD8;  break;
+  case SDLK_KP_9:  rc = KEYD_KEYPAD9;  break;
   case SDLK_KP_PLUS:  rc = KEYD_KEYPADPLUS; break;
   case SDLK_KP_MINUS: rc = KEYD_KEYPADMINUS;  break;
   case SDLK_KP_DIVIDE:  rc = KEYD_KEYPADDIVIDE; break;
@@ -194,9 +199,9 @@ static int I_TranslateKey(SDL_keysym* key)
   case SDLK_LCTRL:
   case SDLK_RCTRL:  rc = KEYD_RCTRL;  break;
   case SDLK_LALT:
-  case SDLK_LMETA:
+  case SDLK_LGUI:
   case SDLK_RALT:
-  case SDLK_RMETA:  rc = KEYD_RALT;   break;
+  case SDLK_RGUI:  rc = KEYD_RALT;   break;
   case SDLK_CAPSLOCK: rc = KEYD_CAPSLOCK; break;
   default:    rc = key->sym;    break;
   }
@@ -210,16 +215,14 @@ static int I_TranslateKey(SDL_keysym* key)
 
 /* cph - pulled out common button code logic */
 //e6y static 
-int I_SDLtoDoomMouseState(Uint8 buttonstate)
+int I_SDLtoDoomMouseState(Uint32 buttonstate)
 {
   return 0
       | (buttonstate & SDL_BUTTON(1) ? 1 : 0)
       | (buttonstate & SDL_BUTTON(2) ? 2 : 0)
       | (buttonstate & SDL_BUTTON(3) ? 4 : 0)
-#if SDL_VERSION_ATLEAST(1, 2, 14)
       | (buttonstate & SDL_BUTTON(6) ? 8 : 0)
       | (buttonstate & SDL_BUTTON(7) ? 16 : 0)
-#endif
       ;
 }
 
@@ -288,35 +291,54 @@ while (SDL_PollEvent(Event))
     event.type = ev_mouse;
     event.data1 = I_SDLtoDoomMouseState(SDL_GetMouseState(NULL, NULL));
     event.data2 = event.data3 = 0;
-
-    if (Event->type == SDL_MOUSEBUTTONDOWN)
-    {
-      switch(Event->button.button)
-      {
-      case SDL_BUTTON_WHEELUP:
-        event.type = ev_keydown;
-        event.data1 = KEYD_MWHEELUP;
-        mwheeluptic = gametic;
-        break;
-      case SDL_BUTTON_WHEELDOWN:
-        event.type = ev_keydown;
-        event.data1 = KEYD_MWHEELDOWN;
-        mwheeldowntic = gametic;
-        break;
-      }
-    }
-
     D_PostEvent(&event);
   }
   break;
 
-  //e6y: new mouse code
-  case SDL_ACTIVEEVENT:
-    UpdateFocus();
+  case SDL_MOUSEWHEEL:
+  if (mouse_enabled && window_focused)
+  {
+    if (Event->wheel.y > 0)
+    {
+      event.type = ev_keydown;
+      event.data1 = KEYD_MWHEELUP;
+      mwheeldowntic = gametic;
+      D_PostEvent(&event);
+    }
+    else if (Event->wheel.y < 0)
+    {
+      event.type = ev_keydown;
+      event.data1 = KEYD_MWHEELDOWN;
+      mwheeluptic = gametic;
+      D_PostEvent(&event);
+    }
+  }
+  break;
+  case SDL_MOUSEMOTION:
+    if (mouse_enabled && window_focused)
+    {
+      event.type = ev_mouse;
+      event.data1 = I_SDLtoDoomMouseState(Event->motion.state);
+      event.data2 = Event->motion.xrel << 4;
+      event.data3 = -Event->motion.yrel << 4;
+      D_PostEvent(&event);
+    }
     break;
-  
-  case SDL_VIDEORESIZE:
-    ApplyWindowResize(Event);
+
+  case SDL_WINDOWEVENT:
+    if (Event->window.windowID == windowid)
+    {
+      switch (Event->window.event)
+      {
+      case SDL_WINDOWEVENT_FOCUS_GAINED:
+      case SDL_WINDOWEVENT_FOCUS_LOST:
+        UpdateFocus();
+        break;
+      case SDL_WINDOWEVENT_SIZE_CHANGED:
+        ApplyWindowResize(Event);
+        break;
+      }
+    }
     break;
 
   case SDL_QUIT:
@@ -387,7 +409,6 @@ static void I_InitInputs(void)
 
   if (mouse_enabled)
   {
-    CenterMouse();
     MouseAccelChanging();
   }
 
@@ -443,32 +464,13 @@ static void I_UploadNewPalette(int pal, int force)
     if (!colours) {
       // First call - allocate and prepare colour array
       colours = malloc(sizeof(*colours)*num_pals);
-#ifdef GL_DOOM
-      vid_8ingl.colours = malloc(sizeof(vid_8ingl.colours[0]) * 4 * num_pals);
-#endif
     }
 
     // set the colormap entries
     for (i=0 ; (size_t)i<num_pals ; i++) {
-#ifdef GL_DOOM
-      if (vid_8ingl.enabled)
-      {
-        if (V_GetMode() == VID_MODE8)
-        {
-          vid_8ingl.colours[i * 4 + 0] = gtable[palette[2]];
-          vid_8ingl.colours[i * 4 + 1] = gtable[palette[1]];
-          vid_8ingl.colours[i * 4 + 2] = gtable[palette[0]];
-          vid_8ingl.colours[i * 4 + 3] = 255;
-        }
-      }
-      else
-#endif
-      {
-        colours[i].r = gtable[palette[0]];
-        colours[i].g = gtable[palette[1]];
-        colours[i].b = gtable[palette[2]];
-      }
-
+      colours[i].r = gtable[palette[0]];
+      colours[i].g = gtable[palette[1]];
+      colours[i].b = gtable[palette[2]];
       palette += 3;
     }
 
@@ -483,18 +485,7 @@ static void I_UploadNewPalette(int pal, int force)
       pal, num_pals);
 #endif
 
-  // store the colors to the current display
-  // SDL_SetColors(SDL_GetVideoSurface(), colours+256*pal, 0, 256);
-#ifdef GL_DOOM
-  if (vid_8ingl.enabled)
-  {
-    vid_8ingl.palette = pal;
-  }
-  else
-#endif
-  {
-    SDL_SetPalette(SDL_GetVideoSurface(),SDL_LOGPAL|SDL_PHYSPAL,colours+256*pal, 0, 256);
-  }
+  SDL_SetPaletteColors(screen->format->palette, colours+256*pal, 0, 256);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -529,9 +520,9 @@ void I_FinishUpdate (void)
   // if (I_SkipFrame())return;
 
 #ifdef MONITOR_VISIBILITY
-  if (!(SDL_GetAppState()&SDL_APPACTIVE)) {
-    return;
-  }
+  //!!if (!(SDL_GetAppState()&SDL_APPACTIVE)) {
+  //!!  return;
+  //!!}
 #endif
 
 #ifdef GL_DOOM
@@ -552,23 +543,14 @@ void I_FinishUpdate (void)
         return;
       }
 
-      // e6y: processing of screen_multiply
-      if (screen_multiply > 1)
+      dest=screen->pixels;
+      src=screens[0].data;
+      h=screen->h;
+      for (; h>0; h--)
       {
-        R_ProcessScreenMultiply(screens[0].data, screen->pixels,
-          V_GetPixelDepth(), screens[0].byte_pitch, screen->pitch);
-      }
-      else
-      {
-        dest=screen->pixels;
-        src=screens[0].data;
-        h=screen->h;
-        for (; h>0; h--)
-        {
-          memcpy(dest,src,SCREENWIDTH*V_GetPixelDepth()); //e6y
-          dest+=screen->pitch;
-          src+=screens[0].byte_pitch;
-        }
+        memcpy(dest,src,SCREENWIDTH*V_GetPixelDepth()); //e6y
+        dest+=screen->pitch;
+        src+=screens[0].byte_pitch;
       }
 
       SDL_UnlockSurface(screen);
@@ -581,16 +563,34 @@ void I_FinishUpdate (void)
     newpal = NO_PALETTE_CHANGE;
   }
 
-#ifdef GL_DOOM
-  if (vid_8ingl.enabled)
+  // Blit from the paletted 8-bit screen buffer to the intermediate
+  // 32-bit RGBA buffer that we can load into the texture.
+  SDL_LowerBlit(screen, &src_rect, buffer, &src_rect);
+
+  // Update the intermediate texture with the contents of the RGBA buffer.
+  SDL_UpdateTexture(sdl_texture, &src_rect, buffer->pixels, buffer->pitch);
+
+  // Make sure the pillarboxes are kept clear each frame.
+  SDL_RenderClear(sdl_renderer);
+
+  if (screen_multiply > 1)
   {
-    gld_Draw8InGL();
+    // Render this intermediate texture into the upscaled texture
+    // using "nearest" integer scaling.
+    SDL_SetRenderTarget(sdl_renderer, sdl_texture_upscaled);
+    SDL_RenderCopy(sdl_renderer, sdl_texture, &src_rect, NULL);
+
+    // Finally, render this upscaled texture to screen using linear scaling.
+    SDL_SetRenderTarget(sdl_renderer, NULL);
+    SDL_RenderCopy(sdl_renderer, sdl_texture_upscaled, NULL, NULL);
   }
   else
-#endif
   {
-    SDL_Flip(screen);
+    SDL_RenderCopy(sdl_renderer, sdl_texture, &src_rect, NULL);
   }
+
+  // Draw!
+  SDL_RenderPresent(sdl_renderer);
 }
 
 //
@@ -730,9 +730,10 @@ void I_GetScreenResolution(void)
 //
 static void I_FillScreenResolutionsList(void)
 {
-  SDL_Rect **modes;
+  int display_index = 0;
+  SDL_DisplayMode mode;
   int i, j, list_size, current_resolution_index, count;
-  char mode[256];
+  char mode_name[256];
   Uint32 flags;
 
   // do it only once
@@ -746,44 +747,39 @@ static void I_FillScreenResolutionsList(void)
     I_GetScreenResolution();
   }
 
-  flags = SDL_FULLSCREEN;
+  flags = SDL_WINDOW_FULLSCREEN;
 #ifdef GL_DOOM
-  flags |= SDL_OPENGL;
+  flags |= SDL_WINDOW_OPENGL;
 #endif
 
   // Don't call SDL_ListModes if SDL has not been initialized
+  count = 0;
   if (!nodrawers)
-    modes = SDL_ListModes(NULL, flags);
-  else
-    modes = NULL;
+    count = SDL_GetNumDisplayModes(display_index);
 
   list_size = 0;
   current_resolution_index = -1;
 
-  if (modes)
+  if (count > 0)
   {
-    count = 0;
-    for(i = 0; modes[i]; i++)
-    {
-      count++;
-    }
-    // (-2) is for NULL at the end of list and for custom resolution
     count = MIN(count, MAX_RESOLUTIONS_COUNT - 2);
 
     for(i = count - 1; i >= 0; i--)
     {
       int in_list = false;
 
-      doom_snprintf(mode, sizeof(mode), "%dx%d", modes[i]->w, modes[i]->h);
+      SDL_GetDisplayMode(display_index, i, &mode);
+
+      doom_snprintf(mode_name, sizeof(mode_name), "%dx%d", mode.w, mode.h);
 
       if (i == count - 1)
       {
-        screen_resolution_lowest = strdup(mode);
+        screen_resolution_lowest = strdup(mode_name);
       }
       
       for(j = 0; j < list_size; j++)
       {
-        if (!strcmp(mode, screen_resolutions_list[j]))
+        if (!strcmp(mode_name, screen_resolutions_list[j]))
         {
           in_list = true;
           break;
@@ -792,9 +788,9 @@ static void I_FillScreenResolutionsList(void)
 
       if (!in_list)
       {
-        screen_resolutions_list[list_size] = strdup(mode);
+        screen_resolutions_list[list_size] = strdup(mode_name);
 
-        if (modes[i]->w == desired_screenwidth && modes[i]->h == desired_screenheight)
+        if (mode.w == desired_screenwidth && mode.h == desired_screenheight)
         {
           current_resolution_index = list_size;
         }
@@ -807,15 +803,15 @@ static void I_FillScreenResolutionsList(void)
   
   if (list_size == 0)
   {
-    doom_snprintf(mode, sizeof(mode), "%dx%d", desired_screenwidth, desired_screenheight);
-    screen_resolutions_list[0] = strdup(mode);
+    doom_snprintf(mode_name, sizeof(mode_name), "%dx%d", desired_screenwidth, desired_screenheight);
+    screen_resolutions_list[0] = strdup(mode_name);
     current_resolution_index = 0;
     list_size = 1;
   }
 
   if (current_resolution_index == -1)
   {
-    doom_snprintf(mode, sizeof(mode), "%dx%d", desired_screenwidth, desired_screenheight);
+    doom_snprintf(mode_name, sizeof(mode_name), "%dx%d", desired_screenwidth, desired_screenheight);
 
     // make it first
     list_size++;
@@ -823,7 +819,7 @@ static void I_FillScreenResolutionsList(void)
     {
       screen_resolutions_list[i] = screen_resolutions_list[i - 1];
     }
-    screen_resolutions_list[0] = strdup(mode);
+    screen_resolutions_list[0] = strdup(mode_name);
     current_resolution_index = 0;
   }
 
@@ -837,30 +833,27 @@ static void I_FillScreenResolutionsList(void)
 // It should be used only for fullscreen modes.
 static void I_ClosestResolution (int *width, int *height, int flags)
 {
-  SDL_Rect **modes;
+  int display_index = 0;
   int twidth, theight;
   int cwidth = 0, cheight = 0;
-  int i;
+  int i, count;
   unsigned int closest = UINT_MAX;
   unsigned int dist;
 
   if (!SDL_WasInit(SDL_INIT_VIDEO))
     return;
 
-  modes = SDL_ListModes(NULL, flags);
+  count = SDL_GetNumDisplayModes(display_index);
 
-  if (modes == (SDL_Rect **)-1)
+  if (count > 0)
   {
-    // any dimension is okay for the given format
-    return;
-  }
-
-  if (modes)
-  {
-    for(i=0; modes[i]; ++i)
+    for(i=0; i<count; ++i)
     {
-      twidth = modes[i]->w;
-      theight = modes[i]->h;
+      SDL_DisplayMode mode;
+      SDL_GetDisplayMode(display_index, i, &mode);
+
+      twidth = mode.w;
+      theight = mode.h;
 
       if (twidth == *width && theight == *height)
         return;
@@ -937,7 +930,7 @@ void I_CalculateRes(int width, int height)
   if (V_GetMode() == VID_MODEGL) {
     if ( desired_fullscreen )
     {
-      I_ClosestResolution(&width, &height, SDL_OPENGL|SDL_FULLSCREEN);
+      I_ClosestResolution(&width, &height, SDL_WINDOW_OPENGL|SDL_WINDOW_FULLSCREEN);
     }
     SCREENWIDTH = width;
     SCREENHEIGHT = height;
@@ -996,7 +989,7 @@ void I_InitScreenResolution(void)
   int i, p, w, h;
   char c, x;
   video_mode_t mode;
-  int init = screen == NULL;
+  int init = (sdl_window == NULL);
 
   I_GetScreenResolution();
 
@@ -1109,15 +1102,7 @@ void I_InitScreenResolution(void)
 
 void I_SetWindowCaption(void)
 {
-  char *buf;
-
-  buf = malloc(strlen(PACKAGE_NAME) + strlen(PACKAGE_VERSION) + 10);
-
-  sprintf(buf, "%s %s", PACKAGE_NAME, PACKAGE_VERSION);
-
-  SDL_WM_SetCaption(buf, NULL);
-
-  free(buf);
+  SDL_SetWindowTitle(NULL, PACKAGE_NAME" "PACKAGE_VERSION);
 }
 
 // 
@@ -1140,7 +1125,7 @@ void I_SetWindowIcon(void)
 
   if (surface)
   {
-    SDL_WM_SetIcon(surface, NULL);
+    SDL_SetWindowIcon(NULL, surface);
   }
 }
 
@@ -1202,7 +1187,7 @@ int I_GetModeFromString(const char *modestr)
 
 void I_UpdateVideoMode(void)
 {
-  int init_flags;
+  int init_flags = 0;
 
   if(screen)
   {
@@ -1220,16 +1205,17 @@ void I_UpdateVideoMode(void)
 
     I_InitScreenResolution();
 
+    SDL_GL_DeleteContext(sdl_glcontext);
     SDL_FreeSurface(screen);
+    SDL_FreeSurface(buffer);
+    SDL_DestroyTexture(sdl_texture);
+    SDL_DestroyTexture(sdl_texture_upscaled);
+    SDL_DestroyRenderer(sdl_renderer);
+    SDL_DestroyWindow(sdl_window);
+    
+    sdl_renderer = NULL;
+    sdl_window = NULL;
     screen = NULL;
-
-#ifdef GL_DOOM
-    if (vid_8ingl.surface)
-    {
-      SDL_FreeSurface(vid_8ingl.surface);
-      vid_8ingl.surface = NULL;
-    }
-#endif
   }
 
   // e6y: initialisation of screen_multiply
@@ -1237,26 +1223,18 @@ void I_UpdateVideoMode(void)
 
   // Initialize SDL with this graphics mode
   if (V_GetMode() == VID_MODEGL) {
-    init_flags = SDL_OPENGL;
-  } else {
-    if (use_doublebuffer)
-      init_flags = SDL_DOUBLEBUF;
-    else
-      init_flags = SDL_SWSURFACE;
-#ifndef PRBOOM_DEBUG
-    init_flags |= SDL_HWPALETTE;
-#endif
+    init_flags = SDL_WINDOW_OPENGL;
   }
 
   if ( desired_fullscreen )
-    init_flags |= SDL_FULLSCREEN;
+    init_flags |= SDL_WINDOW_FULLSCREEN;
 
   // In windowed mode, the window can be resized while the game is
   // running.  This feature is disabled on OS X, as it adds an ugly
   // scroll handle to the corner of the screen.
 #ifndef MACOSX
   if (!desired_fullscreen)
-    init_flags |= SDL_RESIZABLE;
+    init_flags |= SDL_WINDOW_RESIZABLE;
 #endif
 
   if (sdl_video_window_pos && sdl_video_window_pos[0])
@@ -1266,10 +1244,6 @@ void I_UpdateVideoMode(void)
     strncat(buf, sdl_video_window_pos, sizeof(buf) - sizeof(buf[0]) - strlen(buf));
     putenv(buf);
   }
-
-#ifdef GL_DOOM
-  vid_8ingl.enabled = false;
-#endif
 
   if (V_GetMode() == VID_MODEGL)
   {
@@ -1288,70 +1262,59 @@ void I_UpdateVideoMode(void)
     SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
     SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 8 );
 
-    //e6y: vertical sync
-#if !SDL_VERSION_ATLEAST(1, 3, 0)
-    SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, (gl_vsync ? 1 : 0));
-#endif
-
     //e6y: anti-aliasing
     gld_MultisamplingInit();
 
-    screen = SDL_SetVideoMode(REAL_SCREENWIDTH, REAL_SCREENHEIGHT, gl_colorbuffer_bits, init_flags);
+    sdl_window = SDL_CreateWindow(
+      PACKAGE_NAME" "PACKAGE_VERSION,
+      SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+      REAL_SCREENWIDTH, REAL_SCREENHEIGHT,
+      init_flags);
+    sdl_glcontext = SDL_GL_CreateContext(sdl_window);
+
     gld_CheckHardwareGamma();
 #endif
   }
   else
   {
-#ifdef GL_DOOM
-    if (use_gl_surface)
+    int flags = SDL_RENDERER_TARGETTEXTURE;
+
+    if (render_vsync)
+      flags |= SDL_RENDERER_PRESENTVSYNC;
+
+    sdl_window = SDL_CreateWindow(
+      PACKAGE_NAME" "PACKAGE_VERSION,
+      SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+      REAL_SCREENWIDTH, REAL_SCREENHEIGHT,
+      init_flags);
+    sdl_renderer = SDL_CreateRenderer(sdl_window, -1, flags);
+
+    SDL_RenderSetLogicalSize(sdl_renderer, REAL_SCREENWIDTH, REAL_SCREENHEIGHT);
+
+    screen = SDL_CreateRGBSurface(0, SCREENWIDTH, SCREENHEIGHT, V_GetNumPixelBits(), 0, 0, 0, 0);
+    buffer = SDL_CreateRGBSurface(0, REAL_SCREENWIDTH, REAL_SCREENHEIGHT, 32, 0, 0, 0, 0);
+    SDL_FillRect(buffer, NULL, 0);
+
+    sdl_texture = SDL_CreateTextureFromSurface(sdl_renderer, buffer);
+    
+    if (screen_multiply)
     {
-      int flags = SDL_OPENGL;
-
-      if ( desired_fullscreen )
-        flags |= SDL_FULLSCREEN;
-
-      SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-      SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, gl_colorbuffer_bits );
-      SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
-      //e6y: vertical sync
-#if !SDL_VERSION_ATLEAST(1, 3, 0)
-      SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, (gl_vsync ? 1 : 0));
-#endif
-
-      vid_8ingl.surface = SDL_SetVideoMode(
-        REAL_SCREENWIDTH, REAL_SCREENHEIGHT,
-        gl_colorbuffer_bits, flags);
-
-      if(vid_8ingl.surface == NULL)
-        I_Error("Couldn't set %dx%d video mode [%s]", REAL_SCREENWIDTH, REAL_SCREENHEIGHT, SDL_GetError());
-
-      screen = SDL_CreateRGBSurface(
-        init_flags & ~SDL_FULLSCREEN,
-        REAL_SCREENWIDTH, REAL_SCREENHEIGHT,
-        V_GetNumPixelBits(), 0, 0, 0, 0);
-
-      vid_8ingl.screen = screen;
-
-      vid_8ingl.enabled = true;
+      sdl_texture_upscaled = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888,
+        SDL_TEXTUREACCESS_TARGET, REAL_SCREENWIDTH, REAL_SCREENHEIGHT);
     }
-    else
-#endif
-    {
-      screen = SDL_SetVideoMode(REAL_SCREENWIDTH, REAL_SCREENHEIGHT, V_GetNumPixelBits(), init_flags);
+
+    if(screen == NULL) {
+      I_Error("Couldn't set %dx%d video mode [%s]", REAL_SCREENWIDTH, REAL_SCREENHEIGHT, SDL_GetError());
     }
   }
 
-  if(screen == NULL) {
-    I_Error("Couldn't set %dx%d video mode [%s]", REAL_SCREENWIDTH, REAL_SCREENHEIGHT, SDL_GetError());
-  }
+  windowid = SDL_GetWindowID(sdl_window);
 
-#if SDL_VERSION_ATLEAST(1, 3, 0)
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
-    SDL_GL_SetSwapInterval((gl_vsync ? 1 : 0));
+    SDL_GL_SetSwapInterval((render_vsync ? 1 : 0));
   }
-#endif
 #endif
 
 #ifdef GL_DOOM
@@ -1359,25 +1322,28 @@ void I_UpdateVideoMode(void)
     gld_MultisamplingCheck();*/
 #endif
 
-  lprintf(LO_INFO, "I_UpdateVideoMode: 0x%x, %s, %s\n", init_flags, screen->pixels ? "SDL buffer" : "own buffer", SDL_MUSTLOCK(screen) ? "lock-and-copy": "direct access");
-
-  // Get the info needed to render to the display
-  if (screen_multiply==1 && !SDL_MUSTLOCK(screen))
+  if (V_GetMode() != VID_MODEGL)
   {
-    screens[0].not_on_heap = true;
-    screens[0].data = (unsigned char *) (screen->pixels);
-    screens[0].byte_pitch = screen->pitch;
-    screens[0].short_pitch = screen->pitch / V_GetModePixelDepth(VID_MODE16);
-    screens[0].int_pitch = screen->pitch / V_GetModePixelDepth(VID_MODE32);
-  }
-  else
-  {
-    screens[0].not_on_heap = false;
-  }
+    lprintf(LO_INFO, "I_UpdateVideoMode: 0x%x, %s, %s\n", init_flags, screen->pixels ? "SDL buffer" : "own buffer", SDL_MUSTLOCK(screen) ? "lock-and-copy": "direct access");
 
-  V_AllocScreens();
+    // Get the info needed to render to the display
+    if (screen_multiply==1 && !SDL_MUSTLOCK(screen))
+    {
+      screens[0].not_on_heap = true;
+      screens[0].data = (unsigned char *) (screen->pixels);
+      screens[0].byte_pitch = screen->pitch;
+      screens[0].short_pitch = screen->pitch / V_GetModePixelDepth(VID_MODE16);
+      screens[0].int_pitch = screen->pitch / V_GetModePixelDepth(VID_MODE32);
+    }
+    else
+    {
+      screens[0].not_on_heap = false;
+    }
 
-  R_InitBuffer(SCREENWIDTH, SCREENHEIGHT);
+    V_AllocScreens();
+
+    R_InitBuffer(SCREENWIDTH, SCREENHEIGHT);
+  }
 
   // e6y: wide-res
   // Need some initialisations before level precache
@@ -1426,48 +1392,27 @@ void I_UpdateVideoMode(void)
     gld_Init(SCREENWIDTH, SCREENHEIGHT);
   }
 
-  if (vid_8ingl.enabled)
-  {
-    gld_Init8InGLMode();
-  }
-
   if (V_GetMode() == VID_MODEGL)
   {
     M_ChangeFOV();
     deh_changeCompTranslucency();
   }
 #endif
+
+  src_rect.w = SCREENWIDTH;
+  src_rect.h = SCREENHEIGHT;
+  dst_rect.w = REAL_SCREENWIDTH;
+  dst_rect.h = REAL_SCREENHEIGHT;
 }
 
 static void ActivateMouse(void)
 {
-  SDL_WM_GrabInput(SDL_GRAB_ON);
-#if SDL_VERSION_ATLEAST(1, 3, 0)
-  SDL_ShowCursor(0);
-#else
-  SDL_SetCursor(cursors[1]);
-  SDL_ShowCursor(1);
-#endif
+  SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 
 static void DeactivateMouse(void)
 {
-  SDL_WM_GrabInput(SDL_GRAB_OFF);
-#if !SDL_VERSION_ATLEAST(1, 3, 0)
-  SDL_SetCursor(cursors[0]);
-#endif
-  SDL_ShowCursor(1);
-}
-
-// Warp the mouse back to the middle of the screen
-static void CenterMouse(void)
-{
-  // Warp the the screen center
-  SDL_WarpMouse((unsigned short)(REAL_SCREENWIDTH/2), (unsigned short)(REAL_SCREENHEIGHT/2));
-
-  // Clear any relative movement caused by warping
-  SDL_PumpEvents();
-  SDL_GetRelativeMouseState(NULL, NULL);
+  SDL_SetRelativeMouseMode(SDL_FALSE);
 }
 
 //
@@ -1477,10 +1422,6 @@ static void CenterMouse(void)
 // motion event.
 static void I_ReadMouse(void)
 {
-  static int mouse_currently_grabbed = true;
-  int x, y;
-  event_t ev;
-
   if (!usemouse)
     return;
 
@@ -1492,23 +1433,8 @@ static void I_ReadMouse(void)
 
   if (!mouse_currently_grabbed && !desired_fullscreen)
   {
-    CenterMouse();
     mouse_currently_grabbed = true;
   }
-
-  SDL_GetRelativeMouseState(&x, &y);
-
-  if (x != 0 || y != 0) 
-  {
-    ev.type = ev_mouse;
-    ev.data1 = I_SDLtoDoomMouseState(SDL_GetMouseState(NULL, NULL));
-    ev.data2 = x << 5;
-    ev.data3 = (-y) << 5;
-
-    D_PostEvent(&ev);
-  }
-
-  CenterMouse();
 }
 
 static dboolean MouseShouldBeGrabbed()
@@ -1551,13 +1477,17 @@ static dboolean MouseShouldBeGrabbed()
 // and we dont move the mouse around if we aren't focused either.
 static void UpdateFocus(void)
 {
-  Uint8 state;
+  Uint32 flags = 0;
 
-  state = SDL_GetAppState();
-
-  // We should have input (keyboard) focus and be visible 
-  // (not minimised)
-  window_focused = (state & SDL_APPINPUTFOCUS) && (state & SDL_APPACTIVE);
+  window_focused = false;
+  if(sdl_window)
+  {
+    flags = SDL_GetWindowFlags(sdl_window);
+    if ((flags & SDL_WINDOW_SHOWN) && !(flags & SDL_WINDOW_MINIMIZED) && (flags & SDL_WINDOW_INPUT_FOCUS))
+    {
+      window_focused = true;
+    }
+  }
 
   // e6y
   // Reuse of a current palette to avoid black screen at software fullscreen modes
@@ -1615,72 +1545,7 @@ void UpdateGrab(void)
 
 static void ApplyWindowResize(SDL_Event *resize_event)
 {
-  int i, k;
-  char mode[80];
-
-  int w = MAX(320, resize_event->resize.w);
-  int h = MAX(200, resize_event->resize.h);
-
-  if (screen_resolution)
-  {
-    if (!(SDL_GetModState() & KMOD_SHIFT))
-    {
-      // Find the biggest screen mode that will fall within these
-      // dimensions, falling back to the smallest mode possible if
-      // none is found.
-
-      Uint32 flags = SDL_FULLSCREEN;
-
-      if (V_GetMode() == VID_MODEGL)
-        flags |= SDL_OPENGL;
-
-      I_ClosestResolution(&w, &h, flags);
-    }
-
-    w = MAX(320, w);
-    h = MAX(200, h);
-
-    sprintf(mode, "%dx%d", w, h);
-    screen_resolution = screen_resolutions_list[0];
-    for (i = 0; i < MAX_RESOLUTIONS_COUNT; i++)
-    {
-      if (screen_resolutions_list[i])
-      {
-        if (!strcmp(mode, screen_resolutions_list[i]))
-        {
-          screen_resolution = screen_resolutions_list[i];
-          break;
-        }
-      }
-    }
-
-    // custom resolution
-    if (screen_resolution == screen_resolutions_list[0])
-    {
-      if (screen_resolution_lowest &&
-          !strcmp(screen_resolution_lowest, screen_resolutions_list[0]))
-      {
-        // there is no "custom resolution" entry in the list
-        for(k = MAX_RESOLUTIONS_COUNT - 1; k > 0; k--)
-        {
-          screen_resolutions_list[k] = screen_resolutions_list[k - 1];
-        }
-        // add it
-        screen_resolutions_list[0] = strdup(mode);
-        screen_resolution = screen_resolutions_list[0];
-      }
-      else
-      {
-        union { const char *c; char *s; } u; // type punning via unions
-        u.c = screen_resolutions_list[0];
-        free(u.s);
-        screen_resolutions_list[0] = strdup(mode);
-        screen_resolution = screen_resolutions_list[0];
-      }
-    }
-
-    V_ChangeScreenResolution();
-
-    doom_printf("%dx%d", w, h);
-  }
+  int w = resize_event->window.data1;
+  int h = resize_event->window.data2;
+  SDL_RenderSetLogicalSize(sdl_renderer, w, w * REAL_SCREENHEIGHT / REAL_SCREENWIDTH);
 }

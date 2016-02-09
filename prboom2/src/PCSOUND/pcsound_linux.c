@@ -106,7 +106,7 @@ static int PCSound_Linux_Init(pcsound_callback_func callback_func)
     callback = callback_func;
     sound_thread_running = 1;
 
-    sound_thread_handle = SDL_CreateThread(SoundThread, NULL);
+    sound_thread_handle = SDL_CreateThread(SoundThread, "sound_thread_handle", NULL);
     
     return 1;
 }

@@ -108,10 +108,10 @@ void I_InitJoystick(void)
   }
   joystick=SDL_JoystickOpen(usejoystick-1);
   if (!joystick)
-    lprintf(LO_ERROR, "%serror opening joystick %s\n", fname, SDL_JoystickName(usejoystick-1));
+    lprintf(LO_ERROR, "%serror opening joystick %s\n", fname, joystick);
   else {
     atexit(I_EndJoystick);
-    lprintf(LO_INFO, "%sopened %s\n", fname, SDL_JoystickName(usejoystick-1));
+    lprintf(LO_INFO, "%sopened %s\n", fname, SDL_JoystickName(joystick));
     joyup = 32767;
     joydown = -32768;
     joyright = 32767;

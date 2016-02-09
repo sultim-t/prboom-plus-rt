@@ -239,11 +239,11 @@
   #define LINK_LIBRARY(x) comment(lib, x".lib")
 #endif
 
-#pragma comment( lib, "SDL.lib" )
-#pragma comment( lib, "SDL_mixer.lib" )
-#pragma comment( lib, "SDL_net.lib" )
+#pragma comment( lib, "SDL2.lib" )
+#pragma comment( lib, "SDL2_mixer.lib" )
+#pragma comment( lib, "SDL2_net.lib" )
 #ifdef HAVE_LIBSDL_IMAGE
-  #pragma comment( lib, "SDL_image.lib" )
+  #pragma comment( lib, "SDL2_image.lib" )
 #endif // HAVE_LIBSDL_IMAGE
 
 #endif // _MSC_VER

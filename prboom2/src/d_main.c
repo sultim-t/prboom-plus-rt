@@ -1332,7 +1332,7 @@ static void DoLooseFiles(void)
 const char *wad_files[MAXLOADFILES], *deh_files[MAXLOADFILES];
 
 // CPhipps - misc screen stuff
-unsigned int desired_screenwidth, desired_screenheight;
+int desired_screenwidth, desired_screenheight;
 
 static void L_SetupConsoleMasks(void) {
   int p;

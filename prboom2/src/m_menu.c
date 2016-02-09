@@ -3064,10 +3064,7 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
   {"Aspect Ratio",                   S_CHOICE,           m_null, G_X, G_Y+ 4*8, {"render_aspect"}, 0, 0, M_ChangeAspectRatio, render_aspects_list},
   {"Fullscreen Video mode",          S_YESNO,            m_null, G_X, G_Y+ 5*8, {"use_fullscreen"}, 0, 0, M_ChangeFullScreen},
   {"Status Bar and Menu Appearance", S_CHOICE,           m_null, G_X, G_Y+ 6*8, {"render_stretch_hud"}, 0, 0, M_ChangeStretch, render_stretch_list},
-#ifdef GL_DOOM
-  {"Use GL surface for software mode",S_YESNO,           m_null, G_X, G_Y+ 7*8, {"use_gl_surface"}, 0, 0, M_ChangeUseGLSurface},
-  {"Vertical Sync",                  S_YESNO|S_PRGWARN,  m_null, G_X, G_Y+ 8*8, {"gl_vsync"}},
-#endif
+  {"Vertical Sync",                  S_YESNO,            m_null, G_X, G_Y+ 7*8, {"render_vsync"}, 0, 0, M_ChangeVideoMode},
   
   {"Enable Translucency",            S_YESNO,            m_null, G_X, G_Y+10*8, {"translucency"}, 0, 0, M_Trans},
   {"Translucency filter percentage", S_NUM,              m_null, G_X, G_Y+11*8, {"tran_filter_pct"}, 0, 0, M_Trans},
@@ -3200,7 +3197,6 @@ setup_menu_t gen_settings4[] = { // General Settings screen3
 setup_menu_t gen_settings5[] = { // General Settings screen3
   {"Software Options",               S_SKIP|S_TITLE, m_null, G_X, G_Y+1*8},
   {"Screen Multiple Factor (1-None)", S_NUM,m_null,G_X,G_Y+2*8, {"render_screen_multiply"}, 0, 0, M_ChangeScreenMultipleFactor},
-  {"Interlaced Scanning",       S_YESNO,  m_null, G_X, G_Y+3*8, {"render_interlaced_scanning"}, 0, 0, M_ChangeInterlacedScanning},
 #ifdef GL_DOOM
   {"OpenGL Options",             S_SKIP|S_TITLE,m_null,G_X,G_Y+5*8},
   {"Multisampling (0-None)",    S_NUM|S_PRGWARN|S_CANT_GL_ARB_MULTISAMPLEFACTOR,m_null,G_X,G_Y+6*8, {"render_multisampling"}, 0, 0, M_ChangeMultiSample},
@@ -6083,7 +6079,6 @@ void M_Init(void)
   M_ChangeSpriteClip();
   M_ChangeAllowBoomColormaps();
 #endif
-  M_ChangeInterlacedScanning();
 
   M_ChangeDemoSmoothTurns();
   M_ChangeDemoExtendedFormat();

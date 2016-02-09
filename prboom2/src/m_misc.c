@@ -80,7 +80,6 @@
 #include "gl_struct.h"
 #endif
 #include "g_overflow.h"
-#include "r_screenmultiply.h"
 #include "e6y.h"
 #ifdef USE_WINDOWS_LAUNCHER
 #include "e6y_launcher.h"
@@ -397,7 +396,6 @@ default_t defaults[] =
   #else
     {"videomode",{NULL, &default_videomode},{0,"8"},UL,UL,def_str,ss_none},
   #endif
-  {"use_gl_surface",{&use_gl_surface},{0},0,1,def_bool,ss_none},
 #else
   {"videomode",{NULL, &default_videomode},{0,"8"},UL,UL,def_str,ss_none},
 #endif
@@ -405,10 +403,8 @@ default_t defaults[] =
   {"screen_resolution",{NULL, &screen_resolution},{0,"640x480"},UL,UL,def_str,ss_none},
   {"use_fullscreen",{&use_fullscreen},{0},0,1, /* proff 21/05/2000 */
    def_bool,ss_none},
-#ifndef DISABLE_DOUBLEBUFFER
-  {"use_doublebuffer",{&use_doublebuffer},{1},0,1,             // proff 2001-7-4
-   def_bool,ss_none}, // enable doublebuffer to avoid display tearing (fullscreen)
-#endif
+  {"render_vsync",{&render_vsync},{1},0,1,
+   def_bool,ss_none},
   {"translucency",{&default_translucency},{1},0,1,   // phares
    def_bool,ss_none}, // enables translucency
   {"tran_filter_pct",{&tran_filter_pct},{66},0,100,         // killough 2/21/98
@@ -468,8 +464,6 @@ default_t defaults[] =
   {"gl_use_display_lists",{&gl_use_display_lists},{0},0,1,
    def_bool,ss_none},
 
-  {"gl_vsync",{&gl_vsync},{1},0,1,
-   def_bool,ss_none},
   {"gl_finish",{&gl_finish},{1},0,1,
    def_bool,ss_none},
   {"gl_clear",{&gl_clear},{0},0,1,
@@ -1002,8 +996,6 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"render_screen_multiply", {&render_screen_multiply},  {1},1,4,
    def_int,ss_stat},
-  {"render_interlaced_scanning", {&render_interlaced_scanning},  {0},0,1,
-   def_bool,ss_stat},
   {"render_aspect", {&render_aspect},  {0},0,4,
    def_int,ss_stat},
   {"render_doom_lightmaps", {&render_doom_lightmaps},  {0},0,1,
@@ -1661,7 +1653,7 @@ void M_DoScreenShot (const char* fname)
 #define SCREENSHOT_DIR "."
 #endif
 
-#ifdef HAVE_LIBPNG
+#ifdef HAVE_LIBSDL_IMAGE
 #define SCREENSHOT_EXT ".png"
 #else
 #define SCREENSHOT_EXT ".bmp"

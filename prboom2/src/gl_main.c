@@ -75,7 +75,6 @@
 // All OpenGL extentions will be disabled in gl_compatibility mode
 int gl_compatibility = 0;
 
-int gl_vsync = true;
 int gl_clear;
 
 int gl_preprocessed = false;
@@ -1029,25 +1028,25 @@ unsigned char *gld_ReadScreen(void)
 
   if (buffer && scr)
   {
-      GLint pack_aligment;
-      glGetIntegerv(GL_PACK_ALIGNMENT, &pack_aligment);
-      glPixelStorei(GL_PACK_ALIGNMENT, 1);
-      
-      glFlush();
-      glReadPixels(0, 0, REAL_SCREENWIDTH, REAL_SCREENHEIGHT, GL_RGB, GL_UNSIGNED_BYTE, scr);
-      
-      glPixelStorei(GL_PACK_ALIGNMENT, pack_aligment);
+    GLint pack_aligment;
+    glGetIntegerv(GL_PACK_ALIGNMENT, &pack_aligment);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    
+    glFlush();
+    glReadPixels(0, 0, REAL_SCREENWIDTH, REAL_SCREENHEIGHT, GL_RGB, GL_UNSIGNED_BYTE, scr);
+    
+    glPixelStorei(GL_PACK_ALIGNMENT, pack_aligment);
 
-      gld_ApplyGammaRamp(scr, REAL_SCREENWIDTH * 3, REAL_SCREENWIDTH, REAL_SCREENHEIGHT);
+    gld_ApplyGammaRamp(scr, REAL_SCREENWIDTH * 3, REAL_SCREENWIDTH, REAL_SCREENHEIGHT);
 
-      for (i=0; i<REAL_SCREENHEIGHT/2; i++)
-      {
-        memcpy(buffer, &scr[i*REAL_SCREENWIDTH*3], REAL_SCREENWIDTH*3);
-        memcpy(&scr[i*REAL_SCREENWIDTH*3],
-          &scr[(REAL_SCREENHEIGHT-(i+1))*REAL_SCREENWIDTH*3], REAL_SCREENWIDTH*3);
-        memcpy(&scr[(REAL_SCREENHEIGHT-(i+1))*REAL_SCREENWIDTH*3], buffer, REAL_SCREENWIDTH*3);
-      }
+    for (i=0; i<REAL_SCREENHEIGHT/2; i++)
+    {
+      memcpy(buffer, &scr[i*REAL_SCREENWIDTH*3], REAL_SCREENWIDTH*3);
+      memcpy(&scr[i*REAL_SCREENWIDTH*3],
+        &scr[(REAL_SCREENHEIGHT-(i+1))*REAL_SCREENWIDTH*3], REAL_SCREENWIDTH*3);
+      memcpy(&scr[(REAL_SCREENHEIGHT-(i+1))*REAL_SCREENWIDTH*3], buffer, REAL_SCREENWIDTH*3);
     }
+  }
 
   return scr;
 }
@@ -1081,7 +1080,7 @@ void gld_Finish(void)
   {
     glFinish();
   }
-  SDL_GL_SwapBuffers();
+  SDL_GL_SwapWindow(sdl_window);
 }
 
 GLuint flats_vbo_id = 0; // ID of VBO

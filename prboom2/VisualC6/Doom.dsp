@@ -884,14 +884,6 @@ SOURCE=..\src\r_plane.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\r_screenmultiply.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\r_screenmultiply.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\r_segs.c
 # End Source File
 # Begin Source File
@@ -1594,37 +1586,6 @@ SOURCE=..\src\gl_sky.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\gl_soft2gl.c
-
-!IF  "$(CFG)" == "Doom - Win32 Release"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Debug"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL"
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL"
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Release NOASM"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL NOASM"
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\gl_struct.h
 
 !IF  "$(CFG)" == "Doom - Win32 Release"
@@ -1880,95 +1841,15 @@ SOURCE=..\src\TEXTSCREEN\doomkeys.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\TEXTSCREEN\textscreen.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_button.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_button.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_checkbox.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_checkbox.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_desktop.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_desktop.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_dropdown.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_dropdown.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\TEXTSCREEN\txt_font.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\TEXTSCREEN\txt_gui.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_gui.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_inputbox.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_inputbox.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_io.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_io.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_label.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_label.h
+SOURCE=..\src\TEXTSCREEN\txt_largefont.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\src\TEXTSCREEN\txt_main.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_radiobutton.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_radiobutton.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_scrollpane.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_scrollpane.h
 # End Source File
 # Begin Source File
 
@@ -1980,63 +1861,7 @@ SOURCE=..\src\TEXTSCREEN\txt_sdl.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\TEXTSCREEN\txt_separator.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_separator.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\TEXTSCREEN\txt_smallfont.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_spinctrl.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_spinctrl.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_strut.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_strut.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_table.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_table.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_widget.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_widget.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_window.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_window.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_window_action.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\TEXTSCREEN\txt_window_action.h
 # End Source File
 # End Group
 # Begin Group "Music"
@@ -2129,7 +1954,7 @@ SOURCE=..\src\MUSIC\vorbisplayer.h
 # End Group
 # Begin Source File
 
-SOURCE=..\src\SDL\SDL_win32_main.c
+SOURCE=..\src\SDL\SDL_windows_main.c
 # End Source File
 # End Target
 # End Project
