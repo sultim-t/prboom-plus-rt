@@ -1184,14 +1184,6 @@ void I_UpdateVideoMode(void)
     init_flags |= SDL_WINDOW_RESIZABLE;
 #endif
 
-  if (sdl_video_window_pos && sdl_video_window_pos[0])
-  {
-    char buf[80];
-    strcpy(buf, "SDL_VIDEO_WINDOW_POS=");
-    strncat(buf, sdl_video_window_pos, sizeof(buf) - sizeof(buf[0]) - strlen(buf));
-    putenv(buf);
-  }
-
   if (V_GetMode() == VID_MODEGL)
   {
 #ifdef GL_DOOM
@@ -1252,6 +1244,19 @@ void I_UpdateVideoMode(void)
 
     if(screen == NULL) {
       I_Error("Couldn't set %dx%d video mode [%s]", REAL_SCREENWIDTH, REAL_SCREENHEIGHT, SDL_GetError());
+    }
+  }
+
+  if (sdl_video_window_pos)
+  {
+    int x, y;
+    if (sscanf(sdl_video_window_pos, "%d,%d", &x, &y) == 2)
+    {
+      SDL_SetWindowPosition(sdl_window, x, y);
+    }
+    if (strcmp(sdl_video_window_pos, "center") == 0)
+    {
+      SDL_SetWindowPosition(sdl_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
     }
   }
 
