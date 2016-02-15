@@ -547,6 +547,7 @@
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="../src/PCRELIB/VisualC8/Lib;../src/MUSIC/lib"
 				GenerateManifest="true"
+				GenerateDebugInformation="true"
 				GenerateMapFile="true"
 				SubSystem="2"
 				TargetMachine="1"
