@@ -60,7 +60,6 @@ extern SDL_Renderer *sdl_renderer;
 extern const char *screen_resolutions_list[];
 extern const char *screen_resolution;
 
-extern const char *sdl_videodriver;
 extern const char *sdl_video_window_pos;
 
 void I_PreInitGraphics(void); /* CPhipps - do stuff immediately on start */

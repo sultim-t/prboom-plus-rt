@@ -96,7 +96,6 @@ int mouse_currently_grabbed = true;
 // Window resize state.
 static void ApplyWindowResize(SDL_Event *resize_event);
 
-const char *sdl_videodriver;
 const char *sdl_video_window_pos;
 
 static void ActivateMouse(void);
@@ -616,7 +615,6 @@ static void I_ShutdownSDL(void)
 void I_PreInitGraphics(void)
 {
   int p;
-  char *video_driver = strdup(sdl_videodriver);
 
   // Initialize SDL
   unsigned int flags = 0;
@@ -626,58 +624,7 @@ void I_PreInitGraphics(void)
   flags |= SDL_INIT_NOPARACHUTE;
 #endif
 
-  // e6y: Forcing "directx" video driver for Win9x.
-  // The "windib" video driver is the default for SDL > 1.2.9, 
-  // to prevent problems with certain laptops, 64-bit Windows, and Windows Vista.  
-  // The DirectX driver is still available, and can be selected by setting 
-  // the environment variable SDL_VIDEODRIVER to "directx".
-
-  if ((p = M_CheckParm("-videodriver")) && (p < myargc - 1))
-  {
-    free(video_driver);
-    video_driver = strdup(myargv[p + 1]);
-  }
-
-  if (strcasecmp(video_driver, "default"))
-  {
-    // videodriver != default
-    char buf[80];
-    strcpy(buf, "SDL_VIDEODRIVER=");
-    strncat(buf, video_driver, sizeof(buf) - sizeof(buf[0]) - strlen(buf));
-    putenv(buf);
-  }
-  else
-  {
-    // videodriver == default
-#ifdef _WIN32
-    if ((int)GetVersion() < 0 && V_GetMode() != VID_MODEGL ) // win9x
-    {
-      free(video_driver);
-      video_driver = strdup("directx");
-      putenv("SDL_VIDEODRIVER=directx");
-    }
-#endif
-  }
-
   p = SDL_Init(flags);
-
-  if (p < 0 && strcasecmp(video_driver, "default"))
-  {
-    static const union {
-      const char *c;
-      char *s;
-    } u = { "SDL_VIDEODRIVER=" };
-
-    //e6y: wrong videodriver?
-    lprintf(LO_ERROR, "Could not initialize SDL with SDL_VIDEODRIVER=%s [%s]\n", video_driver, SDL_GetError());
-
-    putenv(u.s);
-
-    p = SDL_Init(flags);
-  }
-
-  free(video_driver);
-
   if (p < 0)
   {
     I_Error("Could not initialize SDL [%s]", SDL_GetError());

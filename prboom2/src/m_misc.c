@@ -982,8 +982,6 @@ default_t defaults[] =
   {"cap_fps", {&cap_fps},{60},16,300,def_int,ss_none},
 
   {"Prboom-plus video settings",{NULL},{0},UL,UL,def_none,ss_none},
-  {"sdl_videodriver", {NULL,&sdl_videodriver}, {0,"default"},UL,UL,
-   def_str,ss_none},
   {"sdl_video_window_pos", {NULL,&sdl_video_window_pos}, {0,"center"},UL,UL,
    def_str,ss_none},
   {"palette_ondamage", {&palette_ondamage},  {1},0,1,
