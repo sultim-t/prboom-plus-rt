@@ -637,7 +637,7 @@ void gld_DrawNumPatch_f(float x, float y, int lump, int cm, enum patch_translati
   dboolean bFakeColormap;
 
   cmap = ((flags & VPT_TRANS) ? cm : CR_DEFAULT);
-  gltexture=gld_RegisterPatch(lump, cmap);
+  gltexture=gld_RegisterPatch(lump, cmap, false);
   gld_BindPatch(gltexture, cmap);
 
   if (!gltexture)
@@ -768,7 +768,7 @@ void gld_FillPatch(int lump, int x, int y, int width, int height, enum patch_tra
   int saved_boom_cm = boom_cm;
   boom_cm = 0;
 
-  gltexture = gld_RegisterPatch(lump, false);
+  gltexture = gld_RegisterPatch(lump, CR_DEFAULT, false);
   gld_BindPatch(gltexture, CR_DEFAULT);
 
   if (!gltexture)
@@ -861,7 +861,7 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   int x1,y1,x2,y2;
   float light;
 
-  gltexture=gld_RegisterPatch(firstspritelump+weaponlump, CR_DEFAULT);
+  gltexture=gld_RegisterPatch(firstspritelump+weaponlump, CR_DEFAULT, false);
   if (!gltexture)
     return;
   gld_BindPatch(gltexture, CR_DEFAULT);
@@ -2610,7 +2610,7 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
     sprite.fogdensity = gld_CalcFogDensity(thing->subsector->sector, lightlevel, GLDIT_SPRITE);
   }
   sprite.cm = CR_LIMIT + (int)((thing->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
-  sprite.gltexture = gld_RegisterPatch(lump, sprite.cm);
+  sprite.gltexture = gld_RegisterPatch(lump, sprite.cm, true);
   if (!sprite.gltexture)
     goto unlock_patch;
   sprite.flags = thing->flags;

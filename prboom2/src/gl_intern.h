@@ -378,7 +378,7 @@ extern int scene_has_flat_details;
 extern GLuint* last_glTexID;
 GLTexture *gld_RegisterTexture(int texture_num, dboolean mipmap, dboolean force);
 void gld_BindTexture(GLTexture *gltexture, unsigned int flags);
-GLTexture *gld_RegisterPatch(int lump, int cm);
+GLTexture *gld_RegisterPatch(int lump, int cm, dboolean is_sprite);
 void gld_BindPatch(GLTexture *gltexture, int cm);
 GLTexture *gld_RegisterFlat(int lump, dboolean mipmap);
 void gld_BindFlat(GLTexture *gltexture, unsigned int flags);

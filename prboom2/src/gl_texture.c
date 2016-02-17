@@ -1005,7 +1005,7 @@ void gld_BindTexture(GLTexture *gltexture, unsigned int flags)
   gld_SetTexClamp(gltexture, flags);
 }
 
-GLTexture *gld_RegisterPatch(int lump, int cm)
+GLTexture *gld_RegisterPatch(int lump, int cm, dboolean is_sprite)
 {
   const rpatch_t *patch;
   GLTexture *gltexture;
@@ -1023,7 +1023,7 @@ GLTexture *gld_RegisterPatch(int lump, int cm)
 
     //e6y
     gltexture->flags = 0;
-    if (lump >= firstspritelump && lump > (firstspritelump + numsprites))
+    if (is_sprite)
     {
       gltexture->flags |= GLTEXTURE_SPRITE;
       if (tex_filter[MIP_SPRITE].mipmap)
@@ -1548,7 +1548,7 @@ void gld_Precache(void)
             do
             {
               gld_ProgressUpdate("Loading Sprites...", ++hit, hitcount);
-              gltexture = gld_RegisterPatch(firstspritelump + sflump[k], CR_LIMIT);
+              gltexture = gld_RegisterPatch(firstspritelump + sflump[k], CR_LIMIT, true);
               if (gltexture)
               {
                 gld_BindPatch(gltexture, CR_LIMIT);

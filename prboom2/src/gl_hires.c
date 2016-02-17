@@ -1455,7 +1455,7 @@ int gld_PrecacheGUIPatches(void)
       GLTexture *gltexture;
       
       lumpinfo[lump].flags |= LUMP_STATIC;
-      gltexture = gld_RegisterPatch(lump, CR_DEFAULT);
+      gltexture = gld_RegisterPatch(lump, CR_DEFAULT, false);
       if (gltexture)
       {
         gld_BindPatch(gltexture, CR_DEFAULT);

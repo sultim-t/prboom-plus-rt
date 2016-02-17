@@ -1069,7 +1069,7 @@ int gld_BindFace(box_skybox_t *sb, int index)
   lump = W_CheckNumForName(name);
   if (lump != -1)
   {
-    gltexture = gld_RegisterPatch(lump, CR_DEFAULT);
+    gltexture = gld_RegisterPatch(lump, CR_DEFAULT, false);
     gltexture->wrap_mode = GLEXT_CLAMP_TO_EDGE;
     gld_BindPatch(gltexture, CR_DEFAULT);
     return true;
