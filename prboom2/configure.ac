@@ -139,7 +139,7 @@ fi
 AM_CONDITIONAL(BUILD_GL,test "$enable_gl" = "yes")
 
 dnl - SDL
-AM_PATH_SDL(1.1.3, sdl_main="yes")
+AM_PATH_SDL2([2.0.0], [sdl_main="yes"])
 if test "$sdl_main" != "yes"
 then
  AC_MSG_ERROR([*** You must have the SDL libraries installed before you can compile prboom
