@@ -423,6 +423,7 @@ prboom2/src/POSIX/Makefile.am eol=lf
 prboom2/src/SDL/Makefile.am eol=lf
 prboom2/src/SDL/SDL_windows.h -text
 prboom2/src/SDL/SDL_windows_main.c -text
+prboom2/src/TEXTSCREEN/Makefile.am -text
 prboom2/src/TEXTSCREEN/txt_largefont.h -text
 prboom2/src/gl_shader.c -text
 prboom2/src/hu_tracers.c -text
