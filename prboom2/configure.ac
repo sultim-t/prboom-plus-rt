@@ -174,16 +174,6 @@ AS_IF([test "x$with_net" = xno],
       AC_DEFINE(USE_SDL_NET,1,[Define if you want to use the SDL net lib])
       NET_LIBS=-lSDL_net
       sdl_net=yes
-      save_CFLAGS="$CFLAGS"
-      CFLAGS="$CFLAGS $SDL_CFLAGS"
-      AC_TRY_COMPILE([
-          #include "SDL_net.h"
-          ],[
-          UDPpacket *p;
-          int n = sizeof(p->src);
-          ],
-          AC_DEFINE(SDL_NET_UDP_PACKET_SRC,1,[Define if you have an old SDL_net, such that the UDPpacket structure has a src member instead of an address member]))
-      CFLAGS="$save_CFLAGS"
     ],[
       dnl -- Warn if networking support was not disabled but sdlnet is missing
       AC_MSG_WARN([*** SDL networking library not found. The game will not be compiled with network game support.])
