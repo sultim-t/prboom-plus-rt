@@ -35,22 +35,21 @@ section.
 Basic Installation
 ==================
 
-  1. To compile PrBoom-Plus, you need at least SDL. To enable various
+  1. To compile PrBoom-Plus, you need at least SDL2. To enable various
      extensions and optional features, the following are required:
-     - SDL_net (for network play)
-     - SDL_image (for high-resolution texture support in OpenGL mode)
-     - libpng (to have screenshots saved in PNG format)
+     - SDL2_net (for network play)
+     - SDL2_image (for high-res textures in OpenGL, and PNG screenshots)
      - PCRE (for demo filename pattern matching)
      - for music support, some or all of
-       * SDL_mixer (midi, timidity)
+       * SDL2_mixer (midi, timidity)
        * Fluidsynth (midi)
        * Portmidi (midi)
        * MAD (mp3)
        * DUMB (various tracker-style formats)
        * vorbisfile (ogg)
      On a typical Debian or Ubuntu system this may be sufficient:
-       apt-get install libsdl1.2-dev libsdl-net1.2-dev libsdl-image1.2-dev \
-         libpng12-dev libpcre3-dev libsdl-mixer1.2-dev libfluidsynth-dev \
+       apt-get install libsdl2-dev libsdl2-net-dev libsdl2-image-dev \
+         libpcre3-dev libsdl2-mixer-dev libfluidsynth-dev \
          libportmidi-dev libmad0-dev libdumb1-dev libvorbis-dev
 
   2. `cd' to the directory containing the PrBoom distribution (the directory
