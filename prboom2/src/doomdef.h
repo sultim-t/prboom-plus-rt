@@ -274,6 +274,7 @@ typedef enum {
 #define KEYD_RALT       (0x80+0x38)
 #define KEYD_LALT       KEYD_RALT
 #define KEYD_CAPSLOCK   0xba                                        // phares
+#define KEYD_PRINTSC    0xfe
 
 // phares 3/2/98:
 #define KEYD_INSERT     0xd2
