@@ -1076,7 +1076,7 @@ void gld_InitDrawScene(void)
 void gld_Finish(void)
 {
   gld_Set2DMode();
-  if (gl_finish)
+  if (gl_finish && !render_vsync && 0)
   {
     glFinish();
   }
