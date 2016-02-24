@@ -682,7 +682,6 @@ static void I_FillScreenResolutionsList(void)
   SDL_DisplayMode mode;
   int i, j, list_size, current_resolution_index, count;
   char mode_name[256];
-  Uint32 flags;
 
   // do it only once
   if (screen_resolutions_list[0])
@@ -694,11 +693,6 @@ static void I_FillScreenResolutionsList(void)
   {
     I_GetScreenResolution();
   }
-
-  flags = SDL_WINDOW_FULLSCREEN;
-#ifdef GL_DOOM
-  flags |= SDL_WINDOW_OPENGL;
-#endif
 
   // Don't call SDL_ListModes if SDL has not been initialized
   count = 0;
@@ -779,7 +773,7 @@ static void I_FillScreenResolutionsList(void)
 // GLBoom use this function for trying to set the closest supported resolution if the requested mode can't be set correctly.
 // For example glboom.exe -geom 1025x768 -nowindow will set 1024x768.
 // It should be used only for fullscreen modes.
-static void I_ClosestResolution (int *width, int *height, int flags)
+static void I_ClosestResolution (int *width, int *height)
 {
   int display_index = 0;
   int twidth, theight;
@@ -878,7 +872,7 @@ void I_CalculateRes(int width, int height)
   if (V_GetMode() == VID_MODEGL) {
     if ( desired_fullscreen )
     {
-      I_ClosestResolution(&width, &height, SDL_WINDOW_OPENGL|SDL_WINDOW_FULLSCREEN);
+      I_ClosestResolution(&width, &height);
     }
     SCREENWIDTH = width;
     SCREENHEIGHT = height;
