@@ -92,8 +92,8 @@
 /* Define to be the path where Doom WADs are stored */
 #define DOOMWADDIR "/usr/local/share/games/doom"
 
-/* Define if you have the SDL mixer library -lSDL_mixer */
-#define HAVE_LIBSDL_MIXER 1
+/* Define if you have the SDL2 mixer library -lSDL2_mixer */
+#define HAVE_LIBSDL2_MIXER 1
 
 /* Define if you want networkg ame support */
 #define HAVE_NET 1

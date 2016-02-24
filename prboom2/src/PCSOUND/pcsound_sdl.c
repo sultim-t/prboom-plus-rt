@@ -33,9 +33,6 @@
 #include <stdlib.h>
 
 #include "SDL.h"
-//#ifdef HAVE_LIBSDL_MIXER
-//#include "SDL_mixer.h"
-//#endif
 
 #include "pcsound.h"
 
@@ -43,9 +40,6 @@
 #include "lprintf.h"
 
 #include "i_sound.h" // snd_samplerate
-
-// Can't do any of this without SDL_mixer
-//#ifdef HAVE_LIBSDL_MIXER
 
 #define SQUARE_WAVE_AMP 0x2000
 
@@ -159,7 +153,6 @@ void PCSound_Mix_Callback(void *udata, Uint8 *stream, int len)
         rightptr += 2;
     }
 }
-//#endif // HAVE_LIBSDL_MIXER
 
 static int PCSound_SDL_Init(pcsound_callback_func callback_func)
 {

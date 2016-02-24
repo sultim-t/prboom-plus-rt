@@ -39,7 +39,7 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifdef HAVE_LIBSDL_MIXER
+#ifdef HAVE_LIBSDL2_MIXER
 #define HAVE_MIXER
 #endif
 

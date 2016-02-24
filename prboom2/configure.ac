@@ -156,7 +156,7 @@ AC_ARG_WITH([mixer],
   AC_HELP_STRING([--without-mixer],[Do not use SDL_mixer even if available]),
   [], [with_mixer=yes])
 AS_IF([test "x$with_mixer" != xno],
-  AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,[],[],[$SDL_LIBS $MIXER_LIBS]))
+  AC_CHECK_LIB(SDL2_mixer,Mix_OpenAudio,[],[],[$SDL_LIBS $MIXER_LIBS]))
 
 AC_ARG_WITH(net,
   AS_HELP_STRING([--without-net],[Do not use SDL_net even if available]),
