@@ -238,7 +238,7 @@ AC_ARG_WITH(image,
   [AS_HELP_STRING([--without-image],[Do not use SDL_image even if available])],,
   [with_image=yes])
 AS_IF([test "x$with_image" != xno],
-  AC_CHECK_LIB(SDL_image,IMG_Load))
+  AC_CHECK_LIB(SDL2_image,IMG_Load))
 
 dnl - libpng
 AC_ARG_WITH([png], AC_HELP_STRING([--without-png], [Do not use libpng even if available]),,with_png=yes)

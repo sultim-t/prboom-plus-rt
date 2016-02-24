@@ -954,7 +954,7 @@ void gld_BindTexture(GLTexture *gltexture, unsigned int flags)
     return;
   }
 
-#ifdef HAVE_LIBSDL_IMAGE
+#ifdef HAVE_LIBSDL2_IMAGE
   if (gld_LoadHiresTex(gltexture, CR_DEFAULT))
   {
     gld_SetTexClamp(gltexture, flags);
@@ -1088,7 +1088,7 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
     return;
   }
 
-#ifdef HAVE_LIBSDL_IMAGE
+#ifdef HAVE_LIBSDL2_IMAGE
   if (gld_LoadHiresTex(gltexture, cm))
   {
     gld_SetTexClamp(gltexture, GLTEXTURE_CLAMPXY);
@@ -1224,7 +1224,7 @@ void gld_BindFlat(GLTexture *gltexture, unsigned int flags)
     return;
   }
 
-#ifdef HAVE_LIBSDL_IMAGE
+#ifdef HAVE_LIBSDL2_IMAGE
   if (gld_LoadHiresTex(gltexture, CR_DEFAULT))
   {
     gld_SetTexClamp(gltexture, flags);
@@ -1317,7 +1317,7 @@ void gld_FlushTextures(void)
   gl_has_hires = 0;
   
   gld_ResetLastTexture();
-#ifdef HAVE_LIBSDL_IMAGE
+#ifdef HAVE_LIBSDL2_IMAGE
   gld_HiRes_BuildTables();
 #endif
 
@@ -1561,7 +1561,7 @@ void gld_Precache(void)
 
   if (gl_texture_external_hires)
   {
-#ifdef HAVE_LIBSDL_IMAGE
+#ifdef HAVE_LIBSDL2_IMAGE
     gld_PrecacheGUIPatches();
 #endif
   }

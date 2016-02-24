@@ -40,7 +40,7 @@
 #include "z_zone.h"
 #include <SDL.h>
 
-#ifdef HAVE_LIBSDL_IMAGE
+#ifdef HAVE_LIBSDL2_IMAGE
 #include <SDL_image.h>
 #endif
 
@@ -706,7 +706,7 @@ GLuint gld_LoadDetailName(const char *name)
     SDL_Surface *surf = NULL;
     SDL_Surface *surf_raw;
     
-#ifdef HAVE_LIBSDL_IMAGE
+#ifdef HAVE_LIBSDL2_IMAGE
     surf_raw = IMG_Load_RW(SDL_RWFromConstMem(W_CacheLumpNum(lump), W_LumpLength(lump)), 1);
 #else
     surf_raw = SDL_LoadBMP_RW(SDL_RWFromConstMem(W_CacheLumpNum(lump), W_LumpLength(lump)), 1);

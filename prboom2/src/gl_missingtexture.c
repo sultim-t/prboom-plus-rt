@@ -38,7 +38,7 @@
 #include "gl_opengl.h"
 
 #include <SDL.h>
-#ifdef HAVE_LIBSDL_IMAGE
+#ifdef HAVE_LIBSDL2_IMAGE
 #include <SDL_image.h>
 #endif
 #include "doomstat.h"

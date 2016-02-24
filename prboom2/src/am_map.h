@@ -176,7 +176,7 @@ typedef enum
 {
   map_things_appearance_classic,
   map_things_appearance_scaled,
-#if defined(HAVE_LIBSDL_IMAGE) && defined(GL_DOOM)
+#if defined(HAVE_LIBSDL2_IMAGE) && defined(GL_DOOM)
   map_things_appearance_icon,
 #endif
   

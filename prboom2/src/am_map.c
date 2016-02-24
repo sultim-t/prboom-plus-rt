@@ -109,7 +109,7 @@ const char *map_things_appearance_list[map_things_appearance_max] =
 {
   "classic",
   "scaled",
-#if defined(HAVE_LIBSDL_IMAGE) && defined(GL_DOOM)
+#if defined(HAVE_LIBSDL2_IMAGE) && defined(GL_DOOM)
   "icons"
 #endif
 };
@@ -1630,7 +1630,7 @@ static void AM_drawPlayers(void)
   mpoint_t pt;
   fixed_t scale;
 
-#if defined(HAVE_LIBSDL_IMAGE) && defined(GL_DOOM)
+#if defined(HAVE_LIBSDL2_IMAGE) && defined(GL_DOOM)
   if (V_GetMode() == VID_MODEGL)
   {
     if (map_things_appearance == map_things_appearance_icon)
@@ -1966,7 +1966,7 @@ static void AM_drawThings(void)
   int   i;
   mobj_t* t;
 
-#if defined(HAVE_LIBSDL_IMAGE) && defined(GL_DOOM)
+#if defined(HAVE_LIBSDL2_IMAGE) && defined(GL_DOOM)
   if (V_GetMode() == VID_MODEGL)
   {
     if (map_things_appearance == map_things_appearance_icon)
@@ -2085,7 +2085,7 @@ static void AM_drawMarks(void)
   int i;
   char namebuf[16] = "AMMNUM0";
 
-#if defined(HAVE_LIBSDL_IMAGE) && defined(GL_DOOM)
+#if defined(HAVE_LIBSDL2_IMAGE) && defined(GL_DOOM)
   if (V_GetMode() == VID_MODEGL)
   {
     if (map_things_appearance == map_things_appearance_icon)
@@ -2306,7 +2306,7 @@ void AM_Drawer (void)
   AM_drawThings(); //jff 1/5/98 default double IDDT sprite
   AM_drawCrosshair(mapcolor_hair);   //jff 1/7/98 default crosshair color
   
-#if defined(HAVE_LIBSDL_IMAGE) && defined(GL_DOOM)
+#if defined(HAVE_LIBSDL2_IMAGE) && defined(GL_DOOM)
   if (V_GetMode() == VID_MODEGL)
   {
     gld_DrawMapLines();

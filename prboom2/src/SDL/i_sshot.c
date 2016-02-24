@@ -40,7 +40,7 @@
 
 #include "SDL.h"
 
-#ifdef HAVE_LIBSDL_IMAGE
+#ifdef HAVE_LIBSDL2_IMAGE
 #include <SDL_image.h>
 #endif
 
@@ -65,7 +65,7 @@ int I_ScreenShot(const char *fname)
 
   if (screenshot)
   {
-#ifdef HAVE_LIBSDL_IMAGE
+#ifdef HAVE_LIBSDL2_IMAGE
     result = IMG_SavePNG(screenshot, fname);
 #else
     result = SDL_SaveBMP(screenshot, fname);

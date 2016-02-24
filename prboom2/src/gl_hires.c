@@ -45,7 +45,7 @@
 #endif
 #include <sys/stat.h>
 #include <SDL.h>
-#ifdef HAVE_LIBSDL_IMAGE
+#ifdef HAVE_LIBSDL2_IMAGE
 #include <SDL_image.h>
 #endif
 #include "doomstat.h"
@@ -178,7 +178,7 @@ void gld_ProgressUpdate(const char * text, int progress, int total)
   I_FinishUpdate();
 }
 
-#ifdef HAVE_LIBSDL_IMAGE
+#ifdef HAVE_LIBSDL2_IMAGE
 
 static const char* gld_HiRes_GetInternalName(GLTexture *gltexture);
 static int gld_HiRes_GetExternalName(GLTexture *gltexture, char *img_path, char *dds_path);
@@ -1472,4 +1472,4 @@ int gld_PrecacheGUIPatches(void)
   return 0;
 }
 
-#endif // HAVE_LIBSDL_IMAGE
+#endif // HAVE_LIBSDL2_IMAGE

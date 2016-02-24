@@ -151,8 +151,8 @@
 /* Define to the version of this package. */
 #define PACKAGE_VERSION "2.5.1.5"
 
-/* Define if you have the SDL image library -lSDL_image */
-#define HAVE_LIBSDL_IMAGE
+/* Define if you have the SDL2 image library -lSDL2_image */
+#define HAVE_LIBSDL2_IMAGE 1
 
 /* Define if you want to use FBO for some tricks in OpenGL */
 #define USE_FBO_TECHNIQUE 1
@@ -242,9 +242,9 @@
 #pragma comment( lib, "SDL2.lib" )
 #pragma comment( lib, "SDL2_mixer.lib" )
 #pragma comment( lib, "SDL2_net.lib" )
-#ifdef HAVE_LIBSDL_IMAGE
+#ifdef HAVE_LIBSDL2_IMAGE
   #pragma comment( lib, "SDL2_image.lib" )
-#endif // HAVE_LIBSDL_IMAGE
+#endif // HAVE_LIBSDL2_IMAGE
 
 #endif // _MSC_VER
 
