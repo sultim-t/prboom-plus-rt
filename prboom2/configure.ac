@@ -169,8 +169,6 @@ AS_IF([test "x$with_net" = xno],
     dnl -- Check for networking support
     AC_CHECK_LIB(SDL_net,SDLNet_UDP_Bind,[
       AC_DEFINE(HAVE_NET,1,[Define if you want network game support])
-      AC_DEFINE(HAVE_LIBSDL_NET,1,
-        [Define if you have the SDL net library -lSDL_net])
       AC_DEFINE(USE_SDL_NET,1,[Define if you want to use the SDL net lib])
       NET_LIBS=-lSDL_net
       sdl_net=yes
