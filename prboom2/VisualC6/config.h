@@ -154,6 +154,9 @@
 /* Define if you have the SDL2 image library -lSDL2_image */
 #define HAVE_LIBSDL2_IMAGE
 
+/* Define if you have the PCRE library */
+#define HAVE_LIBPCREPOSIX 1
+
 /* Define if you want to use FBO for some tricks in OpenGL */
 #define USE_FBO_TECHNIQUE 1
 
@@ -242,9 +245,15 @@
 #pragma comment( lib, "SDL2.lib" )
 #pragma comment( lib, "SDL2_mixer.lib" )
 #pragma comment( lib, "SDL2_net.lib" )
+
 #ifdef HAVE_LIBSDL2_IMAGE
   #pragma comment( lib, "SDL2_image.lib" )
 #endif // HAVE_LIBSDL2_IMAGE
+
+#ifdef HAVE_LIBPCREPOSIX
+#pragma comment( lib, "pcre3.lib" )
+#pragma comment( lib, "pcreposix3.lib" )
+#endif // HAVE_LIBPCREPOSIX
 
 #endif // _MSC_VER
 
