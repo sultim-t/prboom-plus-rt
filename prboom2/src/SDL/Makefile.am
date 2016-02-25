@@ -10,4 +10,4 @@ libsdldoom_a_SOURCES = \
  i_main.c       i_network.c     i_video.c       i_sound.c \
  i_system.c     i_joy.c         i_sshot.c
 
-EXTRA_DIST = SDL_win32_main.c
+EXTRA_DIST = SDL_windows_main.c
