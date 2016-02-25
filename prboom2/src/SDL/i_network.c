@@ -112,10 +112,6 @@ void I_WaitForPacket(int ms)
   SDLNet_UDP_AddSocket(ss, udp_socket);
   SDLNet_CheckSockets(ss,ms);
   SDLNet_FreeSocketSet(ss);
-  // build script doesn't allow this
-//#if (defined _WIN32 && !defined PRBOOM_SERVER)
-//  I_UpdateConsole();
-//#endif
 }
 
 /* I_ConnectToServer

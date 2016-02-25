@@ -60,13 +60,6 @@ extern int cons_error_mask;
  * cphipps 01/11- moved from i_system.h */
 void I_Error(const char *error, ...) __attribute__((format(printf,1,2)));
 
-#ifdef _WIN32
-void I_ConTextAttr(unsigned char a);
-void I_UpdateConsole(void);
-int Init_ConsoleWin(void);
-void Done_ConsoleWin(void);
-#endif
-
 int doom_vsnprintf(char *buf, size_t max, const char *fmt, va_list va);
 int doom_snprintf(char *buf, size_t max, const char *fmt, ...) __attribute__((format(printf,3,4)));
 #endif
