@@ -108,7 +108,7 @@ void I_InitJoystick(void)
   }
   joystick=SDL_JoystickOpen(usejoystick-1);
   if (!joystick)
-    lprintf(LO_ERROR, "%serror opening joystick %s\n", fname, joystick);
+    lprintf(LO_ERROR, "%serror opening joystick %d\n", fname, usejoystick);
   else {
     atexit(I_EndJoystick);
     lprintf(LO_INFO, "%sopened %s\n", fname, SDL_JoystickName(joystick));
