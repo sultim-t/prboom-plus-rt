@@ -1206,7 +1206,6 @@ static void R_DrawSprite (vissprite_t* spr)
   // and buggy, by going past LEFT end of array):
 
   // e6y: optimization
-
   if (drawsegs_xrange_size)
   {
     const drawseg_xrange_item_t *last = &drawsegs_xrange[drawsegs_xrange_count - 1];
@@ -1218,54 +1217,6 @@ static void R_DrawSprite (vissprite_t* spr)
         continue;      // does not cover sprite
 
       ds = curr->user;
-
-      if (ds->scale1 > ds->scale2)
-      {
-        lowscale = ds->scale2;
-        scale = ds->scale1;
-      }
-      else
-      {
-        lowscale = ds->scale1;
-        scale = ds->scale2;
-      }
-
-      if (scale < spr->scale || (lowscale < spr->scale &&
-        !R_PointOnSegSide (spr->gx, spr->gy, ds->curline)))
-      {
-        if (ds->maskedtexturecol)       // masked mid texture?
-        {
-          r1 = ds->x1 < spr->x1 ? spr->x1 : ds->x1;
-          r2 = ds->x2 > spr->x2 ? spr->x2 : ds->x2;
-          R_RenderMaskedSegRange(ds, r1, r2);
-        }
-        continue;               // seg is behind sprite
-      }
-
-      r1 = ds->x1 < spr->x1 ? spr->x1 : ds->x1;
-      r2 = ds->x2 > spr->x2 ? spr->x2 : ds->x2;
-
-      // clip this piece of the sprite
-      // killough 3/27/98: optimized and made much shorter
-
-      if (ds->silhouette&SIL_BOTTOM && spr->gz < ds->bsilheight) //bottom sil
-        for (x=r1 ; x<=r2 ; x++)
-          if (clipbot[x] == -2)
-            clipbot[x] = ds->sprbottomclip[x];
-
-      if (ds->silhouette&SIL_TOP && spr->gzt > ds->tsilheight)   // top sil
-        for (x=r1 ; x<=r2 ; x++)
-          if (cliptop[x] == -2)
-            cliptop[x] = ds->sprtopclip[x];
-    }
-  }
-  else
-  {
-    for (ds = ds_p; ds-- > drawsegs; )  // new -- killough
-    {      // determine if the drawseg obscures the sprite
-      if (ds->x1 > spr->x2 || ds->x2 < spr->x1 ||
-        (!ds->silhouette && !ds->maskedtexturecol))
-        continue;      // does not cover sprite
 
       if (ds->scale1 > ds->scale2)
       {
@@ -1373,7 +1324,6 @@ static void R_DrawSprite (vissprite_t* spr)
 
 void R_DrawMasked(void)
 {
-  extern int try_to_reduce_cpu_cache_misses;
   int i;
   drawseg_t *ds;
   int cx = SCREENWIDTH / 2;
@@ -1387,7 +1337,7 @@ void R_DrawMasked(void)
   for(i = 0; i < DS_RANGES_COUNT; i++)
     drawsegs_xranges[i].count = 0;
 
-  if (try_to_reduce_cpu_cache_misses && num_vissprite > 0)
+  if (num_vissprite > 0)
   {
     if (drawsegs_xrange_size < maxdrawsegs)
     {

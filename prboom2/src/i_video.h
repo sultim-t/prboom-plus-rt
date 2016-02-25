@@ -106,8 +106,6 @@ extern int desired_fullscreen; //e6y
 extern int process_affinity_mask;
 // Priority class for the prboom-plus process
 extern int process_priority;
-// Try to optimise screen pitch for reducing of CPU cache misses.
-extern int try_to_reduce_cpu_cache_misses;
 
 extern dboolean window_focused;
 void UpdateGrab(void);

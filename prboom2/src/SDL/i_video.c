@@ -824,7 +824,6 @@ static void I_ClosestResolution (int *width, int *height)
 
 int process_affinity_mask;
 int process_priority;
-int try_to_reduce_cpu_cache_misses;
 
 // e6y
 // It is a simple test of CPU cache misses.
@@ -889,7 +888,7 @@ void I_CalculateRes(int width, int height)
     // It is extremally important for wiping in software.
     // I have ~20x improvement in speed with using 1056 instead of 1024 on Pentium4
     // and only ~10% for Core2Duo
-    if (try_to_reduce_cpu_cache_misses)
+    if (1)
     {
       unsigned int mintime = 100;
       int w = (width+15) & ~15;
