@@ -212,21 +212,8 @@ void R_ResetAfterTeleport(player_t *player)
 // DemoEx stuff
 //
 
-#ifndef _MSC_VER
 #ifdef HAVE_LIBPCREPOSIX
 #include "pcreposix.h"
-#endif
-#else // _MSC_VER
-#define HAVE_LIBPCREPOSIX 1
-#define PCRE_STATIC 1
-#include "pcreposix.h"
-#ifdef _DEBUG
-#pragma comment( lib, "pcred.lib" )
-#pragma comment( lib, "pcreposixd.lib" )
-#else
-#pragma comment( lib, "pcre.lib" )
-#pragma comment( lib, "pcreposix.lib" )
-#endif
 #endif
 
 #define PWAD_SIGNATURE "PWAD"

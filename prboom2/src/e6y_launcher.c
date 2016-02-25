@@ -1172,6 +1172,7 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
       }
       else
       {
+#ifdef HAVE_LIBPCREPOSIX
         for (i = 0; (size_t)i < numwadfiles; i++)
         {
           if (wadfiles[i].src == source_lmp)
@@ -1189,6 +1190,7 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
             free(patterndata.missed);
           }
         }
+#endif
       }
       
       if ((size_t)i == numwadfiles)
