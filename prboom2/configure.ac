@@ -97,7 +97,7 @@ dnl - system specific stuff
 dnl - winmm for the midi volume hack
 case "$target" in
     *-*-cygwin* | *-*-mingw32*)
-        SYS_GL_LIBS="-lopengl32 -lglu32"
+        SYS_GL_LIBS="-lopengl32 -lglu32 -lgdi32"
 	LIBS="-lwinmm $LIBS"
         ;;
     *-*-beos*)
