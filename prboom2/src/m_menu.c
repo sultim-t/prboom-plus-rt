@@ -4416,35 +4416,6 @@ dboolean M_Responder (event_t* ev) {
   } else {
    // Process mouse input
     if (ev->type == ev_mouse && mousewait < I_GetTime()) {
-/* e6y: do not process mouse input in menu
-      mousey += ev->data3;
-      if (mousey < lasty-30)
-  {
-    ch = key_menu_down;                            // phares 3/7/98
-    mousewait = I_GetTime() + 5;
-    mousey = lasty -= 30;
-  }
-      else if (mousey > lasty+30)
-  {
-    ch = key_menu_up;                              // phares 3/7/98
-    mousewait = I_GetTime() + 5;
-    mousey = lasty += 30;
-  }
-
-      mousex += ev->data2;
-      if (mousex < lastx-30)
-  {
-    ch = key_menu_left;                            // phares 3/7/98
-    mousewait = I_GetTime() + 5;
-    mousex = lastx -= 30;
-  }
-      else if (mousex > lastx+30)
-  {
-    ch = key_menu_right;                           // phares 3/7/98
-    mousewait = I_GetTime() + 5;
-    mousex = lastx += 30;
-  }
-*/
 
       if (ev->data1&1)
   {
