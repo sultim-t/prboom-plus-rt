@@ -137,11 +137,6 @@
 /* Define if you want to use the Windows launcher */
 #define USE_WINDOWS_LAUNCHER 1
 
-/* Set to the attribute to apply to struct definitions to make them packed.
- * For MSVC++ we can't do it like this, there are pragma's in the source
- * instead. */
-#define PACKEDATTR
-
 /* Define to the full name of this package. */
 #define PACKAGE_NAME "PrBoom-Plus"
 

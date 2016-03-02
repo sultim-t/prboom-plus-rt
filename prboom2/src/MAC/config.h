@@ -106,8 +106,6 @@
 #define I386_ASM 1
 #endif
 
-#define PACKEDATTR __attribute__((packed))
-
 #define MACOSX
 #define HAVE_LIBKERN_OSBYTEORDER_H
 #define HAVE_OWN_MUSIC

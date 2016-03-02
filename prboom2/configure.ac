@@ -29,15 +29,6 @@ AC_PROG_LN_S
 AC_PROG_RANLIB
 AC_GNU_SOURCE
 
-if test "x$GCC" = "xyes"; then
-  AC_DEFINE(PACKEDATTR,[__attribute__((packed))],[Set to the attribute to apply to struct definitions to make them packed])
-else
-  AC_DEFINE(PACKEDATTR,[])
-  echo "-!- Your compiler is not gcc. We probably don't know how to force"
-  echo '    structures to be packed with your compiler. You may have to edit'
-  echo '    the source to insert the relevant pragmas so structures are packed.'
-fi
-
 dnl --- cph: work out flags to pass to compiler
 CFLAGS_OPT="-O2 -fomit-frame-pointer"
 AC_C_COMPILE_FLAGS(-Wall -Wextra -Wno-missing-field-initializers -Wwrite-strings -Wundef -Wbad-function-cast -Wcast-align -Wcast-qual -Wdeclaration-after-statement -Wpointer-arith -ffast-math)
