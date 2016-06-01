@@ -3236,6 +3236,9 @@ setup_menu_t gen_settings6[] =
   {0,S_SKIP|S_END,m_null}
 };
 
+static const char *jumpheights[] = {
+  "No", "Low", "High", NULL};
+
 setup_menu_t gen_settings7[] =
 {
   {"COMPATIBILITY WITH COMMON MAPPING ERRORS" ,S_SKIP|S_TITLE,m_null,G_X2,G_Y+1*8},
@@ -3243,7 +3246,7 @@ setup_menu_t gen_settings7[] =
   {"USE PASSES THRU ALL SPECIAL LINES" ,S_YESNO     ,m_null,G_X2,G_Y+3*8, {"comperr_passuse"}},
   {"WALK UNDER SOLID HANGING BODIES"   ,S_YESNO     ,m_null,G_X2,G_Y+4*8, {"comperr_hangsolid"}},
   {"FIX CLIPPING PROBLEMS IN LARGE LEVELS" ,S_YESNO ,m_null,G_X2,G_Y+5*8, {"comperr_blockmap"}},
-  {"ALLOW JUMP"                        ,S_YESNO     ,m_null,G_X2,G_Y+6*8, {"comperr_allowjump"}},
+  {"ALLOW JUMP"                        ,S_CHOICE    ,m_null,G_X2,G_Y+6*8, {"comperr_allowjump"}, 0, 0, NULL, jumpheights},
   {"ALLOW VERTICAL AIMING"             ,S_YESNO     ,m_null,G_X2,G_Y+7*8, {"comperr_freeaim"}},
 
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {gen_settings6}},

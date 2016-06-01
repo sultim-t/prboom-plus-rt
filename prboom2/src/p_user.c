@@ -292,7 +292,7 @@ void P_MovePlayer (player_t* player)
     {
       if (!player->jumpTics)
       {
-        mo->momz = 9 * FRACUNIT;
+        mo->momz = (7 + default_comperr[comperr_allowjump]) * FRACUNIT;
         player->jumpTics = 18;
       }
     }

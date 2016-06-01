@@ -1120,8 +1120,8 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"comperr_blockmap", {&default_comperr[comperr_blockmap]},  {0},0,1,
    def_bool,ss_stat},
-  {"comperr_allowjump", {&default_comperr[comperr_allowjump]},  {0},0,1,
-   def_bool,ss_stat},
+  {"comperr_allowjump", {&default_comperr[comperr_allowjump]},  {0},0,2,
+   def_int,ss_stat},
   {"comperr_freeaim", {&default_comperr[comperr_freeaim]},  {0},0,1,
    def_bool,ss_stat},
 
