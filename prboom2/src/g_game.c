@@ -172,6 +172,7 @@ int     key_menu_down;
 int     key_menu_backspace;                                  //     ^
 int     key_menu_escape;                                     //     |
 int     key_menu_enter;                                      // phares 3/7/98
+int     key_menu_clear;
 int     key_strafeleft;
 int     key_straferight;
 int     key_flyup;

@@ -2167,6 +2167,8 @@ static void M_DrawInstructions(void)
   } else {
     if (flags & S_RESET)
       M_DrawStringCentered(160, 20, CR_HILITE, "Press ENTER key to reset to defaults");
+    else if (flags & S_KEY)
+      M_DrawStringCentered(160, 20, CR_HILITE, "Press Enter to Change, Del to Clear");
     else
       M_DrawStringCentered(160, 20, CR_HILITE, "Press Enter to Change");
   }
@@ -2428,6 +2430,7 @@ setup_menu_t keys_settings7[] =
   {"BACKSPACE"   ,S_KEY       ,m_menu,KB_X,KB_Y+5*8,{&key_menu_backspace}},
   {"SELECT ITEM" ,S_KEY       ,m_menu,KB_X,KB_Y+6*8,{&key_menu_enter}},
   {"EXIT"        ,S_KEY       ,m_menu,KB_X,KB_Y+7*8,{&key_menu_escape}},
+  {"CLEAR"       ,S_KEY       ,m_menu,KB_X,KB_Y+8*8,{&key_menu_clear}},
 
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {keys_settings6}},
   // Final entry
@@ -4112,6 +4115,7 @@ int M_GetKeyString(int c,int offset)
       case KEYD_MWHEELDOWN: s = "MWDN"; break;
       case KEYD_MWHEELUP:   s = "MWUP"; break;
       case KEYD_PRINTSC:    s = "PRSC"; break;
+      case -1:              s = "NONE"; break;
       default:              s = "JUNK"; break;
       }
 
@@ -5329,6 +5333,22 @@ dboolean M_Responder (event_t* ev) {
       }
     while((current_setup_menu + set_menu_itemon)->m_flags & S_SKIP);
     M_SelectDone(current_setup_menu + set_menu_itemon);         // phares 4/17/98
+    return true;
+  }
+
+      if (ch == key_menu_clear)
+  {
+    if (ptr1->m_flags & S_KEY)
+    {
+        if (ptr1->m_joy)
+          *ptr1->m_joy = -1;
+
+        if (ptr1->m_mouse)
+          *ptr1->m_mouse = -1;
+
+        *ptr1->var.m_key = -1;
+    }
+
     return true;
   }
 

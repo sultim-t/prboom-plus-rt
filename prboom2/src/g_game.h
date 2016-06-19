@@ -116,6 +116,7 @@ extern int  key_menu_down;
 extern int  key_menu_backspace;                              //     ^
 extern int  key_menu_escape;                                 //     |
 extern int  key_menu_enter;                                  // phares 3/7/98
+extern int  key_menu_clear;
 extern int  key_strafeleft;
 extern int  key_straferight;
 extern int  key_flyup;
