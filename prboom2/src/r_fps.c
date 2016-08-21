@@ -194,7 +194,6 @@ void R_InterpolateView(player_t *player, fixed_t frac)
 void R_ResetViewInterpolation ()
 {
   NoInterpolateView = true;
-  cap_frac = 0;
 }
 
 static void R_CopyInterpToOld (int i)
