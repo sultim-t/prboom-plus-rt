@@ -264,8 +264,8 @@ default_t defaults[] =
    
   {"Files",{NULL},{0},UL,UL,def_none,ss_none},
   /* cph - MBF-like wad/deh/bex autoload code */
-  {"wadfile_1",{NULL,&wad_files[0]},{0,""},UL,UL,def_str,ss_none},
-  {"wadfile_2",{NULL,&wad_files[1]},{0,""},UL,UL,def_str,ss_none},
+  {"wadfile_1",{NULL,&wad_files[1]},{0,""},UL,UL,def_str,ss_none},
+  {"wadfile_2",{NULL,&wad_files[2]},{0,""},UL,UL,def_str,ss_none},
   {"dehfile_1",{NULL,&deh_files[0]},{0,""},UL,UL,def_str,ss_none},
   {"dehfile_2",{NULL,&deh_files[1]},{0,""},UL,UL,def_str,ss_none},
 
@@ -1614,7 +1614,7 @@ void M_LoadDefaults (void)
   /* proff 2001/7/1 - added prboom.wad as last entry so it's always loaded and
      doesn't overlap with the cfg settings */
   //e6y: Check on existence of prboom.wad
-  if (!(wad_files[MAXLOADFILES-1] = I_FindFile(PACKAGE_TARNAME ".wad", "")))
+  if (!(wad_files[0] = I_FindFile(PACKAGE_TARNAME ".wad", "")))
     I_Error("PrBoom-Plus.wad not found. Can't continue.");
 }
 
