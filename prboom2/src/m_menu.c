@@ -4280,11 +4280,20 @@ static void M_DrawStringCentered(int cx, int cy, int color, const char* ch)
 
 void M_DrawHelp (void)
 {
+  const int helplump = W_CheckNumForName("HELP");
+
   menuactive = mnact_full;
 
-  M_DrawBackground("FLOOR4_6", 0);
-
-  M_DrawScreenItems(helpstrings);
+  if (helplump >= 0 && lumpinfo[helplump].source != source_iwad)
+  {
+    V_DrawNumPatch(0, 0, 0, helplump, CR_DEFAULT, VPT_STRETCH);
+    V_FillBorder(-1, 0);
+  }
+  else
+  {
+    M_DrawBackground("FLOOR4_6", 0);
+    M_DrawScreenItems(helpstrings);
+  }
 }
 
 //
