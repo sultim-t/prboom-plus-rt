@@ -231,6 +231,9 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume)
   is_pickup = sfx_id & PICKUP_SOUND || sfx_id == sfx_oof || (compatibility_level >= prboom_2_compatibility && sfx_id == sfx_noway); // killough 4/25/98
   sfx_id &= ~PICKUP_SOUND;
 
+  if (sfx_id == sfx_None)
+    return;
+
   // check for bogus sound #
   if (sfx_id < 1 || sfx_id > NUMSFX)
     I_Error("S_StartSoundAtVolume: Bad sfx #: %d", sfx_id);
