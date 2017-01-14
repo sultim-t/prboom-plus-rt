@@ -4343,11 +4343,21 @@ setup_menu_t cred_settings[]={
 
 void M_DrawCredits(void)     // killough 10/98: credit screen
 {
+  const int creditlump = W_CheckNumForName("CREDIT");
+
   inhelpscreens = true;
-  // Use V_DrawBackground here deliberately to force drawing a background
-  V_DrawBackground(gamemode==shareware ? "CEIL5_1" : "MFLR8_4", 0);
-  M_DrawTitle(81, 9, "PRBOOM", CR_GOLD, PACKAGE_NAME " v" PACKAGE_VERSION, CR_GOLD);
-  M_DrawScreenItems(cred_settings);
+  if (creditlump >= 0 && lumpinfo[creditlump].source != source_iwad)
+  {
+    V_DrawNumPatch(0, 0, 0, creditlump, CR_DEFAULT, VPT_STRETCH);
+    V_FillBorder(-1, 0);
+  }
+  else
+  {
+    // Use V_DrawBackground here deliberately to force drawing a background
+    V_DrawBackground(gamemode==shareware ? "CEIL5_1" : "MFLR8_4", 0);
+    M_DrawTitle(81, 9, "PRBOOM", CR_GOLD, PACKAGE_NAME " v" PACKAGE_VERSION, CR_GOLD);
+    M_DrawScreenItems(cred_settings);
+  }
 }
 
 static int M_IndexInChoices(const char *str, const char **choices) {
