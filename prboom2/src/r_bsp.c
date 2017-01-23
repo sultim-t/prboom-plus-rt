@@ -601,6 +601,14 @@ static void R_Subsector(int num)
   sector_t    tempsec;              // killough 3/7/98: deep water hack
   int         floorlightlevel;      // killough 3/16/98: set floor lightlevel
   int         ceilinglightlevel;    // killough 4/11/98
+  #ifdef GL_DOOM
+  // dmooter 1/16/2017 Move from being declared next to its use several lines lower.
+  // Needs to remain in scope to the end of the function so its stack memory is recycled,
+  // compiler optimizations will make the floorplane pointer a dangling pointer
+  // when passed into gld_AddPlane().
+  visplane_t dummyfloorplane;
+  visplane_t dummyceilingplane;
+  #endif
 
 #ifdef RANGECHECK
   if (num>=numsubsectors)
@@ -658,8 +666,6 @@ static void R_Subsector(int num)
       // check if the sector is faked
       if (!gl_use_stencil && frontsector == sub->sector)
       {
-        visplane_t dummyfloorplane;
-        visplane_t dummyceilingplane;
         sector_t *tmpsec;
 
         // if the sector has bottomtextures, then the floorheight will be set to the
