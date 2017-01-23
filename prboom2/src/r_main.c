@@ -79,6 +79,7 @@ int r_have_internal_hires = false;
 // node, by d_net.c, to set up a L/M/R session.
 
 int viewangleoffset;
+int viewpitchoffset;
 int validcount = 1;         // increment every time a check is made
 const lighttable_t *fixedcolormap;
 int      centerx, centery;

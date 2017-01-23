@@ -121,7 +121,7 @@ void R_InterpolateView(player_t *player, fixed_t frac)
 
       player->prev_viewz = player->viewz;
       player->prev_viewangle = player->mo->angle + viewangleoffset;
-      player->prev_viewpitch = player->mo->pitch;
+      player->prev_viewpitch = player->mo->pitch + viewpitchoffset;
 
       P_ResetWalkcam();
     }
@@ -147,7 +147,7 @@ void R_InterpolateView(player_t *player, fixed_t frac)
     else
     {
       viewangle = player->prev_viewangle + FixedMul (frac, R_SmoothPlaying_Get(player) - player->prev_viewangle) + viewangleoffset;
-      viewpitch = player->prev_viewpitch + FixedMul (frac, player->mo->pitch - player->prev_viewpitch);
+      viewpitch = player->prev_viewpitch + FixedMul (frac, player->mo->pitch - player->prev_viewpitch) + viewpitchoffset;
     }
   }
   else
@@ -172,7 +172,7 @@ void R_InterpolateView(player_t *player, fixed_t frac)
     else
     {
       viewangle = R_SmoothPlaying_Get(player) + viewangleoffset;
-      viewpitch = player->mo->pitch;
+      viewpitch = player->mo->pitch + viewpitchoffset;
     }
   }
 

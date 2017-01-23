@@ -438,7 +438,7 @@ void P_PlayerThink (player_t* player)
   {
     player->prev_viewz = player->viewz;
     player->prev_viewangle = R_SmoothPlaying_Get(player) + viewangleoffset;
-    player->prev_viewpitch = player->mo->pitch;
+    player->prev_viewpitch = player->mo->pitch + viewpitchoffset;
 
     if (&players[displayplayer] == player)
     {
