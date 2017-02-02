@@ -135,7 +135,24 @@ static const void* db_registersong (const void *data, unsigned len)
   {
     dumbfile_close (dfil);
     dfil = dumbfile_open_memory (data, len);
-    duh = dumb_read_mod_quick (dfil);  
+    duh = dumb_read_mod_quick (dfil);
+    // No way to get the filename, so we can't check for a .mod extension, and
+    // therefore, trying to load an old 15-instrument SoundTracker module is not
+    // safe. We'll restrict MOD loading to 31-instrument modules with known
+    // signatures and let the sound system worry about 15-instrument ones.
+    // (Assuming it even supports them)
+    {
+      DUMB_IT_SIGDATA *sigdata = duh_get_it_sigdata(duh);
+      if (sigdata)
+      {
+        int n_samples = dumb_it_sd_get_n_samples(sigdata);
+        if (n_samples == 15)
+        {
+          unload_duh(duh);
+          duh = NULL;
+        }
+      }
+    }
   }
   if (!duh)
   {
