@@ -91,12 +91,6 @@ byte     *map_subsectors;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // figgi 08/21/00 -- constants and globals for glBsp support
-#define gNd2            0x32644E67  // figgi -- suppport for new GL_VERT format v2.0
-#define gNd3            0x33644E67
-#define gNd4            0x34644E67
-#define gNd5            0x35644E67
-#define ZNOD            0x444F4E5A
-#define ZGLN            0x4E4C475A
 #define GL_VERT_OFFSET  4
 
 int     firstglvertex = 0;
@@ -300,7 +294,7 @@ static void P_GetNodesVersion(int lumpnum, int gl_lumpnum)
       if (CheckForIdentifier(gl_lumpnum+ML_GL_SEGS, "gNd3", 4)) {
         ver = 3;
       } else {
-        nodesVersion = gNd2;
+        nodesVersion = 2;
         lprintf(LO_DEBUG, "P_GetNodesVersion: found version 2 nodes\n");
       }
     }
@@ -380,7 +374,7 @@ static void P_LoadVertexes2(int lump, int gllump)
   {
     gldata = W_CacheLumpNum(gllump);
 
-    if (nodesVersion == gNd2) // 32 bit GL_VERT format (16.16 fixed)
+    if (nodesVersion == 2) // 32 bit GL_VERT format (16.16 fixed)
     {
       const mapglvertex_t*  mgl;
 
