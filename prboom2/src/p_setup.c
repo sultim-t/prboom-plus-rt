@@ -246,14 +246,10 @@ static dboolean CheckForIdentifier(int lumpnum, const byte *id, size_t length)
 
 static dboolean P_CheckForZDoomNodes(int lumpnum, int gl_lumpnum)
 {
-  const void *data;
-
-  data = W_CacheLumpNum(lumpnum + ML_NODES);
-  if (W_LumpLength(lumpnum + ML_NODES) >= 4 && !memcmp(data, "ZNOD", 4))
+  if (CheckForIdentifier(lumpnum + ML_NODES, "ZNOD", 4))
     I_Error("P_CheckForZDoomNodes: compressed ZDoom nodes not supported yet");
 
-  data = W_CacheLumpNum(lumpnum + ML_SSECTORS);
-  if (W_LumpLength(lumpnum + ML_SSECTORS) >= 4 && !memcmp(data, "ZGLN", 4))
+  if (CheckForIdentifier(lumpnum + ML_SSECTORS, "ZGLN", 4))
     I_Error("P_CheckForZDoomNodes: ZDoom GL nodes not supported yet");
 
   return false;
@@ -266,16 +262,10 @@ static dboolean P_CheckForZDoomNodes(int lumpnum, int gl_lumpnum)
 
 static dboolean P_CheckForDeePBSPv4Nodes(int lumpnum, int gl_lumpnum)
 {
-  const void *data;
-  int result = false;
+  int result = CheckForIdentifier(lumpnum + ML_NODES, "xNd4\0\0\0\0", 8);
 
-  data = W_CacheLumpNum(lumpnum + ML_NODES);
-  if (!memcmp(data, "xNd4\0\0\0\0", 8))
-  {
+  if (result)
     lprintf(LO_INFO, "P_CheckForDeePBSPv4Nodes: DeePBSP v4 Extended nodes are detected\n");
-    result = true;
-  }
-  W_UnlockLumpNum(lumpnum + ML_NODES);
 
   return result;
 }
@@ -287,16 +277,10 @@ static dboolean P_CheckForDeePBSPv4Nodes(int lumpnum, int gl_lumpnum)
 
 static int P_CheckForZDoomUncompressedNodes(int lumpnum, int gl_lumpnum)
 {
-  const void *data;
-  int result = false;
+  int result = CheckForIdentifier(lumpnum + ML_NODES, "XNOD", 4);
 
-  data = W_CacheLumpNum(lumpnum + ML_NODES);
-  if (!memcmp(data, "XNOD", 4))
-  {
+  if (result)
     lprintf(LO_INFO, "P_CheckForZDoomUncompressedNodes: ZDoom uncompressed normal nodes are detected\n");
-    result = true;
-  }
-  W_UnlockLumpNum(lumpnum + ML_NODES);
 
   return result;
 }
