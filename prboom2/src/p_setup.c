@@ -296,20 +296,18 @@ static void P_GetNodesVersion(int lumpnum, int gl_lumpnum)
 
   if ( (gl_lumpnum > lumpnum) && (forceOldBsp == false) && (compatibility_level >= prboom_2_compatibility) )
   {
-    const void *data = W_CacheLumpNum(gl_lumpnum+ML_GL_VERTS);
-    if (*(const int *)data == gNd2) {
-      data = W_CacheLumpNum(gl_lumpnum+ML_GL_SEGS);
-      if (*(const int *)data == gNd3) {
+    if (CheckForIdentifier(gl_lumpnum+ML_GL_VERTS, "gNd2", 4)) {
+      if (CheckForIdentifier(gl_lumpnum+ML_GL_SEGS, "gNd3", 4)) {
         ver = 3;
       } else {
         nodesVersion = gNd2;
         lprintf(LO_DEBUG, "P_GetNodesVersion: found version 2 nodes\n");
       }
     }
-    if (*(const int *)data == gNd4) {
+    else if (CheckForIdentifier(gl_lumpnum+ML_GL_VERTS, "gNd4", 4)) {
       ver = 4;
     }
-    if (*(const int *)data == gNd5) {
+    else if (CheckForIdentifier(gl_lumpnum+ML_GL_VERTS, "gNd5", 4)) {
       ver = 5;
     }
     //e6y: unknown gl nodes will be ignored
