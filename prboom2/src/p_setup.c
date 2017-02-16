@@ -219,6 +219,28 @@ static void *calloc_IfSameLevel(void* p, size_t n1, size_t n2)
 }
 
 //
+// CheckForIdentifier
+// Checks a lump for a magic string to identify its type (e.g. extended nodes)
+//
+
+static dboolean CheckForIdentifier(int lumpnum, const byte *id, size_t length)
+{
+  dboolean result = false;
+
+  if (W_LumpLength(lumpnum) >= length)
+  {
+    const char *data = W_CacheLumpNum(lumpnum);
+
+    if (!memcmp(data, id, length))
+      result = true;
+
+    W_UnlockLumpNum(lumpnum);
+  }
+
+  return result;
+}
+
+//
 // P_CheckForZDoomNodes
 //
 
