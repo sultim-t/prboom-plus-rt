@@ -227,11 +227,11 @@ static dboolean P_CheckForZDoomNodes(int lumpnum, int gl_lumpnum)
   const void *data;
 
   data = W_CacheLumpNum(lumpnum + ML_NODES);
-  if (*(const int *)data == ZNOD)
+  if (W_LumpLength(lumpnum + ML_NODES) >= 4 && !memcmp(data, "ZNOD", 4))
     I_Error("P_CheckForZDoomNodes: compressed ZDoom nodes not supported yet");
 
   data = W_CacheLumpNum(lumpnum + ML_SSECTORS);
-  if (*(const int *)data == ZGLN)
+  if (W_LumpLength(lumpnum + ML_SSECTORS) >= 4 && !memcmp(data, "ZGLN", 4))
     I_Error("P_CheckForZDoomNodes: ZDoom GL nodes not supported yet");
 
   return false;
