@@ -38,6 +38,7 @@
 #include "p_tick.h"
 #include "s_sound.h"
 #include "sounds.h"
+#include "lprintf.h"
 #include "e6y.h"//e6y
 
 platlist_t *activeplats;       // killough 2/14/98: made global again
@@ -77,6 +78,19 @@ void T_PlatRaise(plat_t* plat)
         plat->count = plat->wait;
         plat->status = down;
         S_StartSound((mobj_t *)&plat->sector->soundorg, sfx_pstart);
+
+        if (demo_compatibility &&
+            (plat->type == raiseToNearestAndChange ||
+             plat->type == raiseAndChange))
+        {
+          // For these types vanilla did not initialize plat->low in EV_DoPlat,
+          // so they may descend to any depth, or not at all.
+          // See https://sourceforge.net/p/prboom-plus/bugs/211/ .
+          lprintf(LO_WARN, "T_PlatRaise: raise-and-change type has reversed "
+                  "direction in compatibility mode - may lead to desync\n"
+                  " gametic: %d sector: %d complevel: %d\n",
+                  gametic, plat->sector->iSectorID, compatibility_level);
+        }
       }
       else  // else handle reaching end of up stroke
       {
