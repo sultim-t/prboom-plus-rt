@@ -4115,7 +4115,7 @@ int M_GetKeyString(int c,int offset)
       case KEYD_MWHEELDOWN: s = "MWDN"; break;
       case KEYD_MWHEELUP:   s = "MWUP"; break;
       case KEYD_PRINTSC:    s = "PRSC"; break;
-      case -1:              s = "NONE"; break;
+      case 0:               s = "NONE"; break;
       default:              s = "JUNK"; break;
       }
 
@@ -5365,7 +5365,7 @@ dboolean M_Responder (event_t* ev) {
         if (ptr1->m_mouse)
           *ptr1->m_mouse = -1;
 
-        *ptr1->var.m_key = -1;
+        *ptr1->var.m_key = 0;
     }
 
     return true;
