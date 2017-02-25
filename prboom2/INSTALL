@@ -5,31 +5,21 @@ If you intend to compile PrBoom from a source tar file, such as
 prboom-plus-2.5.1.5.tar.gz, as opposed to SVN, skip to the "Basic Installation"
 section.
 
-  1. Install and configure deutex.  If deutex is already installed and
-     configured skip to step 2.
-        a. Install deutex from http://www.teaser.fr/~amajorel/deutex
-        b. Set the DOOMWADDIR environment variable to the directory that
-           contains the IWAD files:
-              export DOOMWADDIR=/usr/local/share/games/doom
+  1. Extract the PrBoom distribution from SVN:
+        svn co https://svn.prboom.org/repos/branches/prboom-plus-24/prboom2
 
-  2. 'cd' to a suitable parent directory for the PrBoom distribution:
-        cd /usr/local/src
-
-  3. Extract the PrBoom distribution from SVN:
-        svn co http://www.crowproductions.de/repos/prboom/branches/prboom-plus-24/prboom2
-
-  4. 'cd' to the directory containing the PrBoom distribution (the directory
+  2. 'cd' to the directory containing the PrBoom distribution (the directory
      this file is in):
         cd prboom2
 
-  5. Run the 'bootstrap' script in order to create the 'configure' script.
+  3. Run the 'bootstrap' script in order to create the 'configure' script.
         ./bootstrap
      If you get this error:
         aclocal: configure.ac: 153: macro `AM_PATH_SDL' not found in library
      Then you have to locate sdl.m4 and copy it to ./autotools/sdl.m4 in your
      prboom directory.
 
-  6. If the 'configure' script was created by step 5 then proceed to the
+  4. If the 'configure' script was created by step 3 then proceed to the
      "Basic Installation" section.
 
 Basic Installation
