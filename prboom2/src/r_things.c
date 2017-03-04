@@ -610,7 +610,7 @@ void R_SetClipPlanes(void)
 
 static void R_ProjectSprite (mobj_t* thing, int lightlevel)
 {
-  fixed_t   gzt, gzb;               // killough 3/27/98
+  fixed_t   gzt;               // killough 3/27/98
   fixed_t   tx;
   fixed_t   xscale;
   int       x1;
@@ -736,7 +736,6 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
     x2 = ((centerxfrac + FixedMul (tx,xscale) - FRACUNIT/2) >> FRACBITS);
 
     gzt = fz + (patch->topoffset << FRACBITS);
-    gzb = gzt - (patch->height << FRACBITS);
     width = patch->width;
     R_UnlockPatchNum(lump+firstspritelump);
   }
@@ -745,12 +744,13 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   if (x1 > viewwidth || x2 < 0)
     return;
 
-  // [RH] Reject sprites that are off the top or bottom of the screen
-  if (FixedMul(globaluclip, tz) > viewz - gzb ||
-    FixedMul(globaldclip, tz) < viewz - gzt)
-  {
+  // killough 4/9/98: clip things which are out of view due to height
+  // e6y: fix of hanging decoration disappearing in Batman Doom MAP02
+  // centeryfrac -> viewheightfrac
+  // [kb] add +1 so sprites are shown even with the extended freelook
+  if (thing->z > viewz + FixedDiv(viewheight << (FRACBITS + 1), xscale) ||
+    gzt < viewz - FixedDiv((viewheight << (FRACBITS + 1)) - viewheight, xscale))
     return;
-  }
 
     // killough 3/27/98: exclude things totally separated
     // from the viewer, by either water or fake ceilings

@@ -92,7 +92,6 @@ int wide_offset2y;
 
 fixed_t  focallength;
 fixed_t  focallengthy;
-fixed_t  globaluclip, globaldclip;
 fixed_t  centerxfrac, centeryfrac;
 fixed_t  yaspectmul;
 fixed_t  viewheightfrac; //e6y: for correct cliping of things
@@ -905,7 +904,6 @@ void R_SetupFreelook(void)
 {
   if (V_GetMode() != VID_MODEGL)
   {
-    fixed_t InvZtoScale;
     fixed_t dy;
     int i;
 
@@ -916,10 +914,6 @@ void R_SetupFreelook(void)
       centery += dy >> FRACBITS;
     }
     centeryfrac = centery<<FRACBITS;
-    
-    InvZtoScale = yaspectmul * centerx;
-    globaluclip = FixedDiv (-centeryfrac, InvZtoScale);
-    globaldclip = FixedDiv ((viewheight<<FRACBITS)-centeryfrac, InvZtoScale);
 
     for (i=0; i<viewheight; i++)
     {

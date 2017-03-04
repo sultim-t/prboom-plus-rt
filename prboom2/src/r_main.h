@@ -55,8 +55,6 @@ extern int      viewwindowx;
 extern int      viewwindowy;
 extern int      centerx;
 extern int      centery;
-extern fixed_t  globaluclip;
-extern fixed_t  globaldclip;
 extern fixed_t  centerxfrac;
 extern fixed_t  centeryfrac;
 extern fixed_t  yaspectmul;
