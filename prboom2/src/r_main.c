@@ -92,6 +92,7 @@ int wide_offset2y;
 
 fixed_t  focallength;
 fixed_t  focallengthy;
+fixed_t  globaluclip, globaldclip;
 fixed_t  centerxfrac, centeryfrac;
 fixed_t  yaspectmul;
 fixed_t  viewheightfrac; //e6y: for correct cliping of things
@@ -102,6 +103,7 @@ fixed_t  skyiscale;
 fixed_t  viewx, viewy, viewz;
 angle_t  viewangle;
 fixed_t  viewcos, viewsin;
+fixed_t  viewtancos, viewtansin;
 player_t *viewplayer;
 // e6y: Added for more precise flats drawing
 fixed_t viewfocratio;
@@ -904,6 +906,7 @@ void R_SetupFreelook(void)
 {
   if (V_GetMode() != VID_MODEGL)
   {
+    fixed_t InvZtoScale;
     fixed_t dy;
     int i;
 
@@ -914,6 +917,10 @@ void R_SetupFreelook(void)
       centery += dy >> FRACBITS;
     }
     centeryfrac = centery<<FRACBITS;
+    
+    InvZtoScale = yaspectmul * centerx;
+    globaluclip = FixedDiv (-centeryfrac, InvZtoScale);
+    globaldclip = FixedDiv ((viewheight<<FRACBITS)-centeryfrac, InvZtoScale);
 
     for (i=0; i<viewheight; i++)
     {
@@ -957,6 +964,8 @@ void R_SetupMatrix(void)
 static void R_SetupFrame (player_t *player)
 {
   int i, cm;
+  
+  int FocalTangent = finetangent[FINEANGLES/4 + FieldOfView/2];
 
   viewplayer = player;
 
@@ -964,6 +973,9 @@ static void R_SetupFrame (player_t *player)
 
   viewsin = finesine[viewangle>>ANGLETOFINESHIFT];
   viewcos = finecosine[viewangle>>ANGLETOFINESHIFT];
+
+  viewtansin = FixedMul(FocalTangent, viewsin);
+  viewtancos = FixedMul(FocalTangent, viewcos);
 
   R_SetupFreelook();
 
