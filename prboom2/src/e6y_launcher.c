@@ -65,6 +65,19 @@ typedef HRESULT (WINAPI *EnableThemeDialogTexturePROC)(HWND, DWORD);
 
 #define LAUNCHER_CAPTION PACKAGE_NAME" Launcher"
 
+#define I_FindName(a)	((a)->Name)
+#define I_FindAttr(a)	((a)->Attribs)
+
+typedef struct
+{
+	unsigned int Attribs;
+	unsigned int Times[3*2];
+	unsigned int Size[2];
+	unsigned int Reserved[2];
+	char Name[PATH_MAX];
+	char AltName[14];
+} findstate_t;
+
 typedef struct
 {
   char name[PATH_MAX];

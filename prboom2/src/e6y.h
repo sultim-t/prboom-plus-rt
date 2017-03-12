@@ -309,19 +309,6 @@ extern dboolean zerotag_manual;
 
 dboolean ProcessNoTagLines(line_t* line, sector_t **sec, int *secnum);
 
-#define I_FindName(a)	((a)->Name)
-#define I_FindAttr(a)	((a)->Attribs)
-
-typedef struct
-{
-	unsigned int Attribs;
-	unsigned int Times[3*2];
-	unsigned int Size[2];
-	unsigned int Reserved[2];
-	char Name[PATH_MAX];
-	char AltName[14];
-} findstate_t;
-
 char* PathFindFileName(const char* pPath);
 void NormalizeSlashes2(char *str);
 unsigned int AfxGetFileName(const char* lpszPathName, char* lpszTitle, unsigned int nMax);
