@@ -1729,16 +1729,6 @@ static void D_DoomMainSetup(void)
 
   lprintf(LO_INFO,"\n");     // killough 3/6/98: add a newline, by popular demand :)
 
-  if (!M_CheckParm("-nomapinfo"))
-  {
-	  int p;
-	  for (p = -1; (p = W_ListNumFromName("UMAPINFO", p)) >= 0; )
-	  {
-		  const unsigned char * lump = (const unsigned char *)W_CacheLumpNum(p);
-		  ParseUMapInfo(lump, W_LumpLength(p), I_Error);
-	  }
-  }
-
   // e6y 
   // option to disable automatic loading of dehacked-in-wad lump
   if (!M_CheckParm ("-nodeh"))
@@ -1840,6 +1830,17 @@ static void D_DoomMainSetup(void)
       }
     }
   }
+
+  if (!M_CheckParm("-nomapinfo"))
+  {
+	  int p;
+	  for (p = -1; (p = W_ListNumFromName("UMAPINFO", p)) >= 0; )
+	  {
+		  const unsigned char * lump = (const unsigned char *)W_CacheLumpNum(p);
+		  ParseUMapInfo(lump, W_LumpLength(p), I_Error);
+	  }
+  }
+
 
   V_InitColorTranslation(); //jff 4/24/98 load color translation lumps
 

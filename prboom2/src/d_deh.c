@@ -3256,3 +3256,17 @@ dboolean deh_GetData(char *s, char *k, uint_64_t *l, char **strval, FILE *fpout)
 
   return(okrc);
 }
+
+
+const char *deh_LookupString(const char *key)
+{
+	int i;
+	for (i = 0; i < deh_numstrlookup; i++)
+	{
+		if (!stricmp(deh_strlookup[i].lookup, key))
+		{
+			return *deh_strlookup[i].ppstr;
+		}
+	}
+	return NULL;
+}

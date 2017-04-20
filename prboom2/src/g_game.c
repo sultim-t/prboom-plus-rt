@@ -112,6 +112,7 @@ skill_t         gameskill;
 dboolean         respawnmonsters;
 int             gameepisode;
 int             gamemap;
+struct MapEntry		*gamemapinfo;
 dboolean         paused;
 // CPhipps - moved *_loadgame vars here
 static dboolean forced_loadgame = false;
@@ -1597,6 +1598,7 @@ void G_DoCompleted (void)
   wminfo.didsecret = players[consoleplayer].didsecret;
   wminfo.epsd = gameepisode -1;
   wminfo.last = gamemap -1;
+  wminfo.lastmapinfo = gamemapinfo;
 
   // wminfo.next is 0 biased, unlike gamemap
   if (gamemode == commercial)
@@ -2602,6 +2604,35 @@ void G_SetFastParms(int fast_pending)
   }
 }
 
+struct MapEntry *G_LookupMapinfo(int gameepisode, int gamemap)
+{
+	char lumpname[9];
+	unsigned i;
+	if (gamemode == commercial) snprintf(lumpname, 9, "MAP%02d", gamemap);
+	else snprintf(lumpname, 9, "E%dM%d", gameepisode, gamemap);
+	for (i = 0; i < Maps.mapcount; i++)
+	{
+		if (!stricmp(lumpname, Maps.maps[i].mapname))
+		{
+			return &Maps.maps[i];
+		}
+	}
+	return NULL;
+}
+
+struct MapEntry *G_LookupMapinfoByName(const char *lumpname)
+{
+	unsigned i;
+	for (i = 0; i < Maps.mapcount; i++)
+	{
+		if (!stricmp(lumpname, Maps.maps[i].mapname))
+		{
+			return &Maps.maps[i];
+		}
+	}
+	return NULL;
+}
+
 //
 // G_InitNew
 // Can be called by the startup code or the menu task,
@@ -2689,6 +2720,7 @@ void G_InitNew(skill_t skill, int episode, int map)
   gameepisode = episode;
   gamemap = map;
   gameskill = skill;
+  gamemapinfo = G_LookupMapinfo(gameepisode, gamemap);
 
   totalleveltimes = 0; // cph
 

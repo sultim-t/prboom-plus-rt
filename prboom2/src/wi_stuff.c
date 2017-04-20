@@ -43,6 +43,7 @@
 #include "sounds.h"
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "r_draw.h"
+#include "hu_stuff.h"
 
 // Ty 03/17/98: flag that new par times have been loaded in d_deh
 extern dboolean deh_pars;
@@ -439,6 +440,47 @@ dboolean WI_Responder(event_t* ev)
   return false;
 }
 
+#define SPACEWIDTH 4
+extern patchnum_t hu_font[HU_FONTSIZE];
+
+static void WI_DrawString(int cx, int cy, const char* ch)
+{
+	int   w;
+	int   c;
+	const char *cc = ch;
+	int width = 0;
+
+	// center the text.
+	while (*cc) {
+		c = *cc++;         // get next char
+		c = toupper(c) - HU_FONTSTART;
+		if (c < 0 || c> HU_FONTSIZE)
+		{
+			width += SPACEWIDTH;    // space
+			continue;
+		}
+		width += hu_font[c].width;
+	}
+	cx -= width / 2;
+	if (cx < 0) cx = 0;
+
+
+	while (*ch) {
+		c = *ch++;         // get next char
+		c = toupper(c) - HU_FONTSTART;
+		if (c < 0 || c> HU_FONTSIZE)
+		{
+			cx += SPACEWIDTH;    // space
+			continue;
+		}
+		w = hu_font[c].width;
+		if (cx + w > 320)
+			break;
+
+		V_DrawNumPatch(cx, cy, 0, hu_font[c].lumpnum, CR_GRAY, VPT_STRETCH | VPT_TRANS);
+		cx += w;
+	}
+}
 
 // ====================================================================
 // WI_drawLF
@@ -451,15 +493,25 @@ void WI_drawLF(void)
   int y = WI_TITLEY;
   char lname[9];
 
-  // draw <LevelName>
-  /* cph - get the graphic lump name and use it */
-  WI_levelNameLump(wbs->epsd, wbs->last, lname);
-  // CPhipps - patch drawing updated
-  V_DrawNamePatch((320 - V_NamePatchWidth(lname))/2, y,
-     FB, lname, CR_DEFAULT, VPT_STRETCH);
+  if (wbs->lastmapinfo != NULL && wbs->lastmapinfo->levelname != NULL && wbs->lastmapinfo->levelpic == NULL)
+  {
+	  // The level defines a new name but no texture for the name.
+	  WI_DrawString(160, y, wbs->lastmapinfo->levelname);
+	  y += (5 * hu_font['A' - HU_FONTSTART].height / 4);
+  }
+  else
+  {
+	  // draw <LevelName>
+	  /* cph - get the graphic lump name and use it */
+	  WI_levelNameLump(wbs->epsd, wbs->last, lname);
+	  // CPhipps - patch drawing updated
+	  V_DrawNamePatch((320 - V_NamePatchWidth(lname)) / 2, y,
+		  FB, lname, CR_DEFAULT, VPT_STRETCH);
 
-  // draw "Finished!"
-  y += (5*V_NamePatchHeight(lname))/4;
+	  // draw "Finished!"
+	  y += (5 * V_NamePatchHeight(lname)) / 4;
+  }
+
 
   // CPhipps - patch drawing updated
   V_DrawNamePatch((320 - V_NamePatchWidth(finished))/2, y,

@@ -221,6 +221,7 @@ typedef struct
 typedef struct
 {
   int         epsd;   // episode # (0-2)
+  struct MapEntry *lastmapinfo;
 
   // if true, splash the secret level
   dboolean   didsecret;

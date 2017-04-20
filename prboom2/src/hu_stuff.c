@@ -732,33 +732,51 @@ void HU_Start(void)
     &message_list
   );
 
-  // initialize the automap's level title widget
-  // e6y: stop SEGV here when gamemap is not initialized
-  if (gamestate == GS_LEVEL && gamemap > 0) /* cph - stop SEGV here when not in level */
-  switch (gamemode)
+  if (gamemapinfo != NULL)
   {
-    case shareware:
-    case registered:
-    case retail:
-      s = HU_TITLE;
-      break;
+	  s = gamemapinfo->mapname;
+	  while (*s)
+		  HUlib_addCharToTextLine(&w_title, *(s++));
 
-    case commercial:
-    default:  // Ty 08/27/98 - modified to check mission for TNT/Plutonia
-      s = (gamemission==pack_tnt)  ? HU_TITLET :
-          (gamemission==pack_plut) ? HU_TITLEP : HU_TITLE2;
-      break;
-  } else s = "";
+	  HUlib_addCharToTextLine(&w_title, ':');
+	  HUlib_addCharToTextLine(&w_title, ' ');
+	  s = gamemapinfo->levelname;
+	  if (!s) s = "Unnamed";
+	  while (*s)
+		  HUlib_addCharToTextLine(&w_title, *(s++));
 
-  // Chex.exe always uses the episode 1 level title
-  // eg. E2M1 gives the title for E1M1
-  if (gamemission == chex)
+  }
+  else
   {
-    s = HU_TITLEC;
+	  // initialize the automap's level title widget
+	  // e6y: stop SEGV here when gamemap is not initialized
+	  if (gamestate == GS_LEVEL && gamemap > 0) /* cph - stop SEGV here when not in level */
+		  switch (gamemode)
+		  {
+		  case shareware:
+		  case registered:
+		  case retail:
+			  s = HU_TITLE;
+			  break;
+
+		  case commercial:
+		  default:  // Ty 08/27/98 - modified to check mission for TNT/Plutonia
+			  s = (gamemission == pack_tnt) ? HU_TITLET :
+				  (gamemission == pack_plut) ? HU_TITLEP : HU_TITLE2;
+			  break;
+		  }
+	  else s = "";
+
+	  // Chex.exe always uses the episode 1 level title
+	  // eg. E2M1 gives the title for E1M1
+	  if (gamemission == chex)
+	  {
+		  s = HU_TITLEC;
+	  }
+	  while (*s)
+		  HUlib_addCharToTextLine(&w_title, *(s++));
   }
 
-  while (*s)
-    HUlib_addCharToTextLine(&w_title, *(s++));
 
   // create the automaps coordinate widget
   // jff 3/3/98 split coord widget into three lines: x,y,z

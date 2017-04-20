@@ -47,6 +47,8 @@ struct MapProperty
 struct MapEntry
 {
 	char *mapname;
+	char *levelname;
+	char *levelpic;
 	unsigned int propertycount;
 	struct MapProperty *properties;
 };
@@ -62,6 +64,7 @@ typedef void (*umapinfo_errorfunc)(const char *fmt, ...);	// this must not retur
 extern struct MapList Maps;
 
 int ParseUMapInfo(const unsigned char *buffer, size_t length, umapinfo_errorfunc err);
-void FreeMapData();
+void FreeMapList();
+struct MapProperty *FindProperty(struct MapEntry *map, const char *name);
 
 #endif
