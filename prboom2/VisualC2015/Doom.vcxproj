@@ -1,0 +1,901 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug NOASM|Win32">
+      <Configuration>Debug NOASM</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug OpenGL NOASM|Win32">
+      <Configuration>Debug OpenGL NOASM</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug OpenGL|Win32">
+      <Configuration>Debug OpenGL</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release NOASM|Win32">
+      <Configuration>Release NOASM</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release OpenGL NOASM|Win32">
+      <Configuration>Release OpenGL NOASM</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release OpenGL|Win32">
+      <Configuration>Release OpenGL</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{205FF625-2E96-4BC8-A269-62530A7D1F24}</ProjectGuid>
+    <RootNamespace>Doom</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug OpenGL|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release OpenGL NOASM|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release OpenGL|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug OpenGL NOASM|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug OpenGL|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release OpenGL NOASM|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release OpenGL|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug OpenGL NOASM|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.25420.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug OpenGL NOASM|Win32'">
+    <OutDir>.\DebugNOASMGL\</OutDir>
+    <IntDir>.\DebugNOASMGL\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);c:\Programming\SDKs\SDL2-2.0.5\include\;c:\Programming\SDKs\SDL2_net-2.0.1\include\;c:\Programming\SDKs\SDL2_mixer-2.0.1\include\;c:\Programming\SDKs\SDL2_image-2.0.1\include\;c:\Programming\SDKs\pcre\include\</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;c:\Programming\SDKs\SDL2-2.0.5\lib\x86\;c:\Programming\SDKs\SDL2_mixer-2.0.1\lib\x86\;c:\Programming\SDKs\SDL_mixer-1.2.12\lib\x86\;c:\Programming\SDKs\SDL2_image-2.0.1\lib\x86\;c:\Programming\SDKs\pcre\lib\;c:\Programming\SDKs\SDL2_net-2.0.1\lib\x86\;c:\Programming\SDKs\SDL2_mixer-2.0.1\lib\x86\;c:\Programming\SDKs\SDL2_image-2.0.1\lib\x86\</LibraryPath>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release OpenGL|Win32'">
+    <OutDir>.\ReleaseGL\</OutDir>
+    <IntDir>.\ReleaseGL\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);c:\Programming\SDKs\SDL2-2.0.5\include\;c:\Programming\SDKs\SDL2_net-2.0.1\include\;c:\Programming\SDKs\SDL2_mixer-2.0.1\include\;c:\Programming\SDKs\SDL2_image-2.0.1\include\;c:\Programming\SDKs\pcre\include\</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;c:\Programming\SDKs\SDL2-2.0.5\lib\x86\;c:\Programming\SDKs\SDL2_mixer-2.0.1\lib\x86\;c:\Programming\SDKs\SDL_mixer-1.2.12\lib\x86\;c:\Programming\SDKs\SDL2_image-2.0.1\lib\x86\;c:\Programming\SDKs\pcre\lib\;c:\Programming\SDKs\SDL2_net-2.0.1\lib\x86\;c:\Programming\SDKs\SDL2_mixer-2.0.1\lib\x86\;c:\Programming\SDKs\SDL2_image-2.0.1\lib\x86\</LibraryPath>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">
+    <OutDir>.\ReleaseNOASM\</OutDir>
+    <IntDir>.\ReleaseNOASM\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);c:\Programming\SDKs\SDL2-2.0.5\include\;c:\Programming\SDKs\SDL2_net-2.0.1\include\;c:\Programming\SDKs\SDL2_mixer-2.0.1\include\;c:\Programming\SDKs\SDL2_image-2.0.1\include\;c:\Programming\SDKs\pcre\include\</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;c:\Programming\SDKs\SDL2-2.0.5\lib\x86\;c:\Programming\SDKs\SDL2_mixer-2.0.1\lib\x86\;c:\Programming\SDKs\SDL_mixer-1.2.12\lib\x86\;c:\Programming\SDKs\SDL2_image-2.0.1\lib\x86\;c:\Programming\SDKs\pcre\lib\;c:\Programming\SDKs\SDL2_net-2.0.1\lib\x86\;c:\Programming\SDKs\SDL2_mixer-2.0.1\lib\x86\;c:\Programming\SDKs\SDL2_image-2.0.1\lib\x86\</LibraryPath>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">
+    <OutDir>.\DebugNOASM\</OutDir>
+    <IntDir>.\DebugNOASM\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);c:\Programming\SDKs\SDL2-2.0.5\include\;c:\Programming\SDKs\SDL2_net-2.0.1\include\;c:\Programming\SDKs\SDL2_mixer-2.0.1\include\;c:\Programming\SDKs\SDL2_image-2.0.1\include\;c:\Programming\SDKs\pcre\include\</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;c:\Programming\SDKs\SDL2-2.0.5\lib\x86\;c:\Programming\SDKs\SDL2_mixer-2.0.1\lib\x86\;c:\Programming\SDKs\SDL_mixer-1.2.12\lib\x86\;c:\Programming\SDKs\SDL2_image-2.0.1\lib\x86\;c:\Programming\SDKs\pcre\lib\;c:\Programming\SDKs\SDL2_net-2.0.1\lib\x86\;c:\Programming\SDKs\SDL2_mixer-2.0.1\lib\x86\;c:\Programming\SDKs\SDL2_image-2.0.1\lib\x86\</LibraryPath>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release OpenGL NOASM|Win32'">
+    <OutDir>.\ReleaseNOASMGL\</OutDir>
+    <IntDir>.\ReleaseNOASMGL\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);c:\Programming\SDKs\SDL2-2.0.5\include\;c:\Programming\SDKs\SDL2_net-2.0.1\include\;c:\Programming\SDKs\SDL2_mixer-2.0.1\include\;c:\Programming\SDKs\SDL2_image-2.0.1\include\;c:\Programming\SDKs\pcre\include\</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;c:\Programming\SDKs\SDL2-2.0.5\lib\x86\;c:\Programming\SDKs\SDL2_mixer-2.0.1\lib\x86\;c:\Programming\SDKs\SDL_mixer-1.2.12\lib\x86\;c:\Programming\SDKs\SDL2_image-2.0.1\lib\x86\;c:\Programming\SDKs\pcre\lib\;c:\Programming\SDKs\SDL2_net-2.0.1\lib\x86\;c:\Programming\SDKs\SDL2_mixer-2.0.1\lib\x86\;c:\Programming\SDKs\SDL2_image-2.0.1\lib\x86\</LibraryPath>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug OpenGL|Win32'">
+    <OutDir>.\DebugGL\</OutDir>
+    <IntDir>.\DebugGL\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);c:\Programming\SDKs\SDL2-2.0.5\include\;c:\Programming\SDKs\SDL2_net-2.0.1\include\;c:\Programming\SDKs\SDL2_mixer-2.0.1\include\;c:\Programming\SDKs\SDL2_image-2.0.1\include\;c:\Programming\SDKs\pcre\include\</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;c:\Programming\SDKs\SDL2-2.0.5\lib\x86\;c:\Programming\SDKs\SDL2_mixer-2.0.1\lib\x86\;c:\Programming\SDKs\SDL_mixer-1.2.12\lib\x86\;c:\Programming\SDKs\SDL2_image-2.0.1\lib\x86\;c:\Programming\SDKs\pcre\lib\;c:\Programming\SDKs\SDL2_net-2.0.1\lib\x86\;c:\Programming\SDKs\SDL2_mixer-2.0.1\lib\x86\;c:\Programming\SDKs\SDL2_image-2.0.1\lib\x86\</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>.\Debug\</OutDir>
+    <IntDir>.\Debug\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);c:\Programming\SDKs\SDL2-2.0.5\include\;c:\Programming\SDKs\SDL2_net-2.0.1\include\;c:\Programming\SDKs\SDL2_mixer-2.0.1\include\;c:\Programming\SDKs\SDL2_image-2.0.1\include\;c:\Programming\SDKs\pcre\include\</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;c:\Programming\SDKs\SDL2-2.0.5\lib\x86\;c:\Programming\SDKs\SDL2_mixer-2.0.1\lib\x86\;c:\Programming\SDKs\SDL_mixer-1.2.12\lib\x86\;c:\Programming\SDKs\SDL2_image-2.0.1\lib\x86\;c:\Programming\SDKs\pcre\lib\;c:\Programming\SDKs\SDL2_net-2.0.1\lib\x86\;c:\Programming\SDKs\SDL2_mixer-2.0.1\lib\x86\;c:\Programming\SDKs\SDL2_image-2.0.1\lib\x86\</LibraryPath>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>.\Release\</OutDir>
+    <IntDir>.\Release\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);c:\Programming\SDKs\SDL2-2.0.5\include\;c:\Programming\SDKs\SDL2_net-2.0.1\include\;c:\Programming\SDKs\SDL2_mixer-2.0.1\include\;c:\Programming\SDKs\SDL2_image-2.0.1\include\;c:\Programming\SDKs\pcre\include\</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;c:\Programming\SDKs\SDL2-2.0.5\lib\x86\;c:\Programming\SDKs\SDL2_mixer-2.0.1\lib\x86\;c:\Programming\SDKs\SDL_mixer-1.2.12\lib\x86\;c:\Programming\SDKs\SDL2_image-2.0.1\lib\x86\;c:\Programming\SDKs\pcre\lib\;c:\Programming\SDKs\SDL2_net-2.0.1\lib\x86\;c:\Programming\SDKs\SDL2_mixer-2.0.1\lib\x86\;c:\Programming\SDKs\SDL2_image-2.0.1\lib\x86\</LibraryPath>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug OpenGL NOASM|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\DebugNOASMGL/Doom.tlb</TypeLibraryName>
+      <HeaderFileName />
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>../VisualC2015;../src;../src/MUSIC/include/portmidi;../src/MUSIC/include/dumb;../src/MUSIC/include/libmad;../src/MUSIC/include/fluidsynth;../src/MUSIC/include/vorbis;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GL_DOOM;_DEBUG;WIN32;_WINDOWS;HAVE_CONFIG_H;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AssemblerOutput>All</AssemblerOutput>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>../VisualC8;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)glboom-plus.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>../src/MUSIC/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateMapFile>true</GenerateMapFile>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\DebugNOASMGL/Doom.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release OpenGL|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\ReleaseGL/Doom.tlb</TypeLibraryName>
+      <HeaderFileName />
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <AdditionalIncludeDirectories>../VisualC2015;../src;../src/MUSIC/include/portmidi;../src/MUSIC/include/dumb;../src/MUSIC/include/libmad;../src/MUSIC/include/fluidsynth;../src/MUSIC/include/vorbis;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;GL_DOOM;WIN32;_WINDOWS;HAVE_CONFIG_H;I386_ASM;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AssemblerOutput>All</AssemblerOutput>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>../VisualC8;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)glboom-plus.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>../src/MUSIC/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateMapFile>true</GenerateMapFile>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\ReleaseGL/Doom.bsc</OutputFile>
+    </Bscmake>
+    <PostBuildEvent>
+      <Command>del $(IntDir)version.obj</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\ReleaseNOASM/Doom.tlb</TypeLibraryName>
+      <HeaderFileName />
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>../VisualC2015;../src;../src/MUSIC/include/portmidi;../src/MUSIC/include/dumb;../src/MUSIC/include/libmad;../src/MUSIC/include/fluidsynth;../src/MUSIC/include/vorbis;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;HAVE_CONFIG_H;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AssemblerOutput>All</AssemblerOutput>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>../VisualC8;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)prboom-plus.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>../src/MUSIC/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateMapFile>true</GenerateMapFile>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\ReleaseNOASM/Doom.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\DebugNOASM/Doom.tlb</TypeLibraryName>
+      <HeaderFileName />
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>../VisualC2015;../src;../src/MUSIC/include/portmidi;../src/MUSIC/include/dumb;../src/MUSIC/include/libmad;../src/MUSIC/include/fluidsynth;../src/MUSIC/include/vorbis;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;WIN32;_WINDOWS;HAVE_CONFIG_H;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AssemblerOutput>All</AssemblerOutput>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>../VisualC8;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)prboom-plus.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>../src/MUSIC/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateMapFile>true</GenerateMapFile>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\DebugNOASM/Doom.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release OpenGL NOASM|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\ReleaseNOASMGL/Doom.tlb</TypeLibraryName>
+      <HeaderFileName />
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>../VisualC2015;../src;../src/MUSIC/include/portmidi;../src/MUSIC/include/dumb;../src/MUSIC/include/libmad;../src/MUSIC/include/fluidsynth;../src/MUSIC/include/vorbis;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;GL_DOOM;WIN32;_WINDOWS;HAVE_CONFIG_H;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AssemblerOutput>All</AssemblerOutput>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>../VisualC8;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)glboom-plus.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>../src/MUSIC/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateMapFile>true</GenerateMapFile>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\ReleaseNOASMGL/Doom.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug OpenGL|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\DebugGL/Doom.tlb</TypeLibraryName>
+      <HeaderFileName />
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>../VisualC2015;../src;../src/MUSIC/include/portmidi;../src/MUSIC/include/dumb;../src/MUSIC/include/libmad;../src/MUSIC/include/fluidsynth;../src/MUSIC/include/vorbis;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GL_DOOM;_DEBUG;WIN32;_WINDOWS;HAVE_CONFIG_H;I386_ASM;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AssemblerOutput>All</AssemblerOutput>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>../VisualC8;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)glboom-plus.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>../src/MUSIC/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateMapFile>true</GenerateMapFile>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\DebugGL/Doom.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\Debug/Doom.tlb</TypeLibraryName>
+      <HeaderFileName />
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>../VisualC2015;../src;../src/MUSIC/include/portmidi;../src/MUSIC/include/dumb;../src/MUSIC/include/libmad;../src/MUSIC/include/fluidsynth;../src/MUSIC/include/vorbis;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;WIN32;_WINDOWS;HAVE_CONFIG_H;I386_ASM;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AssemblerOutput>All</AssemblerOutput>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>../VisualC8;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)prboom-plus.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>../src/MUSIC/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateMapFile>true</GenerateMapFile>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Debug/Doom.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\Release/Doom.tlb</TypeLibraryName>
+      <HeaderFileName />
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <AdditionalIncludeDirectories>../VisualC2015;../src;../src/MUSIC/include/portmidi;../src/MUSIC/include/dumb;../src/MUSIC/include/libmad;../src/MUSIC/include/fluidsynth;../src/MUSIC/include/vorbis;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;HAVE_CONFIG_H;I386_ASM;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AssemblerOutput>All</AssemblerOutput>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>../VisualC8;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)prboom-plus.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>../src/MUSIC/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateMapFile>true</GenerateMapFile>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Release/Doom.bsc</OutputFile>
+    </Bscmake>
+    <PostBuildEvent>
+      <Command>del $(IntDir)version.obj</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\am_map.c" />
+    <ClCompile Include="..\src\doomdef.c" />
+    <ClCompile Include="..\src\doomstat.c" />
+    <ClCompile Include="..\src\dstrings.c" />
+    <ClCompile Include="..\src\d_client.c" />
+    <ClCompile Include="..\src\d_deh.c" />
+    <ClCompile Include="..\src\d_items.c" />
+    <ClCompile Include="..\src\d_main.c" />
+    <ClCompile Include="..\src\e6y.c" />
+    <ClCompile Include="..\src\e6y_launcher.c" />
+    <ClCompile Include="..\src\f_finale.c" />
+    <ClCompile Include="..\src\f_wipe.c" />
+    <ClCompile Include="..\src\gl_clipper.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\src\gl_detail.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\src\gl_drawinfo.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\src\gl_fbo.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\src\gl_gamma.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\src\gl_hires.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\src\gl_hqresize.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\src\gl_light.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\src\gl_main.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\src\gl_map.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\src\gl_missingtexture.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\src\gl_opengl.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\src\gl_preprocess.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\src\gl_shader.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\src\gl_shadow.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\src\gl_sky.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\src\gl_texture.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\src\gl_vertex.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\src\gl_wipe.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\src\g_game.c" />
+    <ClCompile Include="..\src\g_overflow.c" />
+    <ClCompile Include="..\src\hu_lib.c" />
+    <ClCompile Include="..\src\hu_stuff.c" />
+    <ClCompile Include="..\src\hu_tracers.c" />
+    <ClCompile Include="..\src\icon.c" />
+    <ClCompile Include="..\src\info.c" />
+    <ClCompile Include="..\src\i_capture.c" />
+    <ClCompile Include="..\src\i_pcsound.c" />
+    <ClCompile Include="..\src\lprintf.c" />
+    <ClCompile Include="..\src\md5.c" />
+    <ClCompile Include="..\src\memio.c" />
+    <ClCompile Include="..\src\mus2mid.c" />
+    <ClCompile Include="..\src\MUSIC\dbopl.c" />
+    <ClCompile Include="..\src\MUSIC\dumbplayer.c" />
+    <ClCompile Include="..\src\MUSIC\flplayer.c" />
+    <ClCompile Include="..\src\MUSIC\madplayer.c" />
+    <ClCompile Include="..\src\MUSIC\midifile.c" />
+    <ClCompile Include="..\src\MUSIC\opl.c" />
+    <ClCompile Include="..\src\MUSIC\oplplayer.c" />
+    <ClCompile Include="..\src\MUSIC\opl_queue.c" />
+    <ClCompile Include="..\src\MUSIC\portmidiplayer.c" />
+    <ClCompile Include="..\src\MUSIC\vorbisplayer.c" />
+    <ClCompile Include="..\src\m_argv.c" />
+    <ClCompile Include="..\src\m_bbox.c" />
+    <ClCompile Include="..\src\m_cheat.c" />
+    <ClCompile Include="..\src\m_menu.c" />
+    <ClCompile Include="..\src\m_misc.c" />
+    <ClCompile Include="..\src\m_random.c" />
+    <ClCompile Include="..\src\pcsound\pcsound.c" />
+    <ClCompile Include="..\src\pcsound\pcsound_linux.c" />
+    <ClCompile Include="..\src\pcsound\pcsound_sdl.c" />
+    <ClCompile Include="..\src\pcsound\pcsound_win32.c" />
+    <ClCompile Include="..\src\p_ceilng.c" />
+    <ClCompile Include="..\src\p_checksum.c" />
+    <ClCompile Include="..\src\p_doors.c" />
+    <ClCompile Include="..\src\p_enemy.c" />
+    <ClCompile Include="..\src\p_floor.c" />
+    <ClCompile Include="..\src\p_genlin.c" />
+    <ClCompile Include="..\src\p_inter.c" />
+    <ClCompile Include="..\src\p_lights.c" />
+    <ClCompile Include="..\src\p_map.c" />
+    <ClCompile Include="..\src\p_maputl.c" />
+    <ClCompile Include="..\src\p_mobj.c" />
+    <ClCompile Include="..\src\p_plats.c" />
+    <ClCompile Include="..\src\p_pspr.c" />
+    <ClCompile Include="..\src\p_saveg.c" />
+    <ClCompile Include="..\src\p_setup.c" />
+    <ClCompile Include="..\src\p_sight.c" />
+    <ClCompile Include="..\src\p_spec.c" />
+    <ClCompile Include="..\src\p_switch.c" />
+    <ClCompile Include="..\src\p_telept.c" />
+    <ClCompile Include="..\src\p_tick.c" />
+    <ClCompile Include="..\src\p_user.c" />
+    <ClCompile Include="..\src\r_bsp.c" />
+    <ClCompile Include="..\src\r_data.c" />
+    <ClCompile Include="..\src\r_demo.c" />
+    <ClCompile Include="..\src\r_draw.c" />
+    <ClCompile Include="..\src\r_filter.c" />
+    <ClCompile Include="..\src\r_fps.c" />
+    <ClCompile Include="..\src\r_main.c" />
+    <ClCompile Include="..\src\r_patch.c" />
+    <ClCompile Include="..\src\r_plane.c" />
+    <ClCompile Include="..\src\r_segs.c" />
+    <ClCompile Include="..\src\r_sky.c" />
+    <ClCompile Include="..\src\r_things.c" />
+    <ClCompile Include="..\src\sc_man.c" />
+    <ClCompile Include="..\src\SDL\i_joy.c" />
+    <ClCompile Include="..\src\SDL\i_main.c" />
+    <ClCompile Include="..\src\SDL\i_network.c" />
+    <ClCompile Include="..\src\SDL\i_sound.c" />
+    <ClCompile Include="..\src\SDL\i_sshot.c" />
+    <ClCompile Include="..\src\SDL\i_system.c" />
+    <ClCompile Include="..\src\SDL\i_video.c" />
+    <ClCompile Include="..\src\SDL\SDL_windows_main.c" />
+    <ClCompile Include="..\src\sounds.c" />
+    <ClCompile Include="..\src\st_lib.c" />
+    <ClCompile Include="..\src\st_stuff.c" />
+    <ClCompile Include="..\src\s_advsound.c" />
+    <ClCompile Include="..\src\s_sound.c" />
+    <ClCompile Include="..\src\tables.c" />
+    <ClCompile Include="..\src\TEXTSCREEN\txt_sdl.c" />
+    <ClCompile Include="..\src\version.c" />
+    <ClCompile Include="..\src\v_video.c" />
+    <ClCompile Include="..\src\wi_stuff.c" />
+    <ClCompile Include="..\src\w_mmap.c" />
+    <ClCompile Include="..\src\w_wad.c" />
+    <ClCompile Include="..\src\z_bmalloc.c" />
+    <ClCompile Include="..\src\z_zone.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Icons\resource.h" />
+    <ClInclude Include="..\src\am_map.h" />
+    <ClInclude Include="..\src\doomdata.h" />
+    <ClInclude Include="..\src\doomdef.h" />
+    <ClInclude Include="..\src\doomstat.h" />
+    <ClInclude Include="..\src\doomtype.h" />
+    <ClInclude Include="..\src\drawasm.h" />
+    <ClInclude Include="..\src\dstrings.h" />
+    <ClInclude Include="..\src\d_deh.h" />
+    <ClInclude Include="..\src\d_englsh.h" />
+    <ClInclude Include="..\src\d_event.h" />
+    <ClInclude Include="..\src\d_items.h" />
+    <ClInclude Include="..\src\d_main.h" />
+    <ClInclude Include="..\src\d_net.h" />
+    <ClInclude Include="..\src\d_player.h" />
+    <ClInclude Include="..\src\d_think.h" />
+    <ClInclude Include="..\src\d_ticcmd.h" />
+    <ClInclude Include="..\src\e6y.h" />
+    <ClInclude Include="..\src\e6y_launcher.h" />
+    <ClInclude Include="..\src\f_finale.h" />
+    <CustomBuild Include="..\src\f_wipe.h" />
+    <CustomBuild Include="..\src\gl_intern.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\src\gl_opengl.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\src\gl_struct.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <ClInclude Include="..\src\g_game.h" />
+    <ClInclude Include="..\src\g_overflow.h" />
+    <ClInclude Include="..\src\hu_lib.h" />
+    <ClInclude Include="..\src\hu_stuff.h" />
+    <ClInclude Include="..\src\hu_tracers.h" />
+    <ClInclude Include="..\src\info.h" />
+    <ClInclude Include="..\src\i_capture.h" />
+    <ClInclude Include="..\src\i_joy.h" />
+    <ClInclude Include="..\src\i_main.h" />
+    <ClInclude Include="..\src\i_network.h" />
+    <ClInclude Include="..\src\i_pcsound.h" />
+    <ClInclude Include="..\src\i_sound.h" />
+    <ClInclude Include="..\src\i_system.h" />
+    <ClInclude Include="..\src\i_video.h" />
+    <ClInclude Include="..\src\lprintf.h" />
+    <ClInclude Include="..\src\md5.h" />
+    <ClInclude Include="..\src\memio.h" />
+    <ClInclude Include="..\src\mus2mid.h" />
+    <ClInclude Include="..\src\MUSIC\dbopl.h" />
+    <ClInclude Include="..\src\MUSIC\dumbplayer.h" />
+    <ClInclude Include="..\src\MUSIC\flplayer.h" />
+    <ClInclude Include="..\src\MUSIC\madplayer.h" />
+    <ClInclude Include="..\src\MUSIC\midifile.h" />
+    <ClInclude Include="..\src\MUSIC\musicplayer.h" />
+    <ClInclude Include="..\src\MUSIC\opl.h" />
+    <ClInclude Include="..\src\MUSIC\oplplayer.h" />
+    <ClInclude Include="..\src\MUSIC\opl_queue.h" />
+    <ClInclude Include="..\src\MUSIC\portmidiplayer.h" />
+    <ClInclude Include="..\src\MUSIC\vorbisplayer.h" />
+    <ClInclude Include="..\src\m_argv.h" />
+    <ClInclude Include="..\src\m_bbox.h" />
+    <ClInclude Include="..\src\m_cheat.h" />
+    <ClInclude Include="..\src\m_fixed.h" />
+    <ClInclude Include="..\src\m_menu.h" />
+    <ClInclude Include="..\src\m_misc.h" />
+    <ClInclude Include="..\src\m_random.h" />
+    <ClInclude Include="..\src\m_swap.h" />
+    <ClInclude Include="..\src\pcsound\pcsound.h" />
+    <ClInclude Include="..\src\protocol.h" />
+    <ClInclude Include="..\src\p_checksum.h" />
+    <ClInclude Include="..\src\p_enemy.h" />
+    <ClInclude Include="..\src\p_inter.h" />
+    <ClInclude Include="..\src\p_map.h" />
+    <ClInclude Include="..\src\p_maputl.h" />
+    <ClInclude Include="..\src\p_mobj.h" />
+    <ClInclude Include="..\src\p_pspr.h" />
+    <ClInclude Include="..\src\p_saveg.h" />
+    <ClInclude Include="..\src\p_setup.h" />
+    <ClInclude Include="..\src\p_spec.h" />
+    <ClInclude Include="..\src\p_tick.h" />
+    <ClInclude Include="..\src\p_user.h" />
+    <ClInclude Include="..\src\qsort.h" />
+    <ClInclude Include="..\src\r_bsp.h" />
+    <ClInclude Include="..\src\r_data.h" />
+    <ClInclude Include="..\src\r_defs.h" />
+    <ClInclude Include="..\src\r_demo.h" />
+    <ClInclude Include="..\src\r_draw.h" />
+    <ClInclude Include="..\src\r_filter.h" />
+    <ClInclude Include="..\src\r_fps.h" />
+    <ClInclude Include="..\src\r_main.h" />
+    <ClInclude Include="..\src\r_patch.h" />
+    <ClInclude Include="..\src\r_plane.h" />
+    <ClInclude Include="..\src\r_segs.h" />
+    <ClInclude Include="..\src\r_sky.h" />
+    <ClInclude Include="..\src\r_state.h" />
+    <ClInclude Include="..\src\r_things.h" />
+    <ClInclude Include="..\src\sc_man.h" />
+    <ClInclude Include="..\src\sounds.h" />
+    <ClInclude Include="..\src\st_lib.h" />
+    <ClInclude Include="..\src\st_stuff.h" />
+    <ClInclude Include="..\src\s_advsound.h" />
+    <ClInclude Include="..\src\s_sound.h" />
+    <ClInclude Include="..\src\tables.h" />
+    <ClInclude Include="..\src\TEXTSCREEN\doomkeys.h" />
+    <ClInclude Include="..\src\TEXTSCREEN\txt_font.h" />
+    <ClInclude Include="..\src\TEXTSCREEN\txt_largefont.h" />
+    <ClInclude Include="..\src\TEXTSCREEN\txt_main.h" />
+    <ClInclude Include="..\src\TEXTSCREEN\txt_sdl.h" />
+    <ClInclude Include="..\src\TEXTSCREEN\txt_smallfont.h" />
+    <ClInclude Include="..\src\version.h" />
+    <ClInclude Include="..\src\v_video.h" />
+    <ClInclude Include="..\src\wi_stuff.h" />
+    <ClInclude Include="..\src\w_wad.h" />
+    <ClInclude Include="..\src\z_bmalloc.h" />
+    <ClInclude Include="..\src\z_zone.h" />
+    <ClInclude Include="config.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\r_drawcolumn.inl" />
+    <None Include="..\src\r_drawspan.inl" />
+    <None Include="VTune\Doom.vpj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Icons\barrel.ico" />
+    <Image Include="..\Icons\fouch.ico" />
+    <Image Include="..\Icons\god.ico" />
+    <Image Include="..\Icons\heada1.ico" />
+    <Image Include="..\ICONS\prboom-plus.ico" />
+    <Image Include="..\Icons\skull.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\Icons\icons.rc">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">\Dokumente und Einstellungen\Admin\Eigene Dateien\prboom24\Icons;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug OpenGL NOASM|Win32'">\Dokumente und Einstellungen\Admin\Eigene Dateien\prboom24\Icons;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug OpenGL|Win32'">\Dokumente und Einstellungen\Admin\Eigene Dateien\prboom24\Icons;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">\Dokumente und Einstellungen\Admin\Eigene Dateien\prboom24\Icons;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release NOASM|Win32'">\Dokumente und Einstellungen\Admin\Eigene Dateien\prboom24\Icons;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release OpenGL NOASM|Win32'">\Dokumente und Einstellungen\Admin\Eigene Dateien\prboom24\Icons;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture Condition="'$(Configuration)|$(Platform)'=='Release OpenGL|Win32'">0x0409</Culture>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">\Dokumente und Einstellungen\Admin\Eigene Dateien\prboom24\Icons;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="..\ICONS\prboom-plus.exe.manifest" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
