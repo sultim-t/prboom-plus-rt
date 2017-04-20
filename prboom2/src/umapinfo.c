@@ -107,7 +107,7 @@ void FreeMapList()
 //
 // -----------------------------------------------
 
-static char *ParseIdentifier(struct ParseState *state)
+static char *ParseIdentifier(struct ParseState *state, int error)
 {
 	if (isalpha(*state->position))
 	{
@@ -129,6 +129,11 @@ static char *ParseIdentifier(struct ParseState *state)
 		copiedstring[state->position - startpos] = 0;
 		return copiedstring;
 	}
+	if (error)
+	{
+		state->error = 1;
+		state->ErrorFunction("Identifier expected in line %u", state->line);
+	}
 	return NULL;
 }
 
@@ -138,7 +143,7 @@ static char *ParseIdentifier(struct ParseState *state)
 //
 // -----------------------------------------------
 
-static char *ParseString(struct ParseState *state)
+static char *ParseString(struct ParseState *state, int error)
 {
 	int firstchar = *state->position;
 	if (firstchar == '"')
@@ -186,12 +191,17 @@ static char *ParseString(struct ParseState *state)
 		state->position++;
 		return copiedstring;
 	}
+	if (error)
+	{
+		state->error = 1;
+		state->ErrorFunction("String expected in line %u", state->line);
+	}
 	return NULL;
 }
 
 // -----------------------------------------------
 //
-// Parses a string literal
+// Parses a floating point number
 //
 // -----------------------------------------------
 
@@ -217,7 +227,7 @@ static double ParseFloat(struct ParseState *state)
 
 // -----------------------------------------------
 //
-// Parses a string literal
+// Parses an integer number
 //
 // -----------------------------------------------
 
@@ -252,7 +262,7 @@ static int ParseArgument(struct ParseState *state, struct MapPropertyValue *val)
 	int firstchar = *state->position;
 	if (firstchar == '"')
 	{
-		char *copiedstring = ParseString(state);
+		char *copiedstring = ParseString(state, 0);
 		if(copiedstring == NULL) return 0;
 		
 		// todo: Filter '\\'
@@ -263,7 +273,7 @@ static int ParseArgument(struct ParseState *state, struct MapPropertyValue *val)
 	else if (isalpha(firstchar)) 
 	{
 		// This case cannot error out because we got at least one valid letter.
-		char *copiedstring = ParseIdentifier(state);
+		char *copiedstring = ParseIdentifier(state, 0);
 		val->type = TYPE_IDENTIFIER;
 		val->v.string = copiedstring;
 		return 1;
@@ -349,13 +359,11 @@ static int ParseMapProperty(struct ParseState *state, struct MapProperty *val)
 	while (state->position < state->end && SkipWhitespace(state));
 	// this line is no property.
 	if (*state->position == '[' || state->position >= state->end) return 0;
-	char *pname = ParseIdentifier(state);
+	char *pname = ParseIdentifier(state, 1);
 	val->propertyname = pname;
 
 	if (pname == NULL)
 	{
-		state->error = 1;
-		state->ErrorFunction("Identifier expected in line %u", state->line);
 		return 0;
 	}
 	if (!ParseAssign(state)) return 0;
@@ -400,12 +408,12 @@ static int ParseStandardProperty(struct ParseState *state, struct MapEntry *mape
 	if (*state->position == '[' || state->position >= state->end) return 0;
 	
 	const unsigned char *savedpos = state->position;
-	char *pname = ParseIdentifier(state);
+	char *pname = ParseIdentifier(state, 0);
 	if (pname == 0) return 0;
 	if (!ParseAssign(state)) return 0;
 	if (!stricmp(pname, "levelname"))
 	{
-		char *lname = ParseString(state);
+		char *lname = ParseString(state, 1);
 		if (!lname) return 0;
 		if (mape->levelname != NULL) free(mape->levelname);
 		mape->levelname = lname;
@@ -437,12 +445,10 @@ static int ParseMapEntry(struct ParseState *state, struct MapEntry *val)
 		return 0;
 	}
 	state->position++;
-	char *pname = ParseIdentifier(state);
+	char *pname = ParseIdentifier(state, 1);
 	val->mapname = pname;
 	if (pname == NULL)
 	{
-		state->error = 1;
-		state->ErrorFunction("Identifier expected in line %u", state->line);
 		return 0;
 	}
 	if (*state->position != ']')
