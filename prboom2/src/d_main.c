@@ -84,6 +84,7 @@
 #include "d_deh.h"  // Ty 04/08/98 - Externalizations
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "am_map.h"
+#include "umapinfo.h"
 
 //e6y
 #include "r_demo.h"
@@ -1727,6 +1728,16 @@ static void D_DoomMainSetup(void)
   W_Init(); // CPhipps - handling of wadfiles init changed
 
   lprintf(LO_INFO,"\n");     // killough 3/6/98: add a newline, by popular demand :)
+
+  if (!M_CheckParm("-nomapinfo"))
+  {
+	  int p;
+	  for (p = -1; (p = W_ListNumFromName("UMAPINFO", p)) >= 0; )
+	  {
+		  const unsigned char * lump = (const unsigned char *)W_CacheLumpNum(p);
+		  ParseUMapInfo(lump, W_LumpLength(p), I_Error);
+	  }
+  }
 
   // e6y 
   // option to disable automatic loading of dehacked-in-wad lump

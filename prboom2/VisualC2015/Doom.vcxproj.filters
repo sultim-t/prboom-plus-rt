@@ -379,6 +379,9 @@
       <Filter>Music</Filter>
     </ClCompile>
     <ClCompile Include="..\src\SDL\SDL_windows_main.c" />
+    <ClCompile Include="..\src\umapinfo.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\am_map.h">
