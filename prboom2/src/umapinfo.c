@@ -22,6 +22,9 @@
 #include <ctype.h>
 #include <assert.h>
 #include "umapinfo.h"
+#include "m_misc.h"
+#include "g_game.h"
+#include "doomdef.h"
 
 /*
 UMAOINFO uses an INI-like format,
@@ -79,6 +82,8 @@ static void FreeMap(struct MapEntry *mape)
 {
 	if (mape->mapname) free(mape->mapname);
 	if (mape->levelname) free(mape->levelname);
+	if (mape->intertext) free(mape->intertext);
+	if (mape->intertextsecret) free(mape->intertextsecret);
 	if (mape->properties) free(mape->properties);
 	mape->propertycount = 0;
 	mape->mapname = NULL;
@@ -97,6 +102,39 @@ void FreeMapList()
 	free(Maps.maps);
 	Maps.maps = NULL;
 	Maps.mapcount = 0;
+}
+
+// -----------------------------------------------
+//
+// Parses an argument. This can either be a string literal,
+// an identifier or a number that strtod can parse into a double
+//
+// -----------------------------------------------
+
+static int SkipWhitespace(struct ParseState *state, int ignorelines)
+{
+again:
+	while (*state->position != '\n' && isspace(*state->position))
+	{
+		state->position++;
+		if (state->position == state->end) return 1;
+	}
+	if (*state->position == '\n')
+	{
+		state->position++;
+		state->line++;
+		if (ignorelines) goto again;
+		return 1;
+	}
+	if (*state->position == '/' && state->position[1] == '/')
+	{
+		// skip the rest of this line.
+		while (*state->position != '\n' && state->position < state->end) state->position++;
+		state->line++;
+		if (ignorelines) goto again;
+		return 1;
+	}
+	return 0;
 }
 
 // -----------------------------------------------
@@ -201,6 +239,83 @@ static char *ParseString(struct ParseState *state, int error)
 
 // -----------------------------------------------
 //
+// Parses a set of string and concatenates them
+//
+// -----------------------------------------------
+
+static char *ParseMultiString(struct ParseState *state, int error)
+{
+	char *build = NULL;
+	for (;;)
+	{
+		char *str = ParseString(state, error);
+		if (str == NULL)
+		{
+			if (build) free(build);
+			return NULL;
+		}
+		if (build == NULL) build = str;
+		else
+		{
+			size_t newlen = strlen(build) + strlen(str);
+
+			build = realloc(build, newlen);
+			strcpy(build + strlen(build), str);
+			build[newlen] = 0;
+		}
+		SkipWhitespace(state, false);
+		if (*state->position != ',') return build;
+		SkipWhitespace(state, true);
+	}
+}
+
+
+// -----------------------------------------------
+//
+// Parses a lump name. The buffer must be at least 9 characters.
+//
+// -----------------------------------------------
+
+static int ParseLumpName(struct ParseState *state, char *buffer, int error)
+{
+	int firstchar = *state->position;
+	if (firstchar == '"')
+	{
+		const unsigned char *startpos = ++state->position;
+		while (*state->position != '"')
+		{
+			// No filters allowed in lump names. Use proper names!
+			state->position++;
+			if (state->position >= state->end || *state->position == '\n')
+			{
+				state->error = 1;
+				state->ErrorFunction("Unterminated string constant in line %u", state->line);
+				return 0;	// reached the end of the line.
+			}
+		}
+		size_t size = state->position - startpos;
+		if (size > 8)
+		{
+			state->error = 1;
+			state->ErrorFunction("String too long. Maximum size is 8 characters in line %u", state->line);
+			return 0;
+		}
+		strncpy(buffer, startpos, size);
+		M_Strupr(buffer);
+
+		state->position++;
+		return 1;
+	}
+	if (error)
+	{
+		state->error = 1;
+		state->ErrorFunction("String expected in line %u", state->line);
+	}
+	return 0;
+}
+
+// -----------------------------------------------
+//
 // Parses a floating point number
 //
 // -----------------------------------------------
@@ -231,8 +346,31 @@ static double ParseFloat(struct ParseState *state)
 //
 // -----------------------------------------------
 
-static long ParseInt(struct ParseState *state)
+static long ParseInt(struct ParseState *state, int allowbool)
 {
+	if (allowbool && (tolower(*state->position) == 't' || tolower(*state->position) == 'f'))
+	{
+		char *id = ParseIdentifier(state, 1);
+		if (id)
+		{
+			if (!stricmp(id, "true"))
+			{
+				free(id);
+				return 1;
+			}
+			if (!stricmp(id, "false"))
+			{
+				free(id);
+				return 0;
+			}
+		}
+		else
+		{
+			state->error = 1;
+			state->ErrorFunction("Cannot find a property value in line %u", state->line);
+			return 0;
+		}
+	}
 	const unsigned char *newpos;
 	long value = strtol((char*)state->position, (char**)&newpos, 0);
 	if (newpos == state->position)
@@ -288,43 +426,13 @@ static int ParseArgument(struct ParseState *state, struct MapPropertyValue *val)
 
 // -----------------------------------------------
 //
-// Parses an argument. This can either be a string literal,
-// an identifier or a number that strtod can parse into a double
-//
-// -----------------------------------------------
-
-static int SkipWhitespace(struct ParseState *state)
-{
-	while (*state->position != '\n' && isspace(*state->position))
-	{
-		state->position++;
-		if (state->position == state->end) return 1;
-	}
-	if (*state->position == '\n')
-	{
-		state->position++;
-		state->line++;
-		return 1;
-	}
-	if (*state->position == '/' && state->position[1] == '/')
-	{
-		// skip the rest of this line.
-		while (*state->position != '\n' && state->position < state->end) state->position++;
-		state->line++;
-		return 1;
-	}
-	return 0;
-}
-
-// -----------------------------------------------
-//
 // Parses an assignment operator
 //
 // -----------------------------------------------
 
 static int ParseAssign(struct ParseState *state)
 {
-	if (SkipWhitespace(state))
+	if (SkipWhitespace(state, false))
 	{
 		state->error = 1;
 		state->ErrorFunction("'=' expected in line %u", state->line);
@@ -337,7 +445,7 @@ static int ParseAssign(struct ParseState *state)
 		return 0;
 	}
 	state->position++;
-	if (SkipWhitespace(state))
+	if (SkipWhitespace(state, false ))
 	{
 		state->error = 1;
 		state->ErrorFunction("Unexpected end of file %u", state->line);
@@ -356,7 +464,7 @@ static int ParseAssign(struct ParseState *state)
 static int ParseMapProperty(struct ParseState *state, struct MapProperty *val)
 {
 	// find the next line with content.
-	while (state->position < state->end && SkipWhitespace(state));
+	while (state->position < state->end && SkipWhitespace(state, false));
 	// this line is no property.
 	if (*state->position == '[' || state->position >= state->end) return 0;
 	char *pname = ParseIdentifier(state, 1);
@@ -375,7 +483,7 @@ static int ParseMapProperty(struct ParseState *state, struct MapProperty *val)
 		val->valuecount++;
 		val->values = (struct MapPropertyValue*)realloc(val->values, sizeof(struct MapPropertyValue) * val->valuecount);
 		
-		if (SkipWhitespace(state)) return 1;
+		if (SkipWhitespace(state, false)) return 1;
 		if (*state->position != ',')
 		{
 			state->error = 1;
@@ -383,10 +491,10 @@ static int ParseMapProperty(struct ParseState *state, struct MapProperty *val)
 			return 0;
 		}
 		state->position++;
-		if (SkipWhitespace(state))
+		if (SkipWhitespace(state, false))
 		{
 			state->error = 1;
-			state->ErrorFunction("Unexpected end of file %u", state->line);
+			state->ErrorFunction("Unexpected end of file in line %u", state->line);
 			return 0;
 		}
 	}
@@ -403,7 +511,7 @@ static int ParseMapProperty(struct ParseState *state, struct MapProperty *val)
 static int ParseStandardProperty(struct ParseState *state, struct MapEntry *mape)
 {
 	// find the next line with content.
-	while (state->position < state->end && SkipWhitespace(state));
+	while (state->position < state->end && SkipWhitespace(state, false));
 	// this line is no property.
 	if (*state->position == '[' || state->position >= state->end) return 0;
 	
@@ -418,7 +526,85 @@ static int ParseStandardProperty(struct ParseState *state, struct MapEntry *mape
 		if (mape->levelname != NULL) free(mape->levelname);
 		mape->levelname = lname;
 	}
-
+	else if (!stricmp(pname, "next"))
+	{
+		ParseLumpName(state, mape->nextmap, 1);
+		if (!G_ValidateMapName(mape->nextmap, NULL, NULL))
+		{
+			state->error = 1;
+			state->ErrorFunction("Invalid map name %s in file %u", mape->nextmap, state->line);
+			return 0;
+		}
+	}
+	else if (!stricmp(pname, "nextsecret"))
+	{
+		ParseLumpName(state, mape->nextsecret, 1);
+		if (!G_ValidateMapName(mape->nextsecret, NULL, NULL))
+		{
+			state->error = 1;
+			state->ErrorFunction("Invalid map name %s in file %u", mape->nextmap, state->line);
+			return 0;
+		}
+	}
+	else if (!stricmp(pname, "levelpic"))
+	{
+		ParseLumpName(state, mape->levelpic, 1);
+	}
+	else if (!stricmp(pname, "skytexture"))
+	{
+		ParseLumpName(state, mape->skytexture, 1);
+	}
+	else if (!stricmp(pname, "music"))
+	{
+		ParseLumpName(state, mape->music, 1);
+	}
+	else if (!stricmp(pname, "endpic"))
+	{
+		ParseLumpName(state, mape->endpic, 1);
+	}
+	else if (!stricmp(pname, "exitpic"))
+	{
+		ParseLumpName(state, mape->exitpic, 1);
+	}
+	else if (!stricmp(pname, "enterpic"))
+	{
+		ParseLumpName(state, mape->enterpic, 1);
+	}
+	else if (!stricmp(pname, "nointermission"))
+	{
+		mape->nointermission = ParseInt(state, true);
+	}
+	else if (!stricmp(pname, "partime"))
+	{
+		mape->partime = TICRATE * ParseInt(state, false);
+	}
+	else if (!stricmp(pname, "intertext"))
+	{
+		char *lname = ParseMultiString(state, 1);
+		if (!lname) return 0;
+		if (mape->intertext != NULL) free(mape->intertext);
+		mape->intertext = lname;
+	}
+	else if (!stricmp(pname, "intertextsecret"))
+	{
+		char *lname = ParseMultiString(state, 1);
+		if (!lname) return 0;
+		if (mape->intertextsecret != NULL) free(mape->intertextsecret);
+		mape->intertextsecret = lname;
+	}
+	else if (!stricmp(pname, "interbackdrop"))
+	{
+		ParseLumpName(state, mape->interbackdrop, 1);
+	}
+	else if (!stricmp(pname, "intermusic"))
+	{
+		ParseLumpName(state, mape->intermusic, 1);
+	}
+	else
+	{
+		state->position = savedpos;
+		return 0;
+	}
 
 	free(pname);
 	return !state->error;
@@ -437,7 +623,7 @@ static int ParseMapEntry(struct ParseState *state, struct MapEntry *val)
 	val->properties = NULL;
 
 	// find the next line with content.
-	while (state->position < state->end && SkipWhitespace(state));
+	while (state->position < state->end && SkipWhitespace(state, false));
 	if (*state->position != '[')
 	{
 		state->error = 1;
@@ -458,7 +644,7 @@ static int ParseMapEntry(struct ParseState *state, struct MapEntry *val)
 		return 0;
 	}
 	state->position++;
-	if (!SkipWhitespace(state))
+	if (!SkipWhitespace(state, false))
 	{
 		state->error = 1;
 		state->ErrorFunction("Unexpected content in line %u", state->line);

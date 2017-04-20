@@ -84,6 +84,7 @@ void G_DoVictory(void);
 void G_BuildTiccmd (ticcmd_t* cmd); // CPhipps - move decl to header
 void G_ChangedPlayerColour(int pn, int cl); // CPhipps - On-the-fly player colour changing
 void G_MakeSpecialEvent(buttoncode_t bc, ...); /* cph - new event stuff */
+int G_ValidateMapName(const char *mapname, int *pEpi, int *pMap);
 
 //e6y
 extern dboolean democontinue;

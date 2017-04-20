@@ -89,6 +89,8 @@
 #define SAVEGAMESIZE  0x20000
 #define SAVESTRINGSIZE  24
 
+struct MapEntry *G_LookupMapinfo(int gameepisode, int gamemap);
+
 // e6y
 // It is signature for new savegame format with continuous numbering.
 // Now it is not necessary to add a new level of compatibility in case 
@@ -782,9 +784,13 @@ static void G_DoLoadLevel (void)
 
   skyflatnum = R_FlatNumForName ( SKYFLATNAME );
 
+  if (gamemapinfo && gamemapinfo->skytexture[0])
+  {
+	  skytexture = R_TextureNumForName(gamemapinfo->skytexture);
+  }
   // DOOM determines the sky texture to be used
   // depending on the current episode, and the game version.
-  if (gamemode == commercial)
+  else if (gamemode == commercial)
     // || gamemode == pack_tnt   //jff 3/27/98 sorry guys pack_tnt,pack_plut
     // || gamemode == pack_plut) //aren't gamemodes, this was matching retail
     {
@@ -1571,6 +1577,29 @@ void G_DoCompleted (void)
   if (automapmode & am_active)
     AM_Stop();
 
+  wminfo.lastmapinfo = gamemapinfo;
+  wminfo.nextmapinfo = NULL;
+  if (gamemapinfo)
+  {
+	  if (gamemapinfo->endpic[0])
+	  {
+		  gameaction = ga_victory;
+		  return;
+	  }
+	  const char *next = "";
+	  if (secretexit) next = gamemapinfo->nextsecret;
+	  if (next[0] == 0) next = gamemapinfo->nextmap;
+	  if (next[0])
+	  {
+		  G_ValidateMapName(next, &wminfo.nextep, &wminfo.next);
+		  wminfo.nextep--;
+		  wminfo.next--;
+		  wminfo.didsecret = players[consoleplayer].didsecret;
+		  wminfo.partime = gamemapinfo->partime;
+		  goto frommapinfo;	// skip past the default setup.
+	  }
+  }
+
   if (gamemode != commercial) // kilough 2/7/98
   {
     // Chex Quest ends after 5 levels, rather than 8.
@@ -1598,7 +1627,6 @@ void G_DoCompleted (void)
   wminfo.didsecret = players[consoleplayer].didsecret;
   wminfo.epsd = gameepisode -1;
   wminfo.last = gamemap -1;
-  wminfo.lastmapinfo = gamemapinfo;
 
   // wminfo.next is 0 biased, unlike gamemap
   if (gamemode == commercial)
@@ -1665,11 +1693,6 @@ void G_DoCompleted (void)
           wminfo.next = gamemap;          // go to next level
     }
 
-  wminfo.maxkills = totalkills;
-  wminfo.maxitems = totalitems;
-  wminfo.maxsecret = totalsecret;
-  wminfo.maxfrags = 0;
-
   if ( gamemode == commercial )
   {
     if (gamemap >= 1 && gamemap <= 34)
@@ -1681,6 +1704,13 @@ void G_DoCompleted (void)
       wminfo.partime = TICRATE*pars[gameepisode][gamemap];
   }
 
+frommapinfo:
+
+  wminfo.nextmapinfo = G_LookupMapinfo(wminfo.nextep+1, wminfo.next+1);
+  wminfo.maxkills = totalkills;
+  wminfo.maxitems = totalitems;
+  wminfo.maxsecret = totalsecret;
+  wminfo.maxfrags = 0;
   wminfo.pnum = consoleplayer;
 
   for (i=0 ; i<MAXPLAYERS ; i++)
@@ -1729,6 +1759,26 @@ void G_WorldDone (void)
   if (secretexit)
     players[consoleplayer].didsecret = true;
 
+  if (gamemapinfo)
+  {
+	  if (gamemapinfo->intertextsecret && secretexit)
+	  {
+		  if (gamemapinfo->intertextsecret[0] == '-') return; // '-' means that any default intermission was cleared.
+		  F_StartFinale();
+	  }
+	  else if (gamemapinfo->intertext && !secretexit)
+	  {
+		  if (gamemapinfo->intertext[0] == '-') return; // '-' means that any default intermission was cleared.
+		  F_StartFinale();
+	  }
+	  else if (gamemapinfo->endpic[0] && gamemapinfo->nointermission)
+	  {
+		  // game ends without a status screen.
+		  gameaction = ga_victory;
+	  }
+	  // if nothing applied, use the defaults.
+  }
+
   if (gamemode == commercial && gamemission != pack_nerve)
     {
       switch (gamemap)
@@ -1755,7 +1805,9 @@ void G_DoWorldDone (void)
 {
   idmusnum = -1;             //jff 3/17/98 allow new level's music to be loaded
   gamestate = GS_LEVEL;
-  gamemap = wminfo.next+1;
+  gameepisode = wminfo.nextep + 1;
+  gamemap = wminfo.next + 1;
+  gamemapinfo = G_LookupMapinfo(gameepisode, gamemap);
   G_DoLoadLevel();
   gameaction = ga_nothing;
   AM_clearMarks();           //jff 4/12/98 clear any marks on the automap
@@ -2059,6 +2111,7 @@ void G_DoLoadGame(void)
   gameskill = *save_p++;
   gameepisode = *save_p++;
   gamemap = *save_p++;
+  gamemapinfo = G_LookupMapinfo(gameepisode, gamemap);
 
   for (i=0 ; i<MAXPLAYERS ; i++)
     playeringame[i] = *save_p++;
@@ -2631,6 +2684,32 @@ struct MapEntry *G_LookupMapinfoByName(const char *lumpname)
 		}
 	}
 	return NULL;
+}
+
+int G_ValidateMapName(const char *mapname, int *pEpi, int *pMap)
+{
+	// Check if the given map name can be expressed as a gameepisode/gamemap pair and be reconstructed from it.
+	char lumpname[9], mapuname[9];
+	int epi = -1, map = -1;
+
+	if (strlen(mapname) > 8) return 0;
+	strncpy(mapuname, mapname, 8);
+	mapuname[8] = 0;
+	M_Strupr(mapuname);
+
+	if (gamemode != commercial)
+	{
+		if (sscanf(mapuname, "E%dM%d", &epi, &map) != 2) return 0;
+		snprintf(lumpname, 9, "E%dM%d", epi, map);
+	}
+	else
+	{
+		if (sscanf(mapuname, "MAP%d", &map) != 1) return 0;
+		snprintf(lumpname, 9, "MAP%02d", map);
+	}
+	if (pEpi) *pEpi = epi;
+	if (pMap) *pMap = map;
+	return !strcmp(mapuname, lumpname);
 }
 
 //
@@ -3408,6 +3487,7 @@ void G_SaveRestoreGameOptions(int save)
       comp[i] = comp_o[i];
     }
   }
+  if (!save) G_LookupMapinfo(gameepisode, gamemap);
 }
 
 const byte* G_ReadDemoHeader(const byte *demo_p, size_t size)

@@ -190,6 +190,17 @@ void S_Start(void)
   // start new music for the level
   mus_paused = 0;
 
+  if (gamemapinfo && gamemapinfo->music[0])
+  {
+	  int muslump = W_CheckNumForName(gamemapinfo->music, ns_global);
+	  if (muslump >= 0)
+	  {
+		  S_ChangeMusInfoMusic(muslump, true);
+		  return;
+	  }
+	  // If the mapinfo defined music cannot be found, try the default for the given map.
+  }
+
   if (idmusnum!=-1)
     mnum = idmusnum; //jff 3/17/98 reload IDMUS music if not -1
   else

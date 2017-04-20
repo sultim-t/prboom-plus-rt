@@ -48,7 +48,21 @@ struct MapEntry
 {
 	char *mapname;
 	char *levelname;
-	char *levelpic;
+	char *intertext;
+	char *intertextsecret;
+	char levelpic[9];
+	char nextmap[9];
+	char nextsecret[9];
+	char music[9];
+	char skytexture[9];
+	char endpic[9];
+	char exitpic[9];
+	char enterpic[9];
+	char interbackdrop[9];
+	char intermusic[9];
+	int partime;
+	int nointermission;
+
 	unsigned int propertycount;
 	struct MapProperty *properties;
 };

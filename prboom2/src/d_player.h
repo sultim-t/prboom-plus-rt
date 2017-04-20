@@ -229,6 +229,8 @@ typedef struct
   // previous and next levels, origin 0
   int         last;
   int         next;
+  int         nextep;	// for when MAPINFO progression crosses into another episode.
+  struct MapEntry *nextmapinfo;
 
   int         maxkills;
   int         maxitems;
