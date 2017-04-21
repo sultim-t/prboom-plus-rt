@@ -965,30 +965,31 @@ void WI_initShowNextLoc(void)
 			G_WorldDone();
 			return;
 		}
+		state = ShowNextLoc;
 	}
-	if ((gamemode != commercial) && (gamemap == 8)) {
+	else if ((gamemode != commercial) && (gamemap == 8)) {
 		G_WorldDone();
 		return;
-}
+	}
 	else
+		state = ShowNextLoc;
 
-  state = ShowNextLoc;
-  acceleratestage = 0;
-  
-  // e6y: That was pretty easy - only a HEX editor and luck
-  // There is no more desync on ddt-tas.zip\e4tux231.lmp
-  // --------- tasdoom.idb ---------
-  // .text:00031194 loc_31194:      ; CODE XREF: WI_updateStats+3A9j
-  // .text:00031194                 mov     ds:state, 1
-  // .text:0003119E                 mov     ds:acceleratestage, 0
-  // .text:000311A8                 mov     ds:cnt, 3Ch
-  // nowhere no hide
-  if (compatibility_level == tasdoom_compatibility)
-    cnt = 60;
-  else
-    cnt = SHOWNEXTLOCDELAY * TICRATE;
+	acceleratestage = 0;
 
-  WI_initAnimatedBack(true);
+	// e6y: That was pretty easy - only a HEX editor and luck
+	// There is no more desync on ddt-tas.zip\e4tux231.lmp
+	// --------- tasdoom.idb ---------
+	// .text:00031194 loc_31194:      ; CODE XREF: WI_updateStats+3A9j
+	// .text:00031194                 mov     ds:state, 1
+	// .text:0003119E                 mov     ds:acceleratestage, 0
+	// .text:000311A8                 mov     ds:cnt, 3Ch
+	// nowhere no hide
+	if (compatibility_level == tasdoom_compatibility)
+		cnt = 60;
+	else
+		cnt = SHOWNEXTLOCDELAY * TICRATE;
+
+	WI_initAnimatedBack(true);
 }
 
 

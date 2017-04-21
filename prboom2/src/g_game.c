@@ -1540,7 +1540,7 @@ int cpars[34] = {
   120,30,30,30          // 31-34
 };
 
-static dboolean secretexit;
+dboolean secretexit;
 
 void G_ExitLevel (void)
 {
@@ -1581,7 +1581,7 @@ void G_DoCompleted (void)
   wminfo.nextmapinfo = NULL;
   if (gamemapinfo)
   {
-	  if (gamemapinfo->endpic[0])
+	  if (gamemapinfo->endpic[0] && gamemapinfo->nointermission)
 	  {
 		  gameaction = ga_victory;
 		  return;
@@ -1763,18 +1763,23 @@ void G_WorldDone (void)
   {
 	  if (gamemapinfo->intertextsecret && secretexit)
 	  {
-		  if (gamemapinfo->intertextsecret[0] == '-') return; // '-' means that any default intermission was cleared.
-		  F_StartFinale();
+		  if (gamemapinfo->intertextsecret[0] != '-') // '-' means that any default intermission was cleared.
+			F_StartFinale();
+
+		  return;
 	  }
 	  else if (gamemapinfo->intertext && !secretexit)
 	  {
-		  if (gamemapinfo->intertext[0] == '-') return; // '-' means that any default intermission was cleared.
-		  F_StartFinale();
+		  if (gamemapinfo->intertext[0] != '-') // '-' means that any default intermission was cleared.
+			F_StartFinale();
+
+		  return;
 	  }
-	  else if (gamemapinfo->endpic[0] && gamemapinfo->nointermission)
+	  else if (gamemapinfo->endpic[0])
 	  {
 		  // game ends without a status screen.
 		  gameaction = ga_victory;
+		  return;
 	  }
 	  // if nothing applied, use the defaults.
   }

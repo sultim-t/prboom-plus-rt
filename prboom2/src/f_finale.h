@@ -42,6 +42,22 @@
  * FINALE
  */
 
+ // Stage of animation:
+//  0 = text, 1 = art screen, 2 = character cast
+extern int finalestage; // cph -
+extern int finalecount; // made static
+extern const char*   finaletext; // cph -
+extern const char*   finaleflat; // made static const
+
+// defines for the end mission display text                     // phares
+
+#define TEXTSPEED    3     // original value                    // phares
+#define TEXTWAIT     250   // original value                    // phares
+#define NEWTEXTSPEED 0.01f  // new value                         // phares
+#define NEWTEXTWAIT  1000  // new value                         // phares
+
+
+ 
 /* Called by main loop. */
 dboolean F_Responder (event_t* ev);
 

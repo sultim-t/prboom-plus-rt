@@ -535,6 +535,7 @@
     <ClCompile Include="..\src\e6y.c" />
     <ClCompile Include="..\src\e6y_launcher.c" />
     <ClCompile Include="..\src\f_finale.c" />
+    <ClCompile Include="..\src\f_finale2.c" />
     <ClCompile Include="..\src\f_wipe.c" />
     <ClCompile Include="..\src\gl_clipper.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug NOASM|Win32'">true</ExcludedFromBuild>

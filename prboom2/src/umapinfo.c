@@ -25,6 +25,7 @@
 #include "m_misc.h"
 #include "g_game.h"
 #include "doomdef.h"
+#include "doomstat.h"
 
 /*
 UMAOINFO uses an INI-like format,
@@ -245,6 +246,18 @@ static char *ParseString(struct ParseState *state, int error)
 
 static char *ParseMultiString(struct ParseState *state, int error)
 {
+	if (*state->position == 'c' && state->end - state->position > 5)
+	{
+		char cmp[6];
+		memcpy(cmp, state->position, 5);
+		cmp[5] = 0;
+		if (!stricmp(cmp, "clear"))
+		{
+			state->position += 5;
+			return strdup("-");	// this was explicitly deleted to override the default.
+		}
+	}
+
 	char *build = NULL;
 	for (;;)
 	{
@@ -257,14 +270,17 @@ static char *ParseMultiString(struct ParseState *state, int error)
 		if (build == NULL) build = str;
 		else
 		{
-			size_t newlen = strlen(build) + strlen(str);
+			size_t oldlen = strlen(build);
+			size_t newlen = oldlen + strlen(str) + 1;
 
 			build = realloc(build, newlen);
-			strcpy(build + strlen(build), str);
+			build[oldlen] = '\n';
+			strcpy(build + oldlen + 1, str);
 			build[newlen] = 0;
 		}
 		SkipWhitespace(state, false);
 		if (*state->position != ',') return build;
+		state->position++;
 		SkipWhitespace(state, true);
 	}
 }
@@ -562,6 +578,21 @@ static int ParseStandardProperty(struct ParseState *state, struct MapEntry *mape
 	{
 		ParseLumpName(state, mape->endpic, 1);
 	}
+	else if (!stricmp(pname, "endcast"))
+	{
+		if (ParseInt(state, true)) strcpy(mape->endpic, "$CAST");
+		else strcpy(mape->endpic, "-");
+	}
+	else if (!stricmp(pname, "endbunny"))
+	{
+		if (ParseInt(state, true)) strcpy(mape->endpic, "$BUNNY");
+		else strcpy(mape->endpic, "-");
+	}
+	else if (!stricmp(pname, "endgame"))
+	{
+		if (ParseInt(state, true)) strcpy(mape->endpic, "!");
+		else strcpy(mape->endpic, "-");
+	}
 	else if (!stricmp(pname, "exitpic"))
 	{
 		ParseLumpName(state, mape->exitpic, 1);
@@ -683,7 +714,6 @@ static int ParseMapEntry(struct ParseState *state, struct MapEntry *val)
 	}
 }
 
-
 // -----------------------------------------------
 //
 // Parses a complete UMAPINFO lump
@@ -716,6 +746,32 @@ int ParseUMapInfo(const unsigned char *buffer, size_t length, umapinfo_errorfunc
 			FreeMapList();
 			free(newbuffer);
 			return 0;
+		}
+
+		// Set default level progression here to simplify the checks elsewhere. Doing this lets us skip all normal code for this if nothing has been defined.
+		if (parsed.endpic[0])
+		{
+			parsed.nextmap[0] = parsed.nextsecret[0] = 0;
+			if (parsed.endpic[0] == '!') parsed.endpic[0] = 0;
+		}
+		if (!parsed.nextmap[0] && !parsed.endpic[0])
+		{
+			if (!stricmp(parsed.mapname, "MAP30")) strcpy(parsed.endpic, "$CAST");
+			else if (!stricmp(parsed.mapname, "E1M8"))  strcpy(parsed.endpic, gamemode == retail? "CREDIT" : "HELP2");
+			else if (!stricmp(parsed.mapname, "E2M8"))  strcpy(parsed.endpic, "VICTORY");
+			else if (!stricmp(parsed.mapname, "E3M8"))  strcpy(parsed.endpic, "$BUNNY");
+			else if (!stricmp(parsed.mapname, "E4M8"))  strcpy(parsed.endpic, "ENDPIC");
+			else if (gamemission == chex && !stricmp(parsed.mapname, "E1M5"))  strcpy(parsed.endpic, "CREDIT");
+			else
+			{
+				int ep, map;
+				G_ValidateMapName(parsed.mapname, &ep, &map);
+				map++;
+				if (gamemode == commercial)
+					sprintf(parsed.nextmap, "MAP%02d", map);
+				else
+					sprintf(parsed.nextmap, "E%dM%d", ep, map);
+			}
 		}
 
 		// Does this property already exist? If yes, replace it.

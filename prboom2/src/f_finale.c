@@ -42,19 +42,22 @@
 #include "d_deh.h"  // Ty 03/22/98 - externalizations
 #include "f_finale.h" // CPhipps - hmm...
 
+
+// The implementation for UMAPINFO is kept separate to avoid demo sync issues
+void FMI_Ticker (void);
+void FMI_Drawer (void);
+void FMI_StartFinale (void);
+int using_FMI;
+
+
 // Stage of animation:
 //  0 = text, 1 = art screen, 2 = character cast
-static int finalestage; // cph -
-static int finalecount; // made static
-static const char*   finaletext; // cph -
-static const char*   finaleflat; // made static const
+int finalestage; // cph -
+int finalecount; // made static
+const char*   finaletext; // cph -
+const char*   finaleflat; // made static const
 
 // defines for the end mission display text                     // phares
-
-#define TEXTSPEED    3     // original value                    // phares
-#define TEXTWAIT     250   // original value                    // phares
-#define NEWTEXTSPEED 0.01f  // new value                         // phares
-#define NEWTEXTWAIT  1000  // new value                         // phares
 
 // CPhipps - removed the old finale screen text message strings;
 // they were commented out for ages already
@@ -68,7 +71,7 @@ void    F_CastDrawer (void);
 
 void WI_checkForAccelerate(void);    // killough 3/28/98: used to
 extern int acceleratestage;          // accelerate intermission screens
-static int midstage;                 // whether we're in "mid-stage"
+int midstage;                 // whether we're in "mid-stage"
 
 //
 // F_StartFinale
@@ -82,6 +85,12 @@ void F_StartFinale (void)
   // killough 3/28/98: clear accelerative text flags
   acceleratestage = midstage = 0;
 
+	if (gamemapinfo)
+	{
+		FMI_StartFinale();
+		return;
+	}
+  
   // Okay - IWAD dependend stuff.
   // This has been changed severly, and
   //  some stuff might have changed in the process.
@@ -195,7 +204,7 @@ dboolean F_Responder (event_t *event)
 // Get_TextSpeed() returns the value of the text display speed  // phares
 // Rewritten to allow user-directed acceleration -- killough 3/28/98
 
-static float Get_TextSpeed(void)
+float Get_TextSpeed(void)
 {
   return midstage ? NEWTEXTSPEED : (midstage=acceleratestage) ?
     acceleratestage=0, NEWTEXTSPEED : TEXTSPEED;
@@ -217,6 +226,12 @@ static float Get_TextSpeed(void)
 
 void F_Ticker(void)
 {
+	if (using_FMI)
+	{
+		FMI_Ticker();
+		return;
+	}
+	
   int i;
   if (!demo_compatibility)
     WI_checkForAccelerate();  // killough 3/28/98: check for acceleration
@@ -276,7 +291,7 @@ void F_Ticker(void)
 extern patchnum_t hu_font[HU_FONTSIZE];
 
 
-static void F_TextWrite (void)
+void F_TextWrite (void)
 {
   V_DrawBackground(finaleflat, 0);
   { // draw some of the text onto the screen
@@ -642,6 +657,12 @@ static void F_BunnyScroll (void)
 //
 void F_Drawer (void)
 {
+	if (using_FMI)
+	{
+		FMI_Drawer();
+		return;
+	}
+	
   if (finalestage == 2)
   {
     F_CastDrawer ();
