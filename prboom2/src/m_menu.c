@@ -534,12 +534,16 @@ enum
 
 // The definitions of the Episodes menu
 
-menuitem_t EpisodeMenu[]=
+menuitem_t EpisodeMenu[]=	// added a few free entries for UMAPINFO
 {
   {1,"M_EPI1", M_Episode,'k'},
   {1,"M_EPI2", M_Episode,'t'},
   {1,"M_EPI3", M_Episode,'i'},
-  {1,"M_EPI4", M_Episode,'t'}
+  {1,"M_EPI4", M_Episode,'t'},
+  {1,"", M_Episode,'0'},
+  {1,"", M_Episode,'0'},
+  {1,"", M_Episode,'0'},
+  {1,"", M_Episode,'0'}
 };
 
 menu_t EpiDef =
@@ -552,35 +556,74 @@ menu_t EpiDef =
   ep1            // lastOn
 };
 
+// This is for customized episode menus
+int EpiCustom;
+short EpiMenuEpi[8], EpiMenuMap[8];
+
 //
 //    M_Episode
 //
 int epi;
 
+void M_AddEpisode(const char *map, char *def)
+{
+	EpiCustom = true;
+	if (*def == '-')	// means 'clear'
+	{
+		EpiDef.numitems = 0;
+	}
+	else
+	{
+		const char *gfx = strtok(def, "\n");
+		const char *txt = strtok(NULL, "\n");
+		const char *alpha = strtok(NULL, "\n");
+		if (EpiDef.numitems >= 8) return;
+		int epi, mapnum;
+		G_ValidateMapName(map, &epi, &mapnum);
+		EpiMenuEpi[EpiDef.numitems] = epi;
+		EpiMenuMap[EpiDef.numitems] = mapnum;
+		strncpy(EpisodeMenu[EpiDef.numitems].name, gfx, 8);
+		EpisodeMenu[EpiDef.numitems].name[8] = 0;
+		EpisodeMenu[EpiDef.numitems].alttext = txt;
+		EpisodeMenu[EpiDef.numitems].alphaKey = alpha ? *alpha : 0;
+		EpiDef.numitems++;
+	}
+	if (EpiDef.numitems <= 4)
+	{
+		EpiDef.y = 63;
+	}
+	else
+	{
+		EpiDef.y = 63 - (EpiDef.numitems - 4) * (LINEHEIGHT / 2);
+	}
+}
+
 void M_DrawEpisode(void)
 {
   // CPhipps - patch drawing updated
-  V_DrawNamePatch(54, 38, 0, "M_EPISOD", CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(54, EpiDef.y - 25, 0, "M_EPISOD", CR_DEFAULT, VPT_STRETCH);
 }
 
 void M_Episode(int choice)
 {
-  if ( (gamemode == shareware) && choice) {
-    M_StartMessage(s_SWSTRING,NULL,false); // Ty 03/27/98 - externalized
-    M_SetupNextMenu(&ReadDef1);
-    return;
-  }
+	if (!EpiCustom)
+	{
+		if ((gamemode == shareware) && choice) {
+			M_StartMessage(s_SWSTRING, NULL, false); // Ty 03/27/98 - externalized
+			M_SetupNextMenu(&ReadDef1);
+			return;
+		}
 
-  // Yet another hack...
-  if ( (gamemode == registered) && (choice > 2))
-    {
-    lprintf( LO_WARN,
-     "M_Episode: 4th episode requires UltimateDOOM\n");
-    choice = 0;
-    }
-
-  epi = choice;
-  M_SetupNextMenu(&NewDef);
+		// Yet another hack...
+		if ((gamemode == registered) && (choice > 2) && !EpiCustom)
+		{
+			lprintf(LO_WARN,
+				"M_Episode: 4th episode requires UltimateDOOM\n");
+			choice = 0;
+		}
+	}
+	epi = choice;
+	M_SetupNextMenu(&NewDef);
 }
 
 /////////////////////////////
@@ -688,7 +731,8 @@ void M_ChooseSkill(int choice)
       return;
     }
 
-  G_DeferedInitNew(choice,epi+1,1);
+  if (!EpiCustom) G_DeferedInitNew(choice,epi+1,1);
+  else G_DeferedInitNew(choice, EpiMenuEpi[epi], EpiMenuMap[epi]);
   M_ClearMenus ();
 }
 
@@ -5678,12 +5722,15 @@ void M_StartControlPanel (void)
   // e6y
   // We need to remove the fourth episode for pre-ultimate complevels.
   // It is located here instead of M_Init() because of TNTCOMP cheat.
-  EpiDef.numitems = ep_end;
-  if (gamemode != commercial
-      && (compatibility_level < ultdoom_compatibility
-          || W_SafeGetNumForName(EpiDef.menuitems[ep4].name) == -1))
+  if (!EpiCustom)
   {
-    EpiDef.numitems--;
+	  EpiDef.numitems = ep_end;
+	  if (gamemode != commercial
+		  && (compatibility_level < ultdoom_compatibility
+			  || W_SafeGetNumForName(EpiDef.menuitems[ep4].name) == -1))
+	  {
+		  EpiDef.numitems--;
+	  }
   }
 
   default_verify = 0;                  // killough 10/98

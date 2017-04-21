@@ -38,6 +38,7 @@ value is either an identifier, a number (only doubles are stored) or a string li
 Comments must be in C++-form, i.e. from '//' until the end of the line.
 */
 
+void M_AddEpisode(const char *map, char *def);
 
 struct MapList Maps;
 
@@ -630,6 +631,12 @@ static int ParseStandardProperty(struct ParseState *state, struct MapEntry *mape
 	else if (!stricmp(pname, "intermusic"))
 	{
 		ParseLumpName(state, mape->intermusic, 1);
+	}
+	else if (!stricmp(pname, "episode"))
+	{
+		char *lname = ParseMultiString(state, 1);
+		if (!lname) return 0;
+		M_AddEpisode(mape->mapname, lname);
 	}
 	else
 	{
