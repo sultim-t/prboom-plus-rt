@@ -406,7 +406,7 @@ static dboolean P_Move(mobj_t *actor, dboolean dropoff) /* killough 9/12/98 */
        */
 
       for (good = false; numspechit--; )
-        if (P_UseSpecialLine(actor, spechit[numspechit], 0))
+        if (P_UseSpecialLine(actor, spechit[numspechit], 0, false))
     good |= spechit[numspechit] == blockline ? 1 : 2;
 
       /* cph - compatibility maze here
@@ -2223,6 +2223,54 @@ void A_BossDeath(mobj_t *mo)
   line_t    junk;
   int       i;
 
+  // numbossactions == 0 means to use the defaults.
+  // numbossactions == -1 means to do nothing.
+  // positive values mean to check the list of boss actions and run all that apply.
+  if (gamemapinfo && gamemapinfo->numbossactions != 0)
+  {
+	  if (gamemapinfo->numbossactions < 0) return;
+
+	  // make sure there is a player alive for victory
+	  for (i=0; i<MAXPLAYERS; i++)
+		if (playeringame[i] && players[i].health > 0)
+		  break;
+
+	  if (i==MAXPLAYERS)
+		return;     // no one left alive, so do not end game
+
+	  for (i = 0; i < gamemapinfo->numbossactions; i++)
+	  {
+		  if (gamemapinfo->bossactions[i].type == mo->type)
+			  break;
+	  }
+	  if (i >= gamemapinfo->numbossactions)
+		  return;	// no matches found
+
+		// scan the remaining thinkers to see
+		// if all bosses are dead
+	  for (th = thinkercap.next ; th != &thinkercap ; th=th->next)
+		if (th->function == P_MobjThinker)
+		  {
+			mobj_t *mo2 = (mobj_t *) th;
+			if (mo2 != mo && mo2->type == mo->type && mo2->health > 0)
+			  return;         // other boss not dead
+      }
+	  for (i = 0; i < gamemapinfo->numbossactions; i++)
+	  {
+		  if (gamemapinfo->bossactions[i].type == mo->type)
+		  {
+			  junk = *lines;
+			  junk.special = (short)gamemapinfo->bossactions[i].special;
+			  junk.tag = (short)gamemapinfo->bossactions[i].tag;
+			  // use special semantics for line activation to block problem types.
+			  if (!P_UseSpecialLine(mo, &junk, 0, true))
+				  P_CrossSpecialLine(&junk, 0, mo, true);
+		  }
+	  }
+
+	  return;
+  }
+
   if (gamemode == commercial)
     {
       if (gamemap != 7)
@@ -2773,8 +2821,8 @@ void A_LineEffect(mobj_t *mo)
   if (!junk.special)
     return;
   junk.tag = (short)mo->state->misc2;
-  if (!P_UseSpecialLine(mo, &junk, 0))
-    P_CrossSpecialLine(&junk, 0, mo);
+  if (!P_UseSpecialLine(mo, &junk, 0, false))
+    P_CrossSpecialLine(&junk, 0, mo, false);
   mo->state->misc1 = junk.special;
   mo->player = oldplayer;
 }

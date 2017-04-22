@@ -192,7 +192,7 @@ void S_Start(void)
 
   if (gamemapinfo && gamemapinfo->music[0])
   {
-	  int muslump = W_CheckNumForName(gamemapinfo->music, ns_global);
+	  int muslump = W_CheckNumForName(gamemapinfo->music);
 	  if (muslump >= 0)
 	  {
 		  S_ChangeMusInfoMusic(muslump, true);

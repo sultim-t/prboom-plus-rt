@@ -52,6 +52,163 @@ struct ParseState
 };
 
 
+//==========================================================================
+//
+// The Doom actors in their original order
+// Names are the same as in ZDoom.
+//
+//==========================================================================
+
+static const char * const ActorNames[] =
+{
+	"DoomPlayer",
+	"ZombieMan",
+	"ShotgunGuy",
+	"Archvile",
+	"ArchvileFire",
+	"Revenant",
+	"RevenantTracer",
+	"RevenantTracerSmoke",
+	"Fatso",
+	"FatShot",
+	"ChaingunGuy",
+	"DoomImp",
+	"Demon",
+	"Spectre",
+	"Cacodemon",
+	"BaronOfHell",
+	"BaronBall",
+	"HellKnight",
+	"LostSoul",
+	"SpiderMastermind",
+	"Arachnotron",
+	"Cyberdemon",
+	"PainElemental",
+	"WolfensteinSS",
+	"CommanderKeen",
+	"BossBrain",
+	"BossEye",
+	"BossTarget",
+	"SpawnShot",
+	"SpawnFire",
+	"ExplosiveBarrel",
+	"DoomImpBall",
+	"CacodemonBall",
+	"Rocket",
+	"PlasmaBall",
+	"BFGBall",
+	"ArachnotronPlasma",
+	"BulletPuff",
+	"Blood",
+	"TeleportFog",
+	"ItemFog",
+	"TeleportDest",
+	"BFGExtra",
+	"GreenArmor",
+	"BlueArmor",
+	"HealthBonus",
+	"ArmorBonus",
+	"BlueCard",
+	"RedCard",
+	"YellowCard",
+	"YellowSkull",
+	"RedSkull",
+	"BlueSkull",
+	"Stimpack",
+	"Medikit",
+	"Soulsphere",
+	"InvulnerabilitySphere",
+	"Berserk",
+	"BlurSphere",
+	"RadSuit",
+	"Allmap",
+	"Infrared",
+	"Megasphere",
+	"Clip",
+	"ClipBox",
+	"RocketAmmo",
+	"RocketBox",
+	"Cell",
+	"CellPack",
+	"Shell",
+	"ShellBox",
+	"Backpack",
+	"BFG9000",
+	"Chaingun",
+	"Chainsaw",
+	"RocketLauncher",
+	"PlasmaRifle",
+	"Shotgun",
+	"SuperShotgun",
+	"TechLamp",
+	"TechLamp2",
+	"Column",
+	"TallGreenColumn",
+	"ShortGreenColumn",
+	"TallRedColumn",
+	"ShortRedColumn",
+	"SkullColumn",
+	"HeartColumn",
+	"EvilEye",
+	"FloatingSkull",
+	"TorchTree",
+	"BlueTorch",
+	"GreenTorch",
+	"RedTorch",
+	"ShortBlueTorch",
+	"ShortGreenTorch",
+	"ShortRedTorch",
+	"Slalagtite",
+	"TechPillar",
+	"CandleStick",
+	"Candelabra",
+	"BloodyTwitch",
+	"Meat2",
+	"Meat3",
+	"Meat4",
+	"Meat5",
+	"NonsolidMeat2",
+	"NonsolidMeat4",
+	"NonsolidMeat3",
+	"NonsolidMeat5",
+	"NonsolidTwitch",
+	"DeadCacodemon",
+	"DeadMarine",
+	"DeadZombieMan",
+	"DeadDemon",
+	"DeadLostSoul",
+	"DeadDoomImp",
+	"DeadShotgunGuy",
+	"GibbedMarine",
+	"GibbedMarineExtra",
+	"HeadsOnAStick",
+	"Gibs",
+	"HeadOnAStick",
+	"HeadCandles",
+	"DeadStick",
+	"LiveStick",
+	"BigTree",
+	"BurningBarrel",
+	"HangNoGuts",
+	"HangBNoBrain",
+	"HangTLookingDown",
+	"HangTSkull",
+	"HangTLookingUp",
+	"HangTNoBrain",
+	"ColonGibs",
+	"SmallBloodPool",
+	"BrainStem",
+	//Boom/MBF additions
+	"PointPusher",
+	"PointPuller",
+	"MBFHelperDog",
+	"PlasmaBall1",
+	"PlasmaBall2",
+	"EvilSceptre",
+	"UnholyBible",
+	NULL
+};
+
 
 // -----------------------------------------------
 //
@@ -87,6 +244,7 @@ static void FreeMap(struct MapEntry *mape)
 	if (mape->intertext) free(mape->intertext);
 	if (mape->intertextsecret) free(mape->intertextsecret);
 	if (mape->properties) free(mape->properties);
+	if (mape->bossactions) free(mape->bossactions);
 	mape->propertycount = 0;
 	mape->mapname = NULL;
 	mape->properties = NULL;
@@ -402,6 +560,7 @@ static long ParseInt(struct ParseState *state, int allowbool)
 		state->ErrorFunction("Syntax error in line %u: numeric constant followed by invalid characters", state->line);
 		return 0;
 	}
+	state->position = newpos;
 	return value;
 }
 
@@ -463,6 +622,36 @@ static int ParseAssign(struct ParseState *state)
 	}
 	state->position++;
 	if (SkipWhitespace(state, false ))
+	{
+		state->error = 1;
+		state->ErrorFunction("Unexpected end of file %u", state->line);
+		return 0;
+	}
+	return 1;
+}
+
+// -----------------------------------------------
+//
+// Parses an assignment operator
+//
+// -----------------------------------------------
+
+static int ParseComma(struct ParseState *state)
+{
+	if (SkipWhitespace(state, false))
+	{
+		state->error = 1;
+		state->ErrorFunction("',' expected in line %u", state->line);
+		return 0;
+	}
+	if (*state->position != ',')
+	{
+		state->error = 1;
+		state->ErrorFunction("',' expected in line %u", state->line);
+		return 0;
+	}
+	state->position++;
+	if (SkipWhitespace(state, false))
 	{
 		state->error = 1;
 		state->ErrorFunction("Unexpected end of file %u", state->line);
@@ -637,6 +826,50 @@ static int ParseStandardProperty(struct ParseState *state, struct MapEntry *mape
 		char *lname = ParseMultiString(state, 1);
 		if (!lname) return 0;
 		M_AddEpisode(mape->mapname, lname);
+	}
+	else if (!stricmp(pname, "bossaction"))
+	{
+		char * classname = ParseIdentifier(state, true);
+		int classnum, special, tag;
+		if (!stricmp(classname, "clear"))
+		{
+			// mark level free of boss actions
+			classnum = special = tag = -1;
+			if (mape->bossactions) free(mape->bossactions);
+			mape->bossactions = NULL;
+			mape->numbossactions = -1;
+		}
+		else
+		{
+			int i;
+			for (i = 0; ActorNames[i]; i++)
+			{
+				if (!stricmp(classname, ActorNames[i])) break;
+			}
+			if (ActorNames[i] == NULL)
+			{
+				state->error = 1;
+				state->ErrorFunction("Unknown thing type %s in line %d", classname, state->line);
+				return 0;
+			}
+
+			ParseComma(state);
+			special = ParseInt(state, false);
+			ParseComma(state);
+			tag = ParseInt(state, false);
+			// allow no 0-tag specials here, unless a level exit.
+			if (tag != 0 || special == 11 || special == 51 || special == 52 || special == 124)
+			{
+				if (mape->numbossactions == -1) mape->numbossactions = 1;
+				else mape->numbossactions++;
+				mape->bossactions = (struct BossAction *)realloc(mape->bossactions, sizeof(struct BossAction) * mape->numbossactions);
+				mape->bossactions[mape->numbossactions - 1].type = i;
+				mape->bossactions[mape->numbossactions - 1].special = special;
+				mape->bossactions[mape->numbossactions - 1].tag = tag;
+			}
+
+		}
+		free(classname);
 	}
 	else
 	{

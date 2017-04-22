@@ -44,6 +44,13 @@ struct MapProperty
 	struct MapPropertyValue *values;
 };
 
+struct BossAction
+{
+	int type;
+	int special;
+	int tag;
+};
+
 struct MapEntry
 {
 	char *mapname;
@@ -62,9 +69,11 @@ struct MapEntry
 	char intermusic[9];
 	int partime;
 	int nointermission;
+	int numbossactions;
 
 	unsigned int propertycount;
 	struct MapProperty *properties;
+	struct BossAction *bossactions;
 };
 
 struct MapList

@@ -1221,7 +1221,7 @@ dboolean PUREFUNC P_WasSecret(const sector_t *sec)
 //  crossed. Change is qualified by demo_compatibility.
 //
 // CPhipps - take a line_t pointer instead of a line number, as in MBF
-void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
+void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing, dboolean bossaction)
 {
   int         ok;
 
@@ -1237,7 +1237,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
   }
   else
   {
-    if (!thing->player)
+    if (!thing->player && !bossaction)
     {
       // Things that should NOT trigger specials...
       switch(thing->type)
@@ -1270,7 +1270,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
     }
     else if ((unsigned)line->special >= GenFloorBase)
     {
-      if (!thing->player)
+      if (!thing->player && !bossaction)
         if ((line->special & FloorChange) || !(line->special & FloorModel))
           return;     // FloorModel is "Allow Monsters" if FloorChange is 0
       if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all walk generalized types require tag
@@ -1279,7 +1279,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
     }
     else if ((unsigned)line->special >= GenCeilingBase)
     {
-      if (!thing->player)
+      if (!thing->player && !bossaction)
         if ((line->special & CeilingChange) || !(line->special & CeilingModel))
           return;     // CeilingModel is "Allow Monsters" if CeilingChange is 0
       if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all walk generalized types require tag
@@ -1288,7 +1288,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
     }
     else if ((unsigned)line->special >= GenDoorBase)
     {
-      if (!thing->player)
+      if (!thing->player && !bossaction)
       {
         if (!(line->special & DoorMonster))
           return;                    // monsters disallowed from this door
@@ -1301,7 +1301,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
     }
     else if ((unsigned)line->special >= GenLockedBase)
     {
-      if (!thing->player)
+      if (!thing->player || bossaction) // boss actions can't handle locked doors
         return;                     // monsters disallowed from unlocking doors
       if (((line->special&TriggerType)==WalkOnce) || ((line->special&TriggerType)==WalkMany))
       { //jff 4/1/98 check for being a walk type before reporting door type
@@ -1314,7 +1314,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
     }
     else if ((unsigned)line->special >= GenLiftBase)
     {
-      if (!thing->player)
+      if (!thing->player && !bossaction)
         if (!(line->special & LiftMonster))
           return; // monsters disallowed
       if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all walk generalized types require tag
@@ -1323,7 +1323,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
     }
     else if ((unsigned)line->special >= GenStairsBase)
     {
-      if (!thing->player)
+      if (!thing->player && !bossaction)
         if (!(line->special & StairMonster))
           return; // monsters disallowed
       if (!comperr(comperr_zerotag) && !line->tag) //e6y //jff 2/27/98 all walk generalized types require tag
@@ -1346,18 +1346,16 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
       }
   }
 
-  if (!thing->player)
+  if (!thing->player || bossaction)
   {
     ok = 0;
     switch(line->special)
     {
+	  // teleporters are blocked for boss actions.
       case 39:      // teleport trigger
       case 97:      // teleport retrigger
       case 125:     // teleport monsteronly trigger
       case 126:     // teleport monsteronly retrigger
-      case 4:       // raise door
-      case 10:      // plat down-wait-up-stay trigger
-      case 88:      // plat down-wait-up-stay retrigger
         //jff 3/5/98 add ability of monsters etc. to use teleporters
       case 208:     //silent thing teleporters
       case 207:
@@ -1371,6 +1369,11 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
       case 267:
       case 268:
       case 269:
+		  if (bossaction) return;
+
+	  case 4:       // raise door
+	  case 10:      // plat down-wait-up-stay trigger
+	  case 88:      // plat down-wait-up-stay retrigger
         ok = 1;
         break;
     }
@@ -1531,7 +1534,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
     case 52:
       // EXIT!
       // killough 10/98: prevent zombies from exiting levels
-      if (!(thing->player && thing->player->health <= 0 && !comp[comp_zombie]))
+      if (bossaction || (!(thing->player && thing->player->health <= 0 && !comp[comp_zombie])))
   G_ExitLevel ();
       break;
 
@@ -1617,7 +1620,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
       // Secret EXIT
       // killough 10/98: prevent zombies from exiting levels
       // CPhipps - change for lxdoom's compatibility handling
-      if (!(thing->player && thing->player->health <= 0 && !comp[comp_zombie]))
+      if (bossaction || (!(thing->player && thing->player->health <= 0 && !comp[comp_zombie])))
   G_SecretExitLevel ();
       break;
 
