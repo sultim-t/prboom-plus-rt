@@ -1,0 +1,64 @@
+UMAPINFO uses an ini-like syntax.
+A map starts with
+
+[mapname]
+
+follwed by
+
+key = value
+key = value1, value2,...
+
+entries. Values can be strings, enclosed in quotation marks ("), numbers or identifiers. Identifiers are case insensitive names that start with a letter and may only contain letters, numbers or the underscore ('_')
+
+The map names are limited to the format of the currently loaded IWAD, i.e. Doom 2 only supports MAPxx entries and Doom 1 only ExMy entries.
+The numbers x and y can exceed their original limits, though, so MAP50, E5M6 or even MAP100 or E1M10 are valid map names for their respective game.
+This limit comes from the game using numeric variables 'gameepisode' and 'gamemap' to identify a level. It may later be decided to lift the naming restriction but this cannot be done without some extensive refactoring which simply exceeded the scope of the initial implementation.
+
+Currently the follwing keys are supported. If not given, the hardcoded default will be used, unless the following list says differently.
+
+levelname = "name"			; Specifies the readable name of the level (e.g. "Hangar") This will be used in the automap and also on the status screen if no name patch is specified.
+levelpic = "graphic"		; Specifes the patch that is used on the status screen for 'entering' and 'finished'. This can be omitted, in that case the levelname will be printed with the HUD font.
+next = "mapname"			; Specifies the map the regular exit leads to. In Doom 1 this may cross episodes.
+nextsecret = "mapname"		; Specifies the map the secret exit leads to. In Doom 1 this may cross episodes.
+skytexture = "texture"		; Specifies the sky texture to be used for this map.
+music = "song"				; Specifies the music to be played on this map.
+exitpic = "graphic"			; Specifies the background for the 'level finished' screen. This can override Doom's animated screens for E1-3.
+enterpic = "graphic"		; Specifies the background for the 'entering level' screen. This can override Doom's animated screens for E1-3.
+partime = seconds			; Specifies the level's par time.
+endgame = false				; Overrides a default map exit (e.g. ExM8 or MAP30)
+endgame = true				; Ends the game after this level, showing the default post-game screen for the current episode.
+endpic = "graphic"			; Ends the game after this level, showing the specified graphic as an end screen.
+endbunny = true				; Ends the game after this level, showing the bunny scroller.
+endcast = true				; Ends the game after this level, showing the cast call.
+nointermission = true/false ; Currently only working for levels that end the game: When true skips the 'level finished' screen.
+intertext = "text"			; Shows an intermission text screen after the level is exited through the regular exit. "text" can be multiple lines, for ease of reading they can be specified as multiple parameters over several lines (see example below.)
+intertext = clear			; Disables default intermission text for the given map (e.g. to go from MAP06 to MAP07 without a text showing up.)
+intertextsecret = "text"	; Shows an intermission text screen after the level is exited through the secret exit. This will never default to 'intertext'. If not given, the defaults will be used
+intertextsecret = clear		; Disables default intermission text for the given map's secret exit.
+interbackdrop = "flat"		; Backdrop to be used for intertext and intertextsecret. If not specified FLOOR4_8 will be used, regardless of which map it is used on.
+intermusic = "song"			; Music to be used for intertext and intertextsecret. If not specified D_VICTOR/D_READ_M will be used, depending on the IWAD.
+episode = clear				; Clears the episode menu of all previous entries. Should be used on the first map if a mod wants to define its own episodes.
+episode = "patch", "name", "key"	
+							; Defines an entry for the episode menu. If all defined episodes define a valid patch, those will be shown, otherwise the names will be used with the HUD font. At most 8 episodes can be defined.
+bossaction = thingtype, linespecial, tag
+							; Defines a boss death action. Tag 0 is not allowed except for level exits. Shoot triggers, teleporters and locked doors are not supported. A map may define multiple death actions. Thingtype uses ZDoom's class names (see list below.)
+
+							
+Default handling:
+
+Normally, if some information cannot be found, the engine will fall back to its hard coded implementation, with a few exceptions:
+
+- nextsecret: If not present, it will use the normal exit's map if the current map has a MAPINFO record. This also applies to maps which by default have a secret exit!
+- enterpic: If the map that was just left has an exitpic entry and the map to be entered has no enterpic entry, the previous map's exitpic entry will be used for both screens.
+- levelpic: If not given, the status screen will instead print the map's name with the HUD font to ensure that the proper name is used.
+- interbackdrop: This will not look up the default backdrop for a given map but always use FLOOR4_8.
+
+Example:
+
+[E1M7]
+levelname = "The Hidden Cave"
+skytexture =  "sky2"
+intertext = "You have beaten the shit",
+	"out of those big barons",
+	"and now must continue the fight."
+
