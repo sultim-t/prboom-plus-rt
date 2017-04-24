@@ -226,13 +226,14 @@ float Get_TextSpeed(void)
 
 void F_Ticker(void)
 {
+  int i;
+
 	if (using_FMI)
 	{
 		FMI_Ticker();
 		return;
 	}
 	
-  int i;
   if (!demo_compatibility)
     WI_checkForAccelerate();  // killough 3/28/98: check for acceleration
   else

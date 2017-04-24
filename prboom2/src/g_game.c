@@ -1581,12 +1581,12 @@ void G_DoCompleted (void)
   wminfo.nextmapinfo = NULL;
   if (gamemapinfo)
   {
+	  const char *next = "";
 	  if (gamemapinfo->endpic[0] && gamemapinfo->nointermission)
 	  {
 		  gameaction = ga_victory;
 		  return;
 	  }
-	  const char *next = "";
 	  if (secretexit) next = gamemapinfo->nextsecret;
 	  if (next[0] == 0) next = gamemapinfo->nextmap;
 	  if (next[0])

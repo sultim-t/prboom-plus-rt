@@ -309,16 +309,18 @@ static char *ParseIdentifier(struct ParseState *state, int error)
 {
 	if (isalpha(*state->position))
 	{
+		size_t i, size;
+		char *copiedstring;
 		const unsigned char *startpos = state->position;
 		while (isalnum(*state->position) || *state->position == '_')
 		{
 			state->position++;
 			if (state->position == state->end) break;
 		}
-		size_t size = state->position - startpos;
-		char *copiedstring = (char*)malloc(size + 1);
+		size = state->position - startpos;
+		copiedstring = (char*)malloc(size + 1);
 		assert(copiedstring != NULL);
-		for(size_t i = 0; i < size; i++)
+		for(i = 0; i < size; i++)
 		{
 			int c = startpos[i];
 			if (!isalpha(c)) copiedstring[i] = (char)c;
@@ -346,6 +348,8 @@ static char *ParseString(struct ParseState *state, int error)
 	int firstchar = *state->position;
 	if (firstchar == '"')
 	{
+		size_t size;
+		char *copiedstring;
 		const unsigned char *startpos = ++state->position;
 		while (*state->position != '"')
 		{
@@ -369,8 +373,8 @@ static char *ParseString(struct ParseState *state, int error)
 				return NULL;	// reached the end of the line.
 			}
 		}
-		size_t size = state->position - startpos;
-		char *copiedstring = (char*)malloc(size + 1);
+		size = state->position - startpos;
+		copiedstring = (char*)malloc(size + 1);
 		assert(copiedstring != NULL);
 
 		memcpy(copiedstring, startpos, size);
@@ -405,6 +409,7 @@ static char *ParseString(struct ParseState *state, int error)
 
 static char *ParseMultiString(struct ParseState *state, int error)
 {
+	char *build = NULL;
 	if (*state->position == 'c' && state->end - state->position > 5)
 	{
 		char cmp[6];
@@ -417,7 +422,6 @@ static char *ParseMultiString(struct ParseState *state, int error)
 		}
 	}
 
-	char *build = NULL;
 	for (;;)
 	{
 		char *str = ParseString(state, error);
@@ -456,6 +460,7 @@ static int ParseLumpName(struct ParseState *state, char *buffer, int error)
 	int firstchar = *state->position;
 	if (firstchar == '"')
 	{
+		size_t size;
 		const unsigned char *startpos = ++state->position;
 		while (*state->position != '"')
 		{
@@ -468,7 +473,7 @@ static int ParseLumpName(struct ParseState *state, char *buffer, int error)
 				return 0;	// reached the end of the line.
 			}
 		}
-		size_t size = state->position - startpos;
+		size = state->position - startpos;
 		if (size > 8)
 		{
 			state->error = 1;
@@ -523,6 +528,8 @@ static double ParseFloat(struct ParseState *state)
 
 static long ParseInt(struct ParseState *state, int allowbool)
 {
+	const unsigned char *newpos;
+	long value;
 	if (allowbool && (tolower(*state->position) == 't' || tolower(*state->position) == 'f'))
 	{
 		char *id = ParseIdentifier(state, 1);
@@ -546,8 +553,7 @@ static long ParseInt(struct ParseState *state, int allowbool)
 			return 0;
 		}
 	}
-	const unsigned char *newpos;
-	long value = strtol((char*)state->position, (char**)&newpos, 0);
+	value = strtol((char*)state->position, (char**)&newpos, 0);
 	if (newpos == state->position)
 	{
 		state->error = 1;
@@ -669,11 +675,12 @@ static int ParseComma(struct ParseState *state)
 
 static int ParseMapProperty(struct ParseState *state, struct MapProperty *val)
 {
+	char *pname;
 	// find the next line with content.
 	while (state->position < state->end && SkipWhitespace(state, false));
 	// this line is no property.
 	if (*state->position == '[' || state->position >= state->end) return 0;
-	char *pname = ParseIdentifier(state, 1);
+	pname = ParseIdentifier(state, 1);
 	val->propertyname = pname;
 
 	if (pname == NULL)
@@ -716,13 +723,16 @@ static int ParseMapProperty(struct ParseState *state, struct MapProperty *val)
 
 static int ParseStandardProperty(struct ParseState *state, struct MapEntry *mape)
 {
+	const unsigned char *savedpos;
+	char *pname;
+
 	// find the next line with content.
 	while (state->position < state->end && SkipWhitespace(state, false));
 	// this line is no property.
 	if (*state->position == '[' || state->position >= state->end) return 0;
 	
-	const unsigned char *savedpos = state->position;
-	char *pname = ParseIdentifier(state, 0);
+	savedpos = state->position;
+	pname = ParseIdentifier(state, 0);
 	if (pname == 0) return 0;
 	if (!ParseAssign(state)) return 0;
 	if (!stricmp(pname, "levelname"))
@@ -889,6 +899,8 @@ static int ParseStandardProperty(struct ParseState *state, struct MapEntry *mape
 
 static int ParseMapEntry(struct ParseState *state, struct MapEntry *val)
 {
+	char *pname;
+
 	val->mapname = NULL;
 	val->propertycount = 0;
 	val->properties = NULL;
@@ -902,7 +914,7 @@ static int ParseMapEntry(struct ParseState *state, struct MapEntry *val)
 		return 0;
 	}
 	state->position++;
-	char *pname = ParseIdentifier(state, 1);
+	pname = ParseIdentifier(state, 1);
 	val->mapname = pname;
 	if (pname == NULL)
 	{

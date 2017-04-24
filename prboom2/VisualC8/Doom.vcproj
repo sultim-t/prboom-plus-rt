@@ -1548,6 +1548,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\f_finale2.c"
+				>
+			</File>
+			<File
 				RelativePath="..\src\f_wipe.c"
 				>
 				<FileConfiguration
@@ -5793,6 +5797,14 @@
 			</File>
 			<File
 				RelativePath="..\src\tables.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\umapinfo.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\umapinfo.h"
 				>
 			</File>
 			<File

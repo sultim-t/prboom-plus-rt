@@ -410,6 +410,10 @@ SOURCE=..\src\f_finale.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\f_finale2.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\f_wipe.c
 
 !IF  "$(CFG)" == "Doom - Win32 Release"
@@ -965,6 +969,14 @@ SOURCE=..\src\tables.c
 # Begin Source File
 
 SOURCE=..\src\tables.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\umapinfo.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\umapinfo.h
 # End Source File
 # Begin Source File
 
