@@ -437,7 +437,7 @@ static void parse_boss_action(const char *boss_action, int *type,
         );
     }
 
-    *tag = convert_bossaction_int("Tag", startptr, &endptr);
+    *tag = convert_bossaction_int("Tag", startptr, NULL);
 }
 
 static int ini_value_handler(void *user, const char *map_name,
