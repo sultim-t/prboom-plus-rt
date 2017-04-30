@@ -594,7 +594,7 @@ static int ini_value_handler(void *user, const char *map_name,
 //
 // -----------------------------------------------
 
-int ParseUMapInfo(const char *buffer, size_t length) {
+void UMI_Parse(const char *buffer, size_t length) {
     size_t i;
 
     // must reallocate to append a 0 for strtod to work
@@ -665,8 +665,6 @@ int ParseUMapInfo(const char *buffer, size_t length) {
     }
 
     free(newbuffer);
-
-    return 1;
 }
 
 UMIMapEntry* UMI_LookupMapInfo(const char *map_name) {

@@ -1837,7 +1837,7 @@ static void D_DoomMainSetup(void)
 	  for (p = -1; (p = W_ListNumFromName("UMAPINFO", p)) >= 0; )
 	  {
 		  const unsigned char * lump = (const unsigned char *)W_CacheLumpNum(p);
-		  ParseUMapInfo(lump, W_LumpLength(p), I_Error);
+		  UMI_Parse(lump, W_LumpLength(p));
 	  }
   }
 
