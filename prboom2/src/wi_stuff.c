@@ -44,6 +44,7 @@
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "r_draw.h"
 #include "hu_stuff.h"
+#include "umapinfo.h"
 
 // Ty 03/17/98: flag that new par times have been loaded in d_deh
 extern dboolean deh_pars;

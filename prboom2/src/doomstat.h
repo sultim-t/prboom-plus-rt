@@ -153,9 +153,9 @@ extern  dboolean   autostart;
 
 // Selected by user.
 extern  skill_t         gameskill;
-extern  int   gameepisode;
-extern  int   gamemap;
-struct MapEntry *gamemapinfo;
+extern  int  gameepisode;
+extern  int  gamemap;
+UMIMapEntry *gamemapinfo;
 
 // Nightmare mode flag, single player.
 extern  dboolean         respawnmonsters;

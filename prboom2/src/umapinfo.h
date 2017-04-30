@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------------
 //
-// Copyright 2017 Christoph Oelckers
+// Copyright 2017 Christoph Oelckers, Charles Gunyon
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -20,74 +20,43 @@
 #ifndef __UMAPINFO_H
 #define __UMAPINFO_H
 
-enum
-{
-	TYPE_NUMBER,
-	TYPE_STRING,
-	TYPE_IDENTIFIER
+typedef struct BossAction {
+    int type;
+    int special;
+    int tag;
+} UMIBossAction;
+
+struct UMIMapEntryStruct {
+    char *mapname;
+    char *levelname;
+    char *intertext;
+    char *intertextsecret;
+    char levelpic[9];
+    char nextmap[9];
+    char nextsecret[9];
+    char music[9];
+    char skytexture[9];
+    char endpic[9];
+    char exitpic[9];
+    char enterpic[9];
+    char interbackdrop[9];
+    char intermusic[9];
+    int partime;
+    int nointermission;
+    int numbossactions;
+    UMIBossAction *bossactions;
 };
 
-struct MapPropertyValue
-{
-	int type;
-	union 
-	{
-		double number;
-		char *string;
-	} v;
-};
+typedef struct UMIMapEntryStruct UMIMapEntry;
 
-struct MapProperty
-{
-	char *propertyname;
-	unsigned int valuecount;
-	struct MapPropertyValue *values;
-};
+typedef struct {
+    size_t len;
+    UMIMapEntry *maps;
+} UMIMapList;
 
-struct BossAction
-{
-	int type;
-	int special;
-	int tag;
-};
+extern UMIMapList umi_maps;
 
-struct MapEntry
-{
-	char *mapname;
-	char *levelname;
-	char *intertext;
-	char *intertextsecret;
-	char levelpic[9];
-	char nextmap[9];
-	char nextsecret[9];
-	char music[9];
-	char skytexture[9];
-	char endpic[9];
-	char exitpic[9];
-	char enterpic[9];
-	char interbackdrop[9];
-	char intermusic[9];
-	int partime;
-	int nointermission;
-	int numbossactions;
-
-	unsigned int propertycount;
-	struct MapProperty *properties;
-	struct BossAction *bossactions;
-};
-
-struct MapList
-{
-	unsigned int mapcount;
-	struct MapEntry *maps;
-};
-
-typedef void (*umapinfo_errorfunc)(const char *fmt, ...);	// this must not return!
-
-extern struct MapList Maps;
-
-int ParseUMapInfo(const unsigned char *buffer, size_t length, umapinfo_errorfunc err);
-void FreeMapList();
-struct MapProperty *FindProperty(struct MapEntry *map, const char *name);
+void UMI_Parse(const char *buffer, size_t length);
+UMIMapEntry* UMI_LookupMapInfo(const char *map_name);
 
 #endif

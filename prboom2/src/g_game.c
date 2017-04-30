@@ -89,7 +89,7 @@
 #define SAVEGAMESIZE  0x20000
 #define SAVESTRINGSIZE  24
 
-struct MapEntry *G_LookupMapinfo(int gameepisode, int gamemap);
+UMIMapEntry* G_LookupMapinfo(int gameepisode, int gamemap);
 
 // e6y
 // It is signature for new savegame format with continuous numbering.
@@ -111,11 +111,11 @@ static short    consistancy[MAXPLAYERS][BACKUPTICS];
 gameaction_t    gameaction;
 gamestate_t     gamestate;
 skill_t         gameskill;
-dboolean         respawnmonsters;
+dboolean        respawnmonsters;
 int             gameepisode;
 int             gamemap;
-struct MapEntry		*gamemapinfo;
-dboolean         paused;
+UMIMapEntry    *gamemapinfo;
+dboolean        paused;
 // CPhipps - moved *_loadgame vars here
 static dboolean forced_loadgame = false;
 static dboolean command_loadgame = false;
@@ -2662,33 +2662,21 @@ void G_SetFastParms(int fast_pending)
   }
 }
 
-struct MapEntry *G_LookupMapinfo(int gameepisode, int gamemap)
-{
+UMIMapEntry* G_LookupMapinfo(int gameepisode, int gamemap) {
 	char lumpname[9];
-	unsigned i;
-	if (gamemode == commercial) snprintf(lumpname, 9, "MAP%02d", gamemap);
-	else snprintf(lumpname, 9, "E%dM%d", gameepisode, gamemap);
-	for (i = 0; i < Maps.mapcount; i++)
-	{
-		if (!stricmp(lumpname, Maps.maps[i].mapname))
-		{
-			return &Maps.maps[i];
-		}
-	}
-	return NULL;
+
+	if (gamemode == commercial) {
+        snprintf(lumpname, 9, "MAP%02d", gamemap);
+    }
+	else {
+        snprintf(lumpname, 9, "E%dM%d", gameepisode, gamemap);
+    }
+
+    return UMI_LookupMapInfo(lumpname);
 }
 
-struct MapEntry *G_LookupMapinfoByName(const char *lumpname)
-{
-	unsigned i;
-	for (i = 0; i < Maps.mapcount; i++)
-	{
-		if (!stricmp(lumpname, Maps.maps[i].mapname))
-		{
-			return &Maps.maps[i];
-		}
-	}
-	return NULL;
+UMIMapEntry* G_LookupMapinfoByName(const char *lumpname) {
+    return UMI_LookupMapInfo(lumpname);
 }
 
 int G_ValidateMapName(const char *mapname, int *pEpi, int *pMap)

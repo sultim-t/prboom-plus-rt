@@ -56,6 +56,7 @@
 #pragma interface
 #endif
 
+struct UMIMapEntryStruct;
 
 //
 // Player states.
@@ -221,7 +222,7 @@ typedef struct
 typedef struct
 {
   int         epsd;   // episode # (0-2)
-  struct MapEntry *lastmapinfo;
+  struct UMIMapEntryStruct *lastmapinfo;
 
   // if true, splash the secret level
   dboolean   didsecret;
@@ -229,8 +230,8 @@ typedef struct
   // previous and next levels, origin 0
   int         last;
   int         next;
-  int         nextep;	// for when MAPINFO progression crosses into another episode.
-  struct MapEntry *nextmapinfo;
+  int         nextep;  // for when MAPINFO progression crosses into another episode.
+  struct UMIMapEntryStruct *nextmapinfo;
 
   int         maxkills;
   int         maxitems;
