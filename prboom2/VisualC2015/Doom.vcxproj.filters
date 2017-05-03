@@ -379,10 +379,13 @@
       <Filter>Music</Filter>
     </ClCompile>
     <ClCompile Include="..\src\SDL\SDL_windows_main.c" />
-    <ClCompile Include="..\src\umapinfo.c">
+    <ClCompile Include="..\src\f_finale2.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\f_finale2.c">
+    <ClCompile Include="..\src\scanner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\umapinfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -704,6 +707,9 @@
     </ClInclude>
     <ClInclude Include="..\src\MUSIC\vorbisplayer.h">
       <Filter>Music</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\scanner.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

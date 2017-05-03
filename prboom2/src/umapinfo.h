@@ -20,29 +20,10 @@
 #ifndef __UMAPINFO_H
 #define __UMAPINFO_H
 
-enum
+#ifdef __cplusplus
+extern "C"
 {
-	TYPE_NUMBER,
-	TYPE_STRING,
-	TYPE_IDENTIFIER
-};
-
-struct MapPropertyValue
-{
-	int type;
-	union 
-	{
-		double number;
-		char *string;
-	} v;
-};
-
-struct MapProperty
-{
-	char *propertyname;
-	unsigned int valuecount;
-	struct MapPropertyValue *values;
-};
+#endif
 
 struct BossAction
 {
@@ -89,5 +70,9 @@ extern struct MapList Maps;
 int ParseUMapInfo(const unsigned char *buffer, size_t length, umapinfo_errorfunc err);
 void FreeMapList();
 struct MapProperty *FindProperty(struct MapEntry *map, const char *name);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

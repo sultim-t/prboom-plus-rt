@@ -717,6 +717,7 @@
     <ClCompile Include="..\src\r_segs.c" />
     <ClCompile Include="..\src\r_sky.c" />
     <ClCompile Include="..\src\r_things.c" />
+    <ClCompile Include="..\src\scanner.cpp" />
     <ClCompile Include="..\src\sc_man.c" />
     <ClCompile Include="..\src\SDL\i_joy.c" />
     <ClCompile Include="..\src\SDL\i_main.c" />
@@ -733,7 +734,7 @@
     <ClCompile Include="..\src\s_sound.c" />
     <ClCompile Include="..\src\tables.c" />
     <ClCompile Include="..\src\TEXTSCREEN\txt_sdl.c" />
-    <ClCompile Include="..\src\umapinfo.c" />
+    <ClCompile Include="..\src\umapinfo.cpp" />
     <ClCompile Include="..\src\version.c" />
     <ClCompile Include="..\src\v_video.c" />
     <ClCompile Include="..\src\wi_stuff.c" />
@@ -848,6 +849,7 @@
     <ClInclude Include="..\src\r_sky.h" />
     <ClInclude Include="..\src\r_state.h" />
     <ClInclude Include="..\src\r_things.h" />
+    <ClInclude Include="..\src\scanner.h" />
     <ClInclude Include="..\src\sc_man.h" />
     <ClInclude Include="..\src\sounds.h" />
     <ClInclude Include="..\src\st_lib.h" />
