@@ -116,7 +116,7 @@ int ini_parse_stream(ini_reader reader, void* stream, ini_handler handler,
 #endif
         start = lskip(rstrip(start));
 
-        if (*start == ';' || *start == '#') {
+        if (*start == ';' || *start == '#' || (*start == '/' && start[1] == '/')) {
             /* Per Python configparser, allow both ; and # comments at the
                start of a line */
         }
