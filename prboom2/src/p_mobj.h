@@ -227,6 +227,8 @@
 #define MF_NOTARGET        LONGLONG(0x0000010000000000)
 // fly mode is active
 #define MF_FLY             LONGLONG(0x0000020000000000)
+// higher attack probability like Cyberdemon, Spiderboss, Revenant and Lost Soul
+#define MF_MISSILEMORE     LONGLONG(0x0000040000000000)	
 
 #define ALIVE(thing) ((thing->health > 0) && ((thing->flags & (MF_COUNTKILL | MF_CORPSE | MF_RESSURECTED)) == MF_COUNTKILL))
 

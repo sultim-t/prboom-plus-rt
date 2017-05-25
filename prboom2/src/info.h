@@ -1513,6 +1513,10 @@ typedef struct
   int raisestate;   /* The first state for an Archvile or respawn
            resurrection.  Zero means it won't come
            back to life. */
+
+  int meleethreshold;	/* Generalization of the Revenant's special check */
+  int maxattackrange;	/* Generalization of the Arch Vile's special check */
+  int minmissilechance;		/* Generalization of some monsters' increased likelihood of a missile attack */
 } mobjinfo_t;
 
 /* See p_mobj_h for addition more technical info */

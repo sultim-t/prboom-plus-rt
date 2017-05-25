@@ -217,28 +217,20 @@ static dboolean P_CheckMissileRange(mobj_t *actor)
 
   dist >>= FRACBITS;
 
-  if (actor->type == MT_VILE)
-    if (dist > 14*64)
+  // generalization of the Arch Vile's special behavior.
+  if (actor->info->maxattackrange > 0 && dist > actor->info->maxattackrange)
       return false;     // too far away
 
+  // generalization of the Revenant's special behavior
+  if (actor->info->meleestate != S_NULL && dist < actor->info->meleethreshold)
+	  return false;   // close for fist attack
 
-  if (actor->type == MT_UNDEAD)
-    {
-      if (dist < 196)
-        return false;   // close for fist attack
-      dist >>= 1;
-    }
-
-  if (actor->type == MT_CYBORG ||
-      actor->type == MT_SPIDER ||
-      actor->type == MT_SKULL)
+  if (actor->flags & MF_MISSILEMORE)
     dist >>= 1;
 
-  if (dist > 200)
-    dist = 200;
-
-  if (actor->type == MT_CYBORG && dist > 160)
-    dist = 160;
+  // hard coded values turned into a settable property
+  if (dist > actor->info->minmissilechance)
+    dist = actor->info->minmissilechance;
 
   if (P_Random(pr_missrange) < dist)
     return false;
