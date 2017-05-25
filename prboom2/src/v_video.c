@@ -41,6 +41,7 @@
 #include "SDL.h"
 
 #include "doomdef.h"
+#include "doomstat.h"
 #include "r_main.h"
 #include "r_draw.h"
 #include "m_bbox.h"
@@ -185,7 +186,21 @@ void V_InitColorTranslation(void)
 {
   register const crdef_t *p;
   for (p=crdefs; p->name; p++)
+  {
     *p->map = W_CacheLumpName(p->name);
+    if (p - crdefs == CR_DEFAULT)
+      continue;
+    if (gamemission == chex || gamemission == hacx)
+    {
+      byte *temp = malloc(256);
+      memcpy (temp, *p->map, 256);
+      if (gamemission == chex)
+        memcpy (temp+112, *p->map+176, 16); // green range
+      else if (gamemission == hacx)
+        memcpy (temp+192, *p->map+176, 16); // blue range
+      *p->map = temp;
+    }
+  }
 }
 
 //

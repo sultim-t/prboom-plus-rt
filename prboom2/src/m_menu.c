@@ -2532,6 +2532,10 @@ void M_DrawKeybnd(void)
 #define WP_X 203
 #define WP_Y  33
 
+static const char *weapon_attack_alignment_strings[] = {
+  "OFF", "HORIZONTAL", "CENTERED", "BOBBING", NULL
+};
+
 // There's only one weapon settings screen (for now). But since we're
 // trying to fit a common description for screens, it gets a setup_menu_t,
 // which only has one screen definition in it.
@@ -2542,7 +2546,7 @@ void M_DrawKeybnd(void)
 enum {           // killough 10/98: enum for y-offset info
   weap_recoil,
   weap_bobbing,
-  weap_bfg,
+  weap_attack_alignment,
   weap_stub1,
   weap_pref1,
   weap_pref2,
@@ -3197,7 +3201,6 @@ setup_menu_t gen_settings3[] = { // General Settings screen2
 
   {"Movements",                   S_SKIP|S_TITLE,m_null,G_X, G_Y+7*8},
   {"Permanent Strafe50",          S_YESNO, m_null, G_X, G_Y+ 8*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
-  {"Strafe50 On Turns",           S_YESNO, m_null, G_X, G_Y+ 9*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
 
   {"Mouse",                       S_SKIP|S_TITLE,m_null, G_X, G_Y+11*8},
   {"Dbl-Click As Use",            S_YESNO, m_null, G_X, G_Y+12*8, {"mouse_doubleclick_as_use"}},

@@ -40,6 +40,7 @@
 #include "r_things.h"
 #include "r_fps.h"
 #include "v_video.h"
+#include "p_pspr.h"
 #include "lprintf.h"
 #include "e6y.h"//e6y
 
@@ -894,6 +895,32 @@ void R_AddAllAliveMonstersSprites(void)
   }
 }
 
+// [crispy] apply bobbing (or centering) to the player's weapon sprite
+static void R_ApplyWeaponBob (fixed_t *sx, dboolean bobx, fixed_t *sy, dboolean boby)
+{
+	const angle_t angle = (128 * leveltime) & FINEMASK;
+
+	if (sx)
+	{
+		*sx = FRACUNIT;
+
+		if (bobx)
+		{
+			 *sx += FixedMul(viewplayer->bob, finecosine[angle]);
+		}
+	}
+
+	if (sy)
+	{
+		*sy = 32 * FRACUNIT; // [crispy] WEAPONTOP
+
+		if (boby)
+		{
+			*sy += FixedMul(viewplayer->bob, finesine[angle & (FINEANGLES / 2 - 1)]);
+		}
+	}
+}
+
 //
 // R_DrawPSprite
 //
@@ -909,6 +936,8 @@ static void R_DrawPSprite (pspdef_t *psp)
   vissprite_t   avis;
   int           width;
   fixed_t       topoffset;
+  fixed_t       psp_sx = psp->sx;
+  fixed_t       psp_sy = psp->sy;
 
   // decide which patch to use
 
@@ -930,11 +959,27 @@ static void R_DrawPSprite (pspdef_t *psp)
   lump = sprframe->lump[0];
   flip = (dboolean)(sprframe->flip & 1);
 
+  // [crispy] center the weapon sprite horizontally and vertically
+  if (weapon_attack_alignment && viewplayer->attackdown && !psp->state->misc1)
+  {
+      const weaponinfo_t *const winfo = &weaponinfo[viewplayer->readyweapon];
+      const int state = viewplayer->psprites[ps_weapon].state - states;
+
+      R_ApplyWeaponBob(&psp_sx, weapon_attack_alignment == CENTERWEAPON_BOB, NULL, false);
+
+      // [crispy] don't center vertically during lowering and raising states
+      if (weapon_attack_alignment >= CENTERWEAPON_HORVER &&
+          state != winfo->downstate && state != winfo->upstate)
+      {
+          R_ApplyWeaponBob(NULL, false, &psp_sy, weapon_attack_alignment == CENTERWEAPON_BOB);
+      }
+  }
+
   {
     const rpatch_t* patch = R_CachePatchNum(lump+firstspritelump);
     // calculate edges of the shape
     fixed_t       tx;
-    tx = psp->sx-160*FRACUNIT;
+    tx = psp_sx-160*FRACUNIT;
 
     tx -= patch->leftoffset<<FRACBITS;
     x1 = (centerxfrac + FixedMul (tx,pspritexscale))>>FRACBITS;
@@ -956,7 +1001,7 @@ static void R_DrawPSprite (pspdef_t *psp)
   vis->mobjflags = MF_PLAYERSPRITE;
    // killough 12/98: fix psprite positioning problem
   vis->texturemid = (BASEYCENTER<<FRACBITS) /* +  FRACUNIT/2 */ -
-                    (psp->sy-topoffset);
+                    (psp_sy-topoffset);
 
   // Move the weapon down for 1280x1024.
   vis->texturemid -= psprite_offset;

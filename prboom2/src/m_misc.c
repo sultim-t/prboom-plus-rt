@@ -279,6 +279,8 @@ default_t defaults[] =
    def_bool, ss_weap },
   {"player_bobbing",{&default_player_bobbing},{1},0,1,         // phares 2/25/98
    def_bool,ss_weap, &player_bobbing},
+  {"weapon_attack_alignment",{&weapon_attack_alignment},{0},0,3,         // phares 2/25/98
+   def_int,ss_weap, &weapon_attack_alignment},
   {"monsters_remember",{&default_monsters_remember},{1},0,1,   // killough 3/1/98
    def_bool,ss_enem, &monsters_remember},
    /* MBF AI enhancement options */
@@ -506,7 +508,7 @@ default_t defaults[] =
   {"mouse_sensitivity_horiz",{&mouseSensitivity_horiz},{10},0,UL,
    def_int,ss_none}, /* adjust horizontal (x) mouse sensitivity killough/mead */
   //jff 4/3/98 allow unlimited sensitivity
-  {"mouse_sensitivity_vert",{&mouseSensitivity_vert},{10},0,UL,
+  {"mouse_sensitivity_vert",{&mouseSensitivity_vert},{1},0,UL,
    def_int,ss_none}, /* adjust vertical (y) mouse sensitivity killough/mead */
   //jff 3/8/98 allow -1 in mouse bindings to disable mouse function
   {"mouseb_fire",{&mousebfire},{0},-1,MAX_MOUSEB,
@@ -944,8 +946,6 @@ default_t defaults[] =
 
   {"Prboom-plus game settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"movement_strafe50", {&movement_strafe50},  {0},0,1,
-   def_bool,ss_stat},
-  {"movement_strafe50onturns", {&movement_strafe50onturns},  {0},0,1,
    def_bool,ss_stat},
   {"movement_shorttics", {&movement_shorttics},  {0},0,1,
    def_bool,ss_stat},

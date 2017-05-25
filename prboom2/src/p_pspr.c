@@ -166,6 +166,9 @@ int weapon_preferences[2][NUMWEAPONS+1] = {
   {6, 9, 4, 3, 2, 8, 5, 7, 1, 0},  //  compatibility preferences
 };
 
+// Center Weapon when Firing.
+int weapon_attack_alignment=0;
+
 // P_SwitchWeapon checks current ammo levels and gives you the
 // most preferred weapon with ammo. It will not pick the currently
 // raised weapon. When called from P_CheckAmmo this won't matter,

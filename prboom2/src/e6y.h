@@ -120,7 +120,6 @@ extern int hudadd_crosshair_target_color;
 extern int hudadd_crosshair_lock_target;
 extern int movement_strafe50;
 extern int movement_shorttics;
-extern int movement_strafe50onturns;
 extern int movement_mouselook;
 extern int movement_mouseinvert;
 extern int movement_maxviewpitch;
