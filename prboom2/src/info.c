@@ -1368,7 +1368,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = {
     500,    // mass
     0,    // damage
     sfx_vilact,   // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL,   // flags
+    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL|MF_NOTARGET|MF_QUICKTORETALIATE,   // flags
     S_NULL,    // raisestate
 	0,		// meleethreshold
 	14*64,		// maxattackrange
@@ -1832,7 +1832,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = {
     1000,   // mass
     0,    // damage
     sfx_dmact,    // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL|MF_MISSILEMORE,   // flags
+    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL|MF_MISSILEMORE|MF_FULLVOLSIGHT|MF_FULLVOLDEATH|MF_NORADIUSDMG,   // flags
     S_NULL,    // raisestate
 	0,		// meleethreshold
 	0,		// maxattackrange
@@ -1890,7 +1890,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = {
     1000,   // mass
     0,    // damage
     sfx_dmact,    // activesound
-    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL|MF_MISSILEMORE,   // flags
+    MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL|MF_MISSILEMORE|MF_FULLVOLSIGHT|MF_FULLVOLDEATH|MF_NORADIUSDMG,   // flags
     S_NULL,    // raisestate
 	0,		// meleethreshold
 	0,		// maxattackrange

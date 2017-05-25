@@ -1768,6 +1768,16 @@ static uint_64_t getConvertedDEHBits(uint_64_t bits) {
 }
 
 //---------------------------------------------------------------------------
+// Helper to preserve the newly added flags
+//---------------------------------------------------------------------------
+static void setFlags(mobjinfo_t *mi, uint64_t value)
+{
+	// Any flag above NOTARGET is not accessible here.
+	const uint64_t mask = MF_NOTARGET - 1;
+	mi->flags = (mi->flags & ~mask) | (value & mask);
+}
+
+//---------------------------------------------------------------------------
 // See usage below for an explanation of this function's existence - POPE
 //---------------------------------------------------------------------------
 static void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint_64_t value) {
@@ -1796,7 +1806,7 @@ static void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint_64_t value) {
     case 18: mi->mass = (int)value; return;
     case 19: mi->damage = (int)value; return;
     case 20: mi->activesound = (int)value; return;
-    case 21: mi->flags = value; return;
+    case 21: setFlags(mi, value); return;
     // e6y
     // Correction of wrong processing of "Respawn frame" entry.
     // There is no more synch on http://www.doomworld.com/sda/dwdemo/w303-115.zip
@@ -1900,7 +1910,7 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
           // No more desync on HACX demos.
           if (bGetData==1) { // proff
             value = getConvertedDEHBits(value);
-            mobjinfo[indexnum].flags = value;
+            setFlags(&mobjinfo[indexnum], value);
             DEH_mobjinfo_bits[indexnum] = true; //e6y: changed by DEH
           }
           else {
@@ -1938,8 +1948,8 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
                 (unsigned long)value & 0xffffffff
               );
             }
-            mobjinfo[indexnum].flags = value; // e6y
-            DEH_mobjinfo_bits[indexnum] = true; //e6y: changed by DEH
+			setFlags(&mobjinfo[indexnum], value);
+			DEH_mobjinfo_bits[indexnum] = true; //e6y: changed by DEH
           }
         }
         if (fpout) {

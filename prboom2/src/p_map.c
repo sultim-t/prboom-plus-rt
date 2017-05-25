@@ -1891,8 +1891,8 @@ dboolean PIT_RadiusAttack (mobj_t* thing)
   // fired by Cyberdemons, in which case it won't hurt Cybers.
 
   if (bombspot->flags & MF_BOUNCES ?
-      thing->type == MT_CYBORG && bombsource->type == MT_CYBORG :
-      thing->type == MT_CYBORG || thing->type == MT_SPIDER)
+      thing->type == MT_CYBORG && bombsource->type == MT_CYBORG : // fixme: This hack needs to be done better, most likely requires complevel handling.
+      (thing->flags & MF_NORADIUSDMG))
     return true;
 
   dx = D_abs(thing->x - bombspot->x);
