@@ -738,7 +738,7 @@ static dboolean PIT_FindTarget(mobj_t *mo)
   mobj_t *actor = current_actor;
 
   if (!((mo->flags ^ actor->flags) & MF_FRIEND &&        // Invalid target
-  mo->health > 0 && (mo->flags & MF_COUNTKILL || mo->type == MT_SKULL)))
+  mo->health > 0 && (mo->flags & MF_ISMONSTER)))
     return true;
 
   // If the monster is already engaged in a one-on-one attack

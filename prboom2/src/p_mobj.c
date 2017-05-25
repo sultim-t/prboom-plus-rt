@@ -1410,7 +1410,7 @@ mobj_t* P_SpawnMapThing (const mapthing_t* mthing, int index)
 
   // don't spawn any monsters if -nomonsters
 
-  if (nomonsters && (i == MT_SKULL || (mobjinfo[i].flags & MF_COUNTKILL)))
+  if (nomonsters && (mobjinfo[i].flags & MF_ISMONSTER))
     return NULL;
 
   // spawn it

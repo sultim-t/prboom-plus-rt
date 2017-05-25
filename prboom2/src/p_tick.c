@@ -86,8 +86,7 @@ void P_UpdateThinker(thinker_t *thinker)
     thinker->function == P_RemoveThinkerDelayed ? th_delete :
     thinker->function == P_MobjThinker &&
     ((mobj_t *) thinker)->health > 0 &&
-    (((mobj_t *) thinker)->flags & MF_COUNTKILL ||
-     ((mobj_t *) thinker)->type == MT_SKULL) ?
+    (((mobj_t *) thinker)->flags & MF_ISMONSTER) ?
     ((mobj_t *) thinker)->flags & MF_FRIEND ?
     th_friends : th_enemies : th_misc;
 

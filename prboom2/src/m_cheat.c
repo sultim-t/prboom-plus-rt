@@ -469,8 +469,7 @@ static void cheat_massacre()    // jff 2/01/98 kill all monsters
     while ((currentthinker = P_NextThinker(currentthinker,th_all)) != NULL)
     if (currentthinker->function == P_MobjThinker &&
   !(((mobj_t *) currentthinker)->flags & mask) && // killough 7/20/98
-        (((mobj_t *) currentthinker)->flags & MF_COUNTKILL ||
-         ((mobj_t *) currentthinker)->type == MT_SKULL))
+        (((mobj_t *) currentthinker)->flags & MF_ISMONSTER))
       { // killough 3/6/98: kill even if PE is dead
         if (((mobj_t *) currentthinker)->health > 0)
           {
