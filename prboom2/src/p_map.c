@@ -1963,7 +1963,10 @@ dboolean PIT_ChangeSector (mobj_t* thing)
 
   if (thing->health <= 0)
     {
-    P_SetMobjState (thing, S_GIBS);
+	  // allow customization
+	  int state = thing->info->crushstate;
+	  if (state == S_NULL) state = S_GIBS;
+	  P_SetMobjState (thing, state);
 
     if (compatibility_level != doom_12_compatibility)
     {

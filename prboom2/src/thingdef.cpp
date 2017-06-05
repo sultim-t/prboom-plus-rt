@@ -309,4 +309,90 @@ static AFuncDesc * FindFunction(char * string)
 	return NULL;
 }
 
+//==========================================================================
+//
+//
+//
+//==========================================================================
+struct StateLabel
+{
+	const char *name;
+	int index;
+};
 
+typedef TArray<StateLabel> LabelList;
+
+TArray<LabelList*> GlobalLabels;
+
+static void CompileStateList()
+{
+	StateLabel sl;
+	
+	// Get all the original actors' state label associations for inheritance
+	for(int i=0;i<NUMMOBJTYPES;i++)
+	{
+		LabelList *list = new LabelList;
+		mobjinfo_t *info = &mobjinfo[i];
+		if (info->spawnstate) 
+		{
+			sl.name = "spawn";
+			sl.index = info->spawnstate;
+			list->Push(sl);
+		}
+		if (info->seestate) 
+		{
+			sl.name = "see";
+			sl.index = info->seestate;
+			list->Push(sl);
+		}
+		if (info->spawnstate) 
+		{
+			sl.name = "melee";
+			sl.index = info->meleestate;
+			list->Push(sl);
+		}
+		if (info->spawnstate) 
+		{
+			sl.name = "missile";
+			sl.index = info->missilestate;
+			list->Push(sl);
+		}
+		if (info->spawnstate) 
+		{
+			sl.name = "pain";
+			sl.index = info->painstate;
+			list->Push(sl);
+		}
+		if (info->deathstate) 
+		{
+			sl.name = "death";
+			sl.index = info->deathstate;
+			list->Push(sl);
+		}
+		if (info->xdeathstate) 
+		{
+			sl.name = "xdeath";
+			sl.index = info->xdeathstate;
+			list->Push(sl);
+		}
+		if (info->raisestate) 
+		{
+			sl.name = "raise";
+			sl.index = info->deathstate;
+			list->Push(sl);
+		}
+		if (info->healstate) 
+		{
+			sl.name = "heal";
+			sl.index = info->healstate;
+			list->Push(sl);
+		}
+		if (info->crushstate) 
+		{
+			sl.name = "crush";
+			sl.index = info->crushstate;
+			list->Push(sl);
+		}
+		GlobalLabels.Push(list);
+	}
+}

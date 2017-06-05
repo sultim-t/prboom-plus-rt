@@ -1518,6 +1518,8 @@ typedef struct
   int maxattackrange;	/* Generalization of the Arch Vile's special check */
   int minmissilechance;		/* Generalization of some monsters' increased likelihood of a missile attack */
   int dropindex;		/* Index into dropitems array */
+  int healstate;
+  int crushstate;
 } mobjinfo_t;
 
 /* See p_mobj_h for addition more technical info */

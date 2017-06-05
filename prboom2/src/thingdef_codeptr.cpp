@@ -518,7 +518,7 @@ extern "C" void A_Fall(mobj_t *actor)
 {
 	actor->flags &= ~MF_SOLID;
 
-	size_t index = actor->info->dropindex - 1;
+	size_t index = actor->info->dropindex;
 
 	// If the actor has attached data for items to drop, drop those.
 	if (index >= 0 && index < DropItemList.Size())

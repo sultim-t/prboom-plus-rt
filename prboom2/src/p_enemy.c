@@ -1694,7 +1694,10 @@ void A_VileChase(mobj_t* actor)
                   A_FaceTarget(actor);
                   actor->target = temp;
 
-                  P_SetMobjState(actor, S_VILE_HEAL1);
+				  // Allow customization.
+				  int state = actor->info->healstate;
+				  if (state == S_NULL) state = S_VILE_HEAL1;
+                  P_SetMobjState(actor, state);
                   S_StartSound(corpsehit, sfx_slop);
                   info = corpsehit->info;
 
