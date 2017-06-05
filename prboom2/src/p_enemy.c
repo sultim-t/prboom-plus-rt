@@ -2189,11 +2189,13 @@ void A_Pain(mobj_t *actor)
     S_StartSound(actor, actor->info->painsound);
 }
 
+/*
 void A_Fall(mobj_t *actor)
 {
   // actor is on ground, it can be walked over
   actor->flags &= ~MF_SOLID;
 }
+*/
 
 //
 // A_Explode

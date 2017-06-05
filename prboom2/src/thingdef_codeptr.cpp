@@ -52,6 +52,15 @@ extern "C"
 #include "math.h"
 }
 
+// move me!
+struct FDropItem
+{
+	mobjtype_t mobjtype;
+	FDropItem * Next;
+};
+TArray<FDropItem *> DropItemList;
+
+
 TArray<int> StateParameters;
 
 #define STATEPARAM_ID 0x12345678
@@ -104,7 +113,7 @@ void A_UnsetFloat(mobj_t * self)
 //
 //==========================================================================
 
-void A_PlaySoundParams(mobj_t * self)
+void A_PlaySoundParms(mobj_t * self)
 {
 	int index=CheckIndex(self, 1);
 	if (index<0) return;
@@ -472,6 +481,55 @@ void A_CustomBulletAttack (mobj_t *self)
 
 			int damage = ((P_Random(pr_cabullet) % 3) + 1) * DamagePerBullet;
 			P_LineAttack(self, angle, MISSILERANGE, slope, damage);
+		}
+	}
+}
+
+//===========================================================================
+//
+// A_ChangeFlag
+//
+//===========================================================================
+void A_ChangeFlag(mobj_t * self)
+{
+	int index = CheckIndex(self, 2);
+	uint_64_t flagbit = uint_64_t(1) << StateParameters[index];
+	int set = StateParameters[index + 1];
+
+	if (flagbit & (MF_NOBLOCKMAP | MF_NOSECTOR)) P_UnsetThingPosition(self);
+
+	if (set) self->flags |= flagbit;
+	else self->flags &= flagbit;
+
+	if (flagbit & (MF_NOBLOCKMAP | MF_NOSECTOR)) P_SetThingPosition(self);
+}
+
+
+//----------------------------------------------------------------------------
+//
+// PROC A_Fall
+//
+// Drop item spawning is done here, like in ZDoom, to avoid different
+// semantics as for the builtin zombie actors.
+//
+//----------------------------------------------------------------------------
+
+extern "C" void A_Fall(mobj_t *actor)
+{
+	actor->flags &= ~MF_SOLID;
+
+	size_t index = actor->info->dropindex - 1;
+
+	// If the actor has attached data for items to drop, drop those.
+	if (index >= 0 && index < DropItemList.Size())
+	{
+		FDropItem *di = DropItemList[index];
+
+		while (di != NULL)
+		{
+			mobj_t *mo = P_SpawnMobj(actor->x, actor->y, ONFLOORZ, di->mobjtype);
+			mo->flags |= MF_DROPPED;    // special versions of items
+			di = di->Next;
 		}
 	}
 }
