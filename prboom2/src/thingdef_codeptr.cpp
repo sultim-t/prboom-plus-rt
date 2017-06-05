@@ -39,6 +39,7 @@
 */
 
 #include "tarray.h"
+#include "thingdef.h"
 
 extern "C"
 {
@@ -52,18 +53,9 @@ extern "C"
 #include "math.h"
 }
 
-// move me!
-struct FDropItem
-{
-	mobjtype_t mobjtype;
-	FDropItem * Next;
-};
-TArray<FDropItem *> DropItemList;
-
 
 TArray<int> StateParameters;
-
-#define STATEPARAM_ID 0x12345678
+TArray<FDropItem *> DropItemList;
 
 //==========================================================================
 //

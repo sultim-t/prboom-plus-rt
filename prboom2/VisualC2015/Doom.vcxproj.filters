@@ -717,6 +717,9 @@
     <ClInclude Include="..\src\scanner.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\thingdef.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\r_drawcolumn.inl">

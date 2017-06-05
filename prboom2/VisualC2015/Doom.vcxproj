@@ -865,6 +865,7 @@
     <ClInclude Include="..\src\TEXTSCREEN\txt_main.h" />
     <ClInclude Include="..\src\TEXTSCREEN\txt_sdl.h" />
     <ClInclude Include="..\src\TEXTSCREEN\txt_smallfont.h" />
+    <ClInclude Include="..\src\thingdef.h" />
     <ClInclude Include="..\src\version.h" />
     <ClInclude Include="..\src\v_video.h" />
     <ClInclude Include="..\src\wi_stuff.h" />

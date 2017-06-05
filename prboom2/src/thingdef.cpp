@@ -41,6 +41,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "tarray.h"
+#include "scanner.h"
+#include "thingdef.h"
 extern "C"
 {
 #include "doomdef.h"
@@ -68,6 +70,38 @@ void A_ChangeFlag(mobj_t *self);
 // all state parameters
 extern TArray<int> StateParameters;
 
+
+//==========================================================================
+//
+// Extra info maintained while defining an actor. The original
+// implementation stored these in a CustomActor class. They have all been
+// moved into action function parameters so that no special CustomActor
+// class is necessary.
+//
+//==========================================================================
+
+struct Baggage
+{
+	mobjinfo_t *Info;
+	bool DropItemSet;
+	bool StateSet;
+	int CurrentState;
+	FDropItem *DropItems;
+};
+
+//==========================================================================
+//
+// Sets the default values with which an actor definition starts
+//
+//==========================================================================
+
+static void ResetBaggage(Baggage *bag)
+{
+	bag->DropItemSet = false;
+	bag->CurrentState = 0;
+	bag->StateSet = false;
+	bag->DropItems = NULL;
+}
 
 //==========================================================================
 //
@@ -396,3 +430,312 @@ static void CompileStateList()
 		GlobalLabels.Push(list);
 	}
 }
+
+
+//==========================================================================
+//
+// Property parsers
+//
+//==========================================================================
+
+typedef void(*ActorPropFunction) (Scanner &sc, mobjinfo_t *defaults, Baggage &bag);
+struct ActorProps { const char *name; ActorPropFunction Handler; };
+
+// placeholders
+int FindSound(const char *name)
+{
+	return 0;
+}
+
+mobjtype_t FindType(const char *type)
+{
+	return (mobjtype_t)-1;
+}
+//==========================================================================
+//
+//==========================================================================
+static void ActorHealth(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
+{
+	sc.MustGetInteger();
+	defaults->spawnhealth = sc.number;
+}
+
+//==========================================================================
+//
+//==========================================================================
+static void ActorReactionTime(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
+{
+	sc.MustGetInteger();
+	defaults->reactiontime = sc.number;
+}
+
+//==========================================================================
+//
+//==========================================================================
+static void ActorPainChance(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
+{
+	sc.MustGetInteger();
+	defaults->painchance = sc.number;
+}
+
+//==========================================================================
+//
+//==========================================================================
+static void ActorDamage(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
+{
+	sc.MustGetInteger();
+	defaults->damage = sc.number;
+}
+
+//==========================================================================
+//
+//==========================================================================
+static void ActorSpeed(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
+{
+	sc.MustGetInteger();
+	defaults->speed = sc.number;	// needs to be multiplied with FRACUNIT for missiles
+}
+
+//==========================================================================
+//
+//==========================================================================
+static void ActorRadius(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
+{
+	sc.MustGetFloat();
+	defaults->radius = fixed_t(sc.decimal*FRACUNIT);
+}
+
+//==========================================================================
+//
+//==========================================================================
+static void ActorHeight(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
+{
+	sc.MustGetFloat();
+	defaults->height = fixed_t(sc.decimal*FRACUNIT);
+}
+
+//==========================================================================
+//
+//==========================================================================
+static void ActorMass(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
+{
+	sc.MustGetInteger();
+	defaults->mass = sc.number;
+}
+
+//==========================================================================
+//
+//==========================================================================
+static void ActorSeeSound(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
+{
+	sc.MustGetToken(TK_StringConst);
+	defaults->seesound = FindSound(sc.string);
+}
+
+//==========================================================================
+//
+//==========================================================================
+static void ActorAttackSound(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
+{
+	sc.MustGetToken(TK_StringConst);
+	defaults->attacksound = FindSound(sc.string);
+}
+
+//==========================================================================
+//
+//==========================================================================
+static void ActorPainSound(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
+{
+	sc.MustGetToken(TK_StringConst);
+	defaults->painsound = FindSound(sc.string);
+}
+
+//==========================================================================
+//
+//==========================================================================
+static void ActorDeathSound(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
+{
+	sc.MustGetToken(TK_StringConst);
+	defaults->deathsound = FindSound(sc.string);
+}
+
+//==========================================================================
+//
+//==========================================================================
+static void ActorActiveSound(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
+{
+	sc.MustGetToken(TK_StringConst);
+	defaults->activesound = FindSound(sc.string);
+}
+
+//==========================================================================
+//
+//==========================================================================
+static void ActorDropItem(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
+{
+	// create a linked list of dropitems
+	if (!bag.DropItemSet)
+	{
+		bag.DropItemSet = true;
+		bag.DropItems = NULL;
+	}
+
+	FDropItem * di = new FDropItem;
+
+	sc.MustGetToken(TK_StringConst);
+	di->mobjtype = FindType(sc.string);
+	di->Next = bag.DropItems;
+	bag.DropItems = di;
+}
+
+//==========================================================================
+//
+//==========================================================================
+static void ActorObituary(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
+{
+	sc.MustGetToken(TK_StringConst);
+	// Property left in the spec as a courtesy to ports which define obituaries
+}
+
+//==========================================================================
+//
+//==========================================================================
+static void ActorTranslation(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
+{
+	sc.MustGetInteger();
+	if (sc.number < 0 || sc.number > 2)
+	{
+		sc.ErrorF("Translation must be in the range [0,2]");
+	}
+	defaults->flags &= MF_TRANSLATION;
+	defaults->flags |= sc.number << MF_TRANSSHIFT;
+}
+
+//==========================================================================
+//
+//==========================================================================
+static void ActorMonster(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
+{
+	// sets the standard flag for a monster
+	defaults->flags |= MF_SHOOTABLE | MF_COUNTKILL | MF_SOLID | MF_ISMONSTER;
+}
+
+//==========================================================================
+//
+//==========================================================================
+static void ActorProjectile(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
+{
+	// sets the standard flags for a projectile
+	defaults->flags |= MF_NOBLOCKMAP | MF_NOGRAVITY | MF_DROPOFF | MF_MISSILE;
+}
+
+//==========================================================================
+//
+//==========================================================================
+static void ActorMMChance(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
+{
+	sc.MustGetInteger();
+	defaults->minmissilechance = sc.number;
+}
+
+//==========================================================================
+//
+//==========================================================================
+static void ActorMeleeThreshold(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
+{
+	sc.MustGetFloat();
+	defaults->meleethreshold = fixed_t(sc.decimal*FRACUNIT);
+}
+
+//==========================================================================
+//
+//==========================================================================
+static void ActorMaxAttackRange(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
+{
+	sc.MustGetFloat();
+	defaults->maxattackrange = fixed_t(sc.decimal*FRACUNIT);
+}
+
+//==========================================================================
+//
+//==========================================================================
+static void ActorFlagSetOrReset(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
+{
+	char mod = sc.string[0];
+	flagdef * fd;
+
+	sc.MustGetToken(TK_StringConst);
+
+	if (fd = FindFlag(sc.string))
+	{
+		if (mod == '+') defaults->flags |= fd->flagbit;
+		else defaults->flags &= ~fd->flagbit;
+	}
+	else sc.ErrorF("\"%s\" is an unknown flag\n", sc.string);
+}
+
+//==========================================================================
+//
+//==========================================================================
+static const ActorProps *APropSearch(const char *str, const ActorProps *props, int numprops)
+{
+	int min = 0, max = numprops - 1;
+
+	while (min <= max)
+	{
+		int mid = (min + max) / 2;
+		int lexval = strcmp(str, props[mid].name);
+		if (lexval == 0)
+		{
+			return &props[mid];
+		}
+		else if (lexval > 0)
+		{
+			min = mid + 1;
+		}
+		else
+		{
+			max = mid - 1;
+		}
+	}
+	return NULL;
+}
+
+//==========================================================================
+//
+// all actor properties
+//
+//==========================================================================
+#define apf ActorPropFunction
+static const ActorProps *is_actorprop(const char *str)
+{
+	static const ActorProps props[] =
+	{
+		{ "+",							ActorFlagSetOrReset },
+		{ "-",							ActorFlagSetOrReset },
+		{ "activesound",				ActorActiveSound },
+		{ "attacksound",				ActorAttackSound },
+		{ "damage",						ActorDamage },
+		{ "deathsound",					ActorDeathSound },
+		{ "dropitem",					ActorDropItem },
+		{ "health",						ActorHealth },
+		{ "height",						ActorHeight },
+		{ "hitobituary",				ActorObituary },
+		{ "mass",						ActorMass },
+		{ "maxattackrange",				ActorMaxAttackRange },
+		{ "meleethreshold",				ActorMeleeThreshold },
+		{ "minmissilechance",			ActorMMChance },
+		{ "monster",					ActorMonster },
+		{ "obituary",					ActorObituary },
+		{ "painchance",					ActorPainChance },
+		{ "painsound",					ActorPainSound },
+		{ "projectile",					ActorProjectile },
+		{ "radius",						ActorRadius },
+		{ "reactiontime",				ActorReactionTime },
+		{ "seesound",					ActorSeeSound },
+		{ "speed",						ActorSpeed },
+		//{ "states",						ActorStates },
+	};
+	return APropSearch(str, props, sizeof(props) / sizeof(ActorProps));
+}
+
