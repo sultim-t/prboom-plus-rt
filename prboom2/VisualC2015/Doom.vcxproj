@@ -734,6 +734,7 @@
     <ClCompile Include="..\src\s_sound.c" />
     <ClCompile Include="..\src\tables.c" />
     <ClCompile Include="..\src\TEXTSCREEN\txt_sdl.c" />
+    <ClCompile Include="..\src\thingdef_codeptr.cpp" />
     <ClCompile Include="..\src\umapinfo.cpp" />
     <ClCompile Include="..\src\version.c" />
     <ClCompile Include="..\src\v_video.c" />

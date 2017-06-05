@@ -240,6 +240,7 @@
 #define MF_ISMONSTER		    LONGLONG(0x0000800000000000)	
 // for the Lost Soul.
 #define MF_DONTFALL		    LONGLONG(0x0001000000000000)	
+#define MF_SEEKERMISSILE    LONGLONG(0x0002000000000000)	
 
 #define ALIVE(thing) ((thing->health > 0) && ((thing->flags & (MF_COUNTKILL | MF_CORPSE | MF_RESSURECTED)) == MF_COUNTKILL))
 

@@ -123,6 +123,9 @@ typedef enum {
   pr_dropoff,                 // #60
   pr_randomjump,              // #61
   pr_defect,                  // #62  // Start new entries -- add new entries below
+  // New for DECOLITE
+  pr_cabullet,
+  pr_cajump,
 
   // End of new entries
   NUMPRCLASS               // MUST be last item in list
