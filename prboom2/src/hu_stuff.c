@@ -2628,7 +2628,7 @@ void HU_Ticker(void)
     w_centermsg.cm = custom_message_p->cm;
     custom_message_p->msg = NULL;
 
-    if (custom_message_p->sfx > 0 && custom_message_p->sfx < NUMSFX)
+    if (custom_message_p->sfx > 0 && custom_message_p->sfx < numsfx)
     {
       S_StartSound(NULL, custom_message_p->sfx);
     }
@@ -2896,7 +2896,7 @@ int SetCustomMessage(int plr, const char *msg, int delay, int ticks, int cm, int
   custom_message_t item;
 
   if (plr < 0 || plr >= MAXPLAYERS || !msg || ticks < 0 ||
-      sfx < 0 || sfx >= NUMSFX || cm < 0 || cm >= CR_LIMIT)
+      sfx < 0 || sfx >= numsfx || cm < 0 || cm >= CR_LIMIT)
   {
     return false;
   }

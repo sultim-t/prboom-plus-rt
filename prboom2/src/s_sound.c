@@ -149,7 +149,7 @@ void S_Init(int sfxVolume, int musicVolume)
       (channel_t *) calloc(numChannels,sizeof(channel_t));
 
     // Note that sounds have not been cached (yet).
-    for (i=1 ; i<NUMSFX ; i++)
+    for (i=1 ; i<numsfx ; i++)
       S_sfx[i].lumpnum = S_sfx[i].usefulness = -1;
   }
 
@@ -246,7 +246,7 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume)
     return;
 
   // check for bogus sound #
-  if (sfx_id < 1 || sfx_id > NUMSFX)
+  if (sfx_id < 1 || sfx_id > numsfx)
     I_Error("S_StartSoundAtVolume: Bad sfx #: %d", sfx_id);
 
   sfx = &S_sfx[sfx_id];

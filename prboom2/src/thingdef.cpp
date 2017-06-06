@@ -50,6 +50,8 @@ extern "C"
 #include "m_misc.h"
 #include "d_think.h"
 #include "p_pspr.h"
+#include "w_wad.h"
+#include "sounds.h"
 }
 
 void A_SetSolid(mobj_t * self);
@@ -69,7 +71,8 @@ void A_ChangeFlag(mobj_t *self);
 
 // all state parameters
 extern TArray<int> StateParameters;
-
+static TArray<mobjinfo_t> AllMobjInfos;
+static TArray<sfxinfo_t> AllSfxInfos;
 
 //==========================================================================
 //
@@ -739,3 +742,28 @@ static const ActorProps *is_actorprop(const char *str)
 	return APropSearch(str, props, sizeof(props) / sizeof(ActorProps));
 }
 
+
+
+extern "C" void ParseDecoLite()
+{
+	int lump = W_CheckNumForName("DECOLITE");
+	if (lump == -1) return;	// None found so don't bother initializing anything.
+
+	// Compile a list of state label associations for all internal definitions.
+	CompileStateList();
+	// Copy the mobjinfos to a dynamic array so that it can be extended.
+	AllMobjInfos.Resize(nummobjtypes);
+	memcpy(&AllMobjInfos[0], mobjinfo, sizeof(mobjinfo_t) * nummobjtypes);
+	// Do the same with the sounds array.
+	AllSfxInfos.Resize(numsfx);
+	memcpy(&AllSfxInfos[0], S_sfx, sizeof(sfxinfo_t) * numsfx);
+
+	// Parse
+
+	AllMobjInfos.ShrinkToFit();
+	mobjinfo = &AllMobjInfos[0];
+	nummobjtypes = AllMobjInfos.Size();
+	AllSfxInfos.ShrinkToFit();
+	S_sfx = &AllSfxInfos[0];
+	numsfx = AllSfxInfos.Size();
+}

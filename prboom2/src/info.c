@@ -1261,7 +1261,7 @@ state_t states[NUMSTATES] = {
 //
 // This goes on for the next 3000+ lines...
 
-mobjinfo_t mobjinfo[NUMMOBJTYPES] = {
+static mobjinfo_t mobjinfo_orig[NUMMOBJTYPES] = {
   {   // MT_PLAYER
     -1,   // doomednum
     S_PLAY,   // spawnstate
@@ -6085,3 +6085,6 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = {
   },
 
 };
+
+mobjinfo_t *mobjinfo = mobjinfo_orig;
+int nummobjtypes = NUMMOBJTYPES;

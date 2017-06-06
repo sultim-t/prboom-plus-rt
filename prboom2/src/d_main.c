@@ -98,6 +98,7 @@
 
 void GetFirstMap(int *ep, int *map); // Ty 08/29/98 - add "-warp x" functionality
 static void D_PageDrawer(void);
+void ParseDecoLite();
 
 // CPhipps - removed wadfiles[] stuff
 
@@ -1728,6 +1729,9 @@ static void D_DoomMainSetup(void)
   W_Init(); // CPhipps - handling of wadfiles init changed
 
   lprintf(LO_INFO,"\n");     // killough 3/6/98: add a newline, by popular demand :)
+
+  // DECOLITE comes before Dehacked.
+  ParseDecoLite();
 
   // e6y 
   // option to disable automatic loading of dehacked-in-wad lump
