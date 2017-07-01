@@ -486,7 +486,7 @@ void Scanner::MustGetToken(char token)
 
 void Scanner::MustGetIdentifier(const char *ident)
 {
-	if (!CheckToken(TK_Identifier) || stricmp(string, ident))
+	if (!CheckToken(TK_Identifier) || strcasecmp(string, ident))
 	{
 		Error(ident);
 		return;
