@@ -29,6 +29,7 @@
 #include <stdarg.h>
 #include <ctype.h>
 
+#include "doomtype.h"
 #include "scanner.h"
 
 const char* const Scanner::TokenNames[TK_NumSpecialTokens] =
