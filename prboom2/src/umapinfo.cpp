@@ -23,6 +23,7 @@
 #include <assert.h>
 #include "umapinfo.h"
 #include "scanner.h"
+#include "tarray.h"
 
 extern "C"
 {
@@ -36,164 +37,7 @@ void M_AddEpisode(const char *map, char *def);
 MapList Maps;
 }
 
-
-//==========================================================================
-//
-// The Doom actors in their original order
-// Names are the same as in ZDoom.
-//
-//==========================================================================
-
-static const char * const ActorNames[] =
-{
-	"DoomPlayer",
-	"ZombieMan",
-	"ShotgunGuy",
-	"Archvile",
-	"ArchvileFire",
-	"Revenant",
-	"RevenantTracer",
-	"RevenantTracerSmoke",
-	"Fatso",
-	"FatShot",
-	"ChaingunGuy",
-	"DoomImp",
-	"Demon",
-	"Spectre",
-	"Cacodemon",
-	"BaronOfHell",
-	"BaronBall",
-	"HellKnight",
-	"LostSoul",
-	"SpiderMastermind",
-	"Arachnotron",
-	"Cyberdemon",
-	"PainElemental",
-	"WolfensteinSS",
-	"CommanderKeen",
-	"BossBrain",
-	"BossEye",
-	"BossTarget",
-	"SpawnShot",
-	"SpawnFire",
-	"ExplosiveBarrel",
-	"DoomImpBall",
-	"CacodemonBall",
-	"Rocket",
-	"PlasmaBall",
-	"BFGBall",
-	"ArachnotronPlasma",
-	"BulletPuff",
-	"Blood",
-	"TeleportFog",
-	"ItemFog",
-	"TeleportDest",
-	"BFGExtra",
-	"GreenArmor",
-	"BlueArmor",
-	"HealthBonus",
-	"ArmorBonus",
-	"BlueCard",
-	"RedCard",
-	"YellowCard",
-	"YellowSkull",
-	"RedSkull",
-	"BlueSkull",
-	"Stimpack",
-	"Medikit",
-	"Soulsphere",
-	"InvulnerabilitySphere",
-	"Berserk",
-	"BlurSphere",
-	"RadSuit",
-	"Allmap",
-	"Infrared",
-	"Megasphere",
-	"Clip",
-	"ClipBox",
-	"RocketAmmo",
-	"RocketBox",
-	"Cell",
-	"CellPack",
-	"Shell",
-	"ShellBox",
-	"Backpack",
-	"BFG9000",
-	"Chaingun",
-	"Chainsaw",
-	"RocketLauncher",
-	"PlasmaRifle",
-	"Shotgun",
-	"SuperShotgun",
-	"TechLamp",
-	"TechLamp2",
-	"Column",
-	"TallGreenColumn",
-	"ShortGreenColumn",
-	"TallRedColumn",
-	"ShortRedColumn",
-	"SkullColumn",
-	"HeartColumn",
-	"EvilEye",
-	"FloatingSkull",
-	"TorchTree",
-	"BlueTorch",
-	"GreenTorch",
-	"RedTorch",
-	"ShortBlueTorch",
-	"ShortGreenTorch",
-	"ShortRedTorch",
-	"Slalagtite",
-	"TechPillar",
-	"CandleStick",
-	"Candelabra",
-	"BloodyTwitch",
-	"Meat2",
-	"Meat3",
-	"Meat4",
-	"Meat5",
-	"NonsolidMeat2",
-	"NonsolidMeat4",
-	"NonsolidMeat3",
-	"NonsolidMeat5",
-	"NonsolidTwitch",
-	"DeadCacodemon",
-	"DeadMarine",
-	"DeadZombieMan",
-	"DeadDemon",
-	"DeadLostSoul",
-	"DeadDoomImp",
-	"DeadShotgunGuy",
-	"GibbedMarine",
-	"GibbedMarineExtra",
-	"HeadsOnAStick",
-	"Gibs",
-	"HeadOnAStick",
-	"HeadCandles",
-	"DeadStick",
-	"LiveStick",
-	"BigTree",
-	"BurningBarrel",
-	"HangNoGuts",
-	"HangBNoBrain",
-	"HangTLookingDown",
-	"HangTSkull",
-	"HangTLookingUp",
-	"HangTNoBrain",
-	"ColonGibs",
-	"SmallBloodPool",
-	"BrainStem",
-	//Boom/MBF additions
-	"PointPusher",
-	"PointPuller",
-	"MBFHelperDog",
-	"PlasmaBall1",
-	"PlasmaBall2",
-	"EvilSceptre",
-	"UnholyBible",
-	NULL
-};
-
+extern TArray<const char *> ClassNames;
 
 // -----------------------------------------------
 //
@@ -428,12 +272,12 @@ static int ParseStandardProperty(Scanner &scanner, MapEntry *mape)
 		}
 		else
 		{
-			int i;
-			for (i = 0; ActorNames[i]; i++)
+			unsigned int i;
+			for (i = 0; i < ClassNames.Size(); i++)
 			{
-				if (!stricmp(scanner.string, ActorNames[i])) break;
+				if (!stricmp(scanner.string, ClassNames[i])) break;
 			}
-			if (ActorNames[i] == NULL)
+			if (ClassNames[i] == NULL)
 			{
 				scanner.ErrorF("Unknown thing type %s", scanner.string);
 				return 0;

@@ -73,6 +73,7 @@ void A_ChangeFlag(mobj_t *self);
 extern TArray<int> StateParameters;
 static TArray<mobjinfo_t> AllMobjInfos;
 static TArray<sfxinfo_t> AllSfxInfos;
+TArray<const char *> ClassNames;
 
 //==========================================================================
 //
@@ -105,6 +106,165 @@ static void ResetBaggage(Baggage *bag)
 	bag->StateSet = false;
 	bag->DropItems = NULL;
 }
+
+//==========================================================================
+//
+// The Doom actors in their original order
+// Names are the same as in ZDoom.
+//
+//==========================================================================
+
+const char * const StaticActorNames[] =
+{
+	"DoomPlayer",
+	"ZombieMan",
+	"ShotgunGuy",
+	"Archvile",
+	"ArchvileFire",
+	"Revenant",
+	"RevenantTracer",
+	"RevenantTracerSmoke",
+	"Fatso",
+	"FatShot",
+	"ChaingunGuy",
+	"DoomImp",
+	"Demon",
+	"Spectre",
+	"Cacodemon",
+	"BaronOfHell",
+	"BaronBall",
+	"HellKnight",
+	"LostSoul",
+	"SpiderMastermind",
+	"Arachnotron",
+	"Cyberdemon",
+	"PainElemental",
+	"WolfensteinSS",
+	"CommanderKeen",
+	"BossBrain",
+	"BossEye",
+	"BossTarget",
+	"SpawnShot",
+	"SpawnFire",
+	"ExplosiveBarrel",
+	"DoomImpBall",
+	"CacodemonBall",
+	"Rocket",
+	"PlasmaBall",
+	"BFGBall",
+	"ArachnotronPlasma",
+	"BulletPuff",
+	"Blood",
+	"TeleportFog",
+	"ItemFog",
+	"TeleportDest",
+	"BFGExtra",
+	"GreenArmor",
+	"BlueArmor",
+	"HealthBonus",
+	"ArmorBonus",
+	"BlueCard",
+	"RedCard",
+	"YellowCard",
+	"YellowSkull",
+	"RedSkull",
+	"BlueSkull",
+	"Stimpack",
+	"Medikit",
+	"Soulsphere",
+	"InvulnerabilitySphere",
+	"Berserk",
+	"BlurSphere",
+	"RadSuit",
+	"Allmap",
+	"Infrared",
+	"Megasphere",
+	"Clip",
+	"ClipBox",
+	"RocketAmmo",
+	"RocketBox",
+	"Cell",
+	"CellPack",
+	"Shell",
+	"ShellBox",
+	"Backpack",
+	"BFG9000",
+	"Chaingun",
+	"Chainsaw",
+	"RocketLauncher",
+	"PlasmaRifle",
+	"Shotgun",
+	"SuperShotgun",
+	"TechLamp",
+	"TechLamp2",
+	"Column",
+	"TallGreenColumn",
+	"ShortGreenColumn",
+	"TallRedColumn",
+	"ShortRedColumn",
+	"SkullColumn",
+	"HeartColumn",
+	"EvilEye",
+	"FloatingSkull",
+	"TorchTree",
+	"BlueTorch",
+	"GreenTorch",
+	"RedTorch",
+	"ShortBlueTorch",
+	"ShortGreenTorch",
+	"ShortRedTorch",
+	"Slalagtite",
+	"TechPillar",
+	"CandleStick",
+	"Candelabra",
+	"BloodyTwitch",
+	"Meat2",
+	"Meat3",
+	"Meat4",
+	"Meat5",
+	"NonsolidMeat2",
+	"NonsolidMeat4",
+	"NonsolidMeat3",
+	"NonsolidMeat5",
+	"NonsolidTwitch",
+	"DeadCacodemon",
+	"DeadMarine",
+	"DeadZombieMan",
+	"DeadDemon",
+	"DeadLostSoul",
+	"DeadDoomImp",
+	"DeadShotgunGuy",
+	"GibbedMarine",
+	"GibbedMarineExtra",
+	"HeadsOnAStick",
+	"Gibs",
+	"HeadOnAStick",
+	"HeadCandles",
+	"DeadStick",
+	"LiveStick",
+	"BigTree",
+	"BurningBarrel",
+	"HangNoGuts",
+	"HangBNoBrain",
+	"HangTLookingDown",
+	"HangTSkull",
+	"HangTLookingUp",
+	"HangTNoBrain",
+	"ColonGibs",
+	"SmallBloodPool",
+	"BrainStem",
+	//Boom/MBF additions
+	"PointPusher",
+	"PointPuller",
+	"MBFHelperDog",
+	"PlasmaBall1",
+	"PlasmaBall2",
+	"EvilSceptre",
+	"UnholyBible",
+	"",	// There's two internal classes at the end of the list which are not supposed to be referenced
+	"",
+	NULL
+};
 
 //==========================================================================
 //
@@ -667,7 +827,7 @@ static void ActorFlagSetOrReset(Scanner &sc, mobjinfo_t *defaults, Baggage &bag)
 	char mod = sc.string[0];
 	flagdef * fd;
 
-	sc.MustGetToken(TK_StringConst);
+	sc.MustGetToken(TK_Identifier);
 
 	if (fd = FindFlag(sc.string))
 	{
@@ -742,10 +902,74 @@ static const ActorProps *is_actorprop(const char *str)
 	return APropSearch(str, props, sizeof(props) / sizeof(ActorProps));
 }
 
+static int FindClass(const char *name)
+{
+	unsigned int i;
+	for (i = 0; i < ClassNames.Size(); i++)
+	{
+		if (!stricmp(name, ClassNames[i])) return i;
+	}
+	return -1;
+}
+
+//==========================================================================
+//
+// Starts a new actor definition
+//
+//==========================================================================
+static mobjinfo_t *CreateNewActor(Scanner &sc)
+{
+	mobjinfo_t *mi;
+
+	sc.MustGetToken(TK_Identifier);
+
+	if (FindClass(sc.string) != -1)
+	{
+		sc.ErrorF("Actor %s is already defined.", sc.string);
+	}
+	ClassNames.Push(strdup(sc.string));
+
+	if (sc.CheckToken(':'))
+	{
+		sc.MustGetToken(TK_Identifier);
+		int pcls = FindClass(sc.string);
+		if (pcls == -1)
+		{
+			sc.ErrorF("Unknown parent class %s in %s.", sc.string, ClassNames[ClassNames.Size() - 1]);
+		}
+		// Inventory items and the player must be blocked because their functionality is not easily copyable.
+		if (AllMobjInfos[pcls].flags & (MF_SPECIAL | MF_PICKUP))
+		{
+			sc.ErrorF("Cannot inherit from special item %s", sc.string);
+		}
+		mi = &AllMobjInfos[AllMobjInfos.Reserve(1)];
+		memcpy(mi, &AllMobjInfos[pcls], sizeof(mobjinfo_t));
+		// Todo: save the inheritance info for automatic species association.
+	}
+	else
+	{
+		// MT_TELEPORTMAN is defaults only except for the flags and spawn state
+		mi = &AllMobjInfos[AllMobjInfos.Reserve(1)];
+		memcpy(mi, &AllMobjInfos[MT_TELEPORTMAN], sizeof(mobjinfo_t));
+		mi->flags = 0;
+		mi->spawnstate = S_TNT1;
+	}
+	mi->doomednum = -1;	// Editor number is not inheritable
+	if (sc.CheckInteger())
+	{
+		if (sc.number >= 0 && sc.number<32768) mi->doomednum = sc.number;
+		else sc.ErrorF("DoomEdNum must be in the range [-1,32767]");
+	}
+	return mi;
+}
+
 
 
 extern "C" void ParseDecoLite()
 {
+	ClassNames.Resize(nummobjtypes);
+	memcpy(&ClassNames[0], StaticActorNames, sizeof(const char *) * nummobjtypes);
+
 	int lump = W_CheckNumForName("DECOLITE");
 	if (lump == -1) return;	// None found so don't bother initializing anything.
 
@@ -754,6 +978,8 @@ extern "C" void ParseDecoLite()
 	// Copy the mobjinfos to a dynamic array so that it can be extended.
 	AllMobjInfos.Resize(nummobjtypes);
 	memcpy(&AllMobjInfos[0], mobjinfo, sizeof(mobjinfo_t) * nummobjtypes);
+
+
 	// Do the same with the sounds array.
 	AllSfxInfos.Resize(numsfx);
 	memcpy(&AllSfxInfos[0], S_sfx, sizeof(sfxinfo_t) * numsfx);
@@ -766,4 +992,28 @@ extern "C" void ParseDecoLite()
 	AllSfxInfos.ShrinkToFit();
 	S_sfx = &AllSfxInfos[0];
 	numsfx = AllSfxInfos.Size();
+
+	for (int p = -1; (p = W_ListNumFromName("DECOLITE", p)) >= 0; )
+	{
+		const char * lump = (const char *)W_CacheLumpNum(p);
+		Scanner sc(lump, W_LumpLength(p));
+		while (sc.CheckToken(TK_Identifier))
+		{
+			if (!stricmp(sc.string, "ACTOR"))
+			{
+				mobjinfo_t *a = CreateNewActor(sc);
+				//ParseActor(sc);
+			}
+			else
+			{
+				sc.ErrorF("%s: Unknown keyword");
+				return;
+			}
+		}
+	}
+
+	for (unsigned i = 0; i < AllMobjInfos.Size(); i++)
+	{
+		if (AllMobjInfos[i].flags & MF_FRIEND) AllMobjInfos[i].flags &= ~MF_COUNTKILL;
+	}
 }
