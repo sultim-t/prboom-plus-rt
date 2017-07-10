@@ -1,18 +1,18 @@
 UMAPINFO uses an ini-like syntax.
-A map starts with
+A map is defined with
 
-[mapname]
-
-follwed by
-
-key = value
-key = value1, value2,...
+MAP mapname
+{
+	key = value
+	key = value1, value2,...
+	...
+}
 
 entries. Values can be strings, enclosed in quotation marks ("), numbers or identifiers. Identifiers are case insensitive names that start with a letter and may only contain letters, numbers or the underscore ('_')
 
 The map names are limited to the format of the currently loaded IWAD, i.e. Doom 2 only supports MAPxx entries and Doom 1 only ExMy entries.
 The numbers x and y can exceed their original limits, though, so MAP50, E5M6 or even MAP100 or E1M10 are valid map names for their respective game.
-This limit comes from the game using numeric variables 'gameepisode' and 'gamemap' to identify a level. It may later be decided to lift the naming restriction but this cannot be done without some extensive refactoring which simply exceeded the scope of the initial implementation.
+This limit comes from the game using numeric variables 'gameepisode' and 'gamemap' to identify a level. It may later be decided to lift the naming restriction but this cannot be done without some extensive refactoring which simply exceeds the scope of the initial implementation.
 
 Currently the follwing keys are supported. If not given, the hardcoded default will be used, unless the following list says differently.
 
@@ -50,15 +50,16 @@ Normally, if some information cannot be found, the engine will fall back to its 
 
 - nextsecret: If not present, it will use the normal exit's map if the current map has a MAPINFO record. This also applies to maps which by default have a secret exit!
 - enterpic: If the map that was just left has an exitpic entry and the map to be entered has no enterpic entry, the previous map's exitpic entry will be used for both screens.
-- levelpic: If not given, the status screen will instead print the map's name with the HUD font to ensure that the proper name is used.
+- levelpic: If not given, the status screen will instead print the map's name with a suitable font (PrBoom uses STFxxx) to ensure that the proper name is used.
 - interbackdrop: This will not look up the default backdrop for a given map but always use FLOOR4_8.
 
 Example:
 
-[E1M7]
-levelname = "The Hidden Cave"
-skytexture =  "sky2"
-intertext = "You have beaten the shit",
-	"out of those big barons",
-	"and now must continue the fight."
-
+MAP E1M7
+{
+	levelname = "The Hidden Cave"
+	skytexture =  "sky2"
+	intertext = "You have beaten the shit",
+		"out of those big barons",
+		"and now must continue the fight."
+}
