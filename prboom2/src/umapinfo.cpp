@@ -528,7 +528,7 @@ int ParseUMapInfo(const unsigned char *buffer, size_t length, umapinfo_errorfunc
 			parsed.nextmap[0] = parsed.nextsecret[0] = 0;
 			if (parsed.endpic[0] == '!') parsed.endpic[0] = 0;
 		}
-		if (!parsed.nextmap[0] && !parsed.endpic[0])
+		else if (!parsed.nextmap[0] && !parsed.endpic[0])
 		{
 			if (!stricmp(parsed.mapname, "MAP30")) strcpy(parsed.endpic, "$CAST");
 			else if (!stricmp(parsed.mapname, "E1M8"))  strcpy(parsed.endpic, gamemode == retail? "CREDIT" : "HELP2");
