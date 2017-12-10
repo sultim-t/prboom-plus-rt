@@ -107,7 +107,7 @@ static char *ParseMultiString(Scanner &scanner, int error)
 		else
 		{
 			size_t oldlen = strlen(build);
-			size_t newlen = oldlen + strlen(scanner.string) + 1;
+			size_t newlen = oldlen + strlen(scanner.string) + 2;
 
 			build = (char*)realloc(build, newlen);
 			build[oldlen] = '\n';
