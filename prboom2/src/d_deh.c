@@ -1770,11 +1770,11 @@ static uint_64_t getConvertedDEHBits(uint_64_t bits) {
 //---------------------------------------------------------------------------
 // Helper to preserve the newly added flags
 //---------------------------------------------------------------------------
-static void setFlags(int miindex, uint64_t value)
+static void setFlags(int miindex, uint_64_t value)
 {
 	mobjinfo_t *mi = &mobjinfo[miindex];
 	// Any flag above NOTARGET is not accessible here.
-	const uint64_t mask = MF_NOTARGET - 1;
+	const uint_64_t mask = MF_NOTARGET - 1;
 	mi->flags = (mi->flags & ~mask) | (value & mask);
 	// MF_ISMONSTER must mirror MF_COUNTKILL, except for the Lost Soul
 	if ((mi->flags & MF_COUNTKILL) || miindex == MT_SKULL) mi->flags |= MF_ISMONSTER;
