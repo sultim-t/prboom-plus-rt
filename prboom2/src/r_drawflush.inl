@@ -250,7 +250,7 @@ static void R_FLUSHQUAD_FUNCNAME(void)
    }
 #else
   #if (R_DRAWCOLUMN_PIPELINE_BITS == 8)
-   if ((sizeof(int) == 4) && (((int)source % 4) == 0) && (((int)dest % 4) == 0)) {
+   if ((sizeof(int) == 4) && (((intptr_t)source % 4) == 0) && (((intptr_t)dest % 4) == 0)) {
       while(--count >= 0)
       {
          *(int *)dest = *(int *)source;

@@ -221,7 +221,7 @@ static dboolean CheckForIdentifier(int lumpnum, const byte *id, size_t length)
 {
   dboolean result = false;
 
-  if (W_LumpLength(lumpnum) >= (int)length)
+  if (W_LumpLength(lumpnum) >= length)
   {
     const char *data = W_CacheLumpNum(lumpnum);
 
@@ -1573,6 +1573,7 @@ static void P_LoadSideDefs2(int lump)
           {
             sd->skybox_index = R_BoxSkyboxNumForName(msd->toptexture);
           }
+          // fallthrough
 #endif
 
         default:                        // normal cases
@@ -2293,10 +2294,12 @@ static void R_CalcSegsLength(void)
   int i;
   for (i=0; i<numsegs; i++)
   {
+    double length;
     seg_t *li = segs+i;
     int_64_t dx = (int_64_t)li->v2->px - li->v1->px;
     int_64_t dy = (int_64_t)li->v2->py - li->v1->py;
-    li->length = (int_64_t)sqrt((double)dx*dx + (double)dy*dy);
+    length = sqrt((double)dx*dx + (double)dy*dy);
+    li->length = (int_64_t)length;
     // [crispy] re-calculate angle used for rendering
     li->pangle = R_PointToAngleEx2(li->v1->px, li->v1->py, li->v2->px, li->v2->py);
   }

@@ -112,6 +112,7 @@ void T_MoveCeiling (ceiling_t* ceiling)
             ceiling->sector->special = ceiling->newspecial;
             //jff 3/14/98 transfer old special field as well
             ceiling->sector->oldspecial = ceiling->oldspecial;
+            // fallthrough
           case genCeilingChg:
             ceiling->sector->ceilingpic = ceiling->texture;
             P_RemoveActiveCeiling(ceiling);
@@ -120,6 +121,7 @@ void T_MoveCeiling (ceiling_t* ceiling)
           // crushers reverse direction at the top
           case silentCrushAndRaise:
             S_StartSound((mobj_t *)&ceiling->sector->soundorg,sfx_pstop);
+            // fallthrough
           case genSilentCrusher:
           case genCrusher:
           case fastCrushAndRaise:
@@ -176,8 +178,10 @@ void T_MoveCeiling (ceiling_t* ceiling)
           // except generalized ones, reset speed, start back up
           case silentCrushAndRaise:
             S_StartSound((mobj_t *)&ceiling->sector->soundorg,sfx_pstop);
+            // fallthrough
           case crushAndRaise:
             ceiling->speed = CEILSPEED;
+            // fallthrough
           case fastCrushAndRaise:
             ceiling->direction = 1;
             break;
@@ -189,6 +193,7 @@ void T_MoveCeiling (ceiling_t* ceiling)
             ceiling->sector->special = ceiling->newspecial;
             //jff add to fix bug in special transfers from changes
             ceiling->sector->oldspecial = ceiling->oldspecial;
+            // fallthrough
           case genCeilingChg:
             ceiling->sector->ceilingpic = ceiling->texture;
             P_RemoveActiveCeiling(ceiling);
@@ -305,6 +310,7 @@ manual_ceiling://e6y
       case crushAndRaise:
         ceiling->crush = true;
         ceiling->topheight = sec->ceilingheight;
+        // fallthrough
       case lowerAndCrush:
       case lowerToFloor:
         ceiling->bottomheight = sec->floorheight;

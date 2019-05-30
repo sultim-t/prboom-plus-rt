@@ -583,7 +583,8 @@ int main(int argc, char** argv)
 	  if (ingame && !curplayers) exit(0); // All players have exited
         }
       }
-      // Fall through and broadcast it
+      // fallthrough
+      // and broadcast it
     case PKT_EXTRA:
       BroadcastPacket(packet, len);
       if (packet->type == PKT_EXTRA) {

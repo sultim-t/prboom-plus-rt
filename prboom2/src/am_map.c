@@ -2238,7 +2238,7 @@ static void AM_setFrameVariables(void)
   {
     float dx = (float)(m_x2 - am_frame.centerx);
     float dy = (float)(m_y2 - am_frame.centery);
-    fixed_t r = (fixed_t)sqrt(dx * dx + dy * dy);
+    fixed_t r = M_DoubleToInt(sqrt(dx * dx + dy * dy));
 
     am_frame.bbox[BOXLEFT] = am_frame.centerx - r;
     am_frame.bbox[BOXRIGHT] = am_frame.centerx + r;

@@ -2015,7 +2015,7 @@ void GetFirstMap(int *ep, int *map)
     {
       for (i=1;!done && i<33;i++)  // Ty 09/13/98 - add use of !done
       {
-        sprintf(test,"MAP%02d",i);
+        snprintf(test,sizeof(test),"MAP%02d",i);
         ix = W_CheckNumForName(test);
         if (ix != -1)  // Ty 10/04/98 avoid -1 subscript
         {
@@ -2041,7 +2041,7 @@ void GetFirstMap(int *ep, int *map)
       {
         for (j=1;!done && j<10;j++)  // Ty 09/13/98 - add use of !done
         {
-          sprintf(test,"E%dM%d",i,j);
+          snprintf(test,sizeof(test),"E%dM%d",i,j);
           ix = W_CheckNumForName(test);
           if (ix != -1)  // Ty 10/04/98 avoid -1 subscript
           {

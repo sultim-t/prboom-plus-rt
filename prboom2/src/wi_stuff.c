@@ -1992,7 +1992,7 @@ void WI_loadData(void)
           if (wbs->epsd != 1 || j != 8)
           {
             // animations
-            sprintf(name, "WIA%d%.2d%.2d", wbs->epsd, j, i);
+            snprintf(name, sizeof(name), "WIA%d%.2d%.2d", wbs->epsd, j, i);
             R_SetPatchNum(&a->p[i], name);
           }
           else

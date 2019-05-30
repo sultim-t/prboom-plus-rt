@@ -196,7 +196,7 @@ dboolean P_SightTraverseIntercepts(void)
         in = scan;
       }
 
-      if (!PTR_SightTraverse(in))
+    if (!PTR_SightTraverse(in))
         return false;      // don't bother going farther
       in->frac = INT_MAX;
   }

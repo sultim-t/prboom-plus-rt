@@ -65,6 +65,10 @@ const music_player_t db_player =
 
 #else // HAVE_DUMB
 
+#if !defined(_FILE_OFFSET_BITS) || (_FILE_OFFSET_BITS < 64)
+#define DUMB_OFF_T_CUSTOM off64_t
+#endif
+
 #include <dumb.h>
 #include <string.h>
 #include "lprintf.h"
@@ -135,7 +139,11 @@ static const void* db_registersong (const void *data, unsigned len)
   {
     dumbfile_close (dfil);
     dfil = dumbfile_open_memory (data, len);
+#if (DUMB_MAJOR_VERSION >= 1)
+    duh = dumb_read_mod_quick (dfil, DUMB_MOD_RESTRICT_OLD_PATTERN_COUNT);
+#else
     duh = dumb_read_mod_quick (dfil);
+#endif
     // No way to get the filename, so we can't check for a .mod extension, and
     // therefore, trying to load an old 15-instrument SoundTracker module is not
     // safe. We'll restrict MOD loading to 31-instrument modules with known

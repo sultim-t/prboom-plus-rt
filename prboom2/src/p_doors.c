@@ -206,6 +206,7 @@ void T_VerticalDoor (vldoor_t* door)
 	      S_StartSound((mobj_t *)&door->sector->soundorg,sfx_bdopn);
 	      break;
 	    }
+	    // fallthrough
 
           default:             // other types bounce off the obstruction
             door->direction = 1;

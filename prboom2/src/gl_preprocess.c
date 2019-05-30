@@ -233,7 +233,7 @@ static void gld_FlatConvexCarver(int ssidx, int num, divline_t *list)
 
   if(!numedgepoints)
   {
-    if (levelinfo) fprintf(levelinfo, "All carved away: subsector %i - sector %i\n", ssec-subsectors, ssec->sector->iSectorID);
+    if (levelinfo) fprintf(levelinfo, "All carved away: subsector %li - sector %i\n", ssec-subsectors, ssec->sector->iSectorID);
   }
   else
   {
@@ -928,8 +928,8 @@ static void gld_PreprocessSectors(void)
     memset(vertexcheck2,0,numvertexes*sizeof(vertexcheck2[0]));
     for (j=0; j<sectors[i].linecount; j++)
     {
-      v1num=((int)sectors[i].lines[j]->v1-(int)vertexes)/sizeof(vertex_t);
-      v2num=((int)sectors[i].lines[j]->v2-(int)vertexes)/sizeof(vertex_t);
+      v1num=((intptr_t)sectors[i].lines[j]->v1-(intptr_t)vertexes)/sizeof(vertex_t);
+      v2num=((intptr_t)sectors[i].lines[j]->v2-(intptr_t)vertexes)/sizeof(vertex_t);
       if ((v1num>=numvertexes) || (v2num>=numvertexes))
         continue;
 
@@ -978,8 +978,8 @@ static void gld_PreprocessSectors(void)
     // e6y: marking all the isolated lines
     for (j=0; j<sectors[i].linecount; j++)
     {
-      v1num=((int)sectors[i].lines[j]->v1-(int)vertexes)/sizeof(vertex_t);
-      v2num=((int)sectors[i].lines[j]->v2-(int)vertexes)/sizeof(vertex_t);
+      v1num=((intptr_t)sectors[i].lines[j]->v1-(intptr_t)vertexes)/sizeof(vertex_t);
+      v2num=((intptr_t)sectors[i].lines[j]->v2-(intptr_t)vertexes)/sizeof(vertex_t);
       if (vertexcheck2[v1num] < 2 && vertexcheck2[v2num] < 2)
       {
         sectors[i].lines[j]->r_flags |= RF_ISOLATED;

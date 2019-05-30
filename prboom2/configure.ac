@@ -263,5 +263,14 @@ AC_SUBST(GL_LIBS)
 AC_SUBST(CFLAGS)
 AC_SUBST(DOOMWADDIR)
 
+dnl --- https://reproducible-builds.org/specs/source-date-epoch/
+SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-$(date +%s)}"
+DATE_FMT="%Y-%m-%d"
+BUILD_DATE=$(date -u -d "@$SOURCE_DATE_EPOCH" "+$DATE_FMT" 2>/dev/null || date -u -r "$SOURCE_DATE_EPOCH" "+$DATE_FMT" 2>/dev/null || date -u "+$DATE_FMT")
+AC_DEFINE_UNQUOTED(BUILD_DATE,"$BUILD_DATE",[Define the build date for reproducible builds])
+TIME_FMT="%H:%M:%S"
+BUILD_TIME=$(date -u -d "@$SOURCE_DATE_EPOCH" "+$TIME_FMT" 2>/dev/null || date -u -r "$SOURCE_DATE_EPOCH" "+$TIME_FMT" 2>/dev/null || date -u "+$TIME_FMT")
+AC_DEFINE_UNQUOTED(BUILD_TIME,"$BUILD_TIME",[Define the build time for reproducible builds])
+
 dnl --- output
 AC_OUTPUT(Makefile src/Makefile src/POSIX/Makefile src/SDL/Makefile src/MAC/Makefile src/PCSOUND/Makefile src/TEXTSCREEN/Makefile src/MUSIC/Makefile doc/Makefile data/Makefile ICONS/Makefile VisualC6/Makefile VisualC8/Makefile prboom.spec)

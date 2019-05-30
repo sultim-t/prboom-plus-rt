@@ -388,7 +388,7 @@ int EV_LightTurnOn(line_t *line, int bright)
         temp->lightlevel > tbright)
       tbright = temp->lightlevel;
 
-      sector->lightlevel = tbright;
+  sector->lightlevel = tbright;
 
       //jff 5/17/98 unless compatibility optioned
       //then maximum near ANY tagged sector

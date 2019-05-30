@@ -6117,6 +6117,7 @@ void M_Init(void)
       // killough 2/21/98: Fix registered Doom help screen
       // killough 10/98: moved to second screen, moved up to the top
       ReadDef2.y = 15;
+      // fallthrough
 
     case shareware:
       // We need to remove the fourth episode.

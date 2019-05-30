@@ -953,7 +953,7 @@ void e6y_WriteStats(void)
   for (level=0;level<numlevels;level++)
   {
     sprintf(str,
-      "%%s - %%%dd:%%05.2f (%%%dd:%%02d)  K: %%%dd/%%-%dd%%%ds  I: %%%dd/%%-%dd%%%ds  S: %%%dd/%%-%dd %%%ds\r\n",
+      "%%s - %%%dd:%%05.2f (%%%dd:%%02d)  K: %%%dd/%%-%dd%%%lds  I: %%%dd/%%-%dd%%%lds  S: %%%dd/%%-%dd %%%lds\r\n",
       max.stat[TT_TIME],      max.stat[TT_TOTALTIME],
       max.stat[TT_ALLKILL],   max.stat[TT_TOTALKILL],   allkills_len,
       max.stat[TT_ALLITEM],   max.stat[TT_TOTALITEM],   allitems_len,
@@ -1276,7 +1276,9 @@ int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t Buff
 
 #ifdef _WIN32
 #include <Mmsystem.h>
+#ifndef __GNUC__
 #pragma comment( lib, "winmm.lib" )
+#endif
 int mus_extend_volume;
 void I_midiOutSetVolumes(int volume)
 {

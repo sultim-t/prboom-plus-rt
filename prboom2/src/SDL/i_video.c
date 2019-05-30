@@ -1130,7 +1130,7 @@ void I_UpdateVideoMode(void)
 {
   int init_flags = 0;
 
-  if(screen)
+  if(sdl_window)
   {
     // video capturing cannot be continued with new screen settings
     I_CaptureFinish();

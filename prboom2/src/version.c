@@ -33,6 +33,15 @@
  */
 
 
+#include "doomdef.h"
 #include "version.h"
 
-const char version_date[] = __DATE__ " " __TIME__;
+#ifndef BUILD_DATE
+#define BUILD_DATE __DATE__
+#endif
+
+#ifndef BUILD_TIME
+#define BUILD_TIME __TIME__
+#endif
+
+const char version_date[] = BUILD_DATE " " BUILD_TIME;

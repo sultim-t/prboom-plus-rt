@@ -928,7 +928,7 @@ static void ST_loadGraphics(dboolean doload)
     {
       sprintf(namebuf, "STTNUM%d", i);
       R_SetPatchNum(&tallnum[i],namebuf);
-      sprintf(namebuf, "STYSNUM%d", i);
+      snprintf(namebuf, sizeof(namebuf), "STYSNUM%d", i);
       R_SetPatchNum(&shortnum[i],namebuf);
     }
 

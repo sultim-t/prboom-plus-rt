@@ -457,6 +457,7 @@ static Bits Operator__TemplateVolume(Operator *self, OperatorState yes) {
     if ( self->reg20 & MASK_SUSTAIN ) {
       return vol;
     }
+    // fallthrough
     //In sustain phase, but not sustaining, do regular release
   case RELEASE:
     vol += Operator__RateForward( self, self->releaseAdd );;

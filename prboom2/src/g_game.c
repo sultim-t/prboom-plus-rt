@@ -1642,11 +1642,12 @@ void G_DoCompleted (void)
               wminfo.next = 2;
               break;
             }
+            // fallthrough
           default:
             wminfo.next = gamemap;
           }
-        if (gamemission == pack_nerve && singleplayer && gamemap == 9)
-          wminfo.next = 4;
+      if (gamemission == pack_nerve && singleplayer && gamemap == 9)
+        wminfo.next = 4;
     }
   else
     {
@@ -1775,6 +1776,7 @@ void G_WorldDone (void)
         case 31:
           if (!secretexit)
             break;
+          // fallthrough
         case 6:
         case 11:
         case 20:
@@ -3621,7 +3623,7 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
 	  compatibility_level = boom_201_compatibility;
         else
 	  compatibility_level = boom_compatibility_compatibility;
-	  break;
+        break;
       case 202:
         //e6y: check for overrun
         if (CheckForOverrun(header_p, demo_p, size, 1, failonerror))
@@ -3631,7 +3633,7 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
 	  compatibility_level = boom_202_compatibility;
         else
 	  compatibility_level = boom_compatibility_compatibility;
-	  break;
+        break;
       case 203:
 	/* LxDoom or MBF - determine from signature
 	 * cph - load compatibility level */

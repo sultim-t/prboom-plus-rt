@@ -1356,7 +1356,7 @@ static const void *I_OPL_RegisterSong(const void *data, unsigned len)
     // time numbers we have to traverse the tracks and everything
     if (mf.len < 100)
     {
-        lprintf (LO_WARN, "I_OPL_RegisterSong: Very short MIDI (%i bytes)\n", mf.len);
+        lprintf (LO_WARN, "I_OPL_RegisterSong: Very short MIDI (%li bytes)\n", mf.len);
         return NULL;
     }
 

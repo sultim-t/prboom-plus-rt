@@ -226,6 +226,10 @@ void S_Start(void)
         else
           mnum = spmus[gamemap-1];
       }
+
+  memset(&musinfo, 0, sizeof(musinfo));
+  musinfo.items[0] = -1;
+
   S_ChangeMusic(mnum, true);
 }
 
@@ -543,6 +547,13 @@ void S_ChangeMusic(int musicnum, int looping)
   mus_playing = music;
 
   musinfo.current_item = -1;
+
+  // [crispy] MUSINFO value 0 is reserved for the map's default music
+  if (musinfo.items[0] == -1)
+  {
+     musinfo.items[0] = music->lumpnum;
+     S_music[NUMMUSIC].lumpnum = -1;
+  }
 }
 
 void S_RestartMusic(void)

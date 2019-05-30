@@ -298,7 +298,7 @@ void M_ChangeDemoExtendedFormat(void)
 void W_InitPWADTable(wadtbl_t *wadtbl)
 {
   //init header signature and lookup table offset and size
-  strncpy(wadtbl->header.identification, PWAD_SIGNATURE, 4);
+  memcpy(wadtbl->header.identification, PWAD_SIGNATURE, 4);
   wadtbl->header.infotableofs = sizeof(wadtbl->header);
   wadtbl->header.numlumps = 0;
 
@@ -1056,7 +1056,7 @@ static int G_ReadDemoFooter(const char *filename)
 
   if (demo_demoex_filename && *demo_demoex_filename)
   {
-    strncpy(demoex_filename, demo_demoex_filename, PATH_MAX);
+    strncpy(demoex_filename, demo_demoex_filename, PATH_MAX-1);
   }
   else
   {
