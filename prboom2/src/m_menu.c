@@ -558,7 +558,7 @@ menu_t EpiDef =
 
 // This is for customized episode menus
 int EpiCustom;
-short EpiMenuEpi[8], EpiMenuMap[8];
+short EpiMenuEpi[8] = { 1, 1, 1, 1, -1, -1, -1, -1 }, EpiMenuMap[8] = { 1,2,3,4,-1,-1,-1,-1 };
 
 //
 //    M_Episode
@@ -730,9 +730,9 @@ void M_ChooseSkill(int choice)
       M_StartMessage(s_NIGHTMARE,M_VerifyNightmare,true);
       return;
     }
+  if (EpiMenuEpi[epi] == -1 || EpiMenuMap[epi] == -1) return;	// There is no map to start here.
 
-  if (!EpiCustom) G_DeferedInitNew(choice,epi+1,1);
-  else G_DeferedInitNew(choice, EpiMenuEpi[epi], EpiMenuMap[epi]);
+  G_DeferedInitNew(choice, EpiMenuEpi[epi], EpiMenuMap[epi]);
   M_ClearMenus ();
 }
 
