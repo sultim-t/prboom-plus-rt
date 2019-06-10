@@ -347,6 +347,9 @@ static void cheat_behold()
   plyr->message = s_STSTR_BEHOLD; // Ty 03/27/98 - externalized
 }
 
+extern int EpiCustom;
+struct MapEntry* G_LookupMapinfo(int gameepisode, int gamemap);
+
 // 'clev' change-level cheat
 static void cheat_clev(char buf[3])
 {
@@ -363,27 +366,32 @@ static void cheat_clev(char buf[3])
       map = buf[1] - '0';
     }
 
-  // Catch invalid maps.
-  if (epsd < 1 || map < 1 ||   // Ohmygod - this is not going to work.
-      //e6y: The fourth episode for pre-ultimate complevels is not allowed.
-      (compatibility_level < ultdoom_compatibility && (epsd > 3)) ||
-      (gamemode == retail     && (epsd > 4 || map > 9  )) ||
-      (gamemode == registered && (epsd > 3 || map > 9  )) ||
-      (gamemode == shareware  && (epsd > 1 || map > 9  )) ||
-      (gamemode == commercial && (epsd > 1 || map > 33 )) )  //jff no 33 and 34
-    return;                                                  //8/14/98 allowed
-
-  if (!bfgedition && map == 33)
-    return;
-  if (gamemission == pack_nerve && map > 9)
-    return;
-
-  // Chex.exe always warps to episode 1.
-  if (gamemission == chex)
+  // Check if we have a mapinfo entry for the requested level. If this is present the remaining checks should be skipped.
+  struct MapEntry* entry = G_LookupMapinfo(epsd, map);
+  if (!entry)
   {
-    epsd = 1;
-  }
 
+	  // Catch invalid maps.
+	  if (epsd < 1 || map < 1 ||   // Ohmygod - this is not going to work.
+		  //e6y: The fourth episode for pre-ultimate complevels is not allowed.
+		  (compatibility_level < ultdoom_compatibility && (epsd > 3)) ||
+		  (gamemode == retail && (epsd > 4 || map > 9)) ||
+		  (gamemode == registered && (epsd > 3 || map > 9)) ||
+		  (gamemode == shareware && (epsd > 1 || map > 9)) ||
+		  (gamemode == commercial && (epsd > 1 || map > 33)))  //jff no 33 and 34
+		  return;                                                  //8/14/98 allowed
+
+	  if (!bfgedition && map == 33)
+		  return;
+	  if (gamemission == pack_nerve && map > 9)
+		  return;
+
+	  // Chex.exe always warps to episode 1.
+	  if (gamemission == chex)
+	  {
+		  epsd = 1;
+	  }
+  }
   // So be it.
 
   plyr->message = s_STSTR_CLEV; // Ty 03/27/98 - externalized
