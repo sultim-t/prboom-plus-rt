@@ -2708,6 +2708,8 @@ int G_ValidateMapName(const char *mapname, int *pEpi, int *pMap)
 // consoleplayer, displayplayer, playeringame[] should be set.
 //
 
+extern int EpiCustom;
+
 void G_InitNew(skill_t skill, int episode, int map)
 {
   int i;
@@ -2732,6 +2734,9 @@ void G_InitNew(skill_t skill, int episode, int map)
 
   if (episode < 1)
     episode = 1;
+
+  if (!EpiCustom)	// Disable all sanity checks if there are custom episode definitions. They do not make sense in this case.
+  {
 
   //e6y: We need to remove the fourth episode for pre-ultimate complevels.
   if (compatibility_level < ultdoom_compatibility && episode > 3)
@@ -2772,6 +2777,7 @@ void G_InitNew(skill_t skill, int episode, int map)
     map = 1;
   if (map > 9 && gamemode != commercial)
     map = 9;
+  }
 
   G_SetFastParms(fastparm || skill == sk_nightmare);  // killough 4/10/98
 
