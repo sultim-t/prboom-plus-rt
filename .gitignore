@@ -29,3 +29,11 @@ prboom2/VisualC8/ReleaseNOASMGL
 prboom2/VisualC8/ReleaseServer
 prboom2/data/prboom.wad
 prboom2/release
+/prboom2/VisualC2015/DebugGL
+/prboom2/VisualC2015/.vs/Doom/v16
+/prboom2/VisualC2015/DebugServer
+/prboom2/VisualC2015/Release
+/prboom2/VisualC2015/ReleaseGL/Doom.tlog
+/prboom2/VisualC2015/ReleaseGL
+/prboom2/VisualC2015/ReleaseServer/prboom_server.tlog
+/prboom2/VisualC2015/ReleaseServer
