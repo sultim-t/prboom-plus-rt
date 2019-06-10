@@ -25,6 +25,7 @@ AC_DEFINE_UNQUOTED(DOOMWADDIR,"$DOOMWADDIR",[Define to be the path where Doom WA
 
 dnl --- Check for programs
 AC_PROG_CC
+AC_PROG_CXX
 AC_PROG_LN_S
 AC_PROG_RANLIB
 AC_GNU_SOURCE

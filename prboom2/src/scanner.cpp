@@ -31,6 +31,15 @@
 
 #include "scanner.h"
 
+
+#ifdef _WIN32
+# define strcmpnocase  stricmp
+#else
+# include <strings.h>
+# define strcmpnocase  strcasecmp
+#endif
+
+
 const char* const Scanner::TokenNames[TK_NumSpecialTokens] =
 {
 	"Identifier",
@@ -486,7 +495,7 @@ void Scanner::MustGetToken(char token)
 
 void Scanner::MustGetIdentifier(const char *ident)
 {
-	if (!CheckToken(TK_Identifier) || stricmp(string, ident))
+	if (!CheckToken(TK_Identifier) || strcmpnocase(string, ident))
 	{
 		Error(ident);
 		return;

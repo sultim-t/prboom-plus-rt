@@ -59,7 +59,8 @@ COMMON_SRC = \
  i_pcsound.c    i_pcsound.h \
  g_overflow.c   g_overflow.h       hu_tracers.c     hu_tracers.h \
  s_advsound.c   s_advsound.h       i_capture.c      i_capture.h \
- sc_man.c       sc_man.h
+ sc_man.c       sc_man.h \
+ scanner.h      scanner.cpp        umapinfo.cpp     umapinfo.h    f_finale2.c
 
 NET_CLIENT_SRC = d_client.c
 
