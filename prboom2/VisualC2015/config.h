@@ -138,7 +138,7 @@
 #define PACKAGE_TARNAME "prboom-plus"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "2.5.1.5"
+#define PACKAGE_VERSION "2.5.1.6"
 
 /* Define if you have the SDL2 image library -lSDL2_image */
 #define HAVE_LIBSDL2_IMAGE 1
