@@ -366,7 +366,7 @@ static void cheat_clev(char buf[3])
       map = buf[1] - '0';
     }
 
-  // Check if we have a mapinfo entry for the requested level. If this is present the remaining checks should be skipped.
+  // First check if we have a mapinfo entry for the requested level. If this is present the remaining checks should be skipped.
   struct MapEntry* entry = G_LookupMapinfo(epsd, map);
   if (!entry)
   {

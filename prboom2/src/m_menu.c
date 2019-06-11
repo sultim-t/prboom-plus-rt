@@ -558,7 +558,7 @@ menu_t EpiDef =
 
 // This is for customized episode menus
 int EpiCustom;
-short EpiMenuEpi[8] = { 1, 1, 1, 1, -1, -1, -1, -1 }, EpiMenuMap[8] = { 1,2,3,4,-1,-1,-1,-1 };
+short EpiMenuMap[8] = { 1, 1, 1, 1, -1, -1, -1, -1 }, EpiMenuEpi[8] = { 1,2,3,4,-1,-1,-1,-1 };
 
 //
 //    M_Episode
