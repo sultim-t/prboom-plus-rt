@@ -35,6 +35,7 @@
 #define _GL_INTERN_H
 
 #include "v_video.h"
+#include "xs_Float.h"
 
 #define MAXCOORD (32767.0f / MAP_COEFF)
 

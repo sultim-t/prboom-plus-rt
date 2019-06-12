@@ -199,7 +199,7 @@ angle_t gld_clipper_AngleToPseudo(angle_t ang)
   {
     result = 2.f - result;
   }
-  return (angle_t)(result * (1<<30));
+  return (angle_t)xs_CRoundToUInt(result * (1<<30));
 }
 
 void gld_clipper_SafeAddClipRangeRealAngles(angle_t startangle, angle_t endangle)
@@ -351,7 +351,7 @@ angle_t gld_FrustumAngle(void)
   // ok, this is a gross hack that barely works...
   // but at least it doesn't overestimate too much...
   floatangle = 2.0f + (45.0f + (tilt / 1.9f)) * (float)render_fov * ratio_scale / render_multiplier / 90.0f;
-  a1 = ANG1 * (int)floatangle;
+  a1 = (angle_t)xs_CRoundToInt(ANG1 * floatangle);
   if (a1 >= ANG180)
     return 0xffffffff;
   return a1;

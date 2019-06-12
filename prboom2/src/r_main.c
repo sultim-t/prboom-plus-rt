@@ -58,6 +58,7 @@
 #include "r_fps.h"
 #include <math.h>
 #include "e6y.h"//e6y
+#include "xs_Float.h"
 
 // e6y
 // Now they are variables. Depends from render_doom_lightmaps variable.
@@ -297,7 +298,7 @@ angle_t R_PointToPseudoAngle (fixed_t x, fixed_t y)
     {
       result = 2.0 - result;
     }
-    return (angle_t)(result * (1 << 30));
+    return (angle_t)xs_CRoundToInt(result * (1 << 30));
   }
 }
 
