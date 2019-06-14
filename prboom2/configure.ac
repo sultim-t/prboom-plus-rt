@@ -179,6 +179,25 @@ AS_IF([test "x$with_pcre" != xno],
   [AC_CHECK_LIB(pcreposix,pcreposix_regcomp)]
 )
 
+dnl Check for zlib
+
+AC_ARG_WITH([zlib],
+AS_HELP_STRING([--without-zlib],
+    [Build without zlib @<:@default=check@:>@]),
+[],
+[
+    [with_zlib=check]
+])
+AS_IF([test "x$with_zlib" != xno], [
+    PKG_CHECK_MODULES(LIBZ, zlib, [
+        AC_DEFINE([HAVE_LIBZ], [1], [zlib installed])
+    ], [
+        AS_IF([test "x$with_zlib" != xcheck], [AC_MSG_FAILURE(
+            [--with-zlib was given, but test for zlib failed])
+        ])
+    ])
+])
+
 dnl individual sound libraries
 
 AC_ARG_WITH([mad],
@@ -262,6 +281,8 @@ AC_SUBST(NET_LIBS)
 AC_SUBST(MATH_LIB)
 AC_SUBST(GL_LIBS)
 AC_SUBST(CFLAGS)
+AC_SUBST(LIBZ_CFLAGS)
+AC_SUBST(LIBZ_LIBS)
 AC_SUBST(DOOMWADDIR)
 
 dnl --- https://reproducible-builds.org/specs/source-date-epoch/

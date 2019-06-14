@@ -16,7 +16,7 @@ else
 games_PROGRAMS = prboom-plus
 endif
 
-CFLAGS = @CFLAGS@ @SDL_CFLAGS@
+CFLAGS = @CFLAGS@ @SDL_CFLAGS@ @LIBZ_CFLAGS@
 
 prboom_plus_game_server_SOURCES = d_server.c protocol.h
 prboom_plus_game_server_LDADD = POSIX/libposixdoom.a SDL/i_network.o @NET_LIBS@ @SDL_LIBS@
@@ -84,7 +84,7 @@ endif
 MUS2MID_SRC = memio.c memio.h mus2mid.c mus2mid.h
 
 prboom_plus_SOURCES = $(COMMON_SRC) $(NET_CLIENT_SRC) $(USE_GL_SRC) $(WAD_SRC) $(MUS2MID_SRC)
-prboom_plus_LDADD = SDL/libsdldoom.a PCSOUND/libpcsound.a TEXTSCREEN/libtextscreen.a MUSIC/libdoommusic.a @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ @GL_LIBS@ @MATH_LIB@
+prboom_plus_LDADD = SDL/libsdldoom.a PCSOUND/libpcsound.a TEXTSCREEN/libtextscreen.a MUSIC/libdoommusic.a @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ @GL_LIBS@ @MATH_LIB@ @LIBZ_LIBS@
 
 EXTRA_DIST = \
  r_drawcolumn.inl r_drawflush.inl r_drawspan.inl r_drawcolpipeline.inl icon.c

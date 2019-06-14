@@ -58,6 +58,11 @@
 #include "am_map.h"
 #include "e6y.h"//e6y
 
+#include "config.h"
+#ifdef HAVE_LIBZ
+#include <zlib.h>
+#endif
+
 //
 // MAP related Lookup tables.
 // Store VERTEXES, LINEDEFS, SIDEDEFS, etc.
@@ -240,8 +245,10 @@ static dboolean CheckForIdentifier(int lumpnum, const byte *id, size_t length)
 
 static dboolean P_CheckForZDoomNodes(int lumpnum, int gl_lumpnum)
 {
+#ifndef HAVE_LIBZ
   if (CheckForIdentifier(lumpnum + ML_NODES, "ZNOD", 4))
     I_Error("P_CheckForZDoomNodes: compressed ZDoom nodes not supported yet");
+#endif
 
   if (CheckForIdentifier(lumpnum + ML_SSECTORS, "ZGLN", 4))
     I_Error("P_CheckForZDoomNodes: ZDoom GL nodes not supported yet");
@@ -269,14 +276,36 @@ static dboolean P_CheckForDeePBSPv4Nodes(int lumpnum, int gl_lumpnum)
 // http://zdoom.org/wiki/ZDBSP#Compressed_Nodes
 //
 
+enum {
+  NO_ZDOOM_NODES,
+  ZDOOM_XNOD_NODES,
+  ZDOOM_ZNOD_NODES
+};
+
 static int P_CheckForZDoomUncompressedNodes(int lumpnum, int gl_lumpnum)
 {
+  int ret = NO_ZDOOM_NODES;
   int result = CheckForIdentifier(lumpnum + ML_NODES, "XNOD", 4);
 
   if (result)
+  {
     lprintf(LO_INFO, "P_CheckForZDoomUncompressedNodes: ZDoom uncompressed normal nodes are detected\n");
+    ret = ZDOOM_XNOD_NODES;
+  }
+#ifdef HAVE_LIBZ
+  else
+  {
+    result = CheckForIdentifier(lumpnum + ML_NODES, "ZNOD", 4);
 
-  return result;
+    if (result)
+    {
+      lprintf(LO_INFO, "P_CheckForZDoomUncompressedNodes: compressed ZDoom nodes are detected\n");
+      ret = ZDOOM_ZNOD_NODES;
+    }
+  }
+#endif
+
+  return ret;
 }
 
 //
@@ -1096,9 +1125,9 @@ static void P_LoadZSegs (const byte *data)
   }
 }
 
-static void P_LoadZNodes(int lump, int glnodes)
+static void P_LoadZNodes(int lump, int glnodes, int compressed)
 {
-  const byte *data;
+  byte *data;
   unsigned int i;
   int len;
 
@@ -1107,13 +1136,70 @@ static void P_LoadZNodes(int lump, int glnodes)
   unsigned int numSegs;
   unsigned int numNodes;
   vertex_t *newvertarray = NULL;
+#ifdef HAVE_LIBZ
+  byte *output;
+#endif
 
   data = W_CacheLumpNum(lump);
   len =  W_LumpLength(lump);
   
+  if (compressed == ZDOOM_ZNOD_NODES)
+  {
+#ifdef HAVE_LIBZ
+	int outlen, err;
+	z_stream *zstream;
+
+	// first estimate for compression rate:
+	// output buffer size == 2.5 * input size
+	outlen = 2.5 * len;
+	output = Z_Malloc(outlen, PU_STATIC, 0);
+
+	// initialize stream state for decompression
+	zstream = malloc(sizeof(*zstream));
+	memset(zstream, 0, sizeof(*zstream));
+	zstream->next_in = data + 4;
+	zstream->avail_in = len - 4;
+	zstream->next_out = output;
+	zstream->avail_out = outlen;
+
+	if (inflateInit(zstream) != Z_OK)
+	    I_Error("P_LoadZNodes: Error during ZDoom nodes decompression initialization!");
+
+	// resize if output buffer runs full
+	while ((err = inflate(zstream, Z_SYNC_FLUSH)) == Z_OK)
+	{
+	    int outlen_old = outlen;
+	    outlen = 2 * outlen_old;
+	    output = realloc(output, outlen);
+	    zstream->next_out = output + outlen_old;
+	    zstream->avail_out = outlen - outlen_old;
+	}
+
+	if (err != Z_STREAM_END)
+	    I_Error("P_LoadZNodes: Error during ZDoom nodes decompression!");
+
+	lprintf(LO_INFO, "P_LoadZNodes: ZDoom nodes compression ratio %.3f\n",
+	        (float)zstream->total_out/zstream->total_in);
+
+	data = output;
+	len = zstream->total_out;
+
+	if (inflateEnd(zstream) != Z_OK)
+	    I_Error("P_LoadZNodes: Error during ZDoom nodes decompression shut-down!");
+
+	// release the original data lump
+	W_UnlockLumpNum(lump);
+	free(zstream);
+#else
+	I_Error("P_LoadZNodes: Compressed ZDoom nodes are not supported!");
+#endif
+  }
+  else
+  {
   // skip header
   CheckZNodesOverflow(&len, 4);
   data += 4;
+  }
 
   // Read extra vertices added during node building
   CheckZNodesOverflow(&len, sizeof(orgVerts));
@@ -1245,6 +1331,11 @@ static void P_LoadZNodes(int lump, int glnodes)
     }
   }
 
+#ifdef HAVE_LIBZ
+  if (compressed == ZDOOM_ZNOD_NODES)
+    Z_Free(output);
+  else
+#endif
   W_UnlockLumpNum(lump); // cph - release the data
 }
 
@@ -2634,10 +2725,9 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   }
   else
   {
-    if (P_CheckForZDoomUncompressedNodes(lumpnum, gl_lumpnum))
-    {
-      P_LoadZNodes(lumpnum + ML_NODES, 0);
-    }
+    int zdoom_nodes;
+    if ((zdoom_nodes = P_CheckForZDoomUncompressedNodes(lumpnum, gl_lumpnum)))
+      P_LoadZNodes(lumpnum + ML_NODES, 0, zdoom_nodes);
     else if (P_CheckForDeePBSPv4Nodes(lumpnum, gl_lumpnum))
     {
       P_LoadSubsectors_V4(lumpnum + ML_SSECTORS);
