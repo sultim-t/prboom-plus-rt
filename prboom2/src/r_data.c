@@ -431,7 +431,7 @@ void R_InitTranMap(int progress)
       int fnlen;
       struct {
         unsigned char pct;
-        unsigned char playpal[256];
+        unsigned char playpal[256*3];
       } cache;
       FILE *cachefp;
 
@@ -510,7 +510,7 @@ void R_InitTranMap(int progress)
           if ((cachefp = fopen(fname,"wb")) != NULL) // write out the cached translucency map
             {
               cache.pct = tran_filter_pct;
-              memcpy(cache.playpal, playpal, 256);
+              memcpy(cache.playpal, playpal, sizeof cache.playpal);
               fseek(cachefp, 0, SEEK_SET);
               fwrite(&cache, 1, sizeof cache, cachefp);
               fwrite(main_tranmap, 256, 256, cachefp);
