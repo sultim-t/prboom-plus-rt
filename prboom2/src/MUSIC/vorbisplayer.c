@@ -255,7 +255,7 @@ static const void *vorb_registersong (const void *data, unsigned len)
   vorbis_comment *vcom;
   #endif // ZDOOM_AUDIO_LOOP
 
-  vorb_data = data;
+  vorb_data = (const char*)data;
   vorb_len = len;
   vorb_pos = 0;
 

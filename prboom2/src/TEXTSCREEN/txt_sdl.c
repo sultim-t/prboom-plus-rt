@@ -266,7 +266,7 @@ int TXT_Init(void)
     SDL_UnlockSurface(screenbuffer);
     // SDL2-TODO SDL_EnableUNICODE(1);
 
-    screendata = malloc(TXT_SCREEN_W * TXT_SCREEN_H * 2);
+    screendata = (unsigned char *)malloc(TXT_SCREEN_W * TXT_SCREEN_H * 2);
     memset(screendata, 0, TXT_SCREEN_W * TXT_SCREEN_H * 2);
 
     // Ignore all mouse motion events

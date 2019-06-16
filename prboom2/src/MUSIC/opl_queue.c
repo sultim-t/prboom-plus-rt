@@ -49,7 +49,7 @@ opl_callback_queue_t *OPL_Queue_Create(void)
 {
     opl_callback_queue_t *queue;
 
-    queue = malloc(sizeof(opl_callback_queue_t));
+    queue = (opl_callback_queue_t*)malloc(sizeof(opl_callback_queue_t));
     queue->num_entries = 0;
 
     return queue;

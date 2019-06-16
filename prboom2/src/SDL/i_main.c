@@ -313,7 +313,7 @@ static void I_EndDoom(void)
 
   if (lump != -1)
   {
-    endoom_data = W_CacheLumpNum(lump);
+    endoom_data = (const unsigned char *)W_CacheLumpNum(lump);
     
     // Set up text mode screen
     TXT_Init();
@@ -512,7 +512,7 @@ int main(int argc, char **argv)
 #endif
 
   myargc = argc;
-  myargv = malloc(sizeof(myargv[0]) * myargc);
+  myargv = (char**)malloc(sizeof(myargv[0]) * myargc);
   memcpy(myargv, argv, sizeof(myargv[0]) * myargc);
 
   // e6y: Check for conflicts.

@@ -96,7 +96,7 @@ unsigned char *I_GrabScreen(void)
   if (!pixels || size > pixels_size)
   {
     pixels_size = size;
-    pixels = realloc(pixels, size);
+    pixels = (unsigned char*)realloc(pixels, size);
   }
 
   if (pixels)

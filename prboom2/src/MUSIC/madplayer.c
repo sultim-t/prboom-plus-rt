@@ -142,7 +142,7 @@ static const void *mp_registersong (const void *data, unsigned len)
   else
     maxtry = 20;
 
-  mad_stream_buffer (&Stream, data, len);
+  mad_stream_buffer (&Stream, (const unsigned char*)data, len);
 
   for (i = 0; i < maxtry; i++)
   {
@@ -198,7 +198,7 @@ static void mp_unregistersong (const void *handle)
 
 static void mp_play (const void *handle, int looping)
 {
-  mad_stream_buffer (&Stream, mp_data, mp_len);
+  mad_stream_buffer (&Stream, (const unsigned char *)mp_data, mp_len);
 
   mp_playing = 1;
   mp_looping = looping;
@@ -283,7 +283,7 @@ static void mp_render_ex (void *dest, unsigned nsamp)
         // drops last frame
         if (mp_looping)
         { // rewind, then go again
-          mad_stream_buffer (&Stream, mp_data, mp_len);
+          mad_stream_buffer (&Stream, (const unsigned char *)mp_data, mp_len);
           continue;
         }
         else

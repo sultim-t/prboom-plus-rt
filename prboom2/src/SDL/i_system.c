@@ -244,7 +244,7 @@ dboolean I_FileToBuffer(const char *filename, byte **data, int *size)
     filesize = ftell(hfile);
     fseek(hfile, 0, SEEK_SET);
 
-    buffer = malloc(filesize);
+    buffer = (byte*)malloc(filesize);
     if (buffer)
     {
       if (fread(buffer, filesize, 1, hfile) == 1)
@@ -284,7 +284,7 @@ dboolean I_FileToBuffer(const char *filename, byte **data, int *size)
  */
 void I_Read(int fd, void* vbuf, size_t sz)
 {
-  unsigned char* buf = vbuf;
+  unsigned char* buf = (unsigned char*)vbuf;
 
   while (sz) {
     int rc = read(fd,buf,sz);
@@ -343,7 +343,7 @@ const char *I_DoomExeDir(void)
   if (!base)        // cache multiple requests
     {
       size_t len = strlen(*myargv);
-      char *p = (base = malloc(len+1)) + len - 1;
+      char *p = (base = (char*)malloc(len+1)) + len - 1;
       strcpy(base,*myargv);
       while (p > base && *p!='/' && *p!='\\')
         *p--=0;
@@ -352,7 +352,7 @@ const char *I_DoomExeDir(void)
       if (strlen(base)<2)
       {
         free(base);
-        base = malloc(1024);
+        base = (char*)malloc(1024);
         if (!getcwd(base,1024))
           strcpy(base, current_dir_dummy);
       }
@@ -500,7 +500,7 @@ char* I_FindFileInternal(const char* wfname, const char* ext, dboolean isStatic)
     s = search[i].sub;
 
     if (!isStatic)
-      p = malloc((d ? strlen(d) : 0) + (s ? strlen(s) : 0) + pl);
+      p = (char*)malloc((d ? strlen(d) : 0) + (s ? strlen(s) : 0) + pl);
     sprintf(p, "%s%s%s%s%s", d ? d : "", (d && !HasTrailingSlash(d)) ? "/" : "",
                              s ? s : "", (s && !HasTrailingSlash(s)) ? "/" : "",
                              wfname);

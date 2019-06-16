@@ -211,7 +211,7 @@ void I_UnRegisterPlayer(UDP_CHANNEL channel)
  */
 static byte ChecksumPacket(const packet_header_t* buffer, size_t len)
 {
-  const byte* p = (const void*)buffer;
+  const byte* p = (const byte*)buffer;
   byte sum = 0;
 
   if (len==0)

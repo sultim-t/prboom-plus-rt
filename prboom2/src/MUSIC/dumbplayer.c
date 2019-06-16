@@ -114,31 +114,31 @@ static const void* db_registersong (const void *data, unsigned len)
 
   if (1)
   {
-    dfil = dumbfile_open_memory (data, len);
+    dfil = dumbfile_open_memory ((const char *)data, len);
     duh = read_duh (dfil);
   }
   if (!duh)
   {
     dumbfile_close (dfil);
-    dfil = dumbfile_open_memory (data, len);
+    dfil = dumbfile_open_memory ((const char*)data, len);
     duh = dumb_read_it_quick (dfil);  
   }
   if (!duh)
   {
     dumbfile_close (dfil);
-    dfil = dumbfile_open_memory (data, len);
+    dfil = dumbfile_open_memory ((const char*)data, len);
     duh = dumb_read_xm_quick (dfil);  
   }
   if (!duh)
   {
     dumbfile_close (dfil);
-    dfil = dumbfile_open_memory (data, len);
+    dfil = dumbfile_open_memory ((const char*)data, len);
     duh = dumb_read_s3m_quick (dfil);  
   }
   if (!duh)
   {
     dumbfile_close (dfil);
-    dfil = dumbfile_open_memory (data, len);
+    dfil = dumbfile_open_memory ((const char*)data, len);
 #if (DUMB_MAJOR_VERSION >= 1)
     duh = dumb_read_mod_quick (dfil, DUMB_MOD_RESTRICT_OLD_PATTERN_COUNT);
 #else
@@ -221,7 +221,7 @@ static void db_resume (void)
 
 static void db_render (void *dest, unsigned nsamp)
 {
-  unsigned char *cdest = dest;
+  unsigned char *cdest = (unsigned char *)dest;
   unsigned nsampwrit = 0;
 
   if (db_playing && !db_paused)

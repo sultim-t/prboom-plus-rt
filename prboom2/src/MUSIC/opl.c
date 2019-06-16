@@ -107,7 +107,7 @@ int OPL_Init (unsigned int rate)
     current_time = 0;
 
 
-    mix_buffer = malloc(opl_sample_rate * sizeof(uint32_t));
+    mix_buffer = (int*)malloc(opl_sample_rate * sizeof(int));
 
     // Create the emulator structure:
 

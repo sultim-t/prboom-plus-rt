@@ -301,7 +301,7 @@ static void fl_writesamples_ex (short *dest, int nsamp)
 
   if (nsamp * 2 > fbuff_siz)
   {
-    auto newfbuff = (float*)realloc (fbuff, nsamp * 2 * sizeof (float));
+    float *newfbuff = (float*)realloc (fbuff, nsamp * 2 * sizeof (float));
 	if (!newfbuff) return;
 	fbuff = newfbuff;
     fbuff_siz = nsamp * 2;
@@ -339,7 +339,7 @@ static void writesysex (unsigned char *data, int len)
   sysexbufflen += len;
   if (sysexbuff[sysexbufflen - 1] == 0xf7) // terminator
   { // pass len-1 because fluidsynth does NOT want the final F7
-    fluid_synth_sysex (f_syn, sysexbuff, sysexbufflen - 1, NULL, NULL, &didrespond, 0);
+    fluid_synth_sysex (f_syn, (const char *)sysexbuff, sysexbufflen - 1, NULL, NULL, &didrespond, 0);
     sysexbufflen = 0;
   }
   if (!didrespond)
@@ -350,7 +350,7 @@ static void writesysex (unsigned char *data, int len)
 
 static void fl_render (void *vdest, unsigned length)
 {
-  short *dest = vdest;
+  short *dest = (short*)vdest;
   
   unsigned sampleswritten = 0;
   unsigned samples;

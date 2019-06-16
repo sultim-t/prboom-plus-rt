@@ -340,7 +340,7 @@ static dboolean LoadInstrumentTable(void)
 {
     const byte *lump;
 
-    lump = W_CacheLumpName("GENMIDI");
+    lump = (const byte*)W_CacheLumpName("GENMIDI");
 
     // Check header
 
@@ -432,9 +432,9 @@ static void ReleaseVoice(opl_voice_t *voice)
     voice->next = NULL;
 }
 
-// Load data to the specified operator
+// Load data to the specified Operator
 
-static void LoadOperatorData(int operator,
+static void LoadOperatorData(int Operator,
                              const genmidi_op_t *data,
                              dboolean max_level)
 {
@@ -450,11 +450,11 @@ static void LoadOperatorData(int operator,
         level |= 0x3f;
     }
 
-    OPL_WriteRegister(OPL_REGS_LEVEL + operator, level);
-    OPL_WriteRegister(OPL_REGS_TREMOLO + operator, data->tremolo);
-    OPL_WriteRegister(OPL_REGS_ATTACK + operator, data->attack);
-    OPL_WriteRegister(OPL_REGS_SUSTAIN + operator, data->sustain);
-    OPL_WriteRegister(OPL_REGS_WAVEFORM + operator, data->waveform);
+    OPL_WriteRegister(OPL_REGS_LEVEL + Operator, level);
+    OPL_WriteRegister(OPL_REGS_TREMOLO + Operator, data->tremolo);
+    OPL_WriteRegister(OPL_REGS_ATTACK + Operator, data->attack);
+    OPL_WriteRegister(OPL_REGS_SUSTAIN + Operator, data->sustain);
+    OPL_WriteRegister(OPL_REGS_WAVEFORM + Operator, data->waveform);
 }
 
 // Set the instrument for a particular voice.
@@ -1122,7 +1122,7 @@ static void RestartSong(void)
 
 static void TrackTimerCallback(void *arg)
 {
-    opl_track_data_t *track = arg;
+    opl_track_data_t *track = (opl_track_data_t*)arg;
     midi_event_t *event;
 
     // Get the next event and process it.
@@ -1223,11 +1223,11 @@ static void I_OPL_PlaySong(const void *handle, int looping)
         return;
     }
 
-    file = handle;
+    file = (midi_file_t*)handle;
 
     // Allocate track data.
 
-    tracks = malloc(MIDI_NumTracks(file) * sizeof(opl_track_data_t));
+    tracks = (opl_track_data_t*)malloc(MIDI_NumTracks(file) * sizeof(opl_track_data_t));
 
     num_tracks = MIDI_NumTracks(file);
     running_tracks = num_tracks;
@@ -1323,7 +1323,7 @@ static void I_OPL_UnRegisterSong(const void *handle)
 
     if (handle != NULL)
     {
-        MIDI_FreeFile((void *) handle);
+        MIDI_FreeFile((midi_file_t *) handle);
     }
 }
 
@@ -1346,7 +1346,7 @@ static const void *I_OPL_RegisterSong(const void *data, unsigned len)
     }
     mf.len = len;
     mf.pos = 0;
-    mf.data = data;
+    mf.data = (byte*)data;
 
     // NSM: if a file has a miniscule timecode we have to not load it.
     // if it's 0, we'll hang in scheduling and never finish.  if it's
