@@ -210,7 +210,7 @@ static const void *fl_registersong (const void *data, unsigned len)
 
   mf.len = len;
   mf.pos = 0;
-  mf.data = data;
+  mf.data = (const byte*)data;
 
   midifile = MIDI_LoadFile (&mf);
 
@@ -301,7 +301,9 @@ static void fl_writesamples_ex (short *dest, int nsamp)
 
   if (nsamp * 2 > fbuff_siz)
   {
-    fbuff = realloc (fbuff, nsamp * 2 * sizeof (float));
+    auto newfbuff = (float*)realloc (fbuff, nsamp * 2 * sizeof (float));
+	if (!newfbuff) return;
+	fbuff = newfbuff;
     fbuff_siz = nsamp * 2;
   }
 
@@ -310,11 +312,12 @@ static void fl_writesamples_ex (short *dest, int nsamp)
   for (i = 0; i < nsamp * 2; i++)
   {
     // data is NOT already clipped
-    if (fbuff[i] > 1.0f)
-      fbuff[i] = 1.0f;
-    if (fbuff[i] < -1.0f)
-      fbuff[i] = -1.0f;
-    dest[i] = (short) (fbuff[i] * multiplier);
+	  float f = fbuff[i];
+    if (f > 1.0f)
+      f = 1.0f;
+    if (f < -1.0f)
+      f = -1.0f;
+    dest[i] = (short) (f * multiplier);
   }
 }
 
@@ -324,7 +327,7 @@ static void writesysex (unsigned char *data, int len)
   // it's possible to use an auto-resizing buffer here, but a malformed
   // midi file could make it grow arbitrarily large (since it must grow
   // until it hits an 0xf7 terminator)
-  int didrespond;
+  int didrespond = 0;
   
   if (len + sysexbufflen > SYSEX_BUFF_SIZE)
   {
