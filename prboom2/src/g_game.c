@@ -3187,6 +3187,11 @@ void G_BeginRecording (void)
   demostart = demo_p = malloc(1000);
   longtics = 0;
 
+  if (umapinfo_loaded)
+  {
+	  *demo_p++ = 255;
+  }
+
   /* cph - 3 demo record formats supported: MBF+, BOOM, and Doom v1.9 */
   if (mbf_features) {
     { /* Write version code into demo */
@@ -3515,6 +3520,22 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
 
   demover = *demo_p++;
   longtics = 0;
+
+  if (demover == 255)
+  {
+	  // Uses UMAPINFO. The real version will be in the second byte.
+	  // This prepended 255 is here to prevent non-UMAPINFO ports from recognizing the demo.
+	  demover = *demo_p++;
+	  if (!umapinfo_loaded)
+	  {
+		  lprintf(LO_ERROR, "UMAPINFO not loaded but trying to play a demo recorded with it\n");
+	  }
+  }
+  else if (umapinfo_loaded)
+  {
+	  // Q: Should this abort?
+	  lprintf(LO_ERROR, "UMAPINFO loaded but trying to play a demo recorded without it\n");
+  }
 
   // e6y
   // Handling of unrecognized demo formats

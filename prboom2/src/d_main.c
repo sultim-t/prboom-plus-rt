@@ -118,6 +118,7 @@ dboolean singletics = false; // debug flag to cancel adaptiveness
 //jff 1/22/98 parms for disabling music and sound
 dboolean nosfxparm;
 dboolean nomusicparm;
+dboolean umapinfo_loaded;
 
 //jff 4/18/98
 extern dboolean inhelpscreens;
@@ -1838,6 +1839,7 @@ static void D_DoomMainSetup(void)
 	  {
 		  const unsigned char * lump = (const unsigned char *)W_CacheLumpNum(p);
 		  ParseUMapInfo(lump, W_LumpLength(p), I_Error);
+		  umapinfo_loaded = true;
 	  }
   }
 
