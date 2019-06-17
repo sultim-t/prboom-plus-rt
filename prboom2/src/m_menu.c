@@ -113,7 +113,7 @@ void (*messageRoutine)(int response);
 /* killough 8/15/98: when changes are allowed to sync-critical variables */
 static int allow_changes(void)
 {
- return !(demoplayback || demorecording || netgame);
+ return !(record_sound || demoplayback || demorecording || netgame);
 }
 
 static void M_UpdateCurrent(default_t* def)
@@ -229,6 +229,7 @@ void M_ChangeMessages(int choice);
 void M_ChangeSensitivity(int choice);
 void M_SfxVol(int choice);
 void M_MusicVol(int choice);
+void M_RecordVol(int choice);
 /* void M_ChangeDetail(int choice);  unused -- killough */
 void M_SizeDisplay(int choice);
 void M_StartGame(int choice);
@@ -1175,6 +1176,8 @@ enum
   sfx_empty1,
   music_vol,
   sfx_empty2,
+  record_vol,
+  sfx_empty3,
   sound_end
 } sound_e;
 
@@ -1185,6 +1188,8 @@ menuitem_t SoundMenu[]=
   {2,"M_SFXVOL",M_SfxVol,'s'},
   {-1,"",0},
   {2,"M_MUSVOL",M_MusicVol,'m'},
+  {-1,"",0},
+  {2,"M_AUDVOL",M_RecordVol,'r'},
   {-1,"",0}
 };
 
@@ -1210,6 +1215,8 @@ void M_DrawSound(void)
   M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(sfx_vol+1),16,snd_SfxVolume);
 
   M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(music_vol+1),16,snd_MusicVolume);
+
+  M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(record_vol+1),16,snd_RecordVolume);
 }
 
 void M_Sound(int choice)
@@ -1249,6 +1256,23 @@ void M_MusicVol(int choice)
     }
 
   S_SetMusicVolume(snd_MusicVolume /* *8 */);
+}
+
+void M_RecordVol(int choice)
+{
+	switch(choice)
+	{
+	case 0:
+		if (snd_RecordVolume)
+			snd_RecordVolume--;
+		break;
+	case 1:
+		if (snd_RecordVolume < 15)
+			snd_RecordVolume++;
+		break;
+	}
+
+	S_SetRecordVolume(snd_RecordVolume /* *8 */);
 }
 
 /////////////////////////////
@@ -2577,6 +2601,7 @@ setup_menu_t weap_settings1[] =  // Weapons Settings screen
 {
   {"ENABLE RECOIL", S_YESNO,m_null,WP_X, WP_Y+ weap_recoil*8, {"weapon_recoil"}},
   {"ENABLE BOBBING",S_YESNO,m_null,WP_X, WP_Y+weap_bobbing*8, {"player_bobbing"}},
+  {"WEAPON ATTACK ALIGNMENT",S_CHOICE,m_null,WP_X, WP_Y+weap_attack_alignment*8, {"weapon_attack_alignment"}, 0, 0, NULL, weapon_attack_alignment_strings},
 
   {"1ST CHOICE WEAPON",S_WEAP,m_null,WP_X,WP_Y+weap_pref1*8, {"weapon_choice_1"}},
   {"2nd CHOICE WEAPON",S_WEAP,m_null,WP_X,WP_Y+weap_pref2*8, {"weapon_choice_2"}},
@@ -3133,7 +3158,7 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
 
-  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings2}},
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+21*8, {gen_settings2}},
   {0,S_SKIP|S_END,m_null}
 };
 
@@ -3188,10 +3213,11 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
 #ifdef USE_WINDOWS_LAUNCHER
   {"Use In-Game Launcher",             S_CHOICE,        m_null, G_X, G_Y+ 18*8, {"launcher_enable"}, 0, 0, NULL, launcher_enable_states},
 #endif
+  { "Alternative kills counter",       S_YESNO,         m_null, G_X, G_Y + 19 * 8,{ "alternative_kills_counter" } },
 
 
-  {"<- PREV",S_SKIP|S_PREV, m_null, KB_PREV, KB_Y+20*8, {gen_settings1}},
-  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings3}},
+  {"<- PREV",S_SKIP|S_PREV, m_null, KB_PREV, KB_Y+21*8, {gen_settings1}},
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+21*8, {gen_settings3}},
   {0,S_SKIP|S_END,m_null}
 };
 
@@ -3201,9 +3227,10 @@ setup_menu_t gen_settings3[] = { // General Settings screen2
   {"Overwrite Existing",          S_YESNO, m_null, G_X, G_Y+ 3*8, {"demo_overwriteexisting"}},
   {"Smooth Demo Playback",        S_YESNO, m_null, G_X, G_Y+ 4*8, {"demo_smoothturns"}, 0, 0, M_ChangeDemoSmoothTurns},
   {"Smooth Demo Playback Factor", S_NUM,   m_null, G_X, G_Y+ 5*8, {"demo_smoothturnsfactor"}, 0, 0, M_ChangeDemoSmoothTurns},
+  {"Play audio from demos",       S_YESNO, m_null, G_X, G_Y+ 6*8,   {"demo_playvoice"}},
 
-  {"Movements",                   S_SKIP|S_TITLE,m_null,G_X, G_Y+7*8},
-  {"Permanent Strafe50",          S_YESNO, m_null, G_X, G_Y+ 8*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
+  {"Movements",                   S_SKIP|S_TITLE,m_null,G_X, G_Y+8*8},
+  {"Permanent Strafe50",          S_YESNO, m_null, G_X, G_Y+ 9*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
 
   {"Mouse",                       S_SKIP|S_TITLE,m_null, G_X, G_Y+11*8},
   {"Dbl-Click As Use",            S_YESNO, m_null, G_X, G_Y+12*8, {"mouse_doubleclick_as_use"}},
@@ -3212,8 +3239,8 @@ setup_menu_t gen_settings3[] = { // General Settings screen2
   {"Invert Mouse",                S_YESNO, m_null, G_X, G_Y+14*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
   {"Max View Pitch",              S_NUM,   m_null, G_X, G_Y+15*8, {"movement_maxviewpitch"}, 0, 0, M_ChangeMaxViewPitch},
 
-  {"<- PREV",S_SKIP|S_PREV, m_null,KB_PREV, KB_Y+20*8, {gen_settings2}},
-  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings4}},
+  {"<- PREV",S_SKIP|S_PREV, m_null,KB_PREV, KB_Y+21*8, {gen_settings2}},
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+21*8, {gen_settings4}},
   {0,S_SKIP|S_END,m_null}
 };
 
@@ -3238,8 +3265,8 @@ setup_menu_t gen_settings4[] = { // General Settings screen3
   {"Change Palette On Bonus",    S_YESNO,  m_null, G_X, G_Y+15*8, {"palette_onbonus"}, 0, 0, M_ChangeApplyPalette},
   {"Change Palette On Powers",   S_YESNO,  m_null, G_X, G_Y+16*8, {"palette_onpowers"}, 0, 0, M_ChangeApplyPalette},
 
-  {"<- PREV",S_SKIP|S_PREV, m_null, KB_PREV, KB_Y+20*8, {gen_settings3}},
-  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings5}},
+  {"<- PREV",S_SKIP|S_PREV, m_null, KB_PREV, KB_Y+21*8, {gen_settings3}},
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+21*8, {gen_settings5}},
   // Final entry
 
   {0,S_SKIP|S_END,m_null}
@@ -3263,8 +3290,8 @@ setup_menu_t gen_settings5[] = { // General Settings screen3
   {"Health Bar Above Monsters", S_YESNO,  m_null, G_X, G_Y+16*8, {"health_bar"}},
 #endif
 
-  {"<- PREV",S_SKIP|S_PREV, m_null,KB_PREV, KB_Y+20*8, {gen_settings4}},
-  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings6}},
+  {"<- PREV",S_SKIP|S_PREV, m_null,KB_PREV, KB_Y+21*8, {gen_settings4}},
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+21*8, {gen_settings6}},
   {0,S_SKIP|S_END,m_null}
 };
 
@@ -3284,8 +3311,8 @@ setup_menu_t gen_settings6[] =
   {"WARN ON MISSEDBACKSIDE OVERFLOW"   ,S_YESNO     ,m_null,G_X2,G_Y+12*8, {"overrun_missedbackside_warn"}},
   {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,G_X2,G_Y+13*8, {"overrun_missedbackside_emulate"}},
 
-  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {gen_settings5}},
-  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings7}},
+  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+21*8, {gen_settings5}},
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+21*8, {gen_settings7}},
   {0,S_SKIP|S_END,m_null}
 };
 
@@ -3302,9 +3329,9 @@ setup_menu_t gen_settings7[] =
   {"ALLOW JUMP"                        ,S_CHOICE    ,m_null,G_X2,G_Y+6*8, {"comperr_allowjump"}, 0, 0, NULL, jumpheights},
   {"ALLOW VERTICAL AIMING"             ,S_YESNO     ,m_null,G_X2,G_Y+7*8, {"comperr_freeaim"}},
 
-  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {gen_settings6}},
+  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+21*8, {gen_settings6}},
 #ifdef GL_DOOM
-  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings8}},
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+21*8, {gen_settings8}},
 #endif
   {0,S_SKIP|S_END,m_null}
 };
@@ -3338,7 +3365,7 @@ setup_menu_t gen_settings8[] = { // General Settings screen4
   {"Blend Animations",           S_YESNO,  m_null, G_X, G_Y+19*8, {"gl_blend_animations"}},
 #endif //GL_DOOM
 
-  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {gen_settings7}},
+  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+21*8, {gen_settings7}},
   {0,S_SKIP|S_END,m_null}
 };
 
@@ -4730,28 +4757,28 @@ dboolean M_Responder (event_t* ev) {
       }
 
     //e6y
-    if (ch == key_speed_default && (!netgame||demoplayback))               
+    if (ch == key_speed_default && !record_sound &&  (!netgame||demoplayback))               
     {
       realtic_clock_rate = StepwiseSum(realtic_clock_rate, 0, speed_step, 3, 10000, 100);
       I_Init2();
       // Don't eat the keypress in this case.
       // return true;
     }
-    if (ch == key_speed_up && (!netgame||demoplayback))
+    if (ch == key_speed_up && !record_sound && (!netgame||demoplayback))
     {
       realtic_clock_rate = StepwiseSum(realtic_clock_rate, 1, speed_step, 3, 10000, 100);
       I_Init2();
       // Don't eat the keypress in this case.
       // return true;
     }
-    if (ch == key_speed_down && (!netgame||demoplayback))
+    if (ch == key_speed_down && !record_sound && (!netgame||demoplayback))
     {
       realtic_clock_rate = StepwiseSum(realtic_clock_rate, -1, speed_step, 3, 10000, 100);
       I_Init2();
       // Don't eat the keypress in this case.
       // return true;
     }
-    if (ch == key_nextlevel)
+    if (ch == key_nextlevel && !record_sound)
     {
       if (demoplayback && !doSkip && singledemo)
       {

@@ -31,9 +31,32 @@
 #ifndef MADPLAYER_H
 #define MADPLAYER_H
 
+#include <mad.h>
+
+typedef struct mp_player_s {
+	music_player_t music;
+	struct mad_stream Stream;
+	struct mad_frame  Frame;
+	struct mad_synth  Synth;
+	struct mad_header Header;
 
 
-extern const music_player_t mp_player;
+	int mp_looping;
+	int mp_volume; // 0-15
+	int mp_samplerate_target;
+	int mp_paused;
+	int mp_playing;
+
+	const void *mp_data;
+	int mp_len;
+
+
+	int mp_leftoversamps; // number of extra samples
+	// left over in mad decoder
+	int mp_leftoversamppos;
+} mp_player_t;
+
+extern mp_player_t mp_player;
 
 
 

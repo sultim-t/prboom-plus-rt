@@ -35,6 +35,8 @@
 #endif
 
 #include "musicplayer.h"
+#include "vorbisplayer.h"
+#include "doomdef.h"
 
 #ifndef HAVE_LIBVORBISFILE
 #include <string.h>
@@ -50,7 +52,7 @@ static int vorb_init (int samplerate)
   return 0;
 }
 
-const music_player_t vorb_player =
+vorb_player_t vorb_player =
 {
   vorb_name,
   vorb_init,
@@ -77,45 +79,24 @@ const music_player_t vorb_player =
 
 #include "i_sound.h"
 
-// uncomment to allow (experiemntal) support for
-// zdoom-style audio loops
-#define ZDOOM_AUDIO_LOOP
-
-static int vorb_looping = 0;
-static int vorb_volume = 0; // 0-15
-static int vorb_samplerate_target = 0;
-static int vorb_samplerate_in = 0;
-static int vorb_paused = 0;
-static int vorb_playing = 0;
-
-#ifdef ZDOOM_AUDIO_LOOP
-static unsigned vorb_loop_from;
-static unsigned vorb_loop_to;
-static unsigned vorb_total_pos;
-#endif // ZDOOM_AUDIO_LOOP
-
-static const char *vorb_data;
-static size_t vorb_len;
-static size_t vorb_pos;
-
-OggVorbis_File vf;
-
 // io callbacks
 
 static size_t vread (void *dst, size_t s, size_t n, void *src)
 {
+	vorb_player_t *vrb = (vorb_player_t*)src;
   size_t size = s * n;
 
-  if (vorb_pos + size >= vorb_len)
-    size = vorb_len - vorb_pos;
+  if (vrb->vorb_pos + size >= vrb->vorb_len)
+    size = vrb->vorb_len - vrb->vorb_pos;
 
-  memcpy (dst, vorb_data + vorb_pos, size);
-  vorb_pos += size;
+  memcpy (dst, vrb->vorb_data + vrb->vorb_pos, size);
+  vrb->vorb_pos += size;
   return size;
 }
 
 static int vseek (void *src, ogg_int64_t offset, int whence)
 {
+	vorb_player_t *vrb = (vorb_player_t*)src;
   size_t desired_pos;
 
   switch (whence)
@@ -124,36 +105,28 @@ static int vseek (void *src, ogg_int64_t offset, int whence)
       desired_pos = (size_t) offset;
       break;
     case SEEK_CUR:
-      desired_pos = vorb_pos + (size_t) offset;
+      desired_pos = vrb->vorb_pos + (size_t) offset;
       break;
     case SEEK_END:
     default:
-      desired_pos = vorb_len + (size_t) offset;
+      desired_pos = vrb->vorb_len + (size_t) offset;
       break;
   }
-  if (desired_pos > vorb_len) // placing exactly at the end is allowed)
+  if (desired_pos > vrb->vorb_len) // placing exactly at the end is allowed)
     return -1;
-  vorb_pos = desired_pos;
+  vrb->vorb_pos = desired_pos;
   return 0;
 }
 
 static long vtell (void *src)
 {
+	vorb_player_t *vrb = (vorb_player_t*)src;
   // correct to vorbisfile spec, this is a long, not 64 bit 
-  return (long) vorb_pos;
+  return (long) vrb->vorb_pos;
 }
 
 
-ov_callbacks vcallback =
-{
-  vread,
-  vseek,
-  NULL,
-  vtell
-};
-
-
-static const char *vorb_name (void)
+static const char *vorb_name (music_player_t *music)
 {
   return "vorbis player";
 }
@@ -231,117 +204,126 @@ static unsigned parsetag (const char *str, int samplerate)
 #include <delayimp.h>
 #endif
 
-static int vorb_init (int samplerate)
+static int vorb_init (music_player_t *music, int samplerate)
 {
+	vorb_player_t *vrb = (vorb_player_t*)music;
   TESTDLLLOAD ("libogg-0.dll", FALSE)
   TESTDLLLOAD ("libvorbis-0.dll", FALSE)
   TESTDLLLOAD ("libvorbisfile-3.dll", TRUE)
-  vorb_samplerate_target = samplerate;
+  vrb->vorb_samplerate_target = samplerate;
   return 1;
 }
 
-static void vorb_shutdown (void)
+static void vorb_shutdown (music_player_t *music)
 {
   // nothing to do                 
 
 
 }
 
-static const void *vorb_registersong (const void *data, unsigned len)
+static const void *vorb_registersong (music_player_t *music, const void *data, unsigned len)
 {
   int i;
   vorbis_info *vinfo;
   #ifdef ZDOOM_AUDIO_LOOP
   vorbis_comment *vcom;
   #endif // ZDOOM_AUDIO_LOOP
+  vorb_player_t *vrb = (vorb_player_t*)music;
 
-  vorb_data = (const char*)data;
-  vorb_len = len;
-  vorb_pos = 0;
+  vrb->vorb_data = data;
+  vrb->vorb_len = len;
+  vrb->vorb_pos = 0;
 
-  i = ov_test_callbacks ((void *) data, &vf, NULL, 0, vcallback);
+  i = ov_test_callbacks ((void *) music, &vrb->vf, NULL, 0, vrb->vcallback);
 
   if (i != 0)
   {
     lprintf (LO_WARN, "vorb_registersong: failed\n");
     return NULL;
   }
-  i = ov_test_open (&vf);
+  i = ov_test_open (&vrb->vf);
   
   if (i != 0)
   {
     lprintf (LO_WARN, "vorb_registersong: failed\n");
-    ov_clear (&vf);
+    ov_clear (&vrb->vf);
     return NULL;
   }
   
-  vinfo = ov_info (&vf, -1);
-  vorb_samplerate_in = vinfo->rate;
+  vinfo = ov_info (&vrb->vf, -1);
+  vrb->vorb_samplerate_in = vinfo->rate;
 
   #ifdef ZDOOM_AUDIO_LOOP
   // parse LOOP_START LOOP_END tags
-  vorb_loop_from = 0;
-  vorb_loop_to = 0;
+  vrb->vorb_loop_from = 0;
+  vrb->vorb_loop_to = 0;
 
-  vcom = ov_comment (&vf, -1);
+  vcom = ov_comment (&vrb->vf, -1);
   for (i = 0; i < vcom->comments; i++)
   {
     if (strncmp ("LOOP_START=", vcom->user_comments[i], 11) == 0)
-      vorb_loop_to = parsetag (vcom->user_comments[i] + 11, vorb_samplerate_in);
+      vrb->vorb_loop_to = parsetag (vcom->user_comments[i] + 11, vrb->vorb_samplerate_in);
     else if (strncmp ("LOOP_END=", vcom->user_comments[i], 9) == 0)
-      vorb_loop_from = parsetag (vcom->user_comments[i] + 9, vorb_samplerate_in);
+      vrb->vorb_loop_from = parsetag (vcom->user_comments[i] + 9, vrb->vorb_samplerate_in);
   }
-  if (vorb_loop_from == 0)
-    vorb_loop_from = 0xffffffff;
-  else if (vorb_loop_to >= vorb_loop_from)
-    vorb_loop_to = 0;
+  if (vrb->vorb_loop_from == 0)
+    vrb->vorb_loop_from = 0xffffffff;
+  else if (vrb->vorb_loop_to >= vrb->vorb_loop_from)
+    vrb->vorb_loop_to = 0;
   #endif // ZDOOM_AUDIO_LOOP
 
   // handle not used
   return data;
 }
 
-static void vorb_setvolume (int v)
+static void vorb_setvolume (music_player_t *music, int v)
 {
-  vorb_volume = v;
+	vorb_player_t *vrb = (vorb_player_t*)music;
+  vrb->vorb_volume = v;
 }
 
-static void vorb_pause (void)
+static void vorb_pause (music_player_t *music)
 {
-  vorb_paused = 1;
+	vorb_player_t *vrb = (vorb_player_t*)music;
+  vrb->vorb_paused = 1;
 }
 
-static void vorb_resume (void)
+static void vorb_resume (music_player_t *music)
 {
-  vorb_paused = 0;
+	vorb_player_t *vrb = (vorb_player_t*)music;
+  vrb->vorb_paused = 0;
 }
 
-static void vorb_unregistersong (const void *handle)
+static void vorb_unregistersong (music_player_t *music, const void *handle)
 { 
-  vorb_data = NULL;
-  ov_clear (&vf);
-  vorb_playing = 0;
+	vorb_player_t *vrb = (vorb_player_t*)music;
+  vrb->vorb_data = NULL;
+  ov_clear (&vrb->vf);
+  vrb->vorb_playing = 0;
 }
 
-static void vorb_play (const void *handle, int looping)
+static void vorb_play (music_player_t *music, const void *handle, int looping)
 {
-  ov_raw_seek_lap (&vf, 0);
+	vorb_player_t *vrb = (vorb_player_t*)music;
+  ov_raw_seek_lap (&vrb->vf, 0);
  
 
-  vorb_playing = 1;
-  vorb_looping = looping;
+  vrb->vorb_playing = 1;
+  vrb->vorb_looping = looping;
   #ifdef ZDOOM_AUDIO_LOOP
-  vorb_total_pos = 0;
+  vrb->vorb_total_pos = 0;
   #endif // ZDOOM_AUDIO_LOOP
 }
 
-static void vorb_stop (void)
+static void vorb_stop (music_player_t *music)
 {
-  vorb_playing = 0;
+	vorb_player_t *vrb = (vorb_player_t*)music;
+  vrb->vorb_playing = 0;
 }
 
-static void vorb_render_ex (void *dest, unsigned nsamp)
+static void vorb_render_ex (music_player_t *music, void *dest, unsigned nsamp)
 {
+	vorb_player_t *vrb = (vorb_player_t*)music;
   // no workie on files that dynamically change sampling rate
 
   short *sout = (short *) dest;
@@ -362,10 +344,10 @@ static void vorb_render_ex (void *dest, unsigned nsamp)
  
   // this call needs to be moved if support for changed number
   // of channels in middle of file is wanted
-  vorbis_info *vinfo = ov_info (&vf, -1);
+  vorbis_info *vinfo = ov_info (&vrb->vf, -1);
 
 
-  if (!vorb_playing || vorb_paused)
+  if (!vrb->vorb_playing || vrb->vorb_paused)
   {
     memset (dest, 0, nsamp * 4);
     return;
@@ -375,18 +357,18 @@ static void vorb_render_ex (void *dest, unsigned nsamp)
   {
     #ifdef ZDOOM_AUDIO_LOOP
     // don't use custom loop end point when not in looping mode
-    if (vorb_looping && vorb_total_pos + nsamp > vorb_loop_from)
-      numread = ov_read_float (&vf, &pcmdata, vorb_loop_from - vorb_total_pos, &bitstreamnum);
+    if (vrb->vorb_looping && vrb->vorb_total_pos + nsamp > vrb->vorb_loop_from)
+      numread = ov_read_float (&vrb->vf, &pcmdata, vrb->vorb_loop_from - vrb->vorb_total_pos, &bitstreamnum);
     else
     #endif // ZDOOM_AUDIO_LOOP
-      numread =  ov_read_float (&vf, &pcmdata, nsamp, &bitstreamnum);
+      numread =  ov_read_float (&vrb->vf, &pcmdata, nsamp, &bitstreamnum);
     if (numread == OV_HOLE)
     { // recoverable error, but discontinue if we get too many
       localerrors++;
       if (localerrors == 10)
       {
         lprintf (LO_WARN, "vorb_render: many errors.  aborting\n");
-        vorb_playing = 0;
+        vrb->vorb_playing = 0;
         memset (sout, 0, nsamp * 4);
         return;
       }
@@ -394,11 +376,11 @@ static void vorb_render_ex (void *dest, unsigned nsamp)
     }
     else if (numread == 0)
     { // EOF
-      if (vorb_looping)
+      if (vrb->vorb_looping)
       {
         #ifdef ZDOOM_AUDIO_LOOP
-        ov_pcm_seek_lap (&vf, vorb_loop_to);
-        vorb_total_pos = vorb_loop_to;
+        ov_pcm_seek_lap (&vrb->vf, vrb->vorb_loop_to);
+        vrb->vorb_total_pos = vrb->vorb_loop_to;
         #else // ZDOOM_AUDIO_LOOP
         ov_raw_seek_lap (&vf, 0);
         #endif // ZDOOM_AUDIO_LOOP
@@ -406,7 +388,7 @@ static void vorb_render_ex (void *dest, unsigned nsamp)
       }
       else
       {
-        vorb_playing = 0;
+        vrb->vorb_playing = 0;
         memset (sout, 0, nsamp * 4);
         return;
       }
@@ -414,12 +396,12 @@ static void vorb_render_ex (void *dest, unsigned nsamp)
     else if (numread < 0)
     { // unrecoverable errror
       lprintf (LO_WARN, "vorb_render: unrecoverable error\n");
-      vorb_playing = 0;
+      vrb->vorb_playing = 0;
       memset (sout, 0, nsamp * 4);
       return;
     }
   
-    multiplier = 16384.0f / 15.0f * vorb_volume;
+    multiplier = 16384.0f / 15.0f * vrb->vorb_volume;
     // volume and downmix
     if (vinfo->channels == 2)
     {
@@ -438,19 +420,27 @@ static void vorb_render_ex (void *dest, unsigned nsamp)
     }
     nsamp -= numread;
     #ifdef ZDOOM_AUDIO_LOOP
-    vorb_total_pos += numread;
+    vrb->vorb_total_pos += numread;
     #endif // ZDOOM_AUDIO_LOOP
   }
 
 }
 
-static void vorb_render (void *dest, unsigned nsamp)
+static void vorb_render (music_player_t *music, void *dest, unsigned nsamp)
 { 
-  I_ResampleStream (dest, nsamp, vorb_render_ex, vorb_samplerate_in, vorb_samplerate_target);
+	vorb_player_t *vrb = (vorb_player_t*)music;
+  I_ResampleStream (&vrb->music, dest, nsamp, vorb_render_ex, vrb->vorb_samplerate_in, vrb->vorb_samplerate_target);
+}
+
+static void vorb_seek (struct music_player_s *music, int pos)
+{
+	vorb_player_t *vrb = (vorb_player_t*)music;
+
+	ov_time_seek(&vrb->vf, (double)pos / (double)TICRATE);
 }
 
 
-const music_player_t vorb_player =
+vorb_player_t vorb_player =
 {
   vorb_name,
   vorb_init,
@@ -462,7 +452,38 @@ const music_player_t vorb_player =
   vorb_unregistersong,
   vorb_play,
   vorb_stop,
-  vorb_render
+  vorb_render,
+  vorb_seek,
+  0,
+  0,
+  0,
+  vread,
+  vseek,
+  NULL,
+  vtell,
 };
+vorb_player_t record_player  =
+{
+	vorb_name,
+	vorb_init,
+	vorb_shutdown,
+	vorb_setvolume,
+	vorb_pause,
+	vorb_resume,
+	vorb_registersong,
+	vorb_unregistersong,
+	vorb_play,
+	vorb_stop,
+	vorb_render,
+	vorb_seek,
+	0,
+	0,
+	0,
+	vread,
+	vseek,
+	NULL,
+	vtell,
+};
+
 
 #endif // HAVE_LIBVORBISFILE

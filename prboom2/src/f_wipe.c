@@ -39,6 +39,7 @@
 
 #include "z_zone.h"
 #include "doomdef.h"
+#include "i_sound.h"
 #include "i_video.h"
 #include "v_video.h"
 #include "m_random.h"
@@ -188,7 +189,7 @@ static int wipe_exitMelt(int ticks)
 
 int wipe_StartScreen(void)
 {
-  if(!render_wipescreen||wasWiped) return 0;//e6y
+  if(!render_wipescreen||wasWiped || record_sound || recordisplaying) return 0;//e6y
   wasWiped = true;//e6y
 
 #ifdef GL_DOOM
@@ -218,7 +219,7 @@ int wipe_StartScreen(void)
 
 int wipe_EndScreen(void)
 {
-  if(!render_wipescreen||!wasWiped) return 0;//e6y
+  if(!render_wipescreen||!wasWiped || record_sound || recordisplaying) return 0;//e6y
   wasWiped = false;//e6y
 
 #ifdef GL_DOOM
@@ -251,7 +252,7 @@ int wipe_EndScreen(void)
 int wipe_ScreenWipe(int ticks)
 {
   static dboolean go;                               // when zero, stop the wipe
-  if(!render_wipescreen) return 0;//e6y
+  if(!render_wipescreen || record_sound || recordisplaying) return 0;//e6y
   if (!go)                                         // initial stuff
     {
       go = 1;

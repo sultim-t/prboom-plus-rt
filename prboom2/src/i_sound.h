@@ -37,6 +37,10 @@
 #include "sounds.h"
 #include "doomtype.h"
 
+#include "MUSIC/musicplayer.h"
+
+#include "SDL.h"
+
 #define SNDSERV
 #undef SNDINTR
 
@@ -45,6 +49,34 @@
 #endif
 
 extern int snd_pcspeaker;
+
+// cybermind: sound recording stuff
+extern int record_sound;
+extern int record_sound_start;
+extern int record_sound_paused;
+extern int post_record_sound;
+extern const void *record_handle;
+extern char* recorddata;
+extern int recordlen;
+extern int recordisplaying;
+extern int record_remove_tempfiles;
+// this one recieves raw PCM sound on stdin
+extern const char *record_soundcommand;
+void I_InitRecording(void);
+void I_ShutdownRecording(void);
+void I_StopRecording();
+void I_SetRecordingVolume (int volume);
+void I_StartRecording(void);
+void I_UpdateRecording(void *userdata, Uint8 *stream, int len);
+unsigned char* I_RenderRecording (void *buff, unsigned nsamp);
+void I_PauseRecordingAudio();
+void I_ResumeRecordingAudio();
+void I_SeekRecording(int pos);
+void I_RegisterRecording(const void *data, size_t len);
+void I_UnRegisterRecording();
+void I_PlayRecording();
+void I_PauseRecording();
+void I_ResumeRecording ();
 
 // Init at program start...
 void I_InitSound(void);
@@ -86,9 +118,11 @@ void I_UpdateSoundParams(int handle, int vol, int sep, int pitch);
 void I_SetSoundCap (void);
 // grabs len samples of audio (16 bit interleaved)
 unsigned char *I_GrabSound (int len);
+// grabs len samples of audio (16 bit mono)
+unsigned char *I_GrabRecording (int len);
 
 // NSM helper routine for some of the streaming audio
-void I_ResampleStream (void *dest, unsigned nsamp, void (*proc) (void *dest, unsigned nsamp), unsigned sratein, unsigned srateout);
+void I_ResampleStream (music_player_t *music, void *dest, unsigned nsamp, void (*proc) (music_player_t *music, void *dest, unsigned nsamp), unsigned sratein, unsigned srateout);
 
 //
 //  MUSIC I/O

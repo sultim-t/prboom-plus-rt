@@ -31,10 +31,33 @@
 #ifndef FLPLAYER_H
 #define FLPLAYER_H
 
+#include <fluidsynth.h>
+
+typedef struct fl_player_s {
+	music_player_t music;
+	fluid_settings_t *f_set;
+	fluid_synth_t *f_syn;
+	int f_font;
+	midi_event_t **events;
+	int eventpos;
+	midi_file_t *midifile;
+
+	int f_playing;
+	int f_paused;
+	int f_looping;
+	int f_volume;
+	double spmc;
+	double f_delta;
+	int f_soundrate;
+
+#define SYSEX_BUFF_SIZE 1024
+	unsigned char sysexbuff[SYSEX_BUFF_SIZE];
+	int sysexbufflen;
+
+} fl_player_t;
 
 
-
-extern const music_player_t fl_player;
+extern fl_player_t fl_player;
 
 
 

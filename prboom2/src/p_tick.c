@@ -38,6 +38,7 @@
 #include "p_map.h"
 #include "r_fps.h"
 #include "e6y.h"
+#include "cybermind.h"
 #include "s_advsound.h"
 
 int leveltime;
@@ -295,5 +296,7 @@ void P_Ticker (void)
   P_RespawnSpecials();
   P_MapEnd();
   leveltime++;                       // for par times
+  //cybermind
+  totaltics++;
 }
 

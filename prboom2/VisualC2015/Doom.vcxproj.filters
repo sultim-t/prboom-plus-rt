@@ -388,6 +388,9 @@
     <ClCompile Include="..\src\umapinfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\cybermind.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\am_map.h">
@@ -709,6 +712,9 @@
       <Filter>Music</Filter>
     </ClInclude>
     <ClInclude Include="..\src\scanner.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\cybermind.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

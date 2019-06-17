@@ -31,6 +31,7 @@
 
 
 #include "opl.h"
+#include "oplplayer.h"
 #include "opl_queue.h"
 #include "dbopl.h"
 
@@ -209,7 +210,7 @@ static void WriteRegister(unsigned int reg_num, unsigned int value)
     }
 }
 
-static void OPL_AdvanceTime(unsigned int nsamples) 
+static void OPL_AdvanceTime(void *opl, unsigned int nsamples) 
 {
     opl_callback_t callback;
     void *callback_data;
@@ -238,7 +239,7 @@ static void OPL_AdvanceTime(unsigned int nsamples)
         }
 
 
-        callback(callback_data);
+        callback(opl, callback_data);
 
     }
 
@@ -270,7 +271,7 @@ static void FillBuffer(int16_t *buffer, unsigned int nsamples)
 }
 
 
-void OPL_Render_Samples (void *dest, unsigned buffer_len)
+void OPL_Render_Samples (void *opl, void *dest, unsigned buffer_len)
 {
     unsigned int filled = 0;
 
@@ -315,7 +316,7 @@ void OPL_Render_Samples (void *dest, unsigned buffer_len)
 
         // Invoke callbacks for this point in time.
 
-        OPL_AdvanceTime(nsamples);
+        OPL_AdvanceTime(opl, nsamples);
     }
 }
 

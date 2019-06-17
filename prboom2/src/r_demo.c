@@ -53,6 +53,7 @@
 #include "r_fps.h"
 #include "lprintf.h"
 #include "i_system.h"
+#include "i_sound.h"
 #include "i_video.h"
 #include "m_misc.h"
 #include "m_argv.h"
@@ -61,6 +62,7 @@
 #include "d_deh.h"
 #include "g_game.h"
 #include "p_map.h"
+#include "z_zone.h"
 #include "hu_stuff.h"
 #include "g_overflow.h"
 #include "e6y.h"
@@ -218,12 +220,14 @@ void R_ResetAfterTeleport(player_t *player)
 
 #define PWAD_SIGNATURE "PWAD"
 #define DEMOEX_VERSION "2"
+#define DEMOEX_VERSION_RECORDING "3"
 
 #define DEMOEX_VERSION_LUMPNAME "VERSION"
 #define DEMOEX_PORTNAME_LUMPNAME "PORTNAME"
 #define DEMOEX_PARAMS_LUMPNAME "CMDLINE"
 #define DEMOEX_MLOOK_LUMPNAME "MLOOK"
 #define DEMOEX_COMMENT_LUMPNAME "COMMENT"
+#define DEMOEX_RECORDING_LUMPNAME "AUDIOREC"
 
 #define DEMOEX_SEPARATOR       "\n"
 
@@ -830,6 +834,29 @@ static void R_DemoEx_AddMouseLookData(wadtbl_t *wadtbl)
   }
 }
 
+static void R_DemoEx_AddRecording(wadtbl_t *wadtbl)
+{
+	unsigned char *buf;
+	int fsize;
+
+	FILE *f = fopen("oggrecord.ogg", "rb");
+	if (!f) {
+		return;
+	}
+
+	fseek(f, 0L, SEEK_END);
+	fsize = ftell(f);
+	fseek(f, 0L, SEEK_SET);
+	buf = (unsigned char*)malloc(fsize);
+	fread(buf, fsize, 1, f);
+	fclose(f);
+	if (record_remove_tempfiles)
+		remove("oggrecord.raw");
+
+	W_AddLump(wadtbl, DEMOEX_RECORDING_LUMPNAME, buf, fsize);
+}
+
+
 void I_DemoExShutdown(void)
 {
   W_ReleaseAllWads();
@@ -1039,6 +1066,27 @@ int CheckWadFileIntegrity(const char *filename)
   return result;
 }
 
+void R_DemoEx_ReadRecording()
+{
+	int         lump;
+	const char*       ch;
+	int         count;
+
+	lump = W_CheckNumForName(DEMOEX_RECORDING_LUMPNAME);
+	if (lump == -1)
+		return;
+
+	count = W_LumpLength(lump);
+
+	if (count <= 0)
+		return;
+
+	ch = W_CacheLumpNum(lump);
+	recorddata = (char*)calloc(count, 1);
+	memcpy(recorddata, (const void*)ch, count);
+	recordlen = count;
+}
+
 static int G_ReadDemoFooter(const char *filename)
 {
   int result = false;
@@ -1132,6 +1180,10 @@ static int G_ReadDemoFooter(const char *filename)
         //restore all critical params like -spechit x
         R_DemoEx_GetParams(buffer, &waddata);
 
+		if (R_DemoEx_GetVersion() >= 3) {
+			R_DemoEx_ReadRecording(buffer, &waddata);
+		}
+
         //replace old wadfiles with the new ones
         if (waddata.numwadfiles)
         {
@@ -1178,12 +1230,23 @@ void G_WriteDemoFooter(FILE *file)
   W_AddLump(&demoex, NULL, (const byte*)DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
 
   //process format version
-  W_AddLump(&demoex, DEMOEX_VERSION_LUMPNAME, (const byte*)DEMOEX_VERSION, strlen(DEMOEX_VERSION));
+  if (post_record_sound) { // // cybermind: increase version number for recordings
+	  W_AddLump(&demoex, DEMOEX_VERSION_LUMPNAME, (const byte*)DEMOEX_VERSION_RECORDING, strlen(DEMOEX_VERSION_RECORDING));
+  } else {
+	  W_AddLump(&demoex, DEMOEX_VERSION_LUMPNAME, (const byte*)DEMOEX_VERSION, strlen(DEMOEX_VERSION));
+  }
+  
   W_AddLump(&demoex, NULL, (const byte*)DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
 
   //process mlook
   R_DemoEx_AddMouseLookData(&demoex);
   W_AddLump(&demoex, NULL, (const byte*)DEMOEX_SEPARATOR, strlen(DEMOEX_SEPARATOR));
+
+  // cybermind
+  if (post_record_sound) {
+		R_DemoEx_AddRecording(&demoex);
+		post_record_sound = 0;
+  }
 
   //process port name
   W_AddLump(&demoex, DEMOEX_PORTNAME_LUMPNAME,

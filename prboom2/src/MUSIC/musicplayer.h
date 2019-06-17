@@ -47,41 +47,47 @@ synced.
 */
 
 
-typedef struct
+typedef struct music_player_s
 {
   // descriptive name of the player, such as "OPL2 Synth"
-  const char *(*name)(void);
+  const char *(*name)(struct music_player_s *music);
 
   // samplerate is in hz.  return is 1 for success
-  int (*init)(int samplerate);
+  int (*init)(struct music_player_s *music, int samplerate);
 
   // deallocate structures, cleanup, ...
-  void (*shutdown)(void);
+  void (*shutdown)(struct music_player_s *music);
 
   // set volume, 0 = off, 15 = max
-  void (*setvolume)(int v);
+  void (*setvolume)(struct music_player_s *music, int v);
 
   // pause currently running song.
-  void (*pause)(void);
+  void (*pause)(struct music_player_s *music);
 
   // undo pause
-  void (*resume)(void);
+  void (*resume)(struct music_player_s *music);
 
   // return a player-specific handle, or NULL on failure.
   // data does not belong to player, but it will persist as long as unregister is not called
-  const void *(*registersong)(const void *data, unsigned len);
+  const void *(*registersong)(struct music_player_s *music, const void *data, unsigned len);
 
   // deallocate structures, etc.  data is no longer valid
-  void (*unregistersong)(const void *handle);
+  void (*unregistersong)(struct music_player_s *music, const void *handle);
 
-  void (*play)(const void *handle, int looping);
+  void (*play)(struct music_player_s *music, const void *handle, int looping);
 
   // stop
-  void (*stop)(void);
+  void (*stop)(struct music_player_s *music);
 
   // s16 stereo, with samplerate as specified in init.  player needs to be able to handle
   // just about anything for nsamp.  render can be called even during pause+stop.
-  void (*render)(void *dest, unsigned nsamp);
+  void (*render)(struct music_player_s *music, void *dest, unsigned nsamp);
+
+  // Seeking function to set position of audio (in tics)
+  void (*seek)(struct music_player_s *music, int pos);
+  short *sin;
+  unsigned sinsamp;
+  unsigned remainder;
 } music_player_t;
 
 

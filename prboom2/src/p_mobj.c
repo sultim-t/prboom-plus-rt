@@ -51,6 +51,7 @@
 #include "r_demo.h"
 #include "g_overflow.h"
 #include "e6y.h"//e6y
+#include "cybermind.h"
 
 //
 // P_SetMobjState
@@ -948,6 +949,10 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
   P_AddThinker (&mobj->thinker);
   if (!((mobj->flags ^ MF_COUNTKILL) & (MF_FRIEND | MF_COUNTKILL)))
     totallive++;
+  //cybermind
+  if (dump_things) {
+	  cyb_DumpSpawn(dumpFile, mobj);
+  }
   return mobj;
 }
 

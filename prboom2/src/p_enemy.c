@@ -51,6 +51,7 @@
 #include "hu_stuff.h"
 #include "lprintf.h"
 #include "e6y.h"//e6y
+#include "cybermind.h"
 
 static mobj_t *current_actor;
 
@@ -1721,10 +1722,13 @@ void A_VileChase(mobj_t* actor)
        */
       corpsehit->flags =
         (info->flags & ~MF_FRIEND) | (actor->flags & MF_FRIEND);
-      corpsehit->flags = corpsehit->flags | MF_RESSURECTED;//e6y
+	  if (!alternative_kills_counter)
+		corpsehit->flags = corpsehit->flags | MF_RESSURECTED;//e6y
 
 		  if (!((corpsehit->flags ^ MF_COUNTKILL) & (MF_FRIEND | MF_COUNTKILL)))
 		    totallive++;
+		  if (alternative_kills_counter)
+			  totalkills++;
 		  
                   corpsehit->health = info->spawnhealth;
       P_SetTarget(&corpsehit->target, NULL);  // killough 11/98
@@ -2639,7 +2643,10 @@ void A_SpawnFly(mobj_t *mo)
   newmobj->flags = (newmobj->flags & ~MF_FRIEND) | (mo->flags & MF_FRIEND);
 
   //e6y: monsters spawned by Icon of Sin should not be countable for total killed.
-  newmobj->flags |= MF_RESSURECTED;
+  if (!alternative_kills_counter)
+	  newmobj->flags |= MF_RESSURECTED;
+  else
+	  totalkills++;
 
   /* killough 8/29/98: add to appropriate thread */
   P_UpdateThinker(&newmobj->thinker);

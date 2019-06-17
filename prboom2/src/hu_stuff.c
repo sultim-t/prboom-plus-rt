@@ -2791,7 +2791,7 @@ dboolean HU_Responder(event_t *ev)
     }//jff 2/26/98 no chat if message review is displayed
     // killough 10/02/98: no chat if demo playback
     // no chat in -solo-net mode
-    else if (!demoplayback && !message_list && netgame && numplayers > 1)
+    else if (!demoplayback && !message_list)
     {
       if (ev->data1 == key_chat)
     {

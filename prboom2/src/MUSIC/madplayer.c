@@ -50,7 +50,7 @@ static int mp_init (int samplerate)
   return 0;
 }
 
-const music_player_t mp_player =
+mp_player_t mp_player =
 {
   mp_name,
   mp_init,
@@ -75,55 +75,38 @@ const music_player_t mp_player =
 #include <mad.h>
 
 #include "i_sound.h"
-
-static struct mad_stream Stream;
-static struct mad_frame  Frame;
-static struct mad_synth  Synth;
-static struct mad_header Header;
+#include "madplayer.h"
 
 
-static int mp_looping = 0;
-static int mp_volume = 0; // 0-15
-static int mp_samplerate_target = 0;
-static int mp_paused = 0;
-static int mp_playing = 0;
-
-static const void *mp_data;
-static int mp_len;
-
-
-static int mp_leftoversamps = 0; // number of extra samples
-                                 // left over in mad decoder
-static int mp_leftoversamppos = 0;
-
-
-static const char *mp_name (void)
+static const char *mp_name (music_player_t *music)
 {
   return "mad mp3 player";
 }
 
 
-static int mp_init (int samplerate)
+static int mp_init (music_player_t *music, int samplerate)
 {
-  mad_stream_init (&Stream);
-  mad_frame_init (&Frame);
-  mad_synth_init (&Synth);
-  mad_header_init (&Header);
-  mp_samplerate_target = samplerate;
+	mp_player_t *mp = (mp_player_t*)music;
+  mad_stream_init (&mp->Stream);
+  mad_frame_init (&mp->Frame);
+  mad_synth_init (&mp->Synth);
+  mad_header_init (&mp->Header);
+  mp->mp_samplerate_target = samplerate;
   return 1;
 }
 
-static void mp_shutdown (void)
+static void mp_shutdown (music_player_t *music)
 {
-                   
-  mad_synth_finish (&Synth);
-  mad_frame_finish (&Frame);
-  mad_stream_finish (&Stream);
-  mad_header_finish (&Header);
+       mp_player_t *mp = (mp_player_t*)music;            
+  mad_synth_finish (&mp->Synth);
+  mad_frame_finish (&mp->Frame);
+  mad_stream_finish (&mp->Stream);
+  mad_header_finish (&mp->Header);
 }
 
-static const void *mp_registersong (const void *data, unsigned len)
+static const void *mp_registersong (music_player_t *music, const void *data, unsigned len)
 {
+	mp_player_t *mp = (mp_player_t*)music;
   int i;
   int maxtry;
   int success = 0;
@@ -142,15 +125,15 @@ static const void *mp_registersong (const void *data, unsigned len)
   else
     maxtry = 20;
 
-  mad_stream_buffer (&Stream, (const unsigned char*)data, len);
+  mad_stream_buffer (&mp->Stream, (const unsigned char*)data, len);
 
   for (i = 0; i < maxtry; i++)
   {
-    if (mad_header_decode (&Header, &Stream) != 0)
+    if (mad_header_decode (&mp->Header, &mp->Stream) != 0)
     {
-      if (!MAD_RECOVERABLE (Stream.error))
+      if (!MAD_RECOVERABLE (mp->Stream.error))
       {
-        lprintf (LO_WARN, "mad_registersong failed: %s\n", mad_stream_errorstr (&Stream));
+        lprintf (LO_WARN, "mad_registersong failed: %s\n", mad_stream_errorstr (&mp->Stream));
         return NULL;
       }  
     }
@@ -167,53 +150,60 @@ static const void *mp_registersong (const void *data, unsigned len)
     return NULL;
   }
   
-  lprintf (LO_INFO, "mad_registersong succeed. bitrate %lu samplerate %d\n", Header.bitrate, Header.samplerate);
+  lprintf (LO_INFO, "mad_registersong succeed. bitrate %lu samplerate %d\n", mp->Header.bitrate, mp->Header.samplerate);
  
-  mp_data = data;
-  mp_len = len;
+  mp->mp_data = data;
+  mp->mp_len = len;
   // handle not used
   return data;
 }
 
-static void mp_setvolume (int v)
+static void mp_setvolume (music_player_t *music, int v)
 {
-  mp_volume = v;
+	mp_player_t *mp = (mp_player_t*)music;
+  mp->mp_volume = v;
 }
 
-static void mp_pause (void)
+static void mp_pause (music_player_t *music)
 {
-  mp_paused = 1;
+	mp_player_t *mp = (mp_player_t*)music;
+  mp->mp_paused = 1;
 }
 
-static void mp_resume (void)
+static void mp_resume (music_player_t *music)
 {
-  mp_paused = 0;
+	mp_player_t *mp = (mp_player_t*)music;
+  mp->mp_paused = 0;
 }
 
-static void mp_unregistersong (const void *handle)
+static void mp_unregistersong (music_player_t *music, const void *handle)
 { // nothing to do
-  mp_data = NULL;
-  mp_playing = 0;
+	mp_player_t *mp = (mp_player_t*)music;
+  mp->mp_data = NULL;
+  mp->mp_playing = 0;
 }
 
-static void mp_play (const void *handle, int looping)
+static void mp_play (music_player_t *music, const void *handle, int looping)
 {
-  mad_stream_buffer (&Stream, (const unsigned char *)mp_data, mp_len);
+	mp_player_t *mp = (mp_player_t*)music;
+  mad_stream_buffer (&mp->Stream, (const unsigned char*)mp->mp_data, mp->mp_len);
 
-  mp_playing = 1;
-  mp_looping = looping;
-  mp_leftoversamps = 0;
-  mp_leftoversamppos = 0;
+  mp->mp_playing = 1;
+  mp->mp_looping = looping;
+  mp->mp_leftoversamps = 0;
+  mp->mp_leftoversamppos = 0;
 }
 
-static void mp_stop (void)
+static void mp_stop (music_player_t *music)
 {
-  mp_playing = 0;
+	mp_player_t *mp = (mp_player_t*)music;
+  mp->mp_playing = 0;
 }
 
 // convert from mad's internal fixed point representation
-static inline short mp_fixtoshort (mad_fixed_t f)
+static inline short mp_fixtoshort (music_player_t *music, mad_fixed_t f)
 {
+	mp_player_t *mp = (mp_player_t*)music;
   // clip
   if (f < -MAD_F_ONE)
     f = -MAD_F_ONE;
@@ -221,19 +211,20 @@ static inline short mp_fixtoshort (mad_fixed_t f)
     f = MAD_F_ONE;    
   // apply volume before conversion to 16bit
   f /= 15;
-  f *= mp_volume;
+  f *= mp->mp_volume;
   f >>= (MAD_F_FRACBITS - 15);
 
   return (short) f;
 }
 
-static void mp_render_ex (void *dest, unsigned nsamp)
+static void mp_render_ex (music_player_t *music, void *dest, unsigned nsamp)
 {
+	mp_player_t *mp = (mp_player_t*)music;
   short *sout = (short *) dest;
 
   int localerrors = 0;
 
-  if (!mp_playing || mp_paused)
+  if (!mp->mp_playing || mp->mp_paused)
   {
     memset (dest, 0, nsamp * 4);
     return;
@@ -242,26 +233,26 @@ static void mp_render_ex (void *dest, unsigned nsamp)
   while (1)
   {
     // write any leftover data from last MP3 frame
-    while (mp_leftoversamps > 0 && nsamp > 0)
+    while (mp->mp_leftoversamps > 0 && nsamp > 0)
     {
-      short s = mp_fixtoshort (Synth.pcm.samples[0][mp_leftoversamppos]);
+      short s = mp_fixtoshort (&mp->music, mp->Synth.pcm.samples[0][mp->mp_leftoversamppos]);
       *sout++ = s;
-      if (Synth.pcm.channels == 2)
-        s = mp_fixtoshort (Synth.pcm.samples[1][mp_leftoversamppos]);
+      if (mp->Synth.pcm.channels == 2)
+        s = mp_fixtoshort (&mp->music, mp->Synth.pcm.samples[1][mp->mp_leftoversamppos]);
       // if mono, just duplicate the first channel again
       *sout++ = s;
 
-      mp_leftoversamps -= 1;
-      mp_leftoversamppos += 1;
+      mp->mp_leftoversamps -= 1;
+      mp->mp_leftoversamppos += 1;
       nsamp -= 1;
     }
     if (nsamp == 0)
       return; // done
     
     // decode next valid MP3 frame
-    while (mad_frame_decode (&Frame, &Stream) != 0)
+    while (mad_frame_decode (&mp->Frame, &mp->Stream) != 0)
     {
-      if (MAD_RECOVERABLE (Stream.error))
+      if (MAD_RECOVERABLE (mp->Stream.error))
       { // unspecified problem with one frame.
         // try the next frame, but bail if we get a bunch of crap in a row;
         // likely indicates a larger problem (and if we don't bail, we could
@@ -270,54 +261,55 @@ static void mp_render_ex (void *dest, unsigned nsamp)
         localerrors++;
         if (localerrors == 10)
         {
-          lprintf (LO_WARN, "mad_frame_decode: Lots of errors.  Most recent %s\n", mad_stream_errorstr (&Stream));
-          mp_playing = 0;
+          lprintf (LO_WARN, "mad_frame_decode: Lots of errors.  Most recent %s\n", mad_stream_errorstr (&mp->Stream));
+          mp->mp_playing = 0;
           memset (sout, 0, nsamp * 4);
           return;
         }
       }  
-      else if (Stream.error == MAD_ERROR_BUFLEN)
+      else if (mp->Stream.error == MAD_ERROR_BUFLEN)
       { // EOF
         // FIXME: in order to not drop the last frame, there must be at least MAD_BUFFER_GUARD
         // of extra bytes (with value 0) at the end of the file.  current implementation
         // drops last frame
-        if (mp_looping)
+        if (mp->mp_looping)
         { // rewind, then go again
-          mad_stream_buffer (&Stream, (const unsigned char *)mp_data, mp_len);
+          mad_stream_buffer (&mp->Stream, mp->mp_data, mp->mp_len);
           continue;
         }
         else
         { // stop
-          mp_playing = 0;
+          mp->mp_playing = 0;
           memset (sout, 0, nsamp * 4);
           return;
         }
       }
       else
       { // oh well.
-        lprintf (LO_WARN, "mad_frame_decode: Unrecoverable error %s\n", mad_stream_errorstr (&Stream));
-        mp_playing = 0;
+        lprintf (LO_WARN, "mad_frame_decode: Unrecoverable error %s\n", mad_stream_errorstr (&mp->Stream));
+        mp->mp_playing = 0;
         memset (sout, 0, nsamp * 4);
         return;
       }
     }
 
     // got a good frame, so synth it and dispatch it.
-    mad_synth_frame (&Synth, &Frame);
-    mp_leftoversamps = Synth.pcm.length;
-    mp_leftoversamppos = 0;
+    mad_synth_frame (&mp->Synth, &mp->Frame);
+    mp->mp_leftoversamps = mp->Synth.pcm.length;
+    mp->mp_leftoversamppos = 0;
 
   }
   // NOT REACHED
 }
 
-static void mp_render (void *dest, unsigned nsamp)
+static void mp_render (music_player_t *music, void *dest, unsigned nsamp)
 { 
-  I_ResampleStream (dest, nsamp, mp_render_ex, Header.samplerate, mp_samplerate_target);
+	mp_player_t *mp = (mp_player_t*)music;
+  I_ResampleStream (music, dest, nsamp, mp_render_ex, mp->Header.samplerate, mp->mp_samplerate_target);
 }
 
 
-const music_player_t mp_player =
+mp_player_t mp_player =
 {
   mp_name,
   mp_init,

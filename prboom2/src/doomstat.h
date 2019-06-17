@@ -180,6 +180,7 @@ extern  dboolean deathmatch;
 // These are multiplied by 8.
 extern int snd_SfxVolume;      // maximum volume for sound
 extern int snd_MusicVolume;    // maximum volume for music
+extern int snd_RecordVolume;   // maximum volume for recording
 
 // CPhipps - screen parameters
 extern int desired_screenwidth, desired_screenheight;

@@ -60,6 +60,7 @@
 #include "doomtype.h"
 #include "doomstat.h"
 #include "d_main.h"
+#include "d_think.h"
 #include "s_sound.h"
 #include "i_system.h"
 #include "i_main.h"
@@ -71,6 +72,7 @@
 #include "i_system.h"
 #include "p_maputl.h"
 #include "p_map.h"
+#include "p_tick.h"
 #include "i_video.h"
 #include "info.h"
 #include "r_main.h"
@@ -86,6 +88,11 @@
 #include "r_demo.h"
 #include "d_deh.h"
 #include "e6y.h"
+#include "cybermind.h"
+
+#ifdef _MSC_VER
+#include <io.h>
+#endif
 
 dboolean wasWiped = false;
 
@@ -132,6 +139,7 @@ int hudadd_crosshair_target_color;
 int hudadd_crosshair_lock_target;
 int movement_strafe50;
 int movement_shorttics;
+int movement_strafe50onturns;
 int movement_mouselook;
 int movement_mouseinvert;
 int movement_maxviewpitch;
@@ -283,6 +291,20 @@ void e6y_InitCommandLine(void)
   if ((p = M_CheckParm("-avidemo")) && (p < myargc-1))
     avi_shot_fname = myargv[p + 1];
   stats_level = M_CheckParm("-levelstat");
+  stats_level2 = M_CheckParm("-levelstat2");
+  if ((p = M_CheckParm ("-dumpthings")) && (p < myargc-1)) {
+	  char buf[256];
+	  int c = 0;
+
+	  dump_things = atoi(myargv[p + 1]);
+	  while (true) {
+		  sprintf(buf, "dumpthings%d.dmp", c++);
+		  if (access(buf, F_OK)) {
+			  break;
+		  }
+	  }
+	  cyb_DumpStart(buf);
+  }
 
   // TAS-tracers
   InitTracers();
@@ -339,6 +361,7 @@ void G_SkipDemoStop(void)
   S_Init(snd_SfxVolume, snd_MusicVolume);
   S_Stop();
   S_RestartMusic();
+  I_SeekRecording(totaldemotics);
 
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL) {

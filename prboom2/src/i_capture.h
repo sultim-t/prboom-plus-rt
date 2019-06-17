@@ -31,6 +31,22 @@
 #ifndef __I_CAPTURE__
 #define __I_CAPTURE__
 
+#include "SDL.h"
+#include "SDL_thread.h"
+
+typedef struct
+{ // information on a running pipe
+	char command[PATH_MAX];
+	FILE *f_stdin;
+	FILE *f_stdout;
+	FILE *f_stderr;
+	SDL_Thread *outthread;
+	const char *stdoutdumpname;
+	SDL_Thread *errthread;
+	const char *stderrdumpname;
+	void *user;
+} pipeinfo_t;
+
 // commandlines passed to popen()
 // this one recieves raw PCM sound on stdin
 extern const char *cap_soundcommand;
@@ -47,6 +63,32 @@ extern int cap_frac;
 
 // true if we're capturing video
 extern int capturing_video;
+
+// parses a command with simple printf-style replacements.
+
+// %w video width (px)
+// %h video height (px)
+// %s sound rate (hz)
+// %f filename passed to -viddump
+// %% single percent sign
+// TODO: add aspect ratio information
+extern int parsecommand (char *out, const char *in, int len);
+
+// popen3() implementation -
+// starts a child process
+
+// user is a pointer to implementation defined extra data
+extern int my_popen3 (pipeinfo_t *p); // 1 on success
+// close waits on process
+extern void my_pclose3 (pipeinfo_t *p);
+
+// simple thread proc dumps stdout
+// not terribly fast
+extern int threadstdoutproc (void *data);
+
+// simple thread proc dumps stderr
+// not terribly fast
+extern int threadstderrproc (void *data);
 
 // init and open sound, video pipes
 // fn is filename passed from command line, typically final output file

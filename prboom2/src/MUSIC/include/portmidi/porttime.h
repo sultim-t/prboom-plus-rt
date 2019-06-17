@@ -1,3 +1,5 @@
+#ifndef __PORTTIME_H
+#define __PORTTIME_H
 /* porttime.h -- portable interface to millisecond timer */
 
 /* CHANGE LOG FOR PORTTIME
@@ -89,4 +91,6 @@ PMEXPORT void Pt_Sleep(int32_t duration);
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif

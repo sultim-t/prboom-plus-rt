@@ -76,6 +76,7 @@ typedef BOOL (WINAPI *SetAffinityFunc)(HANDLE hProcess, DWORD mask);
 #include <stdlib.h>
 
 #include "e6y.h"
+#include "cybermind.h"
 
 /* Most of the following has been rewritten by Lee Killough
  *
@@ -138,17 +139,29 @@ void I_Init(void)
 //e6y
 void I_Init2(void)
 {
-  if (fastdemo)
+  if (fastdemo) {
     I_GetTime = I_GetTime_FastDemo;
-  else
-  {
+	  if (recordisplaying) {
+		  I_PauseRecording();
+
+	  }	
+  } else {
     if (realtic_clock_rate != 100)
       {
         I_GetTime_Scale = ((int_64_t) realtic_clock_rate << 24) / 100;
         I_GetTime = I_GetTime_Scaled;
+		if (recordisplaying) {
+			I_PauseRecording();
+			
+		}	
       }
-    else
+    else {
       I_GetTime = I_GetTime_RealTime;
+	  if (recordisplaying) {
+		  I_SeekRecording(gametic);
+		  I_ResumeRecording();
+	  }
+	}
   }
   R_InitInterpolation();
   force_singletics_to = gametic + BACKUPTICS;
@@ -367,12 +380,19 @@ static void I_Quit (void)
     has_exited=1;   /* Prevent infinitely recursive exits -- killough */
 
   if (has_exited == 1) {
+	  // cybermind
+	 I_ShutdownRecording();
+
     if (!demorecording)
       I_EndDoom();
     if (demorecording)
       G_CheckDemoStatus();
     M_SaveDefaults ();
     I_DemoExShutdown();
+	// cybermind
+	if (dump_things) {
+		cyb_DumpEnd(dumpFile);
+	}
   }
 }
 

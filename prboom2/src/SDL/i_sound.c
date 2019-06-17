@@ -36,6 +36,7 @@
 #include "config.h"
 #endif
 #include <math.h>
+#include <stdint.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -75,6 +76,8 @@
 //e6y
 #include "i_pcsound.h"
 #include "e6y.h"
+#include "i_capture.h"
+#include "MUSIC/vorbisplayer.h"
 
 int snd_pcspeaker;
 
@@ -91,6 +94,22 @@ int detect_voices = 0; // God knows
 
 static dboolean sound_inited = false;
 static dboolean first_sound_init = true;
+
+// cybermind: sound recording
+int record_sound = 0;
+int record_sound_start = 0;
+int record_sound_paused = 0;
+int post_record_sound = 0;
+SDL_AudioDeviceID record_device;
+const char *record_soundcommand;
+static pipeinfo_t recordpipe;
+FILE *rawrecord;
+int record_player_init;
+static const void *record_handle = NULL;
+char* recorddata = NULL;
+int         recordlen = 0;
+int recordisplaying = 0;
+int record_remove_tempfiles;
 
 // Needed for calling the actual sound output.
 static int SAMPLECOUNT =   512;
@@ -142,6 +161,8 @@ static int dumping_sound = 0;
 SDL_mutex *sfxmutex;
 // lock for updating any params related to music
 SDL_mutex *musmutex;
+// lock for updating any params related to audiorecording
+SDL_mutex *recordmutex;
 
 
 /* cph
@@ -460,6 +481,15 @@ static void I_UpdateSound(void *unused, Uint8 *stream, int len)
     SDL_LockMutex (musmutex);
     Exp_UpdateMusic (stream, len / 4);
     SDL_UnlockMutex (musmutex);
+
+	if (record_handle) {
+		unsigned char *buffer;
+
+		SDL_LockMutex (recordmutex);
+		buffer = I_RenderRecording(stream, len / 4);
+		SDL_UnlockMutex (recordmutex);
+		SDL_MixAudio(stream, buffer, len, SDL_MIX_MAXVOLUME);
+	}
   }
 #endif
 
@@ -664,6 +694,19 @@ void I_InitSound(void)
 
   sfxmutex = SDL_CreateMutex ();
 
+  if (recorddata && recordlen) {
+	  if (!use_experimental_music) {
+		  lprintf(LO_WARN, "Demo audio playback won't work in SDL player mode\n", SAMPLECOUNT);
+	  } else {
+		  recordmutex = SDL_CreateMutex();
+		  record_player_init = record_player.music.init(&record_player.music, snd_samplerate);
+		  if (record_player_init) {
+			  I_RegisterRecording(recorddata, recordlen);
+		  }
+	  }
+  }
+  
+
   // If we are using the PC speaker, we now need to initialise it.
   if (snd_pcspeaker)
     I_PCS_InitSound();
@@ -711,48 +754,65 @@ unsigned char *I_GrabSound (int len)
   return buffer;
 }
 
+// grabs len samples of audio (16 bit mono)
+unsigned char *I_GrabRecording (int len)
+{
+	static unsigned char *buffer = NULL;
+	static size_t buffer_size = 0;
+	size_t size;
 
+	size = len * 2; // 16 bit mono
+	if (!buffer || size > buffer_size)
+	{
+		buffer_size = size * 2;
+		buffer = realloc (buffer, buffer_size);
+	}
+
+	if (buffer)
+	{
+		memset (buffer, 0, size);
+		I_UpdateRecording ((void *) 0xdeadbeef, buffer, size);
+	}
+
+
+	return buffer;
+}
 
 
 // NSM helper routine for some of the streaming audio
-void I_ResampleStream (void *dest, unsigned nsamp, void (*proc) (void *dest, unsigned nsamp), unsigned sratein, unsigned srateout)
+void I_ResampleStream (music_player_t *music, void *dest, unsigned nsamp, void (*proc) (music_player_t *music, void *dest, unsigned nsamp), unsigned sratein, unsigned srateout)
 { // assumes 16 bit signed interleaved stereo
   
   unsigned i;
   int j = 0;
   
-  short *sout = (short*)dest;
-  
-  static short *sin = NULL;
-  static unsigned sinsamp = 0;
-
-  static unsigned remainder = 0;
+  short *sout = dest;
   unsigned step = (sratein << 16) / (unsigned) srateout;
 
-  unsigned nreq = (step * nsamp + remainder) >> 16;
+  unsigned nreq = (step * nsamp + music->remainder) >> 16;
 
-  if (nreq > sinsamp)
+  if (nreq > music->sinsamp)
   {
-    sin = (short*)realloc (sin, (nreq + 1) * 4);
-    if (!sinsamp) // avoid pop when first starting stream
-      sin[0] = sin[1] = 0;
-    sinsamp = nreq;
+    music->sin = realloc (music->sin, (nreq + 1) * 4);
+    if (!music->sinsamp) // avoid pop when first starting stream
+      music->sin[0] = music->sin[1] = 0;
+    music->sinsamp = nreq;
   }
 
-  proc (sin + 2, nreq);
+  proc (music, music->sin + 2, nreq);
 
   for (i = 0; i < nsamp; i++)
   {
-    *sout++ = ((unsigned) sin[j + 0] * (0x10000 - remainder) +
-               (unsigned) sin[j + 2] * remainder) >> 16;
-    *sout++ = ((unsigned) sin[j + 1] * (0x10000 - remainder) +
-               (unsigned) sin[j + 3] * remainder) >> 16;
-    remainder += step;
-    j += remainder >> 16 << 1;
-    remainder &= 0xffff;
+    *sout++ = (short)(((unsigned) music->sin[j + 0] * (0x10000 - music->remainder) + 
+               (unsigned) music->sin[j + 2] * music->remainder) >> 16);
+    *sout++ = (short)(((unsigned) music->sin[j + 1] * (0x10000 - music->remainder) +
+               (unsigned) music->sin[j + 3] * music->remainder) >> 16);
+    music->remainder += step;
+    j += music->remainder >> 16 << 1;
+    music->remainder &= 0xffff;
   }
-  sin[0] = sin[nreq * 2];
-  sin[1] = sin[nreq * 2 + 1];
+  music->sin[0] = music->sin[nreq * 2];
+  music->sin[1] = music->sin[nreq * 2 + 1];
 }  
   
 
@@ -1176,10 +1236,290 @@ void I_SetMusicVolume(int volume)
 #endif
 }
 
+// Audio recording
 
+#include "MUSIC/vorbisplayer.h"
 
+void I_StartRecording(void)
+{
+	record_sound_start = 1;
+	SDL_ClearQueuedAudio(record_device);
+	I_ResumeRecordingAudio();
 
+	players[0].message = "Audio recording started";
+}
 
+void I_UpdateRecording(void *userdata, Uint8 *stream, int len) 
+{
+	if (!record_sound || !len)
+		return;
+
+	SDL_DequeueAudio(record_device, stream, len);
+	if (fwrite(stream, len, 1, rawrecord) != 1) {
+		I_Error("Error recording audio rawdata");
+	}
+}
+
+unsigned char* I_RenderRecording (void *buff, unsigned nsamp)
+{
+	static unsigned char *buffer = NULL;
+	static size_t buffer_size = 0;
+	size_t size;
+
+	size = nsamp * 4;
+	if (!buffer || size > buffer_size)
+	{
+		buffer_size = size * 4;
+		buffer = realloc (buffer, buffer_size);
+	}
+
+	if (!record_handle)
+	{
+		memset (buffer, 0, nsamp * 4);
+		return buffer;
+	}
+
+	record_player.music.render (&record_player.music, buffer, nsamp);
+	return buffer;
+}
+
+void I_PauseRecordingAudio()
+{
+	SDL_PauseAudioDevice(record_device, 1);
+	SDL_ClearQueuedAudio(record_device);
+	record_sound_paused = 1;
+}
+
+void I_ResumeRecordingAudio()
+{
+	SDL_PauseAudioDevice(record_device, 0);
+	record_sound_paused = 0;
+}
+
+void I_InitRecording()
+{
+	SDL_AudioSpec want, have;
+
+	if (!use_experimental_music) {
+		I_Error("Audio recording won't work in SDL player mode");
+		return;
+	}
+
+	SDL_zero(want);
+	want.freq = snd_samplerate;
+#if ( SDL_BYTEORDER == SDL_BIG_ENDIAN )
+	audio.format = AUDIO_S16MSB;
+#else
+	want.format = AUDIO_S16LSB;
+#endif
+	want.channels = 1;
+	want.samples = SAMPLECOUNT * snd_samplerate / 11025;
+	want.callback = NULL;
+	SDL_GetNumAudioDevices(1);
+
+	record_device = SDL_OpenAudioDevice(SDL_GetAudioDeviceName(0, 1), 1, &want, &have, 0);
+	if (!record_device || have.format != want.format) {
+		lprintf(LO_INFO, "Audio recording init failure: %s\n", SDL_GetError());
+		record_sound = 0;
+		return;
+	}
+
+	SDL_PauseAudioDevice(record_device, 1);
+	SDL_ClearQueuedAudio(record_device);
+
+	if (!parsecommand (recordpipe.command, record_soundcommand, sizeof(recordpipe.command)))
+	{
+		lprintf (LO_ERROR, "I_InitRecording: malformed command %s\n", record_soundcommand);
+		record_sound = 0;
+		return;
+	}
+
+	rawrecord = fopen("rawrecord.raw", "wb");
+	if(rawrecord == NULL) {
+		printf("I_InitRecording: Error in raw file opening\n");
+		record_sound = 0;
+		return;
+	}
+
+	lprintf(LO_INFO, "I_InitRecording: recording inited with device %s\n", SDL_GetAudioDeviceName(record_device, 1));
+	record_sound = 1;
+}
+
+void I_ShutdownRecording()
+{
+	if (record_sound) {
+		int fsize;
+		unsigned char *buf;
+		int s;
+
+		record_sound = 0;
+		record_sound_start = 0;
+		post_record_sound = 1;
+
+		SDL_PauseAudioDevice(record_device, 1);
+		SDL_CloseAudioDevice(record_device);
+		fflush(rawrecord);
+		fclose(rawrecord);
+
+		// now convert our recording to ogg
+		lprintf (LO_INFO, "I_ShutdownRecording: opening pipe \"%s\"\n", recordpipe.command);
+		if (!my_popen3 (&recordpipe))
+		{
+			lprintf (LO_ERROR, "I_ShutdownRecording: record pipe failed\n");
+			if (record_remove_tempfiles)
+				remove("rawrecord.raw");
+			post_record_sound = 0;
+			return;
+		}
+		recordpipe.stdoutdumpname = "record_stdout.txt";
+		recordpipe.stderrdumpname = "record_stderr.txt";
+		recordpipe.outthread = SDL_CreateThread (threadstdoutproc, "recordpipe.outthread", &recordpipe);
+		recordpipe.errthread = SDL_CreateThread (threadstderrproc, "recordpipe.errthread", &recordpipe);
+
+		rawrecord = fopen("rawrecord.raw", "rb");
+		fseek(rawrecord, 0L, SEEK_END);
+		fsize = ftell(rawrecord);
+		fseek(rawrecord, 0L, SEEK_SET);
+
+		buf = (unsigned char*)malloc(fsize);
+		fread(buf, fsize, 1, rawrecord);
+		fclose(rawrecord);
+
+		if (record_remove_tempfiles)
+			remove("rawrecord.raw");
+
+		if (fwrite (buf, fsize, 1, recordpipe.f_stdin) != 1) {
+			lprintf(LO_WARN, "I_ShutdownRecording: error writing recordpipe.\n");
+			post_record_sound = 0;
+		}
+		my_pclose3 (&recordpipe);
+		SDL_WaitThread (recordpipe.outthread, &s);
+		SDL_WaitThread (recordpipe.errthread, &s);
+	}
+
+	I_StopRecording();
+	I_UnRegisterRecording();
+	if (recordmutex) {
+		SDL_DestroyMutex(recordmutex);
+		recordmutex = NULL;
+	}
+	if (recorddata) {
+		free(recorddata);
+	}
+}
+
+void I_SeekRecording(int pos)
+{
+	if (record_handle) {
+		SDL_LockMutex (recordmutex);
+		record_player.music.seek(&record_player.music, pos);
+		SDL_UnlockMutex (recordmutex);
+	}
+}
+
+void I_RegisterRecording(const void *data, size_t len)
+{
+	if (record_handle)
+		I_UnRegisterRecording();
+
+	if (record_player_init)
+	{
+		const void *temp_handle = record_player.music.registersong (&record_player.music, data, len);
+		if (temp_handle)
+		{
+			SDL_LockMutex (recordmutex);
+			record_handle = temp_handle;
+			SDL_UnlockMutex (recordmutex);
+		}
+	}
+	else
+		lprintf (LO_INFO, "I_RegisterRecording: Ogg player failed to init\n");
+}
+
+void I_UnRegisterRecording()
+{
+	if (record_handle)
+	{
+		SDL_LockMutex (recordmutex);
+		record_player.music.unregistersong (&record_player.music, record_handle);
+		record_handle = NULL;
+		SDL_UnlockMutex (recordmutex);
+		recordisplaying = 0;
+	}
+}
+
+void I_PlayRecording()
+{
+	if (record_handle)
+	{
+		SDL_LockMutex (recordmutex);
+		record_player.music.play (&record_player.music, record_handle, 0);
+		record_player.music.setvolume (&record_player.music, snd_RecordVolume);
+		SDL_UnlockMutex (recordmutex);
+		recordisplaying = 1;
+	}
+}
+
+void I_PauseRecording()
+{
+	if (!record_handle)
+		return;
+
+	SDL_LockMutex (recordmutex);
+	switch (mus_pause_opt)
+	{
+	case 0:
+		record_player.music.stop (&record_player.music);
+		break;
+	case 1:
+		record_player.music.pause (&record_player.music);
+		break;
+	default: // Default - let music continue
+		break;
+	}  
+	SDL_UnlockMutex (recordmutex);
+}
+
+void I_ResumeRecording ()
+{
+	if (!record_handle)
+		return;
+
+	SDL_LockMutex (recordmutex);
+	switch (mus_pause_opt)
+	{
+	case 0:
+		record_player.music.play (&record_player.music, record_handle, 0);
+		break;
+	case 1:
+		record_player.music.resume (&record_player.music);
+		break;
+	default:
+		break;
+	}
+	SDL_UnlockMutex (recordmutex);
+}
+
+void I_StopRecording()
+{
+	if (record_handle)
+	{
+		SDL_LockMutex (recordmutex);
+		record_player.music.stop (&record_player.music);
+		SDL_UnlockMutex (recordmutex);
+		recordisplaying = 0;
+	}
+}
+
+void I_SetRecordingVolume (int volume)
+{
+	if (record_handle)
+	{
+		SDL_LockMutex (recordmutex);
+		record_player.music.setvolume (&record_player.music, volume);
+		SDL_UnlockMutex (recordmutex);
+	}
+}
 
 
 /********************************************************
@@ -1204,20 +1544,19 @@ const char *snd_mididev; // midi device to use (portmidiplayer)
 #include "MUSIC/madplayer.h"
 #include "MUSIC/dumbplayer.h"
 #include "MUSIC/flplayer.h"
-#include "MUSIC/vorbisplayer.h"
 #include "MUSIC/portmidiplayer.h"
 
 // list of possible music players
-static const music_player_t *music_players[] =
+static music_player_t *music_players[] =
 { // until some ui work is done, the order these appear is the autodetect order.
   // of particular importance:  things that play mus have to be last, because
   // mus2midi very often succeeds even on garbage input
-  &vorb_player, // vorbisplayer.h
-  &mp_player, // madplayer.h
-  &db_player, // dumbplayer.h
-  &fl_player, // flplayer.h
-  &opl_synth_player, // oplplayer.h
-  &pm_player, // portmidiplayer.h
+  &vorb_player.music, // vorbisplayer.h
+  &mp_player.music, // madplayer.h
+  &db_player.music, // dumbplayer.h
+  &fl_player.music, // flplayer.h
+  &opl_synth_player.music, // oplplayer.h
+  &pm_player.music, // portmidiplayer.h
   NULL
 };
 #define NUM_MUS_PLAYERS ((int)(sizeof (music_players) / sizeof (music_player_t *) - 1))
@@ -1270,7 +1609,7 @@ static void Exp_ShutdownMusic(void)
   for (i = 0; music_players[i]; i++)
   {
     if (music_player_was_init[i])
-      music_players[i]->shutdown ();
+      music_players[i]->shutdown (music_players[i]);
   }
 
   if (musmutex)
@@ -1289,7 +1628,7 @@ static void Exp_InitMusic(void)
 
   // todo not so greedy
   for (i = 0; music_players[i]; i++)
-    music_player_was_init[i] = music_players[i]->init (snd_samplerate);
+    music_player_was_init[i] = music_players[i]->init (music_players[i], snd_samplerate);
   atexit(Exp_ShutdownMusic);
 }
 
@@ -1298,8 +1637,8 @@ static void Exp_PlaySong(int handle, int looping)
   if (music_handle)
   {
     SDL_LockMutex (musmutex);
-    music_players[current_player]->play (music_handle, looping);
-    music_players[current_player]->setvolume (snd_MusicVolume);
+    music_players[current_player]->play (music_players[current_player], music_handle, looping);
+    music_players[current_player]->setvolume (music_players[current_player], snd_MusicVolume);
     SDL_UnlockMutex (musmutex);
   }
 
@@ -1316,10 +1655,10 @@ static void Exp_PauseSong (int handle)
   switch (mus_pause_opt)
   {
     case 0:
-      music_players[current_player]->stop ();
+      music_players[current_player]->stop (music_players[current_player]);
       break;
     case 1:
-      music_players[current_player]->pause ();
+      music_players[current_player]->pause (music_players[current_player]);
       break;
     default: // Default - let music continue
       break;
@@ -1337,10 +1676,10 @@ static void Exp_ResumeSong (int handle)
   {
     case 0: // i'm not sure why we can guarantee looping=true here,
             // but that's what the old code did
-      music_players[current_player]->play (music_handle, 1);
+      music_players[current_player]->play (music_players[current_player], music_handle, 1);
       break;
     case 1:
-      music_players[current_player]->resume ();
+      music_players[current_player]->resume (music_players[current_player]);
       break;
     default: // Default - music was never stopped
       break;
@@ -1353,7 +1692,7 @@ static void Exp_StopSong(int handle)
   if (music_handle)
   {
     SDL_LockMutex (musmutex);
-    music_players[current_player]->stop ();
+    music_players[current_player]->stop (music_players[current_player]);
     SDL_UnlockMutex (musmutex);
   }
 }
@@ -1363,7 +1702,7 @@ static void Exp_UnRegisterSong(int handle)
   if (music_handle)
   {
     SDL_LockMutex (musmutex);
-    music_players[current_player]->unregistersong (music_handle);
+    music_players[current_player]->unregistersong (music_players[current_player], music_handle);
     music_handle = NULL;
     if (song_data)
     {
@@ -1379,7 +1718,7 @@ static void Exp_SetMusicVolume (int volume)
   if (music_handle)
   {
     SDL_LockMutex (musmutex);
-    music_players[current_player]->setvolume (volume);
+    music_players[current_player]->setvolume (music_players[current_player], volume);
     SDL_UnlockMutex (musmutex);
   }
 }
@@ -1421,24 +1760,24 @@ static int Exp_RegisterSongEx (const void *data, size_t len, int try_mus2mid)
       found = 0;
       for (i = 0; music_players[i]; i++)
       {
-        if (strcmp (music_players[i]->name (), music_player_order[j]) == 0)
+        if (strcmp (music_players[i]->name (music_players[i]), music_player_order[j]) == 0)
         {
           found = 1;
           if (music_player_was_init[i])
           {
-            const void *temp_handle = music_players[i]->registersong (data, len);
+            const void *temp_handle = music_players[i]->registersong (music_players[i], data, len);
             if (temp_handle)
             {
               SDL_LockMutex (musmutex);
               current_player = i;
               music_handle = temp_handle;
               SDL_UnlockMutex (musmutex);
-              lprintf (LO_INFO, "Exp_RegisterSongEx: Using player %s\n", music_players[i]->name ());
+              lprintf (LO_INFO, "Exp_RegisterSongEx: Using player %s\n", music_players[i]->name (music_players[i]));
               return 1;
             }
           }
           else
-            lprintf (LO_INFO, "Exp_RegisterSongEx: Music player %s on preferred list but it failed to init\n", music_players[i]-> name ());
+            lprintf (LO_INFO, "Exp_RegisterSongEx: Music player %s on preferred list but it failed to init\n", music_players[i]-> name (music_players[i]));
         }
       }
       if (!found)
@@ -1553,7 +1892,7 @@ static void Exp_UpdateMusic (void *buff, unsigned nsamp)
   }
 
 
-  music_players[current_player]->render (buff, nsamp);
+  music_players[current_player]->render (music_players[current_player], buff, nsamp);
 }
 
 void M_ChangeMIDIPlayer(void)

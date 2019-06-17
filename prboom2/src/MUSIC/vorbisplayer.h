@@ -32,9 +32,46 @@
 #ifndef VORBISPLAYER_H
 #define VORBISPLAYER_H
 
+#include <stdlib.h>
+#include <string.h>
+#include "MUSIC/musicplayer.h"
 
 
-extern const music_player_t vorb_player;
+// uncomment to allow (experiemntal) support for
+// zdoom-style audio loops
+#define ZDOOM_AUDIO_LOOP
+
+#ifdef HAVE_LIBVORBISFILE
+#include <vorbis/vorbisfile.h>
+#endif
+
+typedef struct vorb_player_s {
+	music_player_t music;
+	ov_callbacks vcallback;
+	int vorb_looping;
+	int vorb_volume;
+	int vorb_samplerate_target;
+	int vorb_samplerate_in;
+	int vorb_paused;
+	int vorb_playing;
+#ifdef ZDOOM_AUDIO_LOOP
+	unsigned vorb_loop_from;
+	unsigned vorb_loop_to;
+	unsigned vorb_total_pos;
+#endif // ZDOOM_AUDIO_LOOP
+	const char *vorb_data;
+	size_t vorb_len;
+	size_t vorb_pos;
+#ifdef HAVE_LIBVORBISFILE
+	OggVorbis_File vf;
+#else
+	int vf;
+#endif
+} vorb_player_t;
+
+extern vorb_player_t vorb_player;
+// cybermind: this will play the recording
+extern vorb_player_t record_player;
 
 
 

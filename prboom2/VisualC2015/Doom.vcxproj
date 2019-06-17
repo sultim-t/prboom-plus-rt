@@ -525,6 +525,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\am_map.c" />
+    <ClCompile Include="..\src\cybermind.c" />
     <ClCompile Include="..\src\doomdef.c" />
     <ClCompile Include="..\src\doomstat.c" />
     <ClCompile Include="..\src\dstrings.c" />
@@ -746,6 +747,7 @@
   <ItemGroup>
     <ClInclude Include="..\Icons\resource.h" />
     <ClInclude Include="..\src\am_map.h" />
+    <ClInclude Include="..\src\cybermind.h" />
     <ClInclude Include="..\src\doomdata.h" />
     <ClInclude Include="..\src\doomdef.h" />
     <ClInclude Include="..\src\doomstat.h" />

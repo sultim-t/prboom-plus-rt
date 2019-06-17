@@ -28,9 +28,6 @@
  *---------------------------------------------------------------------
  */
 
-#include "SDL.h"
-#include "SDL_thread.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "i_sound.h"
@@ -41,20 +38,6 @@
 
 int capturing_video = 0;
 static const char *vid_fname;
-
-
-typedef struct
-{ // information on a running pipe
-  char command[PATH_MAX];
-  FILE *f_stdin;
-  FILE *f_stdout;
-  FILE *f_stderr;
-  SDL_Thread *outthread;
-  const char *stdoutdumpname;
-  SDL_Thread *errthread;
-  const char *stderrdumpname;
-  void *user;
-} pipeinfo_t;
 
 static pipeinfo_t soundpipe;
 static pipeinfo_t videopipe;
@@ -78,7 +61,7 @@ int cap_frac;
 // %f filename passed to -viddump
 // %% single percent sign
 // TODO: add aspect ratio information
-static int parsecommand (char *out, const char *in, int len)
+int parsecommand (char *out, const char *in, int len)
 {
   int i;
 
@@ -128,17 +111,6 @@ static int parsecommand (char *out, const char *in, int len)
 }
 
 
-
-
-// popen3() implementation -
-// starts a child process
-
-// user is a pointer to implementation defined extra data
-static int my_popen3 (pipeinfo_t *p); // 1 on success
-// close waits on process
-static void my_pclose3 (pipeinfo_t *p);
-
-
 #ifdef _WIN32
 // direct winapi implementation
 #ifndef WIN32_LEAN_AND_MEAN
@@ -155,7 +127,7 @@ typedef struct
 
 // extra pointer is used to hold process id to wait on to close
 // NB: stdin is opened as "wb", stdout, stderr as "r"
-static int my_popen3 (pipeinfo_t *p)
+int my_popen3 (pipeinfo_t *p)
 {
   FILE *fin = NULL;
   FILE *fout = NULL;
@@ -291,7 +263,7 @@ static int my_popen3 (pipeinfo_t *p)
 
 }
 
-static void my_pclose3 (pipeinfo_t *p)
+void my_pclose3 (pipeinfo_t *p)
 {
   puser_t *puser = (puser_t *) p->user;
 
@@ -421,7 +393,7 @@ static int my_popen3 (pipeinfo_t *p)
 }
 
 
-static void my_pclose3 (pipeinfo_t *p)
+void my_pclose3 (pipeinfo_t *p)
 {
   puser_t *puser = (puser_t *) p->user;
 
@@ -449,7 +421,7 @@ typedef struct
 } threaddata_t;
 
 
-static int threadstdoutproc (void *data)
+int threadstdoutproc (void *data)
 { // simple thread proc dumps stdout
   // not terribly fast
   int c;
@@ -469,7 +441,7 @@ static int threadstdoutproc (void *data)
   return 1;
 }
 
-static int threadstderrproc (void *data)
+int threadstderrproc (void *data)
 { // simple thread proc dumps stderr
   // not terribly fast
   int c;

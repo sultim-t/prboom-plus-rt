@@ -27,7 +27,7 @@
 #ifndef OPL_OPL_H
 #define OPL_OPL_H
 
-typedef void (*opl_callback_t)(void *data);
+typedef void (*opl_callback_t)(void *opl, void *data);
 
 typedef enum
 {
@@ -112,7 +112,7 @@ void OPL_SetPaused(int paused);
 
 extern unsigned int opl_sample_rate;
 
-void OPL_Render_Samples (void *dest, unsigned nsamp);
+void OPL_Render_Samples (void *opl, void *dest, unsigned nsamp);
 
 
 void OPL_SetCallback(unsigned int ms, opl_callback_t callback, void *data);

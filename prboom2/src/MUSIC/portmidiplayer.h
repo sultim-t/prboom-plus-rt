@@ -32,9 +32,34 @@
 #define PORTMIDIPLAYER_H
 
 
+#include <portmidi.h>
+#include <porttime.h>
+#include "midifile.h"
+
+typedef struct pm_player_s {
+	music_player_t music;
+	midi_event_t **events;
+	int eventpos;
+	midi_file_t *midifile;
+
+	int pm_playing;
+	int pm_paused;
+	int pm_looping;
+	int pm_volume;
+	double spmc;
+	double pm_delta;
+
+	unsigned long trackstart;
+
+	PortMidiStream *pm_stream;
+
+#define SYSEX_BUFF_SIZE 1024
+	unsigned char sysexbuff[SYSEX_BUFF_SIZE];
+	int sysexbufflen;
+} pm_player_t;
 
 
-extern const music_player_t pm_player;
+extern pm_player_t pm_player;
 
 
 

@@ -48,7 +48,7 @@ static int fl_init (int samplerate)
   return 0;
 }
 
-const music_player_t fl_player =
+fl_player_t fl_player =
 {
   fl_name,
   fl_init,
@@ -72,27 +72,10 @@ const music_player_t fl_player =
 #include "midifile.h"
 #include <stdlib.h>
 #include <string.h>
+#include "flplayer.h"
 
-static fluid_settings_t *f_set;
-static fluid_synth_t *f_syn;
-static int f_font;
-static midi_event_t **events;
-static int eventpos;
-static midi_file_t *midifile;
 
-static int f_playing;
-static int f_paused;
-static int f_looping;
-static int f_volume;
-static double spmc;
-static double f_delta;
-static int f_soundrate;
-
-#define SYSEX_BUFF_SIZE 1024
-static unsigned char sysexbuff[SYSEX_BUFF_SIZE];
-static int sysexbufflen;
-
-static const char *fl_name (void)
+static const char *fl_name (music_player_t *music)
 {
   return "fluidsynth midi player";
 }
@@ -105,13 +88,25 @@ static const char *fl_name (void)
 #include <delayimp.h>
 #endif
 
-static int fl_init (int samplerate)
+static int fl_init (music_player_t *music, int samplerate)
 {
+	fl_player_t *fl = (fl_player_t*)music;
   const char *filename;
+#ifdef _WIN32
+  #ifndef _MSC_VER
+  DWORD WINAPI GetVersion (void);
+  #endif // _MSC_VER
+
+  if ((int)GetVersion() < 0) // win9x
+  {
+    lprintf (LO_INFO, "Fluidplayer: Win9x is not supported\n");
+    return 0;
+  }
+#endif // _WIN32
 
   TESTDLLLOAD ("libfluidsynth.dll", TRUE)
 
-  f_soundrate = samplerate;
+  fl->f_soundrate = samplerate;
   // fluidsynth 1.1.4 supports sample rates as low as 8000hz.  earlier versions only go down to 22050hz
   // since the versions are ABI compatible, detect at runtime, not compile time
   if (1)
@@ -126,7 +121,7 @@ static int fl_init (int samplerate)
       sratemin = 8000;
     else
       sratemin = 22050;
-    if (f_soundrate < sratemin)
+    if (fl->f_soundrate < sratemin)
     {
       lprintf (LO_INFO, "Fluidplayer: samplerates under %i are not supported\n", sratemin);
       return 0;
@@ -134,12 +129,12 @@ static int fl_init (int samplerate)
   }
 
 
-  f_set = new_fluid_settings ();
+  fl->f_set = new_fluid_settings ();
 
-  #define FSET(a,b,c) if (!fluid_settings_set##a(f_set,b,c))\
+  #define FSET(a,b,c) if (!fluid_settings_set##a(fl->f_set,b,c))\
     lprintf (LO_INFO, "fl_init: Couldn't set " b "\n")
 
-  FSET (num, "synth.sample-rate", f_soundrate);
+  FSET (num, "synth.sample-rate", fl->f_soundrate);
 
   FSET (int, "synth.chorus.active", mus_fluidsynth_chorus);
   FSET (int, "synth.reverb.active", mus_fluidsynth_reverb);
@@ -161,42 +156,43 @@ static int fl_init (int samplerate)
 
   #undef FSET
 
-  f_syn = new_fluid_synth (f_set);
-  if (!f_syn)
+  fl->f_syn = new_fluid_synth (fl->f_set);
+  if (!fl->f_syn)
   {
     lprintf (LO_WARN, "fl_init: error creating fluidsynth object\n");
-    delete_fluid_settings (f_set);
+    delete_fluid_settings (fl->f_set);
     return 0;
   }
 
   filename = I_FindFile2(snd_soundfont, ".sf2");
-  f_font = fluid_synth_sfload (f_syn, filename, 1);
+  fl->f_font = fluid_synth_sfload (fl->f_syn, filename, 1);
 
-  if (f_font == FLUID_FAILED)
+  if (fl->f_font == FLUID_FAILED)
   {
     lprintf (LO_WARN, "fl_init: error loading soundfont %s\n", snd_soundfont);
-    delete_fluid_synth (f_syn);
-    delete_fluid_settings (f_set);
+    delete_fluid_synth (fl->f_syn);
+    delete_fluid_settings (fl->f_set);
     return 0;
   }
 
   return 1;
 }
 
-static void fl_shutdown (void)
+static void fl_shutdown (music_player_t *music)
 {
-  if (f_syn)
+	fl_player_t *fl = (fl_player_t*)music;
+  if (fl->f_syn)
   {
-    fluid_synth_sfunload (f_syn, f_font, 1);
-    delete_fluid_synth (f_syn);
-    f_syn = NULL;
-    f_font = 0;
+    fluid_synth_sfunload (fl->f_syn, fl->f_font, 1);
+    delete_fluid_synth (fl->f_syn);
+    fl->f_syn = NULL;
+    fl->f_font = 0;
   }
 
-  if (f_set)
+  if (fl->f_set)
   {
-    delete_fluid_settings (f_set);
-    f_set = NULL;
+    delete_fluid_settings (fl->f_set);
+    fl->f_set = NULL;
   }
 }
 
@@ -204,97 +200,105 @@ static void fl_shutdown (void)
 
 
 
-static const void *fl_registersong (const void *data, unsigned len)
+static const void *fl_registersong (music_player_t *music, const void *data, unsigned len)
 {
+	fl_player_t *fl = (fl_player_t*)music;
   midimem_t mf;
 
   mf.len = len;
   mf.pos = 0;
   mf.data = (const byte*)data;
 
-  midifile = MIDI_LoadFile (&mf);
+  fl->midifile = MIDI_LoadFile (&mf);
 
-  if (!midifile)
+  if (!fl->midifile)
   {
     lprintf (LO_WARN, "fl_registersong: Failed to load MIDI.\n");
     return NULL;
   }
   
-  events = MIDI_GenerateFlatList (midifile);
-  if (!events)
+  fl->events = MIDI_GenerateFlatList (fl->midifile);
+  if (!fl->events)
   {
-    MIDI_FreeFile (midifile);
+    MIDI_FreeFile (fl->midifile);
     return NULL;
   }
-  eventpos = 0;
+  fl->eventpos = 0;
 
   // implicit 120BPM (this is correct to spec)
-  //spmc = compute_spmc (MIDI_GetFileTimeDivision (midifile), 500000, f_soundrate);
-  spmc = MIDI_spmc (midifile, NULL, f_soundrate);
+  //fl->spmc = compute_spmc (MIDI_GetFileTimeDivision (fl->midifile), 500000, fl->f_soundrate);
+  fl->spmc = MIDI_spmc (fl->midifile, NULL, fl->f_soundrate);
 
   // handle not used
   return data;
 }
 
-static void fl_unregistersong (const void *handle)
+static void fl_unregistersong (music_player_t *music, const void *handle)
 {
-  if (events)
+	fl_player_t *fl = (fl_player_t*)music;
+  if (fl->events)
   {
-    MIDI_DestroyFlatList (events);
-    events = NULL;
+    MIDI_DestroyFlatList (fl->events);
+    fl->events = NULL;
   }
-  if (midifile)
+  if (fl->midifile)
   {
-    MIDI_FreeFile (midifile);
-    midifile = NULL;
+    MIDI_FreeFile (fl->midifile);
+    fl->midifile = NULL;
   }
 }
 
-static void fl_pause (void)
+static void fl_pause (music_player_t *music)
 {
+	fl_player_t *fl = (fl_player_t*)music;
   //int i;
-  f_paused = 1;
+  fl->f_paused = 1;
   // instead of cutting notes, pause the synth so they can resume seamlessly
   //for (i = 0; i < 16; i++)
-  //  fluid_synth_cc (f_syn, i, 123, 0); // ALL NOTES OFF
+  //  fluid_synth_cc (fl->f_syn, i, 123, 0); // ALL NOTES OFF
 }
-static void fl_resume (void)
+static void fl_resume (music_player_t *music)
 {
-  f_paused = 0;
+	fl_player_t *fl = (fl_player_t*)music;
+  fl->f_paused = 0;
 }
-static void fl_play (const void *handle, int looping)
+static void fl_play (music_player_t *music, const void *handle, int looping)
 {
-  eventpos = 0;
-  f_looping = looping;
-  f_playing = 1;
-  //f_paused = 0;
-  f_delta = 0.0;
-  fluid_synth_program_reset (f_syn);
-  fluid_synth_system_reset (f_syn);
+	fl_player_t *fl = (fl_player_t*)music;
+  fl->eventpos = 0;
+  fl->f_looping = looping;
+  fl->f_playing = 1;
+  //fl->f_paused = 0;
+  fl->f_delta = 0.0;
+  fluid_synth_program_reset (fl->f_syn);
+  fluid_synth_system_reset (fl->f_syn);
 }
 
-static void fl_stop (void)
+static void fl_stop (music_player_t *music)
 {
+	fl_player_t *fl = (fl_player_t*)music;
   int i;
-  f_playing = 0;
+  fl->f_playing = 0;
 
   for (i = 0; i < 16; i++)
   {
-    fluid_synth_cc (f_syn, i, 123, 0); // ALL NOTES OFF
-    fluid_synth_cc (f_syn, i, 121, 0); // RESET ALL CONTROLLERS
+    fluid_synth_cc (fl->f_syn, i, 123, 0); // ALL NOTES OFF
+    fluid_synth_cc (fl->f_syn, i, 121, 0); // RESET ALL CONTROLLERS
   }
 }
 
-static void fl_setvolume (int v)
+static void fl_setvolume (music_player_t *music, int v)
 { 
-  f_volume = v;
+	fl_player_t *fl = (fl_player_t*)music;
+  fl->f_volume = v;
 }
 
 
-static void fl_writesamples_ex (short *dest, int nsamp)
+static void fl_writesamples_ex (music_player_t *music, short *dest, int nsamp)
 { // does volume conversion and then writes samples
+	fl_player_t *fl = (fl_player_t*)music;
   int i;
-  float multiplier = 16384.0f / 15.0f * f_volume;
+  float multiplier = 16384.0f / 15.0f * fl->f_volume;
 
   static float *fbuff = NULL;
   static int fbuff_siz = 0;
@@ -307,7 +311,7 @@ static void fl_writesamples_ex (short *dest, int nsamp)
     fbuff_siz = nsamp * 2;
   }
 
-  fluid_synth_write_float (f_syn, nsamp, fbuff, 0, 2, fbuff, 1, 2);
+  fluid_synth_write_float (fl->f_syn, nsamp, fbuff, 0, 2, fbuff, 1, 2);
 
   for (i = 0; i < nsamp * 2; i++)
   {
@@ -321,26 +325,27 @@ static void fl_writesamples_ex (short *dest, int nsamp)
   }
 }
 
-static void writesysex (unsigned char *data, int len)
+static void writesysex (music_player_t *music, unsigned char *data, int len)
 {
+	fl_player_t *fl = (fl_player_t*)music;
   // sysex code is untested
   // it's possible to use an auto-resizing buffer here, but a malformed
   // midi file could make it grow arbitrarily large (since it must grow
   // until it hits an 0xf7 terminator)
   int didrespond = 0;
   
-  if (len + sysexbufflen > SYSEX_BUFF_SIZE)
+  if (len + fl->sysexbufflen > SYSEX_BUFF_SIZE)
   {
     lprintf (LO_WARN, "fluidplayer: ignoring large or malformed sysex message\n");
-    sysexbufflen = 0;
+    fl->sysexbufflen = 0;
     return;
   }
-  memcpy (sysexbuff + sysexbufflen, data, len);
-  sysexbufflen += len;
-  if (sysexbuff[sysexbufflen - 1] == 0xf7) // terminator
+  memcpy (fl->sysexbuff + fl->sysexbufflen, data, len);
+  fl->sysexbufflen += len;
+  if (fl->sysexbuff[fl->sysexbufflen - 1] == 0xf7) // terminator
   { // pass len-1 because fluidsynth does NOT want the final F7
-    fluid_synth_sysex (f_syn, (const char *)sysexbuff, sysexbufflen - 1, NULL, NULL, &didrespond, 0);
-    sysexbufflen = 0;
+    fluid_synth_sysex (fl->f_syn, fl->sysexbuff, fl->sysexbufflen - 1, NULL, NULL, &didrespond, 0);
+    fl->sysexbufflen = 0;
   }
   if (!didrespond)
   {
@@ -348,16 +353,17 @@ static void writesysex (unsigned char *data, int len)
   }
 }  
 
-static void fl_render (void *vdest, unsigned length)
+static void fl_render (music_player_t *music, void *vdest, unsigned length)
 {
-  short *dest = (short*)vdest;
+	fl_player_t *fl = (fl_player_t*)music;
+  short *dest = vdest;
   
   unsigned sampleswritten = 0;
   unsigned samples;
 
   midi_event_t *currevent;
 
-  if (!f_playing || f_paused)
+  if (!fl->f_playing || fl->f_paused)
   { 
     // save CPU time and allow for seamless resume after pause
     memset (vdest, 0, length * 4);
@@ -369,14 +375,14 @@ static void fl_render (void *vdest, unsigned length)
   while (1)
   {
     double eventdelta;
-    currevent = events[eventpos];
+    currevent = fl->events[fl->eventpos];
     
     // how many samples away event is
-    eventdelta = currevent->delta_time * spmc;
+    eventdelta = currevent->delta_time * fl->spmc;
 
 
     // how many we will render (rounding down); include delta offset
-    samples = (unsigned) (eventdelta + f_delta);
+    samples = (unsigned) (eventdelta + fl->f_delta);
 
 
     if (samples + sampleswritten > length)
@@ -387,9 +393,9 @@ static void fl_render (void *vdest, unsigned length)
 
     if (samples)
     {
-      fl_writesamples_ex (dest, samples);
+      fl_writesamples_ex (&fl->music, dest, samples);
       sampleswritten += samples;
-      f_delta -= samples;
+      fl->f_delta -= samples;
       dest += samples * 2;
     }
 
@@ -397,52 +403,52 @@ static void fl_render (void *vdest, unsigned length)
     switch (currevent->event_type)
     {
       case MIDI_EVENT_NOTE_OFF:
-        fluid_synth_noteoff (f_syn, currevent->data.channel.channel, currevent->data.channel.param1);
+        fluid_synth_noteoff (fl->f_syn, currevent->data.channel.channel, currevent->data.channel.param1);
         break;
       case MIDI_EVENT_NOTE_ON:
-        fluid_synth_noteon (f_syn, currevent->data.channel.channel, currevent->data.channel.param1, currevent->data.channel.param2);
+        fluid_synth_noteon (fl->f_syn, currevent->data.channel.channel, currevent->data.channel.param1, currevent->data.channel.param2);
         break;
       case MIDI_EVENT_AFTERTOUCH:
         // not suipported?
         break;
       case MIDI_EVENT_CONTROLLER:
-        fluid_synth_cc (f_syn, currevent->data.channel.channel, currevent->data.channel.param1, currevent->data.channel.param2);
+        fluid_synth_cc (fl->f_syn, currevent->data.channel.channel, currevent->data.channel.param1, currevent->data.channel.param2);
         break;
       case MIDI_EVENT_PROGRAM_CHANGE:
-        fluid_synth_program_change (f_syn, currevent->data.channel.channel, currevent->data.channel.param1);
+        fluid_synth_program_change (fl->f_syn, currevent->data.channel.channel, currevent->data.channel.param1);
         break;
       case MIDI_EVENT_CHAN_AFTERTOUCH:
-        fluid_synth_channel_pressure (f_syn, currevent->data.channel.channel, currevent->data.channel.param1);
+        fluid_synth_channel_pressure (fl->f_syn, currevent->data.channel.channel, currevent->data.channel.param1);
         break;
       case MIDI_EVENT_PITCH_BEND:
-        fluid_synth_pitch_bend (f_syn, currevent->data.channel.channel, currevent->data.channel.param1 | currevent->data.channel.param2 << 7);
+        fluid_synth_pitch_bend (fl->f_syn, currevent->data.channel.channel, currevent->data.channel.param1 | currevent->data.channel.param2 << 7);
         break;
       case MIDI_EVENT_SYSEX:
       case MIDI_EVENT_SYSEX_SPLIT:
-        writesysex (currevent->data.sysex.data, currevent->data.sysex.length);
+        writesysex (music, currevent->data.sysex.data, currevent->data.sysex.length);
         break;
       case MIDI_EVENT_META: 
         if (currevent->data.meta.type == MIDI_META_SET_TEMPO)
-          spmc = MIDI_spmc (midifile, currevent, f_soundrate);
+          fl->spmc = MIDI_spmc (fl->midifile, currevent, fl->f_soundrate);
         else if (currevent->data.meta.type == MIDI_META_END_OF_TRACK)
         {
-          if (f_looping)
+          if (fl->f_looping)
           {
             int i;
-            eventpos = 0;
-            f_delta += eventdelta;
+            fl->eventpos = 0;
+            fl->f_delta += eventdelta;
             // fix buggy songs that forget to terminate notes held over loop point
             // sdl_mixer does this as well
             for (i = 0; i < 16; i++)
-              fluid_synth_cc (f_syn, i, 123, 0); // ALL NOTES OFF
+              fluid_synth_cc (fl->f_syn, i, 123, 0); // ALL NOTES OFF
             continue;
           }
           // stop, write leadout
-          fl_stop ();
+          fl_stop (music);
           samples = length - sampleswritten;
           if (samples)
           {
-            fl_writesamples_ex (dest, samples);
+            fl_writesamples_ex (music, dest, samples);
             sampleswritten += samples;
             // timecodes no longer relevant
             dest += samples * 2;
@@ -456,8 +462,8 @@ static void fl_render (void *vdest, unsigned length)
       
     }
     // event processed so advance midiclock
-    f_delta += eventdelta;
-    eventpos++;
+    fl->f_delta += eventdelta;
+    fl->eventpos++;
 
   }
 
@@ -470,9 +476,9 @@ static void fl_render (void *vdest, unsigned length)
     samples = length - sampleswritten;
     if (samples)
     {
-      fl_writesamples_ex (dest, samples);
+      fl_writesamples_ex (music, dest, samples);
       sampleswritten += samples;
-      f_delta -= samples; // save offset
+      fl->f_delta -= samples; // save offset
       dest += samples * 2;
     }
   }
@@ -485,7 +491,7 @@ static void fl_render (void *vdest, unsigned length)
 }  
 
 
-const music_player_t fl_player =
+fl_player_t fl_player =
 {
   fl_name,
   fl_init,

@@ -51,6 +51,7 @@
 #endif
 #include "p_inter.h"
 #include "e6y.h"//e6y
+#include "cybermind.h"
 
 #define BONUSADD        6
 
@@ -770,11 +771,18 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
 
       target->flags &= ~MF_SOLID;
       target->player->playerstate = PST_DEAD;
+	  // cybermind
+	  target->player->deathscount++;
       P_DropWeapon (target->player);
 
       if (target->player == &players[consoleplayer] && (automapmode & am_active))
         AM_Stop();    // don't die in auto map; switch view prior to dying
     }
+
+  if (dump_things)
+  {
+	  cyb_DumpKill(dumpFile, target, source);
+  }
 
   if (e6y)
   {
@@ -937,6 +945,11 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
   if (source && target)
   {
     CheckGivenDamageTracer(source, damage);
+  }
+
+  // cybermind
+  if (dump_things) {
+	  cyb_DumpDamage(dumpFile, target, inflictor, damage);
   }
 
   // do the damage

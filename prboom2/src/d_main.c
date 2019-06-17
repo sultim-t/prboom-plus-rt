@@ -222,7 +222,7 @@ static void D_Wipe(void)
   dboolean done;
   int wipestart = I_GetTime () - 1;
 
-  if (!render_wipescreen) return;//e6y
+  if (!render_wipescreen || record_sound || recordisplaying) return;//e6y
   do
     {
       int nowtime, tics;
@@ -1919,6 +1919,12 @@ static void D_DoomMainSetup(void)
   {
     autostart = true;
     G_RecordDemo(myargv[p]);
+	// cybermind
+	if ((p = M_CheckParm("-voicerecord")) && !nosfxparm)
+	{
+		I_InitRecording();
+
+	}
   }
     }
 

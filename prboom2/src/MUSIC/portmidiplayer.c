@@ -51,7 +51,7 @@ static int pm_init (int samplerate)
   return 0;
 }
 
-const music_player_t pm_player =
+music_player_t pm_player =
 {
   pm_name,
   pm_init,
@@ -77,35 +77,17 @@ const music_player_t pm_player =
 #include "midifile.h"
 #include "i_sound.h" // for snd_mididev
 
-static midi_event_t **events;
-static int eventpos;
-static midi_file_t *midifile;
-
-static int pm_playing;
-static int pm_paused;
-static int pm_looping;
-static int pm_volume;
-static double spmc;
-static double pm_delta;
-
-static unsigned long trackstart;
-
-static PortMidiStream *pm_stream;
-
-#define SYSEX_BUFF_SIZE 1024
-static unsigned char sysexbuff[SYSEX_BUFF_SIZE];
-static int sysexbufflen;
-
 // latency: we're generally writing timestamps slightly in the past (from when the last time
 // render was called to this time.  portmidi latency instruction must be larger than that window
 // so the messages appear in the future.  ~46-47ms is the nominal length if i_sound.c gets its way
 #define DRIVER_LATENCY 80 // ms
 // driver event buffer needs to be big enough to hold however many events occur in latency time
-#define DRIVER_BUFFER 100 // events
+#define DRIVER_BUFFER 100 // pm->events
+
+#include "portmidiplayer.h"
 
 
-
-static const char *pm_name (void)
+static const char *pm_name (music_player_t *music)
 {
   return "portmidi midi player";
 }
@@ -119,8 +101,9 @@ static const char *pm_name (void)
 #endif
 
 
-static int pm_init (int samplerate)
+static int pm_init (music_player_t *music, int samplerate)
 {
+	pm_player_t *pm = (pm_player_t*)music;
   PmDeviceID outputdevice;
   const PmDeviceInfo *oinfo;
   int i;
@@ -168,7 +151,7 @@ static int pm_init (int samplerate)
 
   lprintf (LO_INFO, "portmidiplayer: Opening device %s:%s for output\n", oinfo->interf, oinfo->name);
 
-  if (Pm_OpenOutput(&pm_stream, outputdevice, NULL, DRIVER_BUFFER, NULL, NULL, DRIVER_LATENCY) != pmNoError)
+  if (Pm_OpenOutput(&pm->pm_stream, outputdevice, NULL, DRIVER_BUFFER, NULL, NULL, DRIVER_LATENCY) != pmNoError)
   {
     lprintf (LO_WARN, "portmidiplayer: Pm_OpenOutput () failed\n");
     Pm_Terminate ();
@@ -178,9 +161,10 @@ static int pm_init (int samplerate)
   return 1;
 }
 
-static void pm_shutdown (void)
+static void pm_shutdown (music_player_t *music)
 {
-  if (pm_stream)
+	pm_player_t *pm = (pm_player_t*)music;
+  if (pm->pm_stream)
   {
     /* ugly deadlock in portmidi win32 implementation:
 
@@ -207,9 +191,9 @@ static void pm_shutdown (void)
     Pt_Sleep (DRIVER_LATENCY * 2);
     #endif
 
-    Pm_Close (pm_stream);
+    Pm_Close (pm->pm_stream);
     Pm_Terminate ();
-    pm_stream = NULL;
+    pm->pm_stream = NULL;
   }
 }
 
@@ -217,50 +201,52 @@ static void pm_shutdown (void)
 
 
 
-static const void *pm_registersong (const void *data, unsigned len)
+static const void *pm_registersong (music_player_t *music, const void *data, unsigned len)
 {
+	pm_player_t *pm = (pm_player_t*)music;
   midimem_t mf;
 
   mf.len = len;
   mf.pos = 0;
   mf.data = (byte*)data;
 
-  midifile = MIDI_LoadFile (&mf);
+  pm->midifile = MIDI_LoadFile (&mf);
 
-  if (!midifile)
+  if (!pm->midifile)
   {
     lprintf (LO_WARN, "pm_registersong: Failed to load MIDI.\n");
     return NULL;
   }
   
-  events = MIDI_GenerateFlatList (midifile);
-  if (!events)
+  pm->events = MIDI_GenerateFlatList (pm->midifile);
+  if (!pm->events)
   {
-    MIDI_FreeFile (midifile);
+    MIDI_FreeFile (pm->midifile);
     return NULL;
   }
-  eventpos = 0;
+  pm->eventpos = 0;
 
   // implicit 120BPM (this is correct to spec)
-  //spmc = compute_spmc (MIDI_GetFileTimeDivision (midifile), 500000, 1000);
-  spmc = MIDI_spmc (midifile, NULL, 1000);
+  //pm->spmc = compute_spmc (MIDI_GetFileTimeDivision (pm->midifile), 500000, 1000);
+  pm->spmc = MIDI_spmc (pm->midifile, NULL, 1000);
 
   // handle not used
   return data;
 }
 
-static void writeevent (unsigned long when, int eve, int channel, int v1, int v2)
+static void writeevent (music_player_t *music, unsigned long when, int eve, int channel, int v1, int v2)
 {
+	pm_player_t *pm = (pm_player_t*)music;
   PmMessage m;
 
   m = Pm_Message (eve | channel, v1, v2);
-  Pm_WriteShort (pm_stream, when, m);
+  Pm_WriteShort (pm->pm_stream, when, m);
 }
 
 /*
 portmidi has no overall volume control.  we have two options:
 1. use a win32-specific hack (only if mus_extend_volume is set)
-2. monitor the controller volume events and tweak them to serve our purpose
+2. monitor the controller volume pm->events and tweak them to serve our purpose
 */
 
 #ifdef _WIN32
@@ -270,19 +256,21 @@ void I_midiOutSetVolumes (int volume); // from e6y.h
 
 static int channelvol[16];
 
-static void pm_setchvolume (int ch, int v, unsigned long when)
+static void pm_setchvolume (music_player_t *music, int ch, int v, unsigned long when)
 {
+	pm_player_t *pm = (pm_player_t*)music;
   channelvol[ch] = v;
-  writeevent (when, MIDI_EVENT_CONTROLLER, ch, 7, channelvol[ch] * pm_volume / 15);
+  writeevent (music, when, MIDI_EVENT_CONTROLLER, ch, 7, channelvol[ch] * pm->pm_volume / 15);
 }
 
-static void pm_refreshvolume (void)
+static void pm_refreshvolume (music_player_t *music)
 {
+	pm_player_t *pm = (pm_player_t*)music;
   int i;
   unsigned long when = Pt_Time ();
 
   for (i = 0; i < 16; i ++)
-    writeevent (when, MIDI_EVENT_CONTROLLER, i, 7, channelvol[i] * pm_volume / 15);
+    writeevent (music, when, MIDI_EVENT_CONTROLLER, i, 7, channelvol[i] * pm->pm_volume / 15);
 }
 
 static void pm_clearchvolume (void)
@@ -293,15 +281,16 @@ static void pm_clearchvolume (void)
 
 }
 
-static void pm_setvolume (int v)
+static void pm_setvolume (music_player_t *music, int v)
 { 
+	pm_player_t *pm = (pm_player_t*)music;
   static int firsttime = 1;
 
-  if (pm_volume == v && !firsttime)
+  if (pm->pm_volume == v && !firsttime)
     return;
   firsttime = 0;
 
-  pm_volume = v;
+  pm->pm_volume = v;
   
   // this is a bit of a hack
   // fix: add non-win32 version
@@ -311,100 +300,107 @@ static void pm_setvolume (int v)
 
   #ifdef _WIN32
   if (mus_extend_volume)
-    I_midiOutSetVolumes (pm_volume);
+    I_midiOutSetVolumes (pm->pm_volume);
   else
   #endif
-    pm_refreshvolume ();
+    pm_refreshvolume (music);
 }
 
 
-static void pm_unregistersong (const void *handle)
+static void pm_unregistersong (music_player_t *music, const void *handle)
 {
-  if (events)
+	pm_player_t *pm = (pm_player_t*)music;
+  if (pm->events)
   {
-    MIDI_DestroyFlatList (events);
-    events = NULL;
+    MIDI_DestroyFlatList (pm->events);
+    pm->events = NULL;
   }
-  if (midifile)
+  if (pm->midifile)
   {
-    MIDI_FreeFile (midifile);
-    midifile = NULL;
+    MIDI_FreeFile (pm->midifile);
+    pm->midifile = NULL;
   }
 }
 
-static void pm_pause (void)
+static void pm_pause (music_player_t *music)
 {
+	pm_player_t *pm = (pm_player_t*)music;
   int i;
   unsigned long when = Pt_Time ();
-  pm_paused = 1;
+  pm->pm_paused = 1;
   for (i = 0; i < 16; i++)
   {
-    writeevent (when, MIDI_EVENT_CONTROLLER, i, 123, 0); // all notes off
+    writeevent (music, when, MIDI_EVENT_CONTROLLER, i, 123, 0); // all notes off
   }
 }
-static void pm_resume (void)
+static void pm_resume (music_player_t *music)
 {
-  pm_paused = 0;
-  trackstart = Pt_Time ();
+	pm_player_t *pm = (pm_player_t*)music;
+  pm->pm_paused = 0;
+  pm->trackstart = Pt_Time ();
 }
-static void pm_play (const void *handle, int looping)
+static void pm_play (music_player_t *music, const void *handle, int looping)
 {
-  eventpos = 0;
-  pm_looping = looping;
-  pm_playing = 1;
-  //pm_paused = 0;
-  pm_delta = 0.0;
+	pm_player_t *pm = (pm_player_t*)music;
+  pm->eventpos = 0;
+  pm->pm_looping = looping;
+  pm->pm_playing = 1;
+  //pm->pm_paused = 0;
+  pm->pm_delta = 0.0;
   pm_clearchvolume ();
-  pm_refreshvolume ();
-  trackstart = Pt_Time ();
+  pm_refreshvolume (music);
+  pm->trackstart = Pt_Time ();
   
 }
 
 
-static void writesysex (unsigned long when, int etype, unsigned char *data, int len)
+static void writesysex (music_player_t *music, unsigned long when, int etype, unsigned char *data, int len)
 {
+	pm_player_t *pm = (pm_player_t*)music;
   // sysex code is untested
   // it's possible to use an auto-resizing buffer here, but a malformed
   // midi file could make it grow arbitrarily large (since it must grow
   // until it hits an 0xf7 terminator)
-  if (len + sysexbufflen > SYSEX_BUFF_SIZE)
+  if (len + pm->sysexbufflen > SYSEX_BUFF_SIZE)
   {
     lprintf (LO_WARN, "portmidiplayer: ignoring large or malformed sysex message\n");
-    sysexbufflen = 0;
+    pm->sysexbufflen = 0;
     return;
   }
-  memcpy (sysexbuff + sysexbufflen, data, len);
-  sysexbufflen += len;
-  if (sysexbuff[sysexbufflen - 1] == 0xf7) // terminator
+  memcpy (pm->sysexbuff + pm->sysexbufflen, data, len);
+  pm->sysexbufflen += len;
+  if (pm->sysexbuff[pm->sysexbufflen - 1] == 0xf7) // terminator
   {
-    Pm_WriteSysEx (pm_stream, when, sysexbuff);
-    sysexbufflen = 0;
+    Pm_WriteSysEx (pm->pm_stream, when, pm->sysexbuff);
+    pm->sysexbufflen = 0;
   }
 }  
 
-static void pm_stop (void)
+static void pm_stop (music_player_t *music)
 {
+	pm_player_t *pm = (pm_player_t*)music;
   int i;
   unsigned long when = Pt_Time ();
-  pm_playing = 0;
+  pm->pm_playing = 0;
   
 
   // songs can be stopped at any time, so reset everything
   for (i = 0; i < 16; i++)
   {
-    writeevent (when, MIDI_EVENT_CONTROLLER, i, 123, 0); // all notes off
-    writeevent (when, MIDI_EVENT_CONTROLLER, i, 121, 0); // reset all parameters
+    writeevent (music, when, MIDI_EVENT_CONTROLLER, i, 123, 0); // all notes off
+    writeevent (music, when, MIDI_EVENT_CONTROLLER, i, 121, 0); // reset all parameters
   }
   // abort any partial sysex
-  sysexbufflen = 0;
+  pm->sysexbufflen = 0;
 }
 
-static void pm_render (void *vdest, unsigned bufflen)
+static void pm_render (music_player_t *music, void *vdest, unsigned bufflen)
 {
+	pm_player_t *pm = (pm_player_t*)music;
   // wherever you see samples in here, think milliseconds
   
   unsigned long newtime = Pt_Time ();
-  unsigned long length = newtime - trackstart;
+  unsigned long length = newtime - pm->trackstart;
 
   //timerpos = newtime;
   unsigned long when;
@@ -418,21 +414,21 @@ static void pm_render (void *vdest, unsigned bufflen)
 
 
 
-  if (!pm_playing || pm_paused)
+  if (!pm->pm_playing || pm->pm_paused)
     return;
 
   
   while (1)
   {
     double eventdelta;
-    currevent = events[eventpos];
+    currevent = pm->events[pm->eventpos];
     
     // how many samples away event is
-    eventdelta = currevent->delta_time * spmc;
+    eventdelta = currevent->delta_time * pm->spmc;
 
 
     // how many we will render (rounding down); include delta offset
-    samples = (unsigned) (eventdelta + pm_delta);
+    samples = (unsigned) (eventdelta + pm->pm_delta);
 
 
     if (samples + sampleswritten > length)
@@ -442,35 +438,35 @@ static void pm_render (void *vdest, unsigned bufflen)
 
 
     sampleswritten += samples;
-    pm_delta -= samples;
+    pm->pm_delta -= samples;
  
     
     // process event
-    when = trackstart + sampleswritten;
+    when = pm->trackstart + sampleswritten;
     switch (currevent->event_type)
     {
       case MIDI_EVENT_SYSEX:
       case MIDI_EVENT_SYSEX_SPLIT:        
-        writesysex (when, currevent->event_type, currevent->data.sysex.data, currevent->data.sysex.length);
+        writesysex (music, when, currevent->event_type, currevent->data.sysex.data, currevent->data.sysex.length);
         break;
       case MIDI_EVENT_META: // tempo is the only meta message we're interested in
         if (currevent->data.meta.type == MIDI_META_SET_TEMPO)
-          spmc = MIDI_spmc (midifile, currevent, 1000);
+          pm->spmc = MIDI_spmc (pm->midifile, currevent, 1000);
         else if (currevent->data.meta.type == MIDI_META_END_OF_TRACK)
         {
-          if (pm_looping)
+          if (pm->pm_looping)
           {
             int i;
-            eventpos = 0;
-            pm_delta += eventdelta;
+            pm->eventpos = 0;
+            pm->pm_delta += eventdelta;
             // fix buggy songs that forget to terminate notes held over loop point
             // sdl_mixer does this as well
             for (i = 0; i < 16; i++)
-              writeevent (when, MIDI_EVENT_CONTROLLER, i, 123, 0); // all notes off
+              writeevent (music, when, MIDI_EVENT_CONTROLLER, i, 123, 0); // all notes off
             continue;
           }
           // stop
-          pm_stop ();
+          pm_stop (music);
           return;
         }
         break; // not interested in most metas
@@ -481,22 +477,22 @@ static void pm_render (void *vdest, unsigned bufflen)
           if (!mus_extend_volume)
           #endif
           {
-            pm_setchvolume (currevent->data.channel.channel, currevent->data.channel.param2, when);
+            pm_setchvolume (music, currevent->data.channel.channel, currevent->data.channel.param2, when);
             break;
           }
         } // fall through
       default:
-        writeevent (when, currevent->event_type, currevent->data.channel.channel, currevent->data.channel.param1, currevent->data.channel.param2);
+        writeevent (music, when, currevent->event_type, currevent->data.channel.channel, currevent->data.channel.param1, currevent->data.channel.param2);
         break;
       
     }
     // if the event was a "reset all controllers", we need to additionally re-fix the volume (which itself was reset)
     if (currevent->event_type == MIDI_EVENT_CONTROLLER && currevent->data.channel.param1 == 121)
-      pm_setchvolume (currevent->data.channel.channel, 127, when);
+      pm_setchvolume (music, currevent->data.channel.channel, 127, when);
 
     // event processed so advance midiclock
-    pm_delta += eventdelta;
-    eventpos++;
+    pm->pm_delta += eventdelta;
+    pm->eventpos++;
 
   }
 
@@ -504,14 +500,14 @@ static void pm_render (void *vdest, unsigned bufflen)
   { // broke due to next event being past the end of current render buffer
     // finish buffer, return
     samples = length - sampleswritten;
-    pm_delta -= samples; // save offset
+    pm->pm_delta -= samples; // save offset
   }
 
-  trackstart = newtime;
+  pm->trackstart = newtime;
 }  
 
 
-const music_player_t pm_player =
+pm_player_t pm_player =
 {
   pm_name,
   pm_init,

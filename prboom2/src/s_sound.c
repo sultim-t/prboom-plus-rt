@@ -90,6 +90,9 @@ int snd_SfxVolume = 15;
 // Maximum volume of music. Useless so far.
 int snd_MusicVolume = 15;
 
+// Recording volume
+int snd_RecordVolume = 15;
+
 // whether songs are mus_paused
 static dboolean mus_paused;
 
@@ -371,6 +374,7 @@ void S_PauseSound(void)
   if (mus_playing && !mus_paused)
     {
       I_PauseSong(mus_playing->handle);
+	  I_PauseRecording();
       mus_paused = true;
     }
 }
@@ -384,6 +388,7 @@ void S_ResumeSound(void)
   if (mus_playing && mus_paused)
     {
       I_ResumeSong(mus_playing->handle);
+	  I_ResumeRecording();
       mus_paused = false;
     }
 }
@@ -459,6 +464,16 @@ void S_SetMusicVolume(int volume)
     I_Error("S_SetMusicVolume: Attempt to set music volume at %d", volume);
   I_SetMusicVolume(volume);
   snd_MusicVolume = volume;
+}
+
+void S_SetRecordVolume(int volume)
+{
+	if (!snd_card || nosfxparm)
+		return;
+	if (volume < 0 || volume > 15)
+		I_Error("S_SetRecordVolume: Attempt to set record volume at %d", volume);
+	I_SetRecordingVolume(volume);
+	snd_RecordVolume = volume;
 }
 
 

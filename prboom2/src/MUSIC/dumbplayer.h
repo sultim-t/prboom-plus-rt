@@ -31,10 +31,23 @@
 #ifndef DUMBPLAYER_H
 #define DUMBPLAYER_H
 
+#include <dumb.h>
+
+typedef struct db_player_s {
+	music_player_t music;
+	float db_delta;
+	float db_volume;
+	int db_looping;
+	int db_playing;
+	int db_paused;
+
+	DUH_SIGRENDERER *dsren;
+	DUH *duh;
+	DUMBFILE *dfil;
+} db_player_t;
 
 
-
-extern const music_player_t db_player;
+extern db_player_t db_player;
 
 
 
