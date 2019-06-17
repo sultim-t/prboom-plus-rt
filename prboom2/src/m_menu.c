@@ -563,7 +563,7 @@ short EpiMenuMap[8] = { 1, 1, 1, 1, -1, -1, -1, -1 }, EpiMenuEpi[8] = { 1,2,3,4,
 //
 //    M_Episode
 //
-int epi;
+int epiChoice;
 
 void M_AddEpisode(const char *map, char *def)
 {
@@ -622,7 +622,7 @@ void M_Episode(int choice)
 			choice = 0;
 		}
 	}
-	epi = choice;
+	epiChoice = choice;
 	M_SetupNextMenu(&NewDef);
 }
 
@@ -707,10 +707,13 @@ void M_NewGame(int choice)
   }
 
   // Chex Quest disabled the episode select screen, as did Doom II.
-  if (gamemode == commercial || gamemission == chex)
+  if (((gamemode == commercial || gamemission == chex) && !EpiCustom) || EpiDef.numitems == 1)
     M_SetupNextMenu(&NewDef);
   else
-    M_SetupNextMenu(&EpiDef);
+  {
+	  epiChoice = 0;
+	  M_SetupNextMenu(&EpiDef);
+  }
 }
 
 // CPhipps - static
@@ -719,7 +722,7 @@ static void M_VerifyNightmare(int ch)
   if (ch != 'y')
     return;
 
-  G_DeferedInitNew(nightmare,epi+1,1);
+  G_DeferedInitNew(nightmare,EpiMenuEpi[epiChoice], EpiMenuMap[epiChoice]);
   M_ClearMenus ();
 }
 
@@ -730,9 +733,9 @@ void M_ChooseSkill(int choice)
       M_StartMessage(s_NIGHTMARE,M_VerifyNightmare,true);
       return;
     }
-  if (EpiMenuEpi[epi] == -1 || EpiMenuMap[epi] == -1) return;	// There is no map to start here.
+  if (EpiMenuEpi[epiChoice] == -1 || EpiMenuMap[epiChoice] == -1) return;	// There is no map to start here.
 
-  G_DeferedInitNew(choice, EpiMenuEpi[epi], EpiMenuMap[epi]);
+  G_DeferedInitNew(choice, EpiMenuEpi[epiChoice], EpiMenuMap[epiChoice]);
   M_ClearMenus ();
 }
 

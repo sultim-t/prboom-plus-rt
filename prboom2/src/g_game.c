@@ -2696,6 +2696,7 @@ int G_ValidateMapName(const char *mapname, int *pEpi, int *pMap)
 	{
 		if (sscanf(mapuname, "MAP%d", &map) != 1) return 0;
 		snprintf(lumpname, 9, "MAP%02d", map);
+		epi = 1;
 	}
 	if (pEpi) *pEpi = epi;
 	if (pMap) *pMap = map;
