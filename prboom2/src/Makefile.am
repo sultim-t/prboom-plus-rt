@@ -8,12 +8,10 @@
 
 SUBDIRS = SDL POSIX MAC PCSOUND TEXTSCREEN MUSIC   
 
-gamesdir=$(prefix)/games
-
 if BUILD_SERVER
-games_PROGRAMS = prboom-plus prboom-plus-game-server
+bin_PROGRAMS = prboom-plus prboom-plus-game-server
 else
-games_PROGRAMS = prboom-plus
+bin_PROGRAMS = prboom-plus
 endif
 
 CFLAGS = @CFLAGS@ @SDL_CFLAGS@ @LIBZ_CFLAGS@
