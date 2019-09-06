@@ -1608,7 +1608,7 @@ void G_DoCompleted (void)
   }
 
   wminfo.didsecret = players[consoleplayer].didsecret;
-  wminfo.epsd = gameepisode -1;
+  wminfo.nextep = wminfo.epsd = gameepisode -1;
   wminfo.last = gamemap -1;
 
   // wminfo.next is 0 biased, unlike gamemap
