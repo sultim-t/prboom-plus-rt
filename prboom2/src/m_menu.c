@@ -291,6 +291,7 @@ void M_ExtHelp(int);
 static int M_GetPixelWidth(const char*);
 void M_DrawKeybnd(void);
 void M_DrawWeapons(void);
+static void M_DrawString(int cx, int cy, int color, const char* ch);
 static void M_DrawMenuString(int,int,int);
 static void M_DrawStringCentered(int,int,int,const char*);
 void M_DrawStatusHUD(void);
@@ -1881,6 +1882,9 @@ static void M_DrawItem(const setup_menu_t* s)
   if (!(flags & S_LEFTJUST))
     w = M_GetPixelWidth(menu_buffer) + 4;
   M_DrawMenuString(x - w, y ,color);
+  // print a blinking "arrow" next to the currently highlighted menu item
+  if (s == current_setup_menu + set_menu_itemon && whichSkull)
+    M_DrawString(x - w - 8, y, color, ">");
       }
     free(t);
   }
