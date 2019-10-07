@@ -2852,7 +2852,7 @@ dboolean HU_Responder(event_t *ev)
 
       // leave chat mode and notify that it was sent
       chat_on = false;
-      strcpy(lastmessage, chat_macros[c]);
+      strncpy(lastmessage, chat_macros[c], HU_MAXLINELENGTH);
       plr->message = lastmessage;
       eatkey = true;
     }

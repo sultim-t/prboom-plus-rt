@@ -87,6 +87,7 @@ dnl ---  in by other libraries, but we can't rely on that.
 AC_CHECK_LIB(m,pow)
 dnl - system specific stuff
 dnl - winmm for the midi volume hack
+GL_DIR="GL"
 case "$target" in
     *-*-cygwin* | *-*-mingw32*)
         SYS_GL_LIBS="-lopengl32 -lglu32 -lgdi32"
@@ -100,6 +101,10 @@ case "$target" in
             CFLAGS="$CFLAGS -mthreads"
         fi
         ;;
+    *-*-darwin*)
+        GL_DIR="OpenGL"
+        SYS_GL_LIBS="-framework OpenGL"
+        ;;
     *)
 	SYS_GL_LIBS="-lGL -lGLU"
 	;;
@@ -112,7 +117,7 @@ then
     AC_MSG_CHECKING(for OpenGL support)
     have_opengl=no
     AC_TRY_COMPILE([
-     #include <GL/gl.h>
+     #include <$GL_DIR/gl.h>
     ],[
     ],[
     have_opengl=yes
