@@ -1584,7 +1584,7 @@ setup_menu_t* current_setup_menu; // points to current setup menu table
 //
 // The menu_buffer is used to construct strings for display on the screen.
 
-static char menu_buffer[64];
+static char menu_buffer[66];
 
 /////////////////////////////
 //
@@ -1924,6 +1924,8 @@ static void M_DrawSetting(const setup_menu_t* s)
 
   if (flags & S_YESNO) {
     strcpy(menu_buffer,*s->var.def->location.pi ? "YES" : "NO");
+    if (s == current_setup_menu + set_menu_itemon && whichSkull && !setup_select)
+      strcat(menu_buffer, " <");
     M_DrawMenuString(x,y,color);
     return;
   }
@@ -1938,6 +1940,8 @@ static void M_DrawSetting(const setup_menu_t* s)
     }
     else
       sprintf(menu_buffer,"%d",*s->var.def->location.pi);
+    if (s == current_setup_menu + set_menu_itemon && whichSkull && !setup_select)
+      strcat(menu_buffer, " <");
     M_DrawMenuString(x,y,color);
     return;
   }
@@ -1961,6 +1965,8 @@ static void M_DrawSetting(const setup_menu_t* s)
       sprintf(menu_buffer+strlen(menu_buffer), "/JSB%d",
         *s->m_joy+1);
   }
+      if (s == current_setup_menu + set_menu_itemon && whichSkull && !setup_select)
+        strcat(menu_buffer, " <");
       M_DrawMenuString(x,y,color);
     }
     return;
@@ -1978,6 +1984,8 @@ static void M_DrawSetting(const setup_menu_t* s)
   if (flags & (S_WEAP|S_CRITEM)) // weapon number or color range
     {
       sprintf(menu_buffer,"%d", *s->var.def->location.pi);
+      if (s == current_setup_menu + set_menu_itemon && whichSkull && !setup_select)
+        M_DrawString(x + 8, y, color, " <");
       M_DrawMenuString(x,y, flags & S_CRITEM ? *s->var.def->location.pi : color);
       return;
     }
@@ -2003,6 +2011,8 @@ static void M_DrawSetting(const setup_menu_t* s)
 
       if (!ch) // don't show this item in automap mode
   V_DrawNamePatch(x+1,y,0,"M_PALNO", CR_DEFAULT, VPT_STRETCH);
+  if (s == current_setup_menu + set_menu_itemon && whichSkull && !setup_select)
+    M_DrawString(x + 8, y, color, " <");
       return;
     }
 
@@ -2061,6 +2071,8 @@ static void M_DrawSetting(const setup_menu_t* s)
     // Draw the setting for the item
 
     strcpy(menu_buffer,text);
+    if (s == current_setup_menu + set_menu_itemon && whichSkull && !setup_select)
+      strcat(menu_buffer, " <");
     M_DrawMenuString(x,y,color);
     return;
   }
@@ -2080,6 +2092,8 @@ static void M_DrawSetting(const setup_menu_t* s)
       sprintf(menu_buffer,"%s", *s->var.def->location.ppsz);
     }
 
+    if (s == current_setup_menu + set_menu_itemon && whichSkull && !setup_select)
+      strcat(menu_buffer, " <");
     M_DrawMenuString(x,y,color);
     return;
   }
