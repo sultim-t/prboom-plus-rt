@@ -450,15 +450,21 @@ dboolean HasTrailingSlash(const char* dn)
 
 #ifndef MACOSX /* OSX defines its search paths elsewhere. */
 
+#ifdef _WIN32
+#define PATH_SEPARATOR ';'
+#else
+#define PATH_SEPARATOR ':'
+#endif
+
 char* I_FindFileInternal(const char* wfname, const char* ext, dboolean isStatic)
 {
   // lookup table of directories to search
-  static const struct {
+  static struct {
     const char *dir; // directory
     const char *sub; // subdirectory
     const char *env; // environment variable
     const char *(*func)(void); // for I_DoomExeDir
-  } search[] = {
+  } search0[] = {
     {NULL, NULL, NULL, I_DoomExeDir}, // config directory
     {NULL}, // current working directory
     {NULL, NULL, "DOOMWADDIR"}, // run-time $DOOMWADDIR
@@ -469,8 +475,9 @@ char* I_FindFileInternal(const char* wfname, const char* ext, dboolean isStatic)
     {"/usr/share/games/doom"},
     {"/usr/local/share/doom"},
     {"/usr/share/doom"},
-  };
+  }, *search;
 
+  static size_t num_search;
   size_t  i;
   size_t  pl;
 
@@ -481,10 +488,56 @@ char* I_FindFileInternal(const char* wfname, const char* ext, dboolean isStatic)
   if (!wfname)
     return NULL;
 
+  if (!num_search)
+  {
+    char *dwp;
+
+    // initialize with the static lookup table
+    num_search = sizeof(search0)/sizeof(*search0);
+    search = malloc(num_search * sizeof(*search));
+    memcpy(search, search0, num_search * sizeof(*search));
+
+    // add each directory from the $DOOMWADPATH environment variable
+    if ((dwp = getenv("DOOMWADPATH")))
+    {
+      char *left, *ptr, *dup_dwp;
+
+      dup_dwp = strdup(dwp);
+      left = dup_dwp;
+
+      for (;;)
+      {
+          ptr = strchr(left, PATH_SEPARATOR);
+          if (ptr != NULL)
+          {
+              *ptr = '\0';
+
+              num_search++;
+              search = realloc(search, num_search * sizeof(*search));
+              memset(&search[num_search-1], 0, sizeof(*search));
+              search[num_search-1].dir = strdup(left);
+
+              left = ptr + 1;
+          }
+          else
+          {
+              break;
+          }
+      }
+
+      num_search++;
+      search = realloc(search, num_search * sizeof(*search));
+      memset(&search[num_search-1], 0, sizeof(*search));
+      search[num_search-1].dir = strdup(left);
+
+      free(dup_dwp);
+    }
+  }
+
   /* Precalculate a length we will need in the loop */
   pl = strlen(wfname) + (ext ? strlen(ext) : 0) + 4;
 
-  for (i = 0; i < sizeof(search)/sizeof(*search); i++) {
+  for (i = 0; i < num_search; i++) {
     const char  * d = NULL;
     const char  * s = NULL;
     /* Each entry in the switch sets d to the directory to look in,
