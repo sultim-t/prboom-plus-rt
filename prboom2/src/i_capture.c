@@ -78,6 +78,8 @@ int cap_frac;
 // %f filename passed to -viddump
 // %% single percent sign
 // TODO: add aspect ratio information
+//
+// Modified to work with SDL2 resizeable window and fullscreen desktop - DTIED
 static int parsecommand (char *out, const char *in, int len)
 {
   int i;
@@ -86,13 +88,14 @@ static int parsecommand (char *out, const char *in, int len)
   {
     if (*in == '%')
     {
+      I_UpdateRenderSize(); // Handle potential resolution scaling - DTIED
       switch (in[1])
       {
         case 'w':
-          i = doom_snprintf (out, len, "%u", REAL_SCREENWIDTH);
+          i = doom_snprintf (out, len, "%u", renderW);
           break;
         case 'h':
-          i = doom_snprintf (out, len, "%u", REAL_SCREENHEIGHT);
+          i = doom_snprintf (out, len, "%u", renderH);
           break;
         case 's':
           i = doom_snprintf (out, len, "%u", snd_samplerate);
@@ -551,6 +554,7 @@ void I_CapturePrep (const char *fn)
 
 // capture a single frame of video (and corresponding audio length)
 // and send it to pipes
+// Modified to work with SDL2 resizeable window and fullscreen desktop - DTIED
 void I_CaptureFrame (void)
 {
   unsigned char *snd;
@@ -579,7 +583,7 @@ void I_CaptureFrame (void)
   vid = I_GrabScreen ();
   if (vid)
   {
-    if (fwrite (vid, REAL_SCREENWIDTH * REAL_SCREENHEIGHT * 3, 1, videopipe.f_stdin) != 1)
+    if (fwrite (vid, renderW * renderH * 3, 1, videopipe.f_stdin) != 1)
       lprintf(LO_WARN, "I_CaptureFrame: error writing videopipe.\n");
     //free (vid); // static buffer
   }

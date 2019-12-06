@@ -1167,6 +1167,10 @@ void I_UpdateVideoMode(void)
     init_flags = SDL_WINDOW_OPENGL;
   }
 
+  // Fullscreen desktop for software renderer only - DTIED
+  if (desired_fullscreen && V_GetMode() != VID_MODEGL)
+    init_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+  else
   if ( desired_fullscreen )
     init_flags |= SDL_WINDOW_FULLSCREEN;
 

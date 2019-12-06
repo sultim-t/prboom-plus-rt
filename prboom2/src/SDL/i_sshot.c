@@ -52,16 +52,37 @@
 #include "z_zone.h"
 #include "lprintf.h"
 
+int renderW;
+int renderH;
+
+void I_UpdateRenderSize(void)
+{
+	if (V_GetMode() == VID_MODEGL)
+	{
+		renderW = REAL_SCREENWIDTH;
+		renderH = REAL_SCREENHEIGHT;
+	}
+	else
+	{
+		SDL_GetRendererOutputSize(sdl_renderer, &renderW, &renderH);
+	}
+}
+
 //
-// I_ScreenShot
+// I_ScreenShot // Modified to work with SDL2 resizeable window and fullscreen desktop - DTIED
 //
 
 int I_ScreenShot(const char *fname)
 {
   int result = -1;
   unsigned char *pixels = I_GrabScreen();
-  SDL_Surface *screenshot = SDL_CreateRGBSurfaceFrom(pixels, REAL_SCREENWIDTH, REAL_SCREENHEIGHT, 24,
-    REAL_SCREENWIDTH * 3, 0x000000ff, 0x0000ff00, 0x00ff0000, 0);
+  SDL_Surface *screenshot = NULL;
+
+  if (pixels)
+  {
+	screenshot = SDL_CreateRGBSurfaceFrom(pixels, renderW, renderH, 24,
+	  renderW * 3, 0x000000ff, 0x0000ff00, 0x00ff0000, 0);
+  }
 
   if (screenshot)
   {
@@ -76,14 +97,19 @@ int I_ScreenShot(const char *fname)
 }
 
 // NSM
-// returns current screern contents as RGB24 (raw)
+// returns current screen contents as RGB24 (raw)
 // returned pointer should be freed when done
+//
+// Modified to work with SDL2 resizeable window and fullscreen desktop - DTIED
+//
 
 unsigned char *I_GrabScreen(void)
 {
   static unsigned char *pixels = NULL;
   static int pixels_size = 0;
   int size;
+
+  I_UpdateRenderSize();
 
   #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
@@ -92,16 +118,17 @@ unsigned char *I_GrabScreen(void)
   }
   #endif
 
-  size = REAL_SCREENHEIGHT * REAL_SCREENWIDTH * 3;
+  size = renderW * renderH * 3;
   if (!pixels || size > pixels_size)
   {
     pixels_size = size;
     pixels = (unsigned char*)realloc(pixels, size);
   }
 
-  if (pixels)
+  if (pixels && size)
   {
-    SDL_RenderReadPixels(sdl_renderer, NULL, SDL_PIXELFORMAT_RGB24, pixels, REAL_SCREENWIDTH * 3);
+    SDL_Rect screen = { 0, 0, renderW, renderH };
+    SDL_RenderReadPixels(sdl_renderer, &screen, SDL_PIXELFORMAT_RGB24, pixels, renderW * 3);
   }
 
   return pixels;
