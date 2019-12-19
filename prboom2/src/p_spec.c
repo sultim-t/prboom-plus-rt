@@ -396,6 +396,7 @@ fixed_t P_FindNextHighestFloor(sector_t *sec, int currentheight)
     static int heightlist_size = 0;
     line_t* check;
     fixed_t height = currentheight;
+    static fixed_t last_height_0 = 0;
 
     // 20 adjoining sectors max!
     if (!MAX_ADJOINING_SECTORS)
@@ -455,9 +456,19 @@ fixed_t P_FindNextHighestFloor(sector_t *sec, int currentheight)
     // Find lowest height in list
     if (!h)
     {
-      return (compatibility_level < doom_1666_compatibility ? 0 : currentheight);
+      // cph - my guess at doom v1.2 - 1.4beta compatibility here.
+      // If there are no higher neighbouring sectors, Heretic just returned
+      // heightlist[0] (local variable), i.e. noise off the stack. 0 is right for
+      // RETURN01 E1M2, so let's take that.
+      //
+      // SmileTheory's response:
+      // It's not *quite* random stack noise. If this function is called
+      // as part of a loop, heightlist will be at the same location as in
+      // the previous call. Doing it this way fixes 1_ON_1.WAD.
+      return (compatibility_level < doom_1666_compatibility ? last_height_0 : currentheight);
     }
     
+    last_height_0 = heightlist[0];
     min = heightlist[0];
     
     // Range checking? 

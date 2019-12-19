@@ -347,8 +347,10 @@ void T_MoveFloor(floormove_t* floor)
       }
     }
 
+    // Moving floors (but not plats) in versions <= v1.2 did not
     // make floor stop sound
-    S_StartSound((mobj_t *)&floor->sector->soundorg, sfx_pstop);
+    if (compatibility_level > doom_12_compatibility)
+        S_StartSound((mobj_t *)&floor->sector->soundorg, sfx_pstop);
   }
 }
 
