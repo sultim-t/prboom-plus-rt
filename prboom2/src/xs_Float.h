@@ -34,7 +34,7 @@
 #endif //BigEndian_
 
 #ifdef __GNUC__
-#define finline inline
+#define finline inline __attribute__ ((__always_inline__))
 #else
 #define finline __forceinline
 #endif
