@@ -25,7 +25,7 @@
 
 @implementation ANSIString
 
-static int findNext(NSString *string, NSString *needle, int start)
+static NSUInteger findNext(NSString *string, NSString *needle, NSUInteger start)
 {
 	if(start >= [string length])
 	{
@@ -33,7 +33,7 @@ static int findNext(NSString *string, NSString *needle, int start)
 	}
 	else
 	{
-		int i = [string rangeOfString:needle options:nil
+		NSUInteger i = [string rangeOfString:needle options:0
 		               range:NSMakeRange(start, [string length] - start)].location;
 		return i;
 	}
@@ -94,9 +94,9 @@ static NSDictionary *attributes(bool bold, bool blink, bool reverse, int bg, int
 {
 	NSMutableAttributedString *retval = [[[NSMutableAttributedString alloc]
 	                                    initWithString:@""] autorelease];
-	int length = [ansiString length];
-	int last = 0;
-	int current = -1;
+	NSUInteger length = [ansiString length];
+	NSUInteger last = 0;
+	NSUInteger current = -1;
 
 	static const int DefaultFGColor = 7;
 	static const int DefaultBGColor = 0;
@@ -117,7 +117,7 @@ static NSDictionary *attributes(bool bold, bool blink, bool reverse, int bg, int
 		[retval appendAttributedString:update];
 		last = current;
 
-		int end = findNext(ansiString, @"m", current + 1);
+		NSUInteger end = findNext(ansiString, @"m", current + 1);
 		if(end == NSNotFound)
 		{
 			current = length;
