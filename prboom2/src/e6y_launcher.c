@@ -47,7 +47,9 @@
 #include "m_argv.h"
 #include "i_main.h"
 #include ".\..\ICONS\resource.h"
+#ifdef HAVE_LIBPCREPOSIX
 #include "pcreposix.h"
+#endif /* HAVE_LIBPCREPOSIX */
 #include "r_demo.h"
 #include "e6y.h"
 #include "e6y_launcher.h"
