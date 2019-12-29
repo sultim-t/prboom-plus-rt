@@ -1,4 +1,0 @@
-Doom.plg Doom.opt Doom.ncb
-prboom_server.plg prboom_server.opt prboom_server.ncb
-Debug DebugGL DebugNOASM DebugNOASMGL DebugServer
-Release ReleaseGL ReleaseNOASM ReleaseNOASMGL ReleaseServer
