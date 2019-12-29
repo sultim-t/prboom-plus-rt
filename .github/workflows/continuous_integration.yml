@@ -1,0 +1,115 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches-ignore:
+    - build_windows_dependencies
+  pull_request:
+    branches-ignore:
+    - build_windows_dependencies
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Visual Studio 64-bit",
+            os: windows-latest,
+            build_type: "Release",
+            extra_options: "-A x64 -DCMAKE_TOOLCHAIN_FILE=./dependencies/scripts/buildsystems/vcpkg.cmake",
+            dependencies: "windows_dependencies_x64.zip",
+            package_name: "vs_x64"
+          }
+        - {
+            name: "Visual Studio 32-bit",
+            os: windows-latest,
+            build_type: "Release",
+            extra_options: "-A Win32 -DCMAKE_TOOLCHAIN_FILE=./dependencies/scripts/buildsystems/vcpkg.cmake",
+            dependencies: "windows_dependencies_x86.zip",
+            package_name: "vs_win32"
+          }
+        - {
+            name: "Linux GCC",
+            os: ubuntu-latest,
+            build_type: "Release",
+            extra_options: "",
+            package_name: "linux_gcc"
+          }
+        - {
+            name: "Linux Clang",
+            os: ubuntu-latest,
+            build_type: "Release",
+            extra_options: "-DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++",
+            package_name: "linux_clang"
+          }
+        - {
+            name: "macOS Clang",
+            os: macos-latest,
+            build_type: "Release",
+            extra_options: "",
+            package_name: "macos"
+          }
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install Dependencies
+      shell: bash
+      run: |
+        mkdir build
+        cd build
+        if [[ "${{ runner.os }}" == 'Windows' ]]; then
+          curl -LO "https://github.com/alexey-lysiuk/prboom-plus/releases/download/windows_dependencies/${{ matrix.config.dependencies }}"
+          7z x ${{ matrix.config.dependencies }}
+        elif [[ "${{ runner.os }}" == 'Linux' ]]; then
+          sudo apt update
+          sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-net-dev \
+            libpcre3-dev libmad0-dev libfluidsynth-dev libdumb1-dev libvorbis-dev libportmidi-dev
+        elif [[ "${{ runner.os }}" == 'macOS' ]]; then
+          brew install sdl2 sdl2_image sdl2_mixer sdl2_net pcre mad fluidsynth dumb portmidi
+        fi
+
+    - name: Configure
+      shell: bash
+      run: |
+        cd build
+        cmake -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} ${{ matrix.config.extra_options }} ../prboom2
+
+    - name: Build
+      shell: bash
+      run: |
+        cd build
+        if [[ "${{ runner.os }}" == 'Windows' ]]; then
+          cmake --build . --config ${{ matrix.config.build_type }} -- -maxcpucount -verbosity:minimal
+        else
+          cmake --build . -- --jobs=2 --keep-going
+        fi
+
+    - name: Create Package
+      shell: bash
+      run: |
+        cd build
+        mkdir package
+        if [[ "${{ runner.os }}" == 'Windows' ]]; then
+          cp ${{ matrix.config.build_type }}/prboom-plus.exe ${{ matrix.config.build_type }}/prboom-plus-game-server.exe prboom-plus.wad package
+        elif [[ "${{ runner.os }}" == 'macOS' ]]; then
+          cp -R Launcher.app package
+        else
+          cp prboom-plus prboom-plus-game-server prboom-plus.wad package
+        fi
+        cp config.h package
+
+    - name: Upload Package
+      uses: actions/upload-artifact@v1
+      with:
+        path: build/package
+        name: ${{ matrix.config.package_name }}
+
+    - name: List Build Directory
+      if: always()
+      shell: bash
+      run: ls -lR build

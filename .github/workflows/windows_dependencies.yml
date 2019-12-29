@@ -1,0 +1,49 @@
+name: Windows Dependencies
+
+on:
+  push:
+    branches:
+    - build_windows_dependencies
+  pull_request:
+    branches:
+    - build_windows_dependencies
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Visual Studio 64-bit",
+            os: windows-latest,
+            triplet: x64-windows
+          }
+        - {
+            name: "Visual Studio 32-bit",
+            os: windows-latest,
+            triplet: x86-windows
+          }
+
+    steps:
+    - name: Install
+      shell: cmd
+      run: |
+        vcpkg update
+        vcpkg install sdl2-image sdl2-mixer sdl2-net pcre zlib fluidsynth libvorbis portmidi --triplet ${{ matrix.config.triplet }}
+
+    - name: Export
+      shell: cmd
+      run: |
+        vcpkg export sdl2-image sdl2-mixer sdl2-net pcre zlib fluidsynth libvorbis portmidi --zip --triplet ${{ matrix.config.triplet }}
+        md artifact
+        move %VCPKG_INSTALLATION_ROOT%\*.zip artifact
+
+    - name: Upload
+      uses: actions/upload-artifact@v1
+      with:
+        path: artifact
+        name: ${{ matrix.config.triplet }}
+
