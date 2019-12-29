@@ -1,0 +1,43 @@
+#cmakedefine PACKAGE_NAME "@PACKAGE_NAME@"
+#cmakedefine PACKAGE_TARNAME "@PACKAGE_TARNAME@"
+#cmakedefine PACKAGE_VERSION "@PACKAGE_VERSION@"
+#cmakedefine PACKAGE_STRING "@PACKAGE_STRING@"
+
+#cmakedefine DOOMWADDIR "@DOOMWADDIR@"
+
+#cmakedefine HAVE_GETOPT
+#cmakedefine HAVE_MMAP
+#cmakedefine HAVE_SCHED_SETAFFINITY
+#cmakedefine HAVE_USLEEP
+
+#cmakedefine HAVE_SYS_WAIT_H
+#cmakedefine HAVE_UNISTD_H
+#cmakedefine HAVE_ASM_BYTEORDER_H
+
+#cmakedefine GL_DOOM
+#cmakedefine USE_GLU_IMAGESCALE
+#cmakedefine USE_GLU_MIPMAP
+#cmakedefine USE_GLU_TESS
+
+#cmakedefine HAVE_SDL_JOYSTICKGETAXIS
+#cmakedefine HAVE_LIBSDL2_IMAGE
+#cmakedefine HAVE_LIBSDL2_MIXER
+#cmakedefine HAVE_NET
+#cmakedefine USE_SDL_NET
+
+#cmakedefine HAVE_LIBPCREPOSIX
+#cmakedefine HAVE_LIBZ
+#cmakedefine HAVE_LIBMAD
+#cmakedefine HAVE_LIBFLUIDSYNTH
+#cmakedefine HAVE_LIBDUMB
+#cmakedefine HAVE_LIBVORBISFILE
+#cmakedefine HAVE_LIBPORTMIDI
+
+#cmakedefine SIMPLECHECKS
+#cmakedefine ZONEIDCHECK
+
+#cmakedefine RANGECHECK
+#cmakedefine INSTRUMENTED
+#cmakedefine TIMEDIAG
+#cmakedefine HEAPCHECK
+#cmakedefine HEAPDUMP
