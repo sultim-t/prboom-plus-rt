@@ -63,7 +63,7 @@ jobs:
         mkdir build
         cd build
         if [[ "${{ runner.os }}" == 'Windows' ]]; then
-          curl -LO "https://github.com/alexey-lysiuk/prboom-plus/releases/download/windows_dependencies/${{ matrix.config.dependencies }}"
+          curl -LO "https://github.com/coelckers/prboom-plus/releases/download/windows_dependencies/${{ matrix.config.dependencies }}"
           7z x ${{ matrix.config.dependencies }}
         elif [[ "${{ runner.os }}" == 'Linux' ]]; then
           sudo apt update
