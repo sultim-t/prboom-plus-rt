@@ -1,0 +1,517 @@
+# PrBoom-Plus WAD creation tool
+
+set(RDATAWAD_SOURCES
+    rd_main.c
+    rd_util.c
+    rd_util.h
+    rd_output.c
+    rd_output.h
+    rd_sound.c
+    rd_sound.h
+    rd_palette.c
+    rd_palette.h
+    rd_graphic.c
+    rd_graphic.h
+)
+
+add_executable(rdatawad ${RDATAWAD_SOURCES})
+target_include_directories(rdatawad PRIVATE ${CMAKE_BINARY_DIR})
+
+
+# PrBoom-Plus internal WAD
+
+set(PALETTE
+    palette.rgb
+)
+
+set(LUMPS
+    lumps/switches.lmp
+    lumps/animated.lmp
+    lumps/crbrick.lmp
+    lumps/crtan.lmp
+    lumps/crgray.lmp
+    lumps/crgreen.lmp
+    lumps/crbrown.lmp
+    lumps/crgold.lmp
+    lumps/crred.lmp
+    lumps/crblue.lmp
+    lumps/crblue2.lmp
+    lumps/crorange.lmp
+    lumps/cryellow.lmp
+)
+
+set(COLORMAPS 
+    lumps/watermap.lmp
+)
+
+set(TABLES
+    lumps/sinetabl.lmp
+    lumps/tangtabl.lmp
+    lumps/tantoang.lmp
+    lumps/gammatbl.lmp
+    lumps/chexdeh.lmp
+    lumps/bfgbex.lmp
+    lumps/nervebex.lmp
+    lumps/glshadow.lmp
+    lumps/glfp.lmp
+    lumps/glvp.lmp
+    lumps/-prbhud-.lmp
+    lumps/m_ammo.lmp
+    lumps/m_armour.lmp
+    lumps/m_arrow.lmp
+    lumps/m_health.lmp
+    lumps/m_key.lmp
+    lumps/m_normal.lmp
+    lumps/m_shadow.lmp
+    lumps/m_power.lmp
+    lumps/m_weap.lmp
+    lumps/m_mark.lmp
+)
+
+option(DOGS "Enable support for helper dogs" TRUE)
+option(NONFREE_GRAPHICS "Build prboom-plus.wad with non-free graphics lumps" TRUE)
+
+set(SOUNDS "")
+
+if(DOGS)
+    if(NONFREE_GRAPHICS)
+        set(SOUNDS
+            ${SOUNDS}
+            sounds/dsdgsit.wav
+            sounds/dsdgatk.wav
+            sounds/dsdgact.wav
+            sounds/dsdgdth.wav
+            sounds/dsdgpain.wav
+        )
+    else()
+        set(SOUNDS
+            ${SOUNDS}
+            sounds/free/dsdgsit.wav
+            sounds/free/dsdgatk.wav
+            sounds/free/dsdgact.wav
+            sounds/free/dsdgdth.wav
+            sounds/free/dsdgpain.wav
+        )
+    endif()
+endif()
+
+if(NONFREE_GRAPHICS)
+    set(SOUNDS
+        ${SOUNDS}
+        sounds/dssecret.wav
+        sounds/dsgibdth.wav
+    )
+endif()
+
+set(GRAPHICS
+    graphics/dig0.ppm
+    graphics/dig1.ppm
+    graphics/dig2.ppm
+    graphics/dig3.ppm
+    graphics/dig4.ppm
+    graphics/dig5.ppm
+    graphics/dig6.ppm
+    graphics/dig7.ppm
+    graphics/dig8.ppm
+    graphics/dig9.ppm
+    graphics/diga.ppm
+    graphics/digb.ppm
+    graphics/digc.ppm
+    graphics/digd.ppm
+    graphics/dige.ppm
+    graphics/digf.ppm
+    graphics/digg.ppm
+    graphics/digh.ppm
+    graphics/digi.ppm
+    graphics/digj.ppm
+    graphics/digk.ppm
+    graphics/digl.ppm
+    graphics/digm.ppm
+    graphics/dign.ppm
+    graphics/digo.ppm
+    graphics/digp.ppm
+    graphics/digq.ppm
+    graphics/digr.ppm
+    graphics/digs.ppm
+    graphics/digt.ppm
+    graphics/digu.ppm
+    graphics/digv.ppm
+    graphics/digw.ppm
+    graphics/digx.ppm
+    graphics/digy.ppm
+    graphics/digz.ppm
+    graphics/dig45.ppm
+    graphics/dig47.ppm
+    graphics/dig58.ppm
+    graphics/dig91.ppm
+    graphics/dig93.ppm
+    graphics/stbr123.ppm
+    graphics/stbr124.ppm
+    graphics/stbr125.ppm
+    graphics/stbr126.ppm
+    graphics/stbr127.ppm
+    graphics/boxul.ppm
+    graphics/boxuc.ppm
+    graphics/boxur.ppm
+    graphics/boxcl.ppm
+    graphics/boxcc.ppm
+    graphics/boxcr.ppm
+    graphics/boxll.ppm
+    graphics/boxlc.ppm
+    graphics/boxlr.ppm
+    graphics/stkeys6.ppm
+    graphics/stkeys7.ppm
+    graphics/stkeys8.ppm
+    graphics/stcfn096.ppm
+    graphics/m_butt1.ppm
+    graphics/m_butt2.ppm
+    graphics/m_colors.ppm
+    graphics/m_palno.ppm
+    graphics/m_palsel.ppm
+    graphics/m_vbox.ppm
+    graphics/cross1.ppm
+    graphics/cross2.ppm
+    graphics/cross3.ppm
+)
+
+if(NONFREE_GRAPHICS)
+    set(GRAPHICS
+        ${GRAPHICS}
+        graphics/m_generl.ppm
+        graphics/m_setup.ppm
+        graphics/m_auto.ppm
+        graphics/m_keybnd.ppm
+        graphics/m_chat.ppm
+        graphics/m_compat.ppm
+        graphics/m_enem.ppm
+        graphics/m_mess.ppm
+        graphics/m_stat.ppm
+        graphics/m_weap.ppm
+        graphics/m_horsen.ppm
+        graphics/m_versen.ppm
+        graphics/prboom.ppm
+        graphics/m_accel.ppm
+        graphics/m_loksen.ppm
+    )
+endif()
+
+set(FLATS
+    flats/-n0_tex-.ppm
+)
+
+set(SPRITES
+    sprites/tnt1a0.ppm
+)
+set(SPRITEP "0,0,sprites/tnt1a0.ppm")
+
+if(DOGS)
+    if(NONFREE_GRAPHICS)
+        set(SPRITES
+            ${SPRITES}
+            sprites/dogsd5.ppm
+            sprites/dogsh5.ppm
+            sprites/dogsc5.ppm
+            sprites/dogsg5.ppm
+            sprites/dogsb1.ppm
+            sprites/dogsa5.ppm
+            sprites/dogse5.ppm
+            sprites/dogsc1.ppm
+            sprites/dogsd1.ppm
+            sprites/dogsb5.ppm
+            sprites/dogsf5.ppm
+            sprites/dogsa1.ppm
+            sprites/dogse1.ppm
+            sprites/dogsf1.ppm
+            sprites/dogsd2d8.ppm
+            sprites/dogsh2.ppm
+            sprites/dogsg1.ppm
+            sprites/dogsh8.ppm
+            sprites/dogse8.ppm
+            sprites/dogsd4d6.ppm
+            sprites/dogsh4.ppm
+            sprites/dogsa2a8.ppm
+            sprites/dogse2.ppm
+            sprites/dogsf8.ppm
+            sprites/dogsh1.ppm
+            sprites/dogsa4a6.ppm
+            sprites/dogse4.ppm
+            sprites/dogsb4b6.ppm
+            sprites/dogsf4.ppm
+            sprites/dogsh6.ppm
+            sprites/dogsb2b8.ppm
+            sprites/dogsf2.ppm
+            sprites/dogsc2c8.ppm
+            sprites/dogsg2.ppm
+            sprites/dogsg6.ppm
+            sprites/dogsc4c6.ppm
+            sprites/dogsg4.ppm
+            sprites/dogsg8.ppm
+            sprites/dogsf6.ppm
+            sprites/dogsn0.ppm
+            sprites/dogse6.ppm
+            sprites/dogsd3d7.ppm
+            sprites/dogsh3.ppm
+            sprites/dogsh7.ppm
+            sprites/dogsi0.ppm
+            sprites/dogsa3a7.ppm
+            sprites/dogse3.ppm
+            sprites/dogsb3b7.ppm
+            sprites/dogsf3.ppm
+            sprites/dogsf7.ppm
+            sprites/dogse7.ppm
+            sprites/dogsc3c7.ppm
+            sprites/dogsg3.ppm
+            sprites/dogsg7.ppm
+            sprites/dogsj0.ppm
+            sprites/dogsk0.ppm
+            sprites/dogsl0.ppm
+            sprites/dogsm0.ppm
+        )
+        set(SPRITEP
+            ${SPRITEP}
+            "32,59,sprites/dogsd5.ppm"
+            "32,59,sprites/dogsh5.ppm"
+            "32,59,sprites/dogsc5.ppm"
+            "32,59,sprites/dogsg5.ppm"
+            "32,59,sprites/dogsb1.ppm"
+            "32,59,sprites/dogsa5.ppm"
+            "32,59,sprites/dogse5.ppm"
+            "32,59,sprites/dogsc1.ppm"
+            "32,59,sprites/dogsd1.ppm"
+            "32,59,sprites/dogsb5.ppm"
+            "32,59,sprites/dogsf5.ppm"
+            "32,59,sprites/dogsa1.ppm"
+            "32,59,sprites/dogse1.ppm"
+            "32,59,sprites/dogsf1.ppm"
+            "32,59,sprites/dogsd2d8.ppm"
+            "32,59,sprites/dogsh2.ppm"
+            "32,59,sprites/dogsg1.ppm"
+            "32,59,sprites/dogsh8.ppm"
+            "32,59,sprites/dogse8.ppm"
+            "32,59,sprites/dogsd4d6.ppm"
+            "32,59,sprites/dogsh4.ppm"
+            "32,59,sprites/dogsa2a8.ppm"
+            "32,59,sprites/dogse2.ppm"
+            "32,59,sprites/dogsf8.ppm"
+            "32,59,sprites/dogsh1.ppm"
+            "32,59,sprites/dogsa4a6.ppm"
+            "32,59,sprites/dogse4.ppm"
+            "32,59,sprites/dogsb4b6.ppm"
+            "32,59,sprites/dogsf4.ppm"
+            "32,59,sprites/dogsh6.ppm"
+            "32,59,sprites/dogsb2b8.ppm"
+            "32,59,sprites/dogsf2.ppm"
+            "32,59,sprites/dogsc2c8.ppm"
+            "32,59,sprites/dogsg2.ppm"
+            "32,59,sprites/dogsg6.ppm"
+            "32,59,sprites/dogsc4c6.ppm"
+            "32,59,sprites/dogsg4.ppm"
+            "32,59,sprites/dogsg8.ppm"
+            "32,59,sprites/dogsf6.ppm"
+            "32,59,sprites/dogsn0.ppm"
+            "32,59,sprites/dogse6.ppm"
+            "32,59,sprites/dogsd3d7.ppm"
+            "32,59,sprites/dogsh3.ppm"
+            "32,59,sprites/dogsh7.ppm"
+            "32,59,sprites/dogsi0.ppm"
+            "32,59,sprites/dogsa3a7.ppm"
+            "32,59,sprites/dogse3.ppm"
+            "32,59,sprites/dogsb3b7.ppm"
+            "32,59,sprites/dogsf3.ppm"
+            "32,59,sprites/dogsf7.ppm"
+            "32,59,sprites/dogse7.ppm"
+            "32,59,sprites/dogsc3c7.ppm"
+            "32,59,sprites/dogsg3.ppm"
+            "32,59,sprites/dogsg7.ppm"
+            "32,59,sprites/dogsj0.ppm"
+            "32,59,sprites/dogsk0.ppm"
+            "32,59,sprites/dogsl0.ppm"
+            "32,59,sprites/dogsm0.ppm"
+        )
+    else()
+        set(SPRITES
+            ${SPRITES}
+            sprites/free/dogsa1.ppm
+            sprites/free/dogsa2a8.ppm
+            sprites/free/dogsa3a7.ppm
+            sprites/free/dogsa4a6.ppm
+            sprites/free/dogsa5.ppm
+            sprites/free/dogsb1.ppm
+            sprites/free/dogsb2b8.ppm
+            sprites/free/dogsb3b7.ppm
+            sprites/free/dogsb4b6.ppm
+            sprites/free/dogsb5.ppm
+            sprites/free/dogsc1.ppm
+            sprites/free/dogsc2c8.ppm
+            sprites/free/dogsc3c7.ppm
+            sprites/free/dogsc4c6.ppm
+            sprites/free/dogsc5.ppm
+            sprites/free/dogsd1.ppm
+            sprites/free/dogsd2d8.ppm
+            sprites/free/dogsd3d7.ppm
+            sprites/free/dogsd4d6.ppm
+            sprites/free/dogsd5.ppm
+            sprites/free/dogse1.ppm
+            sprites/free/dogse2.ppm
+            sprites/free/dogse3.ppm
+            sprites/free/dogse4.ppm
+            sprites/free/dogse5.ppm
+            sprites/free/dogse6.ppm
+            sprites/free/dogse7.ppm
+            sprites/free/dogse8.ppm
+            sprites/free/dogsf1.ppm
+            sprites/free/dogsf2.ppm
+            sprites/free/dogsf3.ppm
+            sprites/free/dogsf4.ppm
+            sprites/free/dogsf5.ppm
+            sprites/free/dogsf6.ppm
+            sprites/free/dogsf7.ppm
+            sprites/free/dogsf8.ppm
+            sprites/free/dogsg1.ppm
+            sprites/free/dogsg2.ppm
+            sprites/free/dogsg3.ppm
+            sprites/free/dogsg4.ppm
+            sprites/free/dogsg5.ppm
+            sprites/free/dogsg6.ppm
+            sprites/free/dogsg7.ppm
+            sprites/free/dogsg8.ppm
+            sprites/free/dogsh1.ppm
+            sprites/free/dogsh2.ppm
+            sprites/free/dogsh3.ppm
+            sprites/free/dogsh4.ppm
+            sprites/free/dogsh5.ppm
+            sprites/free/dogsh6.ppm
+            sprites/free/dogsh7.ppm
+            sprites/free/dogsh8.ppm
+            sprites/free/dogsi0.ppm
+            sprites/free/dogsj0.ppm
+            sprites/free/dogsk0.ppm
+            sprites/free/dogsl0.ppm
+            sprites/free/dogsm0.ppm
+            sprites/free/dogsn0.ppm
+        )
+        set(SPRITEP
+            ${SPRITEP}
+            "10,30,sprites/free/dogsa1.ppm"
+            "14,29,sprites/free/dogsa2a8.ppm"
+            "15,29,sprites/free/dogsa3a7.ppm"
+            "12,29,sprites/free/dogsa4a6.ppm"
+            "10,30,sprites/free/dogsa5.ppm"
+            "9,30,sprites/free/dogsb1.ppm"
+            "13,29,sprites/free/dogsb2b8.ppm"
+            "14,29,sprites/free/dogsb3b7.ppm"
+            "12,29,sprites/free/dogsb4b6.ppm"
+            "9,29,sprites/free/dogsb5.ppm"
+            "10,30,sprites/free/dogsc1.ppm"
+            "11,29,sprites/free/dogsc2c8.ppm"
+            "14,29,sprites/free/dogsc3c7.ppm"
+            "12,29,sprites/free/dogsc4c6.ppm"
+            "10,30,sprites/free/dogsc5.ppm"
+            "10,30,sprites/free/dogsd1.ppm"
+            "12,29,sprites/free/dogsd2d8.ppm"
+            "14,29,sprites/free/dogsd3d7.ppm"
+            "13,29,sprites/free/dogsd4d6.ppm"
+            "9,29,sprites/free/dogsd5.ppm"
+            "10,30,sprites/free/dogse1.ppm"
+            "14,29,sprites/free/dogse2.ppm"
+            "14,29,sprites/free/dogse3.ppm"
+            "13,29,sprites/free/dogse4.ppm"
+            "9,29,sprites/free/dogse5.ppm"
+            "13,29,sprites/free/dogse6.ppm"
+            "14,29,sprites/free/dogse7.ppm"
+            "14,29,sprites/free/dogse8.ppm"
+            "10,30,sprites/free/dogsf1.ppm"
+            "13,29,sprites/free/dogsf2.ppm"
+            "16,29,sprites/free/dogsf3.ppm"
+            "13,29,sprites/free/dogsf4.ppm"
+            "9,28,sprites/free/dogsf5.ppm"
+            "13,29,sprites/free/dogsf6.ppm"
+            "16,29,sprites/free/dogsf7.ppm"
+            "13,29,sprites/free/dogsf8.ppm"
+            "9,30,sprites/free/dogsg1.ppm"
+            "12,29,sprites/free/dogsg2.ppm"
+            "13,29,sprites/free/dogsg3.ppm"
+            "11,29,sprites/free/dogsg4.ppm"
+            "8,28,sprites/free/dogsg5.ppm"
+            "11,29,sprites/free/dogsg6.ppm"
+            "13,29,sprites/free/dogsg7.ppm"
+            "12,29,sprites/free/dogsg8.ppm"
+            "9,25,sprites/free/dogsh1.ppm"
+            "10,26,sprites/free/dogsh2.ppm"
+            "11,26,sprites/free/dogsh3.ppm"
+            "11,26,sprites/free/dogsh4.ppm"
+            "9,26,sprites/free/dogsh5.ppm"
+            "11,26,sprites/free/dogsh6.ppm"
+            "11,26,sprites/free/dogsh7.ppm"
+            "10,26,sprites/free/dogsh8.ppm"
+            "10,30,sprites/free/dogsi0.ppm"
+            "10,30,sprites/free/dogsj0.ppm"
+            "11,27,sprites/free/dogsk0.ppm"
+            "11,20,sprites/free/dogsl0.ppm"
+            "12,15,sprites/free/dogsm0.ppm"
+            "13,15,sprites/free/dogsn0.ppm"
+        )
+    endif()
+endif()
+
+if(NONFREE_GRAPHICS)
+    set(SPRITES
+        ${SPRITES}
+        sprites/pls1a0.ppm
+        sprites/pls1b0.ppm
+        sprites/pls1c0.ppm
+        sprites/pls1d0.ppm
+        sprites/pls1e0.ppm
+        sprites/pls1f0.ppm
+        sprites/pls1g0.ppm
+        sprites/pls2a0.ppm
+        sprites/pls2b0.ppm
+        sprites/pls2c0.ppm
+        sprites/pls2d0.ppm
+        sprites/pls2e0.ppm
+    )
+    set(SPRITEP
+        ${SPRITEP}
+        "8,12,sprites/pls1a0.ppm"
+        "9,12,sprites/pls1b0.ppm"
+        "8,12,sprites/pls1c0.ppm"
+        "9,12,sprites/pls1d0.ppm"
+        "25,37,sprites/pls1e0.ppm"
+        "25,37,sprites/pls1f0.ppm"
+        "26,42,sprites/pls1g0.ppm"
+        "7,10,sprites/pls2a0.ppm"
+        "6,8,sprites/pls2b0.ppm"
+        "5,6,sprites/pls2c0.ppm"
+        "7,10,sprites/pls2d0.ppm"
+        "11,16,sprites/pls2e0.ppm"
+    )
+endif()
+
+set(WAD_SRC 
+    ${PALETTE}
+    ${LUMPS}
+    ${COLORMAPS}
+    ${TABLES}
+    ${SOUNDS}
+    ${GRAPHICS}
+    ${FLATS}
+    ${SPRITES}
+)
+
+set(WAD_CMDLINE 
+    -palette ${PALETTE}
+    -lumps ${LUMPS}
+    -marker C_START -lumps ${COLORMAPS} -marker C_END
+    -marker B_START -lumps ${TABLES} -marker B_END
+    -sounds ${SOUNDS}
+    -graphics ${GRAPHICS}
+    -marker FF_START -flats ${FLATS} -marker FF_END
+    -marker SS_START -sprites ${SPRITEP} -marker SS_END
+)
+
+add_custom_command(
+    OUTPUT "${WAD_DATA_PATH}"
+    COMMAND rdatawad -I "${CMAKE_CURRENT_SOURCE_DIR}" ${WAD_CMDLINE} -o "${WAD_DATA_PATH}"
+    DEPENDS rdatawad ${WAD_SRC}
+)
+add_custom_target(prboomwad DEPENDS ${WAD_DATA_PATH})
