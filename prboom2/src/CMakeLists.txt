@@ -292,7 +292,7 @@ set(PRBOOM_PLUS_SOURCES
 )
 
 if(WIN32)
-    add_definitions("/DUSE_WIN32_PCSOUND_DRIVER /DUSE_WINDOWS_LAUNCHER")
+    add_definitions("-DUSE_WIN32_PCSOUND_DRIVER -DUSE_WINDOWS_LAUNCHER")
     set(PRBOOM_PLUS_SOURCES
         ${PRBOOM_PLUS_SOURCES}
         ../ICONS/icons.rc
@@ -313,6 +313,12 @@ target_link_libraries(prboom-plus PRIVATE
     ${OPENGL_LIBRARIES}
     ${SDL2_LIBRARIES}
 )
+if(WIN32)
+    target_link_libraries(prboom-plus PRIVATE
+        winmm
+        comctl32
+    )
+endif()
 set_target_properties(prboom-plus PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${PRBOOM_OUTPUT_PATH}
 )

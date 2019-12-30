@@ -323,7 +323,7 @@ extern int force_singletics_to;
 
 int HU_DrawDemoProgress(int force);
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t BufferLength);
 #endif
 

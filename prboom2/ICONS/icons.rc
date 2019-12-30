@@ -23,7 +23,9 @@ IDI_ICON1               ICON    DISCARDABLE     "prboom-plus.ico"
 
 #ifdef USE_WINDOWS_LAUNCHER
 
+#ifdef _MSC_VER
 1                       24      MOVEABLE PURE   "prboom-plus.exe.manifest"
+#endif
 
 IDD_LAUNCHERSERVERDIALOG DIALOGEX 0, 0, 187, 245
 STYLE DS_SYSMODAL | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | 
