@@ -4,6 +4,17 @@ project("PrBoom-Plus" VERSION 2.5.1.7)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+include(TargetArch)
+
+# Automated dependencies discovery, mostly needed for MSVC
+target_architecture(TARGET_ARCH)
+if(${TARGET_ARCH} MATCHES "i386")
+    set(DEPENDENCY_SUFFIX x86)
+elseif(${TARGET_ARCH} MATCHES "x86_64")
+    set(DEPENDENCY_SUFFIX x64)
+endif()
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies_${DEPENDENCY_SUFFIX}")
+
 set(PACKAGE_NAME "${PROJECT_NAME}")
 set(PACKAGE_TARNAME "prboom-plus")
 set(PACKAGE_VERSION "${PROJECT_VERSION}")

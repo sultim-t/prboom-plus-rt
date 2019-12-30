@@ -20,16 +20,14 @@ jobs:
             name: "Visual Studio 64-bit",
             os: windows-latest,
             build_type: "Release",
-            extra_options: "-A x64 -DCMAKE_TOOLCHAIN_FILE=./dependencies/scripts/buildsystems/vcpkg.cmake",
-            dependencies: "windows_dependencies_x64.zip",
+            extra_options: "-A x64",
             package_name: "vs_x64"
           }
         - {
             name: "Visual Studio 32-bit",
             os: windows-latest,
             build_type: "Release",
-            extra_options: "-A Win32 -DCMAKE_TOOLCHAIN_FILE=./dependencies/scripts/buildsystems/vcpkg.cmake",
-            dependencies: "windows_dependencies_x86.zip",
+            extra_options: "-A Win32",
             package_name: "vs_win32"
           }
         - {
@@ -63,8 +61,8 @@ jobs:
         mkdir build
         cd build
         if [[ "${{ runner.os }}" == 'Windows' ]]; then
-          curl -LO "https://github.com/coelckers/prboom-plus/releases/download/windows_dependencies/${{ matrix.config.dependencies }}"
-          7z x ${{ matrix.config.dependencies }}
+          curl -LO "https://github.com/coelckers/prboom-plus/releases/download/windows_dependencies/windows_dependencies.zip"
+          7z x windows_dependencies.zip -o..
         elif [[ "${{ runner.os }}" == 'Linux' ]]; then
           sudo apt update
           sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-net-dev \
@@ -112,4 +110,6 @@ jobs:
     - name: List Build Directory
       if: always()
       shell: bash
-      run: ls -lR build
+      run: |
+        git status
+        ls -lR build
