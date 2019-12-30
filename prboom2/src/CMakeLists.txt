@@ -298,6 +298,7 @@ if(WIN32)
         ../ICONS/icons.rc
         e6y_launcher.c
         e6y_launcher.h
+        SDL/SDL_windows_main.c
     )
 endif()
 
