@@ -1,3 +1,13 @@
+###############################################################################
+#
+# HOW TO USE
+#  
+# Push any commit to build_windows_dependencies branch, create it if needed
+# This will trigger execution of the following workflow
+# Generated artifacts can be used to update the dependency package
+#
+###############################################################################
+
 name: Windows Dependencies
 
 on:
@@ -28,16 +38,22 @@ jobs:
           }
 
     steps:
+    - name: Configure
+      id: vars
+      shell: cmd
+      run: |
+        echo ::set-output name=common_options::sdl2-image sdl2-mixer sdl2-net pcre zlib libmad fluidsynth libvorbis portmidi --triplet ${{ matrix.config.triplet }}
+
     - name: Install
       shell: cmd
       run: |
         vcpkg update
-        vcpkg install sdl2-image sdl2-mixer sdl2-net pcre zlib fluidsynth libvorbis portmidi --triplet ${{ matrix.config.triplet }}
+        vcpkg install ${{ steps.vars.outputs.common_options }}
 
     - name: Export
       shell: cmd
       run: |
-        vcpkg export sdl2-image sdl2-mixer sdl2-net pcre zlib fluidsynth libvorbis portmidi --zip --triplet ${{ matrix.config.triplet }}
+        vcpkg export ${{ steps.vars.outputs.common_options }} --zip
         md artifact
         move %VCPKG_INSTALLATION_ROOT%\*.zip artifact
 
