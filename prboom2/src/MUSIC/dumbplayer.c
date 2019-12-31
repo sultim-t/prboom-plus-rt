@@ -66,7 +66,11 @@ const music_player_t db_player =
 #else // HAVE_DUMB
 
 #if !defined(_FILE_OFFSET_BITS) || (_FILE_OFFSET_BITS < 64)
+#ifdef _MSC_VER
+#define DUMB_OFF_T_CUSTOM __int64
+#else /* !_MSC_VER */
 #define DUMB_OFF_T_CUSTOM off64_t
+#endif /* _MSC_VER */
 #endif
 
 #include <dumb.h>
