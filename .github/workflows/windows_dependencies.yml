@@ -38,15 +38,18 @@ jobs:
           }
 
     steps:
+    - uses: actions/checkout@v1
+
     - name: Configure
       id: vars
       shell: cmd
       run: |
-        echo ::set-output name=common_options::sdl2-image sdl2-mixer sdl2-net pcre zlib libmad fluidsynth libvorbis portmidi --triplet ${{ matrix.config.triplet }}
+        echo ::set-output name=common_options::sdl2-image sdl2-mixer sdl2-net pcre zlib libmad fluidsynth dumb libvorbis portmidi --triplet ${{ matrix.config.triplet }}
 
     - name: Install
       shell: cmd
       run: |
+        xcopy .github\workflows\dumb %VCPKG_INSTALLATION_ROOT%\ports
         vcpkg update
         vcpkg install ${{ steps.vars.outputs.common_options }}
 

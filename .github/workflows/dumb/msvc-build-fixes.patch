@@ -1,0 +1,59 @@
+--- dumb-2.0.3/CMakeLists.txt.ori	2018-01-30 05:36:51.000000000 +0200
++++ dumb-2.0.3/CMakeLists.txt	2019-12-31 14:22:46.000000000 +0200
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 3.1)
++cmake_minimum_required(VERSION 3.4)
+ project(libdumb C)
+ include(GNUInstallDirs)
+ include(CheckCCompilerFlag)
+@@ -10,6 +10,8 @@
+ 
+ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake-scripts)
+ 
++set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
++
+ option(BUILD_EXAMPLES "Build example binaries" ON)
+ option(BUILD_ALLEGRO4 "Build Allegro4 support" ON)
+ option(USE_SSE "Use SSE instructions" ON)
+@@ -29,17 +31,17 @@
+ add_definitions("-D_FILE_OFFSET_BITS=64")
+ add_definitions("-DDUMB_DECLARE_DEPRECATED")
+ 
+-set(CMAKE_C_FLAGS_DEBUG "-DDEBUGMODE=1 -D_DEBUG")
++set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUGMODE=1 -D_DEBUG")
+ check_and_add_c_compiler_flag("-ggdb" CMAKE_C_FLAGS_DEBUG)
+ check_and_add_c_compiler_flag("-Zi" CMAKE_C_FLAGS_DEBUG)
+ 
+-set(CMAKE_C_FLAGS_RELEASE "-ffast-math -O2 -DNDEBUG")
++set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -ffast-math -O2 -DNDEBUG")
+ 
+-set(CMAKE_C_FLAGS_RELWITHDEBINFO "-ffast-math -O2 -DNDEBUG")
++set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -ffast-math -O2 -DNDEBUG")
+ check_and_add_c_compiler_flag("-g" CMAKE_C_FLAGS_RELWITHDEBINFO)
+ check_and_add_c_compiler_flag("-Zi" CMAKE_C_FLAGS_RELWITHDEBINFO)
+ 
+-set(CMAKE_C_FLAGS_MINSIZEREL "-ffast-math -Os -DNDEBUG")
++set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -ffast-math -Os -DNDEBUG")
+ 
+ if(USE_SSE)
+     check_c_compiler_flag("-msse" "CC_HAS_MSSE")
+@@ -184,7 +186,7 @@
+     @ONLY
+ )
+ 
+-add_library(dumb ${SOURCES})
++add_library(dumb SHARED ${SOURCES})
+ set_target_properties(dumb PROPERTIES DEBUG_POSTFIX d)
+ set_target_properties(dumb PROPERTIES VERSION ${DUMB_VERSION})
+ set_target_properties(dumb PROPERTIES SOVERSION ${DUMB_VERSION_MAJOR})
+@@ -223,7 +225,9 @@
+     set_target_properties(dumb PROPERTIES INSTALL_NAME_DIR ${CMAKE_INSTALL_FULL_LIBDIR})
+ ENDIF(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+ 
+-target_link_libraries(dumb m)
++if(NOT MSVC)
++    target_link_libraries(dumb m)
++endif()
+ 
+ install(FILES ${PKG_CONFIG_FILE} DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+ install(FILES ${INSTALL_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
