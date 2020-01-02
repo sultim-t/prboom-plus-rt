@@ -61,8 +61,9 @@ jobs:
         mkdir build
         cd build
         if [[ "${{ runner.os }}" == 'Windows' ]]; then
-          curl -LO "https://github.com/coelckers/prboom-plus/releases/download/windows_dependencies/windows_dependencies.zip"
-          7z x windows_dependencies.zip -o..
+          declare -x DEPS_FILENAME=windows_dependencies_v2.zip
+          curl -LO https://github.com/coelckers/prboom-plus/releases/download/windows_dependencies/${DEPS_FILENAME}
+          7z x ${DEPS_FILENAME} -o..
         elif [[ "${{ runner.os }}" == 'Linux' ]]; then
           sudo apt update
           sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-net-dev \
