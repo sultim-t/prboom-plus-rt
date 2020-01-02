@@ -49,7 +49,8 @@ jobs:
     - name: Install
       shell: cmd
       run: |
-        xcopy .github\workflows\dumb %VCPKG_INSTALLATION_ROOT%\ports
+        xcopy .github\workflows\dumb %VCPKG_INSTALLATION_ROOT%\ports\dumb\
+        xcopy .github\workflows\portmidi %VCPKG_INSTALLATION_ROOT%\ports\portmidi\ /y
         vcpkg update
         vcpkg install ${{ steps.vars.outputs.common_options }}
 
