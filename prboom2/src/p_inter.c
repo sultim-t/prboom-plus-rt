@@ -646,12 +646,14 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
   mobj_t     *mo;
   dboolean   e6y = false;
   
+#if 0
   if (target->player && source && target->health < -target->info->spawnhealth &&
     !demorecording && !demoplayback)
   {
     angle_t ang = R_PointToAngle2(target->x, target->y, source->x, source->y) - target->angle;
     e6y = (ang > (unsigned)(ANG180 - ANG45) && ang < (unsigned)(ANG180 + ANG45));
   }
+#endif
 
   target->flags &= ~(MF_SHOOTABLE|MF_FLOAT|MF_SKULLFLY);
 
