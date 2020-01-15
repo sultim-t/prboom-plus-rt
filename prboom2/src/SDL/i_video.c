@@ -1129,6 +1129,8 @@ int I_GetModeFromString(const char *modestr)
 void I_UpdateVideoMode(void)
 {
   int init_flags = 0;
+  const dboolean novsync = M_CheckParm("-timedemo") || \
+                           M_CheckParm("-fastdemo");
 
   if(sdl_window)
   {
@@ -1216,7 +1218,7 @@ void I_UpdateVideoMode(void)
   {
     int flags = SDL_RENDERER_TARGETTEXTURE;
 
-    if (render_vsync)
+    if (render_vsync && !novsync)
       flags |= SDL_RENDERER_PRESENTVSYNC;
 
     sdl_window = SDL_CreateWindow(
@@ -1263,7 +1265,7 @@ void I_UpdateVideoMode(void)
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
-    SDL_GL_SetSwapInterval((render_vsync ? 1 : 0));
+    SDL_GL_SetSwapInterval(((render_vsync && !novsync) ? 1 : 0));
   }
 #endif
 
