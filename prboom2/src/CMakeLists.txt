@@ -390,7 +390,6 @@ if(BUILD_SERVER)
         set(PRBOOM_PLUS_GAME_SERVER_SOURCES
             ${PRBOOM_PLUS_GAME_SERVER_SOURCES}
             SDL/i_system.c
-            SDL/SDL_windows_main.c
         )
     else()
         set(PRBOOM_PLUS_GAME_SERVER_SOURCES
