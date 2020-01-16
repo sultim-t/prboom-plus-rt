@@ -85,6 +85,7 @@
 #include "r_demo.h"
 #include "r_fps.h"
 #include "e6y.h"//e6y
+#include "statdump.h"
 
 #define SAVEGAMESIZE  0x20000
 #define SAVESTRINGSIZE  24
@@ -1728,6 +1729,11 @@ frommapinfo:
   }
 
   e6y_G_DoCompleted();//e6y
+
+  if (gamemode == commercial || gamemap != 8)
+  {
+    StatCopy(&wminfo);
+  }
 
   WI_Start (&wminfo);
 }

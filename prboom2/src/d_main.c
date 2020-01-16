@@ -85,6 +85,7 @@
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "am_map.h"
 #include "umapinfo.h"
+#include "statdump.h"
 
 //e6y
 #include "r_demo.h"
@@ -1904,6 +1905,12 @@ static void D_DoomMainSetup(void)
   if ((p = M_CheckParm("-autoshot")) && (p < myargc-2))
     if ((auto_shot_count = auto_shot_time = atoi(myargv[p+1])))
       auto_shot_fname = myargv[p+2];
+
+  if ((p = M_CheckParm("-statdump")) && (p < myargc-1))
+  {
+      atexit(StatDump);
+      lprintf(LO_INFO,"External statistics registered.\n");
+  }
 
   // start the apropriate game based on parms
 

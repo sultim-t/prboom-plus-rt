@@ -144,6 +144,8 @@ set(COMMON_SRC
     sc_man.h
     sounds.c
     sounds.h
+    statdump.c
+    statdump.h
     st_lib.c
     st_lib.h
     st_stuff.c
