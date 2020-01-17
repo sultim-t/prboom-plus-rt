@@ -19,6 +19,11 @@
 // makes lots of assumptions about the format of a wav file.
 //
 
+#ifdef _MSC_VER
+#pragma pack(push)
+#pragma pack(1)
+#endif // _MSC_VER
+
 struct wav_header
 {
   char riff[4];
@@ -44,6 +49,10 @@ struct doom_sound_header
   unsigned int length;
   char samples[1];
 } ATTR((packed));
+
+#ifdef _MSC_VER
+#pragma pack(pop)
+#endif // _MSC_VER
 
 size_t wav_to_doom(void **lumpdata, const char *filename)
 {
