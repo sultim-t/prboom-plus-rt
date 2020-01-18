@@ -135,6 +135,7 @@ int movement_shorttics;
 int movement_mouselook;
 int movement_mouseinvert;
 int movement_maxviewpitch;
+int movement_mousestrafedivisor;
 int mouse_handler;
 int mouse_doubleclick_as_use;
 int render_fov = 90;

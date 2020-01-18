@@ -1012,6 +1012,8 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"movement_maxviewpitch", {&movement_maxviewpitch},  {90},0,90,
    def_int,ss_stat},
+   {"movement_mousestrafedivisor", {&movement_mousestrafedivisor},  {4},1,512,
+    def_int,ss_stat},
   {"movement_mouseinvert", {&movement_mouseinvert},  {0},0,1,
    def_bool,ss_stat},
 
