@@ -289,6 +289,7 @@ const char* WINError(void);
 #endif
 
 extern int stats_level;
+extern int stroller;
 void e6y_G_DoCompleted(void);
 void e6y_WriteStats(void);
 

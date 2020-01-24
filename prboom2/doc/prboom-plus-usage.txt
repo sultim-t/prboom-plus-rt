@@ -189,6 +189,7 @@ Additional command-line parameters:
 "-aspect NxM" - for using a different aspect ratio; e.g. -aspect 5x4, -aspect 8x5 or -aspect 2x1.
 "-videodriver name" - for setting up the videodriver name that SDL will use. "windib" and "directx" are available for Windows. See SDL documentation for other platforms. "-videodriver default" can be used to force SDL behaviour by default.
 "-shorttics" - forces the same mouse behaviour as when recording (i.e. the converse of "-longtics")
+"-stroller" - removes ability to strafe and limits running speed (a speedrun category)
 "-resetgamma" - restores the original gamma after a crash
 "-exe chex" - causes the game to play like chex.exe (Chex Quest) - chex.wad and chex.deh required too
 "-geom NxM" [basic syntax] - for temporarily using a particular resolution without saving this in the cfg; e.g. -geom 1280x1024.

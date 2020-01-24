@@ -726,6 +726,8 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     }
   }
 
+  if (stroller) side = 0;
+
   cmd->forwardmove += fudgef((signed char)forward);
   cmd->sidemove += side;
   cmd->angleturn = fudgea(cmd->angleturn);

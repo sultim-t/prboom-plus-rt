@@ -285,6 +285,12 @@ void e6y_InitCommandLine(void)
     avi_shot_fname = myargv[p + 1];
   stats_level = M_CheckParm("-levelstat");
 
+  if (stroller = M_CheckParm("-stroller"))
+  {
+    M_AddParam("-turbo");
+    M_AddParam("50");
+  }
+
   // TAS-tracers
   InitTracers();
 
@@ -825,6 +831,7 @@ int I_MessageBox(const char* text, unsigned int type)
 }
 
 int stats_level;
+int stroller;
 int numlevels = 0;
 int levels_max = 0;
 timetable_t *stats = NULL;
