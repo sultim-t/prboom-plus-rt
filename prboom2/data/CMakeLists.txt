@@ -328,25 +328,37 @@ else()
     set(SPRITES
         ${SPRITES}
         sprites/free/dogsa1.ppm
-        sprites/free/dogsa2a8.ppm
-        sprites/free/dogsa3a7.ppm
-        sprites/free/dogsa4a6.ppm
+        sprites/free/dogsa2.ppm
+        sprites/free/dogsa3.ppm
+        sprites/free/dogsa4.ppm
         sprites/free/dogsa5.ppm
+        sprites/free/dogsa6.ppm
+        sprites/free/dogsa7.ppm
+        sprites/free/dogsa8.ppm
         sprites/free/dogsb1.ppm
-        sprites/free/dogsb2b8.ppm
-        sprites/free/dogsb3b7.ppm
-        sprites/free/dogsb4b6.ppm
+        sprites/free/dogsb2.ppm
+        sprites/free/dogsb3.ppm
+        sprites/free/dogsb4.ppm
         sprites/free/dogsb5.ppm
+        sprites/free/dogsb6.ppm
+        sprites/free/dogsb7.ppm
+        sprites/free/dogsb8.ppm
         sprites/free/dogsc1.ppm
-        sprites/free/dogsc2c8.ppm
-        sprites/free/dogsc3c7.ppm
-        sprites/free/dogsc4c6.ppm
+        sprites/free/dogsc2.ppm
+        sprites/free/dogsc3.ppm
+        sprites/free/dogsc4.ppm
         sprites/free/dogsc5.ppm
+        sprites/free/dogsc6.ppm
+        sprites/free/dogsc7.ppm
+        sprites/free/dogsc8.ppm
         sprites/free/dogsd1.ppm
-        sprites/free/dogsd2d8.ppm
-        sprites/free/dogsd3d7.ppm
-        sprites/free/dogsd4d6.ppm
+        sprites/free/dogsd2.ppm
+        sprites/free/dogsd3.ppm
+        sprites/free/dogsd4.ppm
         sprites/free/dogsd5.ppm
+        sprites/free/dogsd6.ppm
+        sprites/free/dogsd7.ppm
+        sprites/free/dogsd8.ppm
         sprites/free/dogse1.ppm
         sprites/free/dogse2.ppm
         sprites/free/dogse3.ppm
@@ -388,64 +400,76 @@ else()
     )
     set(SPRITEP
         ${SPRITEP}
-        "10,30,sprites/free/dogsa1.ppm"
-        "14,29,sprites/free/dogsa2a8.ppm"
-        "15,29,sprites/free/dogsa3a7.ppm"
-        "12,29,sprites/free/dogsa4a6.ppm"
-        "10,30,sprites/free/dogsa5.ppm"
-        "9,30,sprites/free/dogsb1.ppm"
-        "13,29,sprites/free/dogsb2b8.ppm"
-        "14,29,sprites/free/dogsb3b7.ppm"
-        "12,29,sprites/free/dogsb4b6.ppm"
-        "9,29,sprites/free/dogsb5.ppm"
-        "10,30,sprites/free/dogsc1.ppm"
-        "11,29,sprites/free/dogsc2c8.ppm"
-        "14,29,sprites/free/dogsc3c7.ppm"
-        "12,29,sprites/free/dogsc4c6.ppm"
-        "10,30,sprites/free/dogsc5.ppm"
-        "10,30,sprites/free/dogsd1.ppm"
-        "12,29,sprites/free/dogsd2d8.ppm"
-        "14,29,sprites/free/dogsd3d7.ppm"
-        "13,29,sprites/free/dogsd4d6.ppm"
-        "9,29,sprites/free/dogsd5.ppm"
-        "10,30,sprites/free/dogse1.ppm"
-        "14,29,sprites/free/dogse2.ppm"
-        "14,29,sprites/free/dogse3.ppm"
-        "13,29,sprites/free/dogse4.ppm"
-        "9,29,sprites/free/dogse5.ppm"
-        "13,29,sprites/free/dogse6.ppm"
-        "14,29,sprites/free/dogse7.ppm"
-        "14,29,sprites/free/dogse8.ppm"
-        "10,30,sprites/free/dogsf1.ppm"
-        "13,29,sprites/free/dogsf2.ppm"
-        "16,29,sprites/free/dogsf3.ppm"
-        "13,29,sprites/free/dogsf4.ppm"
-        "9,28,sprites/free/dogsf5.ppm"
-        "13,29,sprites/free/dogsf6.ppm"
-        "16,29,sprites/free/dogsf7.ppm"
-        "13,29,sprites/free/dogsf8.ppm"
-        "9,30,sprites/free/dogsg1.ppm"
-        "12,29,sprites/free/dogsg2.ppm"
-        "13,29,sprites/free/dogsg3.ppm"
-        "11,29,sprites/free/dogsg4.ppm"
-        "8,28,sprites/free/dogsg5.ppm"
-        "11,29,sprites/free/dogsg6.ppm"
-        "13,29,sprites/free/dogsg7.ppm"
-        "12,29,sprites/free/dogsg8.ppm"
-        "9,25,sprites/free/dogsh1.ppm"
-        "10,26,sprites/free/dogsh2.ppm"
-        "11,26,sprites/free/dogsh3.ppm"
-        "11,26,sprites/free/dogsh4.ppm"
-        "9,26,sprites/free/dogsh5.ppm"
-        "11,26,sprites/free/dogsh6.ppm"
-        "11,26,sprites/free/dogsh7.ppm"
-        "10,26,sprites/free/dogsh8.ppm"
-        "10,30,sprites/free/dogsi0.ppm"
-        "10,30,sprites/free/dogsj0.ppm"
-        "11,27,sprites/free/dogsk0.ppm"
-        "11,20,sprites/free/dogsl0.ppm"
-        "12,15,sprites/free/dogsm0.ppm"
-        "13,15,sprites/free/dogsn0.ppm"
+        "33,66,sprites/free/dogsa1.ppm"
+        "33,66,sprites/free/dogsa2.ppm"
+        "33,66,sprites/free/dogsa3.ppm"
+        "33,66,sprites/free/dogsa4.ppm"
+        "33,66,sprites/free/dogsa5.ppm"
+        "33,66,sprites/free/dogsa6.ppm"
+        "33,66,sprites/free/dogsa7.ppm"
+        "33,66,sprites/free/dogsa8.ppm"
+        "33,66,sprites/free/dogsb1.ppm"
+        "33,66,sprites/free/dogsb2.ppm"
+        "33,66,sprites/free/dogsb3.ppm"
+        "33,66,sprites/free/dogsb4.ppm"
+        "33,66,sprites/free/dogsb5.ppm"
+        "33,66,sprites/free/dogsb6.ppm"
+        "33,66,sprites/free/dogsb7.ppm"
+        "33,66,sprites/free/dogsb8.ppm"
+        "33,66,sprites/free/dogsc1.ppm"
+        "33,66,sprites/free/dogsc2.ppm"
+        "33,66,sprites/free/dogsc3.ppm"
+        "33,66,sprites/free/dogsc4.ppm"
+        "33,66,sprites/free/dogsc5.ppm"
+        "33,66,sprites/free/dogsc6.ppm"
+        "33,66,sprites/free/dogsc7.ppm"
+        "33,66,sprites/free/dogsc8.ppm"
+        "33,66,sprites/free/dogsd1.ppm"
+        "33,66,sprites/free/dogsd2.ppm"
+        "33,66,sprites/free/dogsd3.ppm"
+        "33,66,sprites/free/dogsd4.ppm"
+        "33,66,sprites/free/dogsd5.ppm"
+        "33,66,sprites/free/dogsd6.ppm"
+        "33,66,sprites/free/dogsd7.ppm"
+        "33,66,sprites/free/dogsd8.ppm"
+        "33,66,sprites/free/dogse1.ppm"
+        "33,66,sprites/free/dogse2.ppm"
+        "33,66,sprites/free/dogse3.ppm"
+        "33,66,sprites/free/dogse4.ppm"
+        "33,66,sprites/free/dogse5.ppm"
+        "33,66,sprites/free/dogse6.ppm"
+        "33,66,sprites/free/dogse7.ppm"
+        "33,66,sprites/free/dogse8.ppm"
+        "33,66,sprites/free/dogsf1.ppm"
+        "33,66,sprites/free/dogsf2.ppm"
+        "33,66,sprites/free/dogsf3.ppm"
+        "33,66,sprites/free/dogsf4.ppm"
+        "33,66,sprites/free/dogsf5.ppm"
+        "33,66,sprites/free/dogsf6.ppm"
+        "33,66,sprites/free/dogsf7.ppm"
+        "33,66,sprites/free/dogsf8.ppm"
+        "33,66,sprites/free/dogsg1.ppm"
+        "33,66,sprites/free/dogsg2.ppm"
+        "33,66,sprites/free/dogsg3.ppm"
+        "33,66,sprites/free/dogsg4.ppm"
+        "33,66,sprites/free/dogsg5.ppm"
+        "33,66,sprites/free/dogsg6.ppm"
+        "33,66,sprites/free/dogsg7.ppm"
+        "33,66,sprites/free/dogsg8.ppm"
+        "33,66,sprites/free/dogsh1.ppm"
+        "33,66,sprites/free/dogsh2.ppm"
+        "33,66,sprites/free/dogsh3.ppm"
+        "33,66,sprites/free/dogsh4.ppm"
+        "33,66,sprites/free/dogsh5.ppm"
+        "33,66,sprites/free/dogsh6.ppm"
+        "33,66,sprites/free/dogsh7.ppm"
+        "33,66,sprites/free/dogsh8.ppm"
+        "33,67,sprites/free/dogsi0.ppm"
+        "33,67,sprites/free/dogsj0.ppm"
+        "33,67,sprites/free/dogsk0.ppm"
+        "33,67,sprites/free/dogsl0.ppm"
+        "33,68,sprites/free/dogsm0.ppm"
+        "33,69,sprites/free/dogsn0.ppm"
     )
 endif()
 
@@ -479,6 +503,37 @@ if(NONFREE_GRAPHICS)
         "5,6,sprites/pls2c0.ppm"
         "7,10,sprites/pls2d0.ppm"
         "11,16,sprites/pls2e0.ppm"
+    )
+else()
+    set(SPRITES
+        ${SPRITES}
+        sprites/free/pls1a0.ppm
+        sprites/free/pls1b0.ppm
+        sprites/free/pls1c0.ppm
+        sprites/free/pls1d0.ppm
+        sprites/free/pls1e0.ppm
+        sprites/free/pls1f0.ppm
+        sprites/free/pls1g0.ppm
+        sprites/free/pls2a0.ppm
+        sprites/free/pls2b0.ppm
+        sprites/free/pls2c0.ppm
+        sprites/free/pls2d0.ppm
+        sprites/free/pls2e0.ppm
+    )
+    set(SPRITEP
+        ${SPRITEP}
+        "9,11,sprites/free/pls1a0.ppm"
+        "8,11,sprites/free/pls1b0.ppm"
+        "9,11,sprites/free/pls1c0.ppm"
+        "8,11,sprites/free/pls1d0.ppm"
+        "16,27,sprites/free/pls1e0.ppm"
+        "16,27,sprites/free/pls1f0.ppm"
+        "18,27,sprites/free/pls1g0.ppm"
+        "9,11,sprites/free/pls2a0.ppm"
+        "8,13,sprites/free/pls2b0.ppm"
+        "11,18,sprites/free/pls2c0.ppm"
+        "16,27,sprites/free/pls2d0.ppm"
+        "18,27,sprites/free/pls2e0.ppm"
     )
 endif()
 
