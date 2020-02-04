@@ -43,6 +43,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <time.h>
 #include <signal.h>
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -201,8 +202,7 @@ void I_GetTime_SaveMS(void)
  */
 unsigned long I_GetRandomTimeSeed(void)
 {
-/* This isnt very random */
-  return(SDL_GetTicks());
+  return (unsigned long)time(NULL);
 }
 
 /* cphipps - I_GetVersionString
