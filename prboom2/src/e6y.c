@@ -285,7 +285,7 @@ void e6y_InitCommandLine(void)
     avi_shot_fname = myargv[p + 1];
   stats_level = M_CheckParm("-levelstat");
 
-  if (stroller = M_CheckParm("-stroller"))
+  if ((stroller = M_CheckParm("-stroller")))
   {
     M_AddParam("-turbo");
     M_AddParam("50");
