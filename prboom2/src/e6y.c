@@ -859,6 +859,13 @@ void e6y_G_DoCompleted(void)
   else
     sprintf(stats[numlevels].map,"E%iM%i",gameepisode,gamemap);
 
+  if (secretexit)
+  {
+    size_t end_of_string = strlen(stats[numlevels].map);
+    if (end_of_string < 15)
+      stats[numlevels].map[end_of_string] = 's';
+  }
+
   stats[numlevels].stat[TT_TIME]        = leveltime;
   stats[numlevels].stat[TT_TOTALTIME]   = totalleveltimes;
   stats[numlevels].stat[TT_TOTALKILL]   = totalkills;

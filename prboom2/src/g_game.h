@@ -197,6 +197,7 @@ extern int  joybspeed;
 
 extern int  defaultskill;      //jff 3/24/98 default skill
 extern dboolean haswolflevels;  //jff 4/18/98 wolf levels present
+extern dboolean secretexit;
 
 extern int  bodyquesize;       // killough 2/8/98: adustable corpse limit
 
