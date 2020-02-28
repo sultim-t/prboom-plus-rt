@@ -379,7 +379,7 @@ endif()
 
 option(BUILD_SERVER "Build PrBoom-Plus server executable" ON)
 
-if(BUILD_SERVER)
+if(BUILD_SERVER AND SDL2_NET_FOUND)
     set(PRBOOM_PLUS_GAME_SERVER_SOURCES
         d_server.c
         protocol.h
@@ -481,7 +481,7 @@ if(APPLE)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${WAD_DATA_PATH} $<TARGET_FILE_DIR:prboom-plus-launcher>
     )
 
-    if(BUILD_SERVER)
+    if(BUILD_SERVER AND SDL2_NET_FOUND)
         add_dependencies(prboom-plus-launcher prboom-plus-game-server)
         add_custom_command(TARGET prboom-plus-launcher POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:prboom-plus-game-server> $<TARGET_FILE_DIR:prboom-plus-launcher>
