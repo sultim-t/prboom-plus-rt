@@ -496,7 +496,8 @@ void G_BuildTiccmd(ticcmd_t* cmd)
                                                                   //    |
   if (gamekeydown[key_reverse])                                   //    V
     {
-      cmd->angleturn += QUICKREVERSE;                             //    ^
+      if (!strafe)
+        cmd->angleturn += QUICKREVERSE;                           //    ^
       gamekeydown[key_reverse] = false;                           //    |
     }                                                             // phares
 
