@@ -941,6 +941,8 @@ default_t defaults[] =
    def_str,ss_none},
   {"demo_overwriteexisting", {&demo_overwriteexisting},  {1},0,1,
    def_bool,ss_stat},
+  {"quickstart_window_ms", {&quickstart_window_ms},  {0},0,1000,
+   def_int,ss_stat},
 
   {"Prboom-plus game settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"movement_strafe50", {&movement_strafe50},  {0},0,1,
