@@ -14,11 +14,6 @@
 #cmakedefine HAVE_UNISTD_H
 #cmakedefine HAVE_ASM_BYTEORDER_H
 
-#cmakedefine GL_DOOM
-#cmakedefine USE_GLU_IMAGESCALE
-#cmakedefine USE_GLU_MIPMAP
-#cmakedefine USE_GLU_TESS
-
 #cmakedefine HAVE_SDL_JOYSTICKGETAXIS
 #cmakedefine HAVE_LIBSDL2_IMAGE
 #cmakedefine HAVE_LIBSDL2_MIXER

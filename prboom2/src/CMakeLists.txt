@@ -176,38 +176,6 @@ set(NET_CLIENT_SRC
     d_client.c
 )
 
-if(OPENGL_FOUND AND OPENGL_GLU_FOUND)
-    set(USE_GL_SRC
-        gl_clipper.c
-        gl_detail.c
-        gl_drawinfo.c
-        gl_fbo.c
-        gl_gamma.c
-        gl_hires.c
-        gl_hqresize.c
-        gl_intern.h
-        gl_light.c
-        gl_main.c
-        gl_map.c
-        gl_missingtexture.c
-        gl_opengl.c
-        gl_opengl.h
-        gl_preprocess.c
-        gl_shader.c
-        gl_shadow.c
-        gl_sky.c
-        gl_struct.h
-        gl_texture.c
-        gl_vertex.c
-        gl_wipe.c
-    )
-    set(OPENGL_LIBRARIES
-        ${OPENGL_gl_LIBRARY}
-        ${OPENGL_glu_LIBRARY}
-    )
-    add_definitions("-DUSE_SHADERS -DUSE_FBO_TECHNIQUE")
-endif()
-
 if(HAVE_MMAP)
     set(WAD_SRC w_mmap.c)
 else()
@@ -283,7 +251,6 @@ set(EXTRA_FILES
 set(PRBOOM_PLUS_SOURCES
     ${COMMON_SRC}
     ${NET_CLIENT_SRC}
-    ${USE_GL_SRC}
     ${WAD_SRC}
     ${MUS2MID_SRC}
     ${SDLDOOM_SOURCES}
@@ -293,84 +260,131 @@ set(PRBOOM_PLUS_SOURCES
     ${EXTRA_FILES}
 )
 
-if(WIN32)
-    add_definitions("-DUSE_WIN32_PCSOUND_DRIVER -DUSE_WINDOWS_LAUNCHER")
-    set(PRBOOM_PLUS_SOURCES
+function(AddGameExecutable TARGET SOURCES)
+    if(WIN32)
+        add_definitions("-DUSE_WIN32_PCSOUND_DRIVER -DUSE_WINDOWS_LAUNCHER")
+        set(SOURCES
+            ${SOURCES}
+            ../ICONS/icons.rc
+            e6y_launcher.c
+            e6y_launcher.h
+            SDL/SDL_windows_main.c
+        )
+    endif()
+
+    add_definitions("-DUSE_EXPERIMENTAL_MUSIC")
+
+    add_executable(${TARGET} WIN32 ${SOURCES})
+    target_include_directories(${TARGET} PRIVATE
+        ${SDL2_INCLUDE_DIRS}
+        ${CMAKE_BINARY_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+    target_link_libraries(${TARGET} PRIVATE
+        ${SDL2_LIBRARIES}
+    )
+    if(WIN32)
+        target_link_libraries(${TARGET} PRIVATE
+            winmm
+            comctl32
+        )
+    endif()
+    set_target_properties(${TARGET} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${PRBOOM_OUTPUT_PATH}
+    )
+    if(SDL2_IMAGE_FOUND)
+        target_include_directories(${TARGET} PRIVATE ${SDL2_IMAGE_INCLUDE_DIRS})
+        target_link_libraries(${TARGET} PRIVATE ${SDL2_IMAGE_LIBRARIES})
+    endif()
+    if(SDL2_MIXER_FOUND)
+        target_include_directories(${TARGET} PRIVATE ${SDL2_MIXER_INCLUDE_DIRS})
+        target_link_libraries(${TARGET} PRIVATE ${SDL2_MIXER_LIBRARIES})
+    endif()
+    if(PCREPOSIX_FOUND)
+        target_include_directories(${TARGET} PRIVATE ${PCRE_INCLUDE_DIR})
+        target_link_libraries(${TARGET} PRIVATE ${PCREPOSIX_LIBRARIES})
+    endif()
+    ApplySDL2NetOptions(${TARGET})
+    if(ZLIB_FOUND)
+        target_include_directories(${TARGET} PRIVATE ${ZLIB_INCLUDE_DIRS})
+        target_link_libraries(${TARGET} PRIVATE ${ZLIB_LIBRARIES})
+    endif()
+    if(LIBMAD_FOUND)
+        target_include_directories(${TARGET} PRIVATE ${LIBMAD_INCLUDE_DIRS})
+        target_link_libraries(${TARGET} PRIVATE ${LIBMAD_LIBRARIES})
+    endif()
+    if(FLUIDSYNTH_FOUND)
+        target_include_directories(${TARGET} PRIVATE ${FLUIDSYNTH_INCLUDE_DIR})
+        target_link_libraries(${TARGET} PRIVATE ${FLUIDSYNTH_LIBRARIES})
+    endif()
+    if(DUMB_FOUND)
+        target_include_directories(${TARGET} PRIVATE ${DUMB_INCLUDE_DIR})
+        target_link_libraries(${TARGET} PRIVATE ${DUMB_LIBRARY})
+    endif()
+    if(VORBIS_FOUND)
+        target_include_directories(${TARGET} PRIVATE ${VORBIS_INCLUDE_DIR})
+        target_link_libraries(${TARGET} PRIVATE ${VORBISFILE_LIBRARY})
+    endif()
+    if(PortMidi_FOUND)
+        target_include_directories(${TARGET} PRIVATE ${PORTMIDI_INCLUDE_DIR})
+        target_link_libraries(${TARGET} PRIVATE ${PORTMIDI_LIBRARIES})
+    endif()
+    add_dependencies(${TARGET} prboomwad)
+
+    if(MSVC)
+        set_target_properties(${TARGET} PROPERTIES
+            LINK_FLAGS "/MANIFEST:NO"
+        )
+        add_custom_command(TARGET ${TARGET} POST_BUILD
+            COMMAND "mt.exe" -manifest \"${CMAKE_CURRENT_SOURCE_DIR}\\..\\ICONS\\prboom-plus.exe.manifest\" -outputresource:\"$<TARGET_FILE:prboom-plus>\"\;\#1
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${WAD_DATA_PATH} $<TARGET_FILE_DIR:prboom-plus>
+        )
+    endif()
+endfunction()
+
+AddGameExecutable(prboom-plus "${PRBOOM_PLUS_SOURCES}")
+
+# GLBoom main executable
+
+if(OPENGL_FOUND AND OPENGL_GLU_FOUND)
+    set(GLBOOM_PLUS_SOURCES
         ${PRBOOM_PLUS_SOURCES}
-        ../ICONS/icons.rc
-        e6y_launcher.c
-        e6y_launcher.h
-        SDL/SDL_windows_main.c
+        gl_clipper.c
+        gl_detail.c
+        gl_drawinfo.c
+        gl_fbo.c
+        gl_gamma.c
+        gl_hires.c
+        gl_hqresize.c
+        gl_intern.h
+        gl_light.c
+        gl_main.c
+        gl_map.c
+        gl_missingtexture.c
+        gl_opengl.c
+        gl_opengl.h
+        gl_preprocess.c
+        gl_shader.c
+        gl_shadow.c
+        gl_sky.c
+        gl_struct.h
+        gl_texture.c
+        gl_vertex.c
+        gl_wipe.c
     )
-endif()
 
-add_definitions("-DUSE_EXPERIMENTAL_MUSIC")
-
-add_executable(prboom-plus WIN32 ${PRBOOM_PLUS_SOURCES})
-target_include_directories(prboom-plus PRIVATE
-    ${SDL2_INCLUDE_DIRS}
-    ${CMAKE_BINARY_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}
-)
-target_link_libraries(prboom-plus PRIVATE
-    ${OPENGL_LIBRARIES}
-    ${SDL2_LIBRARIES}
-)
-if(WIN32)
-    target_link_libraries(prboom-plus PRIVATE
-        winmm
-        comctl32
+    AddGameExecutable(glboom-plus "${GLBOOM_PLUS_SOURCES}")
+    target_compile_definitions(glboom-plus PRIVATE
+        GL_DOOM
+        USE_SHADERS
+        USE_FBO_TECHNIQUE
+        USE_GLU_IMAGESCALE
+        USE_GLU_MIPMAP
+        USE_GLU_TESS
     )
-endif()
-set_target_properties(prboom-plus PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${PRBOOM_OUTPUT_PATH}
-)
-if(SDL2_IMAGE_FOUND)
-    target_include_directories(prboom-plus PRIVATE ${SDL2_IMAGE_INCLUDE_DIRS})
-    target_link_libraries(prboom-plus PRIVATE ${SDL2_IMAGE_LIBRARIES})
-endif()
-if(SDL2_MIXER_FOUND)
-    target_include_directories(prboom-plus PRIVATE ${SDL2_MIXER_INCLUDE_DIRS})
-    target_link_libraries(prboom-plus PRIVATE ${SDL2_MIXER_LIBRARIES})
-endif()
-if(PCREPOSIX_FOUND)
-    target_include_directories(prboom-plus PRIVATE ${PCRE_INCLUDE_DIR})
-    target_link_libraries(prboom-plus PRIVATE ${PCREPOSIX_LIBRARIES})
-endif()
-ApplySDL2NetOptions(prboom-plus)
-if(ZLIB_FOUND)
-    target_include_directories(prboom-plus PRIVATE ${ZLIB_INCLUDE_DIRS})
-    target_link_libraries(prboom-plus PRIVATE ${ZLIB_LIBRARIES})
-endif()
-if(LIBMAD_FOUND)
-    target_include_directories(prboom-plus PRIVATE ${LIBMAD_INCLUDE_DIRS})
-    target_link_libraries(prboom-plus PRIVATE ${LIBMAD_LIBRARIES})
-endif()
-if(FLUIDSYNTH_FOUND)
-    target_include_directories(prboom-plus PRIVATE ${FLUIDSYNTH_INCLUDE_DIR})
-    target_link_libraries(prboom-plus PRIVATE ${FLUIDSYNTH_LIBRARIES})
-endif()
-if(DUMB_FOUND)
-    target_include_directories(prboom-plus PRIVATE ${DUMB_INCLUDE_DIR})
-    target_link_libraries(prboom-plus PRIVATE ${DUMB_LIBRARY})
-endif()
-if(VORBIS_FOUND)
-    target_include_directories(prboom-plus PRIVATE ${VORBIS_INCLUDE_DIR})
-    target_link_libraries(prboom-plus PRIVATE ${VORBISFILE_LIBRARY})
-endif()
-if(PortMidi_FOUND)
-    target_include_directories(prboom-plus PRIVATE ${PORTMIDI_INCLUDE_DIR})
-    target_link_libraries(prboom-plus PRIVATE ${PORTMIDI_LIBRARIES})
-endif()
-add_dependencies(prboom-plus prboomwad)
-
-if(MSVC)
-    set_target_properties(prboom-plus PROPERTIES
-        LINK_FLAGS "/MANIFEST:NO"
-    )
-    add_custom_command(TARGET prboom-plus POST_BUILD
-        COMMAND "mt.exe" -manifest \"${CMAKE_CURRENT_SOURCE_DIR}\\..\\ICONS\\prboom-plus.exe.manifest\" -outputresource:\"$<TARGET_FILE:prboom-plus>\"\;\#1
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${WAD_DATA_PATH} $<TARGET_FILE_DIR:prboom-plus>
+    target_link_libraries(glboom-plus PRIVATE
+        ${OPENGL_gl_LIBRARY}
+        ${OPENGL_glu_LIBRARY}
     )
 endif()
 
@@ -476,8 +490,14 @@ if(APPLE)
     )
     add_dependencies(prboom-plus-launcher prboom-plus)
 
+    if(OPENGL_FOUND AND OPENGL_GLU_FOUND)
+        set(BUNDLE_GAME_EXECUTABLE glboom-plus)
+    else()
+        set(BUNDLE_GAME_EXECUTABLE prboom-plus)
+    endif()
+
     add_custom_command(TARGET prboom-plus-launcher POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:prboom-plus> $<TARGET_FILE_DIR:prboom-plus-launcher>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${BUNDLE_GAME_EXECUTABLE}> $<TARGET_FILE_DIR:prboom-plus-launcher>/PrBoom-Plus
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${WAD_DATA_PATH} $<TARGET_FILE_DIR:prboom-plus-launcher>
     )
 
