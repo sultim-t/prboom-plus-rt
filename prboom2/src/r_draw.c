@@ -33,6 +33,8 @@
  *
  *-----------------------------------------------------------------------------*/
 
+#include <stdint.h>
+
 #include "doomstat.h"
 #include "w_wad.h"
 #include "r_main.h"

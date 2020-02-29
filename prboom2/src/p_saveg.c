@@ -31,6 +31,8 @@
  *
  *-----------------------------------------------------------------------------*/
 
+#include <stdint.h>
+
 #include "doomstat.h"
 #include "r_main.h"
 #include "p_maputl.h"
