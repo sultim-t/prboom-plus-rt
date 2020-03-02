@@ -128,11 +128,6 @@ static int pm_init (int samplerate)
 
   TESTDLLLOAD("portmidi.dll", TRUE)
 
-#if defined _WIN32 && defined _WIN64
-  lprintf(LO_WARN, "Portmidi disabled for compatibility reasons\n");
-  return;
-#endif
-
   if (Pm_Initialize () != pmNoError)
   {
     lprintf (LO_WARN, "portmidiplayer: Pm_Initialize () failed\n");
