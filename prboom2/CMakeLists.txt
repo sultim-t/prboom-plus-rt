@@ -166,7 +166,7 @@ if (MSVC)
     add_definitions("/D_CRT_SECURE_NO_WARNINGS")
 else()
     set(CMAKE_C_FLAGS
-        ${CMAKE_C_FLAGS} "\
+        "${CMAKE_C_FLAGS} \
         -Wall -Wextra -Wno-missing-field-initializers -Wwrite-strings -Wundef \
         -Wbad-function-cast -Wcast-align -Wcast-qual -Wdeclaration-after-statement \
         -Wpointer-arith -Wno-unused -Wno-switch -Wno-sign-compare -Wno-pointer-sign \
