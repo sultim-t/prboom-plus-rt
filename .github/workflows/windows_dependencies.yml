@@ -44,7 +44,7 @@ jobs:
       id: vars
       shell: cmd
       run: |
-        echo ::set-output name=common_options::sdl2-image sdl2-mixer sdl2-net pcre zlib libmad fluidsynth dumb libvorbis portmidi --triplet ${{ matrix.config.triplet }}
+        echo ::set-output name=common_options::sdl2-image sdl2-mixer[dynamic-load,libflac,libmodplug,libvorbis,mpg123,opusfile] sdl2-net libmad fluidsynth dumb portmidi --triplet ${{ matrix.config.triplet }}
 
     - name: Install
       shell: cmd
@@ -57,9 +57,8 @@ jobs:
     - name: Export
       shell: cmd
       run: |
-        vcpkg export ${{ steps.vars.outputs.common_options }} --zip
         md artifact
-        move %VCPKG_INSTALLATION_ROOT%\*.zip artifact
+        .github\workflows\copy_dependencies.cmd %VCPKG_INSTALLATION_ROOT%\installed\${{ matrix.config.triplet }} artifact
 
     - name: Upload
       uses: actions/upload-artifact@v1
