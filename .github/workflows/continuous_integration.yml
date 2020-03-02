@@ -61,7 +61,7 @@ jobs:
         mkdir build
         cd build
         if [[ "${{ runner.os }}" == 'Windows' ]]; then
-          declare -x DEPS_FILENAME=windows_dependencies_v2.zip
+          declare -x DEPS_FILENAME=windows_dependencies_v4.zip
           curl -LO https://github.com/coelckers/prboom-plus/releases/download/windows_dependencies/${DEPS_FILENAME}
           7z x ${DEPS_FILENAME} -o..
         elif [[ "${{ runner.os }}" == 'Linux' ]]; then
