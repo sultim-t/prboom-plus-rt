@@ -448,6 +448,8 @@ static void I_UpdateSound(void *unused, Uint8 *stream, int len)
   // Mixing channel index.
   int       chan;
 
+  memset(stream,0,len);
+
   // NSM: when dumping sound, ignore the callback calls and only
   // service dumping calls
   if (dumping_sound && unused != (void *) 0xdeadbeef)
