@@ -1251,6 +1251,19 @@ int HU_GetArmorColor(int armor, int def)
 {
   int result;
 
+  if (sts_armorcolor_type)
+  {
+  // armor color dictated by type (Advanced HUD)
+  if (plr->armortype >= 2)
+    result = CR_BLUE;
+  else if (plr->armortype == 1)
+    result = CR_GREEN;
+  else if (plr->armortype == 0)
+    result = CR_RED;
+  }
+  else
+  {
+  // armor color dictated by percent only, not type (Advanced HUD)
   if (armor < armor_red)
     result = CR_RED;
   else if (armor < armor_yellow)
@@ -1259,7 +1272,7 @@ int HU_GetArmorColor(int armor, int def)
     result = CR_GREEN;
   else
     result = def;
-
+  }
   return result;
 }
 

@@ -103,6 +103,7 @@ extern int ammo_yellow;   // ammo percent less is yellow more green
 extern int sts_always_red;// status numbers do not change colors
 extern int sts_pct_always_gray;// status percents do not change colors
 extern int sts_traditional_keys;  // display keys the traditional way
+extern int sts_armorcolor_type;  // armor color depends on type
 
 extern int st_palette;    // cph 2006/04/06 - make palette visible
 

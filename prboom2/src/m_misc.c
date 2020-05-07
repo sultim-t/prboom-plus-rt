@@ -314,6 +314,8 @@ default_t defaults[] =
    def_bool,ss_stat}, // makes percent signs on status bar always gray
   {"sts_traditional_keys",{&sts_traditional_keys},{0},0,1,  // killough 2/28/98
    def_bool,ss_stat}, // disables doubled card and skull key display on status bar
+  {"sts_armorcolor_type",{&sts_armorcolor_type},{1},0,1, //  armor color depends on type
+   def_bool,ss_stat},
   {"show_messages",{&showMessages},{1},0,1,
    def_bool,ss_none}, // enables message display
   {"autorun",{&autorun},{1},0,1,  // killough 3/6/98: preserve autorun across games
