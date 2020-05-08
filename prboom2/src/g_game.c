@@ -152,6 +152,9 @@ int             totalleveltimes;      // CPhipps - total time for all completed 
 int             longtics;
 int             bytes_per_tic;
 
+dboolean boom_autoswitch;
+dboolean done_autoswitch;
+
 // e6y
 // There is a new command-line switch "-shorttics".
 // This makes it possible to practice routes and tricks
@@ -544,9 +547,14 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   //
   // killough 3/26/98, 4/2/98: fix autoswitch when no weapons are left
 
+  // Make Boom insert only a single weapon change command on autoswitch.
   if ((!demo_compatibility && players[consoleplayer].attackdown && // killough
-       !P_CheckAmmo(&players[consoleplayer])) || gamekeydown[key_weapontoggle])
+       !P_CheckAmmo(&players[consoleplayer])) && !done_autoswitch && boom_autoswitch ||
+       gamekeydown[key_weapontoggle])
+  {
     newweapon = P_SwitchWeapon(&players[consoleplayer]);           // phares
+    done_autoswitch = true;
+  }
   else
     {                                 // phares 02/26/98: Added gamemode checks
       if (next_weapon)

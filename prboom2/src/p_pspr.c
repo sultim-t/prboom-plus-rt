@@ -371,6 +371,8 @@ void A_WeaponReady(player_t *player, pspdef_t *psp)
     angle &= FINEANGLES/2-1;
     psp->sy = WEAPONTOP + FixedMul(player->bob, finesine[angle]);
   }
+
+  done_autoswitch = false;
 }
 
 //
