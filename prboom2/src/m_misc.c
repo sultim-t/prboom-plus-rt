@@ -933,6 +933,8 @@ default_t defaults[] =
    def_int,ss_none},
   {"mouse_doubleclick_as_use", {&mouse_doubleclick_as_use},  {1},0,1,
    def_bool,ss_stat},
+  {"mouse_carrytics", {&mouse_carrytics}, {0},0,1,
+   def_bool,ss_stat},
 
   {"Prboom-plus demos settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"demo_extendedformat", {&demo_extendedformat_default},  {1},0,1,
