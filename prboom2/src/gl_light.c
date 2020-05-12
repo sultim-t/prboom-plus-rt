@@ -119,6 +119,7 @@ static GLLight gld_light[gl_lightmode_last] = {
 
 int gl_hardware_gamma = false;
 gld_CalcLightLevel_f gld_CalcLightLevel = gld_CalcLightLevel_glboom;
+gld_Calc2DLightLevel_f gld_Calc2DLightLevel = gld_CalcLightLevel_glboom;
 gld_CalcFogDensity_f gld_CalcFogDensity = gld_CalcFogDensity_glboom;
 
 void M_ChangeLightMode(void)

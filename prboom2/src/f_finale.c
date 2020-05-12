@@ -47,7 +47,7 @@
 void FMI_Ticker (void);
 void FMI_Drawer (void);
 void FMI_StartFinale (void);
-int using_FMI;
+extern int using_FMI;
 
 
 // Stage of animation:

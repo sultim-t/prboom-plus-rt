@@ -142,7 +142,6 @@ dboolean         demorecording;
 dboolean         demoplayback;
 dboolean         democontinue = false;
 char             democontinuename[PATH_MAX];
-int             demover;
 dboolean         singledemo;           // quit after playing a demo from cmdline
 wbstartstruct_t wminfo;               // parms for world map / intermission
 dboolean         haswolflevels = false;// jff 4/18/98 wolf levels present
