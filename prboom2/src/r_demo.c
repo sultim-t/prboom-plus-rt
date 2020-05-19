@@ -1098,7 +1098,7 @@ static int G_ReadDemoFooter(const char *filename)
 
       if (!CheckWadBufIntegrity(demoex_p, size))
       {
-        lprintf(LO_ERROR, "G_ReadDemoFooter: demo footer is currupted\n");
+        lprintf(LO_ERROR, "G_ReadDemoFooter: demo footer is corrupted\n");
       }
       else
       //write an additional info from a demo to demoex.wad
