@@ -655,8 +655,9 @@ static void P_LoadSegs_V4(int lump)
     int side, linedef;
     line_t *ldef;
 
-    v1 = ml->v1;
-    v2 = ml->v2;
+    // MB 2020-04-22: Fix endianess for DeePBSP V4 extended nodes
+    v1 = LittleLong(ml->v1);
+    v2 = LittleLong(ml->v2);
 
     li->miniseg = false; // figgi -- there are no minisegs in classic BSP nodes
 
@@ -859,8 +860,9 @@ static void P_LoadSubsectors_V4(int lump)
 
   for (i = 0; i < numsubsectors; i++)
   {
-    subsectors[i].numlines = (int)data[i].numsegs;
-    subsectors[i].firstline = (int)data[i].firstseg;
+    // MB 2020-04-22: Fix endianess for DeePBSP V4 extended nodes
+    subsectors[i].numlines = (unsigned short)LittleShort(data[i].numsegs);
+    subsectors[i].firstline = LittleLong(data[i].firstseg);
   }
 
   W_UnlockLumpNum(lump); // cph - release the data
@@ -1031,7 +1033,8 @@ static void P_LoadNodes_V4(int lump)
       for (j=0 ; j<2 ; j++)
         {
           int k;
-          no->children[j] = (unsigned int)(mn->children[j]);
+          // MB 2020-04-22: Fix endianess for DeePBSP V4 extended nodes
+          no->children[j] = LittleLong(mn->children[j]);
 
           for (k=0 ; k<4 ; k++)
             no->bbox[j][k] = LittleShort(mn->bbox[j][k])<<FRACBITS;
