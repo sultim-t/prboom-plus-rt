@@ -6,6 +6,9 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(TargetArch)
 
+include(TestBigEndian)
+TEST_BIG_ENDIAN(WORDS_BIGENDIAN)
+
 # Automated dependencies discovery, mostly needed for MSVC
 target_architecture(TARGET_ARCH)
 if(${TARGET_ARCH} MATCHES "i386")

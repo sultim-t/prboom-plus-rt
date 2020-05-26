@@ -5,6 +5,8 @@
 
 #cmakedefine DOOMWADDIR "@DOOMWADDIR@"
 
+#cmakedefine WORDS_BIGENDIAN
+
 #cmakedefine HAVE_GETOPT
 #cmakedefine HAVE_MMAP
 #cmakedefine HAVE_SCHED_SETAFFINITY
