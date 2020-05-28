@@ -46,6 +46,7 @@ if(NOT WIN32)
     endif()
 endif()
 check_symbol_exists(usleep "unistd.h" HAVE_USLEEP)
+check_symbol_exists(sys_siglist "signal.h" HAVE_DECL_SYS_SIGLIST)
 
 include(CheckIncludeFile)
 
