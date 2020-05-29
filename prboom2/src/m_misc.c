@@ -875,11 +875,11 @@ default_t defaults[] =
 
 //e6y
   {"Prboom-plus key bindings",{NULL},{0},UL,UL,def_none,ss_none},
-  {"key_speedup", {&key_speed_up}, {KEYD_KEYPADPLUS},
+  {"key_speedup", {&key_speed_up}, {0},
    0,MAX_KEY,def_key,ss_keys},
-  {"key_speeddown", {&key_speed_down}, {KEYD_KEYPADMINUS},
+  {"key_speeddown", {&key_speed_down}, {0},
    0,MAX_KEY,def_key,ss_keys},
-  {"key_speeddefault", {&key_speed_default}, {KEYD_KEYPADMULTIPLY},
+  {"key_speeddefault", {&key_speed_default}, {0},
    0,MAX_KEY,def_key,ss_keys},
   {"speed_step",{&speed_step},{0},0,1000,
    def_int,ss_none},
