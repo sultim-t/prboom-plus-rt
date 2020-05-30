@@ -883,7 +883,7 @@ const rpatch_t *R_CachePatchNum(int id) {
 
 #ifdef SIMPLECHECKS
   if (!((patches[id].locks+1) & 0xf))
-    lprintf(LO_DEBUG, "R_CachePatchNum: High lock on %8s (%d)\n", 
+    lprintf(LO_DEBUG, "R_CachePatchNum: High lock on %.8s (%d)\n",
 	    lumpinfo[id].name, patches[id].locks);
 #endif
 
@@ -932,7 +932,7 @@ const rpatch_t *R_CacheTextureCompositePatchNum(int id) {
 
 #ifdef SIMPLECHECKS
   if (!((texture_composites[id].locks+1) & 0xf))
-    lprintf(LO_DEBUG, "R_CacheTextureCompositePatchNum: High lock on %8s (%d)\n", 
+    lprintf(LO_DEBUG, "R_CacheTextureCompositePatchNum: High lock on %.8s (%d)\n",
 	    textures[id]->name, texture_composites[id].locks);
 #endif
 
