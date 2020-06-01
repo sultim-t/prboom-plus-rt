@@ -718,7 +718,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   cmd->forwardmove += fudgef((signed char)forward);
   cmd->sidemove += side;
 
-  if (!longtics)
+  if ((demorecording && !longtics) || shorttics)
   {
 	// Chocolate Doom Mouse Behaviour
 	// Don't discard mouse delta even if value is too small to
