@@ -682,7 +682,7 @@ int main(int argc, char** argv)
       int tics;
       if (lowtic <= remoteticto[i]) continue;
       if ((remoteticto[i] -= xtratics) < 0) remoteticto[i] = 0;
-      tics = lowtic - remoteticto[i];
+      tics = MIN(lowtic - remoteticto[i], 128); // limit number of sent tics (CVE-2019-20797)
       {
         byte *p;
         packet = malloc(sizeof(packet_header_t) + 1 +
