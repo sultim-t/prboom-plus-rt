@@ -448,6 +448,9 @@ static void I_UpdateSound(void *unused, Uint8 *stream, int len)
   // Mixing channel index.
   int       chan;
 
+  if (snd_midiplayer == NULL) // This is but a temporary fix. Please do remove after a more definitive one!
+    memset(stream, 0, len);
+
   // NSM: when dumping sound, ignore the callback calls and only
   // service dumping calls
   if (dumping_sound && unused != (void *) 0xdeadbeef)
