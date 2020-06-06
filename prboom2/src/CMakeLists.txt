@@ -340,6 +340,8 @@ function(AddGameExecutable TARGET SOURCES)
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${WAD_DATA_PATH} $<TARGET_FILE_DIR:prboom-plus>
         )
     endif()
+
+    install(TARGETS ${TARGET} COMPONENT "Game executable")
 endfunction()
 
 AddGameExecutable(prboom-plus "${PRBOOM_PLUS_SOURCES}")
@@ -426,6 +428,7 @@ if(BUILD_SERVER AND SDL2_NET_FOUND)
         RUNTIME_OUTPUT_DIRECTORY ${PRBOOM_OUTPUT_PATH}
     )
     ApplySDL2NetOptions(prboom-plus-game-server)
+    install(TARGETS prboom-plus-game-server COMPONENT "Game server executable")
 endif()
 
 
