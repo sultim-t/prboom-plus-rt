@@ -114,6 +114,8 @@ BT_WEAPONMASK_OLD   = (8+16+32),//e6y
   BTS_SAVEMASK    = (4+8+16),
   BTS_SAVESHIFT   = 2,
 
+  // Demo joined.
+  BT_JOIN = 64
 } buttoncode_t;
 
 
