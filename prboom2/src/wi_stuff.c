@@ -421,7 +421,7 @@ static void WI_slamBackground(void)
   else if (gamemode == commercial || (gamemode == retail && wbs->epsd == 3))
     strcpy(name, "INTERPIC");
   else
-    sprintf(name, "WIMAP%d", state == StatCount? wbs->epsd : wbs->nextep);
+    sprintf(name, "WIMAP%d", wbs->epsd);
 
   // background
   V_DrawNamePatch(0, 0, FB, name, CR_DEFAULT, VPT_STRETCH);
@@ -966,6 +966,16 @@ void WI_initShowNextLoc(void)
 			return;
 		}
 		state = ShowNextLoc;
+
+		// episode change
+		if (wbs->epsd != wbs->nextep)
+		{
+			void WI_loadData(void);
+
+			wbs->epsd = wbs->nextep;
+			wbs->last = wbs->next - 1;
+			WI_loadData();
+		}
 	}
 	else if ((gamemode != commercial) && (gamemap == 8)) {
 		G_WorldDone();
