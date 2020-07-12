@@ -2428,8 +2428,10 @@ setup_menu_t keys_settings4[] =  // Key Binding screen strings
   {"CLEAR MARKS",S_KEY       ,m_map ,KB_X,KB_Y+ 9*8,{&key_map_clear}},
   {"FULL/ZOOM"  ,S_KEY       ,m_map ,KB_X,KB_Y+10*8,{&key_map_gobig}},
   {"GRID"       ,S_KEY       ,m_map ,KB_X,KB_Y+11*8,{&key_map_grid}},
+  {"ROTATE"     ,S_KEY       ,m_map ,KB_X,KB_Y+12*8,{&key_map_rotate}},
+  {"OVERLAY"    ,S_KEY       ,m_map ,KB_X,KB_Y+13*8,{&key_map_overlay}},
 #ifdef GL_DOOM
-  {"TEXTURED"   ,S_KEY       ,m_map ,KB_X,KB_Y+12*8,{&key_map_textured}},
+  {"TEXTURED"   ,S_KEY       ,m_map ,KB_X,KB_Y+14*8,{&key_map_textured}},
 #endif
 
   {"<- PREV" ,S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {keys_settings3}},
@@ -4240,6 +4242,8 @@ setup_menu_t helpstrings[] =  // HELP screen strings
   {"CLEAR MARKS" ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y2+ 5*8,{&key_map_clear}},
   {"FULL/ZOOM"   ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y2+ 6*8,{&key_map_gobig}},
   {"GRID"        ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y2+ 7*8,{&key_map_grid}},
+  {"ROTATE"      ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y2+ 8*8,{&key_map_rotate}},
+  {"OVERLAY"     ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y2+ 9*8,{&key_map_overlay}},
 
   {"WEAPONS"     ,S_SKIP|S_TITLE,m_null,KT_X3,KT_Y1},
   {"FIST"        ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y1+ 1*8,{&key_weapon1}},
