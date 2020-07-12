@@ -341,7 +341,7 @@ function(AddGameExecutable TARGET SOURCES)
         )
     endif()
 
-    install(TARGETS ${TARGET} COMPONENT "Game executable")
+    install(TARGETS ${TARGET} COMPONENT "Game executable" RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
 endfunction()
 
 AddGameExecutable(prboom-plus "${PRBOOM_PLUS_SOURCES}")
@@ -428,7 +428,7 @@ if(BUILD_SERVER AND SDL2_NET_FOUND)
         RUNTIME_OUTPUT_DIRECTORY ${PRBOOM_OUTPUT_PATH}
     )
     ApplySDL2NetOptions(prboom-plus-game-server)
-    install(TARGETS prboom-plus-game-server COMPONENT "Game server executable")
+    install(TARGETS prboom-plus-game-server COMPONENT "Game server executable" RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
 endif()
 
 
