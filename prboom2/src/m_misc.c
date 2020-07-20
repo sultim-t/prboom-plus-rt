@@ -786,7 +786,7 @@ default_t defaults[] =
   {"map_level_stat", {&map_level_stat}, {1},0,1,
    def_bool,ss_auto},
   //jff 1/7/98 end additions for automap
-  {"automapmode", {(int*)&automapmode}, {0}, 0, 31, // CPhipps - remember automap mode
+  {"automapmode", {(int*)&automapmode}, {am_follow}, 0, 31, // CPhipps - remember automap mode
    def_hex,ss_none}, // automap mode
   {"map_always_updates", {&map_always_updates}, {1},0,1,
    def_bool,ss_auto},
