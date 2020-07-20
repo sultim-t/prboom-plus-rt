@@ -1036,7 +1036,7 @@ typedef struct
 // killough 8/9/98: make DEH_BLOCKMAX self-adjusting
 #define DEH_BLOCKMAX (sizeof deh_blocks/sizeof*deh_blocks)  // size of array
 #define DEH_MAXKEYLEN 32 // as much of any key as we'll look at
-#define DEH_MOBJINFOMAX 24 // number of ints in the mobjinfo_t structure (!)
+#define DEH_MOBJINFOMAX 25 // number of ints in the mobjinfo_t structure (!)
 
 // Put all the block header values, and the function to be called when that
 // one is encountered, in this array:
@@ -1100,7 +1100,8 @@ static const char *deh_mobjinfo[DEH_MOBJINFOMAX] =
   "Action sound",        // .activesound
   "Bits",                // .flags
   "Bits2",               // .flags
-  "Respawn frame"        // .raisestate
+  "Respawn frame",       // .raisestate
+  "Dropped item",        // .droppeditem
 };
 
 // Strings that are used to indicate flags ("Bits" in mobjinfo)
@@ -1427,6 +1428,27 @@ void D_BuildBEXTables(void)
    for(i = 1; i < NUMSFX; i++)
       deh_soundnames[i] = strdup(S_sfx[i].name);
    deh_soundnames[0] = deh_soundnames[NUMSFX] = NULL;
+
+  // ferk: initialize Thing extra properties (keeping vanilla props in info.c)
+  for (i = 0; i < NUMMOBJTYPES; i++)
+  {
+    // mobj id for item dropped on death
+    switch (i)
+    {
+      case MT_WOLFSS:
+      case MT_POSSESSED:
+      mobjinfo[i].droppeditem = MT_CLIP;
+      break;
+      case MT_SHOTGUY:
+      mobjinfo[i].droppeditem = MT_SHOTGUN;
+      break;
+      case MT_CHAINGUY:
+      mobjinfo[i].droppeditem = MT_CHAINGUN;
+      break;
+      default:
+      mobjinfo[i].droppeditem = MT_NULL;
+    }
+  }
 }
 
 int deh_maxhealth;
@@ -1828,6 +1850,7 @@ static void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint_64_t value) {
         return;
       }
       break;
+    case 24: mi->droppeditem = (int)(value-1); return; // make it base zero (deh is 1-based)
     default: return;
   }
 }

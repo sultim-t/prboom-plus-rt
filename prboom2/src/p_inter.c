@@ -805,24 +805,10 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
   // This determines the kind of object spawned
   // during the death frame of a thing.
 
-  switch (target->type)
-    {
-    case MT_WOLFSS:
-    case MT_POSSESSED:
-      item = MT_CLIP;
-      break;
-
-    case MT_SHOTGUY:
-      item = MT_SHOTGUN;
-      break;
-
-    case MT_CHAINGUY:
-      item = MT_CHAINGUN;
-      break;
-
-    default:
-      return;
-    }
+  if (target->info->droppeditem != MT_NULL)
+  {
+    item = target->info->droppeditem;
+  }
 
   mo = P_SpawnMobj (target->x,target->y,ONFLOORZ, item);
   mo->flags |= MF_DROPPED;    // special versions of items

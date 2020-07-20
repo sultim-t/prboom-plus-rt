@@ -1300,6 +1300,7 @@ extern const char *sprnames[]; /* 1/17/98 killough - CPhipps - const */
  */
 
 typedef enum {
+  MT_NULL = -1, // ferk: null/invalid mobj (zero is reserved for MT_PLAYER)
   MT_PLAYER,
   MT_POSSESSED,
   MT_SHOTGUY,
@@ -1541,6 +1542,7 @@ typedef struct
   int raisestate;   /* The first state for an Archvile or respawn
            resurrection.  Zero means it won't come
            back to life. */
+  mobjtype_t droppeditem; /* ferk: Mobj to drop after death */
 } mobjinfo_t;
 
 /* See p_mobj_h for addition more technical info */
