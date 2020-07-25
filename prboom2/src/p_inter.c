@@ -809,6 +809,7 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
   {
     item = target->info->droppeditem;
   }
+  else return;
 
   mo = P_SpawnMobj (target->x,target->y,ONFLOORZ, item);
   mo->flags |= MF_DROPPED;    // special versions of items
