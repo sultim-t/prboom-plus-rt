@@ -9,6 +9,8 @@ include(TargetArch)
 include(TestBigEndian)
 TEST_BIG_ENDIAN(WORDS_BIGENDIAN)
 
+include(GNUInstallDirs)
+
 # Automated dependencies discovery, mostly needed for MSVC
 target_architecture(TARGET_ARCH)
 if(${TARGET_ARCH} MATCHES "i386")
@@ -184,4 +186,5 @@ set(WAD_DATA prboom-plus.wad)
 set(WAD_DATA_PATH "${PRBOOM_OUTPUT_PATH}/${WAD_DATA}")
 
 add_subdirectory(data)
+add_subdirectory(doc)
 add_subdirectory(src)
