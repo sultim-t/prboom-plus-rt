@@ -144,6 +144,20 @@ static int fl_init (int samplerate)
   FSET (int, "synth.chorus.active", mus_fluidsynth_chorus);
   FSET (int, "synth.reverb.active", mus_fluidsynth_reverb);
 
+  if (mus_fluidsynth_chorus)
+  {
+    FSET (num, "synth.chorus.depth", (double) 5);
+    FSET (num, "synth.chorus.level", (double) 0.35);
+  }
+
+  if (mus_fluidsynth_reverb)
+  {
+    FSET (num, "synth.reverb.damp", (double) 0.4);
+    FSET (num, "synth.reverb.level", (double) 0.15);
+    FSET (num, "synth.reverb.width", (double) 4);
+    FSET (num, "synth.reverb.room-size", (double) 0.6);
+  }
+
   // gain control
   FSET (num, "synth.gain", mus_fluidsynth_gain / 100.0); // 0.0 - 0.2 - 10.0
   // behavior wrt bank select messages

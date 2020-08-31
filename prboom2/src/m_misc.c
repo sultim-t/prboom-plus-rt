@@ -365,7 +365,7 @@ default_t defaults[] =
    def_int,ss_none}, // select music driver (DOS), -1 is autodetect, 0 is none"; in Linux, non-zero enables music
   {"pitched_sounds",{&pitched_sounds},{0},0,1, // killough 2/21/98
    def_bool,ss_none}, // enables variable pitch in sound effects (from id's original code)
-  {"samplerate",{&snd_samplerate},{22050},11025,48000, def_int,ss_none},
+  {"samplerate",{&snd_samplerate},{44100},11025,48000, def_int,ss_none},
   {"sfx_volume",{&snd_SfxVolume},{8},0,15, def_int,ss_none},
   {"music_volume",{&snd_MusicVolume},{8},0,15, def_int,ss_none},
   {"mus_pause_opt",{&mus_pause_opt},{1},0,2, // CPhipps - music pausing
@@ -385,8 +385,8 @@ default_t defaults[] =
   {"mus_extend_volume",{&mus_extend_volume},{0},0,1,
    def_bool,ss_none}, // e6y: apply midi volume to all midi devices
 #endif
-  {"mus_fluidsynth_chorus",{&mus_fluidsynth_chorus},{1},0,1,def_bool,ss_none},
-  {"mus_fluidsynth_reverb",{&mus_fluidsynth_reverb},{1},0,1,def_bool,ss_none},
+  {"mus_fluidsynth_chorus",{&mus_fluidsynth_chorus},{0},0,1,def_bool,ss_none},
+  {"mus_fluidsynth_reverb",{&mus_fluidsynth_reverb},{0},0,1,def_bool,ss_none},
   {"mus_fluidsynth_gain",{&mus_fluidsynth_gain},{50},0,1000,def_int,ss_none}, // NSM  fine tune fluidsynth output level
   {"mus_opl_gain",{&mus_opl_gain},{50},0,1000,def_int,ss_none}, // NSM  fine tune opl output level
 
