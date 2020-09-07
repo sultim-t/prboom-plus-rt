@@ -124,7 +124,7 @@ void FMI_Ticker(void)
 			(midstage && acceleratestage)) {
 
 		next_level:
-			if (gamemapinfo->endpic[0])
+			if (gamemapinfo->endpic[0] && (strcmp(gamemapinfo->endpic, "-") != 0))
 			{
 				if (!stricmp(gamemapinfo->endpic, "$CAST"))
 				{
@@ -157,7 +157,7 @@ void FMI_Ticker(void)
 //
 void FMI_Drawer(void)
 {
-	if (!finalestage || !gamemapinfo->endpic[0])
+	if (!finalestage || !gamemapinfo->endpic[0] || (strcmp(gamemapinfo->endpic, "-") == 0))
 	{
 		F_TextWrite();
 	}
