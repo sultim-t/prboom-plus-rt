@@ -1597,7 +1597,7 @@ static void D_DoomMainSetup(void)
 
   //proff 11/22/98: Added setting of viewangleoffset
   p = M_CheckParm("-viewangle");
-  if (p)
+  if (p && p < myargc-1)
   {
     viewangleoffset = atoi(myargv[p+1]);
     viewangleoffset = viewangleoffset<0 ? 0 : (viewangleoffset>7 ? 7 : viewangleoffset);
