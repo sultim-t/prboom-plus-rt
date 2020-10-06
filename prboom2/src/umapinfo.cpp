@@ -520,7 +520,7 @@ int ParseUMapInfo(const unsigned char *buffer, size_t length, umapinfo_errorfunc
 		ParseMapEntry(scanner, &parsed);
 
 		// Set default level progression here to simplify the checks elsewhere. Doing this lets us skip all normal code for this if nothing has been defined.
-		if (parsed.endpic[0])
+		if (parsed.endpic[0] && (strcmp(parsed.endpic, "-") != 0))
 		{
 			parsed.nextmap[0] = parsed.nextsecret[0] = 0;
 			if (parsed.endpic[0] == '!') parsed.endpic[0] = 0;
