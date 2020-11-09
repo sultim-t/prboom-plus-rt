@@ -1425,8 +1425,13 @@ void D_BuildBEXTables(void)
       deh_musicnames[i] = strdup(S_music[i].name);
    deh_musicnames[0] = deh_musicnames[NUMMUSIC] = NULL;
 
-   for(i = 1; i < NUMSFX; i++)
-      deh_soundnames[i] = strdup(S_sfx[i].name);
+   for(i = 1; i < NUMSFX; i++) {
+      if (S_sfx[i].name != NULL) {
+         deh_soundnames[i] = strdup(S_sfx[i].name);
+      } else { // This is possible due to how DEHEXTRA has turned S_sfx into a sparse array
+         deh_soundnames[i] = NULL;
+      }
+   }
    deh_soundnames[0] = deh_soundnames[NUMSFX] = NULL;
 
   // ferk: initialize Thing extra properties (keeping vanilla props in info.c)
