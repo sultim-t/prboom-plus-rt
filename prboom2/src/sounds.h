@@ -300,7 +300,7 @@ typedef enum {
   //e6y
   sfx_secret,
   sfx_gibdth,
-  // Everything from here to 400 is reserved
+  // Everything from here to 500 is reserved
 
   /* Free sound effect slots for DEHEXTRA. Offset agreed upon with Eternity devs. -SH */
   sfx_fre000 = 500,
