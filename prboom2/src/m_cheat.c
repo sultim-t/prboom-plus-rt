@@ -242,6 +242,26 @@ static void cheat_choppers()
 
 static void cheat_god()
 {                                    // 'dqd' cheat for toggleable god mode
+  // dead players are first respawned at the current position
+  if (plyr->playerstate == PST_DEAD)
+    {
+      signed int an;
+      mapthing_t mt = {0};
+
+      P_MapStart();
+      mt.x = plyr->mo->x >> FRACBITS;
+      mt.y = plyr->mo->y >> FRACBITS;
+      mt.angle = (plyr->mo->angle + ANG45/2)*(uint_64_t)45/ANG45;
+      mt.type = consoleplayer + 1;
+      mt.options = 1; // arbitrary non-zero value
+      P_SpawnPlayer(consoleplayer, &mt);
+
+      // spawn a teleport fog
+      an = plyr->mo->angle >> ANGLETOFINESHIFT;
+      P_SpawnMobj(plyr->mo->x+20*finecosine[an], plyr->mo->y+20*finesine[an], plyr->mo->z, MT_TFOG);
+      S_StartSound(plyr, sfx_slop);
+      P_MapEnd();
+    }
   plyr->cheats ^= CF_GODMODE;
   if (plyr->cheats & CF_GODMODE)
     {
