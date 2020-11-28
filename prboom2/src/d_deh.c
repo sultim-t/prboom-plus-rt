@@ -2720,6 +2720,8 @@ static void deh_procText(DEHFILE *fpin, FILE* fpout, char *line)
         // Try sound effects entries - see sounds.c
         for (i=1; i<NUMSFX; i++)
           {
+            // skip empty dummy entries in S_sfx[]
+            if (!S_sfx[i].name) continue;
             // avoid short prefix erroneous match
             if (strlen(S_sfx[i].name) != (size_t)fromlen) continue;
             if (!strnicmp(S_sfx[i].name,inbuffer,fromlen) && !S_sfx_state[i])
