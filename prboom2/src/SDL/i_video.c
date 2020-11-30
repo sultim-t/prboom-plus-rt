@@ -115,13 +115,12 @@ int render_vsync;
 int screen_multiply;
 int render_screen_multiply;
 SDL_Surface *screen;
-SDL_Surface *surface;
-SDL_Surface *buffer;
+static SDL_Surface *buffer;
 SDL_Window *sdl_window;
 SDL_Renderer *sdl_renderer;
-SDL_Texture *sdl_texture;
-SDL_Texture *sdl_texture_upscaled;
-SDL_GLContext sdl_glcontext;
+static SDL_Texture *sdl_texture;
+static SDL_Texture *sdl_texture_upscaled;
+static SDL_GLContext sdl_glcontext;
 unsigned int windowid = 0;
 SDL_Rect src_rect = { 0, 0, 0, 0 };
 SDL_Rect dst_rect = { 0, 0, 0, 0 };
@@ -1148,9 +1147,9 @@ void I_UpdateVideoMode(void)
 
     I_InitScreenResolution();
 
-    SDL_GL_DeleteContext(sdl_glcontext);
-    SDL_FreeSurface(screen);
-    SDL_FreeSurface(buffer);
+    if (sdl_glcontext) SDL_GL_DeleteContext(sdl_glcontext);
+    if (screen) SDL_FreeSurface(screen);
+    if (buffer) SDL_FreeSurface(buffer);
     SDL_DestroyTexture(sdl_texture);
     SDL_DestroyTexture(sdl_texture_upscaled);
     SDL_DestroyRenderer(sdl_renderer);
@@ -1158,7 +1157,9 @@ void I_UpdateVideoMode(void)
     
     sdl_renderer = NULL;
     sdl_window = NULL;
+    sdl_glcontext = NULL;
     screen = NULL;
+    buffer = NULL;
   }
 
   // e6y: initialisation of screen_multiply
