@@ -1150,9 +1150,9 @@ void I_UpdateVideoMode(void)
     if (sdl_glcontext) SDL_GL_DeleteContext(sdl_glcontext);
     if (screen) SDL_FreeSurface(screen);
     if (buffer) SDL_FreeSurface(buffer);
-    SDL_DestroyTexture(sdl_texture);
-    SDL_DestroyTexture(sdl_texture_upscaled);
-    SDL_DestroyRenderer(sdl_renderer);
+    if (sdl_texture) SDL_DestroyTexture(sdl_texture);
+    if (sdl_texture_upscaled) SDL_DestroyTexture(sdl_texture_upscaled);
+    if (sdl_renderer) SDL_DestroyRenderer(sdl_renderer);
     SDL_DestroyWindow(sdl_window);
     
     sdl_renderer = NULL;
@@ -1160,6 +1160,8 @@ void I_UpdateVideoMode(void)
     sdl_glcontext = NULL;
     screen = NULL;
     buffer = NULL;
+    sdl_texture = NULL;
+    sdl_texture_upscaled = NULL;
   }
 
   // e6y: initialisation of screen_multiply
@@ -1241,6 +1243,10 @@ void I_UpdateVideoMode(void)
     {
       sdl_texture_upscaled = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888,
         SDL_TEXTUREACCESS_TARGET, REAL_SCREENWIDTH, REAL_SCREENHEIGHT);
+    }
+    else
+    {
+      sdl_texture_upscaled = NULL;
     }
 
     if(screen == NULL) {
