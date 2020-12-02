@@ -49,6 +49,7 @@ if(NOT WIN32)
 endif()
 check_symbol_exists(usleep "unistd.h" HAVE_USLEEP)
 check_symbol_exists(strsignal "string.h" HAVE_STRSIGNAL)
+check_symbol_exists(mkstemp "stdlib.h" HAVE_MKSTEMP)
 
 include(CheckIncludeFile)
 

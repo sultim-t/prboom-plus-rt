@@ -1075,7 +1075,11 @@ static int G_ReadDemoFooter(const char *filename)
       }
 
       doom_snprintf(demoex_filename, sizeof(demoex_filename), template_format, tmp_path);
+#ifdef HAVE_MKSTEMP
       mkstemp(demoex_filename);
+#else
+      mktemp(demoex_filename);
+#endif
 
       free(tmp_path);
     }

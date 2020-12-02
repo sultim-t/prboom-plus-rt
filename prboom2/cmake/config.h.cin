@@ -12,6 +12,7 @@
 #cmakedefine HAVE_SCHED_SETAFFINITY
 #cmakedefine HAVE_USLEEP
 #cmakedefine HAVE_STRSIGNAL
+#cmakedefine HAVE_MKSTEMP
 
 #cmakedefine HAVE_SYS_WAIT_H
 #cmakedefine HAVE_UNISTD_H
