@@ -1576,6 +1576,12 @@ void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum)
     {
       infile.size = W_LumpLength(lumpnum);
       infile.inp = infile.lump = W_CacheLumpNum(lumpnum);
+      // [FG] skip empty DEHACKED lumps
+      if (!infile.inp)
+        {
+          printf("skipping empty DEHACKED (%d) lump\n",lumpnum);
+          return;
+        }
       filename = lumpinfo[lumpnum].wadfile->name;
       file_or_lump = "lump from";
     }
