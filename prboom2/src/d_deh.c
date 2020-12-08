@@ -1579,7 +1579,7 @@ void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum)
       // [FG] skip empty DEHACKED lumps
       if (!infile.inp)
         {
-          printf("skipping empty DEHACKED (%d) lump\n",lumpnum);
+          lprintf(LO_WARN, "skipping empty DEHACKED (%d) lump\n",lumpnum);
           return;
         }
       filename = lumpinfo[lumpnum].wadfile->name;
