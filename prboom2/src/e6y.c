@@ -436,30 +436,31 @@ int G_GotoNextLevel(void)
 			(compatibility_level < ultdoom_compatibility) ?
 			11 : 41);
 
-		if ((gamestate == GS_LEVEL) &&
-			!deathmatch && !netgame &&
-			!demorecording && !demoplayback &&
-			!menuactive)
-		{
-			//doom2_next and doom_next are 0 based, unlike gameepisode and gamemap
-			epsd = gameepisode - 1;
-			map = gamemap - 1;
+		//doom2_next and doom_next are 0 based, unlike gameepisode and gamemap
+		epsd = gameepisode - 1;
+		map = gamemap - 1;
 
-			if (gamemode == commercial)
-			{
-				epsd = 1;
-				map = doom2_next[BETWEEN(0, 32, map)];
-			}
-			else
-			{
-				int next = doom_next[BETWEEN(0, 3, epsd)][BETWEEN(0, 9, map)];
-				epsd = next / 10;
-				map = next % 10;
-			}
+		if (gamemode == commercial)
+		{
+			epsd = 1;
+			map = doom2_next[BETWEEN(0, 32, map)];
+		}
+		else
+		{
+			int next = doom_next[BETWEEN(0, 3, epsd)][BETWEEN(0, 9, map)];
+			epsd = next / 10;
+			map = next % 10;
 		}
 	}
-	G_DeferedInitNew(gameskill, epsd, map);
-	changed = true;
+
+	if ((gamestate == GS_LEVEL) &&
+		!deathmatch && !netgame &&
+		!demorecording && !demoplayback &&
+		!menuactive)
+	{
+		G_DeferedInitNew(gameskill, epsd, map);
+		changed = true;
+	}
 
 	return changed;
 }
