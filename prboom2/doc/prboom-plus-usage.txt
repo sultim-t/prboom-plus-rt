@@ -364,15 +364,6 @@ cap_tempfile1             "temp_a.nut"
 cap_tempfile2             "temp_v.nut"
 cap_remove_tempfiles          1
 
-These were the previous defaults up to v2.5.1.7um, using the three separate external command line encoding tools "oggenc2", "x264" and "mkvmerge":
-
-cap_soundcommand          "oggenc2 -r -R %s -q 5 - -o output.ogg"
-cap_videocommand          "x264 -o output.mp4 --crf 22 --muxer mp4 --demuxer raw --input-csp rgb --input-depth 8 --input-res %wx%h --fps 35 -"
-cap_muxcommand            "mkvmerge -o %f output.mp4 output.ogg"
-cap_tempfile1             "output.ogg"
-cap_tempfile2             "output.mp4"
-cap_remove_tempfiles          1
-
 You can use any command line encoders you want that can take the following input:
 cap_soundcommand:  Receives raw 16 bit PCM audio on stdin
 cap_videocommand:  Receives raw 24 bit RGB video frames on stdin
@@ -386,13 +377,13 @@ A few simple substitutions are available in writing the command invocations:
 
 cap_muxcommand is not given any special input and is run after the demo is complete.  Finally, cap_tempfile1 and cap_tempfile2 are removed once the mux command is complete only if cap_remove_tempfiles is 1.
 
-For example, the following settings use FFmpeg at all steps to create an mp4 (quicktime) container with h264 video and mp3 audio in it:
+For example, these were the previous defaults up to v2.5.1.7um, using the three separate external command line encoding tools "oggenc2", "x264" and "mkvmerge":
 
-cap_soundcommand          "ffmpeg -f s16le -ar %s -ac 2 -i pipe:0 -acodec libmp3lame -aq 5 temp.mp3"
-cap_videocommand          "ffmpeg -f rawvideo -pix_fmt rgb24 -s %wx%h -r 35 -i pipe:0 -vcodec libx264 -f mp4 -fpre ./libx264-baseline.ffpreset -crf 22 temp.mp4"
-cap_muxcommand            "ffmpeg -i temp.mp3 -i temp.mp4 -vcodec copy -acodec copy %f.mp4"
-cap_tempfile1             "temp.mp3"
-cap_tempfile2             "temp.mp4"
+cap_soundcommand          "oggenc2 -r -R %s -q 5 - -o output.ogg"
+cap_videocommand          "x264 -o output.mp4 --crf 18 --muxer mp4 --demuxer raw --input-csp rgb --input-depth 8 --input-res %wx%h --fps %r -"
+cap_muxcommand            "mkvmerge -o %f output.mp4 output.ogg"
+cap_tempfile1             "output.ogg"
+cap_tempfile2             "output.mp4"
 cap_remove_tempfiles          1
 
 The console output from the various commands is redirected to file so you can see it for debugging purposes:
