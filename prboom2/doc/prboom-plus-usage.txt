@@ -340,17 +340,15 @@ Hopefully the package in which you have obtained the files will include the appr
 VIDEO CAPTURE
 
 This feature allows you to record movie files, suitable for viewing or upload to websites.
-Prboom-plus uses external command line encoding tools to accomplish this.  You will need the following:
-  oggenc2		    ;ogg vorbis audio encoder    http://www.rarewares.org/ogg-oggenc.php
-  x264                      ;h264 video encoder	         http://x264.nl/
-  mkvmerge		    ;mkv muxer                   http://www.bunkus.org/videotools/mkvtoolnix/
+Prboom-plus uses the external "ffmpeg" command line encoding tool to accomplish this.  You may get a builds for Windows here:
+  https://ffmpeg.org/download.html#build-windows
 
-These applications can be placed in the same folder as Prboom-plus.
+The application should be placed in the same folder as Prboom-plus.
 Using the movie recording feature is simple.  The command line parameter is "-viddump filename", and is meant to be used with -timedemo.
 Example:
   prboom-plus -timedemo 30uv1437 -viddump foo.mkv
   
-This will create foo.mkv playing demo 30uv1437.lmp.  By default, foo.mkv will be an mkv container containing h264 video and vorbis audio, which most popular video sharing sites should understand.
+This will create foo.mkv playing demo 30uv1437.lmp.  By default, foo.mkv will be an mkv container containing h264 video and opus audio, which most popular video sharing sites should understand.
 
 The recording uses all of your normal video and sound options, so make sure things like video resolution, gamma correction, audio samplerate, and sound volume are how you want them beforehand.  Both OpenGL and software renderers are supported.  Music recording will happen as long as you are not using the SDL or Portmidi music options.  The video and sound are encoded as the demo is played, so the process can be slow even on a fast computer.  But, regardless of how fast the encoding goes, the resulting file can playback at full speed with perfect sound sync and no dropped frames.  Note that while you can watch the demo as it records, you will not be able to hear any sound.
 
@@ -358,6 +356,15 @@ The recording uses all of your normal video and sound options, so make sure thin
 VIDEO CAPTURE (ADVANCED)
 
 Unless you thoroughly understand video encoding, it's recommended you just use the default settings.  However, if you are an encoding guru, you can control how Prboom-plus makes its videos through cfg options.  These are the defaults:
+
+cap_soundcommand          "ffmpeg -f s16le -ar %s -ac 2 -i - -c:a libopus -y temp_a.nut"
+cap_videocommand          "ffmpeg -f rawvideo -pix_fmt rgb24 -r %r -s %wx%h -i - -c:v libx264 -y temp_v.nut"
+cap_muxcommand            "ffmpeg -i temp_v.nut -i temp_a.nut -c copy -y %f"
+cap_tempfile1             "temp_a.nut"
+cap_tempfile2             "temp_v.nut"
+cap_remove_tempfiles          1
+
+These were the previous defaults up to v2.5.1.7um, using the three separate external command line encoding tools "oggenc2", "x264" and "mkvmerge":
 
 cap_soundcommand          "oggenc2 -r -R %s -q 5 - -o output.ogg"
 cap_videocommand          "x264 -o output.mp4 --crf 22 --muxer mp4 --demuxer raw --input-csp rgb --input-depth 8 --input-res %wx%h --fps 35 -"
