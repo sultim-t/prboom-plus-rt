@@ -1,28 +1,4 @@
-Installation From SVN
-=====================
-
-If you intend to compile PrBoom from a source tar file, such as
-prboom-plus-2.5.1.5.tar.gz, as opposed to SVN, skip to the "Basic Installation"
-section.
-
-  1. Extract the PrBoom distribution from SVN:
-        svn co https://svn.prboom.org/repos/branches/prboom-plus-24/prboom2
-
-  2. 'cd' to the directory containing the PrBoom distribution (the directory
-     this file is in):
-        cd prboom2
-
-  3. Run the 'bootstrap' script in order to create the 'configure' script.
-        ./bootstrap
-     If you get this error:
-        aclocal: configure.ac: 153: macro `AM_PATH_SDL' not found in library
-     Then you have to locate sdl.m4 and copy it to ./autotools/sdl.m4 in your
-     prboom directory.
-
-  4. If the 'configure' script was created by step 3 then proceed to the
-     "Basic Installation" section.
-
-Basic Installation
+Basic Installation (ZIP, tarball, Git)
 ==================
 
   1. To compile PrBoom-Plus, you need at least SDL2. To enable various
@@ -41,19 +17,23 @@ Basic Installation
        apt-get install libsdl2-dev libsdl2-net-dev libsdl2-image-dev \
          libpcre3-dev libsdl2-mixer-dev libfluidsynth-dev \
          libportmidi-dev libmad0-dev libdumb1-dev libvorbis-dev
-
+         
+    You will also need `cmake` and `make` if you haven't already got them.
+         
   2. `cd' to the directory containing the PrBoom distribution (the directory
-     this file is in).
+     this file is in, prboom2).
+     
+     Create a new `build` folder and `cd` into it. 
+     `mkdir build && cd build`
+     
+     Run `cmake .. -DCMAKE_BUILD_TYPE=Release` from this folder, or 
+     `cmake .. -DCMAKE_BUILD_TYPE=Debug` for a debug build. (This gives
+     slightly lower performance, but more details in the event of 
+     issues).
+     
+     This should end with the message "Build files have been written to: [folderpath]".
 
-     Type `./configure' to configure PrBoom for your system.  If you're
-     using `csh' on an old version of System V, you might need to type
-     `sh ./configure' instead to prevent `csh' from trying to execute
-     `configure' itself.
-
-     Running `configure' takes awhile.  While running, it prints some
-     messages telling which features it is checking for.
-
-  3. Type `make' to compile PrBoom. This may take some time; while it's
+  3. Type `make` to compile PrBoom. This may take some time; while it's
      compiling I suggest you read the README, or maybe go and look for some
      good doom levels to play when it's finished :-).
 
@@ -65,6 +45,9 @@ Basic Installation
   4. Type `make install-strip' as root, to install the programs, data files
      and man pages for PrBoom. If you don't have root access on the machine,
      you should ask the syadmin to do this and the next step for you.
+     
+     If you want to install manually then you should put the `prboom-plus.wad` 
+     in /usr/local/share/games/doom/ (or symlink it from there).
 
   5. Copy your Doom, Doom 2, Ultimate Doom or Final Doom IWAD (doom.wad or
      doom2.wad) to /usr/local/share/games/doom/ (or symlink it from there).
@@ -74,9 +57,12 @@ Basic Installation
      If you have a system with many users, you should read the license for
      your version of Doom, and make sure only those users allowed to use it
      can access the IWAD file.
+     
+     You may also aquire FreeDoom from https://freedoom.github.io/ which is a 
+     free replacement to the iD Doom iWADs.
 
   6. You can remove the program binaries and object files from the
-     source directory by typing `make clean'.  To also remove the
+     source directory by typing `make clean`.  To also remove the
      files that `configure' created (so you can compile the package for
      a different kind of computer), type `make distclean'.  There is
      also a `make maintainer-clean' target, but that is intended mainly
@@ -87,9 +73,8 @@ Basic Installation
   7. PrBoom is now ready for use. If /usr/local/games is in your path,
      you can just run prboom; otherwise give the full path.
 
-     See the README file for information about getting the Timidity
-     patches needed for music support, and more.
 
+     
 Building an RPM
 ===============
 
