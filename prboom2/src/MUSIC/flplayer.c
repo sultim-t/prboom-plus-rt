@@ -122,7 +122,7 @@ static int fl_init (int samplerate)
     int micro;
     fluid_version (&major, &minor, &micro);
     lprintf (LO_INFO, "Fluidplayer: Fluidsynth version %i.%i.%i\n", major, minor, micro);
-    if (major >= 1 && minor >=1 && micro >= 4)
+    if (major >= 2 || (minor >=1 && micro >= 4))
       sratemin = 8000;
     else
       sratemin = 22050;
@@ -136,8 +136,13 @@ static int fl_init (int samplerate)
 
   f_set = new_fluid_settings ();
 
+#if FLUIDSYNTH_VERSION_MAJOR == 1
   #define FSET(a,b,c) if (!fluid_settings_set##a(f_set,b,c))\
     lprintf (LO_INFO, "fl_init: Couldn't set " b "\n")
+#else
+  #define FSET(a,b,c) if (fluid_settings_set##a(f_set,b,c) == FLUID_FAILED)\
+    lprintf (LO_INFO, "fl_init: Couldn't set " b "\n")
+#endif
 
   FSET (num, "synth.sample-rate", f_soundrate);
 
@@ -168,7 +173,9 @@ static int fl_init (int samplerate)
   // we're not using the builtin shell or builtin midiplayer,
   // and our own access to the synth is protected by mutex in i_sound.c
   FSET (int, "synth.threadsafe-api", 0);
+#if FLUIDSYNTH_VERSION_MAJOR == 1
   FSET (int, "synth.parallel-render", 0);
+#endif
 
   // prints debugging information to STDOUT
   //FSET (int, "synth.verbose", 1);
