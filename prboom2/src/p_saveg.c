@@ -559,7 +559,8 @@ enum {
   tc_scroll,      // killough 3/7/98: new scroll effect thinker
   tc_pusher,      // phares 3/22/98:  new push/pull effect thinker
   tc_flicker,     // killough 10/4/98
-  tc_endspecials
+  tc_endspecials,
+  tc_friction // store friction for cl 9
 } specials_e;
 
 //
@@ -617,6 +618,7 @@ void P_ArchiveSpecials (void)
         th->function==T_Scroll       ? 4+sizeof(scroll_t)  :
         th->function==T_Pusher       ? 4+sizeof(pusher_t)  :
         th->function==T_FireFlicker? 4+sizeof(fireflicker_t) :
+        th->function==T_Friction     ? 4+sizeof(friction_t) :
       0;
 
   CheckSaveGame(size + 1);    // killough; cph: +1 for the tc_endspecials
@@ -775,6 +777,16 @@ void P_ArchiveSpecials (void)
           *save_p++ = tc_pusher;
           memcpy (save_p, th, sizeof(pusher_t));
           save_p += sizeof(pusher_t);
+          continue;
+        }
+
+      // store friction for cl 9
+      if (th->function == T_Friction)
+        {
+          *save_p++ = tc_friction;
+          PADSAVEP();
+          memcpy (save_p, th, sizeof(friction_t));
+          save_p += sizeof(friction_t);
           continue;
         }
     }
@@ -940,6 +952,18 @@ void P_UnArchiveSpecials (void)
           pusher->thinker.function = T_Pusher;
           pusher->source = P_GetPushThing(pusher->affectee);
           P_AddThinker(&pusher->thinker);
+          break;
+        }
+
+      // load friction for cl 9
+      case tc_friction:
+        PADSAVEP();
+        {
+          friction_t *friction = Z_Malloc (sizeof(friction_t), PU_LEVEL, NULL);
+          memcpy (friction, save_p, sizeof(friction_t));
+          save_p += sizeof(friction_t);
+          friction->thinker.function = T_Friction;
+          P_AddThinker(&friction->thinker);
           break;
         }
 
