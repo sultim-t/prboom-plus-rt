@@ -541,6 +541,8 @@ default_t defaults[] =
    0,MAX_KEY,def_key,ss_keys}, // key to move backward
   {"key_mlook",       {&key_mlook},           {'\\'},
    0,MAX_KEY,def_key,ss_keys}, // key to move backward
+  {"key_novert",      {&key_novert},          {0}  ,
+   0,MAX_KEY,def_key,ss_keys}, // key to toggle novert mode
   {"key_menu_right",  {&key_menu_right},     {KEYD_RIGHTARROW},// phares 3/7/98
    0,MAX_KEY,def_key,ss_keys}, // key to move right in a menu  //     |
   {"key_menu_left",   {&key_menu_left},      {KEYD_LEFTARROW} ,//     V
@@ -1017,6 +1019,8 @@ default_t defaults[] =
    def_int,ss_stat},
 
   {"movement_mouselook", {&movement_mouselook},  {0},0,1,
+   def_bool,ss_stat},
+  {"movement_mousenovert", {&movement_mousenovert},  {0},0,1,
    def_bool,ss_stat},
   {"movement_maxviewpitch", {&movement_maxviewpitch},  {90},0,90,
    def_int,ss_stat},
