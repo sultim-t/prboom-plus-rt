@@ -155,6 +155,7 @@ extern int map_overlay_pos_y;
 extern int map_overlay_pos_width;
 extern int map_overlay_pos_height;
 extern int map_type;
+void M_ChangeMapGridSize(void);
 void M_ChangeMapTextured(void);
 void M_ChangeMapMultisamling(void);
 

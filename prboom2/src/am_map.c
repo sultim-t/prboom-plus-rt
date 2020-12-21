@@ -1207,7 +1207,17 @@ static void AM_drawGrid(int color)
   mline_t ml;
   fixed_t minlen, extx, exty;
   fixed_t minx, miny;
-  int gridsize = map_grid_size << MAPBITS;
+  fixed_t gridsize = map_grid_size << MAPBITS;
+  
+  if(map_grid_size == -1)
+  {
+    fixed_t oprtimal_gridsize = m_h / 16;
+    gridsize = 8;
+    while (gridsize < oprtimal_gridsize)
+      gridsize <<= 1;
+    if (gridsize - oprtimal_gridsize > oprtimal_gridsize - (gridsize >> 1))
+      gridsize >>= 1;
+  }
 
   // [RH] Calculate a minimum for how long the grid lines should be so that
   // they cover the screen at any rotation.
@@ -2183,6 +2193,14 @@ static void AM_drawCrosshair(int color)
   AM_SetFPointFloatValue(&line.a);
   AM_SetFPointFloatValue(&line.b);
   V_DrawLine(&line, color);
+}
+
+void M_ChangeMapGridSize(void)
+{
+  if (map_grid_size > 0)
+  {
+    map_grid_size = MAX(map_grid_size, 8);
+  }
 }
 
 void M_ChangeMapTextured(void)
