@@ -1,22 +1,23 @@
 # PrBoom-Plus WAD creation tool
 
-set(RDATAWAD_SOURCES
-    rd_main.c
-    rd_util.c
-    rd_util.h
-    rd_output.c
-    rd_output.h
-    rd_sound.c
-    rd_sound.h
-    rd_palette.c
-    rd_palette.h
-    rd_graphic.c
-    rd_graphic.h
-)
+if(NOT CMAKE_CROSSCOMPILING)
+    add_executable(rdatawad 
+        rd_main.c
+        rd_util.c
+        rd_util.h
+        rd_output.c
+        rd_output.h
+        rd_sound.c
+        rd_sound.h
+        rd_palette.c
+        rd_palette.h
+        rd_graphic.c
+        rd_graphic.h
+    )
+    target_include_directories(rdatawad PRIVATE ${CMAKE_BINARY_DIR})
 
-add_executable(rdatawad ${RDATAWAD_SOURCES})
-target_include_directories(rdatawad PRIVATE ${CMAKE_BINARY_DIR})
-
+    set(CROSS_EXPORTS ${CROSS_EXPORTS} rdatawad PARENT_SCOPE)
+endif()
 
 # PrBoom-Plus internal WAD
 

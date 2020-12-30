@@ -182,6 +182,21 @@ else()
     )
 endif()
 
+# Support cross compiling
+option(FORCE_CROSSCOMPILE "Enable cross-compilation" OFF)
+if(FORCE_CROSSCOMPILE)
+    set(CMAKE_CROSSCOMPILING ON)
+endif()
+
+if(CMAKE_CROSSCOMPILING)
+    set(IMPORT_EXECUTABLES "IMPORTFILE-NOTFOUND" CACHE FILEPATH "Export file from native build")
+    include(${IMPORT_EXECUTABLES})
+else()
+    if(NOT CROSS_EXPORTS)
+        set(CROSS_EXPORTS "")
+    endif()
+endif()
+
 set(PRBOOM_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 set(WAD_DATA prboom-plus.wad)
@@ -190,3 +205,7 @@ set(WAD_DATA_PATH "${PRBOOM_OUTPUT_PATH}/${WAD_DATA}")
 add_subdirectory(data)
 add_subdirectory(doc)
 add_subdirectory(src)
+
+if(NOT CMAKE_CROSSCOMPILING)
+    export(TARGETS ${CROSS_EXPORTS} FILE "${CMAKE_BINARY_DIR}/ImportExecutables.cmake")
+endif()
