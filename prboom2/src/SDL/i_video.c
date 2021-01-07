@@ -133,7 +133,7 @@ int             leds_always_off = 0; // Expected by m_misc, not relevant
 extern int     usemouse;        // config file var
 static dboolean mouse_enabled; // usemouse, but can be overriden by -nomouse
 
-int I_GetModeFromString(const char *modestr);
+video_mode_t I_GetModeFromString(const char *modestr);
 
 /////////////////////////////////////////////////////////////////////////////////
 // Keyboard handling
@@ -645,7 +645,6 @@ void I_InitBuffersRes(void)
 
 #define MAX_RESOLUTIONS_COUNT 128
 const char *screen_resolutions_list[MAX_RESOLUTIONS_COUNT] = {NULL};
-const char *screen_resolution_lowest;
 const char *screen_resolution = NULL;
 
 //
@@ -669,6 +668,17 @@ void I_GetScreenResolution(void)
     }
   }
 }
+
+// make sure the canonical resolutions are always available
+static const struct {
+  const int w, h;
+} canonicals[] = {
+  {640, 480}, // Doom 95
+  {640, 400}, // MBF
+  {320, 240}, // Doom 95
+  {320, 200}, // Vanilla Doom
+};
+static const int num_canonicals = sizeof(canonicals)/sizeof(*canonicals);
 
 //
 // I_FillScreenResolutionsList
@@ -701,23 +711,29 @@ static void I_FillScreenResolutionsList(void)
   list_size = 0;
   current_resolution_index = -1;
 
+  // on success, SDL_GetNumDisplayModes() always returns at least 1
   if (count > 0)
   {
-    count = MIN(count, MAX_RESOLUTIONS_COUNT - 2);
+    // -2 for the desired resolution and for NULL
+    count = MIN(count, MAX_RESOLUTIONS_COUNT - 2 - num_canonicals);
 
-    for(i = count - 1; i >= 0; i--)
+    for(i = count - 1 + num_canonicals; i >= 0; i--)
     {
       int in_list = false;
 
-      SDL_GetDisplayMode(display_index, i, &mode);
+      // make sure the canonical resolutions are always available
+      if (i > count - 1)
+      {
+        mode.w = canonicals[i - count].w;
+        mode.h = canonicals[i - count].h;
+      }
+      else
+      {
+        SDL_GetDisplayMode(display_index, i, &mode);
+      }
 
       doom_snprintf(mode_name, sizeof(mode_name), "%dx%d", mode.w, mode.h);
 
-      if (i == count - 1)
-      {
-        screen_resolution_lowest = strdup(mode_name);
-      }
-      
       for(j = 0; j < list_size; j++)
       {
         if (!strcmp(mode_name, screen_resolutions_list[j]))
@@ -1098,7 +1114,7 @@ void I_InitGraphics(void)
   }
 }
 
-int I_GetModeFromString(const char *modestr)
+video_mode_t I_GetModeFromString(const char *modestr)
 {
   video_mode_t mode;
 
@@ -1183,7 +1199,7 @@ void I_UpdateVideoMode(void)
   // running.  This feature is disabled on OS X, as it adds an ugly
   // scroll handle to the corner of the screen.
 #ifndef MACOSX
-  if (!desired_fullscreen)
+  if (!desired_fullscreen && V_GetMode() != VID_MODEGL)
     init_flags |= SDL_WINDOW_RESIZABLE;
 #endif
 
