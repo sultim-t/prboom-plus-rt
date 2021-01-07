@@ -1247,7 +1247,11 @@ void I_UpdateVideoMode(void)
       init_flags);
     sdl_renderer = SDL_CreateRenderer(sdl_window, -1, flags);
 
-    SDL_RenderSetLogicalSize(sdl_renderer, REAL_SCREENWIDTH, REAL_SCREENHEIGHT);
+    if ((SCREENWIDTH == 320 && SCREENHEIGHT == 200) ||
+        (SCREENWIDTH == 640 && SCREENHEIGHT == 400))
+      SDL_RenderSetLogicalSize(sdl_renderer, REAL_SCREENWIDTH, 6*REAL_SCREENHEIGHT/5);
+    else
+      SDL_RenderSetLogicalSize(sdl_renderer, REAL_SCREENWIDTH, REAL_SCREENHEIGHT);
 
     screen = SDL_CreateRGBSurface(0, SCREENWIDTH, SCREENHEIGHT, V_GetNumPixelBits(), 0, 0, 0, 0);
     buffer = SDL_CreateRGBSurface(0, REAL_SCREENWIDTH, REAL_SCREENHEIGHT, 32, 0, 0, 0, 0);
@@ -1520,7 +1524,4 @@ void UpdateGrab(void)
 
 static void ApplyWindowResize(SDL_Event *resize_event)
 {
-  int w = resize_event->window.data1;
-  int h = resize_event->window.data2;
-  SDL_RenderSetLogicalSize(sdl_renderer, w, w * REAL_SCREENHEIGHT / REAL_SCREENWIDTH);
 }
