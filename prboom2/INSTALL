@@ -42,7 +42,7 @@ Basic Installation (ZIP, tarball, Git)
      install GNU make, and then use it instead of make for these
      instructions. I have tested BSD pmake and it works fine.
 
-  4. Type `make install-strip' as root, to install the programs, data files
+  4. Type `make install/strip' as root, to install the programs, data files
      and man pages for PrBoom. If you don't have root access on the machine,
      you should ask the syadmin to do this and the next step for you.
      
