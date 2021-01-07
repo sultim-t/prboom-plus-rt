@@ -1249,9 +1249,15 @@ void I_UpdateVideoMode(void)
 
     if ((SCREENWIDTH == 320 && SCREENHEIGHT == 200) ||
         (SCREENWIDTH == 640 && SCREENHEIGHT == 400))
+    {
+      SDL_SetWindowMinimumSize(sdl_window, REAL_SCREENWIDTH, 6*REAL_SCREENHEIGHT/5);
       SDL_RenderSetLogicalSize(sdl_renderer, REAL_SCREENWIDTH, 6*REAL_SCREENHEIGHT/5);
+    }
     else
+    {
+      SDL_SetWindowMinimumSize(sdl_window, REAL_SCREENWIDTH, REAL_SCREENHEIGHT);
       SDL_RenderSetLogicalSize(sdl_renderer, REAL_SCREENWIDTH, REAL_SCREENHEIGHT);
+    }
 
     screen = SDL_CreateRGBSurface(0, SCREENWIDTH, SCREENHEIGHT, V_GetNumPixelBits(), 0, 0, 0, 0);
     buffer = SDL_CreateRGBSurface(0, REAL_SCREENWIDTH, REAL_SCREENHEIGHT, 32, 0, 0, 0, 0);
