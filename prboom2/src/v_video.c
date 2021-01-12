@@ -1034,10 +1034,6 @@ V_DrawLineWu_f V_DrawLineWu = NULL_DrawLineWu;
 // V_InitMode
 //
 void V_InitMode(video_mode_t mode) {
-#ifndef GL_DOOM
-  if (mode == VID_MODEGL)
-    mode = VID_MODE8;
-#endif
   switch (mode) {
     case VID_MODE8:
       lprintf(LO_INFO, "V_InitMode: using 8 bit video mode\n");

@@ -1000,6 +1000,12 @@ void I_InitScreenResolution(void)
   {
     mode = (video_mode_t)I_GetModeFromString(myargv[i+1]);
   }
+#ifndef GL_DOOM
+  if (mode == VID_MODEGL)
+  {
+    mode = (video_mode_t)I_GetModeFromString(default_videomode = "8bit");
+  }
+#endif
   
   V_InitMode(mode);
 
