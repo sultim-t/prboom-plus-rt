@@ -131,7 +131,7 @@ Main Menu\Options\General
  SOFT RENDER                      ; Settings that apply only with the software renderer
   Screen Multiple Factor (1-none) ; Screen Multiple system for doubling up the screen 
                                     (size of pixel) by 2x, 3x or 4x.
-  Interlaced Scanning             ; Interlaced Scanning mode for Screen Multiple system.
+  Integer Screen Scaling          ; Force integer scales for resolution-independent rendering.
 
  EMULATION                      ; Emulation of Doom2.exe's behaviour in case of memory overflows
                                   Note that by default the warnings are turned off, and the 

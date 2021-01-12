@@ -1013,13 +1013,13 @@ unsigned char *gld_ReadScreen(void)
 
   int i, size;
 
-  size = REAL_SCREENWIDTH * 3;
+  size = SCREENWIDTH * 3;
   if (!buffer || size > buffer_size)
   {
     buffer_size = size;
     buffer = realloc (buffer, size);
   }
-  size = REAL_SCREENWIDTH * REAL_SCREENHEIGHT * 3;
+  size = SCREENWIDTH * SCREENHEIGHT * 3;
   if (!scr || size > scr_size)
   {
     scr_size = size;
@@ -1033,18 +1033,18 @@ unsigned char *gld_ReadScreen(void)
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
     
     glFlush();
-    glReadPixels(0, 0, REAL_SCREENWIDTH, REAL_SCREENHEIGHT, GL_RGB, GL_UNSIGNED_BYTE, scr);
+    glReadPixels(0, 0, SCREENWIDTH, SCREENHEIGHT, GL_RGB, GL_UNSIGNED_BYTE, scr);
     
     glPixelStorei(GL_PACK_ALIGNMENT, pack_aligment);
 
-    gld_ApplyGammaRamp(scr, REAL_SCREENWIDTH * 3, REAL_SCREENWIDTH, REAL_SCREENHEIGHT);
+    gld_ApplyGammaRamp(scr, SCREENWIDTH * 3, SCREENWIDTH, SCREENHEIGHT);
 
-    for (i=0; i<REAL_SCREENHEIGHT/2; i++)
+    for (i=0; i<SCREENHEIGHT/2; i++)
     {
-      memcpy(buffer, &scr[i*REAL_SCREENWIDTH*3], REAL_SCREENWIDTH*3);
-      memcpy(&scr[i*REAL_SCREENWIDTH*3],
-        &scr[(REAL_SCREENHEIGHT-(i+1))*REAL_SCREENWIDTH*3], REAL_SCREENWIDTH*3);
-      memcpy(&scr[(REAL_SCREENHEIGHT-(i+1))*REAL_SCREENWIDTH*3], buffer, REAL_SCREENWIDTH*3);
+      memcpy(buffer, &scr[i*SCREENWIDTH*3], SCREENWIDTH*3);
+      memcpy(&scr[i*SCREENWIDTH*3],
+        &scr[(SCREENHEIGHT-(i+1))*SCREENWIDTH*3], SCREENWIDTH*3);
+      memcpy(&scr[(SCREENHEIGHT-(i+1))*SCREENWIDTH*3], buffer, SCREENWIDTH*3);
     }
   }
 
@@ -1059,8 +1059,8 @@ GLvoid gld_Set2DMode(void)
   glLoadIdentity();
   glOrtho(
     (GLdouble) 0,
-    (GLdouble) REAL_SCREENWIDTH,
-    (GLdouble) REAL_SCREENHEIGHT,
+    (GLdouble) SCREENWIDTH,
+    (GLdouble) SCREENHEIGHT,
     (GLdouble) 0,
     (GLdouble) -1.0,
     (GLdouble) 1.0

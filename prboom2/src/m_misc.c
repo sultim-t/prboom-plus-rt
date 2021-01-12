@@ -1001,6 +1001,8 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"render_screen_multiply", {&render_screen_multiply},  {1},1,4,
    def_int,ss_stat},
+  {"integer_scaling", {&integer_scaling},  {0},0,1,
+   def_bool,ss_stat},
   {"render_aspect", {&render_aspect},  {0},0,4,
    def_int,ss_stat},
   {"render_doom_lightmaps", {&render_doom_lightmaps},  {0},0,1,

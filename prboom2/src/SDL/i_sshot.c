@@ -59,8 +59,8 @@ void I_UpdateRenderSize(void)
 {
 	if (V_GetMode() == VID_MODEGL)
 	{
-		renderW = REAL_SCREENWIDTH;
-		renderH = REAL_SCREENHEIGHT;
+		renderW = SCREENWIDTH;
+		renderH = SCREENHEIGHT;
 	}
 	else
 	{

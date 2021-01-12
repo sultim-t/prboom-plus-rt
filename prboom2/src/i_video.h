@@ -53,6 +53,7 @@
 extern int render_vsync;
 extern int render_screen_multiply;
 extern int screen_multiply;
+extern int integer_scaling;
 
 extern SDL_Window *sdl_window;
 extern SDL_Renderer *sdl_renderer;
