@@ -76,9 +76,7 @@
 #include "r_sky.h"
 
 //e6y
-#ifdef GL_DOOM
 #include "gl_struct.h"
-#endif
 #include "g_overflow.h"
 #include "e6y.h"
 #ifdef USE_WINDOWS_LAUNCHER
@@ -208,6 +206,68 @@ extern int gl_fog_color;
 extern int gl_finish;
 extern int gl_clear;
 extern int gl_ztrick;
+#else
+// dummy variables for !GL_DOOM
+static int gl_nearclip;
+extern int gl_colorbuffer_bits;
+extern int gl_depthbuffer_bits;
+static int gl_texture_filter;
+static int gl_sprite_filter;
+static int gl_patch_filter;
+static int gl_texture_filter_anisotropic;
+static const char *gl_tex_format_string;
+static int gl_sky_detail;
+static int gl_use_paletted_texture;
+static int gl_use_shared_texture_palette;
+static int gl_compatibility;
+static int gl_ext_texture_filter_anisotropic_default;
+static int gl_arb_texture_non_power_of_two_default;
+static int gl_arb_multitexture_default;
+static int gl_arb_texture_compression_default;
+static int gl_ext_framebuffer_object_default;
+static int gl_ext_packed_depth_stencil_default;
+static int gl_ext_blend_color_default;
+static int gl_use_stencil_default;
+static int gl_ext_arb_vertex_buffer_object_default;
+static int gl_arb_pixel_buffer_object_default;
+static int gl_arb_shader_objects_default;
+static int gl_motionblur;
+static int gl_fog;
+static int gl_fog_color;
+static int gl_finish;
+static int gl_clear;
+static int gl_ztrick;
+
+// dummy variables for !GL_DOOM declared in gl_struct.h
+int gl_use_display_lists;
+int gl_sprite_offset_default;
+int gl_sprite_blend;
+int gl_mask_sprite_threshold;
+int gl_skymode;
+int gl_allow_detail_textures;
+int gl_detail_maxdist;
+spriteclipmode_t gl_spriteclip;
+int gl_spriteclip_threshold;
+int gl_sprites_frustum_culling;
+int gl_boom_colormaps_default;
+int gl_hires_24bit_colormap;
+int gl_texture_internal_hires;
+int gl_texture_external_hires;
+int gl_hires_override_pwads;
+const char *gl_texture_hires_dir;
+int gl_texture_hqresize;
+int gl_texture_hqresize_textures;
+int gl_texture_hqresize_sprites;
+int gl_texture_hqresize_patches;
+motion_blur_params_t motion_blur;
+gl_lightmode_t gl_lightmode_default;
+int gl_light_ambient;
+int useglgamma;
+int gl_color_mip_levels;
+simple_shadow_params_t simple_shadows;
+int gl_shadows_maxdist;
+int gl_shadows_factor;
+int gl_blend_animations;
 
 #endif
 
@@ -391,15 +451,7 @@ default_t defaults[] =
   {"mus_opl_gain",{&mus_opl_gain},{50},0,1000,def_int,ss_none}, // NSM  fine tune opl output level
 
   {"Video settings",{NULL},{0},UL,UL,def_none,ss_none},
-#ifdef GL_DOOM
-  #ifdef _MSC_VER
-    {"videomode",{NULL, &default_videomode},{0,"OpenGL"},UL,UL,def_str,ss_none},
-  #else
-    {"videomode",{NULL, &default_videomode},{0,"8"},UL,UL,def_str,ss_none},
-  #endif
-#else
-  {"videomode",{NULL, &default_videomode},{0,"8"},UL,UL,def_str,ss_none},
-#endif
+  {"videomode",{NULL, &default_videomode},{0,"8bit"},UL,UL,def_str,ss_none},
   /* 640x480 default resolution */
   {"screen_resolution",{NULL, &screen_resolution},{0,"640x480"},UL,UL,def_str,ss_none},
   {"use_fullscreen",{&use_fullscreen},{0},0,1, /* proff 21/05/2000 */
@@ -435,7 +487,6 @@ default_t defaults[] =
   {"patch_edges",{(int*)&drawvars.patch_edges},{RDRAW_MASKEDCOLUMNEDGE_SQUARE},
    RDRAW_MASKEDCOLUMNEDGE_SQUARE, RDRAW_MASKEDCOLUMNEDGE_SLOPED, def_int,ss_none},
 
-#ifdef GL_DOOM
   {"OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"gl_compatibility", {&gl_compatibility},  {0},0,1,
    def_bool,ss_stat},
@@ -501,7 +552,6 @@ default_t defaults[] =
    def_bool,ss_none},
   {"gl_use_shared_texture_palette",{&gl_use_shared_texture_palette},{0},0,1,
    def_bool,ss_none},
-#endif
 
   {"Mouse settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"use_mouse",{&usemouse},{1},0,1,
@@ -639,10 +689,8 @@ default_t defaults[] =
    0,MAX_KEY,def_key,ss_keys}, // key to toggle rotating the automap to match the player's orientation
   {"key_map_overlay", {&key_map_overlay},     {'o'}           ,
    0,MAX_KEY,def_key,ss_keys}, // key to toggle overlaying the automap on the rendered display
-#ifdef GL_DOOM
   {"key_map_textured", {&key_map_textured},   {0}             ,
    0,MAX_KEY,def_key,ss_keys}, // key to toggle textured automap
-#endif
   {"key_reverse",     {&key_reverse},         {'/'}           ,
    0,MAX_KEY,def_key,ss_keys}, // key to spin 180 instantly
   {"key_zoomin",      {&key_zoomin},          {'='}           ,
@@ -798,14 +846,8 @@ default_t defaults[] =
    def_int,ss_auto},
   {"map_wheel_zoom", {&map_wheel_zoom}, {1},0,1,
    def_bool,ss_auto},
-#ifdef GL_DOOM
-  {"map_use_multisamling", {&map_use_multisamling}, {1},0,1,
-   def_bool,ss_auto},
-#else
   {"map_use_multisamling", {&map_use_multisamling}, {0},0,1,
    def_bool,ss_auto},
-#endif
-#ifdef GL_DOOM
   {"map_textured", {&map_textured}, {1},0,1,
    def_bool,ss_auto},
   {"map_textured_trans", {&map_textured_trans}, {100},0,100,
@@ -814,7 +856,6 @@ default_t defaults[] =
    def_int,ss_auto},
   {"map_lines_overlay_trans", {&map_lines_overlay_trans}, {100},0,100,
    def_int,ss_auto},
-#endif
   {"map_overlay_pos_x", {&map_overlay_pos_x}, {0},0,319,
    def_int,ss_auto},
   {"map_overlay_pos_y", {&map_overlay_pos_y}, {0},0,199,
@@ -965,7 +1006,6 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"screenshot_dir", {NULL,&screenshot_dir}, {0,""},UL,UL,
    def_str,ss_none},
-#ifdef GL_DOOM
   {"health_bar", {&health_bar}, {0},0,1,
    def_bool,ss_stat},
   {"health_bar_full_length", {&health_bar_full_length}, {1},0,1,
@@ -976,7 +1016,6 @@ default_t defaults[] =
    def_int,ss_stat},
   {"health_bar_green", {&health_bar_green}, {0},0,100,
    def_int,ss_stat},
-#endif
 
   // NSM
   {"Video capture encoding settings",{NULL},{0},UL,UL,def_none,ss_none},
@@ -1031,7 +1070,6 @@ default_t defaults[] =
   {"movement_mouseinvert", {&movement_mouseinvert},  {0},0,1,
    def_bool,ss_stat},
 
-#ifdef GL_DOOM
   {"Prboom-plus OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"gl_allow_detail_textures", {&gl_allow_detail_textures},  {1},0,1,
    def_bool,ss_stat},
@@ -1100,7 +1138,7 @@ default_t defaults[] =
    def_int,ss_none},
   {"gl_blend_animations",{&gl_blend_animations},{0},0,1,
    def_bool,ss_none},
-#endif
+
   {"Prboom-plus emulation settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"overrun_spechit_warn", {&overflows[OVERFLOW_SPECHIT].warn},  {0},0,1,
    def_bool,ss_stat},
@@ -1500,11 +1538,7 @@ void M_LoadDefaults (void)
 
   // check for a custom default file
 
-#if ((defined GL_DOOM) && (defined _MSC_VER))
-#define BOOM_CFG "glboom-plus.cfg"
-#else
 #define BOOM_CFG "prboom-plus.cfg"
-#endif
 
   i = M_CheckParm ("-config");
   if (i && i < myargc-1)
