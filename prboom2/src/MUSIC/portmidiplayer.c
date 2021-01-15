@@ -394,6 +394,16 @@ static void pm_stop (void)
   {
     writeevent (when, MIDI_EVENT_CONTROLLER, i, 123, 0); // all notes off
     writeevent (when, MIDI_EVENT_CONTROLLER, i, 121, 0); // reset all parameters
+
+    // RPN sequence to adjust pitch bend range (RPN value 0x0000)
+    writeevent (when, MIDI_EVENT_CONTROLLER, i, 0x65, 0x00);
+    writeevent (when, MIDI_EVENT_CONTROLLER, i, 0x64, 0x00);
+    // reset pitch bend range to central tuning +/- 2 semitones and 0 cents
+    writeevent (when, MIDI_EVENT_CONTROLLER, i, 0x06, 0x02);
+    writeevent (when, MIDI_EVENT_CONTROLLER, i, 0x26, 0x00);
+    // end of RPN sequence
+    writeevent (when, MIDI_EVENT_CONTROLLER, i, 0x64, 0x7f);
+    writeevent (when, MIDI_EVENT_CONTROLLER, i, 0x65, 0x7f);
   }
   // abort any partial sysex
   sysexbufflen = 0;
