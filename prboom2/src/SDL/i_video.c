@@ -318,10 +318,11 @@ while (SDL_PollEvent(Event))
   case SDL_MOUSEMOTION:
     if (mouse_enabled && window_focused)
     {
+      int xrel, yrel;
       event.type = ev_mouse;
-      event.data1 = I_SDLtoDoomMouseState(Event->motion.state);
-      event.data2 = Event->motion.xrel << 4;
-      event.data3 = -Event->motion.yrel << 4;
+      event.data1 = I_SDLtoDoomMouseState(SDL_GetRelativeMouseState(&xrel, &yrel));
+      event.data2 = xrel << 4;
+      event.data3 = -yrel << 4;
       D_PostEvent(&event);
     }
     break;
