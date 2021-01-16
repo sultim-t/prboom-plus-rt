@@ -297,7 +297,7 @@ static const struct
   { wp_bfg,          wp_bfg }
 };
 
-static int mousearray[6];
+static int mousearray[MAX_MOUSE_BUTTONS + 1];
 static int *mousebuttons = &mousearray[1];    // allow [-1]
 
 // mouse values are used once
@@ -347,6 +347,17 @@ static inline signed char fudgef(signed char b)
   if (++c & 0x1f) return b;
   b |= 1; if (b>2) b-=2;*/
   return b;
+}
+
+static void SetMouseButtons(unsigned int buttons_mask)
+{
+  int i;
+
+  for (i = 0; i < MAX_MOUSE_BUTTONS; ++i)
+  {
+    unsigned int button_on = (buttons_mask & (1 << i)) != 0;
+    mousebuttons[i] = button_on;
+  }
 }
 
 void G_SetSpeed(void)
@@ -980,11 +991,7 @@ dboolean G_Responder (event_t* ev)
       return false;   // always let key up events filter down
 
     case ev_mouse:
-      mousebuttons[0] = ev->data1 & 1;
-      mousebuttons[1] = ev->data1 & 2;
-      mousebuttons[2] = ev->data1 & 4;
-      mousebuttons[3] = ev->data1 & 8;
-      mousebuttons[4] = ev->data1 & 16;
+      SetMouseButtons(ev->data1);
       /*
        * bmead@surfree.com
        * Modified by Barry Mead after adding vastly more resolution

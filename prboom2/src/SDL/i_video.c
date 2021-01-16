@@ -221,6 +221,9 @@ int I_SDLtoDoomMouseState(Uint32 buttonstate)
       | (buttonstate & SDL_BUTTON(3) ? 4 : 0)
       | (buttonstate & SDL_BUTTON(6) ? 8 : 0)
       | (buttonstate & SDL_BUTTON(7) ? 16 : 0)
+      | (buttonstate & SDL_BUTTON(4) ? 32 : 0)
+      | (buttonstate & SDL_BUTTON(5) ? 64 : 0)
+      | (buttonstate & SDL_BUTTON(8) ? 128 : 0)
       ;
 }
 
