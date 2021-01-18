@@ -376,9 +376,15 @@ int G_ReloadLevel(void)
 
   if ((gamestate == GS_LEVEL) &&
       !deathmatch && !netgame &&
-      !demorecording && !demoplayback &&
+      !democontinue && !demoplayback &&
       !menuactive)
   {
+    // restart demos from the map they were started
+    if (demorecording)
+    {
+      gameepisode = startepisode;
+      gamemap = startmap;
+    }
     G_DeferedInitNew(gameskill, gameepisode, gamemap);
     result = true;
   }

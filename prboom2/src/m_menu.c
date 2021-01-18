@@ -2476,7 +2476,7 @@ setup_menu_t keys_settings6[] =  // Key Binding screen strings
   {"CAMERA MODE"          ,S_KEY     ,m_scrn,KB_X,KB_Y+ 8*8,{&key_walkcamera}},
   {"JOIN"                 ,S_KEY     ,m_scrn,KB_X,KB_Y+ 9*8,{&key_demo_jointogame}},
   {"MISC"                 ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y+10*8},
-  {"RESTART CURRENT MAP"  ,S_KEY     ,m_scrn,KB_X,KB_Y+ 11*8,{&key_level_restart}},
+  {"RESTART LEVEL/DEMO"   ,S_KEY     ,m_scrn,KB_X,KB_Y+ 11*8,{&key_level_restart}},
   {"NEXT LEVEL"           ,S_KEY     ,m_scrn,KB_X,KB_Y+ 12*8,{&key_nextlevel}},
 #ifdef GL_DOOM
   {"Show Alive Monsters"  ,S_KEY     ,m_scrn,KB_X,KB_Y+13*8,{&key_showalive}},

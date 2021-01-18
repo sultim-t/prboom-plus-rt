@@ -2428,12 +2428,51 @@ static skill_t d_skill;
 static int     d_episode;
 static int     d_map;
 
+static char *G_NewDemoName(const char *name)
+{
+  size_t demoname_size;
+  char *demoname;
+  FILE *fp = NULL;
+  static unsigned int j = 0;
+
+  demoname_size = strlen(name) + 11; // + 11 for "-00000.lmp\0"
+  demoname = malloc(demoname_size);
+  snprintf(demoname, demoname_size, "%s.lmp", name);
+
+  // prevent overriding demos by adding a file name suffix
+  for ( ; j <= 99999 && (fp = fopen(demoname, "rb")) != NULL; j++)
+  {
+    snprintf(demoname, demoname_size, "%s-%05d.lmp", name, j);
+    fclose(fp);
+  }
+
+  return demoname;
+}
+
+static const char *orig_demoname = NULL;
+
 void G_DeferedInitNew(skill_t skill, int episode, int map)
 {
   d_skill = skill;
   d_episode = episode;
   d_map = map;
   gameaction = ga_newgame;
+
+  // if a new game is started during demo recording, start a new demo
+  if (demorecording && orig_demoname)
+  {
+    extern int ddt_cheating;
+    char *demoname;
+
+    ddt_cheating = 0;
+    G_CheckDemoStatus();
+
+    demoname = G_NewDemoName(orig_demoname);
+    G_RecordDemo(demoname);
+    free(demoname);
+
+    basetic = gametic;
+  }
 }
 
 /* cph -
@@ -2637,6 +2676,12 @@ void G_DoNewGame (void)
   deathmatch = false;
   G_InitNew (d_skill, d_episode, d_map);
   gameaction = ga_nothing;
+
+  // if a new game is started during demo recording, start a new demo
+  if (demorecording && orig_demoname)
+  {
+    G_BeginRecording();
+  }
 
   //jff 4/26/98 wake up the status bar in case were coming out of a DM demo
   ST_Start();
@@ -2930,6 +2975,16 @@ void G_RecordDemo (const char* name)
   AddDefaultExtension(strcpy(demoname, name), ".lmp");  // 1/18/98 killough
   demorecording = true;
   
+  // the original name chosen for the demo
+  if (!orig_demoname)
+  {
+    char *ext;
+    orig_demoname = strdup(name);
+    ext = strrchr(orig_demoname, '.');
+    if (ext)
+      *ext = '\0';
+  }
+
   /* cph - Record demos straight to file
   * If file already exists, try to continue existing demo
   */
@@ -4094,6 +4149,7 @@ dboolean G_CheckDemoStatus (void)
       
       //e6y
       G_WriteDemoFooter(demofp);
+      fclose(demofp);
 
       lprintf(LO_INFO, "G_CheckDemoStatus: Demo recorded\n");
       return false;  // killough
