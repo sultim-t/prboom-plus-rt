@@ -335,7 +335,7 @@ static void cheat_kfa()
 {
   cheat_k();
   cheat_fa();
-  plyr->message = STSTR_KFAADDED;
+  plyr->message = s_STSTR_KFAADDED;
 }
 
 static void cheat_noclip()
