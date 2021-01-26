@@ -2091,6 +2091,7 @@ static void M_DrawSetting(const setup_menu_t* s)
       // Now draw the cursor
       // proff 12/6/98: Drawing of cursor changed for hi-res
       // e6y: wide-res
+      if (x + cursor_start + char_width < BASE_WIDTH)
       {
         int xx = (x+cursor_start-1), yy = y, ww = char_width, hh = 9;
         V_GetWideRect(&xx, &yy, &ww, &hh, VPT_STRETCH);
