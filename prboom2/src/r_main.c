@@ -806,6 +806,12 @@ void R_ExecuteSetViewSize (void)
   pspritexscale = (wide_centerx << FRACBITS) / 160;
   pspriteyscale = (((cheight*viewwidth)/SCREENWIDTH) << FRACBITS) / 200;
   pspriteiscale = FixedDiv (FRACUNIT, pspritexscale);
+  // [FG] make sure that the product of the weapon sprite scale factor
+  //      and its reciprocal is always at least FRACUNIT to
+  //      fix garbage lines at the top of weapon sprites
+  pspriteiyscale = FixedDiv (FRACUNIT, pspriteyscale);
+  while (FixedMul(pspriteiyscale, pspriteyscale) < FRACUNIT)
+    pspriteiyscale++;
 
   //e6y: added for GL
   pspritexscale_f = (float)wide_centerx/160.0f;
