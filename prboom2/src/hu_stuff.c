@@ -1258,7 +1258,7 @@ int HU_GetArmorColor(int armor, int def)
     result = CR_BLUE;
   else if (plr->armortype == 1)
     result = CR_GREEN;
-  else if (plr->armortype == 0)
+  else
     result = CR_RED;
   }
   else

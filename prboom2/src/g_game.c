@@ -3277,6 +3277,7 @@ void G_BeginRecording (void)
 
     if (umapinfo_loaded)
     {
+      int mapname_len;
       // [XA] get the map name from gamemapinfo if the
       // starting map has a UMAPINFO definition. if not,
       // fall back to the usual MAPxx/ExMy default.
@@ -3294,7 +3295,7 @@ void G_BeginRecording (void)
         snprintf(mapname, 9, "E%dM%d", gameepisode, gamemap);
       }
 
-      int mapname_len = strnlen(gamemapinfo ? gamemapinfo->mapname : mapname, 9);
+      mapname_len = strnlen(gamemapinfo ? gamemapinfo->mapname : mapname, 9);
 
       // ano - note that the format has each length by each string
       // as opposed to a table of lengths
@@ -3637,7 +3638,7 @@ const byte* G_ReadDemoHeader(const byte *demo_p, size_t size)
 const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int params)
 {
   skill_t skill;
-  int i, episode, map, extension_version;
+  int i, episode = 1, map = 0, extension_version;
 
   int using_umapinfo = 0;
 

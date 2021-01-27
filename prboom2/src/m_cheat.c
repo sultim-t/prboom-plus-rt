@@ -374,6 +374,7 @@ struct MapEntry* G_LookupMapinfo(int gameepisode, int gamemap);
 static void cheat_clev(char buf[3])
 {
   int epsd, map;
+  struct MapEntry* entry;
 
   if (gamemode == commercial)
     {
@@ -387,7 +388,7 @@ static void cheat_clev(char buf[3])
     }
 
   // First check if we have a mapinfo entry for the requested level. If this is present the remaining checks should be skipped.
-  struct MapEntry* entry = G_LookupMapinfo(epsd, map);
+  entry = G_LookupMapinfo(epsd, map);
   if (!entry)
   {
 

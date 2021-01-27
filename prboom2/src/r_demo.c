@@ -335,7 +335,7 @@ void W_AddLump(wadtbl_t *wadtbl, const char *name, const byte* data, size_t size
   {
     wadtbl->lumps = realloc(wadtbl->lumps, (lumpnum + 1) * sizeof(wadtbl->lumps[0]));
 
-    strncpy(wadtbl->lumps[lumpnum].name, name, 8);
+    memcpy(wadtbl->lumps[lumpnum].name, name, 8);
     wadtbl->lumps[lumpnum].size = size;
     wadtbl->lumps[lumpnum].filepos = wadtbl->header.infotableofs;
 
