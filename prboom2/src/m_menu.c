@@ -3532,6 +3532,7 @@ enum
   compat_ouchface,
   compat_maxhealth,
   compat_translucency,
+  compat_skytransfers,
 };
 
 setup_menu_t comp_settings1[] =  // Compatibility Settings screen #1
@@ -3640,6 +3641,9 @@ setup_menu_t comp_settings3[] =  // Compatibility Settings screen #3
    C_Y + compat_maxhealth * COMP_SPC, {"comp_maxhealth"}},
   {"No predefined translucency for some things", S_YESNO, m_null, C_X,
    C_Y + compat_translucency * COMP_SPC, {"comp_translucency"}},
+   // [FG]
+  {"allow MBF sky transfers in all complevels", S_YESNO, m_null, C_X,
+   C_Y + compat_skytransfers * COMP_SPC, {"comp_skytransfers"}},
   {"<- PREV", S_SKIP|S_PREV, m_null, KB_PREV, C_Y+C_NEXTPREV,{comp_settings2}},
   {0,S_SKIP|S_END,m_null}
 };

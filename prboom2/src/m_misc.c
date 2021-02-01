@@ -416,6 +416,8 @@ default_t defaults[] =
   {"comp_ouchface",{&default_comp[comp_ouchface]},{0},0,1,def_bool,ss_comp,&comp[comp_ouchface]},
   {"comp_maxhealth",{&default_comp[comp_maxhealth]},{0},0,1,def_bool,ss_comp,&comp[comp_maxhealth]},
   {"comp_translucency",{&default_comp[comp_translucency]},{0},0,1,def_bool,ss_comp,&comp[comp_translucency]},
+  // [FG] allow MBF sky transfers in all complevels
+  {"comp_skytransfers",{&comp_skytransfers},{0},0,1,def_bool,ss_comp},
 
   {"Sound settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"snd_pcspeaker",{&snd_pcspeaker},{0}, 0, 1, def_bool,ss_none},

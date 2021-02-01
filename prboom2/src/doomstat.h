@@ -136,6 +136,9 @@ enum {
 extern int comp[COMP_TOTAL], default_comp[COMP_TOTAL];
 extern int /*comperr[COMPERR_NUM], */default_comperr[COMPERR_NUM];
 
+// [FG] allow MBF sky transfers in all complevels
+extern int comp_skytransfers;
+
 // -------------------------------------------
 // Language.
 extern  Language_t   language;
