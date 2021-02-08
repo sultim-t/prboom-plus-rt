@@ -303,14 +303,14 @@ while (SDL_PollEvent(Event))
     {
       event.type = ev_keydown;
       event.data1 = KEYD_MWHEELUP;
-      mwheeldowntic = gametic;
+      mwheeluptic = gametic;
       D_PostEvent(&event);
     }
     else if (Event->wheel.y < 0)
     {
       event.type = ev_keydown;
       event.data1 = KEYD_MWHEELDOWN;
-      mwheeluptic = gametic;
+      mwheeldowntic = gametic;
       D_PostEvent(&event);
     }
   }
