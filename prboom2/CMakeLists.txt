@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 
-project("PrBoom-Plus" VERSION 2.5.1.7)
+project("PrBoom-Plus"
+    VERSION 2.5.1.7
+    HOMEPAGE_URL "https://github.com/coelckers/prboom-plus")
 
 # Set a default build type if none was specified
 set(default_build_type "RelWithDebInfo")
@@ -34,6 +36,7 @@ set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../depen
 set(PACKAGE_NAME "${PROJECT_NAME}")
 set(PACKAGE_TARNAME "prboom-plus")
 set(PACKAGE_VERSION "${PROJECT_VERSION}")
+set(PACKAGE_HOMEPAGE "${PROJECT_HOMEPAGE_URL}")
 set(PACKAGE_STRING "${PROJECT_NAME} ${PROJECT_VERSION}")
 set(CMAKE_INSTALL_DOCDIR "${CMAKE_INSTALL_DATAROOTDIR}/doc/${PACKAGE_TARNAME}")
 
