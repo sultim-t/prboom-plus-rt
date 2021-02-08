@@ -1,0 +1,566 @@
+This file shows a history of changes between PrBoom versions since v2.1.0.
+For historical reference, the complete LxDoom changelog follows it.
+
+Changes from v2.4.7 to v2.5.0
+- Limit the game to one CPU core on a multicore machine [prb+]
+- Fix crash when out-of-range values are used in fixed point arithmetic [prb+]
+- Allow the game to build without SDL_mixer, add --without-mixer option to
+  ./configure to force this. Music support will be disabled in this case
+- Don't set the default game skill from the new game menu
+  Instead there is an option to set it explicitly in the General menu
+- Fix the brightness of the player's weapon
+- Fix linear filtering on flats in software mode
+- Fix crash when an unknown sprite is used with a non-zero frame number
+- Restore special case for trivial maps (bug #1837422)
+- Fix screenshots in high colour screen modes - if libpng is available at
+  build time it will be used, otherwise a BMP will be saved
+- Don't process mouse input in the menus [prb+]
+- Always use Doom's main menu order to avoid bugs with Alien Vendetta [prb+]
+- Remove line of junk graphics below status bar [prb+]
+- Restore Boom friction and bobbing code [prb+]
+- Fix crash by testing for null targets in mancubus fire code pointers
+- Restore last known enemy check in Boom compatibility [prb+]
+- Animated middle textures with zero index forced [prb+]
+- Better handling of unrecognised demo formats [prb+]
+- Fix for hanging decoration disappearing in Batman Doom MAP02 [prb+]
+- Fix menu description: pain elementals are limited to 21 lost souls
+- Manual page fixes from Debian
+- Fix position of netgame player arrows on the automap in rotate mode
+- Ignore chat key presses in multiplayer demo playback and -solo-net
+- In deathmatch demo playback always draw player arrows on the automap
+- In a multiplayer demo, don't reset view to console player on a new map
+- Fix crash when MP3 music is being used and the player changes back to
+  a piece of music that's already been loaded before
+- Avoid HOM effect on large maps such as epic.wad 5 [prb+]
+- Fix sound origins on large levels [prb+]
+- Handle demos with bad or missing headers [prb+]
+- Fix the colour of player 4 (red) in multiplayer
+- Play correct player pickup sounds in multiplayer demos
+- Don't allow solids to pass through no-clipping objects in Doom [prb+]
+- Restore Dehacked's ability to set the raisestate of a mobj [prb+]
+- Handle demos with a missing end marker [prb+]
+- Ignore switches that reference unknown textures instead of exiting
+- Fix crash when resetting a menu to defaults [prb+]
+- Fix crash when trying to play demos from Boom 2.00 [prb+]
+- Fix crash in multiplayer demos when there are still sounds playing
+  on map changes (e.g. players revving chainsaws) [prb+]
+- Fix mouse clicks on the intermission screen being ignored
+- Don't eat screenshot key presses (see sf bug #1843280)
+- Detect Hexen-format maps and refuse to play them, instead of crashing
+- Fix crash when loading maps with missing player starts
+- The backs of switches must be pressable in any demo recorded by
+  Boom 2.01, even those in Boom's "compatibility" mode [prb+]
+- Force comp_doorstuck=1 in Boom 2.01 compatibility mode [prb+]
+- comp_dropoff=1 was broken in MBF compatibility mode [prb+]
+- Restore --disable-dogs but make sure it doesn't break Dehacked
+- Fix desync if the user presses pause on the intermission screen [prb+]
+- comp_666 fixed: either cyberdemon or spider can end E2M8 or E3M8;
+  killing a baron on E3M8 won't cause the level to end any more [prb+]
+- Fix broken string matching in Dehacked [prb+]
+- Passing --without-net to ./configure will compile the game without
+  network support; this may help if your platform lacks SDL_net
+- Fix crash when reloading network savegames (bug #1590350)
+- Fix bug in transparency rendering caused by doing it in two places
+- Added high color rendering
+
+Changes from v2.4.6 to v2.4.7
+- Fixed comp_soul and comp_maskedanim options not actually being optional.
+- Fixed searching for IWAD/prboom.wad (bugs #1585185, #1585600)
+- Multiple sound crash fixes (bugs #1577495, #1586800)
+- Fix for previously introduced HOM error
+- Fix frame numbering problem in MBF dehacked patches (bug #1576151)
+
+Changes from v2.4.5 to v2.4.6
+- Mac OS X: Fixed music volume slider
+- Implemented patch clipping. This fixes bug #1557501.
+- Fixed update of compatibility options after use of TNTCOMP cheat
+- Reenabled padding if short or missing reject lumps.
+  Patch #1570517 by RjY.
+- Removed unaligned memory access in r_drawflush.inl. This should fix bus
+  errors on architectures where unaligned access is forbidden and should
+  give a slight speedup on other architectures.
+- Stop right after the quit sound stops, instead of waiting three seconds
+- Fixed sound origin for switches. This is compatibility optioned.
+  Patch #1533045 by RjY.
+- Fixed "oof" sound when hitting ground while already dead
+  Patch #1532700 by RjY.
+- Ported Eternitys fix to show the "ouch" face when severly hit
+- Unified drawing functions, this speeds things up a bit and fixes most
+  artifacts on small numbers and fonts in high resolution modes.
+- Mac OS X: Add resolution and video mode (OpenGL vs software) selection to
+  launcher
+- Added rendering filters for software mode, they are configurable in a new
+  page in general settings
+- Emulate some texture composition bugs
+- Fix more common WAD bugs that can cause crashes
+- Fixed random crashes caused by use of uninitialized memory
+- Fix some demo incompatibilities caused by slime trail removal
+- Fixed crashes with WADs which use newer gl nodes or don't have any nodes
+- Automatically load gwa files with gl nodes
+- Fixed integer overrun in automap on large levels (from PrBoom+)
+
+Changes from v2.4.4 to v2.4.5
+- fix crash when saving the game in levels with lots of monsters
+  (bug introduced in 2.4.4)
+- -nodeh option to disable automatic loading of dehacked-in-wad lump
+- Unified software and opengl engine into one binary
+- Added video mode selection to menu
+- fix demo desyncs on E1M5 on x86_64 systems
+- Fullscreen setting will only take effect after game restart
+- reduce red palette translation if the menu is up, so the menu can still be read
+- screenshots now in PNG format on Linux/Unix in GL mode too
+- Added experimental -checksum option for demo playback comparison
+- Merged new internal patch (graphics) format from PrBoom 2.3
+- Mac OS X: Launcher now uses drawers instead of tabs
+- Mac OS X: Fix some longstanding Wad chooser issues
+- Mac OS X: Add a console to display text output from PrBoom
+
+Changes from v2.4.3 to v2.4.4
+- Don't fail when a texture name can't be looked up
+- Increased several limits - Thanks to entryway and RjY
+  - Increased number of sidedef limit to 65534
+  - Increased number of vertexes limit to 65535
+  - Fixed crash when crossing sectors with very big height differences
+- fix crash on E4M8
+- New command-line options for setting a window (-window) or fullscreen
+  (-nowindow) mode temporarily.
+- The maximal supported resolution is increased from 1600x1200 to 2048x1536
+- GLBoom will use the closest supported resolution when running fullscreen
+- The "RUN" key inverts the autorun state
+- Live monsters are highlighted in a different colour on the iddt-automap
+- Fixed OpenGL sky rendering in Requiem and Memento Mori
+- The "Show coordinates of automap pointer" setting works now
+- merged many cleanups and fixes from PrBoom 2.3
+- fix translucency map file handle leak
+- fix consistency failures in netgames
+- prevent crashes at 800x600 caused by rounding errors with naive clipping
+- fixed slowdown at 1024x768 on some systems
+- ability to play tasdoom demos directly
+- -solo-net option is a shortcut for one-player network games
+- emulate spechit overflows for dosdoom and tasdoom compatibility
+- made several cleanups and fixes
+
+Changes from v2.4.2 to v2.4.3
+- Massive speed improvements in higher resolutions taken from Eternity.
+  Thanks to SoM and Quasar!!!
+- fix bugs in gameplay occurring with gcc-4.1
+- Mac OS X: Add "Show Game Folder" to menus, for easy installation of new
+  game wads
+- Mac OS X: Disable games in popup menu whose wads cannot be found
+- fix compilation warnings
+- tidy up configure script
+
+Changes from v2.4.1 to v2.4.2
+- Move gamma correction tables into prboom.wad
+- Clean up light level calculations for walls & sprites
+- CheckIWAD uses ANSI C streams for better portability and error handling
+- Make screen wipe time independent of resolution
+- Applied various small cleanups and fixes from PrBoom 2.3.1
+- Fix problems with dehacked substitution of long strings
+- End of level sound crash fixed
+- Mac OS X: Added simple launcher which allows to configure the most common
+  settings
+- Mac OS X: Uses Quicktime for music now to fix crashes (adapted from Jaakko
+  Keränen's work in Doomsday)
+- Windows: Converted project files to free Visual Studio 2005 Express Edition
+
+Changes from v2.4.0 to v2.4.1
+- PrBoom demos are now recorded with high-precision turning (like the
+  "Doom v1.91" hack that is floating around)
+- when both -nodraw and -nosound are supplied, then no graphics will be
+  initialized and no windows opened
+- add ultdoom compatibility level, and bring compatibility levels into line
+  with Prboom+
+- screenshots now use correct palette in software mode
+- screenshots now in PNG format on Linux/Unix where available
+- suppress use-supershotgun key in compatibility mode
+- removed obsolete video related code
+- fix screenshots on 64bit systems
+- fix comp_666
+
+Changes from v2.2.6 to v2.4.0
+- emulate reject overflows and spechit overflows - from prboom-plus
+- more original doom compatibility options
+- improve stretched graphics drawing for hires
+- fix super-shotgun reload on last shot
+- fix compilation with gcc 4.x
+- fix some more dehacked support problems (e.g. Hacx)
+- fix crash if pwad contains zero-length sound lumps
+- added possibility to use mmap for wad access, this leads to less memory usage
+- simplified the memory handling
+- removed old Doom v1.2 lumps from prboom.wad
+- windows also uses prboom.wad now
+- add Mac OS X bundle build
+- removed lumps and tables which are in prboom.wad from source
+
+Changes from v2.2.5 to v2.2.6
+- fix Inferno intermission screen crash
+- fix lockup for other netgame clients when one client quits
+- fix memory leak in netgame server
+- fix SDL_LockScreen crashes on Win32
+- fix fuzz drawing for hi-res
+- network games should survive temporary loss of connection
+- fix dehacked NOSECTOR/NOBLOCKMAP effects
+- fix player spawn sound
+
+Changes from v2.2.4 to v2.2.5
+- fix crash caused by long messages in HUD
+- live monster counter on HUD
+- notify server if client quits during startup wait
+- improved response file parser
+- fast forward to given map # in demo playback
+- fixes for various sound bugs
+- fix doom2 demos at levels with >10 deathmatch starts
+- and more compatibility and demo fixes
+- support higher-turning-resolution demos from v1.91
+- fix compilation with gcc 3.4.x
+
+Changes from v2.2.3 to v2.2.4
+- fixed sky-over-sky HOM
+- add sound compatibility option
+- improve sound volume accuracy
+- shared texture palette isn't the default anymore
+- better invulnerabilty rendering for non paletted OpenGL
+- network game server can now read config files to set game options
+- fix latency problems in LAN games
+- small compilation fixed for OpenGL on some unix platforms
+- fix for dehacked files which change frames
+- fixed name clash when compiling for some unix platforms
+- flag counted items with different colour on the IDDT automap
+- fixed extra shot sound when chaingun runs out of ammo
+- fix some telefragging related desyncs
+- fixed offsets for flipped sprites
+- hopefully fix problems with network games on big-endian platforms
+
+Changes from v2.2.2 to v2.2.3
+- improved mouse handling
+- intermission demo sync bug fixed
+- framebuffer update fixes (solves flicker on fbcon)
+- -forceoldbsp allowed in non-GL version, and saved in demos
+- fix player colours in multiplayer demos
+- apply workarounds for buggy pwads even during demo playback
+- fix numpad 5 key
+- allow compilation on systems where SDL is built without joystick support
+- fix comp_skymap
+- using anisotropic filtering when the OpenGL extension is available
+- using paletted textures when the OpenGL extension is available
+- added gl_use_paletted_texture option to glboom configuration file
+- using shared texture palette when the OpenGL extension is available
+- added gl_use_shared_texture_palette option to glboom configuration file
+
+Changes from v2.2.1 to v2.2.2
+- more demo sync problems for original Doom and Boom fixed
+- added changeable samplerate for soundmixing
+- added fullscreen/window toggle in option menu
+- added double buffering
+- floor rendering made more accurate
+- Win32 config file handling fixed
+- fix endian conversion problem on Linux/PPC
+
+Changes from v2.2.0 to v2.2.1
+- improved fix for demo sync problems with lost souls bouncing off floors
+- fixed bug where loading a -fast or -respawn savegame failed to restore
+  those options properly
+- fixed demo sync bug with doors also tagged to lift triggers
+- fix some endianness problems in the OpenGL renderer
+- hopefully fixed some problems compiling for Linux/ARM
+- fix multi-level demo time totals to agree with compet-n
+- linux rpm is now a bit more standardised
+
+Changes from v2.1.2 to v2.2.0
+- fix compiling problem on alpha processors (size_t != unsigned long)
+- fixed stair building (ex. TNT - Evilution MAP30)
+- fixed OpenGL menu drawing bug
+- hopefully fixed top sky line bug for some OpenGL drivers
+- added joystick support through SDL
+- made a (temporary) fix for the crash at 800x600 when timidity can't find cfg
+- fixed some key binding problems
+- fixed linking problems on some UNIX systems
+
+Changes from v2.1.1 to v2.1.2
+- fix problem with sound stereo
+- fix problem with new network games
+- supports demo files with base name >8 characters
+- enable IDDT and other display cheats in demo playback
+- various fixes for running on Solaris/sparc
+
+Changes from v2.1.0 to v2.1.1
+- config file is now prboom.cfg for the non-GL version, glboom.cfg
+  for the GL version. If you have used PrBoom (or LxDoom) before,
+  rename your old config file (boom.cfg) appropriately.
+- fullscreen is now default for new prboom.cfg
+- included sdl_mixer.dll now plays midi-files
+- if waveout is used for sound (Windows NT4) the sound doesn't stutter anymore
+- redid parts of the OpenGL renderer
+  - sprites behind translucent walls are rendered correctly
+  - translucent walls are rendered correctly
+  - support for glBSP nodes
+  - compliant to glBSP spec v2
+  - use_mipmapping option in boom.cfg
+  - the default for zone memory in OpenGL is now 16MB
+- fix screen melt transition
+- most Boom demos should now work
+- a lot more original Doom demos work
+- keycard switches are shown coloured on the map, like doors
+- improved ENDOOM rendering
+- non-highres rendering functions dropped
+
+-----------------------------------------------------------------------------
+This file is a log of all the changes to LxDoom since v1.0.0.
+Note that LxDoom v0.* was a seperate line of development.
+
+* Changes from v1.4.4 to the PrBoom merger
+- Fix rare demo sync problem (LxDoom v1.4.x bug, only noticed on Memento
+ Mori DEMO3)
+- Fix memory management bugs
+  - Memory wasted by bug in Z_FreeTags (original Doom bug)
+  - Store correct size in extra memory blocks (Boom/MBF bug, harmless
+   except when debugging)
+  - Fix level precaching
+    - Disabled by default, controlled by config file
+    - Fix needlessly locked lumps (bug since LxDoom v1.3.2)
+
+* Changes v1.4.3 to v1.4.4
+- Install documentation in the right directory
+- Sound code cleanup
+- Fix problem with network games often desyncing immediately at startup
+
+* Changes v1.4.2 to v1.4.3
+- Improved mouse resolution, thanks to a patch from Barry Mead
+- Various robustness fixed to the networking code
+- Fixed various build problems
+  - gcc 2.7.2 compile problems fixed
+  - uid_t problems on odd systems should be fixed
+
+* Changes v1.4.1 to v1.4.2
+- Fixed various build problems, including
+  - Networking not work on many systems
+  - Portability improvements, in particular for Sparc
+  - Autoconf getting confused on systems with X headers in the include path
+- Fix bug with music not looping after being unpaused
+- Misc minor improvements
+
+* Changes v1.4.0 to v1.4.1
+- Fixed occasional tutti fruiti on non-power-of-2 short textures
+- Fixed minor bug in the WAD autoloading code
+- Fixed the function keys in lsdoom, thanks to a patch from Chris Purnell
+- Fixed all compile warnings with the new gcc
+
+* Changes v1.3.7 to v1.4.0
+- License is now the GNU General Public License, see COPYING.
+- autoconf based setup makes compiling LxDoom simple on most systems;
+  automatically compiles only the versions and features your system
+  supports.
+- Fixed rendering bugs:
+  - tall vertical shafts did not block vision on the automap, and on x86
+    systems there could be crashes in the column rendering near such shafts (
+    bug from original Doom).
+  - fixed slowdown caused by non-power of 2 height textures in the case
+    where they don't tile (i.e. almost all cases) (this was the tutti-fruiti
+    "fix" from Boom, I've "fixed the fix" in a sense)
+  - fixed a slight slowdown caused by a bad optimisation (an old LxDoom bug)
+- Fixed bug where things were rendered brighter in high-res, depending on the
+  resolution (bug from PRBoom).
+- Improvements to the sound code:
+  - Fixed noise at the start of sounds playing (thanks to Steve Van Devender).
+  - LxDoom detects the music or sound server exiting (alright, so I mean
+    crashing ;-) and stops sending more data.
+- Performance improvements, including:
+  - New algorithm in P_GroupLines, saves seconds when loading big levels.
+- Fixed problems with the networking code, where multihomed machines could
+  get the wrong IP registered with the server.
+- Screen code improvements:
+  - Rewrote screen layout logic, fixing numerous bugs.
+  - Fixed bug with flipped patches in high-res that could cause crashes,
+    thanks to Gady Kozma.
+  - Independent x and y scaling of the status bar, by Gady Kozma.
+- Added warning messages whenever LxDoom auto-corrects errors in buggy
+  PWADs. Also made -devparm cause LxDoom to initialise all textures at
+  startup, so all texture errors are found at once.
+- Store config files and save games in ~/.lxdoom/ instead of the current
+  directory, removed the -cdrom parameter.
+- Fixed Doom bug where the "got a medikit you REALLY needed" message was
+  never used. Thanks to James "Quasar" Haley for pointing that one out.
+- Made the numeric keypad keys be treated differently from their normal
+  equivalents, so you can bind them to different actions.
+- Fixed bad importing of mobj pointer reference code from MBF.
+- The level completed screen is now shown after ExM8 levels in Doom 1/
+  Ultimate Doom.
+- Minor coop improvements:
+  - Total game time shown on the intermission screen, as for single player
+  - Quicksave enabled
+- Removed the frame rate dots, instead I added a cheat code "IDRATE" to show
+  various rendering stats, including the frame rate.
+- Fixed the intermission screen code to store its data right (bad code from
+  original Doom).
+
+* Changes v1.3.6 to v1.3.7
+- Client-server style net-games, including new server program
+- LxDoom starts faster, thanks to an idea borrowed from DosDoom
+- Player colours system sorted out, now your personal player colour is part of
+  your player preferences.
+- Fix for problems with 24bpp screens, new option in config file to deal with
+  this.
+- Fix key setup problems where certain choices of key setup could hinder
+  message typing in multi-player.
+- Misc stuff
+
+* Changes v1.3.5 to v1.3.6
+- Hires for the SVGALib version
+- Automap rotation/overlay
+- Modified to work with the new musserver
+- Various misc improvements
+
+* Changes v1.3.4 to v1.3.5
+- Fixed nasty overflow in I_GetTime_RealTime, causing hangs
+- Removed a load of I_GetTime references in m_menu.c
+- Added support for music pausing/unpausing
+
+* Changes from v1.3.3 to v1.3.4
+- More MBF features/improvements imported:
+  - Internal improvements (mobj pointer reference counting)
+  - Enhanced skies support
+- Status bar scaling for high-res
+- Bug fixes:
+  - Occasional corrupt save-games in large levels fixed (Boom/MBF bug)
+  - -loadgame crashes fixed
+- Performance improvements
+- Command line argument parsing logic changed for convenience in shell scripts
+  (later arguments take precedence)
+
+* Changes from v1.3.2 to v1.3.3
+- Optimised i386 assembly some more, about 2% improvement in fps
+- Tested to compile and run on FreeBSD
+- Modified #includes to use current headers
+- Updated makefile hints for FreeBSD compiling
+- Made install script more portable
+
+* Changes from v1.3.1 to v1.3.2
+- Imported/added some MBF features
+  - New code pointers added
+  - "Faster" sprite sorting
+  - Improved Dehacked handling (more reliable, Dehacked-in-a-PWAD)
+  - Fractional floor attributes saved in save-games
+  - Auto-correction of common errors in wads
+- Massive internal improvements, making LxDoom more stable - WAD lump locking,
+  rewritten patch drawing code.
+- Improved config file handling - now accepts (and writes out selected) numbers
+  in hex, entries are sorted into sections with headers, and internally the
+  handling is better.
+- Portability improvements - LxDoom is now near-completely endian-corrected, so it
+  should be compilable on big-endian machines, read the little endian Doom data
+  files fine, and even network with other machines regardless of endianness.
+  Also lots of misc portability stuff, explicitly signing some variables, a
+  lot more stuff made const, etc. The only problem I think is that save-games aren't
+  yet interchangeable across endiannesses.
+- More memory efficient - block memory allocator reduces memory fragmentation,
+  video buffers allocated only when needed, more things made constant and
+  initialised better.
+- Imported bug fixes from MBF:
+  - File handle leak in translucency code
+  - Water sector sprite problems
+  - No chat in demo playback
+  - Archville fire spawn
+  - Scroller calculations overflow
+  - Fast shots going through walls
+  - Improved d_deh.c fixed numerous SIGSEGV's and error code bugs
+  - Zombie players exiting levels
+  - New thing flags caused incompatibility with buggy Doom wads
+  - Setup menu backspace
+  - Indigo/Brown default chat keys reversed
+- Glide (3dfx) frame-buffer target (warning - released only in source code form and
+  only for alpha testing purposes, not ready for normal use).
+- Improved ENDOOM support - (optional) colour ENDOOM display, non-ASCII
+  characters displayed, sensible choice between ENDOOM and ENDBOOM (displays
+  any from a PWAD in preference, randomly chooses otherwise).
+- Minor improvements so LxDoom integrates more naturally into UNIX systems; sound
+  and music server are now searched for via the path, and wads are looked for in
+  /usr/local/games/wads/ if no DOOMWADDIR is set.
+- More keys work in the SVGALib version (notably PAUSE).
+- Monster-monster kills in coop are assigned to the player the monster was
+  targeting, or a random player if it wasn't targeting any, so coop
+  monster kills stats total 100% at the end-level screen.
+- Total game time is displayed on the intermission screens. This is a simple
+  total of the times shown on the end-level screens so far this game, not
+  including intermission times, and accurate to 1/35 of a second.
+- Low sound volume fixed.
+- Multi-player colours selectable in the config file.
+- Misc minor fixes and improvements inspired by MBF:
+  - Support for -noload parameter
+  - Support auto-loading of deh/BEX files as well as wads
+  - Removed limit on number of wad-files loaded.
+  - Fixed buffer overrun in menu text writing code by wrapping long lines.
+
+* Changes from v1.3.0 to v1.3.1
+- Fixed saving of config file (bug affected most Linux systems)
+- Binaries are now use libc.so.6.
+- 24 bpp and 32 bpp true colour X displays are now supported (untested) (24
+  bpp only supported for i386 systems).
+- Auto-loading of wad files - in the config file there is a new option
+  which lists wad files to be loaded automatically (several directories are
+  searched as for IWADs).
+- Loading saved games during a multi-player game now works. Very handy for
+  coop games :).
+- New config file option controls music pausing - when the game pauses
+  the music can either continue or be stopped. So people playing at home can
+  have the music continue while they read the map; people playing at work
+  can pause when the boss comes in and have the music stop ;).
+- Several more variables added to config file, most notably the
+  default size of the LxDoom window (for high-res).
+- PRBoom v2.02 networking code is now used. It still doesn't network with
+  PRBoom though. Net games with just LxDoom work fine still. Anyone with ideas
+  why it won't go with PRBoom let me know.
+- If saving a demo/screen-shot/save-game to disk fails an error message is
+  displayed. One of the most frustrating features of all versions of Doom that I
+  have used is that they always say "Game Saved" even if you are
+  out of disk space and it didn't save. I'm glad to have this one fixed.
+- Fixed the -cdrom parameter.
+- Fixed makefile hints for FreeBSD.
+- Fixed music pausing causing musserver crash.
+- Documentation updates.
+
+* Changes from v1.2.0 to v1.3.0
+- Hi-res added to X-windows version
+- Portability improvements (FreeBSD and RISC stuff in the makefile, minor code
+  changes included)
+- Minor bug-fixes
+
+* Changes from v1.1.1 to v1.2.0
+- Boom v2.02 updates incorporated (see TeamTNT's site for info on that)
+- Improved music comms code, to pass instruments and volume info
+- Code reorganisation & tweaking; video code is more logically organised,
+  and SVGALib code is neater now.
+
+* Changes from v1.1.0 to v1.1.1
+- Fixed crash using -warp parameter with SVGALib version
+- Fixed music server communication code
+- Should compile using glibc
+
+* Changes from v1.0.1 to v1.1.0
+- SVGALib version
+- Fixed timing problem on buggy kernels causing crashes in the wipe screens
+- Fixed bug in sound server communications which prevented Doom 1 working
+- Fixed problem with sound code causing accelerated sound on v2.1.125 kernel
+- Removed need for IPC in sound server communications, used pipe instead
+- Improved mouse grabbing/ungrabbing code in XFree86 version, now depends on
+  game and window status
+- Improved TrueColor/DirectColor 16 bpp support
+- X version is more multitasking friendly - detects when it is hidden or paused
+  or an intermission screen is up, and tries to free some more CPU time.
+
+* Changes from v1.0.0 to v1.0.1:
+- 16 bpp colour modes now supported. If you use a 16 bpp colour mode (65
+  thousand colours approx.), then you don't have to change your X setup to 256
+  colours (8 bpp) before using lxdoom anymore. However, it is still a good idea
+  to use 256 colours, because it is faster that way.
+- fixed a minor bug in routine used for the 8 bpp '-2' option (screen
+  doubling), which caused a couple of lines to be missed at the bottom of the
+  display window.
+- fixed a Boom bug which caused crashes in multi-player games. The bug occurred
+  when, during a single game session, first the players played one level at
+  which someone died, and then later exited that level, and later still another
+  player died. I.e in a multilevel death-match, or a long coop game. Caused one
+  machine to exit lxdoom with 'Segmentation Violation'. The version of PRBoom I
+  have also exhibits these symptoms, though obviously I can't be sure that this
+  is the cause; Boom v2.0 and v2.01 had this bug.
+
