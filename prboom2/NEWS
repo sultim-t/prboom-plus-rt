@@ -1,5 +1,4 @@
-PrBoom-Plus 2.6um
-currently under development
+PrBoom-Plus 2.6um @ 09 Feb 2021
 - fixed episode selection when playing Doom 2
 - fixed Doom 1 level progression
 - print a blinking arrow next to the currently highlighted menu item
@@ -90,23 +89,20 @@ currently under development
   -complevel vanilla  = complevel autodetected according to IWAD loaded
 - allow MBF sky transfers in all complevels
 - add support for colored blood and gibs
+- fixed key-bindings unusable after mouse-wheel up/down
 
-PrBoom-Plus 2.5.1.7um
-16 Jun 2019
+PrBoom-Plus 2.5.1.7um @ 16 Jun 2019
 - adds a special marker to demos recorded with UMAPINFO
 - addes support for ZDBSP's compressed node format
 - fixes the rendering problems in OpenGL
 - fixes TRANMAP caching
 
-PrBoom-Plus 2.5.1.6um
-11 Jun 2019
+PrBoom-Plus 2.5.1.6um @ 11 Jun 2019
 This fixes a major bug with the episode selection menu not working and adds IDCLEV checks for maps outside the standard range.
 
-PrBoom-Plus 2.5.1.5um
-10 Jun 2019
+PrBoom-Plus 2.5.1.5um @ 10 Jun 2019
 First official release with UMAPINFO support
 
-2.5.1.4.umapinfo_test
-22 Apr 2017
+2.5.1.4.umapinfo_test @ 22 Apr 2017
 Beta version with UMAPINFO support.
 Note that this is for testing as the newly added MAPINFO feature has not seen thorough testing yet.
