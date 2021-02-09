@@ -1,8 +1,10 @@
 set(DOC_FILES
+    ../NEWS
     boom.txt
     DeePBSPV4specs.txt
     MBFFAQ.txt
     MBF.txt
+    prboom-history.txt
     prboom-plus-history.html
     prboom-plus-history.txt
     prboom-plus-usage.txt
