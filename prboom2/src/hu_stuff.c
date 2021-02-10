@@ -2275,12 +2275,13 @@ void HU_draw_crosshair(void)
 
   if (hudadd_crosshair_target || hudadd_crosshair_lock_target)
   {
-    fixed_t slope;
+    fixed_t slope, range;
     angle_t an = plr->mo->angle;
     
     // intercepts overflow guard
     overflows_enabled = false;
-    slope = P_AimLineAttack(plr->mo, an, 16*64*FRACUNIT, 0);
+    range = (weaponinfo[plr->readyweapon].ammo == am_noammo) ? MELEERANGE : 16*64*FRACUNIT;
+    slope = P_AimLineAttack(plr->mo, an, range, 0);
     if (plr->readyweapon == wp_missile || plr->readyweapon == wp_plasma || plr->readyweapon == wp_bfg)
     {
       if (!linetarget)
