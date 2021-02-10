@@ -144,7 +144,7 @@ static const void* db_registersong (const void *data, unsigned len)
     dumbfile_close (dfil);
     dfil = dumbfile_open_memory ((const char*)data, len);
 #if (DUMB_MAJOR_VERSION >= 1)
-    duh = dumb_read_mod_quick (dfil, DUMB_MOD_RESTRICT_OLD_PATTERN_COUNT);
+    duh = dumb_read_mod_quick (dfil, 0);
 #else
     duh = dumb_read_mod_quick (dfil);
 #endif
