@@ -2262,10 +2262,8 @@ void HU_draw_crosshair(void)
 
   crosshair.target_sprite = -1;
 
-  if (!crosshair_nam[hudadd_crosshair] || crosshair.lump == -1 ||
-    custom_message_p->ticks > 0 || automapmode & am_active ||
-    menuactive != mnact_inactive || paused ||
-    plr->readyweapon == wp_chainsaw || plr->readyweapon == wp_fist)
+  if (!crosshair_nam[hudadd_crosshair] || crosshair.lump == -1 || automapmode & am_active ||
+      menuactive != mnact_inactive || paused)
   {
     return;
   }
@@ -2522,6 +2520,10 @@ void HU_Drawer(void)
   HU_Erase(); // jff 4/24/98 Erase current lines before drawing current
               // needed when screen not fullsize
 
+  // Draw crosshair before messages
+  if (hudadd_crosshair)
+    HU_draw_crosshair();
+
   //jff 4/21/98 if setup has disabled message list while active, turn it off
   if (hud_msg_lines<=1)
     message_list = false;
@@ -2533,9 +2535,6 @@ void HU_Drawer(void)
   //e6y
   if (custom_message_p->ticks > 0)
     HUlib_drawTextLine(&w_centermsg, false);
-
-  if (hudadd_crosshair)
-    HU_draw_crosshair();
 
   // if the message review is enabled show the scrolling message review
   if (hud_msg_lines>1 && message_list)
