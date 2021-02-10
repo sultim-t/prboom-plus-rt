@@ -71,6 +71,7 @@ static void cheat_clev();
 static void cheat_mypos();
 static void cheat_rate();
 static void cheat_comp();
+static void cheat_comp_ext();
 static void cheat_friction();
 static void cheat_pushers();
 static void cheat_tnttran();
@@ -185,6 +186,9 @@ cheatseq_t cheat[] = {
   CHEAT("notarget",   NULL,               cht_never, cheat_notarget, 0),
   // fly mode is active
   CHEAT("fly",        NULL,               cht_never, cheat_fly, 0),
+  // Complevels with parameters
+  CHEAT("tntcl",    NULL,               cht_never, cheat_comp_ext, -2),
+
   // end-of-list marker
   {NULL}
 };
@@ -446,8 +450,7 @@ static void cheat_comp()
   // must call G_Compatibility after changing compatibility_level
   // (fixes sf bug number 1558738)
   G_Compatibility();
-  doom_printf("New compatibility level:\n%s",
-        comp_lev_str[compatibility_level]);
+  doom_printf("New compatibility level:\n%s (%d)", comp_lev_str[compatibility_level], compatibility_level);
 }
 
 // variable friction cheat
@@ -856,4 +859,19 @@ dboolean M_FindCheats(int key)
     return M_FindCheats_Boom(key);
   else
     return M_FindCheats_Doom(key);
+}
+
+// Extended compatibility cheat
+static void cheat_comp_ext(char buf[3])
+{
+  int cl = atoi(buf);
+  if(cl == 0 && (buf[0] != '0' || buf[1] != '0')) {
+    return;
+  }
+  if( cl < 0 || cl >= MAX_COMPATIBILITY_LEVEL ) {
+    return;
+  }
+  compatibility_level = cl;
+  G_Compatibility();
+  doom_printf("New compatibility level:\n%s (%d)", comp_lev_str[compatibility_level], compatibility_level);
 }
