@@ -700,7 +700,10 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     forward += mousey;
   }
   if (strafe)
+  {
     side += mousex / movement_mousestrafedivisor; /* mead  Don't want to strafe as fast as turns.*/
+    side = (side / 2) * 2; // only even values are possible
+  }
   else
     cmd->angleturn -= mousex; /* mead now have enough dynamic range 2-10-00 */
 
