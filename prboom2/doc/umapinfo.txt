@@ -164,7 +164,7 @@ RedTorch
 ShortBlueTorch
 ShortGreenTorch
 ShortRedTorch
-Slalagtite
+Stalagtite
 TechPillar
 CandleStick
 Candelabra

@@ -143,7 +143,7 @@ static const char * const ActorNames[] =
 	"ShortBlueTorch",
 	"ShortGreenTorch",
 	"ShortRedTorch",
-	"Slalagtite",
+	"Stalagtite",
 	"TechPillar",
 	"CandleStick",
 	"Candelabra",
