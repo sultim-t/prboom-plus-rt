@@ -71,7 +71,6 @@ static void cheat_clev();
 static void cheat_mypos();
 static void cheat_rate();
 static void cheat_comp();
-static void cheat_comp_ext();
 static void cheat_friction();
 static void cheat_pushers();
 static void cheat_tnttran();
@@ -92,6 +91,8 @@ static void cheat_megaarmour();
 static void cheat_health();
 static void cheat_notarget();
 static void cheat_fly();
+static void cheat_comp_ext();
+static void cheat_shorttics();
 
 //-----------------------------------------------------------------------------
 //
@@ -186,8 +187,12 @@ cheatseq_t cheat[] = {
   CHEAT("notarget",   NULL,               cht_never, cheat_notarget, 0),
   // fly mode is active
   CHEAT("fly",        NULL,               cht_never, cheat_fly, 0),
+
   // Complevels with parameters
-  CHEAT("tntcl",    NULL,               cht_never, cheat_comp_ext, -2),
+  CHEAT("tntcl",      NULL,               cht_never, cheat_comp_ext, -2),
+
+  // Enable/disable shorttics in-game
+  CHEAT("tntshort",   NULL,               cht_never, cheat_shorttics, 0),
 
   // end-of-list marker
   {NULL}
@@ -874,4 +879,17 @@ static void cheat_comp_ext(char buf[3])
   compatibility_level = cl;
   G_Compatibility();
   doom_printf("New compatibility level:\n%s (%d)", comp_lev_str[compatibility_level], compatibility_level);
+}
+
+// Enable/disable shorttics in-game
+static void cheat_shorttics()
+{
+  shorttics = !shorttics;
+  if (shorttics) {
+    doom_printf("Shorttics enabled");
+    angle_t angle = plyr->mo->angle;
+    plyr->mo->angle = (angle >> 24) << 24;
+  } else {
+    doom_printf("Shorttics disabled");
+  }
 }
