@@ -242,6 +242,16 @@ int     key_weapon9;                                                // phares
 int     key_nextweapon;
 int     key_prevweapon;
 
+int     mb_weapon1;
+int     mb_weapon2;
+int     mb_weapon3;
+int     mb_weapon4;
+int     mb_weapon5;
+int     mb_weapon6;
+int     mb_weapon7;
+int     mb_weapon8;
+int     mb_weapon9;
+
 int     key_screenshot;             // killough 2/22/98: screenshot key
 int     mousebfire;
 int     mousebstrafe;
@@ -579,15 +589,15 @@ void G_BuildTiccmd(ticcmd_t* cmd)
       else
       {
       newweapon =
-        gamekeydown[key_weapon1] ? wp_fist :    // killough 5/2/98: reformatted
-        gamekeydown[key_weapon2] ? wp_pistol :
-        gamekeydown[key_weapon3] ? wp_shotgun :
-        gamekeydown[key_weapon4] ? wp_chaingun :
-        gamekeydown[key_weapon5] ? wp_missile :
-        gamekeydown[key_weapon6] && gamemode != shareware ? wp_plasma :
-        gamekeydown[key_weapon7] && gamemode != shareware ? wp_bfg :
-        gamekeydown[key_weapon8] ? wp_chainsaw :
-        (!demo_compatibility && gamekeydown[key_weapon9] && gamemode == commercial) ? wp_supershotgun :
+        (gamekeydown[key_weapon1] || mousebuttons [mb_weapon1]) ? wp_fist :    // killough 5/2/98: reformatted
+        (gamekeydown[key_weapon2] || mousebuttons [mb_weapon2]) ? wp_pistol :
+        (gamekeydown[key_weapon3] || mousebuttons [mb_weapon3]) ? wp_shotgun :
+        (gamekeydown[key_weapon4] || mousebuttons [mb_weapon4]) ? wp_chaingun :
+        (gamekeydown[key_weapon5] || mousebuttons [mb_weapon5]) ? wp_missile :
+        (gamekeydown[key_weapon6] || mousebuttons [mb_weapon6]) && gamemode != shareware ? wp_plasma :
+        (gamekeydown[key_weapon7] || mousebuttons [mb_weapon7]) && gamemode != shareware ? wp_bfg :
+        (gamekeydown[key_weapon8] || mousebuttons [mb_weapon8]) ? wp_chainsaw :
+        (!demo_compatibility && (gamekeydown[key_weapon9] || mousebuttons [mb_weapon9]) && gamemode == commercial) ? wp_supershotgun :
         wp_nochange;
       }
 

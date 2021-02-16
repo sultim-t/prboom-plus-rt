@@ -580,6 +580,25 @@ default_t defaults[] =
    def_int,ss_keys}, // mouse button number to use for using doors/switches
   //jff 3/8/98 end of lower range change for -1 allowed in mouse binding
 
+  {"mb_weapon1",{&mb_weapon1},{-1},-1,MAX_MOUSEB,
+  def_int,ss_keys}, // mouse button to switch to weapon 1 (fist/chainsaw)
+  {"mb_weapon2",{&mb_weapon2},{-1},-1,MAX_MOUSEB,
+  def_int,ss_keys}, // mouse button to switch to weapon 2 (pistol)
+  {"mb_weapon3",{&mb_weapon3},{-1},-1,MAX_MOUSEB,
+  def_int,ss_keys}, // mouse button to switch to weapon 3 (supershotgun/shotgun)
+  {"mb_weapon4",{&mb_weapon4},{-1},-1,MAX_MOUSEB,
+  def_int,ss_keys}, // mouse button to switch to weapon 4 (chaingun)
+  {"mb_weapon5",{&mb_weapon5},{-1},-1,MAX_MOUSEB,
+  def_int,ss_keys}, // mouse button to switch to weapon 5 (rocket launcher)
+  {"mb_weapon6",{&mb_weapon6},{-1},-1,MAX_MOUSEB,
+  def_int,ss_keys}, // mouse button to switch to weapon 6 (plasma rifle)
+  {"mb_weapon7",{&mb_weapon7},{-1},-1,MAX_MOUSEB,
+  def_int,ss_keys}, // mouse button to switch to weapon 7 (bfg9000)
+  {"mb_weapon8",{&mb_weapon8},{-1},-1,MAX_MOUSEB,
+  def_int,ss_keys}, // mouse button to switch to weapon 8 (chainsaw)
+  {"mb_weapon9",{&mb_weapon9},{-1},-1,MAX_MOUSEB,
+  def_int,ss_keys}, // mouse button to switch to weapon 9 (supershotgun)
+
 // For key bindings, the values stored in the key_* variables       // phares
 // are the internal Doom Codes. The values stored in the default.cfg
 // file are the keyboard codes.
