@@ -232,6 +232,9 @@ extern const char * comp_lev_str[];
 // but without having to be recording every time.
 extern int shorttics;
 
+// automatic pistol start when advancing from one level to the next
+extern int pistolstart;
+
 //e6y: for r_demo.c
 extern int longtics;
 extern int bytes_per_tic;

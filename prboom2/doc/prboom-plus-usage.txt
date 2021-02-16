@@ -188,6 +188,7 @@ Additional command-line parameters:
 "-nowindow" - for temporarily using fullscreen mode without saving this in the cfg.
 "-aspect NxM" - for using a different aspect ratio; e.g. -aspect 5x4, -aspect 8x5 or -aspect 2x1.
 "-videodriver name" - for setting up the videodriver name that SDL will use. "windib" and "directx" are available for Windows. See SDL documentation for other platforms. "-videodriver default" can be used to force SDL behaviour by default.
+"-pistolstart" - automatic pistol start when advancing from one level to the next
 "-shorttics" - forces the same mouse behaviour as when recording (i.e. the converse of "-longtics")
 "-stroller" - removes ability to strafe and limits running speed (a speedrun category)
 "-resetgamma" - restores the original gamma after a crash

@@ -165,6 +165,9 @@ dboolean done_autoswitch;
 // but without having to be recording every time.
 int shorttics;
 
+// automatic pistol start when advancing from one level to the next
+int pistolstart;
+
 //
 // controls (have defaults)
 //
@@ -859,6 +862,28 @@ static void G_DoLoadLevel (void)
         players[i].playerstate = PST_REBORN;
       memset (players[i].frags,0,sizeof(players[i].frags));
     }
+
+  // automatic pistol start when advancing from one level to the next
+  if (pistolstart)
+  {
+      if (singleplayer)
+      {
+          G_PlayerReborn(0);
+      }
+      else if ((demoplayback || netdemo) && !singledemo)
+      {
+          // no-op - silently ignore pistolstart when playing demo from the
+          // demo reel
+      }
+      else
+      {
+          const char message[] = "The -pistolstart option is not supported"
+                                 " for demos and\n"
+                                 " network play.";
+          if (!demo_p) demorecording = false;
+          I_Error(message);
+      }
+  }
 
   // initialize the msecnode_t freelist.                     phares 3/25/98
   // any nodes in the freelist are gone by now, cleared
