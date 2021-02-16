@@ -816,8 +816,7 @@ dboolean AM_Responder
     else if (ch == key_map_overlay) {
       automapmode ^= am_overlay;
       AM_SetPosition();
-      AM_SetScale();
-      AM_initVariables();
+      AM_activateNewScale();
       plr->message = (automapmode & am_overlay) ? s_AMSTR_OVERLAYON : s_AMSTR_OVERLAYOFF;
     }
 #ifdef GL_DOOM
