@@ -1037,7 +1037,7 @@ int I_RegisterSong(const void *data, size_t len)
 
   // e6y: from Chocolate-Doom
   // Assume a MUS file and try to convert
-  if (!music[0])
+  if (len > 4 && !music[0])
   {
     MEMFILE *instream;
     MEMFILE *outstream;
@@ -1454,7 +1454,7 @@ static int Exp_RegisterSongEx (const void *data, size_t len, int try_mus2mid)
 
 
   // load failed? try mus2mid
-  if (try_mus2mid)
+  if (len > 4 && try_mus2mid)
   {
 
     instream = mem_fopen_read (data, len);
