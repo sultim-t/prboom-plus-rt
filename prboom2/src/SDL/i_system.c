@@ -350,11 +350,11 @@ const char *I_DoomExeDir(void)
         *p--=0;
       if (*p=='/' || *p=='\\')
         *p--=0;
-      if (strlen(base)<2)
+      if (strlen(base)<2 || access(base, W_OK) != 0)
       {
         free(base);
         base = (char*)malloc(1024);
-        if (!getcwd(base,1024))
+        if (!getcwd(base,1024) || access(base, W_OK) != 0)
           strcpy(base, current_dir_dummy);
       }
     }
