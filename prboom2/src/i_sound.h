@@ -45,6 +45,7 @@
 #endif
 
 extern int snd_pcspeaker;
+extern int lowpass_filter;
 
 // Init at program start...
 void I_InitSound(void);

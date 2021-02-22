@@ -77,6 +77,7 @@
 #include "e6y.h"
 
 int snd_pcspeaker;
+int lowpass_filter;
 
 // The number of internal mixing channels,
 //  the samples calculated for each mixing step,
@@ -169,8 +170,7 @@ static void stopchan(int i)
 //
 static int addsfx(int sfxid, int channel, const unsigned char *data, size_t len)
 {
-  channel_info_t *ci = channelinfo + channel;
-  float rc, dt;
+  channel_info_t *const ci = &channelinfo[channel];
 
   stopchan(channel);
 
@@ -207,9 +207,13 @@ static int addsfx(int sfxid, int channel, const unsigned char *data, size_t len)
   // Filter to the half sample rate of the original sound effect
   // (maximum frequency, by nyquist)
 
-  dt = 1.0f / snd_samplerate;
-  rc = 1.0f / (3.14f * ci->samplerate);
-  ci->alpha = dt / (rc + dt);
+  if (lowpass_filter)
+  {
+    float rc, dt;
+    dt = 1.0f / snd_samplerate;
+    rc = 1.0f / (3.14f * ci->samplerate);
+    ci->alpha = dt / (rc + dt);
+  }
 
   ci->stepremainder = 0;
   // Should be gametic, I presume.
@@ -563,8 +567,11 @@ static void I_UpdateSound(void *unused, Uint8 *stream, int len)
         }
 
         // lowpass
-        s = ci->prevS + ci->alpha * (s - ci->prevS);
-        ci->prevS = s;
+        if (lowpass_filter)
+        {
+          s = ci->prevS + ci->alpha * (s - ci->prevS);
+          ci->prevS = s;
+        }
 
         // Add left and right part
         //  for this channel (sound)
