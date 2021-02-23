@@ -5259,7 +5259,7 @@ dboolean M_Responder (event_t* ev) {
 
     oldbutton = *ptr1->m_mouse;
     group  = ptr1->m_group;
-    if ((ch = GetButtons(MAX_MOUSE_BUTTONS, ev->data1)) == -1)
+    if ((ch = GetButtons(MAX_MOUSEB, ev->data1)) == -1)
       return true;
     for (i = 0 ; keys_settings[i] && search ; i++)
       for (ptr2 = keys_settings[i] ; !(ptr2->m_flags & S_END) ; ptr2++)

@@ -310,7 +310,7 @@ static const struct
   { wp_bfg,          wp_bfg }
 };
 
-static int mousearray[MAX_MOUSE_BUTTONS + 1];
+static int mousearray[MAX_MOUSEB + 1];
 static int *mousebuttons = &mousearray[1];    // allow [-1]
 
 // mouse values are used once
@@ -366,7 +366,7 @@ static void SetMouseButtons(unsigned int buttons_mask)
 {
   int i;
 
-  for (i = 0; i < MAX_MOUSE_BUTTONS; ++i)
+  for (i = 0; i < MAX_MOUSEB; ++i)
   {
     unsigned int button_on = (buttons_mask & (1 << i)) != 0;
     mousebuttons[i] = button_on;

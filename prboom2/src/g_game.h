@@ -103,8 +103,6 @@ void G_CalculateDemoParams(const byte *demo_p);
 // CPhipps - renames to doom_printf to avoid name collision with glibc
 void doom_printf(const char *, ...) __attribute__((format(printf,1,2)));
 
-#define MAX_MOUSE_BUTTONS 8
-
 // killough 5/2/98: moved from m_misc.c:
 
 extern int  key_right;
