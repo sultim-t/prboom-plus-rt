@@ -90,6 +90,7 @@ int EV_Teleport(line_t *line, int side, mobj_t *thing)
 
           if (compatibility_level != finaldoom_compatibility)
             thing->z = thing->floorz;
+          thing->PrevZ = thing->z;
 
           if (player)
             player->viewz = thing->z + player->viewheight;
@@ -175,6 +176,7 @@ int EV_SilentTeleport(line_t *line, int side, mobj_t *thing)
 
           // Adjust z position to be same height above ground as before
           thing->z = z + thing->floorz;
+          thing->PrevZ = thing->z;
 
           // Rotate thing's momentum to come out of exit just like it entered
           thing->momx = FixedMul(momx, c) - FixedMul(momy, s);
@@ -307,6 +309,7 @@ int EV_SilentLineTeleport(line_t *line, int side, mobj_t *thing,
         // Ground level at the exit is measured as the higher of the
         // two floor heights at the exit linedef.
         thing->z = z + sides[l->sidenum[stepdown]].sector->floorheight;
+        thing->PrevZ = thing->z;
 
         // Rotate thing's orientation according to difference in linedef angles
         thing->angle += angle;
