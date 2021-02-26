@@ -2141,13 +2141,13 @@ static void AM_drawMarks(void)
             {
               V_DrawNamePatchPrecise(
                 (float)p.fx * 320.0f / SCREENWIDTH, (float)p.fy * 200.0f / SCREENHEIGHT,
-                FB, namebuf, CR_DEFAULT, VPT_ALIGN_MAX | VPT_STRETCH);
+                FB, namebuf, CR_DEFAULT, VPT_ALIGN_WIDE | VPT_STRETCH);
             }
             else
             {
               V_DrawNamePatch(
                 p.x * 320 / SCREENWIDTH, p.y * 200 / SCREENHEIGHT,
-                FB, namebuf, CR_DEFAULT, VPT_ALIGN_MAX | VPT_STRETCH);
+                FB, namebuf, CR_DEFAULT, VPT_ALIGN_WIDE | VPT_STRETCH);
             }
           }
 
