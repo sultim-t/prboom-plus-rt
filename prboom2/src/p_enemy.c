@@ -1100,7 +1100,12 @@ void A_Look(mobj_t *actor)
       if (actor->type==MT_SPIDER || actor->type == MT_CYBORG)
         S_StartSound(NULL, sound);          // full volume
       else
+      {
         S_StartSound(actor, sound);
+       // [FG] make seesounds uninterruptible
+        if (full_sounds)
+          S_UnlinkSound(actor);
+      }
     }
   P_SetMobjState(actor, actor->info->seestate);
 }
