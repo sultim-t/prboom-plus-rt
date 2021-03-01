@@ -4,7 +4,7 @@
  *
  *  PrBoom: a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
- *  Copyright 2006 - 2008 G Jackson, Jaakko Kerônen
+ *  Copyright 2006 - 2008 G Jackson, Jaakko KerÃ´nen
  *  Copyright 2009 - Andrey Budko
  *
  *  This program is free software; you can redistribute it and/or
@@ -156,6 +156,7 @@ void gld_AddNiceThing(int type, float x, float y, float radius, float angle,
 void gld_DrawNiceThings(int fx, int fy, int fw, int fh)
 {
   int i;
+  int j;
 
   glScissor(fx, SCREENHEIGHT - (fy + fh), fw, fh);
   glEnable(GL_SCISSOR_TEST);
@@ -192,9 +193,9 @@ void gld_DrawNiceThings(int fx, int fy, int fw, int fh)
       glDrawArrays(GL_QUADS, 0, things->count * 4);
     }
 #else
-    for (i = 0; i < things->count; i++)
+    for (j = 0; j < things->count; j++)
     {
-      map_nice_thing_t *thing = &((map_nice_thing_t*)things->data)[i];
+      map_nice_thing_t *thing = &((map_nice_thing_t*)things->data)[j];
 
       glColor4ubv(&thing->v[0].r);
 
