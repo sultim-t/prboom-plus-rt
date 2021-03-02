@@ -70,6 +70,9 @@ void S_StartSoundAtVolume(void *origin, int sound_id, int volume);
 // Stop sound for thing at <origin>
 void S_StopSound(void* origin);
 
+extern int full_sounds;
+void S_UnlinkSound(void *origin);
+
 // Start music using <music_id> from sounds.h
 void S_StartMusic(int music_id);
 
