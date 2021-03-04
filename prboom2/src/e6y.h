@@ -186,7 +186,7 @@ void G_SkipDemoStart(void);
 void G_SkipDemoStop(void);
 void G_SkipDemoCheck(void);
 int G_ReloadLevel(void);
-int G_GotoNextLevel(void);
+int G_GotoNextLevel(int *e, int *m);
 
 void M_ChangeMouseLook(void);
 void M_ChangeMaxViewPitch(void);

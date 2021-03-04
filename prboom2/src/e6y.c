@@ -392,7 +392,11 @@ int G_ReloadLevel(void)
   return result;
 }
 
-int G_GotoNextLevel(void)
+// [FG] Write the episode and map number of the next level
+//      to the e and m pointers, respectively, or outright
+//      warp to this level if both are NULL.
+
+int G_GotoNextLevel(int *e, int *m)
 {
 	static byte doom2_next[33] = {
 	  2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
@@ -460,7 +464,13 @@ int G_GotoNextLevel(void)
 		}
 	}
 
-	if ((gamestate == GS_LEVEL) &&
+	// [FG] report next level without changing
+	if (e || m)
+	{
+		if (e) *e = epsd;
+		if (m) *m = map;
+	}
+	else if ((gamestate == GS_LEVEL) &&
 		!deathmatch && !netgame &&
 		!demorecording && !demoplayback &&
 		!menuactive)

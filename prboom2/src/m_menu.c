@@ -4895,7 +4895,7 @@ dboolean M_Responder (event_t* ev) {
       }
       else
       {
-        if (G_GotoNextLevel())
+        if (G_GotoNextLevel(NULL, NULL))
           return true;
       }
     }
