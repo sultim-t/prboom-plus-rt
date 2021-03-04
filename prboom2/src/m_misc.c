@@ -464,6 +464,8 @@ default_t defaults[] =
   {"screen_resolution",{NULL, &screen_resolution},{0,"640x480"},UL,UL,def_str,ss_none},
   {"use_fullscreen",{&use_fullscreen},{0},0,1, /* proff 21/05/2000 */
    def_bool,ss_none},
+  {"exclusive_fullscreen",{&exclusive_fullscreen},{0},0,1, // [FG] mode-changing fullscreen
+  def_bool,ss_none},
   {"render_vsync",{&render_vsync},{1},0,1,
    def_bool,ss_none},
   {"translucency",{&default_translucency},{1},0,1,   // phares
@@ -1065,7 +1067,7 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"render_wipescreen", {&render_wipescreen},  {1},0,1,
    def_bool,ss_stat},
-  {"render_screen_multiply", {&render_screen_multiply},  {1},1,4,
+  {"render_screen_multiply", {&render_screen_multiply},  {1},1,5,
    def_int,ss_stat},
   {"integer_scaling", {&integer_scaling},  {0},0,1,
    def_bool,ss_stat},

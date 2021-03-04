@@ -102,6 +102,7 @@ void I_StartFrame (void);
 
 extern int use_fullscreen;  /* proff 21/05/2000 */
 extern int desired_fullscreen; //e6y
+extern int exclusive_fullscreen;
 
 void I_UpdateRenderSize(void);	// Handle potential
 extern int renderW;		// resolution scaling

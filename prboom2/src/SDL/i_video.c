@@ -111,6 +111,7 @@ int gl_depthbuffer_bits=16;
 extern void M_QuitDOOM(int choice);
 int use_fullscreen;
 int desired_fullscreen;
+int exclusive_fullscreen;
 int render_vsync;
 int screen_multiply;
 int render_screen_multiply;
@@ -720,6 +721,10 @@ static void I_FillScreenResolutionsList(void)
       // make sure the canonical resolutions are always available
       if (i > count - 1)
       {
+        // no hard-coded resolutions for mode-changing fullscreen
+        if (exclusive_fullscreen)
+          continue;
+
         mode.w = canonicals[i - count].w;
         mode.h = canonicals[i - count].h;
       }
@@ -891,6 +896,10 @@ void I_CalculateRes(int width, int height)
     unsigned int count1, count2;
     int pitch1, pitch2;
 
+    if (desired_fullscreen && exclusive_fullscreen)
+    {
+      I_ClosestResolution(&width, &height);
+    }
     SCREENWIDTH = width;//(width+15) & ~15;
     SCREENHEIGHT = height;
 
@@ -1181,11 +1190,13 @@ void I_UpdateVideoMode(void)
   }
 
   // Fullscreen desktop for software renderer only - DTIED
-  if (desired_fullscreen && V_GetMode() != VID_MODEGL)
-    init_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-  else
-  if ( desired_fullscreen )
-    init_flags |= SDL_WINDOW_FULLSCREEN;
+  if (desired_fullscreen)
+  {
+    if (V_GetMode() == VID_MODEGL || exclusive_fullscreen)
+      init_flags |= SDL_WINDOW_FULLSCREEN;
+    else
+      init_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+  }
 
   // In windowed mode, the window can be resized while the game is
   // running.  This feature is disabled on OS X, as it adds an ugly
@@ -1260,7 +1271,7 @@ void I_UpdateVideoMode(void)
     }
 
     // [FG] apply screen_multiply to initial window size
-    if (!(init_flags & SDL_WINDOW_FULLSCREEN_DESKTOP))
+    if (!desired_fullscreen)
     {
       SDL_SetWindowSize(sdl_window, screen_multiply*SCREENWIDTH, screen_multiply*actualheight);
     }
