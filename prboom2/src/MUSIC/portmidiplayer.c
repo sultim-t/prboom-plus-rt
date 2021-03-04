@@ -178,10 +178,15 @@ static int pm_init (int samplerate)
   return 1;
 }
 
+static void pm_stop (void);
+
 static void pm_shutdown (void)
 {
   if (pm_stream)
   {
+    // stop all sound, in case of hanging notes
+    pm_stop();
+
     /* ugly deadlock in portmidi win32 implementation:
 
     main thread gets stuck in Pm_Close
@@ -203,9 +208,7 @@ static void pm_shutdown (void)
     
     not a fix: calling Pm_Abort(); then midiStreamStop deadlocks instead of midiStreamClose. 
     */
-    #ifdef _WIN32
     Pt_Sleep (DRIVER_LATENCY * 2);
-    #endif
 
     Pm_Close (pm_stream);
     Pm_Terminate ();
