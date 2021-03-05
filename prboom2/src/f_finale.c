@@ -294,7 +294,15 @@ extern patchnum_t hu_font[HU_FONTSIZE];
 
 void F_TextWrite (void)
 {
-  V_DrawBackground(finaleflat, 0);
+  // [FG] if interbackdrop does not specify a valid flat, draw it as a patch instead
+  if (gamemapinfo && W_CheckNumForName(finaleflat) != -1 &&
+      (W_CheckNumForName)(finaleflat, ns_flats) == -1)
+  {
+    V_DrawNamePatch(0, 0, 0, finaleflat, CR_DEFAULT, VPT_STRETCH);
+    V_FillBorder(-1, 0);
+  }
+  else
+    V_DrawBackground(finaleflat, 0);
   { // draw some of the text onto the screen
     int         cx = 10;
     int         cy = 10;
