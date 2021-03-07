@@ -18,35 +18,35 @@ jobs:
         config:
         - {
             name: "Visual Studio 64-bit",
-            os: windows-latest,
+            os: windows-2019,
             build_type: "Release",
             extra_options: "-A x64",
             package_name: "vs_x64"
           }
         - {
             name: "Visual Studio 32-bit",
-            os: windows-latest,
+            os: windows-2019,
             build_type: "Release",
             extra_options: "-A Win32",
             package_name: "vs_win32"
           }
         - {
             name: "Linux GCC",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             build_type: "Release",
             extra_options: "",
             package_name: "linux_gcc"
           }
         - {
             name: "Linux Clang",
-            os: ubuntu-latest,
+            os: ubuntu-20.04,
             build_type: "Release",
             extra_options: "-DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++",
             package_name: "linux_clang"
           }
         - {
             name: "macOS Clang",
-            os: macos-latest,
+            os: macos-10.15,
             build_type: "Release",
             extra_options: "",
             package_name: "macos"
