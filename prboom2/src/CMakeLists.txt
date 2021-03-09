@@ -237,6 +237,8 @@ set(DOOMMUSIC_SOURCES
     MUSIC/opl_queue.h
     MUSIC/portmidiplayer.c
     MUSIC/portmidiplayer.h
+    MUSIC/alsaplayer.c
+    MUSIC/alsaplayer.h
     MUSIC/vorbisplayer.c
     MUSIC/vorbisplayer.h
 )
@@ -356,6 +358,10 @@ function(AddGameExecutable TARGET SOURCES)
     if(PortMidi_FOUND)
         target_include_directories(${TARGET} PRIVATE ${PORTMIDI_INCLUDE_DIR})
         target_link_libraries(${TARGET} PRIVATE ${PORTMIDI_LIBRARIES})
+    endif()
+    if(ALSA_FOUND)
+        target_include_directories(${TARGET} PRIVATE ${ALSA_INCLUDE_DIR})
+        target_link_libraries(${TARGET} PRIVATE ${ASOUND_LIBRARY})
     endif()
     add_dependencies(${TARGET} prboomwad)
 

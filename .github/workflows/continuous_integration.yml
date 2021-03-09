@@ -67,7 +67,8 @@ jobs:
         elif [[ "${{ runner.os }}" == 'Linux' ]]; then
           sudo apt update
           sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-net-dev \
-            libpcre3-dev libmad0-dev libfluidsynth-dev libdumb1-dev libvorbis-dev libportmidi-dev
+            libpcre3-dev libmad0-dev libfluidsynth-dev libdumb1-dev libvorbis-dev libportmidi-dev \
+            libasound2-dev
         elif [[ "${{ runner.os }}" == 'macOS' ]]; then
           brew install sdl2 sdl2_image sdl2_mixer sdl2_net pcre mad fluidsynth dumb portmidi
         fi

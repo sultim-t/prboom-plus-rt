@@ -32,6 +32,7 @@
 #cmakedefine HAVE_LIBDUMB
 #cmakedefine HAVE_LIBVORBISFILE
 #cmakedefine HAVE_LIBPORTMIDI
+#cmakedefine HAVE_ALSA
 
 #cmakedefine SIMPLECHECKS
 #cmakedefine ZONEIDCHECK

@@ -9,6 +9,7 @@ Basic Installation (ZIP, tarball, Git)
      - for music support, some or all of
        * SDL2_mixer (midi, timidity)
        * Fluidsynth (midi)
+       * ALSA (midi)
        * Portmidi (midi)
        * MAD (mp3)
        * DUMB (various tracker-style formats)
@@ -16,7 +17,7 @@ Basic Installation (ZIP, tarball, Git)
      On a typical Debian or Ubuntu system this may be sufficient:
        apt-get install libsdl2-dev libsdl2-net-dev libsdl2-image-dev \
          libpcre3-dev libsdl2-mixer-dev libfluidsynth-dev \
-         libportmidi-dev libmad0-dev libdumb1-dev libvorbis-dev
+         libportmidi-dev libmad0-dev libdumb1-dev libvorbis-dev libasound2-dev
          
     You will also need `cmake` and `make` if you haven't already got them.
          
