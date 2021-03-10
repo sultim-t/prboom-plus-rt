@@ -418,7 +418,7 @@ static void WI_slamBackground(void)
 
   if (state != StatCount && enterpic) strcpy(name, enterpic);
   else if (exitpic) strcpy(name, exitpic);
-  else if (gamemode == commercial || (gamemode == retail && wbs->epsd == 3))
+  else if (gamemode == commercial || (gamemode == retail && wbs->epsd >= 3))
     strcpy(name, "INTERPIC");
   else
     sprintf(name, "WIMAP%d", wbs->epsd);
@@ -509,6 +509,10 @@ void WI_drawLF(void)
 	  /* cph - get the graphic lump name and use it */
 	  if (wbs->lastmapinfo != NULL && wbs->lastmapinfo->levelpic[0]) strcpy(lname, wbs->lastmapinfo->levelpic);
 	  else WI_levelNameLump(wbs->epsd, wbs->last, lname);
+
+	  if (W_CheckNumForName(lname) == -1)
+	    return;
+
 	  // CPhipps - patch drawing updated
 	  V_DrawNamePatch((320 - V_NamePatchWidth(lname)) / 2, y,
 		  FB, lname, CR_DEFAULT, VPT_STRETCH);
@@ -553,6 +557,9 @@ void WI_drawEL(void)
 		/* cph - get the graphic lump name */
 		if (wbs->nextmapinfo != NULL && wbs->nextmapinfo->levelpic[0]) strcpy(lname, wbs->nextmapinfo->levelpic);
 		else WI_levelNameLump(wbs->nextep, wbs->next, lname);
+
+		if (W_CheckNumForName(lname) == -1)
+		  return;
 
 		// draw level
 		y += (5 * V_NamePatchHeight(lname)) / 4;

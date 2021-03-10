@@ -65,7 +65,7 @@ int hud_num;
 // Ty 03/28/98 -
 // These four shortcuts modifed to reflect char ** of mapnamesx[]
 // e6y: why sizeof(mapnamest)/sizeof(mapnamest[0]) does not work?
-#define HU_TITLE  (*mapnames[(gameepisode-1)*9+gamemap-1])
+#define HU_TITLE  ((gameepisode <= 5 && gamemap <= 9) ? *mapnames[(gameepisode-1)*9+gamemap-1] : "")
 #define HU_TITLE2 (gamemap <= 33 ? *mapnames2[gamemap-1] : "")
 #define HU_TITLEP (gamemap <= 32 ? *mapnamesp[gamemap-1] : "")
 #define HU_TITLET (gamemap <= 32 ? *mapnamest[gamemap-1] : "")

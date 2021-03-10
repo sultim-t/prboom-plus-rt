@@ -386,21 +386,11 @@ struct MapEntry* G_LookupMapinfo(int gameepisode, int gamemap);
 // 'clev' change-level cheat
 static void cheat_clev0()
 {
-  char next[9];
   int epsd, map;
 
   G_GotoNextLevel(&epsd, &map);
 
-  if (gamemode == commercial)
-  {
-    snprintf(next, 9, "MAP%02d", map);
-  }
-  else
-  {
-    snprintf(next, 9, "E%dM%d", epsd, map);
-  }
-
-  doom_printf("Current: %s, Next: %s",  W_GetLumpInfoByNum(maplumpnum)->name, next);
+  doom_printf("Current: %s, Next: %s",  W_GetLumpInfoByNum(maplumpnum)->name, MAPNAME(epsd, map));
 }
 
 static void cheat_clev(char buf[3])
@@ -423,19 +413,8 @@ static void cheat_clev(char buf[3])
   entry = G_LookupMapinfo(epsd, map);
   if (!entry)
   {
+	  char *next;
 
-	  // Catch invalid maps.
-	  if (epsd < 1 || map < 1 ||   // Ohmygod - this is not going to work.
-		  //e6y: The fourth episode for pre-ultimate complevels is not allowed.
-		  (compatibility_level < ultdoom_compatibility && (epsd > 3)) ||
-		  (gamemode == retail && (epsd > 4 || map > 9)) ||
-		  (gamemode == registered && (epsd > 3 || map > 9)) ||
-		  (gamemode == shareware && (epsd > 1 || map > 9)) ||
-		  (gamemode == commercial && (epsd > 1 || map > 33)))  //jff no 33 and 34
-		  return;                                                  //8/14/98 allowed
-
-	  if (!bfgedition && map == 33)
-		  return;
 	  if (gamemission == pack_nerve && map > 9)
 		  return;
 
@@ -443,6 +422,14 @@ static void cheat_clev(char buf[3])
 	  if (gamemission == chex)
 	  {
 		  epsd = 1;
+	  }
+
+	  // Catch invalid maps.
+	  next = MAPNAME(epsd, map);
+	  if (W_CheckNumForName(next) == -1)
+	  {
+		  doom_printf("IDCLEV target not found: %s", next);
+		  return;
 	  }
   }
   // So be it.
