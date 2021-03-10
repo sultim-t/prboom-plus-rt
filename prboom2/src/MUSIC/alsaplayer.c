@@ -131,11 +131,11 @@ static snd_seq_client_info_t *cinfo;
 static snd_seq_port_info_t   *pinfo;
 
 void alsaplay_refresh_outputs(void) {
-  snd_seq_client_info_malloc(&cinfo);
-  snd_seq_port_info_malloc  (&pinfo);
-
   // port type and capabilities required from valid MIDI output
   const int OUT_CAPS_DESIRED = (SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE);
+
+  snd_seq_client_info_malloc(&cinfo);
+  snd_seq_port_info_malloc  (&pinfo);
 
   if (!seq_handle)
   {
@@ -173,6 +173,8 @@ void alsaplay_refresh_outputs(void) {
     while (snd_seq_query_next_port(seq_handle, pinfo) == 0)
     {
       int port_num = snd_seq_port_info_get_port(pinfo);
+      int out_ind;
+      const char *client_name;
 
       // check if port is valid midi output
 
@@ -188,12 +190,12 @@ void alsaplay_refresh_outputs(void) {
 
       // add to outputs list
 
-      int out_ind = alsaplayer_num_outs++;
+      out_ind = alsaplayer_num_outs++;
 
       alsaplayer_outputs[out_ind].client = client_num;
       alsaplayer_outputs[out_ind].port = port_num;
 
-      const char *client_name = snd_seq_client_info_get_name(cinfo);
+      client_name = snd_seq_client_info_get_name(cinfo);
 
       lprintf(LO_INFO, "alsaplay_refresh_outputs: output #%d: (%d:%d) %s\n", out_ind, client_num, port_num, client_name);
 
@@ -243,11 +245,14 @@ int alsa_midi_default_dest (void)
   static const signed char upper_diff = 'A' - 'a';
   const int loopback_check_len = strlen(loopback_check_name);
 
-  snd_seq_client_info_malloc(&cinfo);
-  snd_seq_port_info_malloc  (&pinfo);
-
   // port type and capabilities required from valid MIDI output
   const int OUT_CAPS_DESIRED = (SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE);
+
+  int loopback_cl = -1, loopback_prt = 0;
+  const char *loopback_name;
+
+  snd_seq_client_info_malloc(&cinfo);
+  snd_seq_port_info_malloc  (&pinfo);
 
   if (!seq_handle)
   {
@@ -257,9 +262,6 @@ int alsa_midi_default_dest (void)
 
   alsaplay_clear_outputs();
 
-  int loopback_cl = -1, loopback_prt = 0;
-  const char *loopback_name;
-
   // clear client info
   snd_seq_client_info_set_client(cinfo, -1);
 
@@ -268,6 +270,7 @@ int alsa_midi_default_dest (void)
     // list ports of each client
 
     int client_num = snd_seq_client_info_get_client(cinfo);
+    const char *client_name;
 
     if (client_num == out_id)
     {
@@ -281,7 +284,7 @@ int alsa_midi_default_dest (void)
       continue;
     }
 
-    const char *client_name = snd_seq_client_info_get_name(cinfo);
+    client_name = snd_seq_client_info_get_name(cinfo);
 
     if (strlen(client_name) >= loopback_check_len)
     {
@@ -623,9 +626,9 @@ static const char *alsa_name (void)
 
 static int alsa_init (int samplerate)
 {
-  lprintf (LO_INFO, "alsaplayer: Trying to open ALSA output port\n");
-
   const char *msg = alsa_midi_open();
+
+  lprintf (LO_INFO, "alsaplayer: Trying to open ALSA output port\n");
 
   if (msg != NULL) {
     lprintf(LO_WARN, "alsa_init: alsa_midi_open() failed: %s\n", msg);
@@ -663,7 +666,7 @@ static const void *alsa_registersong (const void *data, unsigned len)
 
   mf.len = len;
   mf.pos = 0;
-  mf.data = (byte*)data;
+  mf.data = (const byte*)data;
 
   midifile = MIDI_LoadFile (&mf);
 
@@ -762,6 +765,9 @@ static void alsa_resume (void)
 
 static void alsa_play (const void *handle, int looping)
 {
+  snd_seq_queue_timer_t *timer;
+  int status;
+
   // reinit queue
 
   if (!alsa_first_connected)
@@ -781,11 +787,10 @@ static void alsa_play (const void *handle, int looping)
   snd_seq_queue_status_malloc(&queue_status);
 
   // set queue resolution
-  snd_seq_queue_timer_t *timer;
 
   snd_seq_queue_timer_malloc(&timer);
 
-  int status = snd_seq_get_queue_timer(seq_handle, out_queue, timer);
+  status = snd_seq_get_queue_timer(seq_handle, out_queue, timer);
 
   if (status < 0)
   {
