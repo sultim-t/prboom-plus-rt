@@ -415,6 +415,13 @@ static void cheat_clev(char buf[3])
   {
 	  char *next;
 
+	  // Catch invalid maps.
+	  if (epsd < 1 || map < 0 ||   // Ohmygod - this is not going to work.
+		  ((gamemode == retail || gamemode == registered) && (epsd > 9 || map > 9)) ||
+		  (gamemode == shareware && (epsd > 1 || map > 9)) ||
+		  (gamemode == commercial && map > 99))
+		  return;
+
 	  if (gamemission == pack_nerve && map > 9)
 		  return;
 
@@ -424,7 +431,6 @@ static void cheat_clev(char buf[3])
 		  epsd = 1;
 	  }
 
-	  // Catch invalid maps.
 	  next = MAPNAME(epsd, map);
 	  if (W_CheckNumForName(next) == -1)
 	  {
