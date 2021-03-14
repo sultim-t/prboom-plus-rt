@@ -316,17 +316,6 @@ while (SDL_PollEvent(Event))
     }
   }
   break;
-  case SDL_MOUSEMOTION:
-    if (mouse_enabled && window_focused)
-    {
-      int xrel, yrel;
-      event.type = ev_mouse;
-      event.data1 = I_SDLtoDoomMouseState(SDL_GetRelativeMouseState(&xrel, &yrel));
-      event.data2 = xrel << 4;
-      event.data3 = -yrel << 4;
-      D_PostEvent(&event);
-    }
-    break;
 
   case SDL_WINDOWEVENT:
     if (Event->window.windowID == windowid)
@@ -1413,6 +1402,7 @@ void I_UpdateVideoMode(void)
 static void ActivateMouse(void)
 {
   SDL_SetRelativeMouseMode(SDL_TRUE);
+  SDL_GetRelativeMouseState(NULL, NULL);
 }
 
 static void DeactivateMouse(void)
@@ -1427,6 +1417,24 @@ static void DeactivateMouse(void)
 // motion event.
 static void I_ReadMouse(void)
 {
+  if (mouse_enabled && window_focused)
+  {
+    int x, y;
+
+    SDL_GetRelativeMouseState(&x, &y);
+
+    if (x != 0 || y != 0)
+    {
+      event_t event;
+      event.type = ev_mousemotion;
+      event.data1 = 0;
+      event.data2 = x << 4;
+      event.data3 = -y << 4;
+
+      D_PostEvent(&event);
+    }
+  }
+
   if (!usemouse)
     return;
 

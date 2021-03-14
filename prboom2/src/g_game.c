@@ -1030,6 +1030,9 @@ dboolean G_Responder (event_t* ev)
 
     case ev_mouse:
       SetMouseButtons(ev->data1);
+      return true;    // eat events
+
+    case ev_mousemotion:
       /*
        * bmead@surfree.com
        * Modified by Barry Mead after adding vastly more resolution
