@@ -332,6 +332,8 @@ static void P_XYMovement (mobj_t* mo)
       // killough 10/98:
       // Don't affect main player when voodoo dolls stop, except in old demos:
 
+      // COMPAT: MBF compares (demo_version < 203) here, i.e. this should read
+      //         (compatibility_level < lxdoom_1_compatibility)
       if (player && (unsigned)(player->mo->state - states - S_PLAY_RUN1) < 4
     && (player->mo == mo || compatibility_level >= lxdoom_1_compatibility))
   P_SetMobjState(player->mo, S_PLAY);

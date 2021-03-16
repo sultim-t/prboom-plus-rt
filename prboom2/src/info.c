@@ -4940,6 +4940,8 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = {
 
   // killough 7/11/98: this is the evil sceptre in the beta version
   {   // MT_SCEPTRE
+    // COMPAT: MBF sets doomednum to -1 if not in "beta emulation" mode,
+    //         causing MT_SCEPTRE map things to not getting spawned at all
     2016,           // doomednum
     S_BON3,         // spawnstate
     1000,           // spawnhealth
@@ -4967,6 +4969,8 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = {
 
   // killough 7/11/98: this is the unholy bible in the beta version
   {   // MT_BIBLE
+    // COMPAT: MBF sets doomednum to -1 if not in "beta emulation" mode,
+    //         causing MT_BIBLE map things to not getting spawned at all
     2017,           // doomednum
     S_BON4,         // spawnstate
     1000,           // spawnhealth

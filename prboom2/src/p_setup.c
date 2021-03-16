@@ -2084,6 +2084,7 @@ static void P_LoadBlockMap (int lump)
   long count;
 
   if (M_CheckParm("-blockmap") || W_LumpLength(lump)<8 || (count = W_LumpLength(lump)/2) >= 0x10000) //e6y
+    // COMPAT: MBF uses a different algorithm in P_CreateBlockMap()
     P_CreateBlockMap();
   else
     {

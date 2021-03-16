@@ -360,6 +360,8 @@ static dboolean P_Move(mobj_t *actor, dboolean dropoff) /* killough 9/12/98 */
 
   if (try_ok && friction > ORIG_FRICTION)
     {
+      // COMPAT: MBF calls P_UnsetThingPosition()/P_SetThingPosition() and
+      //         restores floorz, ceilingz and dropoffz values as well
       actor->x = origx;
       actor->y = origy;
       movefactor *= FRACUNIT / ORIG_FRICTION_FACTOR / 4;
