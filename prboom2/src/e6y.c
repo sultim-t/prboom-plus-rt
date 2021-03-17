@@ -123,6 +123,7 @@ int hudadd_demotime;
 int hudadd_secretarea;
 int hudadd_smarttotals;
 int hudadd_demoprogressbar;
+int hudadd_timests;
 int hudadd_crosshair;
 int hudadd_crosshair_scale;
 int hudadd_crosshair_color;
