@@ -115,6 +115,7 @@ set(GRAPHICS
     graphics/digy.ppm
     graphics/digz.ppm
     graphics/dig45.ppm
+    graphics/dig46.ppm
     graphics/dig47.ppm
     graphics/dig58.ppm
     graphics/dig91.ppm

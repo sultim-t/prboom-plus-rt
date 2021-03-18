@@ -334,6 +334,11 @@ void HU_Init(void)
       R_SetPatchNum(&hu_font2[i], "DIG45");
       R_SetPatchNum(&hu_font[i], "STCFN045");
     }
+    else if (j=='.')
+    {
+      R_SetPatchNum(&hu_font2[i], "DIG46");
+      R_SetPatchNum(&hu_font[i], "STCFN046");
+    }
     else if (j=='/')
     {
       R_SetPatchNum(&hu_font2[i], "DIG47");
@@ -1062,6 +1067,15 @@ void HU_widget_draw_ammo_icon(void);
 void HU_widget_build_gkeys(void);
 void HU_widget_draw_gkeys(void);
 
+// [FG] draw Time/STS widgets above status bar
+static inline dboolean drawTimeSTSwidgets (void)
+{
+  return hudadd_timests &&
+    viewheight < SCREENHEIGHT &&
+    (!(automapmode & am_active) ||
+     (automapmode & am_overlay));
+}
+
 static hud_widget_t hud_name_widget[] =
 {
   {&w_ammo,   0, 0, 0, HU_widget_build_ammo,   HU_widget_draw_ammo,   "ammo"},
@@ -1212,6 +1226,24 @@ void HU_LoadHUDDefs(void)
 void HU_MoveHud(int force)
 {
   static int ohud_num = -1;
+
+  // [FG] draw Time/STS widgets above status bar
+  if (viewheight < SCREENHEIGHT)
+  {
+    if (force || ohud_num != -2)
+    {
+      w_hudadd.x = HU_TITLEX;
+      w_hudadd.y = HU_TITLEY - HU_GAPY;
+      w_hudadd.flags = VPT_ALIGN_LEFT_BOTTOM;
+
+      w_monsec.x = HU_TITLEX;
+      w_monsec.y = HU_TITLEY;
+      w_monsec.flags = VPT_ALIGN_LEFT_BOTTOM;
+
+      ohud_num = -2;
+    }
+    return;
+  }
 
   //jff 3/4/98 move displays around on F5 changing hud_distributed
   if ((huds_count > 0) && (force || hud_num != ohud_num))
@@ -2358,7 +2390,7 @@ void HU_Drawer(void)
   // draw the automap widgets if automap is displayed
   if (automapmode & am_active)
   {
-    if (!(automapmode & am_overlay) || (viewheight != SCREENHEIGHT))//!hud_displayed)
+    if ((!(automapmode & am_overlay) || (viewheight != SCREENHEIGHT)) && !drawTimeSTSwidgets())
     {
       // map title
       HUlib_drawTextLine(&w_title, false);
@@ -2516,6 +2548,19 @@ void HU_Drawer(void)
       }
     }
 
+  }
+  // [FG] draw Time/STS widgets above status bar
+  else if (drawTimeSTSwidgets())
+  {
+    HU_MoveHud(false);
+
+    if (realframe)
+    {
+      HU_widget_build_monsec();
+      HU_widget_build_hudadd();
+    }
+    HU_widget_draw_monsec();
+    HU_widget_draw_hudadd();
   }
 
   //jff 3/4/98 display last to give priority

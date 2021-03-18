@@ -984,6 +984,8 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"hudadd_demoprogressbar", {&hudadd_demoprogressbar},  {1},0,1,
    def_bool,ss_stat},
+  {"hudadd_timests", {&hudadd_timests},  {0},0,1,
+   def_bool,ss_stat},
   {"hudadd_crosshair", {&hudadd_crosshair},  {0},0,HU_CROSSHAIRS-1,
    def_bool,ss_stat},
   {"hudadd_crosshair_scale", {&hudadd_crosshair_scale},  {0},0,1,
