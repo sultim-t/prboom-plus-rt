@@ -3224,8 +3224,8 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
   {"Enable v1.1 Pitch Effects",      S_YESNO,            m_null, G_X, G_Y+15*8, {"pitched_sounds"}},
   {"PC Speaker emulation",           S_YESNO|S_PRGWARN,  m_null, G_X, G_Y+16*8, {"snd_pcspeaker"}},
   {"Preferred MIDI player",          S_CHOICE|S_PRGWARN, m_null, G_X, G_Y+17*8, {"snd_midiplayer"}, 0, 0, M_ChangeMIDIPlayer, midiplayers},
-  {"Low-pass filter",                S_YESNO,            m_null, G_X, G_Y+18*8, {"lowpass_filter"}},
-  {"disable sound cutoffs",          S_YESNO,            m_null, G_X, G_Y+19*8, {"full_sounds"}},
+  {"disable sound cutoffs",          S_YESNO,            m_null, G_X, G_Y+18*8, {"full_sounds"}},
+//{"Low-pass filter",                S_YESNO,            m_null, G_X, G_Y+19*8, {"lowpass_filter"}},
 
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
