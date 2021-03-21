@@ -69,7 +69,7 @@ int hud_num;
 #define HU_TITLE2 (gamemap <= 33 ? *mapnames2[gamemap-1] : "")
 #define HU_TITLEP (gamemap <= 32 ? *mapnamesp[gamemap-1] : "")
 #define HU_TITLET (gamemap <= 32 ? *mapnamest[gamemap-1] : "")
-#define HU_TITLEC (*mapnames[gamemap-1])
+#define HU_TITLEC (gamemap <= 5 ? *mapnames[gamemap-1] : "")
 #define HU_TITLEX 0
 //jff 2/16/98 change 167 to ST_Y-1
 // CPhipps - changed to ST_TY
@@ -756,6 +756,7 @@ void HU_Start(void)
 	  // initialize the automap's level title widget
 	  // e6y: stop SEGV here when gamemap is not initialized
 	  if (gamestate == GS_LEVEL && gamemap > 0) /* cph - stop SEGV here when not in level */
+	  {
 		  switch (gamemode)
 		  {
 		  case shareware:
@@ -770,14 +771,16 @@ void HU_Start(void)
 				  (gamemission == pack_plut) ? HU_TITLEP : HU_TITLE2;
 			  break;
 		  }
+
+		  // Chex.exe always uses the episode 1 level title
+		  // eg. E2M1 gives the title for E1M1
+		  if (gamemission == chex)
+		  {
+			  s = HU_TITLEC;
+		  }
+	  }
 	  else s = "";
 
-	  // Chex.exe always uses the episode 1 level title
-	  // eg. E2M1 gives the title for E1M1
-	  if (gamemission == chex)
-	  {
-		  s = HU_TITLEC;
-	  }
 	  while (*s)
 		  HUlib_addCharToTextLine(&w_title, *(s++));
   }
