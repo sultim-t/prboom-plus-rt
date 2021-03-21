@@ -455,13 +455,24 @@ int G_GotoNextLevel(int *e, int *m)
 		if (gamemode == commercial)
 		{
 			epsd = 1;
-			map = doom2_next[BETWEEN(0, 32, map)];
+			if (map >= 0 && map <= 32)
+				map = doom2_next[map];
+			else
+				map = gamemap + 1;
 		}
 		else
 		{
-			int next = doom_next[BETWEEN(0, 3, epsd)][BETWEEN(0, 9, map)];
-			epsd = next / 10;
-			map = next % 10;
+			if (epsd >= 0 && epsd <= 3 && map >= 0 && map <= 8)
+			{
+				int next = doom_next[epsd][map];
+				epsd = next / 10;
+				map = next % 10;
+			}
+			else
+			{
+				epsd = gameepisode;
+				map = gamemap + 1;
+			}
 		}
 	}
 
