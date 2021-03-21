@@ -65,11 +65,11 @@ int hud_num;
 // Ty 03/28/98 -
 // These four shortcuts modifed to reflect char ** of mapnamesx[]
 // e6y: why sizeof(mapnamest)/sizeof(mapnamest[0]) does not work?
-#define HU_TITLE  ((gameepisode <= 5 && gamemap <= 9) ? *mapnames[(gameepisode-1)*9+gamemap-1] : "")
-#define HU_TITLE2 (gamemap <= 33 ? *mapnames2[gamemap-1] : "")
-#define HU_TITLEP (gamemap <= 32 ? *mapnamesp[gamemap-1] : "")
-#define HU_TITLET (gamemap <= 32 ? *mapnamest[gamemap-1] : "")
-#define HU_TITLEC (gamemap <= 5 ? *mapnames[gamemap-1] : "")
+#define HU_TITLE  ((gameepisode <= 5 && gamemap <= 9) ? *mapnames[(gameepisode-1)*9+gamemap-1] : s)
+#define HU_TITLE2 (gamemap <= 33 ? *mapnames2[gamemap-1] : s)
+#define HU_TITLEP (gamemap <= 32 ? *mapnamesp[gamemap-1] : s)
+#define HU_TITLET (gamemap <= 32 ? *mapnamest[gamemap-1] : s)
+#define HU_TITLEC (gamemap <= 5 ? *mapnames[gamemap-1] : s)
 #define HU_TITLEX 0
 //jff 2/16/98 change 167 to ST_Y-1
 // CPhipps - changed to ST_TY
@@ -757,6 +757,9 @@ void HU_Start(void)
 	  // e6y: stop SEGV here when gamemap is not initialized
 	  if (gamestate == GS_LEVEL && gamemap > 0) /* cph - stop SEGV here when not in level */
 	  {
+		  // initialize the map title widget with the generic map lump name
+		  s = MAPNAME(gameepisode, gamemap);
+
 		  switch (gamemode)
 		  {
 		  case shareware:
