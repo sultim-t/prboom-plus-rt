@@ -487,8 +487,17 @@ int G_GotoNextLevel(int *e, int *m)
 		!demorecording && !demoplayback &&
 		!menuactive)
 	{
-		G_DeferedInitNew(gameskill, epsd, map);
-		changed = true;
+		char *next = MAPNAME(epsd, map);
+
+		if (W_CheckNumForName(next) == -1)
+		{
+		  doom_printf("Next level not found: %s", next);
+		}
+		else
+		{
+		  G_DeferedInitNew(gameskill, epsd, map);
+		  changed = true;
+		}
 	}
 
 	return changed;
