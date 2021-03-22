@@ -387,10 +387,15 @@ struct MapEntry* G_LookupMapinfo(int gameepisode, int gamemap);
 static void cheat_clev0()
 {
   int epsd, map;
+  char *next;
 
   G_GotoNextLevel(&epsd, &map);
+  next = MAPNAME(epsd, map);
 
-  doom_printf("Current: %s, Next: %s",  W_GetLumpInfoByNum(maplumpnum)->name, MAPNAME(epsd, map));
+  if (W_CheckNumForName(next) != -1)
+    doom_printf("Current: %s, Next: %s",  W_GetLumpInfoByNum(maplumpnum)->name, next);
+  else
+    doom_printf("Current: %s",  W_GetLumpInfoByNum(maplumpnum)->name);
 }
 
 static void cheat_clev(char buf[3])
