@@ -705,9 +705,7 @@ static void P_NightmareRespawn(mobj_t* mobj)
    * regardless of that point's nature. SMMU and Eternity need this for
    * script-spawned things like Halif Swordsmythe, as well.
    *
-   * cph - copied from eternity, except comp_respawnfix becomes comp_respawn
-   *   and the logic is reversed (i.e. like the rest of comp_ it *disables*
-   *   the fix)
+   * cph - copied from eternity, alias comp_respawnfix
    */
   if(!comp[comp_respawn] && !x && !y)
   {

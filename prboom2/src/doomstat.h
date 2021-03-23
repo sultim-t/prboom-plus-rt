@@ -109,7 +109,7 @@ enum {
   comp_infcheat,
   comp_zerotags,
   comp_moveblock,
-  comp_respawn,  /* cph - this is the inverse of comp_respawnfix from eternity */
+  comp_respawn,  /* cph - alias of comp_respawnfix from eternity */
   comp_sound,
   comp_666,
   comp_soul,
