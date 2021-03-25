@@ -109,7 +109,8 @@ interbackdrop = "graphic"
 intermusic = "song"
 
 ; Clears the episode menu of all previous entries. Should be used on the first
-; map if a mod wants to define its own episodes.
+; map if a mod wants to define its own episodes. Doom 2 and Chex Quest have no
+; episodes by default.
 episode = clear
 
 ; Defines an entry for the episode menu. If all defined episodes define a valid
@@ -309,6 +310,9 @@ Thingtypes:
 
 
 Revisions:
+
+Rev 1.4 (@rfomin, Mar 23 2021)
+ * Clarify the 'episode' field in the case of Doom 2 and Chex Quest.
 
 Rev 1.3 (@fabiangreffrath, Mar 5 2021)
  * If interbackdrop does not specify a valid flat, draw it as a patch instead.

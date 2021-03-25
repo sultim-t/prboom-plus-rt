@@ -568,7 +568,15 @@ int epiChoice;
 
 void M_AddEpisode(const char *map, char *def)
 {
-	EpiCustom = true;
+	if (!EpiCustom)
+	{
+		EpiCustom = true;
+		NewDef.prevMenu = &EpiDef;
+
+		if (gamemode == commercial || gamemission == chex)
+			EpiDef.numitems = 0;
+	}
+
 	if (*def == '-')	// means 'clear'
 	{
 		EpiDef.numitems = 0;
@@ -6283,7 +6291,8 @@ void M_Init(void)
       MainMenu[readthis] = MainMenu[quitdoom];
       MainDef.numitems--;
       MainDef.y += 8;
-      NewDef.prevMenu = &MainDef;
+      if (!EpiCustom)
+        NewDef.prevMenu = &MainDef;
       ReadDef1.routine = M_DrawReadThis1;
       ReadDef1.x = 330;
       ReadDef1.y = 165;
