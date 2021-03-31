@@ -2137,17 +2137,47 @@ static void AM_drawMarks(void)
           if (p.x < f_x + f_w &&
               p.x + markpoints[i].widths[k] * SCREENWIDTH / 320 >= f_x)
           {
+            float fx, fy;
+            int x, y, flags;
+
+            switch (render_stretch_hud)
+            {
+              case patch_stretch_16x10:
+                fx = (float)p.fx / patches_scalex;
+                fy = (float)p.fy * 200.0f / SCREENHEIGHT;
+
+                x = p.x / patches_scalex;
+                y = p.y * 200 / SCREENHEIGHT;
+
+                flags = VPT_ALIGN_LEFT | VPT_STRETCH;
+                break;
+              case patch_stretch_4x3:
+                fx = (float)p.fx * 320.0f / WIDE_SCREENWIDTH;
+                fy = (float)p.fy * 200.0f / WIDE_SCREENHEIGHT;
+
+                x = p.x * 320 / WIDE_SCREENWIDTH;
+                y = p.y * 200 / WIDE_SCREENHEIGHT;
+                
+                flags = VPT_ALIGN_LEFT | VPT_STRETCH;
+                break;
+              case patch_stretch_full:
+                fx = (float)p.fx * 320.0f / SCREENWIDTH;
+                fy = (float)p.fy * 200.0f / SCREENHEIGHT;
+
+                x = p.x * 320 / SCREENWIDTH;
+                y = p.y * 200 / SCREENHEIGHT;
+                
+                flags = VPT_ALIGN_WIDE | VPT_STRETCH;
+                break;
+            }
+
             if (am_frame.precise)
             {
-              V_DrawNamePatchPrecise(
-                (float)p.fx * 320.0f / SCREENWIDTH, (float)p.fy * 200.0f / SCREENHEIGHT,
-                FB, namebuf, CR_DEFAULT, VPT_ALIGN_WIDE | VPT_STRETCH);
+              V_DrawNamePatchPrecise(fx, fy, FB, namebuf, CR_DEFAULT, flags);
             }
             else
             {
-              V_DrawNamePatch(
-                p.x * 320 / SCREENWIDTH, p.y * 200 / SCREENHEIGHT,
-                FB, namebuf, CR_DEFAULT, VPT_ALIGN_WIDE | VPT_STRETCH);
+              V_DrawNamePatch(x, y, FB, namebuf, CR_DEFAULT, flags);
             }
           }
 
