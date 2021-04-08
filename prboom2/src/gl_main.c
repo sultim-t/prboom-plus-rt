@@ -1747,7 +1747,7 @@ void gld_AddWall(seg_t *seg)
         }
         else
         {
-          if ((toptexture != NO_TEXTURE && midtexture == NO_TEXTURE) ||
+          if (((backsector->ceilingpic != skyflatnum && toptexture != NO_TEXTURE) && midtexture == NO_TEXTURE) ||
             backsector->ceilingpic != skyflatnum ||
             backsector->ceilingheight <= frontsector->floorheight)
           {
