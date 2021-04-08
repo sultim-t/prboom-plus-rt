@@ -113,7 +113,6 @@ int use_fullscreen;
 int desired_fullscreen;
 int exclusive_fullscreen;
 int render_vsync;
-int screen_multiply;
 int render_screen_multiply;
 int integer_scaling;
 SDL_Surface *screen;
@@ -1135,6 +1134,7 @@ video_mode_t I_GetModeFromString(const char *modestr)
 void I_UpdateVideoMode(void)
 {
   int init_flags = 0;
+  int screen_multiply;
   int actualheight;
   const dboolean novsync = M_CheckParm("-timedemo") || \
                            M_CheckParm("-fastdemo");
@@ -1240,8 +1240,7 @@ void I_UpdateVideoMode(void)
     sdl_renderer = SDL_CreateRenderer(sdl_window, -1, flags);
 
     // [FG] aspect ratio correction for the canonical video modes
-    if ((SCREENWIDTH == 320 && SCREENHEIGHT == 200) ||
-        (SCREENWIDTH == 640 && SCREENHEIGHT == 400))
+    if (SCREENWIDTH % 320 == 0 && SCREENHEIGHT % 200 == 0)
     {
       actualheight = 6*SCREENHEIGHT/5;
     }
@@ -1254,9 +1253,9 @@ void I_UpdateVideoMode(void)
     SDL_RenderSetLogicalSize(sdl_renderer, SCREENWIDTH, actualheight);
 
     // [FG] make sure initial window size is always >= 640x480
-    if (SCREENWIDTH <= 320 && SCREENHEIGHT <= 240 && screen_multiply == 1)
+    while (screen_multiply*SCREENWIDTH < 640 || screen_multiply*actualheight < 480)
     {
-      screen_multiply = 2;
+      screen_multiply++;
     }
 
     // [FG] apply screen_multiply to initial window size
