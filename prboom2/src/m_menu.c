@@ -1008,6 +1008,60 @@ static void M_DoSave(int slot)
     quickSaveSlot = slot;
 }
 
+// [FG] generate a default save slot name if the user saves to an empty slot
+static void SetDefaultSaveName (int slot)
+{
+    // map from IWAD or PWAD?
+    if (lumpinfo[maplumpnum].source == source_iwad)
+    {
+        snprintf(savegamestrings[itemOn], SAVESTRINGSIZE,
+                   "%s", lumpinfo[maplumpnum].name);
+    }
+    else
+    {
+        char *wadname = (strdup)(lumpinfo[maplumpnum].wadfile->name);
+        char *ext = strrchr(wadname, '.');
+        char *basename = wadname + strlen(wadname) - 1;
+
+        if (ext != NULL)
+            *ext = '\0';
+
+        while (basename > wadname && *basename != '/' && *basename != '\\')
+          basename--;
+        if (*basename == '/' || *basename == '\\')
+          basename++;
+
+        snprintf(savegamestrings[itemOn], SAVESTRINGSIZE,
+                   "%s (%s)", lumpinfo[maplumpnum].name,
+                   basename);
+        (free)(wadname);
+    }
+
+    M_Strupr(savegamestrings[itemOn]);
+}
+
+// [FG] override savegame name if it already starts with a map identifier
+static dboolean StartsWithMapIdentifier (char *str)
+{
+    M_Strupr(str);
+
+    if (strlen(str) >= 4 &&
+        str[0] == 'E' && isdigit(str[1]) &&
+        str[2] == 'M' && isdigit(str[3]))
+    {
+        return true;
+    }
+
+    if (strlen(str) >= 5 &&
+        str[0] == 'M' && str[1] == 'A' && str[2] == 'P' &&
+        isdigit(str[3]) && isdigit(str[4]))
+    {
+        return true;
+    }
+
+    return false;
+}
+
 //
 // User wants to save. Start string input for M_Responder
 //
@@ -1018,8 +1072,12 @@ void M_SaveSelect(int choice)
 
   saveSlot = choice;
   strcpy(saveOldString,savegamestrings[choice]);
-  if (!strcmp(savegamestrings[choice],s_EMPTYSTRING)) // Ty 03/27/98 - externalized
+  if (!strcmp(savegamestrings[choice],s_EMPTYSTRING) || // Ty 03/27/98 - externalized
+      StartsWithMapIdentifier(savegamestrings[choice]))
+  {
     savegamestrings[choice][0] = 0;
+    SetDefaultSaveName(choice);
+  }
   saveCharIndex = strlen(savegamestrings[choice]);
 }
 
