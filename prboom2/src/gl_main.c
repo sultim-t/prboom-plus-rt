@@ -2624,6 +2624,8 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
 
   sprite.index = gl_spriteindex++;
   sprite.xy = thing->x + (thing->y >> 16); 
+  sprite.fx = thing->x;
+  sprite.fy = thing->y;
 
   sprite.vt = 0.0f;
   sprite.vb = sprite.gltexture->scaleyfac;
@@ -3230,43 +3232,75 @@ void gld_DrawScene(player_t *player)
   gld_RenderShadows();
   glsl_SetActiveShader(sh_main);
 
+  /* Transparent sprites and transparent things must be rendered
+   * in far-to-near order. The approach used here is to sort in-
+   * place by comparing the next farthest items in the queue.
+   * There are known limitations to this approach, but it is
+   * a trade-off of accuracy for speed.
+   * Refer to the discussion below for more detail.
+   * https://github.com/coelckers/prboom-plus/pull/262
+   */
   if (gld_drawinfo.num_items[GLDIT_TWALL] > 0 || gld_drawinfo.num_items[GLDIT_TSPRITE] > 0)
   {
-    if (gld_drawinfo.num_items[GLDIT_TWALL] > 0)
-    {
-      // if translucency percentage is less than 50,
-      // then all translucent textures and sprites disappear completely
-      // without this line
-      glAlphaFunc(GL_GREATER, 0.0f);
+      int twall_idx   = gld_drawinfo.num_items[GLDIT_TWALL] - 1;
+      int tsprite_idx = gld_drawinfo.num_items[GLDIT_TSPRITE] - 1;
 
-      // transparent walls
-      for (i = gld_drawinfo.num_items[GLDIT_TWALL] - 1; i >= 0; i--)
+      if (tsprite_idx > 0)
+          gld_DrawItemsSortSprites(GLDIT_TSPRITE);
+
+      while (twall_idx >= 0 || tsprite_idx >= 0 )
       {
-        gld_SetFog(gld_drawinfo.items[GLDIT_TWALL][i].item.wall->fogdensity);
-        gld_ProcessWall(gld_drawinfo.items[GLDIT_TWALL][i].item.wall);
+          dboolean draw_tsprite = false;
+
+          /* find out what is next to draw */
+          if (twall_idx >= 0 && tsprite_idx >= 0)
+          {
+              /* both are left to draw, determine
+               * which is farther */
+              seg_t *twseg = gld_drawinfo.items[GLDIT_TWALL][twall_idx].item.wall->seg;
+              int ti;
+              for (ti = tsprite_idx; ti >= 0; ti--) {
+                  /* reconstruct the sprite xy */
+                  fixed_t tsx = gld_drawinfo.items[GLDIT_TSPRITE][ti].item.sprite->fx;
+                  fixed_t tsy = gld_drawinfo.items[GLDIT_TSPRITE][ti].item.sprite->fy;
+
+                  if (R_PointOnSegSide(tsx, tsy, twseg))
+                  {
+                      /* a thing is behind the seg */
+                      /* do not draw the seg yet */
+                      draw_tsprite = true;
+                      break;
+                  }
+              }
+          }
+          else if (tsprite_idx >= 0)
+          {
+              /* no transparent walls left, draw a sprite */
+              draw_tsprite = true;
+          }
+          /* fall-through case is draw wall */
+
+          if (draw_tsprite)
+          {
+              /* transparent sprite is farther, draw it */
+              glAlphaFunc(GL_GEQUAL, gl_mask_sprite_threshold_f);
+              gld_SetFog(gld_drawinfo.items[GLDIT_TSPRITE][tsprite_idx].item.sprite->fogdensity);
+              gld_DrawSprite(gld_drawinfo.items[GLDIT_TSPRITE][tsprite_idx].item.sprite);
+              tsprite_idx--;
+          }
+          else
+          {
+              glDepthMask(GL_FALSE);
+              /* transparent wall is farther, draw it */
+              glAlphaFunc(GL_GREATER, 0.0f);
+              gld_SetFog(gld_drawinfo.items[GLDIT_TWALL][twall_idx].item.wall->fogdensity);
+              gld_ProcessWall(gld_drawinfo.items[GLDIT_TWALL][twall_idx].item.wall);
+              glDepthMask(GL_TRUE);
+              twall_idx--;
+          }
       }
-    }
-
-    glEnable(GL_ALPHA_TEST);
-
-    // transparent sprites
-    // sorting is necessary only for transparent sprites.
-    // from back to front
-    if (gld_drawinfo.num_items[GLDIT_TSPRITE] > 0)
-    {
-      glAlphaFunc(GL_GEQUAL, gl_mask_sprite_threshold_f);
-      glDepthMask(GL_FALSE);
-      gld_DrawItemsSortSprites(GLDIT_TSPRITE);
-      for (i = gld_drawinfo.num_items[GLDIT_TSPRITE] - 1; i >= 0; i--)
-      {
-        gld_SetFog(gld_drawinfo.items[GLDIT_TSPRITE][i].item.sprite->fogdensity);
-        gld_DrawSprite(gld_drawinfo.items[GLDIT_TSPRITE][i].item.sprite);
-      }
-      glDepthMask(GL_TRUE);
-    }
-
-    // restoring
-    glAlphaFunc(GL_GEQUAL, 0.5f);
+      glAlphaFunc(GL_GEQUAL, 0.5f);
+      glEnable(GL_ALPHA_TEST);
   }
 
   // e6y: detail

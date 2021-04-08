@@ -1478,18 +1478,6 @@ void deh_changeCompTranslucency(void)
   {
     if (!DEH_mobjinfo_bits[predefined_translucency[i]])
     {
-      // Transparent sprites are not visible behind transparent walls in OpenGL.
-      // It needs much work.
-#ifdef GL_DOOM
-      if (V_GetMode() == VID_MODEGL)
-      {
-        // Disabling transparency in OpenGL for original sprites
-        // which are not changed by dehacked, because it's buggy for now.
-        // Global sorting of transparent sprites and walls is needed
-        mobjinfo[predefined_translucency[i]].flags &= ~MF_TRANSLUCENT;
-      }
-      else
-#endif
       if (default_comp[comp_translucency])
         mobjinfo[predefined_translucency[i]].flags &= ~MF_TRANSLUCENT;
       else 

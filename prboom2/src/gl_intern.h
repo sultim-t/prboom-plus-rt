@@ -253,6 +253,7 @@ typedef struct
   uint_64_t flags;
   int index;
   int xy;
+  fixed_t fx,fy;
 } GLSprite;
 
 typedef enum
