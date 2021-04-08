@@ -581,6 +581,10 @@ default_t defaults[] =
    def_int,ss_keys}, // mouse button number to use for forward motion
   {"mouseb_backward",{&mousebbackward},{-1},-1,MAX_MOUSEB,
    def_int,ss_keys}, // mouse button number to use for backward motion
+  {"mouseb_turnright",{&mousebturnright},{-1},-1,MAX_MOUSEB,
+   def_int,ss_keys}, // mouse button number to use for turning right
+  {"mouseb_turnleft",{&mousebturnleft},{-1},-1,MAX_MOUSEB,
+   def_int,ss_keys}, // mouse button number to use for turning left
   {"mouseb_use", {&mousebuse},{-1},-1,MAX_MOUSEB,
    def_int,ss_keys}, // mouse button number to use for using doors/switches
   //jff 3/8/98 end of lower range change for -1 allowed in mouse binding

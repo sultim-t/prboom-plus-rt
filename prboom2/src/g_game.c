@@ -260,6 +260,8 @@ int     mousebfire;
 int     mousebstrafe;
 int     mousebforward;
 int     mousebbackward;
+int     mousebturnright;
+int     mousebturnleft;
 int     mousebuse;
 int     joybfire;
 int     joybstrafe;
@@ -491,7 +493,8 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     // use two stage accelerative turning
     // on the keyboard and joystick
   if (joyxmove < 0 || joyxmove > 0 ||
-      gamekeydown[key_right] || gamekeydown[key_left])
+      gamekeydown[key_right] || gamekeydown[key_left] ||
+      mousebuttons[mousebturnright] || mousebuttons[mousebturnleft])
     turnheld += ticdup;
   else
     turnheld = 0;
@@ -514,9 +517,9 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 
   if (strafe)
     {
-      if (gamekeydown[key_right])
+      if (gamekeydown[key_right] || mousebuttons[mousebturnright])
         side += sidemove[speed];
-      if (gamekeydown[key_left])
+      if (gamekeydown[key_left] || mousebuttons[mousebturnleft])
         side -= sidemove[speed];
       if (joyxmove > 0)
         side += sidemove[speed];
@@ -525,9 +528,9 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     }
   else
     {
-      if (gamekeydown[key_right])
+      if (gamekeydown[key_right] || mousebuttons[mousebturnright])
         cmd->angleturn -= angleturn[tspeed];
-      if (gamekeydown[key_left])
+      if (gamekeydown[key_left] || mousebuttons[mousebturnleft])
         cmd->angleturn += angleturn[tspeed];
       if (joyxmove > 0)
         cmd->angleturn -= angleturn[tspeed];
@@ -4320,7 +4323,8 @@ void P_WalkTicker()
     // use two stage accelerative turning
     // on the keyboard and joystick
   if (joyxmove < 0 || joyxmove > 0 ||
-      gamekeydown[key_right] || gamekeydown[key_left])
+      gamekeydown[key_right] || gamekeydown[key_left] ||
+      mousebuttons[mousebturnright] || mousebuttons[mousebturnleft])
     turnheld += ticdup;
   else
     turnheld = 0;
@@ -4334,9 +4338,9 @@ void P_WalkTicker()
 
   if (strafe)
     {
-      if (gamekeydown[key_right])
+      if (gamekeydown[key_right] || mousebuttons[mousebturnright])
         side += sidemove[speed];
-      if (gamekeydown[key_left])
+      if (gamekeydown[key_left] || mousebuttons[mousebturnleft])
         side -= sidemove[speed];
       if (joyxmove > 0)
         side += sidemove[speed];
@@ -4345,9 +4349,9 @@ void P_WalkTicker()
     }
   else
     {
-      if (gamekeydown[key_right])
+      if (gamekeydown[key_right] || mousebuttons[mousebturnright])
         angturn -= angleturn[tspeed];
-      if (gamekeydown[key_left])
+      if (gamekeydown[key_left] || mousebuttons[mousebturnleft])
         angturn += angleturn[tspeed];
       if (joyxmove > 0)
         angturn -= angleturn[tspeed];
