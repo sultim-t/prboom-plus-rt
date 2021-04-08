@@ -3694,7 +3694,7 @@ setup_menu_t comp_settings3[] =  // Compatibility Settings screen #3
   {"Max Health in DEH applies only to potions", S_YESNO, m_null, C_X,
    C_Y + compat_maxhealth * COMP_SPC, {"comp_maxhealth"}},
   {"No predefined translucency for some things", S_YESNO, m_null, C_X,
-   C_Y + compat_translucency * COMP_SPC, {"comp_translucency"}},
+   C_Y + compat_translucency * COMP_SPC, {"comp_translucency"},0,0,deh_changeCompTranslucency},
    // [FG]
   {"allow MBF sky transfers in all complevels", S_YESNO, m_null, C_X,
    C_Y + compat_skytransfers * COMP_SPC, {"comp_skytransfers"}},
