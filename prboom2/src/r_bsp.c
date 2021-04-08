@@ -664,39 +664,88 @@ static void R_Subsector(int num)
     if (V_GetMode() == VID_MODEGL)
     {
       // check if the sector is faked
-      if (!gl_use_stencil && frontsector == sub->sector)
-      {
-        sector_t *tmpsec;
+      sector_t *tmpsec = NULL;
 
-        // if the sector has bottomtextures, then the floorheight will be set to the
-        // highest surounding floorheight
-        if ((frontsector->flags & NO_BOTTOMTEXTURES) || (!floorplane))
+        if(frontsector == sub->sector)
         {
-          tmpsec = GetBestFake(frontsector, 0, validcount);
+            if (!gl_use_stencil)
+            {
 
-          if (tmpsec && frontsector->floorheight != tmpsec->floorheight)
-          {
-            dummyfloorplane.height = tmpsec->floorheight;
-            dummyfloorplane.lightlevel = tmpsec->lightlevel;
-            dummyfloorplane.picnum = tmpsec->floorpic;
-            floorplane = &dummyfloorplane;
-          }
+                // if the sector has bottomtextures, then the floorheight will be set to the
+                // highest surounding floorheight
+                if ((frontsector->flags & NO_BOTTOMTEXTURES) || (!floorplane))
+                {
+                    tmpsec = GetBestFake(frontsector, 0, validcount);
+
+                    if (tmpsec && frontsector->floorheight != tmpsec->floorheight)
+                    {
+                        dummyfloorplane.height = tmpsec->floorheight;
+                        dummyfloorplane.lightlevel = tmpsec->lightlevel;
+                        dummyfloorplane.picnum = tmpsec->floorpic;
+                        floorplane = &dummyfloorplane;
+                    }
+                }
+
+                // the same for ceilings. they will be set to the lowest ceilingheight
+                if ((frontsector->flags & NO_TOPTEXTURES) || (!ceilingplane))
+                {
+                    tmpsec = GetBestFake(frontsector, 1, validcount);
+
+                    if (tmpsec && frontsector->ceilingheight != tmpsec->ceilingheight)
+                    {
+                        dummyceilingplane.height = tmpsec->ceilingheight;
+                        dummyceilingplane.lightlevel = tmpsec->lightlevel;
+                        dummyceilingplane.picnum = tmpsec->ceilingpic;
+                        ceilingplane = &dummyceilingplane;
+                    }
+                }
+            }
+
+            /*
+             * Floors higher than the player's viewheight, or ceilings lower
+             * than the player's viewheight with no textures will bleed the
+             * sector behind them through in the software renderer. This is
+             * occasionally used to create an "invisible wall" effect to hide
+             * monsters, but in the GL renderer would leave an untextured space
+             * beneath or above unless otherwise patched.
+             *
+             * This code attempts to find an appropriate sector to "bleed
+             * through" over the untextured gap.
+             *
+             * Note there is a corner case that is not handled: If a dummy
+             * sector off-screen is the lowest adjacent sector to the invisible
+             * wall, and it is at a different height than the correct
+             * bleed-through sector, the dummy sector is copied instead of the
+             * sector behind the player. It may be possible to address this in
+             * a future patch by refactoring this into the renderer and tagging
+             * visible candidate sectors during drawing.
+             */
+            if (frontsector->floorheight >= viewz && (frontsector->flags & MISSING_BOTTOMTEXTURES))
+            {
+                tmpsec = GetBestBleedSector(frontsector, 0);
+
+                if (tmpsec)
+                {
+                    dummyfloorplane.height = tmpsec->floorheight;
+                    dummyfloorplane.lightlevel = tmpsec->lightlevel;
+                    dummyfloorplane.picnum = tmpsec->floorpic;
+                    floorplane = &dummyfloorplane;
+                }
+            }
+
+            if (frontsector->ceilingheight <= viewz && (frontsector->flags & MISSING_TOPTEXTURES))
+            {
+                tmpsec = GetBestBleedSector(frontsector, 1);
+
+                if (tmpsec)
+                {
+                    dummyceilingplane.height = tmpsec->ceilingheight;
+                    dummyceilingplane.lightlevel = tmpsec->lightlevel;
+                    dummyceilingplane.picnum = tmpsec->ceilingpic;
+                    ceilingplane = &dummyceilingplane;
+                }
+            }
         }
-
-        // the same for ceilings. they will be set to the lowest ceilingheight
-        if ((frontsector->flags & NO_TOPTEXTURES) || (!ceilingplane))
-        {
-          tmpsec = GetBestFake(frontsector, 1, validcount);
-
-          if (tmpsec && frontsector->ceilingheight != tmpsec->ceilingheight)
-          {
-            dummyceilingplane.height = tmpsec->ceilingheight;
-            dummyceilingplane.lightlevel = tmpsec->lightlevel;
-            dummyceilingplane.picnum = tmpsec->ceilingpic;
-            ceilingplane = &dummyceilingplane;
-          }
-        }
-      }
     }
 #endif
 
