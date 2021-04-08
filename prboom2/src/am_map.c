@@ -2142,6 +2142,7 @@ static void AM_drawMarks(void)
 
             switch (render_stretch_hud)
             {
+              default:
               case patch_stretch_16x10:
                 fx = (float)p.fx / patches_scalex;
                 fy = (float)p.fy * 200.0f / SCREENHEIGHT;
