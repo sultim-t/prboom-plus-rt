@@ -159,12 +159,12 @@ void gld_GetScreenSkyScale(GLWall *wall, float *scale_x, float *scale_y)
   if (!mlook_or_fov)
   {
     sx = sx / (float)wall->gltexture->buffer_width;
-    sy = 200.0f / 160.0f;//wall->gltexture->buffer_height;
+    sy = 200.0f / (wall->gltexture->buffer_height * 1.25f);
   }
   else 
   {
     sx = sx * skyscale / (float)wall->gltexture->buffer_width;
-    sy = 127.0f * skyscale / 160.0f;
+    sy = 127.0f * skyscale / (wall->gltexture->buffer_height * 1.25f);
   }
 
   *scale_x = sx;
