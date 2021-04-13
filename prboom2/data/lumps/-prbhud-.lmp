@@ -139,3 +139,15 @@ armor_big -298 -198
 ;medict_icon_custom 232 -197
 ;health_big -302 -198
 ;medict_percent -318 -198
+
+hud 13
+tracers 2 151
+hudadd 2 159
+keys 24 168
+weapon 24 177
+ammo_icon 4 -197
+ammo 24 186
+health -297 168
+medict_icon_small -315 -179
+armor -297 186
+armor_icon_small -316 -197
