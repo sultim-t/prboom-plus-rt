@@ -65,17 +65,19 @@ partime = seconds
 endgame = false
 
 ; Ends the game after this level, showing the default post-game screen for the
-; current episode.
+; current episode. Skips the 'entering level' screen.
 endgame = true
 
 ; Ends the game after this level, showing the specified graphic as an end
-; screen.
+; screen. Skips the 'entering level' screen.
 endpic = "graphic"
 
-; Ends the game after this level, showing the bunny scroller.
+; Ends the game after this level, showing the bunny scroller. Skips the
+; 'entering level' screen.
 endbunny = true
 
-; Ends the game after this level, showing the cast call.
+; Ends the game after this level, showing the cast call. Skips the 'entering
+; level' screen.
 endcast = true
 
 ; Currently only working for levels that end the game: When true skips the
@@ -314,6 +316,10 @@ Thingtypes:
 
 
 Revisions:
+
+Rev 1.6 (@fabiangreffrath, Apr 19 2021)
+ * Skip the 'entering level' screen if one of endgame, endpic, endbunny or
+   endcast is set.
 
 Rev 1.5 (@Shadow-Hog, Apr 17 2021)
  * Add in all the additional actor names for DEHEXTRA.

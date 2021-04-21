@@ -1073,6 +1073,13 @@ void WI_drawShowNextLoc(void)
       WI_drawOnLnode(wbs->next, yah);
   }
 
+  if (gamemapinfo != NULL &&
+      gamemapinfo->endpic[0] &&
+      strcmp(gamemapinfo->endpic, "-") != 0)
+  {
+    return;
+  }
+
   if (gamemission == pack_nerve && singleplayer && wbs->last == 7)
     return; // MAP08 end game
 
