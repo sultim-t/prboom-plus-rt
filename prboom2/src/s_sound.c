@@ -95,7 +95,7 @@ int snd_MusicVolume = 15;
 static dboolean mus_paused;
 
 // music currently being played
-static musicinfo_t *mus_playing;
+musicinfo_t *mus_playing;
 
 // music currently should play
 static int musicnum_current;
@@ -207,6 +207,7 @@ void S_Start(void)
 	  int muslump = W_CheckNumForName(gamemapinfo->music);
 	  if (muslump >= 0)
 	  {
+		  musinfo.items[0] = muslump;
 		  S_ChangeMusInfoMusic(muslump, true);
 		  return;
 	  }
@@ -533,6 +534,7 @@ void S_ChangeMusic(int musicnum, int looping)
   // current music which should play
   musicnum_current = musicnum;
   musinfo.current_item = -1;
+  S_music[NUMMUSIC].lumpnum = -1;
 
   //jff 1/22/98 return if music is not enabled
   if (!mus_card || nomusicparm)
