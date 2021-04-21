@@ -25,6 +25,8 @@ IDI_ICON1               ICON    DISCARDABLE     "prboom-plus.ico"
 
 #ifdef _MSC_VER
 1                       24      MOVEABLE PURE   "prboom-plus.exe.manifest"
+#else
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST  "prboom-plus.exe.manifest"
 #endif
 
 IDD_LAUNCHERSERVERDIALOG DIALOGEX 0, 0, 187, 245
