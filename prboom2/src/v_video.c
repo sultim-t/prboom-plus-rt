@@ -425,6 +425,10 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
   if (!trans)
     flags &= ~VPT_TRANS;
 
+  // [FG] automatically center wide patches without horizontal offset
+  if (patch->width > 320 && patch->leftoffset == 0)
+    x -= (patch->width - 320) / 2;
+
   if (V_GetMode() == VID_MODE8 && !(flags & VPT_STRETCH_MASK)) {
     int             col;
     byte           *desttop = screens[scrn].data+y*screens[scrn].byte_pitch+x*V_GetPixelDepth();
@@ -559,7 +563,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
       top =  (y < 0 || y > 200 ? (y * params->video->height) / 200 : params->video->y1lookup[y]);
 
       if (x + patch->width < 0 || x + patch->width > 320)
-        right = ( ((x + patch->width - 1) * params->video->width) / 320 );
+        right = ( ((x + patch->width) * params->video->width - 1) / 320 );
       else
         right = params->video->x2lookup[x + patch->width - 1];
 
@@ -1683,7 +1687,6 @@ void SetRatio(int width, int height)
     patches_scaley = MIN(render_patches_scaley, patches_scaley);
   }
 
-  ST_SCALED_WIDTH = ST_WIDTH * patches_scalex;
   ST_SCALED_HEIGHT = ST_HEIGHT * patches_scaley;
 
   if (SCREENWIDTH < 320 || WIDE_SCREENWIDTH < 320 ||
@@ -1702,7 +1705,6 @@ void SetRatio(int width, int height)
     break;
   case patch_stretch_4x3:
     ST_SCALED_HEIGHT = ST_HEIGHT * WIDE_SCREENHEIGHT / 200;
-    ST_SCALED_WIDTH  = WIDE_SCREENWIDTH;
 
     ST_SCALED_Y = SCREENHEIGHT - ST_SCALED_HEIGHT;
     
@@ -1711,7 +1713,6 @@ void SetRatio(int width, int height)
     break;
   case patch_stretch_full:
     ST_SCALED_HEIGHT = ST_HEIGHT * SCREENHEIGHT / 200;
-    ST_SCALED_WIDTH  = SCREENWIDTH;
 
     ST_SCALED_Y = SCREENHEIGHT - ST_SCALED_HEIGHT;
     wide_offset2x = 0;
@@ -1725,6 +1726,9 @@ void SetRatio(int width, int height)
   SCREEN_320x200 =
     (SCREENWIDTH == 320) && (SCREENHEIGHT == 200) &&
     (WIDE_SCREENWIDTH == 320) && (WIDE_SCREENHEIGHT == 200);
+
+  // [FG] support widescreen status bar backgrounds
+  ST_SetScaledWidth();
 }
 
 void V_GetWideRect(int *x, int *y, int *w, int *h, enum patch_translation_e flags)

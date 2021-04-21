@@ -298,8 +298,8 @@ void F_TextWrite (void)
   if (gamemapinfo && W_CheckNumForName(finaleflat) != -1 &&
       (W_CheckNumForName)(finaleflat, ns_flats) == -1)
   {
-    V_DrawNamePatch(0, 0, 0, finaleflat, CR_DEFAULT, VPT_STRETCH);
     V_FillBorder(-1, 0);
+    V_DrawNamePatch(0, 0, 0, finaleflat, CR_DEFAULT, VPT_STRETCH);
   }
   else
     V_DrawBackground(finaleflat, 0);
@@ -593,11 +593,11 @@ void F_CastDrawer (void)
   int                 lump;
   dboolean             flip;
 
+  // e6y: wide-res
+  V_FillBorder(-1, 0);
   // erase the entire screen to a background
   // CPhipps - patch drawing updated
   V_DrawNamePatch(0,0,0, bgcastcall, CR_DEFAULT, VPT_STRETCH); // Ty 03/30/98 bg texture extern
-  // e6y: wide-res
-  V_FillBorder(-1, 0);
 
   F_CastPrint (*(castorder[castnum].name));
 
@@ -623,17 +623,44 @@ static void F_BunnyScroll (void)
   char        name[10];
   int         stage;
   static int  laststage;
+  static int  p1offset, p2width;
+
+  if (finalecount == 0)
+  {
+    const rpatch_t *p1, *p2;
+    p1 = R_CachePatchName(pfub1);
+    p2 = R_CachePatchName(pfub2);
+
+    p2width = p2->width;
+    if (p1->width == 320)
+    {
+      // Unity or original PFUBs.
+      p1offset = (p2width - 320) / 2;
+    }
+    else
+    {
+      // Widescreen mod PFUBs.
+      p1offset = 0;
+    }
+
+    W_UnlockLumpName(pfub2);
+    W_UnlockLumpName(pfub1);
+  }
 
   {
     int scrolled = 320 - (finalecount-230)/2;
     if (scrolled <= 0) {
       V_DrawNamePatch(0, 0, 0, pfub2, CR_DEFAULT, VPT_STRETCH);
     } else if (scrolled >= 320) {
-      V_DrawNamePatch(0, 0, 0, pfub1, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatch(p1offset, 0, 0, pfub1, CR_DEFAULT, VPT_STRETCH);
+      if (p1offset > 0)
+        V_DrawNamePatch(-320, 0, 0, pfub2, CR_DEFAULT, VPT_STRETCH);
     } else {
-      V_DrawNamePatch(320-scrolled, 0, 0, pfub1, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatch(p1offset+320-scrolled, 0, 0, pfub1, CR_DEFAULT, VPT_STRETCH);
       V_DrawNamePatch(-scrolled, 0, 0, pfub2, CR_DEFAULT, VPT_STRETCH);
     }
+    if (p2width == 320)
+      V_FillBorder(-1, 0);
   }
 
   if (finalecount < 1130)
@@ -682,6 +709,8 @@ void F_Drawer (void)
     F_TextWrite ();
   else
   {
+    // e6y: wide-res
+    V_FillBorder(-1, 0);
     switch (gameepisode)
     {
       // CPhipps - patch drawing updated
@@ -701,7 +730,5 @@ void F_Drawer (void)
            V_DrawNamePatch(0, 0, 0, "ENDPIC", CR_DEFAULT, VPT_STRETCH);
            break;
     }
-    // e6y: wide-res
-    V_FillBorder(-1, 0);
   }
 }

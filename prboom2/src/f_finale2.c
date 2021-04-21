@@ -163,8 +163,8 @@ void FMI_Drawer(void)
 	}
 	else
 	{
-		V_DrawNamePatch(0, 0, 0, gamemapinfo->endpic, CR_DEFAULT, VPT_STRETCH);
 		// e6y: wide-res
 		V_FillBorder(-1, 0);
+		V_DrawNamePatch(0, 0, 0, gamemapinfo->endpic, CR_DEFAULT, VPT_STRETCH);
 	}
 }

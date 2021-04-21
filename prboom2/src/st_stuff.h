@@ -52,6 +52,9 @@
 extern int ST_SCALED_HEIGHT;
 extern int ST_SCALED_WIDTH;
 extern int ST_SCALED_Y;
+extern int ST_SCALED_OFFSETX;
+
+void ST_SetScaledWidth(void);
 
 //
 // STATUS BAR

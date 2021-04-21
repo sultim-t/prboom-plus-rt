@@ -423,11 +423,11 @@ static void WI_slamBackground(void)
   else
     sprintf(name, "WIMAP%d", wbs->epsd);
 
-  // background
-  V_DrawNamePatch(0, 0, FB, name, CR_DEFAULT, VPT_STRETCH);
-
   // e6y: wide-res
   V_FillBorder(-1, 0);
+
+  // background
+  V_DrawNamePatch(0, 0, FB, name, CR_DEFAULT, VPT_STRETCH);
 }
 
 

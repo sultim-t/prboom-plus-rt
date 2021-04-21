@@ -1076,18 +1076,18 @@ void R_FillBackScreen (void)
       only_stbar = screenblocks >= 10;
     }
 
-    if (only_stbar)
+    if (only_stbar && ST_SCALED_OFFSETX > 0)
     {
       int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
 
       V_FillFlat(grnrock.lumpnum, 1,
-        0, stbar_top, wide_offsetx, ST_SCALED_HEIGHT, VPT_NONE);
+        0, stbar_top, ST_SCALED_OFFSETX, ST_SCALED_HEIGHT, VPT_NONE);
       V_FillFlat(grnrock.lumpnum, 1,
-        SCREENWIDTH - wide_offsetx, stbar_top, wide_offsetx, ST_SCALED_HEIGHT, VPT_NONE);
+        SCREENWIDTH - ST_SCALED_OFFSETX, stbar_top, ST_SCALED_OFFSETX, ST_SCALED_HEIGHT, VPT_NONE);
       
       // line between view and status bar
-      V_FillPatch(brdr_b.lumpnum, 1, 0, stbar_top, wide_offsetx, brdr_b.height, VPT_NONE);
-      V_FillPatch(brdr_b.lumpnum, 1, SCREENWIDTH - wide_offsetx, stbar_top, wide_offsetx, brdr_b.height, VPT_NONE);
+      V_FillPatch(brdr_b.lumpnum, 1, 0, stbar_top, ST_SCALED_OFFSETX, brdr_b.height, VPT_NONE);
+      V_FillPatch(brdr_b.lumpnum, 1, SCREENWIDTH - ST_SCALED_OFFSETX, stbar_top, ST_SCALED_OFFSETX, brdr_b.height, VPT_NONE);
 
       return;
     }
@@ -1153,18 +1153,19 @@ void R_DrawViewBorder(void)
 
   // e6y: wide-res
   if ((ratio_multiplier != ratio_scale || wide_offsety) &&
+      ST_SCALED_OFFSETX > 0 &&
      ((SCREENHEIGHT != viewheight) ||
      ((automapmode & am_active) && ! (automapmode & am_overlay))))
   {
     for (i = (SCREENHEIGHT - ST_SCALED_HEIGHT); i < SCREENHEIGHT; i++)
     {
-      R_VideoErase (0, i, wide_offsetx);
-      R_VideoErase (SCREENWIDTH - wide_offsetx, i, wide_offsetx);
+      R_VideoErase (0, i, ST_SCALED_OFFSETX);
+      R_VideoErase (SCREENWIDTH - ST_SCALED_OFFSETX, i, ST_SCALED_OFFSETX);
     }
   }
 
   if ( viewheight >= ( SCREENHEIGHT - ST_SCALED_HEIGHT ))
-    return; // if high-res, don´t go any further!
+    return; // if high-res, don't go any further!
 
   top = ((SCREENHEIGHT-ST_SCALED_HEIGHT)-viewheight)/2;
   side = (SCREENWIDTH-scaledviewwidth)/2;
