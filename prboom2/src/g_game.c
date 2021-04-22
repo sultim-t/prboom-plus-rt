@@ -3548,6 +3548,9 @@ void G_BeginRecording (void)
 
   if (fwrite(demostart, 1, demo_p-demostart, demofp) != (size_t)(demo_p-demostart))
     I_Error("G_BeginRecording: Error writing demo header");
+
+  R_DemoEx_ResetMLook();
+
   free(demostart);
 }
 

@@ -116,6 +116,7 @@ void W_AddLump(wadtbl_t *wadtbl, const char *name, const byte* data, size_t size
 extern dboolean use_demoex_info;
 void R_DemoEx_WriteMLook(angle_t pitch);
 angle_t R_DemoEx_ReadMLook(void);
+void R_DemoEx_ResetMLook(void);
 
 dboolean D_TryGetWad(const char* name);
 

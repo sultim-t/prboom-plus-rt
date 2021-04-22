@@ -450,6 +450,11 @@ angle_t R_DemoEx_ReadMLook(void)
   return (pitch << 16);
 }
 
+void R_DemoEx_ResetMLook(void)
+{
+  mlook_lump.tick = 0;
+}
+
 void R_DemoEx_WriteMLook(angle_t pitch)
 {
   if (!use_demoex_info || !demorecording)
