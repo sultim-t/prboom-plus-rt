@@ -630,7 +630,6 @@ int ParseUMapInfo(const unsigned char *buffer, size_t length, umapinfo_errorfunc
 		if (parsed.endpic[0] && (strcmp(parsed.endpic, "-") != 0))
 		{
 			parsed.nextmap[0] = parsed.nextsecret[0] = 0;
-			if (parsed.endpic[0] == '!') parsed.endpic[0] = 0;
 		}
 		else if (!parsed.nextmap[0] && !parsed.endpic[0])
 		{

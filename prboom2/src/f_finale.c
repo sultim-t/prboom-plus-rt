@@ -618,7 +618,7 @@ void F_CastDrawer (void)
 static const char pfub2[] = { "PFUB2" };
 static const char pfub1[] = { "PFUB1" };
 
-static void F_BunnyScroll (void)
+void F_BunnyScroll (void)
 {
   char        name[10];
   int         stage;

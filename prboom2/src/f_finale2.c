@@ -49,6 +49,7 @@
 
 void F_StartCast (void);
 void F_TextWrite(void);
+void F_BunnyScroll(void);
 
 void WI_checkForAccelerate(void);    // killough 3/28/98: used to
 float Get_TextSpeed(void);
@@ -139,6 +140,9 @@ void FMI_Ticker(void)
 					if (!stricmp(gamemapinfo->endpic, "$BUNNY"))
 					{
 						S_StartMusic(mus_bunny);
+					}
+					else if (!stricmp(gamemapinfo->endpic, "!"))
+					{
 						using_FMI = false;
 					}
 				}
@@ -160,6 +164,10 @@ void FMI_Drawer(void)
 	if (!finalestage || !gamemapinfo->endpic[0] || (strcmp(gamemapinfo->endpic, "-") == 0))
 	{
 		F_TextWrite();
+	}
+	else if (strcmp(gamemapinfo->endpic, "$BUNNY") == 0)
+	{
+		F_BunnyScroll();
 	}
 	else
 	{
