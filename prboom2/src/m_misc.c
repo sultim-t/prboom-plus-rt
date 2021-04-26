@@ -268,6 +268,8 @@ simple_shadow_params_t simple_shadows;
 int gl_shadows_maxdist;
 int gl_shadows_factor;
 int gl_blend_animations;
+spritefuzzmode_t gl_thingspritefuzzmode;
+spritefuzzmode_t gl_weaponspritefuzzmode;
 
 #endif
 
@@ -1174,6 +1176,10 @@ default_t defaults[] =
    def_int,ss_none},
   {"gl_blend_animations",{&gl_blend_animations},{0},0,1,
    def_bool,ss_none},
+  {"gl_thingspritefuzzmode",{(int*)&gl_thingspritefuzzmode},{fuzz_darken},fuzz_darken,fuzz_last-1,
+      def_int, ss_none},
+  {"gl_weaponspritefuzzmode",{(int*)&gl_weaponspritefuzzmode},{fuzz_darken},fuzz_darken,fuzz_last-1,
+      def_int, ss_none},
 
   {"Prboom-plus emulation settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"overrun_spechit_warn", {&overflows[OVERFLOW_SPECHIT].warn},  {0},0,1,

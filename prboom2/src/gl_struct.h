@@ -205,6 +205,10 @@ void gld_DrawMapLines(void);
 
 //sprites
 typedef enum { spriteclip_const, spriteclip_always, spriteclip_smart } spriteclipmode_t;
+typedef enum { fuzz_darken, fuzz_shadow, fuzz_transparent, fuzz_ghostly, fuzz_last } spritefuzzmode_t;
+extern spritefuzzmode_t gl_thingspritefuzzmode;
+extern spritefuzzmode_t gl_weaponspritefuzzmode;
+extern const char *gl_spritefuzzmodes[];
 extern spriteclipmode_t gl_spriteclip;
 extern const char *gl_spriteclipmodes[];
 extern int gl_spriteclip_threshold;
