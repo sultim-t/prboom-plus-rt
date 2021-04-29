@@ -53,6 +53,7 @@ endif()
 
 check_symbol_exists(getopt "unistd.h" HAVE_GETOPT)
 check_symbol_exists(mmap "sys/mman.h" HAVE_MMAP)
+check_symbol_exists(CreateFileMapping "windows.h" HAVE_CREATE_FILE_MAPPING)
 if(NOT WIN32)
     set(CMAKE_REQUIRED_DEFINITIONS_PREV ${CMAKE_REQUIRED_DEFINITIONS})
     set(CMAKE_REQUIRED_DEFINITIONS ${CMAKE_REQUIRED_DEFINITIONS} -D_GNU_SOURCE)

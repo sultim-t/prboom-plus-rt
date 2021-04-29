@@ -176,7 +176,7 @@ set(NET_CLIENT_SRC
     d_client.c
 )
 
-if(HAVE_MMAP)
+if(HAVE_MMAP OR HAVE_CREATE_FILE_MAPPING)
     set(WAD_SRC w_mmap.c)
 else()
     set(WAD_SRC w_memcache.c)
