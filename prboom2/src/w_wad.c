@@ -442,18 +442,6 @@ int W_GetNumForName (const char* name)     // killough -- const added
   return i;
 }
 
-// e6y
-// W_SafeGetNumForName
-// Calls W_CheckNumForName, and returns (-1) if any error happens
-// Makes sense for doom.wad v1.2 for skip of some absent sounds
-int W_SafeGetNumForName(const char *name)
-{
-  int i = W_CheckNumForName (name);
-  if (i == -1)
-    lprintf(LO_DEBUG, "W_GetNumForName: %.8s not found\n", name);
-  return i;
-}
-
 const lumpinfo_t* W_GetLumpInfoByNum(int lump)
 {
   if (lump < 0 || lump >= numlumps)
