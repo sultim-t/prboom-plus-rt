@@ -156,7 +156,6 @@ void S_Init(int sfxVolume, int musicVolume)
     {
       sfxinfo_t *sfx = &S_sfx[i];
       sfx->lumpnum = I_GetSfxLumpNum(sfx);
-      sfx->usefulness = -1;
 
       if (sfx->lumpnum >= 0)
         W_LockLumpNum(sfx->lumpnum);
@@ -341,10 +340,6 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume)
   // killough 2/28/98: make missing sounds non-fatal
   if (sfx->lumpnum < 0 && (sfx->lumpnum = I_GetSfxLumpNum(sfx)) < 0)
     return;
-
-  // increase the usefulness
-  if (sfx->usefulness++ < 0)
-    sfx->usefulness = 1;
 
   // Assigns the handle to one of the channels in the mix/output buffer.
   { // e6y: [Fix] Crash with zero-length sounds.
@@ -704,8 +699,6 @@ void S_StopChannel(int cnum)
         if (cnum != i && c->sfxinfo == channels[i].sfxinfo)
           break;
 
-      // degrade usefulness of sound data
-      c->sfxinfo->usefulness--;
       c->sfxinfo = 0;
     }
 }
