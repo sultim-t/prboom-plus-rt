@@ -153,7 +153,14 @@ void S_Init(int sfxVolume, int musicVolume)
 
     // Note that sounds have not been cached (yet).
     for (i=1 ; i<NUMSFX ; i++)
-      S_sfx[i].lumpnum = S_sfx[i].usefulness = -1;
+    {
+      sfxinfo_t *sfx = &S_sfx[i];
+      sfx->lumpnum = I_GetSfxLumpNum(sfx);
+      sfx->usefulness = -1;
+
+      if (sfx->lumpnum >= 0)
+        W_LockLumpNum(sfx->lumpnum);
+    }
   }
 
   // CPhipps - music init reformatted
