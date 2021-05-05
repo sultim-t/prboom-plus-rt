@@ -1021,6 +1021,7 @@ static void R_DrawPSprite (pspdef_t *psp)
   vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;
 // proff 11/06/98: Added for high-res
   vis->scale = pspriteyscale;
+  vis->color = CR_DEFAULT;
 
   if (flip)
     {
