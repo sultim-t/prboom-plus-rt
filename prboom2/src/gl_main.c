@@ -158,6 +158,9 @@ GLfloat cm2RGB[CR_LIMIT + 1][4] =
   {1.00f ,0.50f, 0.25f, 1.00f}, //CR_ORANGE
   {1.00f ,1.00f, 0.00f, 1.00f}, //CR_YELLOW
   {0.50f ,0.50f, 1.00f, 1.00f}, //CR_BLUE2
+  {0.00f ,0.00f, 0.00f, 1.00f}, //CR_BLACK
+  {0.50f ,0.00f, 0.50f, 1.00f}, //CR_PURPLE
+  {1.00f ,1.00f, 1.00f, 1.00f}, //CR_WHITE
   {1.00f ,1.00f, 1.00f, 1.00f}, //CR_LIMIT
 };
 
@@ -2625,9 +2628,9 @@ void gld_ProjectSprite(mobj_t* thing, int lightlevel)
   }
   sprite.cm = CR_LIMIT + (int)((thing->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
   // [FG] colored blood and gibs
-  if (thing->flags & MF_COLOREDBLOOD)
+  if (thing->bloodcolor != CR_DEFAULT)
   {
-    sprite.cm = (thing->flags & MF_TRANSLATION1) ? CR_BLUE2 : CR_GREEN;
+    sprite.cm = thing->bloodcolor;
   }
   sprite.gltexture = gld_RegisterPatch(lump, sprite.cm, true);
   if (!sprite.gltexture)

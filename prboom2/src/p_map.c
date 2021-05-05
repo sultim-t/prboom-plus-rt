@@ -1971,7 +1971,7 @@ dboolean PIT_ChangeSector (mobj_t* thing)
     }
     thing->height = 0;
     thing->radius = 0;
-    thing->flags |= P_ColoredBlood(thing);
+    thing->bloodcolor = V_BloodColor(thing->info->bloodcolor);
     return true; // keep checking
     }
 
@@ -2009,7 +2009,7 @@ dboolean PIT_ChangeSector (mobj_t* thing)
     mo = P_SpawnMobj (thing->x,
                       thing->y,
                       thing->z + thing->height/2, MT_BLOOD);
-    mo->flags |= P_ColoredBlood(thing);
+    mo->bloodcolor = V_BloodColor(thing->info->bloodcolor);
 
     /* killough 8/10/98: remove dependence on order of evaluation */
     t = P_Random(pr_crush);

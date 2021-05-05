@@ -1036,7 +1036,7 @@ typedef struct
 // killough 8/9/98: make DEH_BLOCKMAX self-adjusting
 #define DEH_BLOCKMAX (sizeof deh_blocks/sizeof*deh_blocks)  // size of array
 #define DEH_MAXKEYLEN 32 // as much of any key as we'll look at
-#define DEH_MOBJINFOMAX 25 // number of ints in the mobjinfo_t structure (!)
+#define DEH_MOBJINFOMAX 26 // number of ints in the mobjinfo_t structure (!)
 
 // Put all the block header values, and the function to be called when that
 // one is encountered, in this array:
@@ -1102,6 +1102,7 @@ static const char *deh_mobjinfo[DEH_MOBJINFOMAX] =
   "Bits2",               // .flags
   "Respawn frame",       // .raisestate
   "Dropped item",        // .droppeditem
+  "Blood color",         // .bloodcolor
 };
 
 // Strings that are used to indicate flags ("Bits" in mobjinfo)
@@ -1452,6 +1453,20 @@ void D_BuildBEXTables(void)
       break;
       default:
       mobjinfo[i].droppeditem = MT_NULL;
+    }
+
+    // [FG] colored blood and gibs
+    switch (i)
+    {
+      case MT_HEAD:
+      mobjinfo[i].bloodcolor = 3; // Blue
+      break;
+      case MT_BRUISER:
+      case MT_KNIGHT:
+      mobjinfo[i].bloodcolor = 2; // Green
+      break;
+      default:
+      mobjinfo[i].bloodcolor = 0; // Red (normal)
     }
   }
 }
@@ -1850,6 +1865,7 @@ static void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint_64_t value) {
       }
       break;
     case 24: mi->droppeditem = (int)(value-1); return; // make it base zero (deh is 1-based)
+    case 25: mi->bloodcolor = (int)value; return;
     default: return;
   }
 }

@@ -539,11 +539,10 @@ static void R_DrawVisSprite(vissprite_t *vis)
     colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_FUZZ, filter, filterz);    // killough 3/14/98
   else
     // [FG] colored blood and gibs
-    if (vis->mobjflags & MF_COLOREDBLOOD)
+    if (vis->color != CR_DEFAULT)
       {
         colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, filter, filterz);
-        dcvars.translation = (vis->mobjflags & MF_TRANSLATION1) ?
-                             colrngs[CR_BLUE2] : colrngs[CR_GREEN];
+        dcvars.translation = colrngs[vis->color];
       }
   else
     if (vis->mobjflags & MF_TRANSLATION)
@@ -810,6 +809,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   vis->x1 = x1 < 0 ? 0 : x1;
   vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;
   iscale = FixedDiv (FRACUNIT, xscale);
+  vis->color = thing->bloodcolor;
 
   if (flip)
     {

@@ -1505,20 +1505,6 @@ void P_SpawnPuff(fixed_t x,fixed_t y,fixed_t z)
 }
 
 
-// [FG] colored blood and gibs
-uint_64_t P_ColoredBlood (mobj_t* bleeder)
-{
-  if (colored_blood)
-  {
-    // Barons of Hell and Hell Knights bleed green blood
-    if (bleeder->type == MT_BRUISER || bleeder->type == MT_KNIGHT)
-      return MF_COLOREDBLOOD;
-    // Cacodemons bleed blue blood
-    else if (bleeder->type == MT_HEAD)
-      return MF_COLOREDBLOOD | MF_TRANSLATION1;
-  }
-  return 0;
-}
 
 //
 // P_SpawnBlood
@@ -1532,7 +1518,7 @@ void P_SpawnBlood(fixed_t x,fixed_t y,fixed_t z,int damage, mobj_t* bleeder)
   th = P_SpawnMobj(x,y,z, MT_BLOOD);
   th->momz = FRACUNIT*2;
   th->tics -= P_Random(pr_spawnblood)&3;
-  th->flags |= P_ColoredBlood(bleeder);
+  th->bloodcolor = V_BloodColor(bleeder->info->bloodcolor);
 
   if (th->tics < 1)
     th->tics = 1;

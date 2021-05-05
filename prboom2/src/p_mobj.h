@@ -227,8 +227,6 @@
 #define MF_NOTARGET        LONGLONG(0x0000010000000000)
 // fly mode is active
 #define MF_FLY             LONGLONG(0x0000020000000000)
-// [FG] colored blood and gibs
-#define MF_COLOREDBLOOD    LONGLONG(0x0000040000000000)
 
 #define ALIVE(thing) ((thing->health > 0) && ((thing->flags & (MF_COUNTKILL | MF_CORPSE | MF_RESSURECTED)) == MF_COUNTKILL))
 
@@ -372,7 +370,7 @@ typedef struct mobj_s
 
     int iden_nums;		// hi word stores thing num, low word identifier num
 
-    fixed_t             pad; // cph - needed so I can get the size unambiguously on amd64
+    fixed_t             bloodcolor; // [FG] renamed from "pad", now used to track the thing's blood color
 
     // SEE WARNING ABOVE ABOUT POINTER FIELDS!!!
 } mobj_t;
@@ -416,7 +414,6 @@ void    P_RemoveMobj(mobj_t *th);
 dboolean P_SetMobjState(mobj_t *mobj, statenum_t state);
 void    P_MobjThinker(mobj_t *mobj);
 void    P_SpawnPuff(fixed_t x, fixed_t y, fixed_t z);
-uint_64_t P_ColoredBlood (mobj_t* bleeder);
 void    P_SpawnBlood(fixed_t x, fixed_t y, fixed_t z, int damage, mobj_t* bleeder);
 mobj_t  *P_SpawnMissile(mobj_t *source, mobj_t *dest, mobjtype_t type);
 void    P_SpawnPlayerMissile(mobj_t *source, mobjtype_t type);

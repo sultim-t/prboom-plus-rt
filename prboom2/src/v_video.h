@@ -126,7 +126,10 @@ typedef enum
   CR_ORANGE,  //8
   CR_YELLOW,  //9
   CR_BLUE2,   //10 // proff
-  CR_LIMIT    //11 //jff 2/27/98 added for range check
+  CR_BLACK,   //11
+  CR_PURPLE,  //12
+  CR_WHITE,   //13
+  CR_LIMIT    //14 //jff 2/27/98 added for range check
 } crange_idx_e;
 //jff 1/16/98 end palette color range additions
 
@@ -301,6 +304,9 @@ void V_FillBorder(int lump, byte color);
 void V_GetWideRect(int *x, int *y, int *w, int *h, enum patch_translation_e flags);
 
 int V_BestColor(const unsigned char *palette, int r, int g, int b);
+
+// [FG] colored blood and gibs
+int V_BloodColor(int blood);
 
 #ifdef GL_DOOM
 #include "gl_struct.h"

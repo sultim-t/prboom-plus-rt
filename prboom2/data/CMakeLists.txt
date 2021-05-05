@@ -39,6 +39,9 @@ set(LUMPS
     lumps/crblue2.lmp
     lumps/crorange.lmp
     lumps/cryellow.lmp
+    lumps/crblack.lmp
+    lumps/crpurple.lmp
+    lumps/crwhite.lmp
 )
 
 set(COLORMAPS 

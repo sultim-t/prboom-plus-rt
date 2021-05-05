@@ -1543,6 +1543,7 @@ typedef struct
            resurrection.  Zero means it won't come
            back to life. */
   mobjtype_t droppeditem; /* ferk: Mobj to drop after death */
+  int bloodcolor; /* [FG] colored blood and gibs */
 } mobjinfo_t;
 
 /* See p_mobj_h for addition more technical info */

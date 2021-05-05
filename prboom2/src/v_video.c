@@ -120,8 +120,39 @@ static const crdef_t crdefs[] = {
   {"CRORANGE", &colrngs[CR_ORANGE]},
   {"CRYELLOW", &colrngs[CR_YELLOW]},
   {"CRBLUE2",  &colrngs[CR_BLUE2]},
+  {"CRBLACK",  &colrngs[CR_BLACK]},
+  {"CRPURPLE", &colrngs[CR_PURPLE]},
+  {"CRWHITE",  &colrngs[CR_WHITE]},
   {NULL}
 };
+
+// [FG] translate between blood color value as per EE spec
+//      and actual color translation table index
+
+static const int bloodcolor[] = {
+  CR_DEFAULT,// 0 - Red (normal)
+  CR_GRAY,   // 1 - Grey
+  CR_GREEN,  // 2 - Green
+  CR_BLUE2,  // 3 - Blue
+  CR_YELLOW, // 4 - Yellow
+  CR_BLACK,  // 5 - Black
+  CR_PURPLE, // 6 - Purple
+  CR_WHITE,  // 7 - White
+  CR_ORANGE, // 8 - Orange
+};
+
+int V_BloodColor(int blood)
+{
+  if (colored_blood)
+  {
+    if (blood < 0 || blood > 8)
+      blood = 0;
+
+    return bloodcolor[blood];
+  }
+
+  return CR_DEFAULT;
+}
 
 // haleyjd: DOSDoom-style single translucency lookup-up table
 // generation code. This code has a 32k (plus a bit more) 
