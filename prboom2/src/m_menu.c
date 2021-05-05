@@ -5977,7 +5977,7 @@ void M_StartControlPanel (void)
 	  EpiDef.numitems = ep_end;
 	  if (gamemode != commercial
 		  && (compatibility_level < ultdoom_compatibility
-			  || W_SafeGetNumForName(EpiDef.menuitems[ep4].name) == -1))
+			  || W_CheckNumForName(EpiDef.menuitems[ep4].name) == -1))
 	  {
 		  EpiDef.numitems--;
 	  }

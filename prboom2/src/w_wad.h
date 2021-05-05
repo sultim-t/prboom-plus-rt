@@ -148,7 +148,6 @@ int     (W_CheckNumForName)(const char *name, int ns)
         { return (W_FindNumFromName)(name, ns, -1); }
 int     W_GetNumForName (const char* name);
 const lumpinfo_t* W_GetLumpInfoByNum(int lump);
-int     W_SafeGetNumForName (const char* name); //e6y
 int     W_LumpLength (int lump);
 void    W_ReadLump (int lump, void *dest);
 // CPhipps - modified for 'new' lump locking

@@ -127,12 +127,6 @@ const void *W_CacheLumpNum(int lump)
   }
   cachelump[lump].locks += locks;
 
-#ifdef SIMPLECHECKS
-  if (!((cachelump[lump].locks+1) & 0xf))
-    lprintf(LO_DEBUG, "W_CacheLumpNum: High lock on %.8s (%d)\n",
-	    lumpinfo[lump].name, cachelump[lump].locks);
-#endif
-
   return cachelump[lump].cache;
 }
 
@@ -150,11 +144,6 @@ const void *W_LockLumpNum(int lump)
 void W_UnlockLumpNum(int lump)
 {
   const int unlocks = 1;
-#ifdef SIMPLECHECKS
-  if ((signed short)cachelump[lump].locks < unlocks)
-    lprintf(LO_DEBUG, "W_UnlockLumpNum: Excess unlocks on %8s (%d-%d)\n",
-	    lumpinfo[lump].name, cachelump[lump].locks, unlocks);
-#endif
   cachelump[lump].locks -= unlocks;
   /* cph - Note: must only tell z_zone to make purgeable if currently locked,
    * else it might already have been purged

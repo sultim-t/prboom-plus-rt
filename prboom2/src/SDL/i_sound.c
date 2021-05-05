@@ -340,7 +340,7 @@ int I_GetSfxLumpNum(sfxinfo_t *sfx)
   prefix = (snd_pcspeaker ? "dp" : "ds");
 
   sprintf(namebuf, "%s%s", prefix, sfx->name);
-  return W_SafeGetNumForName(namebuf); //e6y: make missing sounds non-fatal
+  return W_CheckNumForName(namebuf); //e6y: make missing sounds non-fatal
 }
 
 //
