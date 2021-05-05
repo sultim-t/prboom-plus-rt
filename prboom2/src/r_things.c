@@ -539,7 +539,7 @@ static void R_DrawVisSprite(vissprite_t *vis)
     colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_FUZZ, filter, filterz);    // killough 3/14/98
   else
     // [FG] colored blood and gibs
-    if (vis->color != CR_DEFAULT)
+    if (vis->mobjflags & MF_COLOREDBLOOD)
       {
         colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, filter, filterz);
         dcvars.translation = colrngs[vis->color];
@@ -1021,7 +1021,6 @@ static void R_DrawPSprite (pspdef_t *psp)
   vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;
 // proff 11/06/98: Added for high-res
   vis->scale = pspriteyscale;
-  vis->color = CR_DEFAULT;
 
   if (flip)
     {
