@@ -72,6 +72,7 @@ include(CheckIncludeFile)
 check_include_file("sys/wait.h" HAVE_SYS_WAIT_H)
 check_include_file("unistd.h" HAVE_UNISTD_H)
 check_include_file("asm/byteorder.h" HAVE_ASM_BYTEORDER_H)
+check_include_file("dirent.h" HAVE_DIRENT_H)
 
 option(BUILD_GL "Enable OpenGL rendering code" ON)
 if(BUILD_GL)

@@ -97,6 +97,8 @@
 // NSM
 #include "i_capture.h"
 
+#include "i_glob.h"
+
 void GetFirstMap(int *ep, int *map); // Ty 08/29/98 - add "-warp x" functionality
 static void D_PageDrawer(void);
 
@@ -1370,6 +1372,146 @@ static void L_SetupConsoleMasks(void) {
   }
 }
 
+// Calculate the path to the directory for autoloaded WADs/DEHs.
+// Creates the directory as necessary.
+
+static char *autoload_path = NULL;
+
+static char *GetAutoloadDir(const char *iwadname)
+{
+    char *result;
+    int len;
+
+    if (autoload_path == NULL)
+    {
+        const char* exedir = I_DoomExeDir();
+        len = doom_snprintf(NULL, 0, "%s/autoload", exedir);
+        autoload_path = malloc(len+1);
+        doom_snprintf(autoload_path, len+1, "%s/autoload", exedir);
+    }
+
+#ifdef _WIN32
+    mkdir(autoload_path);
+#else
+    mkdir(autoload_path, 0755);
+#endif
+
+    len = doom_snprintf(NULL, 0, "%s/%s", autoload_path, iwadname);
+    result = malloc(len+1);
+    doom_snprintf(result, len+1, "%s/%s", autoload_path, iwadname);
+
+#ifdef _WIN32
+    mkdir(result);
+#else
+    mkdir(result, 0755);
+#endif
+
+    return result;
+}
+
+const char *IWADBaseName(void)
+{
+  int i;
+  char *wadname, *basename;
+
+  for (i = 0; i < numwadfiles; i++)
+  {
+    if (wadfiles[i].src == source_iwad)
+      break;
+  }
+
+  if (i == numwadfiles)
+    I_Error("IWADBaseName: IWAD not found\n");
+
+  wadname = wadfiles[i].name;
+  basename = wadname + strlen(wadname) - 1;
+
+  while (basename > wadname && *basename != '/' && *basename != '\\')
+    basename--;
+  if (*basename == '/' || *basename == '\\')
+    basename++;
+
+  return basename;
+}
+
+// Load all WAD files from the given directory.
+
+static void AutoLoadWADs(const char *path)
+{
+    glob_t *glob;
+    const char *filename;
+
+    glob = I_StartMultiGlob(path, GLOB_FLAG_NOCASE|GLOB_FLAG_SORTED,
+                            "*.wad", "*.lmp", NULL);
+    for (;;)
+    {
+        filename = I_NextGlob(glob);
+        if (filename == NULL)
+        {
+            break;
+        }
+        D_AddFile(filename,source_pwad);
+    }
+
+    I_EndGlob(glob);
+}
+
+// auto-loading of .wad files.
+
+static void D_AutoloadWadDir()
+{
+  char *autoload_dir;
+
+  // common auto-loaded files for all Doom flavors
+  autoload_dir = GetAutoloadDir("doom-all");
+  AutoLoadWADs(autoload_dir);
+  free(autoload_dir);
+
+  // auto-loaded files per IWAD
+  autoload_dir = GetAutoloadDir(IWADBaseName());
+  AutoLoadWADs(autoload_dir);
+  free(autoload_dir);
+}
+
+// Load all dehacked patches from the given directory.
+
+static void AutoLoadPatches(const char *path)
+{
+    const char *filename;
+    glob_t *glob;
+
+    glob = I_StartMultiGlob(path, GLOB_FLAG_NOCASE|GLOB_FLAG_SORTED,
+                            "*.deh", "*.bex", NULL);
+    for (;;)
+    {
+        filename = I_NextGlob(glob);
+        if (filename == NULL)
+        {
+            break;
+        }
+        ProcessDehFile(filename, D_dehout(), 0);
+    }
+
+    I_EndGlob(glob);
+}
+
+// auto-loading of .deh files.
+
+static void D_AutoloadDehDir()
+{
+  char *autoload_dir;
+
+  // common auto-loaded files for all Doom flavors
+  autoload_dir = GetAutoloadDir("doom-all");
+  AutoLoadPatches(autoload_dir);
+  free(autoload_dir);
+
+  // auto-loaded files per IWAD
+  autoload_dir = GetAutoloadDir(IWADBaseName());
+  AutoLoadPatches(autoload_dir);
+  free(autoload_dir);
+}
+
 //
 // D_DoomMainSetup
 //
@@ -1648,6 +1790,10 @@ static void D_DoomMainSetup(void)
     }
   }
 
+  // add wad files from autoload directory before wads from -file parameter
+
+  D_AutoloadWadDir();
+
   // add any files specified on the command line with -file wadfile
   // to the wad list
 
@@ -1799,6 +1945,10 @@ static void D_DoomMainSetup(void)
       }
     }
   }
+
+  // process deh files from autoload directory before deh in wads from -file parameter
+
+  D_AutoloadDehDir();
 
   if (!M_CheckParm ("-nodeh"))
     for (p = -1; (p = W_ListNumFromName("DEHACKED", p)) >= 0; )

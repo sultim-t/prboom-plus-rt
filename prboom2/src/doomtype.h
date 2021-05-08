@@ -78,7 +78,7 @@ typedef unsigned __int64 uint_64_t;
 #undef PATH_MAX
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
-#define S_ISDIR(x) (((sbuf.st_mode & S_IFDIR)==S_IFDIR)?1:0)
+#define S_ISDIR(m)  (((m) & S_IFMT) == S_IFDIR)
 #endif
 
 #ifndef PATH_MAX

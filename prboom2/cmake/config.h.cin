@@ -19,6 +19,7 @@
 #cmakedefine HAVE_SYS_WAIT_H
 #cmakedefine HAVE_UNISTD_H
 #cmakedefine HAVE_ASM_BYTEORDER_H
+#cmakedefine HAVE_DIRENT_H
 
 #cmakedefine HAVE_SDL_JOYSTICKGETAXIS
 #cmakedefine HAVE_LIBSDL2_IMAGE
