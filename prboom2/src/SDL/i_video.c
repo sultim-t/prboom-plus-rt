@@ -79,6 +79,7 @@
 #include "am_map.h"
 #include "g_game.h"
 #include "lprintf.h"
+#include "i_system.h"
 
 #ifdef GL_DOOM
 #include "gl_struct.h"
@@ -615,7 +616,7 @@ void I_PreInitGraphics(void)
     I_Error("Could not initialize SDL [%s]", SDL_GetError());
   }
 
-  atexit(I_ShutdownSDL);
+  I_AtExit(I_ShutdownSDL, true);
 }
 
 // e6y: resolution limitation is removed
@@ -1083,7 +1084,7 @@ void I_InitGraphics(void)
   {
     firsttime = 0;
 
-    atexit(I_ShutdownGraphics);
+    I_AtExit(I_ShutdownGraphics, true);
     lprintf(LO_INFO, "I_InitGraphics: %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
 
     /* Set the video mode */

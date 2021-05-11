@@ -45,6 +45,7 @@
 #include "d_main.h"
 #include "i_joy.h"
 #include "lprintf.h"
+#include "i_system.h"
 
 int joyleft;
 int joyright;
@@ -110,7 +111,7 @@ void I_InitJoystick(void)
   if (!joystick)
     lprintf(LO_ERROR, "%serror opening joystick %d\n", fname, usejoystick);
   else {
-    atexit(I_EndJoystick);
+    I_AtExit(I_EndJoystick, true);
     lprintf(LO_INFO, "%sopened %s\n", fname, SDL_JoystickName(joystick));
     joyup = 32767;
     joydown = -32768;

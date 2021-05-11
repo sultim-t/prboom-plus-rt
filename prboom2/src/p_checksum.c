@@ -2,6 +2,7 @@
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h> /* exit(), atexit() */
+#include "i_system.h" /* I_AtExit() */
 
 #include "p_checksum.h"
 #include "md5.h"
@@ -37,7 +38,7 @@ void P_RecordChecksum(const char *file) {
             I_Error("cannot open %s for writing checksum:\n%s\n",
                     file, strerror(errno));
         }
-        atexit(p_checksum_cleanup);
+        I_AtExit(p_checksum_cleanup, true);
     }
 
     MD5Init(&md5global);

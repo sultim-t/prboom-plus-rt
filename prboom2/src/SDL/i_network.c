@@ -56,6 +56,9 @@
 #include "protocol.h"
 #include "i_network.h"
 #include "lprintf.h"
+#ifndef PRBOOM_SERVER
+#include "i_system.h"
+#endif
 //#include "doomstat.h"
 
 /* cph -
@@ -88,7 +91,11 @@ void I_ShutdownNetwork(void)
 void I_InitNetwork(void)
 {
   SDLNet_Init();
+#ifndef PRBOOM_SERVER
+  I_AtExit(I_ShutdownNetwork, true);
+#else
   atexit(I_ShutdownNetwork);
+#endif
   udp_packet = SDLNet_AllocPacket(10000);
 }
 

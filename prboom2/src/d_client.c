@@ -127,7 +127,7 @@ void D_InitNetGame (void)
     } while (packet->type != PKT_SETUP);
 
     // Once we have been accepted by the server, we should tell it when we leave
-    atexit(D_QuitNetGame);
+    I_AtExit(D_QuitNetGame, true);
 
     // Get info from the setup packet
     consoleplayer = sinfo->yourplayer;

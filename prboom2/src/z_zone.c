@@ -319,7 +319,7 @@ void Z_Init(void)
   /* cph - remove unnecessary initialisations to 0 */
 #endif
 #ifdef HEAPDUMP
-  atexit(Z_DumpMemory);
+  I_AtExit(Z_DumpMemory, true);
 #endif
 #endif
 }

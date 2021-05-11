@@ -444,7 +444,7 @@ void gld_Init(int width, int height)
   // Create FBO object and associated render targets
 #ifdef USE_FBO_TECHNIQUE
   gld_InitFBO();
-  atexit(gld_FreeScreenSizeFBO);
+  I_AtExit(gld_FreeScreenSizeFBO, true);
 #endif
 
   if(!gld_LoadGLDefs("GLBDEFS"))
@@ -454,7 +454,7 @@ void gld_Init(int width, int height)
 
   gld_ResetLastTexture();
 
-  atexit(gld_CleanMemory); //e6y
+  I_AtExit(gld_CleanMemory, true); //e6y
 }
 
 void gld_InitCommandLine(void)

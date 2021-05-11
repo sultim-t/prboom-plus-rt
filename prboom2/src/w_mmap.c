@@ -148,7 +148,7 @@ void W_InitCache(void)
     I_Error ("W_Init: Couldn't allocate lumpcache");
 
 #ifdef TIMEDIAG
-  atexit(W_ReportLocks);
+  I_AtExit(W_ReportLocks, true);
 #endif
 
   mapped_wad = calloc(numwadfiles,sizeof(mmap_info_t));
@@ -227,7 +227,7 @@ void W_InitCache(void)
     I_Error ("W_Init: Couldn't allocate lumpcache");
 
 #ifdef TIMEDIAG
-  atexit(W_ReportLocks);
+  I_AtExit(W_ReportLocks, true);
 #endif
 
   {

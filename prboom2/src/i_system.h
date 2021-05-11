@@ -99,4 +99,11 @@ void I_Read(int fd, void* buf, size_t sz);
 /* cph 2001/11/18 - Move W_Filelength to i_system.c */
 int I_Filelength(int handle);
 
+// Schedule a function to be called when the program exits.
+// If run_if_error is true, the function is called if the exit
+// is due to an error (I_Error)
+
+typedef void (*atexit_func_t)(void);
+void I_AtExit(atexit_func_t func, dboolean run_if_error);
+
 #endif

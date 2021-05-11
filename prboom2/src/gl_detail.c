@@ -55,6 +55,7 @@
 #include "m_misc.h"
 #include "sc_man.h"
 #include "e6y.h"
+#include "i_system.h"
 
 int render_usedetail;
 int gl_allow_detail_textures;
@@ -145,7 +146,7 @@ void gld_InitDetail(void)
 {
   gl_detail_maxdist_sqrt = (float)sqrt((float)gl_detail_maxdist);
 
-  atexit(gld_ShutdownDetail);
+  I_AtExit(gld_ShutdownDetail, true);
   M_ChangeUseDetail();
 }
 
