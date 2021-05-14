@@ -2250,7 +2250,7 @@ static int P_GroupLines (void)
     sector->bbox[3] = sector->blockbox[3] >> FRACTOMAPBITS;
 
     // set the degenmobj_t to the middle of the bounding box
-    if (comp[comp_sound])
+    if (default_comp[comp_sound])
     {
       sector->soundorg.x = (bbox[BOXRIGHT]+bbox[BOXLEFT])/2;
       sector->soundorg.y = (bbox[BOXTOP]+bbox[BOXBOTTOM])/2;

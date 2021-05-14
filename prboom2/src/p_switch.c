@@ -180,7 +180,7 @@ void P_ChangeSwitchTexture
   /* use the sound origin of the linedef (its midpoint)
    * unless in a compatibility mode */
   soundorg = (mobj_t *)&line->soundorg;
-  if (comp[comp_sound] || compatibility_level < prboom_6_compatibility) {
+  if (default_comp[comp_sound] || compatibility_level < prboom_6_compatibility) {
     /* usually NULL, unless there is another button already pressed in,
      * in which case it's the sound origin of that button press... */
     soundorg = buttonlist->soundorg;

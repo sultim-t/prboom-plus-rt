@@ -850,7 +850,7 @@ void A_FireCGun(player_t *player, pspdef_t *psp)
 {
   CHECK_WEAPON_CODEPOINTER("A_FireCGun", player);
 
-  if (player->ammo[weaponinfo[player->readyweapon].ammo] || comp[comp_sound])
+  if (player->ammo[weaponinfo[player->readyweapon].ammo] || default_comp[comp_sound])
     S_StartSound(player->mo, sfx_pistol);
 
   if (!player->ammo[weaponinfo[player->readyweapon].ammo])

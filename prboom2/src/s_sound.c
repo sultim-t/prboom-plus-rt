@@ -324,7 +324,7 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume)
   // kill old sound
   for (cnum=0 ; cnum<numChannels ; cnum++)
     if (channels[cnum].sfxinfo && channels[cnum].origin == origin &&
-        (comp[comp_sound] || channels[cnum].is_pickup == is_pickup))
+        (default_comp[comp_sound] || channels[cnum].is_pickup == is_pickup))
       {
         S_StopChannel(cnum);
         break;

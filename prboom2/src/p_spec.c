@@ -2540,7 +2540,7 @@ void P_UpdateSpecials (void)
           /* don't take the address of the switch's sound origin,
            * unless in a compatibility mode. */
           mobj_t *so = (mobj_t *)buttonlist[i].soundorg;
-          if (comp[comp_sound] || compatibility_level < prboom_6_compatibility)
+          if (default_comp[comp_sound] || compatibility_level < prboom_6_compatibility)
             /* since the buttonlist array is usually zeroed out,
              * button popouts generally appear to come from (0,0) */
             so = (mobj_t *)&buttonlist[i].soundorg;
