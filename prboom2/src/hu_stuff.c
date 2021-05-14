@@ -739,12 +739,18 @@ void HU_Start(void)
 
   if (gamemapinfo != NULL)
   {
-	  s = gamemapinfo->mapname;
-	  while (*s)
-		  HUlib_addCharToTextLine(&w_title, *(s++));
+	  if (gamemapinfo->label)
+		  s = gamemapinfo->label;
+	  else
+		  s = gamemapinfo->mapname;
+	  if (s == gamemapinfo->mapname || strcmp(s, "-") != 0)
+	  {
+		  while (*s)
+			  HUlib_addCharToTextLine(&w_title, *(s++));
 
-	  HUlib_addCharToTextLine(&w_title, ':');
-	  HUlib_addCharToTextLine(&w_title, ' ');
+		  HUlib_addCharToTextLine(&w_title, ':');
+		  HUlib_addCharToTextLine(&w_title, ' ');
+	  }
 	  s = gamemapinfo->levelname;
 	  if (!s) s = "Unnamed";
 	  while (*s)

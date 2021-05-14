@@ -31,6 +31,14 @@ will be used, unless the following list says differently.
 ; the automap and also on the status screen if no name patch is specified.
 levelname = "name"
 
+; Specifies the string to prepend to the levelname on the automap. If not
+; specified the mapname will be used by default followed by a colon and a
+; space character (e.g. "E1M1: ").
+label = "name"
+
+; Only print the levelname on the automap.
+label = clear
+
 ; Specifies the patch that is used on the status screen for 'entering' and
 ; 'finished'. This can be omitted, in that case the levelname will be printed
 ; with the HUD font.
@@ -316,6 +324,10 @@ Thingtypes:
 
 
 Revisions:
+
+Rev 2 (@fabiangreffrath, May 11 2021)
+ * Introduce the new 'label' field to allow for overriding of the string that
+   gets prepended to the 'levelname' on the automap.
 
 Rev 1.6 (@fabiangreffrath, Apr 19 2021)
  * Skip the 'entering level' screen if one of endgame, endpic, endbunny or

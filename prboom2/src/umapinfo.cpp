@@ -311,6 +311,7 @@ static void FreeMap(MapEntry *mape)
 {
 	if (mape->mapname) free(mape->mapname);
 	if (mape->levelname) free(mape->levelname);
+	if (mape->label) free(mape->label);
 	if (mape->intertext) free(mape->intertext);
 	if (mape->intertextsecret) free(mape->intertextsecret);
 	if (mape->properties) free(mape->properties);
@@ -419,6 +420,14 @@ static int ParseStandardProperty(Scanner &scanner, MapEntry *mape)
 	{
 		scanner.MustGetToken(TK_StringConst);
 		ReplaceString(&mape->levelname, scanner.string);
+	}
+	else if (!stricmp(pname, "label"))
+	{
+		char *lname = ParseMultiString(scanner, 1);
+		if (!lname) return 0;
+		if (mape->label != NULL) free(mape->label);
+		// TODO: require label to be single-line
+		mape->label = lname;
 	}
 	else if (!stricmp(pname, "next"))
 	{
