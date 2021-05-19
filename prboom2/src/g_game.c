@@ -2758,11 +2758,13 @@ void G_ReloadDefaults(void)
 
 void G_DoNewGame (void)
 {
+  extern int solo_net;
+
   // e6y: allow new level's music to be loaded
   idmusnum = -1;
 
   G_ReloadDefaults();            // killough 3/1/98
-  netgame = false;               // killough 3/29/98
+  netgame = solo_net;
   deathmatch = false;
   G_InitNew (d_skill, d_episode, d_map);
   gameaction = ga_nothing;
