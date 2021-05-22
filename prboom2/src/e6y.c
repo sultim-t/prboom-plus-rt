@@ -946,11 +946,12 @@ void e6y_WriteStats(void)
   int i, level, playerscount;
   timetable_t max;
   tmpdata_t tmp;
-  tmpdata_t all[32];
+  tmpdata_t *all;
   size_t allkills_len=0, allitems_len=0, allsecrets_len=0;
 
   f = fopen("levelstat.txt", "wb");
   
+  all = malloc(sizeof(*all) * numlevels);
   memset(&max, 0, sizeof(timetable_t));
 
   playerscount = 0;
@@ -1027,6 +1028,7 @@ void e6y_WriteStats(void)
     
   }
   
+  free(all);
   fclose(f);
 }
 
