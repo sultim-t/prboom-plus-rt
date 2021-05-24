@@ -566,7 +566,12 @@ short EpiMenuMap[8] = { 1, 1, 1, 1, -1, -1, -1, -1 }, EpiMenuEpi[8] = { 1,2,3,4,
 //
 int epiChoice;
 
-void M_AddEpisode(const char *map, char *def)
+void M_ClearEpisodes(void)
+{
+	EpiDef.numitems = 0;
+}
+
+void M_AddEpisode(const char *map, const char *gfx, const char *txt, const char *alpha)
 {
 	if (!EpiCustom)
 	{
@@ -577,23 +582,15 @@ void M_AddEpisode(const char *map, char *def)
 			EpiDef.numitems = 0;
 	}
 
-	if (*def == '-')	// means 'clear'
-	{
-		EpiDef.numitems = 0;
-	}
-	else
 	{
 		int epi, mapnum;
-		const char *gfx = strtok(def, "\n");
-		const char *txt = strtok(NULL, "\n");
-		const char *alpha = strtok(NULL, "\n");
 		if (EpiDef.numitems >= 8) return;
 		G_ValidateMapName(map, &epi, &mapnum);
 		EpiMenuEpi[EpiDef.numitems] = epi;
 		EpiMenuMap[EpiDef.numitems] = mapnum;
 		strncpy(EpisodeMenu[EpiDef.numitems].name, gfx, 8);
 		EpisodeMenu[EpiDef.numitems].name[8] = 0;
-		EpisodeMenu[EpiDef.numitems].alttext = txt;
+		EpisodeMenu[EpiDef.numitems].alttext = txt ? strdup(txt) : NULL;
 		EpisodeMenu[EpiDef.numitems].alphaKey = alpha ? *alpha : 0;
 		EpiDef.numitems++;
 	}
