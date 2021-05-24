@@ -1377,7 +1377,7 @@ static void L_SetupConsoleMasks(void) {
 
 static char *autoload_path = NULL;
 
-static char *GetAutoloadDir(const char *iwadname)
+static char *GetAutoloadDir(const char *iwadname, dboolean createdir)
 {
     char *result;
     int len;
@@ -1400,19 +1400,35 @@ static char *GetAutoloadDir(const char *iwadname)
     result = malloc(len+1);
     doom_snprintf(result, len+1, "%s/%s", autoload_path, iwadname);
 
+    if (createdir)
+    {
 #ifdef _WIN32
     mkdir(result);
 #else
     mkdir(result, 0755);
 #endif
+    }
 
     return result;
+}
+
+static const char *BaseName(const char *filename)
+{
+  char *basename;
+
+  basename = filename + strlen(filename) - 1;
+
+  while (basename > filename && *basename != '/' && *basename != '\\')
+    basename--;
+  if (*basename == '/' || *basename == '\\')
+    basename++;
+
+  return basename;
 }
 
 const char *IWADBaseName(void)
 {
   int i;
-  char *wadname, *basename;
 
   for (i = 0; i < numwadfiles; i++)
   {
@@ -1423,15 +1439,7 @@ const char *IWADBaseName(void)
   if (i == numwadfiles)
     I_Error("IWADBaseName: IWAD not found\n");
 
-  wadname = wadfiles[i].name;
-  basename = wadname + strlen(wadname) - 1;
-
-  while (basename > wadname && *basename != '/' && *basename != '\\')
-    basename--;
-  if (*basename == '/' || *basename == '\\')
-    basename++;
-
-  return basename;
+  return BaseName(wadfiles[i].name);
 }
 
 // Load all WAD files from the given directory.
@@ -1458,19 +1466,34 @@ static void AutoLoadWADs(const char *path)
 
 // auto-loading of .wad files.
 
-static void D_AutoloadWadDir()
+static void D_AutoloadIWadDir()
 {
   char *autoload_dir;
 
   // common auto-loaded files for all Doom flavors
-  autoload_dir = GetAutoloadDir("doom-all");
+  autoload_dir = GetAutoloadDir("doom-all", true);
   AutoLoadWADs(autoload_dir);
   free(autoload_dir);
 
   // auto-loaded files per IWAD
-  autoload_dir = GetAutoloadDir(IWADBaseName());
+  autoload_dir = GetAutoloadDir(IWADBaseName(), true);
   AutoLoadWADs(autoload_dir);
   free(autoload_dir);
+}
+
+static void D_AutoloadPWadDir()
+{
+  int p = M_CheckParm("-file");
+  if (p)
+  {
+    while (++p != myargc && myargv[p][0] != '-')
+    {
+      char *autoload_dir;
+      autoload_dir = GetAutoloadDir(BaseName(myargv[p]), false);
+      AutoLoadWADs(autoload_dir);
+      free(autoload_dir);
+    }
+  }
 }
 
 // Load all dehacked patches from the given directory.
@@ -1502,14 +1525,29 @@ static void D_AutoloadDehDir()
   char *autoload_dir;
 
   // common auto-loaded files for all Doom flavors
-  autoload_dir = GetAutoloadDir("doom-all");
+  autoload_dir = GetAutoloadDir("doom-all", true);
   AutoLoadPatches(autoload_dir);
   free(autoload_dir);
 
   // auto-loaded files per IWAD
-  autoload_dir = GetAutoloadDir(IWADBaseName());
+  autoload_dir = GetAutoloadDir(IWADBaseName(), true);
   AutoLoadPatches(autoload_dir);
   free(autoload_dir);
+}
+
+static void D_AutoloadDehPWadDir()
+{
+  int p = M_CheckParm("-file");
+  if (p)
+  {
+    while (++p != myargc && myargv[p][0] != '-')
+    {
+      char *autoload_dir;
+      autoload_dir = GetAutoloadDir(BaseName(myargv[p]), false);
+      AutoLoadPatches(autoload_dir);
+      free(autoload_dir);
+    }
+  }
 }
 
 //
@@ -1792,7 +1830,7 @@ static void D_DoomMainSetup(void)
 
   // add wad files from autoload directory before wads from -file parameter
 
-  D_AutoloadWadDir();
+  D_AutoloadIWadDir();
 
   // add any files specified on the command line with -file wadfile
   // to the wad list
@@ -1821,6 +1859,10 @@ static void D_DoomMainSetup(void)
         }
       }
     }
+
+  // add wad files from autoload PWAD directories
+
+  D_AutoloadPWadDir();
 
   if (!(p = M_CheckParm("-playdemo")) || p >= myargc-1) {   /* killough */
     if ((p = M_CheckParm ("-fastdemo")) && p < myargc-1)    /* killough */
@@ -1956,6 +1998,10 @@ static void D_DoomMainSetup(void)
             || lumpinfo[p].source == source_pre
             || lumpinfo[p].source == source_auto_load))
         ProcessDehFile(NULL, D_dehout(), p);
+
+  // process .deh files from PWADs autoload directories
+
+  D_AutoloadDehPWadDir();
 
   // Load command line dehacked patches after WAD dehacked patches
 
