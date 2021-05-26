@@ -655,10 +655,12 @@ static dboolean L_PrepareToLaunch(void)
     index = (int)SendMessage(launcher.listIWAD, CB_GETITEMDATA, index, 0);
     if (index != CB_ERR)
     {
+      extern void D_AutoloadIWadDir();
       char *iwadname = PathFindFileName(launcher.files[index].name);
       history = malloc(strlen(iwadname) + 8);
       strcpy(history, iwadname);
       AddIWAD(launcher.files[index].name);
+      D_AutoloadIWadDir();
     }
   }
 
