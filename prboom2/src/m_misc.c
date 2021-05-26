@@ -337,9 +337,6 @@ default_t defaults[] =
    def_int,ss_none}, // selects default skill 1=TYTD 2=NTR 3=HMP 4=UV 5=NM
   {"weapon_recoil",{&default_weapon_recoil},{0},0,1,
    def_bool,ss_weap, &weapon_recoil},
-  /* killough 10/98 - toggle between SG/SSG and Fist/Chainsaw */
-  {"doom_weapon_toggles",{&doom_weapon_toggles}, {1}, 0, 1,
-   def_bool, ss_weap },
   {"player_bobbing",{&default_player_bobbing},{1},0,1,         // phares 2/25/98
    def_bool,ss_weap, &player_bobbing},
   {"weapon_attack_alignment",{&weapon_attack_alignment},{0},0,3,         // phares 2/25/98
