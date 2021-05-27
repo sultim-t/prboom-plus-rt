@@ -372,8 +372,6 @@ void I_AtExit(atexit_func_t func, dboolean run_on_error)
     exit_funcs = entry;
 }
 
-static int has_exited;
-
 /* I_SafeExit
  * This function is called instead of exit() by functions that might be called
  * during the exit process (i.e. after exit() has already been called)
@@ -382,27 +380,21 @@ static int has_exited;
 
 void I_SafeExit(int rc)
 {
-  if (!has_exited)
+  atexit_listentry_t *entry;
+
+  // Run through all exit functions
+
+  while ((entry = exit_funcs))
+  {
+    exit_funcs = exit_funcs->next;
+
+    if (rc == 0 || entry->run_on_error)
     {
-      atexit_listentry_t *entry;
-
-      has_exited = rc ? 2 : 1; /* Prevent infinitely recursive exits -- killough */
-
-      // Run through all exit functions
-
-      entry = exit_funcs;
-
-      while (entry != NULL)
-      {
-        if (rc == 0 || entry->run_on_error)
-        {
-          entry->func();
-        }
-        entry = entry->next;
-      }
-
-      exit(rc);
+      entry->func();
     }
+  }
+
+  exit(rc);
 }
 
 static void I_Quit (void)
@@ -411,8 +403,7 @@ static void I_Quit (void)
     I_EndDoom();
   if (demorecording)
     G_CheckDemoStatus();
-  if (has_exited == 1)
-    M_SaveDefaults ();
+  M_SaveDefaults ();
   I_DemoExShutdown();
 }
 
@@ -591,7 +582,7 @@ int main(int argc, char **argv)
 
   Z_Init();                  /* 1/18/98 killough: start up memory stuff first */
 
-  I_AtExit(I_Quit, true);
+  I_AtExit(I_Quit, false);
 #ifndef PRBOOM_DEBUG
   if (!M_CheckParm("-devparm"))
   {
