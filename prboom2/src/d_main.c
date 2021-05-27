@@ -2110,7 +2110,7 @@ static void D_DoomMainSetup(void)
 
   if ((p = M_CheckParm("-statdump")) && (p < myargc-1))
   {
-      I_AtExit(StatDump, false);
+      I_AtExit(StatDump, true);
       lprintf(LO_INFO,"External statistics registered.\n");
   }
 

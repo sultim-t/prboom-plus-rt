@@ -548,7 +548,7 @@ void I_CapturePrep (const char *fn)
   videopipe.outthread = SDL_CreateThread (threadstdoutproc, "videopipe.outthread", &videopipe);
   videopipe.errthread = SDL_CreateThread (threadstderrproc, "videopipe.errthread", &videopipe);
 
-  I_AtExit (I_CaptureFinish, false);
+  I_AtExit (I_CaptureFinish, true);
 }
 
 

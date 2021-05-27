@@ -382,9 +382,11 @@ static int has_exited;
 
 void I_SafeExit(int rc)
 {
-  if (!has_exited)    /* If it hasn't exited yet, exit now -- killough */
+  if (!has_exited)
     {
       atexit_listentry_t *entry;
+
+      has_exited = rc ? 2 : 1; /* Prevent infinitely recursive exits -- killough */
 
       // Run through all exit functions
 
@@ -399,25 +401,19 @@ void I_SafeExit(int rc)
         entry = entry->next;
       }
 
-      has_exited=rc ? 2 : 1;
       exit(rc);
     }
 }
 
 static void I_Quit (void)
 {
-  if (!has_exited)
-    has_exited=1;   /* Prevent infinitely recursive exits -- killough */
-
-  if (has_exited == 1) {
-    has_exited = 2;
-    if (!demorecording)
-      I_EndDoom();
-    if (demorecording)
-      G_CheckDemoStatus();
+  if (!demorecording)
+    I_EndDoom();
+  if (demorecording)
+    G_CheckDemoStatus();
+  if (has_exited == 1)
     M_SaveDefaults ();
-    I_DemoExShutdown();
-  }
+  I_DemoExShutdown();
 }
 
 #ifdef SECURE_UID
@@ -595,7 +591,7 @@ int main(int argc, char **argv)
 
   Z_Init();                  /* 1/18/98 killough: start up memory stuff first */
 
-  I_AtExit(I_Quit, false);
+  I_AtExit(I_Quit, true);
 #ifndef PRBOOM_DEBUG
   if (!M_CheckParm("-devparm"))
   {
