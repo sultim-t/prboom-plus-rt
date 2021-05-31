@@ -5022,6 +5022,7 @@ dboolean M_Responder (event_t* ev) {
     {
       movement_mouselook = !movement_mouselook;
       M_ChangeMouseLook();
+      doom_printf("Mouselook %s", movement_mouselook ? "on" : "off");
       // Don't eat the keypress in this case.
       // return true;
     }
@@ -5029,6 +5030,7 @@ dboolean M_Responder (event_t* ev) {
     if (ch == key_novert)
     {
       movement_mousenovert = !movement_mousenovert;
+      doom_printf("Vertical Mouse Movement %s", movement_mousenovert ? "off" : "on");
       // Don't eat the keypress in this case.
       // return true;
     }
