@@ -1241,7 +1241,8 @@ void I_UpdateVideoMode(void)
     sdl_renderer = SDL_CreateRenderer(sdl_window, -1, flags);
 
     // [FG] aspect ratio correction for the canonical video modes
-    if (SCREENWIDTH % 320 == 0 && SCREENHEIGHT % 200 == 0)
+    if ((SCREENWIDTH == 320 && SCREENHEIGHT == 200) ||
+        (SCREENWIDTH == 640 && SCREENHEIGHT == 400))
     {
       actualheight = 6*SCREENHEIGHT/5;
     }
