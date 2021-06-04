@@ -832,7 +832,8 @@ static void ST_doPaletteStuff(void)
 
 void M_ChangeApplyPalette(void)
 {
-  ST_doPaletteStuff();
+  if (gamestate == GS_LEVEL)
+    ST_doPaletteStuff();
 }
 
 static void ST_drawWidgets(dboolean refresh)
