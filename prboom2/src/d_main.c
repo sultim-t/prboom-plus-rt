@@ -390,6 +390,9 @@ void D_Display (fixed_t frac)
     if (V_GetMode() != VID_MODEGL)
       R_DrawViewBorder();
     HU_Drawer();
+
+    if (V_GetMode() == VID_MODEGL)
+      gld_ProcessExtraAlpha();
   }
 
   isborderstate      = isborder;
