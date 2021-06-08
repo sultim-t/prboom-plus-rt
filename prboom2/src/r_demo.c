@@ -65,6 +65,10 @@
 #include "g_overflow.h"
 #include "e6y.h"
 
+#ifdef _WIN32
+#include "WIN/win_fopen.h"
+#endif
+
 int IsDemoPlayback(void)
 {
   int p;

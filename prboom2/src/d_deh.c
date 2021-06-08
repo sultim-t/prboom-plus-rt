@@ -54,6 +54,10 @@
 // CPhipps - modify to use logical output routine
 #include "lprintf.h"
 
+#ifdef _WIN32
+#include "WIN/win_fopen.h"
+#endif
+
 #define TRUE 1
 #define FALSE 0
 

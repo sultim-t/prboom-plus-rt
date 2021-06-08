@@ -39,6 +39,9 @@
 #include "i_system.h"
 #include "i_capture.h"
 
+#ifdef _WIN32
+#include "WIN/win_fopen.h"
+#endif
 
 int capturing_video = 0;
 static const char *vid_fname;

@@ -61,6 +61,10 @@
 #include "r_demo.h"
 #include "e6y.h"
 
+#ifdef _WIN32
+#include "WIN/win_fopen.h"
+#endif
+
 //
 // GLOBALS
 //

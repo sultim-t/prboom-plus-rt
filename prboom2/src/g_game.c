@@ -87,6 +87,10 @@
 #include "e6y.h"//e6y
 #include "statdump.h"
 
+#ifdef _WIN32
+#include "WIN/win_fopen.h"
+#endif
+
 // ano - used for version 255+ demos, like EE or MBF
 static char     prdemosig[] = "PR+UM";
 

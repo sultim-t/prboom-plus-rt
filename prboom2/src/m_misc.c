@@ -86,6 +86,10 @@
 // NSM
 #include "i_capture.h"
 
+#ifdef _WIN32
+#include "WIN/win_fopen.h"
+#endif
+
 /* cph - disk icon not implemented */
 static inline void I_BeginRead(void) {}
 static inline void I_EndRead(void) {}

@@ -60,6 +60,10 @@
 #include <dpmi.h>
 #endif
 
+#ifdef _WIN32
+#include "WIN/win_fopen.h"
+#endif
+
 // Tunables
 
 // Alignment of zone memory (benefit may be negated by HEADER_SIZE, CHUNK_SIZE)

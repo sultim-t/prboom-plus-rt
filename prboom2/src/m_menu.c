@@ -68,6 +68,7 @@
 #include "e6y.h"//e6y
 #ifdef _WIN32
 #include "e6y_launcher.h"
+#include "WIN/win_fopen.h"
 #endif
 
 extern patchnum_t hu_font[HU_FONTSIZE];

@@ -305,8 +305,10 @@ function(AddGameExecutable TARGET SOURCES)
         if(MSVC)
             set(SOURCES
                 ${SOURCES}
-                win_opendir.c
-                win_opendir.h
+                WIN/win_fopen.c
+                WIN/win_fopen.h
+                WIN/win_opendir.c
+                WIN/win_opendir.h
             )
         endif()
     endif()
@@ -420,6 +422,8 @@ if(BUILD_SERVER AND SDL2_NET_FOUND)
         set(PRBOOM_PLUS_GAME_SERVER_SOURCES
             ${PRBOOM_PLUS_GAME_SERVER_SOURCES}
             SDL/i_system.c
+            WIN/win_fopen.c
+            WIN/win_fopen.h
         )
     else()
         set(PRBOOM_PLUS_GAME_SERVER_SOURCES

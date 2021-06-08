@@ -63,6 +63,10 @@
 #include "i_system.h"
 #include "m_swap.h"
 
+#ifdef _WIN32
+#include "WIN/win_fopen.h"
+#endif
+
 #ifndef HAVE_GETOPT
 /* The following code for getopt is from the libc-source of FreeBSD,
  * it might be changed a little bit.

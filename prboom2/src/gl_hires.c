@@ -63,6 +63,10 @@
 #include "m_misc.h"
 #include "e6y.h"
 
+#ifdef _WIN32
+#include "WIN/win_fopen.h"
+#endif
+
 unsigned int gl_has_hires = 0;
 int gl_texture_external_hires = -1;
 int gl_texture_internal_hires = -1;

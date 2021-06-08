@@ -99,6 +99,10 @@
 
 #include "i_glob.h"
 
+#ifdef _WIN32
+#include "WIN/win_fopen.h"
+#endif
+
 void GetFirstMap(int *ep, int *map); // Ty 08/29/98 - add "-warp x" functionality
 static void D_PageDrawer(void);
 

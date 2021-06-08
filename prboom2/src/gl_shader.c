@@ -53,6 +53,10 @@
 #include "e6y.h"
 #include "r_things.h"
 
+#ifdef _WIN32
+#include "WIN/win_fopen.h"
+#endif
+
 GLShader *sh_main = NULL;
 static GLShader *active_shader = NULL;
 

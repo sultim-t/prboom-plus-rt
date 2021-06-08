@@ -44,6 +44,10 @@
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "p_tick.h"
 
+#ifdef _WIN32
+#include "WIN/win_fopen.h"
+#endif
+
 //
 // Graphics.
 // DOOM graphics for walls and sprites

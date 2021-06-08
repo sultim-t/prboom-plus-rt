@@ -9,6 +9,10 @@
 #include "doomstat.h" /* players{,ingame} */
 #include "lprintf.h"
 
+#ifdef _WIN32
+#include "WIN/win_fopen.h"
+#endif
+
 /* forward decls */
 static void p_checksum_cleanup(void);
 void checksum_gamestate(int tic);

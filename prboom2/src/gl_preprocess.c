@@ -54,6 +54,10 @@
 #include "am_map.h"
 #include "lprintf.h"
 
+#ifdef _WIN32
+#include "WIN/win_fopen.h"
+#endif
+
 static FILE *levelinfo;
 
 static int gld_max_vertexes = 0;

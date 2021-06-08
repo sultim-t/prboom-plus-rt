@@ -97,6 +97,10 @@
 
 #include "z_zone.h"
 
+#ifdef _WIN32
+#include "../WIN/win_fopen.h"
+#endif
+
 void I_uSleep(unsigned long usecs)
 {
     SDL_Delay(usecs/1000);

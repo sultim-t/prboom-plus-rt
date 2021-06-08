@@ -29,6 +29,10 @@
 
 #include "statdump.h"
 
+#ifdef _WIN32
+#include "WIN/win_fopen.h"
+#endif
+
 /* Par times for E1M1-E1M9. */
 static const int doom1_par_times[] =
 {
