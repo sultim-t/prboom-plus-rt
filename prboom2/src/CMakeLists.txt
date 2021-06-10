@@ -424,12 +424,12 @@ if(BUILD_SERVER AND SDL2_NET_FOUND)
             WIN/win_fopen.c
             WIN/win_fopen.h
         )
-        if(MSVC)
-            set(PRBOOM_PLUS_GAME_SERVER_SOURCES
-                ${PRBOOM_PLUS_GAME_SERVER_SOURCES}
-                SDL/i_system.c
-            )
-        endif()
+    endif()
+    if(MSVC)
+        set(PRBOOM_PLUS_GAME_SERVER_SOURCES
+            ${PRBOOM_PLUS_GAME_SERVER_SOURCES}
+            SDL/i_system.c
+        )
     else()
         set(PRBOOM_PLUS_GAME_SERVER_SOURCES
             ${PRBOOM_PLUS_GAME_SERVER_SOURCES}
