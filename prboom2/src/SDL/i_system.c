@@ -472,6 +472,7 @@ char* I_FindFileInternal(const char* wfname, const char* ext, dboolean isStatic)
   } search0[] = {
     {NULL, NULL, NULL, I_DoomExeDir}, // config directory
     {NULL}, // current working directory
+    {PRBOOMDATADIR}, // supplemental data directory
     {NULL, NULL, "DOOMWADDIR"}, // run-time $DOOMWADDIR
     {DOOMWADDIR}, // build-time configured DOOMWADDIR
     {NULL, "doom", "HOME"}, // ~/doom

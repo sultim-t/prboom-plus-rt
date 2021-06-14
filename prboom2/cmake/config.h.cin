@@ -5,6 +5,7 @@
 #cmakedefine PACKAGE_STRING "@PACKAGE_STRING@"
 
 #cmakedefine DOOMWADDIR "@DOOMWADDIR@"
+#cmakedefine PRBOOMDATADIR "@PRBOOMDATADIR@"
 
 #cmakedefine WORDS_BIGENDIAN
 
