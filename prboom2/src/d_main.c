@@ -1385,12 +1385,13 @@ static void L_SetupConsoleMasks(void) {
 // Calculate the path to the directory for autoloaded WADs/DEHs.
 // Creates the directory as necessary.
 
-static char *autoload_path = NULL;
-
-static char *GetAutoloadDir(const char *iwadname, dboolean createdir)
+static char *GetAutoloadBaseDir(unsigned int iter)
 {
-    char *result;
+    static char *autoload_path = NULL;
     int len;
+
+    if (M_CheckParm("-noload"))
+      return NULL;
 
     if (autoload_path == NULL)
     {
@@ -1406,9 +1407,25 @@ static char *GetAutoloadDir(const char *iwadname, dboolean createdir)
     mkdir(autoload_path, 0755);
 #endif
 
-    len = doom_snprintf(NULL, 0, "%s/%s", autoload_path, iwadname);
+    switch (iter)
+    {
+        case 0:
+            return autoload_path;
+            break;
+        default:
+            return NULL;
+            break;
+    }
+}
+
+static char *GetAutoloadDir(const char *base, const char *iwadname, dboolean createdir)
+{
+    char *result;
+    int len;
+
+    len = doom_snprintf(NULL, 0, "%s/%s", base, iwadname);
     result = malloc(len+1);
-    doom_snprintf(result, len+1, "%s/%s", autoload_path, iwadname);
+    doom_snprintf(result, len+1, "%s/%s", base, iwadname);
 
     if (createdir)
     {
@@ -1478,30 +1495,42 @@ static void AutoLoadWADs(const char *path)
 
 void D_AutoloadIWadDir()
 {
-  char *autoload_dir;
+  int iter;
+  char *base;
 
-  // common auto-loaded files for all Doom flavors
-  autoload_dir = GetAutoloadDir("doom-all", true);
-  AutoLoadWADs(autoload_dir);
-  free(autoload_dir);
+  for (iter = 0; (base = GetAutoloadBaseDir(iter)); iter++)
+  {
+    char *autoload_dir;
 
-  // auto-loaded files per IWAD
-  autoload_dir = GetAutoloadDir(IWADBaseName(), true);
-  AutoLoadWADs(autoload_dir);
-  free(autoload_dir);
+    // common auto-loaded files for all Doom flavors
+    autoload_dir = GetAutoloadDir(base, "doom-all", true);
+    AutoLoadWADs(autoload_dir);
+    free(autoload_dir);
+
+    // auto-loaded files per IWAD
+    autoload_dir = GetAutoloadDir(base, IWADBaseName(), true);
+    AutoLoadWADs(autoload_dir);
+    free(autoload_dir);
+  }
 }
 
 static void D_AutoloadPWadDir()
 {
-  int i;
-  for (i = 0; i < numwadfiles; ++i)
-    if (wadfiles[i].src == source_pwad)
-    {
-      char *autoload_dir;
-      autoload_dir = GetAutoloadDir(BaseName(wadfiles[i].name), false);
-      AutoLoadWADs(autoload_dir);
-      free(autoload_dir);
-    }
+  int iter;
+  char *base;
+
+  for (iter = 0; (base = GetAutoloadBaseDir(iter)); iter++)
+  {
+    int i;
+    for (i = 0; i < numwadfiles; ++i)
+      if (wadfiles[i].src == source_pwad)
+      {
+        char *autoload_dir;
+        autoload_dir = GetAutoloadDir(base, BaseName(wadfiles[i].name), false);
+        AutoLoadWADs(autoload_dir);
+        free(autoload_dir);
+      }
+  }
 }
 
 // Load all dehacked patches from the given directory.
@@ -1530,30 +1559,42 @@ static void AutoLoadPatches(const char *path)
 
 static void D_AutoloadDehDir()
 {
-  char *autoload_dir;
+  int iter;
+  char *base;
 
-  // common auto-loaded files for all Doom flavors
-  autoload_dir = GetAutoloadDir("doom-all", true);
-  AutoLoadPatches(autoload_dir);
-  free(autoload_dir);
+  for (iter = 0; (base = GetAutoloadBaseDir(iter)); iter++)
+  {
+    char *autoload_dir;
 
-  // auto-loaded files per IWAD
-  autoload_dir = GetAutoloadDir(IWADBaseName(), true);
-  AutoLoadPatches(autoload_dir);
-  free(autoload_dir);
+    // common auto-loaded files for all Doom flavors
+    autoload_dir = GetAutoloadDir(base, "doom-all", true);
+    AutoLoadPatches(autoload_dir);
+    free(autoload_dir);
+
+    // auto-loaded files per IWAD
+    autoload_dir = GetAutoloadDir(base, IWADBaseName(), true);
+    AutoLoadPatches(autoload_dir);
+    free(autoload_dir);
+  }
 }
 
 static void D_AutoloadDehPWadDir()
 {
-  int i;
-  for (i = 0; i < numwadfiles; ++i)
-    if (wadfiles[i].src == source_pwad)
-    {
-      char *autoload_dir;
-      autoload_dir = GetAutoloadDir(BaseName(wadfiles[i].name), false);
-      AutoLoadPatches(autoload_dir);
-      free(autoload_dir);
-    }
+  int iter;
+  char *base;
+
+  for (iter = 0; (base = GetAutoloadBaseDir(iter)); iter++)
+  {
+    int i;
+    for (i = 0; i < numwadfiles; ++i)
+      if (wadfiles[i].src == source_pwad)
+      {
+        char *autoload_dir;
+        autoload_dir = GetAutoloadDir(base, BaseName(wadfiles[i].name), false);
+        AutoLoadPatches(autoload_dir);
+        free(autoload_dir);
+      }
+  }
 }
 
 //
