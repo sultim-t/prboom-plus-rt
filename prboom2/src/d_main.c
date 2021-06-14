@@ -1814,11 +1814,15 @@ static void D_DoomMainSetup(void)
   // Designed to be general, instead of specific to boomlump.wad
   // Some people might find this useful
   // cph - support MBF -noload parameter
-  if (!M_CheckParm("-noload")) {
+  {
     // only autoloaded wads here - autoloaded patches moved down below W_Init
-    int i;
+    int i, imax = MAXLOADFILES;
 
-    for (i=0; i<MAXLOADFILES; i++) {
+    // make sure to always autoload prboom-plus.wad
+    if (M_CheckParm("-noload"))
+      imax = 1;
+
+    for (i=0; i<imax; i++) {
       const char *fname = wad_files[i];
       char *fpath;
 
