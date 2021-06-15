@@ -92,7 +92,7 @@
 static SDL_Cursor* cursors[2] = {NULL, NULL};
 
 dboolean window_focused;
-int mouse_currently_grabbed = true;
+static int mouse_currently_grabbed = true;
 
 // Window resize state.
 static void ApplyWindowResize(SDL_Event *resize_event);
@@ -122,12 +122,12 @@ SDL_Window *sdl_window;
 SDL_Renderer *sdl_renderer;
 static SDL_Texture *sdl_texture;
 static SDL_GLContext sdl_glcontext;
-unsigned int windowid = 0;
-SDL_Rect src_rect = { 0, 0, 0, 0 };
+static unsigned int windowid = 0;
+static SDL_Rect src_rect = { 0, 0, 0, 0 };
 
 ////////////////////////////////////////////////////////////////////////////
 // Input code
-int             leds_always_off = 0; // Expected by m_misc, not relevant
+static int             leds_always_off = 0; // Expected by m_misc, not relevant
 
 // Mouse handling
 extern int     usemouse;        // config file var
@@ -214,7 +214,7 @@ static int I_TranslateKey(SDL_Keysym* key)
 
 /* cph - pulled out common button code logic */
 //e6y static 
-int I_SDLtoDoomMouseState(Uint32 buttonstate)
+static int I_SDLtoDoomMouseState(Uint32 buttonstate)
 {
   return 0
       | (buttonstate & SDL_BUTTON(1) ? 1 : 0)
@@ -620,7 +620,7 @@ void I_PreInitGraphics(void)
 }
 
 // e6y: resolution limitation is removed
-void I_InitBuffersRes(void)
+static void I_InitBuffersRes(void)
 {
   R_InitMeltRes();
   R_InitSpritesRes();
@@ -638,7 +638,7 @@ const char *screen_resolution = NULL;
 // Get current resolution from the config variable (WIDTHxHEIGHT format)
 // 640x480 if screen_resolution variable has wrong data
 //
-void I_GetScreenResolution(void)
+static void I_GetScreenResolution(void)
 {
   int width, height;
 
@@ -832,7 +832,7 @@ int process_priority;
 
 // e6y
 // It is a simple test of CPU cache misses.
-unsigned int I_TestCPUCacheMisses(int width, int height, unsigned int mintime)
+static unsigned int I_TestCPUCacheMisses(int width, int height, unsigned int mintime)
 {
   int i, k;
   char *s, *d, *ps, *pd;
@@ -866,7 +866,7 @@ unsigned int I_TestCPUCacheMisses(int width, int height, unsigned int mintime)
 // CPhipps -
 // I_CalculateRes
 // Calculates the screen resolution, possibly using the supplied guide
-void I_CalculateRes(int width, int height)
+static void I_CalculateRes(int width, int height)
 {
 // e6y
 // GLBoom will try to set the closest supported resolution 
