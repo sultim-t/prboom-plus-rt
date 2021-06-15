@@ -3828,6 +3828,10 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
       // this section can become more complex
       if (r_len == 8 && strncmp((const char *)demo_p, "UMAPINFO", 8) == 0)
       {
+        if (!umapinfo_loaded && !(params & RDH_SKIP_HEADER))
+        {
+          I_Error("G_ReadDemoHeader: Playing demo with UMAPINFO extension without UMAPINFO loaded.");
+        }
         using_umapinfo = 1;
       }
       else
