@@ -3927,6 +3927,7 @@ const byte* G_ReadDemoHeaderEx(const byte *demo_p, size_t size, unsigned int par
 
     // ano - jun2019 - this is to support other demovers effectively?
     // while still having the extended features
+    header_p = demo_p;
     demover = *demo_p++;
 
   }
