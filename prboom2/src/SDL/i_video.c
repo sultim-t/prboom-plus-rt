@@ -124,6 +124,8 @@ static SDL_Texture *sdl_texture;
 static SDL_GLContext sdl_glcontext;
 static unsigned int windowid = 0;
 static SDL_Rect src_rect = { 0, 0, 0, 0 };
+static int display_index;
+static SDL_DisplayMode desktop_mode = {.w = 16384, .h = 16384};
 
 ////////////////////////////////////////////////////////////////////////////
 // Input code
@@ -653,6 +655,13 @@ static void I_GetScreenResolution(void)
       desired_screenheight = height;
     }
   }
+
+  // never exceed desktop resolution in fullscreen desktop mode
+  if (!exclusive_fullscreen)
+  {
+      desired_screenwidth = MIN(desired_screenwidth, desktop_mode.w);
+      desired_screenheight = MIN(desired_screenheight, desktop_mode.h);
+  }
 }
 
 // make sure the canonical resolutions are always available
@@ -673,7 +682,6 @@ static const int num_canonicals = sizeof(canonicals)/sizeof(*canonicals);
 //
 static void I_FillScreenResolutionsList(void)
 {
-  int display_index = 0;
   SDL_DisplayMode mode;
   int i, j, list_size, current_resolution_index, count;
   char mode_name[256];
@@ -721,6 +729,11 @@ static void I_FillScreenResolutionsList(void)
       {
         SDL_GetDisplayMode(display_index, i, &mode);
       }
+
+      // never exceed desktop resolution in fullscreen desktop mode
+      if (!exclusive_fullscreen)
+        if (mode.w > desktop_mode.w || mode.h > desktop_mode.h)
+          continue;
 
       doom_snprintf(mode_name, sizeof(mode_name), "%dx%d", mode.w, mode.h);
 
@@ -780,7 +793,6 @@ static void I_FillScreenResolutionsList(void)
 // It should be used only for fullscreen modes.
 static void I_ClosestResolution (int *width, int *height)
 {
-  int display_index = 0;
   int twidth, theight;
   int cwidth = 0, cheight = 0;
   int i, count;
@@ -1279,6 +1291,9 @@ void I_UpdateVideoMode(void)
       I_Error("Couldn't set %dx%d video mode [%s]", SCREENWIDTH, SCREENHEIGHT, SDL_GetError());
     }
   }
+
+  display_index = SDL_GetWindowDisplayIndex(sdl_window);
+  SDL_GetDesktopDisplayMode(display_index, &desktop_mode);
 
   if (sdl_video_window_pos)
   {
