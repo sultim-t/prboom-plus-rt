@@ -110,8 +110,8 @@ intertextsecret = "text"
 intertextsecret = clear
 
 ; Backdrop to be used for intertext and intertextsecret. If it does not specify
-; a valid flat, it will be drawn as a patch instead. If not specified the
-; FLOOR4_8 flat will be used, regardless of which map it is used on.
+; a valid flat, it will be drawn as a patch instead. If not specified and there is
+; no default for current map, the FLOOR4_8 flat will be used.
 interbackdrop = "graphic"
 
 ; Music to be used for intertext and intertextsecret. If not specified
@@ -155,9 +155,6 @@ hard coded implementation, with a few exceptions:
 -   levelpic: If not given, the status screen will instead print the map's name
     with a suitable font (PrBoom uses STFxxx) to ensure that the proper name is
     used.
-
--   interbackdrop: This will not look up the default backdrop for a given map
-    but always use FLOOR4_8.
 
 Example:
 
@@ -324,6 +321,9 @@ Thingtypes:
 
 
 Revisions:
+
+Rev 2.1 (@rfomin, June 22 2021)
+ * Lookup for default backdrop if 'interbackdrop' is not specified.
 
 Rev 2 (@fabiangreffrath, May 11 2021)
  * Introduce the new 'label' field to allow for overriding of the string that

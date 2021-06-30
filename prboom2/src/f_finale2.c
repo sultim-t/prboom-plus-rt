@@ -75,19 +75,13 @@ void FMI_StartFinale(void)
 
 	if (!finaletext) finaletext = "The End";	// this is to avoid a crash on a missing text in the last map.
 
-	finaleflat = gamemapinfo->interbackdrop[0] ? gamemapinfo->interbackdrop : "FLOOR4_8";	// use a single fallback for all maps.
-	if (gamemapinfo->intermusic[0])
+	if (gamemapinfo->interbackdrop[0])
 	{
-		int l = W_CheckNumForName(gamemapinfo->intermusic);
-		if (l >= 0) S_ChangeMusInfoMusic(l, true);
-	}
-	else
-	{
-		S_ChangeMusic(gamemode == commercial ? mus_read_m : mus_victor, true);
+		finaleflat = gamemapinfo->interbackdrop[0];
 	}
 
-	finalestage = 0;
-	finalecount = 0;
+	if (!finaleflat) finaleflat = "FLOOR4_8";	// use a single fallback for all maps.
+
 	using_FMI = true;
 }
 
