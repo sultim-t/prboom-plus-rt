@@ -77,7 +77,7 @@ void FMI_StartFinale(void)
 
 	if (gamemapinfo->interbackdrop[0])
 	{
-		finaleflat = gamemapinfo->interbackdrop[0];
+		finaleflat = gamemapinfo->interbackdrop;
 	}
 
 	if (!finaleflat) finaleflat = "FLOOR4_8";	// use a single fallback for all maps.
