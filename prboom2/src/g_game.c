@@ -2146,6 +2146,16 @@ void G_DoLoadGame(void)
   name = malloc(length+1);
   G_SaveGameName(name, length+1, savegameslot, demoplayback);
 
+  // [crispy] loaded game must always be single player.
+  // Needed for ability to use a further game loading, as well as
+  // cheat codes and other single player only specifics.
+  if (!command_loadgame)
+  {
+    netdemo = false;
+    netgame = false;
+    deathmatch = false;
+  }
+
   gameaction = ga_nothing;
 
   length = M_ReadFile(name, &savebuffer);
