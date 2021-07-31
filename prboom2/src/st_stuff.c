@@ -439,7 +439,7 @@ static void ST_refreshBackground(void)
       flags = VPT_ALIGN_BOTTOM;
 
       // Applies palette to backfill
-      if (V_GetMode() != VID_MODE8)
+      if (V_GetMode() == VID_MODE32)
         R_FillBackScreen();
 
       V_DrawNumPatch(ST_X, y, BG, stbarbg.lumpnum, CR_DEFAULT, flags);
