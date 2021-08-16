@@ -1,3 +1,113 @@
+PrBoom-Plus 2.6.1um @ 16 Aug 2021
+- fixed MOD playback with DUMB 2.x
+- added TNTCLxx cheat, e.g. TNTCL04 sets complevel 4 (Final DOOM)
+- draw crosshair before messages, draw crosshair for fist/chainsaw and during on-screen messages
+- fixed crosshair locking on target for melee weapons
+- more consistently check for ammo instead of weapon type
+- fixed odd strafe values (vanilla allows even values only)
+- added TNTSHORT cheat to toggle shorttics on and off while in game
+- fixed typo in ZDoom-style Actor name (Slalagtite -> Stalagtite)
+- fixed Windows Alt-Tab
+- fixed a memory leak on SDL_Quit()
+- preserve automap position/scale when toggling overlay mode
+- allow binding weapon selection to mouse buttons
+- add a `-pistolstart` command-line parameter
+- fixed crashes on WADs with empty music lumps, e.g. Nihility.wad
+- enabled loading 16 bit RIFF wavs in WADs
+- make low-pass sound filter (introduced by the previous change) optional
+- if executable directory appears not writable, fall back to `.`
+- made pitch-shift range independent of target samplerate
+- fixed bogus condition preventing automap lines from being drawn
+- fixed saving of mouse button bindings
+- fixed interpolated z-coordinate after teleporting
+- added a new option "Disable sound cutoffs" to allow removed map objects to finish playing their sounds and to make seesounds uninterruptible
+- allow deleting savegames from menu
+- fixed automap crash when `USE_VERTEX_ARRAYS` and `GL_VBO` are undefined
+- fluidsynth: reset all controllers when looping a song
+- fixed hanging notes on exit when using Portmidi
+- show current and next levels when typing IDCLEV cheat
+- added a config key for "exclusive" i.e. mode-changing fullscreen
+- UMAPINFO: if interbackdrop does not specify a valid flat, draw it as a patch instead
+- appended revision tracker to UMAPINFO spec document
+- ALSA sequencer API backend for ALSA MIDI support (Linux only)
+- extended range of maps reachable via `-warp` and IDCLEV:
+   * from E1M1-E4M9 to E1M0-E9M99 for D1
+   * from MAP01-MAP33 to MAP00-MAP99
+   * Limitations:
+     * E0My doesn't work, since episode must always be > 0
+     * `-warp x 0`, because zero passed to `-warp` as map number is used to warping to first changed map in PWAD
+- evaluate mouse motion only once per tick
+- show Time/STS widgets above status bar
+- removed lowpass-filter item from menu
+- fixed `P_SetMobjState()` stack, fixes crash on mayhem18p.wad/m18p31-1509.lmp
+- fixed crash in automap on certain maps (e.g. Sunlust MAP01) when using GL renderer, Thing Appearance = Icons and 2xIDDT
+- fixed menu intermission desync
+- fixed crash when leaving menu in Chex Quest
+- initialize the map title widget with the generic map lump name
+- make "Next Level" key simply increase map number if already outside regular level transition range
+- check for next level in IDCLEV cheat before announcing it
+- make sure "Next Level" key never warps to a non-existent map
+- reformatted umapinfo.txt so that it is easier to read in plaintext
+- fixed custom episode select for Doom 2
+- fixed shifting automap markers
+- allow translucent sprites on all complevels
+- allow disabling predefined translucency on all complevels
+- fixed flood HOM on certain maps (e.g. Plutonia MAP11, HR MAP01) (GL)
+- fixed sky walls for cases with sky vs. sky toptextures (e.g. E4M6) (GL)
+- fixed transparent spites being rendered incorrectly with transparent walls in view (GL)
+- generate a default save-slot name when saving to an empty slot
+- added mouse button binds for turn left/right
+- fixed sky scaling for non-standard sky sizes, e.g. Eviternity and Ancient Aliens (GL)
+- added new advanced HUD layout by Fireb3rt+
+- added slice_samplecount config option
+- added manifest to declare app as DPI aware, so that Windows will not apply DPI virtualization
+- added support for widescreen assets
+- added ZDoom's names for the new Crispy Doom/DEHEXTRA things to ActorNames[], so they can be used with BossAction() if needed
+- fixed UMAPINFO music restarting issue
+- skip the 'entering level' screen if one of endgame, endpic, endbunny or endcast is set (UMAPINFO)
+- fixed endbunny and endgame UMAPINFO fields
+- reset mlook on demo recording
+- added OpenGL sprite fuzz options ("darken", "shadow", "transparent", "ghostly")
+- properly check for the CreateFileMapping() symbol (build)
+- always precache sound lumps
+- replace W_SafeGetNumForName() with W_CheckNumForName()
+- removed defunct lump locking warnings
+- removed obsolete SFX usefulness references
+- allow colored blood to get set/overridden by DEHACKED, implemented Eternity's coloredblood spec, added three additional color translation tables for black, purple and white
+- made the Ouch Face fix available on all complevels
+- added the autoload directory feature from Chocolate Doom
+- implemented custom atexit() sequence, ported over from Chocolate Doom, fixing crashes during shutdown e.g. on Linux using Wayland
+- fixed switching weapons when reaching zero ammo with boom_autoswitch == 0
+- made Doom sound quirk fixes available on all complevels
+- UMAPINFO: introduced the new 'label' field
+- do not cast degenmobj_t as mobj_t, breaks aliasing rules on platforms where mobj_t pointers are 64-bit aligned and
+degenmobj_t pointers are only 32-bit aligned
+- fixed `-solo-net` for demo restart
+- fixed levelstat crash for MAP33 and above
+- added autoload per PWAD feature, further enhancing the autoload directory feature
+- UMAPINFO: fixed 'episode' field parsing, 'label' is single-line
+- removed obsolete weapon toggle setting
+- added ftell() and fseek() implementations for DEHACKED lumps, allowing the DEH parser to roll back to the start of a line following a blank line and re-process it with the last valid block code handler
+- added mouse look / vertical mouse movement toggle notifications
+- fixed forcing aspect ratio correction only for the canonical 16:10 (i.e. 320x200 and 640x400) modes
+- do not even attempt to play DEMO4 if it is not available
+- only apply palette changes when inside a level
+- fixed 32-bit widescreen pain palette
+- added a `-coop_spawns` parameter for using "coop in single-player" mode
+- fixed OpenGL effect palettes
+- added support for non-latin paths and filenames on Windows
+- made sure to always autoload prboom-plus.wad
+- introduced a supplemental data directory "PRBOOMDATADIR" to install prboom-plus.wad into (build)
+- prepared for different autoload base directories, respecting the `-noload` parameter
+- fixed playback of complevel 11 demo with UMAPINFO
+- fixed attempted playback of a UMAPINFO demo without UMAPINFO loaded
+- never exceed desktop resolution in fullscreen desktop mode
+- UMAPINFO: entries without defined 'levelname' fall back to default
+- UMAPINFO: fixed default intermission
+- fixed setting 'finaleflat' in FMI_StartFinale (UMAPINFO)
+- fixed load game during multiplayer demo playback
+- fixed OpenGL backfill
+
 PrBoom-Plus 2.6um @ 09 Feb 2021
 - fixed episode selection when playing Doom 2
 - fixed Doom 1 level progression

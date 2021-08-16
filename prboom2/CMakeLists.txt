@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
 project("PrBoom-Plus"
-    VERSION 2.6
+    VERSION 2.6.1
     HOMEPAGE_URL "https://github.com/coelckers/prboom-plus")
 
 # Set a default build type if none was specified
