@@ -4,9 +4,6 @@ set(DOC_FILES
     DeePBSPV4specs.txt
     MBFFAQ.txt
     MBF.txt
-    prboom-history.txt
-    prboom-plus-history.html
-    prboom-plus-history.txt
     prboom-plus-usage.txt
     README.command-line
     README.compat
