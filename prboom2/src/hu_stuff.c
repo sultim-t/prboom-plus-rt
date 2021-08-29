@@ -2287,13 +2287,13 @@ void SetCrosshairTarget(void)
 
       if (!hudadd_crosshair_scale)
       {
-        crosshair.target_screen_x = winx;
-        crosshair.target_screen_y = SCREENHEIGHT - winy;
+        crosshair.target_screen_x = winx - (crosshair.w / 2);
+        crosshair.target_screen_y = SCREENHEIGHT - winy - (crosshair.h / 2);
       }
       else
       {
-        crosshair.target_screen_x = (winx - params->deltax1) * 320.0f / params->video->width;
-        crosshair.target_screen_y = 200 - (winy - params->deltay1) * 200.0f / params->video->height;
+        crosshair.target_screen_x = (winx - params->deltax1) * 320.0f / params->video->width - (crosshair.w / 2);
+        crosshair.target_screen_y = 200 - (winy - params->deltay1) * 200.0f / params->video->height - (crosshair.h / 2);
       }
     }
   }
