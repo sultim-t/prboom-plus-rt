@@ -102,6 +102,7 @@ size_t read_or_die(void **ptr, const char *file)
   }
 
   *ptr = buffer;
+  fclose(f);
   return length;
 }
 
