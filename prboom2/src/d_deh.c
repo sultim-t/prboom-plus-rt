@@ -1569,6 +1569,8 @@ void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum)
   DEHFILE infile, *filein = &infile;    // killough 10/98
   char inbuffer[DEH_BUFFERMAX];  // Place to put the primary infostring
   const char *file_or_lump;
+  static unsigned last_i;
+  static long filepos;
 
   // Open output file if we're writing output
   if (outfilename && *outfilename && !fileout)
@@ -1619,12 +1621,12 @@ void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum)
 
   // loop until end of file
 
+  last_i = DEH_BLOCKMAX-1;
+  filepos = 0;
   while (dehfgets(inbuffer,sizeof(inbuffer),filein))
     {
       dboolean match;
       unsigned i;
-      static unsigned last_i = DEH_BLOCKMAX-1;
-      static long filepos = 0;
 
       lfstrip(inbuffer);
       if (fileout) fprintf(fileout,"Line='%s'\n",inbuffer);
