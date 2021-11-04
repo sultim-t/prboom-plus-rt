@@ -1008,7 +1008,7 @@ dboolean G_Responder (event_t* ev)
 
   // If the next/previous weapon keys are pressed, set the next_weapon
   // variable to change weapons when the next ticcmd is generated.
-  if (ev->type == ev_keydown)
+  if (gamestate == GS_LEVEL && ev->type == ev_keydown)
   {
     if (ev->data1 == key_prevweapon)
     {
