@@ -456,11 +456,13 @@ void Scanner::IncrementLine()
 
 void Scanner::Error(int token)
 {
-	if (token < TK_NumSpecialTokens && this->token < TK_NumSpecialTokens)
+	if (token < TK_NumSpecialTokens && this->token >= TK_Identifier && this->token < TK_NumSpecialTokens)
 		error("%d:%d:Expected '%s' but got '%s' instead.", GetLine(), GetLinePos(), TokenNames[token], TokenNames[this->token]);
 	else if (token < TK_NumSpecialTokens && this->token >= TK_NumSpecialTokens)
 		error("%d:%d:Expected '%s' but got '%c' instead.", GetLine(), GetLinePos(), TokenNames[token], this->token);
-	else if (token >= TK_NumSpecialTokens && this->token < TK_NumSpecialTokens)
+	else if (token < TK_NumSpecialTokens && this->token == TK_NoToken)
+		error("%d:%d:Expected '%s'", GetLine(), GetLinePos(), TokenNames[token]);
+	else if (token >= TK_NumSpecialTokens && this->token >= TK_Identifier && this->token < TK_NumSpecialTokens)
 		error("%d:%d:Expected '%c' but got '%s' instead.", GetLine(), GetLinePos(), token, TokenNames[this->token]);
 	else
 		error("%d:%d:Expected '%c' but got '%c' instead.", GetLine(), GetLinePos(), token, this->token);
