@@ -668,10 +668,16 @@ static void I_GetScreenResolution(void)
 static const struct {
   const int w, h;
 } canonicals[] = {
-  {640, 480}, // Doom 95
-  {640, 400}, // MBF
-  {320, 240}, // Doom 95
-  {320, 200}, // Vanilla Doom
+  { 640, 480}, // Doom 95
+  { 320, 240}, // Doom 95
+  {1120, 400}, // 21:9
+  { 854, 400}, // 16:9
+  { 768, 400}, // 16:10
+  { 640, 400}, // MBF
+  { 560, 200}, // 21:9
+  { 426, 200}, // 16:9
+  { 384, 200}, // 16:10
+  { 320, 200}, // Vanilla Doom
 };
 static const int num_canonicals = sizeof(canonicals)/sizeof(*canonicals);
 
@@ -1253,8 +1259,7 @@ void I_UpdateVideoMode(void)
     sdl_renderer = SDL_CreateRenderer(sdl_window, -1, flags);
 
     // [FG] aspect ratio correction for the canonical video modes
-    if ((SCREENWIDTH == 320 && SCREENHEIGHT == 200) ||
-        (SCREENWIDTH == 640 && SCREENHEIGHT == 400))
+    if (SCREENHEIGHT == 200 || SCREENHEIGHT == 400)
     {
       actualheight = 6*SCREENHEIGHT/5;
     }

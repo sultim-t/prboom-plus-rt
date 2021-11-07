@@ -1609,11 +1609,12 @@ void SetRatio(int width, int height)
   // The terms storage aspect ratio, pixel aspect ratio, and display aspect
   // ratio came from Wikipedia.  SAR x PAR = DAR
   lprintf(LO_INFO, "SetRatio: storage aspect ratio %u:%u\n", ratio_multiplier, ratio_scale);
-  if ((width == 320 && height == 200) || (width == 640 && height == 400))
+  if (height == 200 || height == 400)
   {
     lprintf(LO_INFO, "SetRatio: recognized VGA mode with pixel aspect ratio 5:6\n");
-    ratio_multiplier = 4;
-    ratio_scale = 3;
+    ratio_multiplier = width * 5;
+    ratio_scale = height * 6;
+    ReduceFraction(&ratio_multiplier, &ratio_scale);
   }
   else
   {
