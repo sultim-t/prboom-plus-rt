@@ -523,7 +523,6 @@ void TryRunTics (void)
     if (advancedemo)
       D_DoAdvanceDemo ();
     M_Ticker ();
-    I_GetTime_SaveMS();
     G_Ticker ();
     P_Checksum(gametic);
     gametic++;

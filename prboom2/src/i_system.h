@@ -53,7 +53,6 @@
 #define    R_OK    4    /* Check for read permission */
 #endif
 
-extern int interpolation_method;
 extern int ms_to_next_tick;
 dboolean I_StartDisplay(void);
 void I_EndDisplay(void);
@@ -61,7 +60,6 @@ int I_GetTime_RealTime(void);     /* killough */
 #ifndef PRBOOM_SERVER
 fixed_t I_GetTimeFrac (void);
 #endif
-void I_GetTime_SaveMS(void);
 
 unsigned long I_GetRandomTimeSeed(void); /* cphipps */
 
