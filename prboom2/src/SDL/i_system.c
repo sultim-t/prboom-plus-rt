@@ -161,10 +161,7 @@ void I_EndDisplay(void)
 
 fixed_t I_GetTimeFrac (void)
 {
-  unsigned long now;
   fixed_t frac;
-
-  now = SDL_GetTicks();
 
   if (!movement_smooth)
   {
