@@ -421,10 +421,15 @@ int G_GotoNextLevel(int *e, int *m)
 	int changed = false;
 	if (gamemapinfo != NULL)
 	{
-		const char *n;
+		const char *n = NULL;
 		if (gamemapinfo->nextsecret[0]) n = gamemapinfo->nextsecret;
-		else n = gamemapinfo->nextmap;
-		G_ValidateMapName(n, &epsd, &map);
+		else if (gamemapinfo->nextmap[0]) n = gamemapinfo->nextmap;
+		else if (gamemapinfo->endpic[0] && gamemapinfo->endpic[0] != '-')
+		{
+			epsd = 1;
+			map = 1;
+		}
+		if (n) G_ValidateMapName(n, &epsd, &map);
 	}
 
 	if (map == -1)
