@@ -882,6 +882,7 @@ static void L_FillGameList(void)
 
     "HACX - Twitch 'n Kill",
     "Chex(R) Quest",
+    "REKKR",
 
     "DOOM 2: BFG Edition",
     "DOOM 1: BFG Edition",
