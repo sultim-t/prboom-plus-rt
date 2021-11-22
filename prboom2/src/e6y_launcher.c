@@ -458,6 +458,7 @@ static void L_CommandOnChange(void)
   SendMessage(launcher.listCMD, CB_SETCURSEL, -1, 0);
 }
 
+static dboolean IsIWADName(const char *name);
 static dboolean L_GetFileType(const char *filename, fileitem_t *item)
 {
   size_t i, len;
@@ -492,7 +493,8 @@ static dboolean L_GetFileType(const char *filename, fileitem_t *item)
   if ( (f = fopen (filename, "rb")) )
   {
     fread (&header, sizeof(header), 1, f);
-    if (!strncmp(header.identification, "IWAD", 4))
+    if (!strncmp(header.identification, "IWAD", 4) ||
+        (!strncmp(header.identification, "PWAD", 4) && IsIWADName(filename)))
     {
       item->source = source_iwad;
     }
@@ -853,11 +855,27 @@ static int L_SelGetList(int **list)
   return count;
 }
 
+extern const int nstandard_iwads;
+extern const char *const standard_iwads[];
+
+static dboolean IsIWADName(const char *name)
+{
+    int i;
+    char *filename = PathFindFileName(name);
+
+    for (i = 0; i < nstandard_iwads; i++)
+    {
+        if (!strcasecmp(filename, standard_iwads[i]))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 static void L_FillGameList(void)
 {
-  extern const int nstandard_iwads;
-  extern const char *const standard_iwads[];
-
   int i, j;
   
   // "doom2f.wad", "doom2.wad", "plutonia.wad", "tnt.wad",
