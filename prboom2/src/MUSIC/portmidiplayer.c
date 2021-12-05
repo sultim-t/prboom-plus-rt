@@ -219,10 +219,13 @@ static void pm_shutdown (void)
 
 
 
+static PmEvent event_buffer[6 * 16];
 
 static const void *pm_registersong (const void *data, unsigned len)
 {
+  int i;
   midimem_t mf;
+  PmEvent *event = &event_buffer;
 
   mf.len = len;
   mf.pos = 0;
@@ -247,6 +250,22 @@ static const void *pm_registersong (const void *data, unsigned len)
   // implicit 120BPM (this is correct to spec)
   //spmc = compute_spmc (MIDI_GetFileTimeDivision (midifile), 500000, 1000);
   spmc = MIDI_spmc (midifile, NULL, 1000);
+
+  for (i = 0; i < 16; ++i)
+  {
+    // RPN sequence to adjust pitch bend range (RPN value 0x0000)
+    event[0].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x65, 0x00);
+    event[1].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x64, 0x00);
+    // reset pitch bend range to central tuning +/- 2 semitones and 0 cents
+    event[2].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x06, 0x02);
+    event[3].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x26, 0x00);
+    // end of RPN sequence
+    event[4].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x64, 0x7f);
+    event[5].message = Pm_Message(MIDI_EVENT_CONTROLLER | i, 0x65, 0x7f);
+    event += 6;
+  }
+
+  Pm_Write(pm_stream, event_buffer, 6 * 16);
 
   // handle not used
   return data;
@@ -397,16 +416,6 @@ static void pm_stop (void)
   {
     writeevent (when, MIDI_EVENT_CONTROLLER, i, 123, 0); // all notes off
     writeevent (when, MIDI_EVENT_CONTROLLER, i, 121, 0); // reset all parameters
-
-    // RPN sequence to adjust pitch bend range (RPN value 0x0000)
-    writeevent (when, MIDI_EVENT_CONTROLLER, i, 0x65, 0x00);
-    writeevent (when, MIDI_EVENT_CONTROLLER, i, 0x64, 0x00);
-    // reset pitch bend range to central tuning +/- 2 semitones and 0 cents
-    writeevent (when, MIDI_EVENT_CONTROLLER, i, 0x06, 0x02);
-    writeevent (when, MIDI_EVENT_CONTROLLER, i, 0x26, 0x00);
-    // end of RPN sequence
-    writeevent (when, MIDI_EVENT_CONTROLLER, i, 0x64, 0x7f);
-    writeevent (when, MIDI_EVENT_CONTROLLER, i, 0x65, 0x7f);
   }
   // abort any partial sysex
   sysexbufflen = 0;
