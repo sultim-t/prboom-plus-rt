@@ -225,7 +225,7 @@ static const void *pm_registersong (const void *data, unsigned len)
 {
   int i;
   midimem_t mf;
-  PmEvent *event = &event_buffer;
+  PmEvent *event = event_buffer;
 
   mf.len = len;
   mf.pos = 0;
