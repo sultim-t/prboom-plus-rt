@@ -368,7 +368,8 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
         player->health = max_soul;
       player->mo->health = player->health;
       player->message = s_GOTSUPER; // Ty 03/22/98 - externalized
-      sound = sfx_getpow;
+      if (compatibility_level > doom_12_compatibility)
+          sound = sfx_getpow;
       break;
 
     case SPR_MEGA:
@@ -459,7 +460,8 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
       if (!P_GivePower (player, pw_invulnerability))
         return;
       player->message = s_GOTINVUL; // Ty 03/22/98 - externalized
-      sound = sfx_getpow;
+      if (compatibility_level > doom_12_compatibility)
+          sound = sfx_getpow;
       break;
 
     case SPR_PSTR:
@@ -468,35 +470,40 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
       player->message = s_GOTBERSERK; // Ty 03/22/98 - externalized
       if (player->readyweapon != wp_fist)
         player->pendingweapon = wp_fist;
-      sound = sfx_getpow;
+      if (compatibility_level > doom_12_compatibility)
+          sound = sfx_getpow;
       break;
 
     case SPR_PINS:
       if (!P_GivePower (player, pw_invisibility))
         return;
       player->message = s_GOTINVIS; // Ty 03/22/98 - externalized
-      sound = sfx_getpow;
+      if (compatibility_level > doom_12_compatibility)
+          sound = sfx_getpow;
       break;
 
     case SPR_SUIT:
       if (!P_GivePower (player, pw_ironfeet))
         return;
       player->message = s_GOTSUIT; // Ty 03/22/98 - externalized
-      sound = sfx_getpow;
+      if (compatibility_level > doom_12_compatibility)
+          sound = sfx_getpow;
       break;
 
     case SPR_PMAP:
       if (!P_GivePower (player, pw_allmap))
         return;
       player->message = s_GOTMAP; // Ty 03/22/98 - externalized
-      sound = sfx_getpow;
+      if (compatibility_level > doom_12_compatibility)
+          sound = sfx_getpow;
       break;
 
     case SPR_PVIS:
       if (!P_GivePower (player, pw_infrared))
         return;
       player->message = s_GOTVISOR; // Ty 03/22/98 - externalized
-      sound = sfx_getpow;
+      if (compatibility_level > doom_12_compatibility)
+          sound = sfx_getpow;
       break;
 
       // ammo

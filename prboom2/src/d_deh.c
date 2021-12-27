@@ -1550,6 +1550,40 @@ void deh_applyCompatibility(void)
       mobjinfo[MT_SKULL].flags &= ~(MF_COUNTKILL);
   }
 
+  if (compatibility_level == doom_12_compatibility)
+  {
+      // Spiderdemon is not fullbright when attacking in versions before v1.4
+      states[S_SPID_ATK1].frame &= ~FF_FULLBRIGHT;
+      states[S_SPID_ATK2].frame &= ~FF_FULLBRIGHT;
+      states[S_SPID_ATK3].frame &= ~FF_FULLBRIGHT;
+      states[S_SPID_ATK4].frame &= ~FF_FULLBRIGHT;
+
+      // Powerups are not fullbright in v1.2
+      // Soulsphere fullbright since v1.25s, the rest since v1.4
+      states[S_SOUL].frame &= ~FF_FULLBRIGHT;
+      states[S_SOUL2].frame &= ~FF_FULLBRIGHT;
+      states[S_SOUL3].frame &= ~FF_FULLBRIGHT;
+      states[S_SOUL4].frame &= ~FF_FULLBRIGHT;
+      states[S_SOUL5].frame &= ~FF_FULLBRIGHT;
+      states[S_SOUL6].frame &= ~FF_FULLBRIGHT;
+      states[S_PINV].frame &= ~FF_FULLBRIGHT;
+      states[S_PINV2].frame &= ~FF_FULLBRIGHT;
+      states[S_PINV3].frame &= ~FF_FULLBRIGHT;
+      states[S_PINV4].frame &= ~FF_FULLBRIGHT;
+      states[S_PSTR].frame &= ~FF_FULLBRIGHT;
+      states[S_PINS].frame &= ~FF_FULLBRIGHT;
+      states[S_PINS2].frame &= ~FF_FULLBRIGHT;
+      states[S_PINS3].frame &= ~FF_FULLBRIGHT;
+      states[S_PINS4].frame &= ~FF_FULLBRIGHT;
+      states[S_SUIT].frame &= ~FF_FULLBRIGHT;
+      states[S_PMAP].frame &= ~FF_FULLBRIGHT;
+      states[S_PMAP2].frame &= ~FF_FULLBRIGHT;
+      states[S_PMAP3].frame &= ~FF_FULLBRIGHT;
+      states[S_PMAP4].frame &= ~FF_FULLBRIGHT;
+      states[S_PMAP5].frame &= ~FF_FULLBRIGHT;
+      states[S_PMAP6].frame &= ~FF_FULLBRIGHT;
+  }
+
   deh_changeCompTranslucency();
 }
 
