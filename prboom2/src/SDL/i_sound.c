@@ -690,7 +690,7 @@ void I_InitSound(void)
       return;
     }
     // [FG] feed actual sample frequency back into config variable
-    Mix_QuerySpec(&audio_rate, NULL, NULL);
+    Mix_QuerySpec(&snd_samplerate, NULL, NULL);
     sound_inited_once = true;//e6y
     sound_inited = true;
     Mix_SetPostMix(I_UpdateSound, NULL);
