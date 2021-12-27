@@ -681,13 +681,16 @@ void I_InitSound(void)
     audio_channels = 2;
     audio_buffers = snd_samplecount * snd_samplerate / 11025;
 
-    if (Mix_OpenAudio(audio_rate, MIX_DEFAULT_FORMAT, audio_channels, audio_buffers) < 0)
+    if (Mix_OpenAudioDevice(audio_rate, MIX_DEFAULT_FORMAT, audio_channels, audio_buffers,
+                            NULL, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE) < 0)
     {
       lprintf(LO_INFO,"couldn't open audio with desired format (%s)\n", SDL_GetError());
       nosfxparm = true;
       nomusicparm = true;
       return;
     }
+    // [FG] feed actual sample frequency back into config variable
+    Mix_QuerySpec(&audio_rate, NULL, NULL);
     sound_inited_once = true;//e6y
     sound_inited = true;
     Mix_SetPostMix(I_UpdateSound, NULL);
