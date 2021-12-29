@@ -1318,7 +1318,7 @@ void I_UpdateVideoMode(void)
 {
    SDL_version ver;
    SDL_GetVersion(&ver);
-   if (ver.major == 2 && ver.minor == 0 && ver.patch >= 14)
+   if (ver.major == 2 && ver.minor == 0 && (ver.patch == 14 || ver.patch == 16))
    {
       SDL_SetHintWithPriority(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "1", SDL_HINT_OVERRIDE);
    }
