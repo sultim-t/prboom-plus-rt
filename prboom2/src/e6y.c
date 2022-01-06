@@ -107,7 +107,8 @@ const char *avi_shot_fname;
 dboolean doSkip;
 dboolean demo_stoponnext;
 dboolean demo_stoponend;
-dboolean demo_warp;
+static dboolean demo_warp;
+extern int warpepisode, warpmap;
 
 int key_speed_up;
 int key_speed_down;
@@ -287,7 +288,7 @@ void e6y_InitCommandLine(void)
       demo_skiptics = (int) (sec * TICRATE);
   }
 
-  if ((IsDemoPlayback() || IsDemoContinue()) && (startmap > 1 || demo_skiptics))
+  if ((IsDemoPlayback() || IsDemoContinue()) && (warpmap != -1 || demo_skiptics))
     G_SkipDemoStart();
   if ((p = M_CheckParm("-avidemo")) && (p < myargc-1))
     avi_shot_fname = myargv[p + 1];
@@ -345,6 +346,8 @@ void G_SkipDemoStop(void)
   doSkip = false;
   demo_skiptics = 0;
   startmap = 0;
+  warpmap = -1;
+  warpepisode = -1;
 
   I_Init2();
   if (!sound_inited_once && !(nomusicparm && nosfxparm))
@@ -362,11 +365,17 @@ void G_SkipDemoStop(void)
 #endif
 }
 
+void G_SkipDemoStartCheck(void)
+{
+  if (doSkip && (gamemode == commercial ? (warpmap == gamemap) : (warpepisode == gameepisode && warpmap == gamemap)))
+    demo_warp = true;
+}
+
 void G_SkipDemoCheck(void)
 {
   if (doSkip && gametic > 0)
   {
-    if (((startmap <= 1) && 
+    if (((warpmap == -1) &&
          (gametic > demo_skiptics + (demo_skiptics > 0 ? 0 : demo_tics_count))) ||
         (demo_warp && gametic - levelstarttic > demo_skiptics))
      {
@@ -1046,29 +1055,9 @@ void e6y_G_DoWorldDone(void)
   if (doSkip)
   {
     static int firstmap = 1;
-    int episode = 0;
-    int map = 0;
-    int p;
-
-    if ((p = M_CheckParm ("-warp")))
-    {
-      if (gamemode == commercial)
-      {
-        if (p < myargc - 1)
-          map = atoi(myargv[p + 1]);
-      }
-      else
-      {
-        if (p < myargc - 2)
-        {
-          episode = atoi(myargv[++p]);
-          map = atoi(myargv[p + 1]);
-        }
-      }
-    }
 
     demo_warp = demo_stoponnext ||
-      (gamemode == commercial ? (map == gamemap) : (episode == gameepisode && map == gamemap));
+      (gamemode == commercial ? (warpmap == gamemap) : (warpepisode == gameepisode && warpmap == gamemap));
     
     if (demo_warp && demo_skiptics == 0 && !firstmap)
       G_SkipDemoStop();
