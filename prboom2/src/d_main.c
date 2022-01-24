@@ -854,6 +854,8 @@ void CheckIWAD(const char *iwadname,GameMode_t *gmode,dboolean *hassec)
         free(fileinfo);
 
       }
+
+      fclose(fp);
     }
     else // error from open call
       I_Error("CheckIWAD: Can't open IWAD %s", iwadname);
