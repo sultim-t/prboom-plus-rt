@@ -94,6 +94,7 @@ static void cheat_megaarmour();
 static void cheat_health();
 static void cheat_notarget();
 static void cheat_fly();
+static void cheat_skill();
 static void cheat_comp_ext();
 static void cheat_shorttics();
 
@@ -191,6 +192,8 @@ cheatseq_t cheat[] = {
   CHEAT("notarget",   NULL,               cht_never, cheat_notarget, 0),
   // fly mode is active
   CHEAT("fly",        NULL,               cht_never, cheat_fly, 0),
+  // Show skill level
+  CHEAT("skill",      NULL,               always, cheat_skill, 0),
 
   // Complevels with parameters
   CHEAT("tntcl",      NULL,               cht_never, cheat_comp_ext, -2),
@@ -689,6 +692,11 @@ static void cheat_fly()
       plyr->message = "Fly mode OFF";
     }
   }
+}
+
+static void cheat_skill()
+{
+  doom_printf("Skill: %d", gameskill+1);
 }
 
 //-----------------------------------------------------------------------------
