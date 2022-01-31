@@ -168,14 +168,17 @@ static int I_TickElapsedTime_FastDemo(void)
 
 static int I_TickElapsedTime_RealTime(void)
 {
-  return I_GetTime_MS() - I_GetTime() * 1000 / TICRATE;
+  int tic = I_GetTime();
+
+  return I_GetTime_MS() - tic * 1000 / TICRATE;
 }
 
 static int I_TickElapsedTime_Scaled(void)
 {
+  int tic = I_GetTime();
   int scaled_time = I_GetTime_MS() * realtic_clock_rate / 100;
 
-  return scaled_time - I_GetTime() * 1000 / TICRATE;
+  return scaled_time - tic * 1000 / TICRATE;
 }
 
 int (*I_TickElapsedTime)(void) = I_TickElapsedTime_RealTime;
