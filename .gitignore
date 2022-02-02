@@ -15,3 +15,6 @@ cmake_install.cmake
 /prboom2/prboom-plus-game-server
 /prboom2/prboom-plus.wad
 /prboom2/build*
+
+/prboom2/.vs/*
+/prboom2/out/*
