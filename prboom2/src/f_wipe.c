@@ -47,6 +47,7 @@
 #include "gl_struct.h"
 #endif
 #include "e6y.h"//e6y
+#include "RT/rt_main.h"
 
 //
 // SCREEN WIPE PACKAGE
@@ -78,7 +79,7 @@ static int wipe_initMelt(int ticks)
 {
   int i;
 
-  if (V_GetMode() != VID_MODEGL)
+  if (V_GetMode() != VID_MODEGL && V_GetMode() != VID_MODERT)
   {
     // copy start screen to main screen
     for(i=0;i<SCREENHEIGHT;i++)
@@ -128,7 +129,7 @@ static int wipe_doMelt(int ticks)
         if (y_lookup[i]+dy >= SCREENHEIGHT)
           dy = SCREENHEIGHT - y_lookup[i];
 
-       if (V_GetMode() != VID_MODEGL) {
+       if (V_GetMode() != VID_MODEGL && V_GetMode() != VID_MODERT) {
         s = wipe_scr_end.data    + (y_lookup[i]*wipe_scr_end.byte_pitch+(i*depth));
         d = wipe_scr.data        + (y_lookup[i]*wipe_scr.byte_pitch+(i*depth));
         for (j=dy;j;j--) {
@@ -139,7 +140,7 @@ static int wipe_doMelt(int ticks)
         }
        }
         y_lookup[i] += dy;
-       if (V_GetMode() != VID_MODEGL) {
+       if (V_GetMode() != VID_MODEGL && V_GetMode() != VID_MODERT) {
         s = wipe_scr_start.data  + (i*depth);
         d = wipe_scr.data        + (y_lookup[i]*wipe_scr.byte_pitch+(i*depth));
         for (j=SCREENHEIGHT-y_lookup[i];j;j--) {
@@ -159,6 +160,10 @@ static int wipe_doMelt(int ticks)
     gld_wipe_doMelt(ticks, y_lookup);
   }
 #endif
+  if (V_GetMode() == VID_MODERT)
+  {
+    RT_Wipe_DoMelt();
+  }
   return done;
 }
 
@@ -170,6 +175,11 @@ static int wipe_exitMelt(int ticks)
   if (V_GetMode() == VID_MODEGL)
   {
     gld_wipe_exitMelt(ticks);
+    return 0;
+  }
+  if (V_GetMode() == VID_MODERT)
+  {
+    RT_Wipe_ExitMelt();
     return 0;
   }
 #endif
@@ -198,6 +208,11 @@ int wipe_StartScreen(void)
     return 0;
   }
 #endif
+  if (V_GetMode() == VID_MODERT)
+  {
+      RT_Wipe_StartScreen();
+      return 0;
+  }
 
   wipe_scr_start.width = SCREENWIDTH;
   wipe_scr_start.height = SCREENHEIGHT;
@@ -228,6 +243,11 @@ int wipe_EndScreen(void)
     return 0;
   }
 #endif
+  if (V_GetMode() == VID_MODERT)
+  {
+    RT_Wipe_EndScreen();
+    return 0;
+  }
 
   wipe_scr_end.width = SCREENWIDTH;
   wipe_scr_end.height = SCREENHEIGHT;

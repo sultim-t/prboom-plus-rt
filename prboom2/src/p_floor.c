@@ -42,6 +42,7 @@
 #include "lprintf.h"
 #include "g_overflow.h"
 #include "e6y.h"//e6y
+#include "RT/rt_main.h"
 
 //e6y
 #define STAIRS_UNINITIALIZED_CRUSH_FIELD_VALUE 10
@@ -87,6 +88,10 @@ result_e T_MovePlane
     gld_UpdateSplitData(sector);
   }
 #endif
+  if (V_GetMode() == VID_MODERT)
+  {
+      RT_OnMovePlane();
+  }
 
   switch(floorOrCeiling)
   {

@@ -940,7 +940,7 @@ void ST_Drawer(dboolean statusbaron, dboolean refresh, dboolean fullmenu)
   ST_doPaletteStuff();  // Do red-/gold-shifts from damage/items
 
   if (statusbaron) {
-    if (st_firsttime || (V_GetMode() == VID_MODEGL))
+    if (st_firsttime || (V_GetMode() == VID_MODEGL) || (V_GetMode() == VID_MODERT))
     {
       /* If just after ST_Start(), refresh all */
       st_firsttime = false;

@@ -86,6 +86,7 @@
 #include "r_fps.h"
 #include "e6y.h"//e6y
 #include "statdump.h"
+#include "RT/rt_main.h"
 
 #ifdef _WIN32
 #include "WIN/win_fopen.h"
@@ -932,6 +933,11 @@ static void G_DoLoadLevel (void)
           first=0;
         }
     }
+
+  if (V_GetMode() == VID_MODERT)
+  {
+      RT_NewLevel(gameepisode, gamemap, skytexture);
+  }
 }
 
 

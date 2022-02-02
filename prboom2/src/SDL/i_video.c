@@ -87,6 +87,7 @@
 
 #include "e6y.h"//e6y
 #include "i_main.h"
+#include "RT/rt_main.h"
 
 //e6y: new mouse code
 static SDL_Cursor* cursors[2] = {NULL, NULL};
@@ -442,7 +443,7 @@ static void I_UploadNewPalette(int pal, int force)
   static int cachedgamma;
   static size_t num_pals;
 
-  if (V_GetMode() == VID_MODEGL)
+  if (V_GetMode() == VID_MODEGL || V_GetMode() == VID_MODERT)
     return;
 
   if ((colours == NULL) || (cachedgamma != usegamma) || force) {
@@ -526,6 +527,12 @@ void I_FinishUpdate (void)
     return;
   }
 #endif
+
+  if (V_GetMode() == VID_MODERT)
+  {
+      RT_EndFrame();
+      return;
+  }
 
   if (SDL_MUSTLOCK(screen)) {
       int h;
@@ -891,7 +898,7 @@ static void I_CalculateRes(int width, int height)
 // if the requested mode can't be set correctly.
 // For example glboom.exe -geom 1025x768 -nowindow will set 1024x768.
 // It affects only fullscreen modes.
-  if (V_GetMode() == VID_MODEGL) {
+  if (V_GetMode() == VID_MODEGL || V_GetMode() == VID_MODERT) {
     if ( desired_fullscreen )
     {
       I_ClosestResolution(&width, &height);
@@ -1143,6 +1150,8 @@ video_mode_t I_GetModeFromString(const char *modestr)
     mode = VID_MODEGL;
   } else if (!stricmp(modestr,"OpenGL")) {
     mode = VID_MODEGL;
+  } else if (!stricmp(modestr,"RT")) {
+    mode = VID_MODERT;
   } else {
     mode = VID_MODE8;
   }
@@ -1171,6 +1180,10 @@ void I_UpdateVideoMode(void)
       gld_CleanStaticMemory();
     }
 #endif
+    if (V_GetMode() == VID_MODERT)
+    {
+        RT_Destroy();
+    }
 
     I_InitScreenResolution();
 
@@ -1243,6 +1256,15 @@ void I_UpdateVideoMode(void)
 
     gld_CheckHardwareGamma();
 #endif
+  }
+  else if (V_GetMode() == VID_MODERT)
+  {
+    sdl_window = SDL_CreateWindow(
+        PACKAGE_NAME " " PACKAGE_VERSION,
+        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+        SCREENWIDTH, SCREENHEIGHT,
+        init_flags);
+    sdl_renderer = NULL;
   }
   else
   {
@@ -1339,7 +1361,7 @@ void I_UpdateVideoMode(void)
     gld_MultisamplingCheck();*/
 #endif
 
-  if (V_GetMode() != VID_MODEGL)
+  if (V_GetMode() != VID_MODEGL && V_GetMode() != VID_MODERT)
   {
     lprintf(LO_INFO, "I_UpdateVideoMode: 0x%x, %s, %s\n", init_flags, screen && screen->pixels ? "SDL buffer" : "own buffer", screen && SDL_MUSTLOCK(screen) ? "lock-and-copy": "direct access");
 
@@ -1415,6 +1437,14 @@ void I_UpdateVideoMode(void)
     deh_changeCompTranslucency();
   }
 #endif
+
+  if (V_GetMode() == VID_MODERT)
+  {
+      RT_Init();
+
+      M_ChangeFOV();
+      deh_changeCompTranslucency();
+  }
 
   src_rect.w = SCREENWIDTH;
   src_rect.h = SCREENHEIGHT;

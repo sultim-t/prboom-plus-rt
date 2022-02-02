@@ -221,7 +221,7 @@ static void R_MapPlane(int y, int x1, int x2, draw_span_vars_t *dsvars)
   dsvars->x1 = x1;
   dsvars->x2 = x2;
 
-  if (V_GetMode() != VID_MODEGL)
+  if (V_GetMode() != VID_MODEGL && V_GetMode() != VID_MODERT)
     R_DrawSpan(dsvars);
 }
 
@@ -326,7 +326,9 @@ visplane_t *R_FindPlane(fixed_t height, int picnum, int lightlevel,
   check->xoffs = xoffs;               // killough 2/28/98: Save offsets
   check->yoffs = yoffs;
 #ifdef GL_DOOM
-  if (V_GetMode() != VID_MODEGL)
+  if (V_GetMode() != VID_MODEGL && V_GetMode() != VID_MODERT)
+#else
+  if (V_GetMode() != VID_MODERT)
 #endif
   {
     int i;

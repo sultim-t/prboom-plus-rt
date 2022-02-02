@@ -40,6 +40,7 @@
 #include "r_bsp.h" // cph - sanity checking
 #include "v_video.h"
 #include "lprintf.h"
+#include "RT/rt_main.h"
 
 int currentsubsectornum;
 
@@ -366,6 +367,12 @@ static void R_AddLine (seg_t *line)
   static sector_t tempsec;     // killough 3/8/98: ceiling/water hack
 
   curline = line;
+
+  if (V_GetMode() == VID_MODERT)
+  {
+    RT_AddWall(line);
+    return;
+  }
 
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
@@ -772,6 +779,10 @@ static void R_Subsector(int num)
     if (V_GetMode() == VID_MODEGL)
       gld_AddPlane(num, floorplane, ceilingplane);
 #endif
+    if (V_GetMode() == VID_MODERT)
+    {
+      RT_AddPlane(num, floorplane, ceilingplane);
+    }
   }
 
   count = sub->numlines;

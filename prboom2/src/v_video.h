@@ -178,6 +178,7 @@ typedef enum {
   VID_MODE16,
   VID_MODE32,
   VID_MODEGL,
+  VID_MODERT,
   VID_MODEMAX
 } video_mode_t;
 

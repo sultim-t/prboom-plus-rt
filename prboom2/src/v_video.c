@@ -52,6 +52,7 @@
 #include "lprintf.h"
 #include "st_stuff.h"
 #include "e6y.h"
+#include "RT/rt_main.h"
 
 // DWF 2012-05-10
 // SetRatio sets the following global variables based on window geometry and
@@ -749,7 +750,7 @@ void V_UpdateTrueColorPalette(video_mode_t mode) {
   byte r,g,b;
   int nr,ng,nb;
   float t;
-  int paletteNum = (V_GetMode() == VID_MODEGL ? 0 : currentPaletteIndex);
+  int paletteNum = (V_GetMode() == VID_MODEGL || V_GetMode() == VID_MODERT ? 0 : currentPaletteIndex);
   static int usegammaOnLastPaletteGeneration = -1;
   
   int pplump = W_GetNumForName("PLAYPAL");
@@ -758,7 +759,7 @@ void V_UpdateTrueColorPalette(video_mode_t mode) {
   // opengl doesn't use the gamma
   const byte *const gtable = 
     (const byte *)W_CacheLumpNum(gtlump) + 
-    (V_GetMode() == VID_MODEGL ? 0 : 256*(usegamma))
+    (V_GetMode() == VID_MODEGL || V_GetMode() == VID_MODERT ? 0 : 256*(usegamma))
   ;
 
   int numPals = W_LumpLength(pplump) / (3*256);
@@ -908,11 +909,18 @@ void V_SetPalette(int pal)
 {
   currentPaletteIndex = pal;
 
-  if (V_GetMode() == VID_MODEGL) {
+  if (V_GetMode() == VID_MODERT)
+  {
+    // do nothing
+  }
+  else if (V_GetMode() == VID_MODEGL)
+  {
 #ifdef GL_DOOM
     gld_SetPalette(pal);
 #endif
-  } else {
+  }
+  else 
+  {
     I_SetPalette(pal);
     if (V_GetMode() == VID_MODE15 || V_GetMode() == VID_MODE16 || V_GetMode() == VID_MODE32) {
       // V_SetPalette can be called as part of the gamma setting before
@@ -1032,6 +1040,63 @@ static void WRAP_gld_DrawLine(fline_t* fl, int color)
 }
 #endif
 
+
+static void WRAP_RT_FillRect(int scrn, int x, int y, int width, int height, byte color)
+{
+  const unsigned char *playpal = V_GetPlaypal();
+  byte r = playpal[3 * color];
+  byte g = playpal[3 * color + 1];
+  byte b = playpal[3 * color + 2];
+
+  RT_DrawQuad(x, y, width, height, r, g, b);
+}
+static void WRAP_RT_CopyRect(int srcscrn, int destscrn, int x, int y, int width, int height, enum patch_translation_e flags)
+{
+}
+static void WRAP_RT_FillFlat(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags)
+{
+  RT_DrawQuad_Flat(lump, x, y, width, height, flags);
+}
+static void WRAP_RT_DrawBackground(const char *flatname, int n)
+{
+  WRAP_RT_FillFlat(R_FlatNumForName(flatname), n, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_NONE);
+}
+static void WRAP_RT_FillPatch(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags)
+{
+  RT_DrawQuad_Patch(lump, x, y, width, height, flags);
+}
+static void WRAP_RT_DrawNumPatch(int x, int y, int scrn, int lump, int cm, enum patch_translation_e flags)
+{
+  RT_DrawQuad_NumPatch(x, y, lump, cm, flags);
+}
+static void WRAP_RT_DrawNumPatchPrecise(float x, float y, int scrn, int lump, int cm, enum patch_translation_e flags)
+{
+  RT_DrawQuad_NumPatch(x, y, lump, cm, flags);
+}
+static void WRAP_RT_DrawBlock(int x, int y, int scrn, int width, int height, const byte *src, enum patch_translation_e flags)
+{
+}
+static void WRAP_RT_PlotPixel(int scrn, int x, int y, byte color)
+{
+  const unsigned char *playpal = V_GetPlaypal();
+  byte r = playpal[3 * color];
+  byte g = playpal[3 * color + 1];
+  byte b = playpal[3 * color + 2];
+
+  RT_DrawLine(x - 1, y, x + 1, y, r, g, b);
+  RT_DrawLine(x, y - 1, x, y + 1, r, g, b);
+}
+static void WRAP_RT_DrawLine(fline_t *fl, int color)
+{
+  const unsigned char *playpal = V_GetPlaypal();
+  byte r = playpal[3 * color];
+  byte g = playpal[3 * color + 1];
+  byte b = playpal[3 * color + 2];
+
+  RT_DrawLine(fl->a.fx, fl->a.fy, fl->b.fx, fl->b.fy, r, g, b);
+}
+
+
 static void NULL_FillRect(int scrn, int x, int y, int width, int height, byte colour) {}
 static void NULL_CopyRect(int srcscrn, int destscrn, int x, int y, int width, int height, enum patch_translation_e flags) {}
 static void NULL_FillFlat(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags) {}
@@ -1046,7 +1111,7 @@ static void NULL_DrawLine(fline_t* fl, int color) {}
 static void NULL_DrawLineWu(fline_t* fl, int color) {}
 
 const char *default_videomode;
-static video_mode_t current_videomode = VID_MODE8;
+static video_mode_t current_videomode = VID_MODERT;
 
 V_CopyRect_f V_CopyRect = NULL_CopyRect;
 V_FillRect_f V_FillRect = NULL_FillRect;
@@ -1128,20 +1193,34 @@ void V_InitMode(video_mode_t mode) {
 #ifdef GL_DOOM
     case VID_MODEGL:
       lprintf(LO_INFO, "V_InitMode: using OpenGL video mode\n");
-      V_CopyRect = WRAP_gld_CopyRect;
-      V_FillRect = WRAP_gld_FillRect;
-      V_DrawNumPatch = WRAP_gld_DrawNumPatch;
+      V_CopyRect            = WRAP_gld_CopyRect;
+      V_FillRect            = WRAP_gld_FillRect;
+      V_DrawNumPatch        = WRAP_gld_DrawNumPatch;
       V_DrawNumPatchPrecise = WRAP_gld_DrawNumPatchPrecise;
-      V_FillFlat = WRAP_gld_FillFlat;
-      V_FillPatch = WRAP_gld_FillPatch;
-      V_DrawBackground = WRAP_gld_DrawBackground;
-      V_PlotPixel = V_PlotPixelGL;
-      V_PlotPixelWu = V_PlotPixelWuGL;
-      V_DrawLine = WRAP_gld_DrawLine;
-      V_DrawLineWu = WRAP_gld_DrawLine;
-      current_videomode = VID_MODEGL;
+      V_FillFlat            = WRAP_gld_FillFlat;
+      V_FillPatch           = WRAP_gld_FillPatch;
+      V_DrawBackground      = WRAP_gld_DrawBackground;
+      V_PlotPixel           = V_PlotPixelGL;
+      V_PlotPixelWu         = V_PlotPixelWuGL;
+      V_DrawLine            = WRAP_gld_DrawLine;
+      V_DrawLineWu          = WRAP_gld_DrawLine;
+      current_videomode     = VID_MODEGL;
       break;
 #endif
+  case VID_MODERT:
+      lprintf(LO_INFO, "V_InitMode: using RT video mode\n");
+      V_CopyRect            = WRAP_RT_CopyRect;
+      V_FillRect            = WRAP_RT_FillRect;
+      V_DrawNumPatch        = WRAP_RT_DrawNumPatch;
+      V_DrawNumPatchPrecise = WRAP_RT_DrawNumPatchPrecise;
+      V_FillFlat            = WRAP_RT_FillFlat;
+      V_FillPatch           = WRAP_RT_FillPatch;
+      V_DrawBackground      = WRAP_RT_DrawBackground;
+      V_PlotPixel           = WRAP_RT_PlotPixel;
+      V_PlotPixelWu         = WRAP_RT_PlotPixel;
+      V_DrawLine            = WRAP_RT_DrawLine;
+      V_DrawLineWu          = WRAP_RT_DrawLine;
+      break;
   }
   R_FilterInit();
 }
@@ -1829,6 +1908,11 @@ void V_ToggleFullscreen(void)
 
   I_UpdateVideoMode();
 
+  if (V_GetMode() == VID_MODERT)
+  {
+      RT_OnToggleFullscreen();
+  }
+
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
@@ -1840,6 +1924,11 @@ void V_ToggleFullscreen(void)
 void V_ChangeScreenResolution(void)
 {
   I_UpdateVideoMode();
+
+  if (V_GetMode() == VID_MODERT)
+  {
+      RT_OnChangeScreenResolution();
+  }
 
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)

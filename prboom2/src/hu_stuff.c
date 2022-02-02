@@ -2271,7 +2271,7 @@ void SetCrosshairTarget(void)
       int top, bottom, h;
       stretch_param_t *params = &stretch_params[crosshair.flags & VPT_ALIGN_MASK];
 
-      if (V_GetMode() != VID_MODEGL)
+      if (V_GetMode() != VID_MODEGL && V_GetMode() != VID_MODERT)
       {
         winy += (float)(viewheight/2 - centery);
       }

@@ -43,6 +43,7 @@
 #include "p_pspr.h"
 #include "lprintf.h"
 #include "e6y.h"//e6y
+#include "RT/rt_main.h"
 
 #define BASEYCENTER 100
 
@@ -642,6 +643,12 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   fixed_t tz, tz2;
   int width;
 
+  if (V_GetMode() == VID_MODERT)
+  {
+    RT_ProjectSprite(thing, lightlevel);
+    return;
+  }
+
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
@@ -1088,11 +1095,10 @@ static void R_DrawPSprite (pspdef_t *psp)
   }
 
   // proff 11/99: don't use software stuff in OpenGL
-  if (V_GetMode() != VID_MODEGL)
+  if (V_GetMode() != VID_MODEGL && V_GetMode() != VID_MODERT)
   {
     R_DrawVisSprite(vis);
   }
-#ifdef GL_DOOM
   else
   {
     int lightlevel;
@@ -1115,9 +1121,22 @@ static void R_DrawPSprite (pspdef_t *psp)
       else if (lightlevel >= 255)
         lightlevel = 255;
     }
-    gld_DrawWeapon(lump,vis,lightlevel);
-  }
+
+    if (V_GetMode() == VID_MODERT)
+    {
+      RT_DrawWeapon(lump, vis, lightlevel);
+    }
+#ifdef GL_DOOM
+    else if (V_GetMode() != VID_MODEGL)
+    {
+      gld_DrawWeapon(lump, vis, lightlevel);
+    }
 #endif
+    else
+    {
+      assert(0);
+    }
+  }
 }
 
 //

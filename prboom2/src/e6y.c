@@ -87,6 +87,8 @@
 #include "d_deh.h"
 #include "e6y.h"
 
+#include "RT/rt_main.h"
+
 #ifdef _WIN32
 #include "WIN/win_fopen.h"
 #endif
@@ -363,6 +365,10 @@ void G_SkipDemoStop(void)
     gld_PreprocessLevel();
   }
 #endif
+  if (V_GetMode() == VID_MODERT)
+  {
+    RT_OnSkipDemoStop();
+  }
 }
 
 void G_SkipDemoStartCheck(void)
@@ -548,7 +554,7 @@ void M_ChangeMaxViewPitch(void)
 {
   int max_up, max_dn, angle_up, angle_dn;
   
-  if (V_GetMode() == VID_MODEGL)
+  if (V_GetMode() == VID_MODEGL || V_GetMode() == VID_MODERT)
   {
     max_up = movement_maxviewpitch;
     max_dn = movement_maxviewpitch;

@@ -48,6 +48,7 @@
 #include "w_wad.h"
 #include "v_video.h"
 #include "lprintf.h"
+#include "RT/rt_main.h"
 
 // OPTIMIZE: closed two sided lines as single sided
 
@@ -647,6 +648,14 @@ void R_StoreWallRange(const int start, const int stop)
 
   if(curline->miniseg == false) // figgi -- skip minisegs
     curline->linedef->flags |= ML_MAPPED;
+
+  if (V_GetMode() == VID_MODERT)
+  {
+    ds_p++->curline = curline;
+    RT_AddWall(curline);
+
+    return;
+  }
 
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
