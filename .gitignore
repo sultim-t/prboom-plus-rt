@@ -18,3 +18,4 @@ cmake_install.cmake
 
 /prboom2/.vs/*
 /prboom2/out/*
+/prboom2/CMakeSettings.json

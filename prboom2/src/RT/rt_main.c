@@ -1,7 +1,11 @@
 #include "rt_main.h"
 
+#include <SDL_timer.h>
+
 #include "doomtype.h"
+#include "i_main.h"
 #include "i_system.h"
+#include "i_video.h"
 #include "lprintf.h"
 #include "m_argv.h"
 
@@ -15,7 +19,7 @@ static void RT_Print(const char *pMessage, void *pUserData)
 }
 
 
-void RT_Init(void)
+void RT_Init(HINSTANCE hinstance, HWND hwnd)
 {
 #define RESOURCES_BASE_PATH "C:\\Git\\Serious-Engine-RT\\Sources\\RTGL1\\Build\\"
   const char pShaderPath[] = RESOURCES_BASE_PATH;
@@ -24,8 +28,8 @@ void RT_Init(void)
 
   RgWin32SurfaceCreateInfo win32Info =
   {
-    .hinstance = NULL,
-    .hwnd = NULL
+    .hinstance = hinstance,
+    .hwnd = hwnd
   };
 
   RgInstanceCreateInfo info =
@@ -80,11 +84,27 @@ void RT_Destroy(void)
   RG_CHECK(r);
 }
 
-void RT_NewLevel(int gameepisode, int gamemap, int skytexture)
-{}
+static double GetCurrentTime_Seconds()
+{
+  double current_tics = I_GetTime();
+  double tics_per_second = TICRATE;
+
+  // too low resolution
+  return current_tics / tics_per_second;
+}
+
+static double GetCurrentTime_Seconds_Realtime()
+{
+  return SDL_GetTicks() / 1000.0;
+}
 
 void RT_StartFrame(int window_width, int window_height)
 {
+  if (!window_focused)
+  {
+    return;
+  }
+
   RgStartFrameInfo info =
   {
     .requestRasterizedSkyGeometryReuse = false,
@@ -99,6 +119,11 @@ void RT_StartFrame(int window_width, int window_height)
 
 void RT_EndFrame()
 {
+  if (!window_focused)
+  {
+    return;
+  }
+
   RgDrawFrameInfo info = {
     .worldUpVector = { 0,1,0 },
     .rayCullMaskWorld = 0x7,
@@ -106,7 +131,7 @@ void RT_EndFrame()
     .primaryRayMinDist = 0.1f,
     .disableRayTracing = false,
     .disableRasterization = false,
-    .currentTime = static_cast<double>(FrameTime) / 1000.0,
+    .currentTime = GetCurrentTime_Seconds_Realtime(),
     .disableEyeAdaptation = false,
     .useSqrtRoughnessForIndirect = false,
   };
@@ -120,6 +145,10 @@ void RT_EndFrame()
 
   RgResult r = rgDrawFrame(rtmain.instance, &info);
   RG_CHECK(r);
+}
+
+void RT_NewLevel(int gameepisode, int gamemap, int skytexture)
+{
 }
 
 void RT_StartDrawScene()

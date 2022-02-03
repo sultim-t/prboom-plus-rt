@@ -380,6 +380,18 @@ void I_StartTic (void)
 //
 void I_StartFrame (void)
 {
+  if (V_GetMode() == VID_MODERT)
+  {
+    RT_StartFrame(SCREENWIDTH, SCREENHEIGHT);
+  }
+}
+
+void I_EndFrame(void)
+{
+  if (V_GetMode() == VID_MODERT)
+  {
+    RT_EndFrame();
+  }
 }
 
 //
@@ -510,6 +522,11 @@ void I_FinishUpdate (void)
   //e6y: new mouse code
   UpdateGrab();
 
+  if (V_GetMode() == VID_MODERT)
+  {
+    return;
+  }
+
   // The screen wipe following pressing the exit switch on a level
   // is noticably jerkier with I_SkipFrame
   // if (I_SkipFrame())return;
@@ -527,12 +544,6 @@ void I_FinishUpdate (void)
     return;
   }
 #endif
-
-  if (V_GetMode() == VID_MODERT)
-  {
-      RT_EndFrame();
-      return;
-  }
 
   if (SDL_MUSTLOCK(screen)) {
       int h;
@@ -1440,10 +1451,21 @@ void I_UpdateVideoMode(void)
 
   if (V_GetMode() == VID_MODERT)
   {
-      RT_Init();
+    // get raw WinAPI handles from SDL
+    HINSTANCE hinstance;
+    HWND hwnd;
+    {
+      SDL_SysWMinfo wmInfo;
+      SDL_VERSION(&wmInfo.version);
+      SDL_GetWindowWMInfo(sdl_window, &wmInfo);
+      hwnd = wmInfo.info.win.window;
+      hinstance = wmInfo.info.win.hinstance;
+    }
 
-      M_ChangeFOV();
-      deh_changeCompTranslucency();
+    RT_Init(hinstance, hwnd);
+
+    M_ChangeFOV();
+    deh_changeCompTranslucency();
   }
 
   src_rect.w = SCREENWIDTH;

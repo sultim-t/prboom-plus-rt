@@ -517,10 +517,10 @@ static void D_DoomLoop(void)
 
       // CPhipps - auto screenshot
       if (auto_shot_fname && !--auto_shot_count) {
-  auto_shot_count = auto_shot_time;
-  M_DoScreenShot(auto_shot_fname);
+        auto_shot_count = auto_shot_time;
+        M_DoScreenShot(auto_shot_fname);
       }
-//e6y
+      //e6y
       if (avi_shot_fname && !doSkip)
       {
         int len;
@@ -532,7 +532,9 @@ static void D_DoomLoop(void)
         M_DoScreenShot(avi_shot_curr_fname);
         free(avi_shot_curr_fname);
       }
-}
+
+      I_EndFrame();
+    }
 }
 
 //

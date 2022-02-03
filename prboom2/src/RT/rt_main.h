@@ -4,6 +4,7 @@
 
 #include "d_player.h"
 #include "r_defs.h"
+
 #include "RTGL1/RTGL1.h"
 
 
@@ -18,7 +19,7 @@ typedef struct
 extern rtmain_t rtmain;
 
 
-void RT_Init(void);
+void RT_Init(HINSTANCE hinstance, HWND hwnd);
 void RT_Destroy(void);
 
 void RT_NewLevel(int gameepisode, int gamemap, int skytexture);
