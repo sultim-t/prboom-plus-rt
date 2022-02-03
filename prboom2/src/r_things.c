@@ -1127,7 +1127,7 @@ static void R_DrawPSprite (pspdef_t *psp)
       RT_DrawWeapon(lump, vis, lightlevel);
     }
 #ifdef GL_DOOM
-    else if (V_GetMode() != VID_MODEGL)
+    else if (V_GetMode() == VID_MODEGL)
     {
       gld_DrawWeapon(lump, vis, lightlevel);
     }
