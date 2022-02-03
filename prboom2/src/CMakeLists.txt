@@ -258,7 +258,11 @@ endif()
 
 set(
     RT_SOURCES
+    RT/rt_common.h
+    RT/rt_main.h
     RT/rt_main.c
+    RT/rt_textures.h
+    RT/rt_textures.c
 )
 
 set(PRBOOM_PLUS_SOURCES

@@ -1,15 +1,10 @@
 #pragma once
 
-#include <assert.h>
+#include "rt_common.h"
+#include "rt_textures.h"
 
 #include "d_player.h"
 #include "r_defs.h"
-
-#include "RTGL1/RTGL1.h"
-
-
-#define RG_CHECK(x) assert((x) == RG_SUCCESS)
-
 
 typedef struct
 {

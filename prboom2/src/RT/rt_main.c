@@ -58,7 +58,7 @@ void RT_Init(HINSTANCE hinstance, HWND hwnd)
     .rasterizedSkyMaxIndexCount = 1 << 16,
     .rasterizedSkyCubemapSize = 256,
 
-    .maxTextureCount = 1024,
+    .maxTextureCount = RG_MAX_TEXTURE_COUNT,
     .textureSamplerForceMinificationFilterLinear = true,
 
     .pOverridenTexturesFolderPath = "ovrd/mat/",
@@ -198,24 +198,99 @@ void RT_AddWall(seg_t *seg)
 {
 }
 
+static uint32_t PackColor(byte r, byte g, byte b, byte a)
+{
+  return
+    ((uint32_t)a << 24) |
+    ((uint32_t)b << 16) |
+    ((uint32_t)g << 8) |
+    ((uint32_t)r);
+}
+
 void RT_DrawLine(float x0, float y0, float x1, float y1, byte r, byte g, byte b)
 {
 }
 
+//  0 -- 3
+//  |    |
+//  1 -- 2
+static const uint32_t QUAD_INDICES[] = { 0, 1, 3, 3, 1, 2 };
+static const float MATRIX_IDENTITY[] =
+{
+  1,0,0,0,
+  0,1,0,0,
+  0,0,1,0,
+  0,0,0,1,
+};
+
+void DrawQuad_Internal(RgMaterial mat, int x, int y, int width, int height, byte r, byte g, byte b)
+{
+  RgExtent2D ext = GetCurrentHWNDSize();
+
+  const float vw = (float)ext.width;
+  const float vh = (float)ext.height;
+
+  float x1 = (float)(x         )/ vw * 2.0f - 1.0f;
+  float y1 = (float)(y         )/ vh * 2.0f - 1.0f;
+  float x2 = (float)(x + width )/ vw * 2.0f - 1.0f;
+  float y2 = (float)(y + height)/ vh * 2.0f - 1.0f;
+
+  float s1 = 0.0f;
+  float t1 = 0.0f;
+  float s2 = 1.0f;
+  float t2 = 1.0f;
+
+  uint32_t color = PackColor(r, g, b, 255);
+
+  RgRasterizedGeometryVertexStruct verts[] =
+  {
+    { { x1, y1, 0 }, color, { s1, t1 } },
+    { { x1, y2, 0 }, color, { s1, t2 } },
+    { { x2, y1, 0 }, color, { s2, t1 } },
+    { { x2, y1, 0 }, color, { s2, t1 } },
+    { { x1, y2, 0 }, color, { s1, t2 } },
+    { { x2, y2, 0 }, color, { s2, t2 } },
+  };
+
+  RgRasterizedGeometryUploadInfo info =
+  {
+    .renderType = RG_RASTERIZED_GEOMETRY_RENDER_TYPE_SWAPCHAIN,
+    .vertexCount = RG_ARRAY_SIZE(verts),
+    .pStructs = verts,
+    .transform = RG_TRANSFORM_IDENTITY,
+    .color = RG_COLOR_WHITE,
+    .material = mat,
+    .depthTest = false,
+    .depthWrite = false
+  };
+
+  RgResult _r = rgUploadRasterizedGeometry(rtmain.instance, &info, MATRIX_IDENTITY, NULL);
+  RG_CHECK(_r);
+}
+
 void RT_DrawQuad(int x, int y, int width, int height, byte r, byte g, byte b)
 {
+  DrawQuad_Internal(RG_NO_MATERIAL, x, y, width, height, r, g, b);
 }
 
 void RT_DrawQuad_Patch(int lump, int x, int y, int width, int height, enum patch_translation_e flags)
 {
+  DrawQuad_Internal(RG_NO_MATERIAL, x, y, width, height, 255, 255, 255);
 }
 
 void RT_DrawQuad_Flat(int lump, int x, int y, int width, int height, enum patch_translation_e flags)
 {
+  DrawQuad_Internal(RG_NO_MATERIAL, x, y, width, height, 255, 255, 255);
 }
 
 void RT_DrawQuad_NumPatch(float x, float y, int lump, int cm, enum patch_translation_e flags)
 {
+  const rt_texture_t *t = RT_Texture_GetFromPatchLump(lump);
+
+  if (t != NULL)
+  {
+    DrawQuad_Internal(t->rg_handle, x, y, t->width, t->height, 255, 255, 255);
+  }
 }
 
 void RT_Wipe_DoMelt()
