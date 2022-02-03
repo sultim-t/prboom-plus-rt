@@ -223,17 +223,17 @@ static const float MATRIX_IDENTITY[] =
   0,0,0,1,
 };
 
-void DrawQuad_Internal(RgMaterial mat, int x, int y, int width, int height, byte r, byte g, byte b)
+static void DrawQuad_Internal(RgMaterial mat, float x, float y, float width, float height, byte r, byte g, byte b)
 {
   RgExtent2D ext = GetCurrentHWNDSize();
 
-  const float vw = (float)ext.width;
-  const float vh = (float)ext.height;
+  const float vw = SCREENWIDTH;
+  const float vh = SCREENHEIGHT;
 
-  float x1 = (float)(x         )/ vw * 2.0f - 1.0f;
-  float y1 = (float)(y         )/ vh * 2.0f - 1.0f;
-  float x2 = (float)(x + width )/ vw * 2.0f - 1.0f;
-  float y2 = (float)(y + height)/ vh * 2.0f - 1.0f;
+  float x1 = x / vw * 2.0f - 1.0f;
+  float y1 = y / vh * 2.0f - 1.0f;
+  float x2 = (x + width ) / vw * 2.0f - 1.0f;
+  float y2 = (y + height) / vh * 2.0f - 1.0f;
 
   float s1 = 0.0f;
   float t1 = 0.0f;
@@ -285,12 +285,53 @@ void RT_DrawQuad_Flat(int lump, int x, int y, int width, int height, enum patch_
 
 void RT_DrawQuad_NumPatch(float x, float y, int lump, int cm, enum patch_translation_e flags)
 {
-  const rt_texture_t *t = RT_Texture_GetFromPatchLump(lump);
+  const rt_texture_t *td = RT_Texture_GetFromPatchLump(lump);
 
-  if (t != NULL)
+  if (td == NULL)
   {
-    DrawQuad_Internal(t->rg_handle, x, y, t->width, t->height, 255, 255, 255);
+    return;
   }
+
+  float leftoffset, topoffset;
+
+  if (flags & VPT_NOOFFSET)
+  {
+    leftoffset = 0;
+    topoffset = 0;
+  }
+  else
+  {
+    leftoffset = (float)td->leftoffset;
+    topoffset = (float)td->topoffset;
+  }
+
+  // [FG] automatically center wide patches without horizontal offset
+  if (td->width > 320 && leftoffset == 0)
+  {
+    x -= (float)(td->width - 320) / 2;
+  }
+
+  float xpos, ypos;
+  float width, height;
+
+  if (flags & VPT_STRETCH_MASK)
+  {
+    const stretch_param_t *params = &stretch_params[flags & VPT_ALIGN_MASK];
+
+    xpos    = (x - leftoffset) * (float)params->video->width  / 320.0f + (float)params->deltax1;
+    ypos    = (y - topoffset)  * (float)params->video->height / 200.0f + (float)params->deltay1;
+    width   = (float)(td->width  * params->video->width)  / 320.0f;
+    height  = (float)(td->height * params->video->height) / 200.0f;
+  }
+  else
+  {
+    xpos    = x - leftoffset;
+    ypos    = y - topoffset;
+    width   = (float)td->width;
+    height  = (float)td->height;
+  }
+  
+  DrawQuad_Internal(td->rg_handle, xpos, ypos, width, height, 255, 255, 255);
 }
 
 void RT_Wipe_DoMelt()

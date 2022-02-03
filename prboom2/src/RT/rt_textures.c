@@ -88,6 +88,8 @@ static rt_texture_t *RT_Texture_RegisterPatch(int lump, const rpatch_t *patch)
   td->lump_id = lump;
   td->width = patch->width;
   td->height = patch->height;
+  td->leftoffset = patch->leftoffset;
+  td->topoffset = patch->topoffset;
 
   // will be initialized by caller
   td->rg_handle = RG_NO_MATERIAL;

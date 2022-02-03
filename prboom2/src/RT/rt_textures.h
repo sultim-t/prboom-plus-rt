@@ -26,8 +26,8 @@ typedef struct rt_texture_t
   rt_texture_lump_type_t lump_type;
   int lump_id;
 
-  uint32_t width;
-  uint32_t height;
+  uint32_t width,height;
+  int leftoffset, topoffset;
   rt_texture_flags_t flags;
 
 } rt_texture_t;

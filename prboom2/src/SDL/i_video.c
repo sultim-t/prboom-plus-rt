@@ -1234,7 +1234,7 @@ void I_UpdateVideoMode(void)
   // running.  This feature is disabled on OS X, as it adds an ugly
   // scroll handle to the corner of the screen.
 #ifndef MACOSX
-  if (!desired_fullscreen && V_GetMode() != VID_MODEGL)
+  if (!desired_fullscreen && V_GetMode() != VID_MODEGL && V_GetMode() != VID_MODERT)
     init_flags |= SDL_WINDOW_RESIZABLE;
 #endif
 
