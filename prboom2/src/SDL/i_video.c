@@ -382,7 +382,7 @@ void I_StartFrame (void)
 {
   if (V_GetMode() == VID_MODERT)
   {
-    RT_StartFrame(SCREENWIDTH, SCREENHEIGHT);
+    RT_StartFrame();
   }
 }
 

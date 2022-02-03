@@ -14,6 +14,7 @@
 typedef struct
 {
   RgInstance instance;
+  HWND hwnd;
 } rtmain_t;
 
 extern rtmain_t rtmain;
@@ -24,7 +25,7 @@ void RT_Destroy(void);
 
 void RT_NewLevel(int gameepisode, int gamemap, int skytexture);
 
-void RT_StartFrame(int window_width, int window_height);
+void RT_StartFrame(void);
 void RT_EndFrame(void);
 
 void RT_StartDrawScene(void);

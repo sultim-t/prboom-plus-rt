@@ -75,6 +75,8 @@ void RT_Init(HINSTANCE hinstance, HWND hwnd)
   RgResult r = rgCreateInstance(&info, &rtmain.instance);
   RG_CHECK(r);
 
+  rtmain.hwnd = hwnd;
+
   I_AtExit(RT_Destroy, true);
 }
 
@@ -82,6 +84,8 @@ void RT_Destroy(void)
 {
   RgResult r = rgDestroyInstance(rtmain.instance);
   RG_CHECK(r);
+
+  memset(&rtmain, 0, sizeof(rtmain));
 }
 
 static double GetCurrentTime_Seconds()
@@ -98,7 +102,22 @@ static double GetCurrentTime_Seconds_Realtime()
   return SDL_GetTicks() / 1000.0;
 }
 
-void RT_StartFrame(int window_width, int window_height)
+static RgExtent2D GetCurrentHWNDSize()
+{
+  RgExtent2D extent = { 0,0 };
+
+  RECT rect;
+  if (GetWindowRect(rtmain.hwnd, &rect))
+  {
+    extent.width = rect.right - rect.left;
+    extent.height = rect.bottom - rect.top;
+  }
+
+  assert(extent.width > 0 && extent.height > 0);
+  return extent;
+}
+
+void RT_StartFrame(void)
 {
   if (!window_focused)
   {
@@ -110,7 +129,7 @@ void RT_StartFrame(int window_width, int window_height)
     .requestRasterizedSkyGeometryReuse = false,
     .requestShaderReload = false,
     .requestVSync = true,
-    .surfaceSize = { window_width, window_height }
+    .surfaceSize = GetCurrentHWNDSize()
   };
 
   RgResult r = rgStartFrame(rtmain.instance, &info);
