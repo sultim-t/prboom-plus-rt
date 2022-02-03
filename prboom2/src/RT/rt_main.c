@@ -273,14 +273,32 @@ void RT_DrawQuad(int x, int y, int width, int height, byte r, byte g, byte b)
   DrawQuad_Internal(RG_NO_MATERIAL, x, y, width, height, r, g, b);
 }
 
-void RT_DrawQuad_Patch(int lump, int x, int y, int width, int height, enum patch_translation_e flags)
+void RT_DrawQuad_Flat(int lump, int x, int y, int width, int height, enum patch_translation_e flags)
 {
   DrawQuad_Internal(RG_NO_MATERIAL, x, y, width, height, 255, 255, 255);
 }
 
-void RT_DrawQuad_Flat(int lump, int x, int y, int width, int height, enum patch_translation_e flags)
+void RT_DrawQuad_Patch(int lump, int x, int y, int width, int height, enum patch_translation_e flags)
 {
-  DrawQuad_Internal(RG_NO_MATERIAL, x, y, width, height, 255, 255, 255);
+  const rt_texture_t *td = RT_Texture_GetFromPatchLump(lump);
+
+  if (td == NULL)
+  {
+    return;
+  }
+
+  x = x - td->leftoffset;
+  y = y - td->topoffset;
+
+  if (flags & VPT_STRETCH)
+  {
+    x = x * SCREENWIDTH / 320;
+    y = y * SCREENHEIGHT / 200;
+    width = width * SCREENWIDTH / 320;
+    height = height * SCREENHEIGHT / 200;
+  }
+
+  DrawQuad_Internal(td->rg_handle, x, y, width, height, 255, 255, 255);
 }
 
 void RT_DrawQuad_NumPatch(float x, float y, int lump, int cm, enum patch_translation_e flags)
