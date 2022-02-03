@@ -3255,10 +3255,14 @@ setup_menu_t* gen_settings[] =
 #define G_X2 284
 
 static const char *videomodes[] = {
-  "8bit","15bit","16bit", "32bit",
+  "8bit",
+  "15bit",
+  "16bit",
+  "32bit",
 #ifdef GL_DOOM
   "OpenGL",
 #endif
+  "RT",
   NULL};
 
 static const char *gltexformats[] = {

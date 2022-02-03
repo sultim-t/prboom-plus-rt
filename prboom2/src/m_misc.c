@@ -463,7 +463,7 @@ default_t defaults[] =
   {"mus_opl_gain",{&mus_opl_gain},{50},0,1000,def_int,ss_none}, // NSM  fine tune opl output level
 
   {"Video settings",{NULL},{0},UL,UL,def_none,ss_none},
-  {"videomode",{NULL, &default_videomode},{0,"8bit"},UL,UL,def_str,ss_none},
+  {"videomode",{NULL, &default_videomode},{0,"RT"},UL,UL,def_str,ss_none},
   /* 640x480 default resolution */
   {"screen_resolution",{NULL, &screen_resolution},{0,"640x480"},UL,UL,def_str,ss_none},
   {"use_fullscreen",{&use_fullscreen},{0},0,1, /* proff 21/05/2000 */
@@ -1085,7 +1085,7 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"fake_contrast", {&fake_contrast},  {1},0,1,
    def_bool,ss_stat}, /* cph - allow crappy fake contrast to be disabled */
-  {"render_stretch_hud", {&render_stretch_hud_default},{patch_stretch_16x10},0,patch_stretch_max - 1,
+  {"render_stretch_hud", {&render_stretch_hud_default},{patch_stretch_4x3},0,patch_stretch_max - 1,
   def_int,ss_stat},
   {"render_patches_scalex", {&render_patches_scalex},{0},0,16,
   def_int,ss_stat},
@@ -1155,7 +1155,7 @@ default_t defaults[] =
    def_str,ss_none},
   {"gl_motionblur_att_c", {NULL,&motion_blur.str_att_c}, {0,"0.9"},UL,UL,
    def_str,ss_none},
-  {"gl_lightmode",{(int*)&gl_lightmode_default},{gl_lightmode_glboom},
+  {"gl_lightmode",{(int*)&gl_lightmode_default},{gl_lightmode_shaders},
    gl_lightmode_glboom, gl_lightmode_last-1, def_int,ss_none},
   {"gl_light_ambient", {&gl_light_ambient},  {20},1,255,
    def_int,ss_stat},
@@ -1163,7 +1163,7 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"gl_fog_color", {&gl_fog_color},  {0},0,0xffffff,
    def_hex,ss_stat},
-  {"useglgamma",{&useglgamma},{6},0,MAX_GLGAMMA,
+  {"useglgamma",{&useglgamma},{0},0,MAX_GLGAMMA,
    def_int,ss_none},
   {"gl_color_mip_levels", {&gl_color_mip_levels},  {0},0,1,
    def_bool,ss_stat},
