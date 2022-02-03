@@ -261,7 +261,10 @@ static void DrawQuad_Internal(RgMaterial mat, float x, float y, float width, flo
     .color = RG_COLOR_WHITE,
     .material = mat,
     .depthTest = false,
-    .depthWrite = false
+    .depthWrite = false,
+    .blendEnable = true,
+    .blendFuncSrc = RG_BLEND_FACTOR_SRC_ALPHA,
+    .blendFuncDst = RG_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
   };
 
   RgResult _r = rgUploadRasterizedGeometry(rtmain.instance, &info, MATRIX_IDENTITY, NULL);
