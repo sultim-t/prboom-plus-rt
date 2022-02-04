@@ -17,7 +17,7 @@ rttextures = {0 };
 
 static rt_texture_t *RT_Texture_AllocEntry_T(int id, rt_texture_t *all_T)
 {
-  assert(id >= 0 && id < numlumps);
+  assert(id >= 0);
 
   rt_texture_t *td = &all_T[id];
 
@@ -55,13 +55,13 @@ void RT_Texture_Init(void)
   assert(rttextures.all_TXTR == NULL && rttextures.all_PFS == NULL && rttextures.all_PFS_STATIC == NULL);
 
   // TODO: should be one global array instead of 3?
-  rttextures.all_TXTR       = malloc(numlumps * sizeof(rt_texture_t));
-  rttextures.all_PFS        = malloc(numlumps * sizeof(rt_texture_t));
-  rttextures.all_PFS_STATIC = malloc(numlumps * sizeof(rt_texture_t));
+  rttextures.all_TXTR       = malloc(numtextures  * sizeof(rt_texture_t));
+  rttextures.all_PFS        = malloc(numlumps     * sizeof(rt_texture_t));
+  rttextures.all_PFS_STATIC = malloc(numlumps     * sizeof(rt_texture_t));
 
-  memset(rttextures.all_TXTR,       0, numlumps * sizeof(rt_texture_t));
-  memset(rttextures.all_PFS,        0, numlumps * sizeof(rt_texture_t));
-  memset(rttextures.all_PFS_STATIC, 0, numlumps * sizeof(rt_texture_t));
+  memset(rttextures.all_TXTR,       0, numtextures  * sizeof(rt_texture_t));
+  memset(rttextures.all_PFS,        0, numlumps     * sizeof(rt_texture_t));
+  memset(rttextures.all_PFS_STATIC, 0, numlumps     * sizeof(rt_texture_t));
 }
 
 
@@ -87,11 +87,11 @@ static void FreeRgHandles(const rt_texture_t *all, int count)
 
 void RT_Texture_Clean_WithoutStatic(void)
 {
-  FreeRgHandles(rttextures.all_TXTR, numlumps);
+  FreeRgHandles(rttextures.all_TXTR, numtextures);
   FreeRgHandles(rttextures.all_PFS, numlumps);
 
-  memset(rttextures.all_TXTR,       0, numlumps * sizeof(rt_texture_t));
-  memset(rttextures.all_PFS,        0, numlumps * sizeof(rt_texture_t));
+  memset(rttextures.all_TXTR,       0, numtextures * sizeof(rt_texture_t));
+  memset(rttextures.all_PFS,        0, numlumps    * sizeof(rt_texture_t));
 }
 
 
@@ -125,7 +125,7 @@ static rt_texture_t *RT_Texture_RegisterPatch(int lump, const rpatch_t *patch)
     return NULL;
   }
 
-  assert(lump >= 0);
+  assert(lump >= 0 && lump < numlumps);
   int is_static = lumpinfo[lump].flags & LUMP_STATIC;
 
   rt_texture_t *td = RT_Texture_AllocEntry_T(lump, is_static ? rttextures.all_PFS_STATIC : rttextures.all_PFS);
@@ -136,8 +136,8 @@ static rt_texture_t *RT_Texture_RegisterPatch(int lump, const rpatch_t *patch)
   }
 
   assert(td->exists);
-  td->lump_type = is_static ? RT_TEXTURE_LUMP_TYPE_PATCHES_FLATS_SPRITES_STATIC : RT_TEXTURE_LUMP_TYPE_PATCHES_FLATS_SPRITES;
-  td->lump_id = lump;
+  td->id_type = is_static ? RT_TEXTURE_ID_TYPE_PATCHES_FLATS_SPRITES_STATIC : RT_TEXTURE_ID_TYPE_PATCHES_FLATS_SPRITES;
+  td->id = lump;
   td->width = patch->width;
   td->height = patch->height;
   td->leftoffset = patch->leftoffset;
@@ -153,7 +153,7 @@ static rt_texture_t *RT_Texture_RegisterFlat(int lump_flat)
 {
   int lump = firstflat + lump_flat;
 
-  assert(lump >= 0);
+  assert(lump >= 0 && lump < numlumps);
   int is_static = lumpinfo[lump].flags & LUMP_STATIC;
 
   rt_texture_t *td = RT_Texture_AllocEntry_T(lump, is_static ? rttextures.all_PFS_STATIC : rttextures.all_PFS);
@@ -164,10 +164,35 @@ static rt_texture_t *RT_Texture_RegisterFlat(int lump_flat)
   }
 
   assert(td->exists);
-  td->lump_type = is_static ? RT_TEXTURE_LUMP_TYPE_PATCHES_FLATS_SPRITES_STATIC : RT_TEXTURE_LUMP_TYPE_PATCHES_FLATS_SPRITES;
-  td->lump_id = lump;
+  td->id_type = is_static ? RT_TEXTURE_ID_TYPE_PATCHES_FLATS_SPRITES_STATIC : RT_TEXTURE_ID_TYPE_PATCHES_FLATS_SPRITES;
+  td->id = lump;
   td->width = 64;
   td->height = 64;
+  td->leftoffset = 0;
+  td->topoffset = 0;
+
+  // will be initialized by caller
+  td->rg_handle = RG_NO_MATERIAL;
+  return td;
+}
+
+
+static rt_texture_t *RT_Texture_RegisterTexture(int texture_num, const texture_t *texture)
+{
+  assert(texture_num >= 0 && texture_num < numtextures);
+
+  rt_texture_t *td = RT_Texture_AllocEntry_T(texture_num, rttextures.all_TXTR);
+
+  if (td == NULL)
+  {
+    return NULL;
+  }
+
+  assert(td->exists);
+  td->id_type = RT_TEXTURE_ID_TYPE_TEXTURES;
+  td->id = texture_num;
+  td->width = texture->width;
+  td->height = texture->height;
   td->leftoffset = 0;
   td->topoffset = 0;
 
@@ -184,12 +209,29 @@ static const rt_texture_t *RT_Texture_TryFindPatch(int lump)
 
   if (td->exists)
   {
-    assert(td->lump_id == lump);
+    assert(td->id == lump);
     assert(td->width > 0 && td->height > 0);
     assert(
-      (is_static && td->lump_type == RT_TEXTURE_LUMP_TYPE_PATCHES_FLATS_SPRITES_STATIC) ||
-      (!is_static && td->lump_type == RT_TEXTURE_LUMP_TYPE_PATCHES_FLATS_SPRITES));
+      (is_static && td->id_type == RT_TEXTURE_ID_TYPE_PATCHES_FLATS_SPRITES_STATIC) ||
+      (!is_static && td->id_type == RT_TEXTURE_ID_TYPE_PATCHES_FLATS_SPRITES));
     
+    return td;
+  }
+
+  return NULL;
+}
+
+
+static const rt_texture_t *RT_Texture_TryFindTexture(int texture_num)
+{
+  const rt_texture_t *td = &rttextures.all_TXTR[texture_num];
+
+  if (td->exists)
+  {
+    assert(td->id_type == RT_TEXTURE_ID_TYPE_TEXTURES);
+    assert(td->id == texture_num);
+    assert(td->width > 0 && td->height > 0);
+
     return td;
   }
 
@@ -472,6 +514,44 @@ const rt_texture_t *RT_Texture_GetFromFlatLump(int lump_flat)
   memset(buffer, 0, texture_buffer_size);
   DT_AddFlatToTexture(buffer, flat, td->width, td->height);
   W_UnlockLumpNum(lump);
+
+  td->rg_handle = BuildMaterial(td, buffer);
+
+  free(buffer);
+  return td;
+}
+
+const rt_texture_t *RT_Texture_GetFromTexture(int texture_num)
+{
+  {
+    const rt_texture_t *existing = RT_Texture_TryFindTexture(texture_num);
+
+    if (existing != NULL)
+    {
+      return existing;
+    }
+  }
+
+  assert(texture_num >= 0 && texture_num < numtextures);
+  const texture_t *texture = textures[texture_num];
+  if (texture == NULL)
+  {
+    return NULL;
+  }
+
+  rt_texture_t *td = RT_Texture_RegisterTexture(texture_num, texture);
+  if (td == NULL)
+  {
+    return NULL;
+  }
+
+  uint32_t texture_buffer_size = td->width * td->height * 4;
+  uint8_t *buffer = malloc(texture_buffer_size);
+  memset(buffer, 0, texture_buffer_size);
+  const rpatch_t *patch = R_CacheTextureCompositePatchNum(texture_num);
+  assert(patch->width == (int)td->width && patch->height == (int)td->height);
+  DT_AddPatchToTexture(buffer, patch);
+  R_UnlockTextureCompositePatchNum(texture_num);
 
   td->rg_handle = BuildMaterial(td, buffer);
 
