@@ -11,6 +11,7 @@
 
 
 rtmain_t rtmain = { 0 };
+static RgBool32 frame_started_guard = 0;
 
 
 static void RT_Print(const char *pMessage, void *pUserData)
@@ -82,8 +83,14 @@ void RT_Init(HINSTANCE hinstance, HWND hwnd)
   I_AtExit(RT_Destroy, true);
 }
 
+
 void RT_Destroy(void)
 {
+  if (frame_started_guard)
+  {
+    RT_EndFrame();
+  }
+
   RT_Texture_Destroy();
 
   RgResult r = rgDestroyInstance(rtmain.instance);
@@ -91,6 +98,7 @@ void RT_Destroy(void)
 
   memset(&rtmain, 0, sizeof(rtmain));
 }
+
 
 static double GetCurrentTime_Seconds()
 {
@@ -101,10 +109,12 @@ static double GetCurrentTime_Seconds()
   return current_tics / tics_per_second;
 }
 
+
 static double GetCurrentTime_Seconds_Realtime()
 {
   return SDL_GetTicks() / 1000.0;
 }
+
 
 static RgExtent2D GetCurrentHWNDSize()
 {
@@ -120,6 +130,7 @@ static RgExtent2D GetCurrentHWNDSize()
   assert(extent.width > 0 && extent.height > 0);
   return extent;
 }
+
 
 void RT_StartFrame(void)
 {
@@ -138,14 +149,18 @@ void RT_StartFrame(void)
 
   RgResult r = rgStartFrame(rtmain.instance, &info);
   RG_CHECK(r);
+
+  frame_started_guard = true;
 }
+
 
 void RT_EndFrame()
 {
-  if (!window_focused)
+  if (!frame_started_guard)
   {
     return;
   }
+  frame_started_guard = false;
 
   RgDrawFrameInfo info = {
     .worldUpVector = { 0,1,0 },
@@ -170,37 +185,46 @@ void RT_EndFrame()
   RG_CHECK(r);
 }
 
+
 void RT_NewLevel(int gameepisode, int gamemap, int skytexture)
 {
 }
+
 
 void RT_StartDrawScene()
 {
 }
 
+
 void RT_DrawScene(player_t *player)
 {
 }
+
 
 void RT_EndDrawScene()
 {
 }
 
+
 void RT_ProjectSprite(mobj_t *thing, int lightlevel)
 {
 }
+
 
 void RT_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
 {
 }
 
+
 void RT_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling)
 {
 }
 
+
 void RT_AddWall(seg_t *seg)
 {
 }
+
 
 static uint32_t PackColor(byte r, byte g, byte b, byte a)
 {
@@ -211,9 +235,11 @@ static uint32_t PackColor(byte r, byte g, byte b, byte a)
     ((uint32_t)r);
 }
 
+
 void RT_DrawLine(float x0, float y0, float x1, float y1, byte r, byte g, byte b)
 {
 }
+
 
 //  0 -- 3
 //  |    |
@@ -227,7 +253,11 @@ static const float MATRIX_IDENTITY[] =
   0,0,0,1,
 };
 
-static void DrawQuad_Internal(RgMaterial mat, float x, float y, float width, float height, byte r, byte g, byte b)
+
+static void DrawQuad_Internal_T(RgMaterial mat, 
+                                float x, float y, float width, float height,
+                                float s1, float t1, float s2, float t2,
+                                byte r, byte g, byte b)
 {
   RgExtent2D ext = GetCurrentHWNDSize();
 
@@ -238,11 +268,6 @@ static void DrawQuad_Internal(RgMaterial mat, float x, float y, float width, flo
   float y1 = y / vh * 2.0f - 1.0f;
   float x2 = (x + width ) / vw * 2.0f - 1.0f;
   float y2 = (y + height) / vh * 2.0f - 1.0f;
-
-  float s1 = 0.0f;
-  float t1 = 0.0f;
-  float s2 = 1.0f;
-  float t2 = 1.0f;
 
   uint32_t color = PackColor(r, g, b, 255);
 
@@ -275,15 +300,45 @@ static void DrawQuad_Internal(RgMaterial mat, float x, float y, float width, flo
   RG_CHECK(_r);
 }
 
+
+static void DrawQuad_Internal(RgMaterial mat, float x, float y, float width, float height, byte r, byte g, byte b)
+{
+  DrawQuad_Internal_T(mat, x, y, width, height, 0, 0, 1, 1, r, g, b);
+}
+
+
 void RT_DrawQuad(int x, int y, int width, int height, byte r, byte g, byte b)
 {
   DrawQuad_Internal(RG_NO_MATERIAL, x, y, width, height, r, g, b);
 }
 
-void RT_DrawQuad_Flat(int lump, int x, int y, int width, int height, enum patch_translation_e flags)
+
+void RT_DrawQuad_Flat(int lump_flat, int x, int y, int width, int height, enum patch_translation_e flags)
 {
-  DrawQuad_Internal(RG_NO_MATERIAL, x, y, width, height, 255, 255, 255);
+  const rt_texture_t *td = RT_Texture_GetFromFlatLump(lump_flat);
+
+  if (td == NULL)
+  {
+    return;
+  }
+
+  if (flags & VPT_STRETCH)
+  {
+    x = x * SCREENWIDTH / 320;
+    y = y * SCREENHEIGHT / 200;
+    width = width * SCREENWIDTH / 320;
+    height = height * SCREENHEIGHT / 200;
+  }
+
+  float fU1 = 0;
+  float fV1 = 0;
+
+  float fU2 = (float)width  / (float)td->width;
+  float fV2 = (float)height / (float)td->height;
+
+  DrawQuad_Internal_T(td->rg_handle, x, y, width, height, fU1, fV1, fU2, fV2, 255, 255, 255);
 }
+
 
 void RT_DrawQuad_Patch(int lump, int x, int y, int width, int height, enum patch_translation_e flags)
 {
@@ -307,6 +362,7 @@ void RT_DrawQuad_Patch(int lump, int x, int y, int width, int height, enum patch
 
   DrawQuad_Internal(td->rg_handle, x, y, width, height, 255, 255, 255);
 }
+
 
 void RT_DrawQuad_NumPatch(float x, float y, int lump, int cm, enum patch_translation_e flags)
 {
@@ -359,33 +415,41 @@ void RT_DrawQuad_NumPatch(float x, float y, int lump, int cm, enum patch_transla
   DrawQuad_Internal(td->rg_handle, xpos, ypos, width, height, 255, 255, 255);
 }
 
+
 void RT_Wipe_DoMelt()
 {
 }
+
 
 void RT_Wipe_ExitMelt()
 {
 }
 
+
 void RT_Wipe_StartScreen()
 {
 }
+
 
 void RT_Wipe_EndScreen()
 {
 }
 
+
 void RT_OnMovePlane()
 {
 }
+
 
 void RT_OnSkipDemoStop()
 {
 }
 
+
 void RT_OnToggleFullscreen()
 {
 }
+
 
 void RT_OnChangeScreenResolution()
 {

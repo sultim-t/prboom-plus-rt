@@ -17,12 +17,7 @@ rttextures = {0 };
 
 static rt_texture_t *RT_Texture_AllocEntry_T(int id, rt_texture_t *all_T)
 {
-  assert(id >= 0);
-  if (id >= RG_MAX_TEXTURE_COUNT)
-  {
-    assert_always("Texture ID must be less than RG_MAX_TEXTURE_COUNT");
-    return NULL;
-  }
+  assert(id >= 0 && id < numlumps);
 
   rt_texture_t *td = &all_T[id];
 
@@ -38,7 +33,7 @@ static rt_texture_t *RT_Texture_AllocEntry_T(int id, rt_texture_t *all_T)
   return td;
 
   /*
-  for (int i = 0; i < RG_MAX_TEXTURE_COUNT; i++)
+  for (int i = 0; i < ; i++)
   {
     rt_texture_t *td = &all_T[i];
 
@@ -104,6 +99,12 @@ void RT_Texture_Destroy(void)
 // Returns initialized rt_texture_t btu with empty 'rg_handle'
 static rt_texture_t *RT_Texture_RegisterPatch(int lump, const rpatch_t *patch)
 {
+  if (patch->width == 0 || patch->height == 0)
+  {
+    assert_always("Patch has 0 side size");
+    return NULL;
+  }
+
   assert(lump >= 0);
   int is_static = lumpinfo[lump].flags & LUMP_STATIC;
 
@@ -121,6 +122,34 @@ static rt_texture_t *RT_Texture_RegisterPatch(int lump, const rpatch_t *patch)
   td->height = patch->height;
   td->leftoffset = patch->leftoffset;
   td->topoffset = patch->topoffset;
+
+  // will be initialized by caller
+  td->rg_handle = RG_NO_MATERIAL;
+  return td;
+}
+
+
+static rt_texture_t *RT_Texture_RegisterFlat(int lump_flat)
+{
+  int lump = firstflat + lump_flat;
+
+  assert(lump >= 0);
+  int is_static = lumpinfo[lump].flags & LUMP_STATIC;
+
+  rt_texture_t *td = RT_Texture_AllocEntry_T(lump, is_static ? rttextures.all_PFS_STATIC : rttextures.all_PFS);
+
+  if (td == NULL)
+  {
+    return NULL;
+  }
+
+  assert(td->exists);
+  td->lump_type = is_static ? RT_TEXTURE_LUMP_TYPE_PATCHES_FLATS_SPRITES_STATIC : RT_TEXTURE_LUMP_TYPE_PATCHES_FLATS_SPRITES;
+  td->lump_id = lump;
+  td->width = 64;
+  td->height = 64;
+  td->leftoffset = 0;
+  td->topoffset = 0;
 
   // will be initialized by caller
   td->rg_handle = RG_NO_MATERIAL;
@@ -253,6 +282,73 @@ static void DT_AddPatchToTexture_UnTranslated(uint8_t *buffer, const rpatch_t *p
   }
 }
 
+
+static void DT_AddFlatToTexture(uint8_t *buffer, const uint8_t *flat, int width, int height)
+{
+  int paletted = 0;
+  int texture_realtexwidth = width;
+  int texture_realtexheight = height;
+  int texture_buffer_width = width;
+
+  int x, y, pos;
+  const unsigned char *playpal;
+
+  if (!flat)
+    return;
+  //if (paletted)
+  //{
+  //  for (y = 0; y < texture_realtexheight; y++)
+  //  {
+  //    pos = (y * texture_buffer_width);
+  //    for (x = 0; x < texture_realtexwidth; x++, pos++)
+  //    {
+  //    #ifdef RANGECHECK
+  //      if (pos >= texture_buffer_size)
+  //      {
+  //        lprintf(LO_ERROR, "DT_AddFlatToTexture pos>=size (%i >= %i)\n", pos, texture_buffer_size);
+  //        return;
+  //      }
+  //    #endif
+  //      buffer[pos] = gld_palmap[flat[y * 64 + x]];
+  //    }
+  //  }
+  //}
+  //else
+  {
+    playpal = V_GetPlaypal();
+    for (y = 0; y < texture_realtexheight; y++)
+    {
+      pos = 4 * (y * texture_buffer_width);
+      for (x = 0; x < texture_realtexwidth; x++, pos += 4)
+      {
+      #ifdef RANGECHECK
+        if ((pos + 3) >= gltexture->buffer_size)
+        {
+          lprintf(LO_ERROR, "DT_AddFlatToTexture pos+3>=size (%i >= %i)\n", pos + 3, texture_buffer_size);
+          return;
+        }
+      #endif
+        //e6y: Boom's color maps
+        //if (gl_boom_colormaps && use_boom_cm)
+        //{
+        //  const lighttable_t *colormap = (fixedcolormap ? fixedcolormap : fullcolormap);
+        //  buffer[pos + 0] = playpal[colormap[flat[y * 64 + x]] * 3 + 0];
+        //  buffer[pos + 1] = playpal[colormap[flat[y * 64 + x]] * 3 + 1];
+        //  buffer[pos + 2] = playpal[colormap[flat[y * 64 + x]] * 3 + 2];
+        //}
+        //else
+        {
+          buffer[pos + 0] = playpal[flat[y * 64 + x] * 3 + 0];
+          buffer[pos + 1] = playpal[flat[y * 64 + x] * 3 + 1];
+          buffer[pos + 2] = playpal[flat[y * 64 + x] * 3 + 2];
+        }
+        buffer[pos + 3] = 255;
+      }
+    }
+  }
+}
+
+
 static void DT_AddPatchToTexture(unsigned char *buffer, const rpatch_t *patch)
 {
   if (!patch)
@@ -267,6 +363,27 @@ static void DT_AddPatchToTexture(unsigned char *buffer, const rpatch_t *patch)
   DT_AddPatchToTexture_UnTranslated(buffer, patch, originx, originy);
 }
 
+
+RgMaterial BuildMaterial(const rt_texture_t *td, const uint8_t *rgba_buffer)
+{
+  RgStaticMaterialCreateInfo info =
+  {
+    .size = { td->width, td->height },
+    .textures = {.albedoAlpha = {.isSRGB = true, .pData = rgba_buffer } },
+    .pRelativePath = NULL,
+    .filter = RG_SAMPLER_FILTER_NEAREST,
+    .addressModeU = RG_SAMPLER_ADDRESS_MODE_REPEAT,
+    .addressModeV = RG_SAMPLER_ADDRESS_MODE_REPEAT,
+  };
+
+  RgMaterial m = RG_NO_MATERIAL;
+  RgResult r = rgCreateStaticMaterial(rtmain.instance, &info, &m);
+  RG_CHECK(r);
+
+  return m;
+}
+
+
 const rt_texture_t *RT_Texture_GetFromPatchLump(int lump)
 {
   {
@@ -279,38 +396,64 @@ const rt_texture_t *RT_Texture_GetFromPatchLump(int lump)
   }
 
   const rpatch_t *patch = R_CachePatchNum(lump);
-
-  if (patch == NULL || patch->width == 0 || patch->height == 0)
+  if (patch == NULL)
   {
     return NULL;
   }
 
   rt_texture_t *td = RT_Texture_RegisterPatch(lump, patch);
-
   if (td == NULL)
   {
+    W_UnlockLumpNum(lump);
     return NULL;
   }
   
-  int texture_buffer_size = td->width * td->height * 4;
+  uint32_t texture_buffer_size = td->width * td->height * 4;
 
   uint8_t *buffer = malloc(texture_buffer_size);
   memset(buffer, 0, texture_buffer_size);
   DT_AddPatchToTexture(buffer, patch);
   R_UnlockPatchNum(lump);
 
-  RgStaticMaterialCreateInfo info =
-  {
-    .size = { td->width, td->height },
-    .textures = {.albedoAlpha = {.isSRGB = true, .pData = buffer } },
-    .pRelativePath = NULL,
-    .filter = RG_SAMPLER_FILTER_NEAREST,
-    .addressModeU = RG_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-    .addressModeV = RG_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-  };
+  td->rg_handle = BuildMaterial(td, buffer);
 
-  RgResult r = rgCreateStaticMaterial(rtmain.instance, &info, &td->rg_handle);
-  RG_CHECK(r);
+  free(buffer);
+  return td;
+}
+
+const rt_texture_t *RT_Texture_GetFromFlatLump(int lump_flat)
+{
+  int lump = firstflat + lump_flat;
+
+  {
+    const rt_texture_t *existing = RT_Texture_TryFindPatch(lump);
+
+    if (existing != NULL)
+    {
+      return existing;
+    }
+  }
+
+  const uint8_t *flat = W_CacheLumpNum(lump);
+  if (flat == NULL)
+  {
+    return NULL;
+  }
+
+  rt_texture_t *td = RT_Texture_RegisterFlat(lump_flat);
+  if (td == NULL)
+  {
+    W_UnlockLumpNum(lump);
+    return NULL;
+  }
+
+  uint32_t texture_buffer_size = td->width * td->height * 4;
+  uint8_t *buffer = malloc(texture_buffer_size);
+  memset(buffer, 0, texture_buffer_size);
+  DT_AddFlatToTexture(buffer, flat, td->width, td->height);
+  W_UnlockLumpNum(lump);
+
+  td->rg_handle = BuildMaterial(td, buffer);
 
   free(buffer);
   return td;

@@ -36,8 +36,8 @@ void RT_AddWall(seg_t *seg);
 void RT_DrawLine(float x0, float y0, float x1, float y1, byte r, byte g, byte b);
 void RT_DrawQuad(int x, int y, int width, int height, byte r, byte g, byte b);
 void RT_DrawQuad_Patch(int lump, int x, int y, int width, int height, enum patch_translation_e flags);
-void RT_DrawQuad_Flat(int lump, int x, int y, int width, int height, enum patch_translation_e flags);
 void RT_DrawQuad_NumPatch(float x, float y, int lump, int cm /* use CM2RGB table for color */, enum patch_translation_e flags);
+void RT_DrawQuad_Flat(int lump_flat, int x, int y, int width, int height, enum patch_translation_e flags);
 
 // Interchange wipe effect
 void RT_Wipe_DoMelt(void);
