@@ -67,6 +67,11 @@ void RT_Texture_Init(void)
 
 static void FreeRgHandles(const rt_texture_t *all, int count)
 {
+  if (all == NULL || count == 0)
+  {
+    return;
+  }
+
   for (int i = 0; i < count; i++)
   {
     const rt_texture_t *td = &all[i];
@@ -80,13 +85,28 @@ static void FreeRgHandles(const rt_texture_t *all, int count)
 }
 
 
+void RT_Texture_Clean_WithoutStatic(void)
+{
+  FreeRgHandles(rttextures.all_TXTR, numlumps);
+  FreeRgHandles(rttextures.all_PFS, numlumps);
+
+  memset(rttextures.all_TXTR,       0, numlumps * sizeof(rt_texture_t));
+  memset(rttextures.all_PFS,        0, numlumps * sizeof(rt_texture_t));
+}
+
+
+void RT_Texture_Clean_Static(void)
+{
+  FreeRgHandles(rttextures.all_PFS_STATIC, numlumps);
+  memset(rttextures.all_PFS_STATIC, 0, numlumps * sizeof(rt_texture_t));
+}
+
+
 void RT_Texture_Destroy(void)
 {
   assert(rttextures.all_TXTR != NULL && rttextures.all_PFS != NULL && rttextures.all_PFS_STATIC != NULL);
-
-  FreeRgHandles(rttextures.all_TXTR, numlumps);
-  FreeRgHandles(rttextures.all_PFS, numlumps);
-  FreeRgHandles(rttextures.all_PFS_STATIC, numlumps);
+  RT_Texture_Clean_WithoutStatic();
+  RT_Texture_Clean_Static();
 
   free(rttextures.all_TXTR);
   free(rttextures.all_PFS);

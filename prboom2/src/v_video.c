@@ -1041,8 +1041,10 @@ static void WRAP_gld_DrawLine(fline_t* fl, int color)
 #endif
 
 
+#define RT_RETURN_IF_INSTANCE_NULL if(rtmain.instance == NULL){return;}
 static void WRAP_RT_FillRect(int scrn, int x, int y, int width, int height, byte color)
 {
+  RT_RETURN_IF_INSTANCE_NULL
   const unsigned char *playpal = V_GetPlaypal();
   byte r = playpal[3 * color];
   byte g = playpal[3 * color + 1];
@@ -1055,22 +1057,27 @@ static void WRAP_RT_CopyRect(int srcscrn, int destscrn, int x, int y, int width,
 }
 static void WRAP_RT_FillFlat(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags)
 {
+  RT_RETURN_IF_INSTANCE_NULL
   RT_DrawQuad_Flat(lump, x, y, width, height, flags);
 }
 static void WRAP_RT_DrawBackground(const char *flatname, int n)
 {
+  RT_RETURN_IF_INSTANCE_NULL
   WRAP_RT_FillFlat(R_FlatNumForName(flatname), n, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_NONE);
 }
 static void WRAP_RT_FillPatch(int lump, int n, int x, int y, int width, int height, enum patch_translation_e flags)
 {
+  RT_RETURN_IF_INSTANCE_NULL
   RT_DrawQuad_Patch(lump, x, y, width, height, flags);
 }
 static void WRAP_RT_DrawNumPatch(int x, int y, int scrn, int lump, int cm, enum patch_translation_e flags)
 {
+  RT_RETURN_IF_INSTANCE_NULL
   RT_DrawQuad_NumPatch(x, y, lump, cm, flags);
 }
 static void WRAP_RT_DrawNumPatchPrecise(float x, float y, int scrn, int lump, int cm, enum patch_translation_e flags)
 {
+  RT_RETURN_IF_INSTANCE_NULL
   RT_DrawQuad_NumPatch(x, y, lump, cm, flags);
 }
 static void WRAP_RT_DrawBlock(int x, int y, int scrn, int width, int height, const byte *src, enum patch_translation_e flags)
@@ -1078,6 +1085,7 @@ static void WRAP_RT_DrawBlock(int x, int y, int scrn, int width, int height, con
 }
 static void WRAP_RT_PlotPixel(int scrn, int x, int y, byte color)
 {
+  RT_RETURN_IF_INSTANCE_NULL
   const unsigned char *playpal = V_GetPlaypal();
   byte r = playpal[3 * color];
   byte g = playpal[3 * color + 1];
@@ -1088,6 +1096,7 @@ static void WRAP_RT_PlotPixel(int scrn, int x, int y, byte color)
 }
 static void WRAP_RT_DrawLine(fline_t *fl, int color)
 {
+  RT_RETURN_IF_INSTANCE_NULL
   const unsigned char *playpal = V_GetPlaypal();
   byte r = playpal[3 * color];
   byte g = playpal[3 * color + 1];
@@ -1095,6 +1104,7 @@ static void WRAP_RT_DrawLine(fline_t *fl, int color)
 
   RT_DrawLine(fl->a.fx, fl->a.fy, fl->b.fx, fl->b.fy, r, g, b);
 }
+#undef RT_RETURN_IF_INSTANCE_NULL
 
 
 static void NULL_FillRect(int scrn, int x, int y, int width, int height, byte colour) {}

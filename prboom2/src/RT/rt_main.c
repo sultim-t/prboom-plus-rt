@@ -86,6 +86,11 @@ void RT_Init(HINSTANCE hinstance, HWND hwnd)
 
 void RT_Destroy(void)
 {
+  if (rtmain.instance == NULL)
+  {
+    return;
+  }
+
   if (frame_started_guard)
   {
     RT_EndFrame();
@@ -188,6 +193,7 @@ void RT_EndFrame()
 
 void RT_NewLevel(int gameepisode, int gamemap, int skytexture)
 {
+  RT_Texture_Destroy();
 }
 
 

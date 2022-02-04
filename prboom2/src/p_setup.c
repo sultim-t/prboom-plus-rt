@@ -59,6 +59,7 @@
 #include "e6y.h"//e6y
 
 #include "config.h"
+#include "RT/rt_textures.h"
 #ifdef HAVE_LIBZ
 #include <zlib.h>
 #endif
@@ -2689,6 +2690,11 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
     // proff 11/99: clean the memory from textures etc.
     gld_CleanMemory();
 #endif
+
+    if (V_GetMode() == VID_MODERT)
+    {
+      RT_Texture_Clean_WithoutStatic();
+    }
 
     free(segs);
     free(nodes);
