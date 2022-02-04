@@ -263,6 +263,7 @@ set(
     RT/rt_main.c
     RT/rt_textures.h
     RT/rt_textures.c
+    RT/rt_2d.c
 )
 
 set(PRBOOM_PLUS_SOURCES
