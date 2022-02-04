@@ -6,16 +6,13 @@
 #include "w_wad.h"
 
 
-struct
+static struct
 {
-  rt_texture_t all_TXTR[RG_MAX_TEXTURE_COUNT];
-  rt_texture_t all_PFS[RG_MAX_TEXTURE_COUNT];
-  rt_texture_t all_PFS_STATIC[RG_MAX_TEXTURE_COUNT];
-  // int count_TXTR;
-  // int count_PFS;
-  // int count_PFS_STATIC;
+  rt_texture_t *all_TXTR;
+  rt_texture_t *all_PFS;
+  rt_texture_t *all_PFS_STATIC;
 }
-rttextures;
+rttextures = {0 };
 
 
 static rt_texture_t *RT_Texture_AllocEntry_T(int id, rt_texture_t *all_T)
@@ -58,8 +55,48 @@ static rt_texture_t *RT_Texture_AllocEntry_T(int id, rt_texture_t *all_T)
 }
 
 
+void RT_Texture_Init(void)
+{
+  assert(rttextures.all_TXTR == NULL && rttextures.all_PFS == NULL && rttextures.all_PFS_STATIC == NULL);
+
+  // TODO: should be one global array instead of 3?
+  rttextures.all_TXTR       = malloc(numlumps * sizeof(rt_texture_t));
+  rttextures.all_PFS        = malloc(numlumps * sizeof(rt_texture_t));
+  rttextures.all_PFS_STATIC = malloc(numlumps * sizeof(rt_texture_t));
+
+  memset(rttextures.all_TXTR,       0, numlumps * sizeof(rt_texture_t));
+  memset(rttextures.all_PFS,        0, numlumps * sizeof(rt_texture_t));
+  memset(rttextures.all_PFS_STATIC, 0, numlumps * sizeof(rt_texture_t));
+}
+
+
+static void FreeRgHandles(const rt_texture_t *all, int count)
+{
+  for (int i = 0; i < count; i++)
+  {
+    const rt_texture_t *td = &all[i];
+
+    if (td->exists && td->rg_handle != RG_NO_MATERIAL)
+    {
+      RgResult r = rgDestroyMaterial(rtmain.instance, td->rg_handle);
+      RG_CHECK(r);
+    }
+  }
+}
+
+
 void RT_Texture_Destroy(void)
 {
+  assert(rttextures.all_TXTR != NULL && rttextures.all_PFS != NULL && rttextures.all_PFS_STATIC != NULL);
+
+  FreeRgHandles(rttextures.all_TXTR, numlumps);
+  FreeRgHandles(rttextures.all_PFS, numlumps);
+  FreeRgHandles(rttextures.all_PFS_STATIC, numlumps);
+
+  free(rttextures.all_TXTR);
+  free(rttextures.all_PFS);
+  free(rttextures.all_PFS_STATIC);
+
   memset(&rttextures, 0, sizeof(rttextures));
 }
 
@@ -68,12 +105,6 @@ void RT_Texture_Destroy(void)
 static rt_texture_t *RT_Texture_RegisterPatch(int lump, const rpatch_t *patch)
 {
   assert(lump >= 0);
-  if (lump >= RG_MAX_TEXTURE_COUNT)
-  {
-    assert_always("lump must be less than RG_MAX_TEXTURE_COUNT");
-    return NULL;
-  }
-
   int is_static = lumpinfo[lump].flags & LUMP_STATIC;
 
   rt_texture_t *td = RT_Texture_AllocEntry_T(lump, is_static ? rttextures.all_PFS_STATIC : rttextures.all_PFS);
@@ -99,12 +130,6 @@ static rt_texture_t *RT_Texture_RegisterPatch(int lump, const rpatch_t *patch)
 
 static const rt_texture_t *RT_Texture_TryFindPatch(int lump)
 {
-  if (lump >= RG_MAX_TEXTURE_COUNT)
-  {
-    assert_always("lump must be less than RG_MAX_TEXTURE_COUNT");
-    return NULL;
-  }
-
   int is_static = lumpinfo[lump].flags & LUMP_STATIC;
   const rt_texture_t *td = is_static ? &rttextures.all_PFS_STATIC[lump] : &rttextures.all_PFS[lump];
 
@@ -269,7 +294,7 @@ const rt_texture_t *RT_Texture_GetFromPatchLump(int lump)
   
   int texture_buffer_size = td->width * td->height * 4;
 
-  uint8_t *buffer = Z_Malloc(texture_buffer_size, PU_STATIC, 0);
+  uint8_t *buffer = malloc(texture_buffer_size);
   memset(buffer, 0, texture_buffer_size);
   DT_AddPatchToTexture(buffer, patch);
   R_UnlockPatchNum(lump);

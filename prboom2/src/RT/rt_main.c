@@ -77,11 +77,15 @@ void RT_Init(HINSTANCE hinstance, HWND hwnd)
 
   rtmain.hwnd = hwnd;
 
+  RT_Texture_Init();
+
   I_AtExit(RT_Destroy, true);
 }
 
 void RT_Destroy(void)
 {
+  RT_Texture_Destroy();
+
   RgResult r = rgDestroyInstance(rtmain.instance);
   RG_CHECK(r);
 

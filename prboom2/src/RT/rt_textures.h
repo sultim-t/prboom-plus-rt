@@ -33,5 +33,6 @@ typedef struct rt_texture_t
 } rt_texture_t;
 
 
+void RT_Texture_Init(void);
 void RT_Texture_Destroy(void);
 const rt_texture_t *RT_Texture_GetFromPatchLump(int lump);
