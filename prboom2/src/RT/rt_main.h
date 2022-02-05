@@ -56,11 +56,12 @@ typedef struct
 {
   int vertex_count;
   RgFloat3D *positions;
+  RgFloat3D *normals;
   RgFloat2D *texcoords;
   int index_count;
   uint32_t *indices;
 } rtsectordata_t;
 
 void RT_PreprocessLevel(void);
-rtsectordata_t RT_CreateSectorGeometryData(int sectornum);
+rtsectordata_t RT_CreateSectorGeometryData(int sectornum, dboolean is_ceiling);
 void RT_DestroySectorGeometryData(rtsectordata_t *data);

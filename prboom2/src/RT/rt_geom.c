@@ -102,7 +102,7 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
   // ---
 
 
-  rtsectordata_t sector_geometry = RT_CreateSectorGeometryData(sectornum);
+  rtsectordata_t sector_geometry = RT_CreateSectorGeometryData(sectornum, ceiling);
 
   static int uniqueid = 0;
   uniqueid++;
@@ -115,7 +115,7 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
     .visibilityType = RG_GEOMETRY_VISIBILITY_TYPE_WORLD_0,
     .vertexCount = sector_geometry.vertex_count,
     .pVertexData = sector_geometry.positions,
-    .pNormalData = NULL,
+    .pNormalData = sector_geometry.normals,
     .pTexCoordLayerData = { sector_geometry.texcoords },
     .indexCount = sector_geometry.index_count,
     .pIndexData = sector_geometry.indices,

@@ -1108,7 +1108,7 @@ static int GetTriangleCount(RTPTriangleMode mode, int vertex_count)
 }
 
 
-rtsectordata_t RT_CreateSectorGeometryData(int sectornum)
+rtsectordata_t RT_CreateSectorGeometryData(int sectornum, dboolean is_ceiling)
 {
   rtsectordata_t result = { 0 };
 
@@ -1122,6 +1122,7 @@ rtsectordata_t RT_CreateSectorGeometryData(int sectornum)
   }
 
   result.positions = malloc((size_t)result.vertex_count * sizeof(RgFloat3D));
+  result.normals   = malloc((size_t)result.vertex_count * sizeof(RgFloat3D));
   result.texcoords = malloc((size_t)result.vertex_count * sizeof(RgFloat2D));
   result.indices   = malloc((size_t)result.index_count  * sizeof(uint32_t));
 
@@ -1178,6 +1179,13 @@ rtsectordata_t RT_CreateSectorGeometryData(int sectornum)
     vertex_iter += loop->vertexcount;
   }
 
+  for (int i = 0; i < result.vertex_count; i++)
+  {
+    result.normals[i].data[0] = 0;
+    result.normals[i].data[1] = is_ceiling ? -1 : 1;
+    result.normals[i].data[2] = 0;
+  }
+
   return result;
 }
 
@@ -1185,6 +1193,7 @@ rtsectordata_t RT_CreateSectorGeometryData(int sectornum)
 void RT_DestroySectorGeometryData(rtsectordata_t *data)
 {
   free(data->positions);
+  free(data->normals);
   free(data->texcoords);
   free(data->indices);
 }
