@@ -142,11 +142,6 @@ static RgExtent2D GetCurrentHWNDSize()
 
 void RT_StartFrame(void)
 {
-  if (!window_focused)
-  {
-    return;
-  }
-
   RgStartFrameInfo info =
   {
     .requestRasterizedSkyGeometryReuse = false,

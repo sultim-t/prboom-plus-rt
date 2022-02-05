@@ -380,18 +380,6 @@ void I_StartTic (void)
 //
 void I_StartFrame (void)
 {
-  if (V_GetMode() == VID_MODERT)
-  {
-    RT_StartFrame();
-  }
-}
-
-void I_EndFrame(void)
-{
-  if (V_GetMode() == VID_MODERT)
-  {
-    RT_EndFrame();
-  }
 }
 
 //

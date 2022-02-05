@@ -298,6 +298,11 @@ void D_Display (fixed_t frac)
   if (!I_StartDisplay())
     return;
 
+  if (V_GetMode() == VID_MODERT)
+  {
+    RT_StartFrame();
+  }
+
   if (setsizeneeded) {               // change the view size if needed
     R_ExecuteSetViewSize();
     oldgamestate = -1;            // force background redraw
@@ -442,6 +447,11 @@ void D_Display (fixed_t frac)
     I_uSleep(5000);
   }
 
+  if (V_GetMode() == VID_MODERT)
+  {
+    RT_EndFrame();
+  }
+
   I_EndDisplay();
 }
 
@@ -537,8 +547,6 @@ static void D_DoomLoop(void)
         M_DoScreenShot(avi_shot_curr_fname);
         free(avi_shot_curr_fname);
       }
-
-      I_EndFrame();
     }
 }
 
