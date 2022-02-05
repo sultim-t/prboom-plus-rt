@@ -104,12 +104,9 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
 
   rtsectordata_t sector_geometry = RT_CreateSectorGeometryData(sectornum, ceiling);
 
-  static int uniqueid = 0;
-  uniqueid++;
-
   RgGeometryUploadInfo info =
   {
-    .uniqueID = uniqueid, // (uint64_t)sectornum | (ceiling ? 1ull << 32ull : 0ull),
+    .uniqueID = (uint64_t)sectornum | (ceiling ? 1ull << 32ull : 0ull),
     .geomType = RG_GEOMETRY_TYPE_DYNAMIC,
     .passThroughType = RG_GEOMETRY_PASS_THROUGH_TYPE_OPAQUE,
     .visibilityType = RG_GEOMETRY_VISIBILITY_TYPE_WORLD_0,
