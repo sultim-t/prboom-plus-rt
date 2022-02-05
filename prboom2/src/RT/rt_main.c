@@ -259,11 +259,6 @@ void RT_NewLevel(int gameepisode, int gamemap, int skytexture)
 }
 
 
-void RT_ProjectSprite(mobj_t *thing, int lightlevel)
-{
-}
-
-
 void RT_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
 {
 }
