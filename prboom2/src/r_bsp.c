@@ -818,6 +818,21 @@ static void R_Subsector(int num)
   }
 }
 
+static void AddAllSubsectors(int bspnum)
+{
+  if (bspnum & NF_SUBSECTOR)
+  {
+    R_Subsector(bspnum == -1 ? 0 : bspnum & ~NF_SUBSECTOR);
+  }
+  else
+  {
+    const node_t *bsp = &nodes[bspnum];
+
+    AddAllSubsectors(bsp->children[0]);
+    AddAllSubsectors(bsp->children[1]);
+  }
+}
+
 //
 // RenderBSPNode
 // Renders all subsectors below a given node,
@@ -828,6 +843,12 @@ static void R_Subsector(int num)
 
 void R_RenderBSPNode(int bspnum)
 {
+  if (V_GetMode() == VID_MODERT)
+  {
+    AddAllSubsectors(bspnum);
+    return;
+  }
+
   while (!(bspnum & NF_SUBSECTOR))  // Found a subsector?
     {
       const node_t *bsp = &nodes[bspnum];
