@@ -52,7 +52,7 @@ void RT_Init(HINSTANCE hinstance, HWND hwnd)
 
     .primaryRaysMaxAlbedoLayers = 1,
     .indirectIlluminationMaxAlbedoLayers = 1,
-    .rayCullBackFacingTriangles = 1,
+    .rayCullBackFacingTriangles = 0,
 
     .rasterizedMaxVertexCount = 1 << 20,
     .rasterizedMaxIndexCount = 1 << 21,
@@ -105,6 +105,27 @@ void RT_Destroy(void)
   RG_CHECK(r);
 
   memset(&rtmain, 0, sizeof(rtmain));
+}
+
+
+static void Matrix_Multiply(float out[4][4], const float in1[4][4], const float in2[4][4])
+{
+  out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] + in1[0][2] * in2[2][0] + in1[0][3] * in2[3][0];
+  out[0][1] = in1[0][0] * in2[0][1] + in1[0][1] * in2[1][1] + in1[0][2] * in2[2][1] + in1[0][3] * in2[3][1];
+  out[0][2] = in1[0][0] * in2[0][2] + in1[0][1] * in2[1][2] + in1[0][2] * in2[2][2] + in1[0][3] * in2[3][2];
+  out[0][3] = in1[0][0] * in2[0][3] + in1[0][1] * in2[1][3] + in1[0][2] * in2[2][3] + in1[0][3] * in2[3][3];
+  out[1][0] = in1[1][0] * in2[0][0] + in1[1][1] * in2[1][0] + in1[1][2] * in2[2][0] + in1[1][3] * in2[3][0];
+  out[1][1] = in1[1][0] * in2[0][1] + in1[1][1] * in2[1][1] + in1[1][2] * in2[2][1] + in1[1][3] * in2[3][1];
+  out[1][2] = in1[1][0] * in2[0][2] + in1[1][1] * in2[1][2] + in1[1][2] * in2[2][2] + in1[1][3] * in2[3][2];
+  out[1][3] = in1[1][0] * in2[0][3] + in1[1][1] * in2[1][3] + in1[1][2] * in2[2][3] + in1[1][3] * in2[3][3];
+  out[2][0] = in1[2][0] * in2[0][0] + in1[2][1] * in2[1][0] + in1[2][2] * in2[2][0] + in1[2][3] * in2[3][0];
+  out[2][1] = in1[2][0] * in2[0][1] + in1[2][1] * in2[1][1] + in1[2][2] * in2[2][1] + in1[2][3] * in2[3][1];
+  out[2][2] = in1[2][0] * in2[0][2] + in1[2][1] * in2[1][2] + in1[2][2] * in2[2][2] + in1[2][3] * in2[3][2];
+  out[2][3] = in1[2][0] * in2[0][3] + in1[2][1] * in2[1][3] + in1[2][2] * in2[2][3] + in1[2][3] * in2[3][3];
+  out[3][0] = in1[3][0] * in2[0][0] + in1[3][1] * in2[1][0] + in1[3][2] * in2[2][0] + in1[3][3] * in2[3][0];
+  out[3][1] = in1[3][0] * in2[0][1] + in1[3][1] * in2[1][1] + in1[3][2] * in2[2][1] + in1[3][3] * in2[3][1];
+  out[3][2] = in1[3][0] * in2[0][2] + in1[3][1] * in2[1][2] + in1[3][2] * in2[2][2] + in1[3][3] * in2[3][2];
+  out[3][3] = in1[3][0] * in2[0][3] + in1[3][1] * in2[1][3] + in1[3][2] * in2[2][3] + in1[3][3] * in2[3][3];
 }
 
 
@@ -180,6 +201,24 @@ void RT_EndFrame()
   }
 
 
+  RgDrawFrameSkyParams sky_params =
+  {
+    .skyType = RG_SKY_TYPE_COLOR,
+    .skyColorDefault = {0.2f,0.2f,0.2f},
+    .skyColorMultiplier = 1,
+    .skyColorSaturation = 1,
+    .skyViewerPosition = {0,0,0},
+    .skyCubemap = RG_NO_MATERIAL,
+    .skyCubemapRotationTransform = {0}
+  };
+
+  RgDrawFrameDebugParams debug_params =
+  {
+    .showMotionVectors = 0,
+    .showGradients = 0,
+    .showSectors = 0
+  };
+
   RgDrawFrameInfo info = {
     .worldUpVector = { 0,1,0 },
     .fovYRadians = DEG2RAD(render_fovy),
@@ -191,10 +230,23 @@ void RT_EndFrame()
     .currentTime = GetCurrentTime_Seconds_Realtime(),
     .disableEyeAdaptation = false,
     .useSqrtRoughnessForIndirect = false,
+    .pSkyParams = &sky_params,
+    .pDebugParams = &debug_params,
   };
-  
+
+  static const float to_vk_projection[4][4] =
+  {
+    { 1.0f, 0.0f, 0.0f, 0.0f },
+    { 0.0f,-1.0f, 0.0f, 0.0f },
+    { 0.0f, 0.0f, 0.5f, 0.5f },
+    { 0.0f, 0.0f, 0.0f, 1.0f }
+  };
+  float projMatrix_vk[4][4];
+  Matrix_Multiply(projMatrix_vk, to_vk_projection, (const float(*)[4])projMatrix);
+
+
   memcpy(info.view, modelMatrix, sizeof(modelMatrix));
-  memcpy(info.projection, projMatrix, sizeof(projMatrix));
+  memcpy(info.projection, projMatrix_vk, sizeof(projMatrix_vk));
 
   RgResult r = rgDrawFrame(rtmain.instance, &info);
   RG_CHECK(r);
