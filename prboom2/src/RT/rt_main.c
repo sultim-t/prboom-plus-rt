@@ -4,11 +4,13 @@
 #include <GL/glu.h>
 
 #include "doomtype.h"
+#include "e6y.h"
 #include "i_main.h"
 #include "i_system.h"
 #include "i_video.h"
 #include "lprintf.h"
 #include "m_argv.h"
+#include "r_main.h"
 
 
 rtmain_t rtmain = { 0 };
@@ -169,8 +171,23 @@ void RT_EndFrame()
   frame_started_guard = false;
 
 
+  // debug sun
+  {
+    RgDirectionalLightUploadInfo info = 
+    {
+      .color = { 1,1, 1 },
+      .direction = { -1, -1, -1 },
+      .angularDiameterDegrees = 0.5f
+    };
+
+    RgResult r = rgUploadDirectionalLight(rtmain.instance, &info);
+    RG_CHECK(r);
+  }
+
+
   RgDrawFrameInfo info = {
     .worldUpVector = { 0,1,0 },
+    .fovYRadians = DEG2RAD(render_fovy),
     .rayCullMaskWorld = 0x7,
     .rayLength = 10000.0f,
     .primaryRayMinDist = 0.1f,
@@ -180,13 +197,9 @@ void RT_EndFrame()
     .disableEyeAdaptation = false,
     .useSqrtRoughnessForIndirect = false,
   };
-
-  //
-  float identity[] = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
-  memcpy(info.view, identity, sizeof(identity));
-  memcpy(info.projection, identity, sizeof(identity));
-  info.fovYRadians = 3.14f;
-  //
+  
+  memcpy(info.view, modelMatrix, sizeof(modelMatrix));
+  memcpy(info.projection, projMatrix, sizeof(projMatrix));
 
   RgResult r = rgDrawFrame(rtmain.instance, &info);
   RG_CHECK(r);

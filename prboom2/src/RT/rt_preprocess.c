@@ -23,6 +23,7 @@
 #include "r_defs.h"
 #include "r_main.h"
 #include "z_zone.h"
+#include "rt_main.h"
 
 
 
@@ -167,7 +168,7 @@ static vertex_t *RTP_FlatEdgeClipper(int *numpoints, vertex_t *points, int numcl
         // Add the new vertex. Also modify the sidelist.
         points = (vertex_t *)Z_Realloc(points, (++num) * sizeof(vertex_t), PU_LEVEL, 0);
         if (num >= MAX_CC_SIDES)
-          I_Error("gld_FlatEdgeClipper: Too many points in carver");
+          I_Error("RTP_FlatEdgeClipper: Too many points in carver");
 
         // Make room for the new vertex.
         memmove(&points[endIdx + 1], &points[endIdx],
@@ -1052,17 +1053,138 @@ void RT_PreprocessLevel(void)
 
   if (!rtp_preprocessed)
   {
-    // upload data to VBO
-    rtp_flats_vbo.positions;
-    rtp_flats_vbo.texCoords;
+    // RT: don't free anything, keep for RT_Preprocess_Get* functions
 
-    free(rtp_flats_vbo.positions);
-    free(rtp_flats_vbo.texCoords);
-    memset(&rtp_flats_vbo, 0, sizeof(rtp_flats_vbo));
+    //free(rtp_flats_vbo.positions);
+    //free(rtp_flats_vbo.texCoords);
+    //memset(&rtp_flats_vbo, 0, sizeof(rtp_flats_vbo));
   }
 
   //gld_PreprocessDetail();
   //gld_InitVertexData();
 
   // rtp_preprocessed = true;
+}
+
+
+static const float *GetPreprocessedPositions(int vertex_index)
+{
+  assert(rtp_flats_vbo.positions != NULL);
+  assert(vertex_index < rtp_num_vertexes);
+
+  return (const float *)&rtp_flats_vbo.positions[vertex_index];
+}
+
+
+static const float *GetPreprocessedTexCoords(int vertex_index)
+{
+  assert(rtp_flats_vbo.texCoords != NULL);
+  assert(vertex_index < rtp_num_vertexes);
+
+  return (const float *)&rtp_flats_vbo.texCoords[vertex_index];
+}
+
+
+static int GetTriangleCount(RTPTriangleMode mode, int vertex_count)
+{
+  switch (mode)
+  {
+    case RTP_TRIANGLE_MODE_TRIANGLES:
+    {
+      assert(vertex_count % 3 == 0);
+      return vertex_count / 3;
+    }
+    case RTP_TRIANGLE_MODE_TRIANGLE_STRIP:
+    case RTP_TRIANGLE_MODE_TRIANGLE_FAN:
+    {
+      return max(0, vertex_count - 2);
+    }
+    default:
+    {
+      assert(0);
+      return 0;
+    }
+  }
+}
+
+
+rtsectordata_t RT_CreateSectorGeometryData(int sectornum)
+{
+  rtsectordata_t result = { 0 };
+
+  // calculate vertex/index count
+  for (int loopnum = 0; loopnum < rtp_sectorloops[sectornum].loopcount; loopnum++)
+  {
+    const RTPLoopDef *loop = &rtp_sectorloops[sectornum].loops[loopnum];
+
+    result.vertex_count += loop->vertexcount;
+    result.index_count += 3 * GetTriangleCount(loop->mode, loop->vertexcount);
+  }
+
+  result.positions = malloc((size_t)result.vertex_count * sizeof(RgFloat3D));
+  result.texcoords = malloc((size_t)result.vertex_count * sizeof(RgFloat2D));
+  result.indices   = malloc((size_t)result.index_count  * sizeof(uint32_t));
+
+  assert(sizeof(RTPPosition) == sizeof(RgFloat3D));
+  assert(sizeof(RTPTexCoord) == sizeof(RgFloat2D));
+
+  int vertex_iter = 0;
+  int index_iter = 0;
+
+  for (int loopnum = 0; loopnum < rtp_sectorloops[sectornum].loopcount; loopnum++)
+  {
+    const RTPLoopDef *loop = &rtp_sectorloops[sectornum].loops[loopnum];
+
+    {
+      memcpy(&result.positions[vertex_iter], GetPreprocessedPositions(loop->vertexindex), loop->vertexcount * sizeof(RgFloat3D));
+      memcpy(&result.texcoords[vertex_iter], GetPreprocessedTexCoords(loop->vertexindex), loop->vertexcount * sizeof(RgFloat2D));
+
+      switch (loop->mode)
+      {
+        case RTP_TRIANGLE_MODE_TRIANGLES:
+        {
+          for (int t = 0; t < GetTriangleCount(loop->mode, loop->vertexcount); t++)
+          {
+            result.indices[index_iter] = vertex_iter + t * 3 + 0;       index_iter++;
+            result.indices[index_iter] = vertex_iter + t * 3 + 1;       index_iter++;
+            result.indices[index_iter] = vertex_iter + t * 3 + 2;       index_iter++;
+          }
+          break;
+        }
+        case RTP_TRIANGLE_MODE_TRIANGLE_STRIP:
+        {
+          for (int t = 0; t < GetTriangleCount(loop->mode, loop->vertexcount); t++)
+          {
+            result.indices[index_iter] = vertex_iter + t;               index_iter++;
+            result.indices[index_iter] = vertex_iter + t + (1 + t % 2); index_iter++;
+            result.indices[index_iter] = vertex_iter + t + (2 - t % 2); index_iter++;
+          }
+          break;
+        }
+        case RTP_TRIANGLE_MODE_TRIANGLE_FAN:
+        {
+          for (int t = 0; t < GetTriangleCount(loop->mode, loop->vertexcount); t++)
+          {
+            result.indices[index_iter] = vertex_iter + t + 1;           index_iter++;
+            result.indices[index_iter] = vertex_iter + t + 2;           index_iter++;
+            result.indices[index_iter] = vertex_iter + 0;               index_iter++;
+          }
+          break;
+        }
+        default: assert(0); break;
+      }
+    }
+
+    vertex_iter += loop->vertexcount;
+  }
+
+  return result;
+}
+
+
+void RT_DestroySectorGeometryData(rtsectordata_t *data)
+{
+  free(data->positions);
+  free(data->texcoords);
+  free(data->indices);
 }

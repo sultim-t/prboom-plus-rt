@@ -27,10 +27,8 @@ static float CalcLightLevel(int lightlevel)
 
 static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *plane)
 {
-#if 0
   struct
   {
-    int sectornum;
     float light; // the lightlevel of the flat
     float uoffs, voffs; // the texture coordinates
     float z; // the z position of the flat (height)
@@ -102,24 +100,31 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
 
 
   // ---
+
+
+  rtsectordata_t sector_geometry = RT_CreateSectorGeometryData(sectornum);
+
+  static int uniqueid = 0;
+  uniqueid++;
+
   RgGeometryUploadInfo info =
   {
-    .uniqueID = (uint64_t)sectornum | (ceiling ? 1ull << 32ull : 0ull),
+    .uniqueID = uniqueid, // (uint64_t)sectornum | (ceiling ? 1ull << 32ull : 0ull),
     .geomType = RG_GEOMETRY_TYPE_DYNAMIC,
     .passThroughType = RG_GEOMETRY_PASS_THROUGH_TYPE_OPAQUE,
     .visibilityType = RG_GEOMETRY_VISIBILITY_TYPE_WORLD_0,
-    .vertexCount = ,
-    .pVertexData = ,
-    .pNormalData = ,
-    .pTexCoordLayerData = {  },
-    .indexCount = ,
-    .pIndexData = ,
-    .sectorID = sectornum,
+    .vertexCount = sector_geometry.vertex_count,
+    .pVertexData = sector_geometry.positions,
+    .pNormalData = NULL,
+    .pTexCoordLayerData = { sector_geometry.texcoords },
+    .indexCount = sector_geometry.index_count,
+    .pIndexData = sector_geometry.indices,
+    .sectorID = 0, // sectornum,
     .layerColors = { RG_COLOR_WHITE },
     .defaultRoughness = 0.5f,
     .defaultMetallicity = 0.2f,
     .defaultEmission = 0,
-    .geomMaterial = flat.td->rg_handle,
+    .geomMaterial = { flat.td->rg_handle },
     .transform = 
       {
         1,0,0,0,
@@ -130,7 +135,10 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
 
   RgResult r = rgUploadGeometry(rtmain.instance, &info);
   RG_CHECK(r);
-#endif
+
+  RT_DestroySectorGeometryData(&sector_geometry);
+
+  // TODO RT: flat with texcoord offset
 }
 
 

@@ -51,4 +51,16 @@ void RT_OnSkipDemoStop(void);
 void RT_OnToggleFullscreen(void);
 void RT_OnChangeScreenResolution(void);
 
+
+typedef struct
+{
+  int vertex_count;
+  RgFloat3D *positions;
+  RgFloat2D *texcoords;
+  int index_count;
+  uint32_t *indices;
+} rtsectordata_t;
+
 void RT_PreprocessLevel(void);
+rtsectordata_t RT_CreateSectorGeometryData(int sectornum);
+void RT_DestroySectorGeometryData(rtsectordata_t *data);
