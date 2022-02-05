@@ -98,6 +98,7 @@
 #include "i_capture.h"
 
 #include "i_glob.h"
+#include "RT/rt_main.h"
 
 #ifdef _WIN32
 #include "WIN/win_fopen.h"
@@ -283,6 +284,10 @@ void D_Display (fixed_t frac)
       gld_PreprocessLevel();
     }
 #endif
+    if (V_GetMode() == VID_MODERT)
+    {
+      RT_PreprocessLevel();
+    }
   }
   
   if (!doSkip || !gamekeydown[key_use])

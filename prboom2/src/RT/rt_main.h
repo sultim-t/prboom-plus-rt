@@ -50,3 +50,5 @@ void RT_OnMovePlane(void);
 void RT_OnSkipDemoStop(void);
 void RT_OnToggleFullscreen(void);
 void RT_OnChangeScreenResolution(void);
+
+void RT_PreprocessLevel(void);

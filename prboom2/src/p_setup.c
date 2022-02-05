@@ -59,10 +59,11 @@
 #include "e6y.h"//e6y
 
 #include "config.h"
-#include "RT/rt_textures.h"
 #ifdef HAVE_LIBZ
 #include <zlib.h>
 #endif
+
+#include "RT/rt_main.h"
 
 //
 // MAP related Lookup tables.
@@ -2690,7 +2691,6 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
     // proff 11/99: clean the memory from textures etc.
     gld_CleanMemory();
 #endif
-
     if (V_GetMode() == VID_MODERT)
     {
       RT_Texture_Clean_WithoutStatic();
@@ -2843,20 +2843,25 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   // [FG] current map lump number
   maplumpnum = lumpnum;
 
-#ifdef GL_DOOM
-  if (V_GetMode() == VID_MODEGL)
+  // e6y
+  // Do not preprocess GL data during skipping,
+  // because it potentially will not be used.
+  // But preprocessing must be called immediately after stop of skipping.
+  if (!doSkip)
   {
-    // e6y
-    // Do not preprocess GL data during skipping,
-    // because it potentially will not be used.
-    // But preprocessing must be called immediately after stop of skipping.
-    if (!doSkip)
+  #ifdef GL_DOOM
+    if (V_GetMode() == VID_MODEGL)
     {
       // proff 11/99: calculate all OpenGL specific tables etc.
       gld_PreprocessLevel();
     }
+  #endif
+    if (V_GetMode() == VID_MODERT)
+    {
+      RT_PreprocessLevel();
+    }
   }
-#endif
+
   //e6y
   P_SyncWalkcam(true, true);
   R_SmoothPlaying_Reset(NULL);

@@ -1918,32 +1918,32 @@ void V_ToggleFullscreen(void)
 
   I_UpdateVideoMode();
 
-  if (V_GetMode() == VID_MODERT)
-  {
-      RT_OnToggleFullscreen();
-  }
-
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
     gld_PreprocessLevel();
   }
 #endif
+  if (V_GetMode() == VID_MODERT)
+  {
+    RT_OnToggleFullscreen();
+    RT_PreprocessLevel();
+  }
 }
 
 void V_ChangeScreenResolution(void)
 {
   I_UpdateVideoMode();
 
-  if (V_GetMode() == VID_MODERT)
-  {
-      RT_OnChangeScreenResolution();
-  }
-
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
     gld_PreprocessLevel();
   }
 #endif
+  if (V_GetMode() == VID_MODERT)
+  {
+    RT_OnChangeScreenResolution();
+    RT_PreprocessLevel();
+  }
 }

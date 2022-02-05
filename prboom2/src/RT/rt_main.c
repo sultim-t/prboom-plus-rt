@@ -1,6 +1,7 @@
 #include "rt_main.h"
 
 #include <SDL_timer.h>
+#include <GL/glu.h>
 
 #include "doomtype.h"
 #include "i_main.h"
@@ -167,6 +168,7 @@ void RT_EndFrame()
   }
   frame_started_guard = false;
 
+
   RgDrawFrameInfo info = {
     .worldUpVector = { 0,1,0 },
     .rayCullMaskWorld = 0x7,
@@ -193,22 +195,7 @@ void RT_EndFrame()
 
 void RT_NewLevel(int gameepisode, int gamemap, int skytexture)
 {
-  RT_Texture_Destroy();
-}
-
-
-void RT_StartDrawScene()
-{
-}
-
-
-void RT_DrawScene(player_t *player)
-{
-}
-
-
-void RT_EndDrawScene()
-{
+  // RT_PreprocessLevel was already called
 }
 
 
@@ -218,31 +205,6 @@ void RT_ProjectSprite(mobj_t *thing, int lightlevel)
 
 
 void RT_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
-{
-}
-
-
-void RT_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling)
-{
-  subsector_t *subsector = &subsectors[subsectornum];
-  if (subsector == NULL)
-  {
-    return;
-  }
-
-  if (floor != NULL)
-  {
-   // AddFlat(subsector->sector->iSectorID, floor);
-  }
-
-  if (ceiling != NULL)
-  {
-   // AddFlat(subsector->sector->iSectorID, ceiling);
-  }
-}
-
-
-void RT_AddWall(seg_t *seg)
 {
 }
 

@@ -35,8 +35,8 @@ static void DrawQuad_Internal_T(RgMaterial mat,
                                 float s1, float t1, float s2, float t2,
                                 byte r, byte g, byte b)
 {
-  const float vw = SCREENWIDTH;
-  const float vh = SCREENHEIGHT;
+  const float vw = (float)SCREENWIDTH;
+  const float vh = (float)SCREENHEIGHT;
 
   float x1 = x / vw * 2.0f - 1.0f;
   float y1 = y / vh * 2.0f - 1.0f;
@@ -83,7 +83,7 @@ static void DrawQuad_Internal(RgMaterial mat, float x, float y, float width, flo
 
 void RT_DrawQuad(int x, int y, int width, int height, byte r, byte g, byte b)
 {
-  DrawQuad_Internal(RG_NO_MATERIAL, x, y, width, height, r, g, b);
+  DrawQuad_Internal(RG_NO_MATERIAL, (float)x, (float)y, (float)width, (float)height, r, g, b);
 }
 
 
@@ -110,7 +110,7 @@ void RT_DrawQuad_Flat(int lump_flat, int x, int y, int width, int height, enum p
   float fU2 = (float)width / (float)td->width;
   float fV2 = (float)height / (float)td->height;
 
-  DrawQuad_Internal_T(td->rg_handle, x, y, width, height, fU1, fV1, fU2, fV2, 255, 255, 255);
+  DrawQuad_Internal_T(td->rg_handle, (float)x, (float)y, (float)width, (float)height, fU1, fV1, fU2, fV2, 255, 255, 255);
 }
 
 
@@ -134,7 +134,7 @@ void RT_DrawQuad_Patch(int lump, int x, int y, int width, int height, enum patch
     height = height * SCREENHEIGHT / 200;
   }
 
-  DrawQuad_Internal(td->rg_handle, x, y, width, height, 255, 255, 255);
+  DrawQuad_Internal(td->rg_handle, (float)x, (float)y, (float)width, (float)height, 255, 255, 255);
 }
 
 

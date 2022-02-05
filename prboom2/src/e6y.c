@@ -361,13 +361,15 @@ void G_SkipDemoStop(void)
   S_RestartMusic();
 
 #ifdef GL_DOOM
-  if (V_GetMode() == VID_MODEGL) {
+  if (V_GetMode() == VID_MODEGL) 
+  {
     gld_PreprocessLevel();
   }
 #endif
   if (V_GetMode() == VID_MODERT)
   {
     RT_OnSkipDemoStop();
+    RT_PreprocessLevel();
   }
 }
 

@@ -115,6 +115,9 @@ void RT_Texture_Destroy(void)
   memset(&rttextures, 0, sizeof(rttextures));
 }
 
+void RT_Texture_PrecacheTextures(void)
+{}
+
 
 // Returns initialized rt_texture_t btu with empty 'rg_handle'
 static rt_texture_t *RT_Texture_RegisterPatch(int lump, const rpatch_t *patch)

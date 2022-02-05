@@ -2259,6 +2259,11 @@ void M_ChangeMapMultisamling(void)
 
 void AM_drawSubsectors(void)
 {
+  if (V_GetMode() == VID_MODERT)
+  {
+    // force map_textured=false
+    return;
+  }
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
