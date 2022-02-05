@@ -633,35 +633,57 @@ static void R_Subsector(int num)
 
     // killough 3/8/98, 4/4/98: Deep water / fake ceiling effect
     frontsector = R_FakeFlat(frontsector, &tempsec, &floorlightlevel,
-      &ceilinglightlevel, false);   // killough 4/11/98
+                             &ceilinglightlevel, false);   // killough 4/11/98
+
+
+    // RT: always add floor and ceilings
+    dboolean find_floor = V_GetMode() == VID_MODERT;
+    dboolean find_ceiling = V_GetMode() == VID_MODERT;
+
+    floorplane = NULL;
+    ceilingplane = NULL;
+
 
     // killough 3/7/98: Add (x,y) offsets to flats, add deep water check
     // killough 3/16/98: add floorlightlevel
     // killough 10/98: add support for skies transferred from sidedefs
-    floorplane = frontsector->floorheight < viewz || // killough 3/7/98
-      (frontsector->heightsec != -1 &&
-       sectors[frontsector->heightsec].ceilingpic == skyflatnum) ?
-      R_FindPlane(frontsector->floorheight,
-                  frontsector->floorpic == skyflatnum &&  // kilough 10/98
-                  frontsector->sky & PL_SKYFLAT ? frontsector->sky :
-                  frontsector->floorpic,
-                  floorlightlevel,                // killough 3/16/98
-                  frontsector->floor_xoffs,       // killough 3/7/98
-                  frontsector->floor_yoffs
-                  ) : NULL;
+    find_floor =
+      find_floor ||
+      frontsector->floorheight < viewz || // killough 3/7/98
+      (frontsector->heightsec != -1 && sectors[frontsector->heightsec].ceilingpic == skyflatnum);
 
-    ceilingplane = frontsector->ceilingheight > viewz ||
+    if (find_floor)
+    {
+      floorplane = R_FindPlane(
+        frontsector->floorheight,
+        frontsector->floorpic == skyflatnum &&              // kilough 10/98
+        frontsector->sky & PL_SKYFLAT ? frontsector->sky :
+        frontsector->floorpic,
+        floorlightlevel,                                    // killough 3/16/98
+        frontsector->floor_xoffs,                           // killough 3/7/98
+        frontsector->floor_yoffs
+      );
+    }
+
+
+    find_ceiling =
+      find_ceiling ||
+      frontsector->ceilingheight > viewz ||
       frontsector->ceilingpic == skyflatnum ||
-      (frontsector->heightsec != -1 &&
-       sectors[frontsector->heightsec].floorpic == skyflatnum) ?
-      R_FindPlane(frontsector->ceilingheight,     // killough 3/8/98
-                  frontsector->ceilingpic == skyflatnum &&  // kilough 10/98
-                  frontsector->sky & PL_SKYFLAT ? frontsector->sky :
-                  frontsector->ceilingpic,
-                  ceilinglightlevel,              // killough 4/11/98
-                  frontsector->ceiling_xoffs,     // killough 3/7/98
-                  frontsector->ceiling_yoffs
-                  ) : NULL;
+      (frontsector->heightsec != -1 && sectors[frontsector->heightsec].floorpic == skyflatnum);
+
+    if (find_ceiling)
+    {
+      ceilingplane = R_FindPlane(
+        frontsector->ceilingheight,                         // killough 3/8/98
+        frontsector->ceilingpic == skyflatnum &&            // kilough 10/98
+        frontsector->sky & PL_SKYFLAT ? frontsector->sky :
+        frontsector->ceilingpic,
+        ceilinglightlevel,                                  // killough 4/11/98
+        frontsector->ceiling_xoffs,                         // killough 3/7/98
+        frontsector->ceiling_yoffs
+      );
+    }
   }
 
   // e6y
