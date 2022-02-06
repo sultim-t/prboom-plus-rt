@@ -129,6 +129,14 @@ static void Matrix_Multiply(float out[4][4], const float in1[4][4], const float 
 }
 
 
+static float GetZNear()
+{
+  // from R_SetupMatrix
+  extern int gl_nearclip;
+  return (float)gl_nearclip / 100.0f;
+}
+
+
 static double GetCurrentTime_Seconds()
 {
   double current_tics = I_GetTime();
@@ -224,7 +232,7 @@ void RT_EndFrame()
     .fovYRadians = DEG2RAD(render_fovy),
     .rayCullMaskWorld = 0x7,
     .rayLength = 10000.0f,
-    .primaryRayMinDist = 0.1f,
+    .primaryRayMinDist = GetZNear(),
     .disableRayTracing = false,
     .disableRasterization = false,
     .currentTime = GetCurrentTime_Seconds_Realtime(),
