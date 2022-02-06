@@ -119,7 +119,7 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
 
   RgGeometryUploadInfo info =
   {
-    .uniqueID = (uint64_t)sectornum | (ceiling ? 1ull << 32ull : 0ull),
+    .uniqueID = RT_GetUniqueID_Flat(sectornum, ceiling), 
     .geomType = RG_GEOMETRY_TYPE_DYNAMIC,
     .passThroughType = RG_GEOMETRY_PASS_THROUGH_TYPE_OPAQUE,
     .visibilityType = RG_GEOMETRY_VISIBILITY_TYPE_WORLD_0,
@@ -317,6 +317,7 @@ void AddSkyTexture(RTPWall *wall, int sky1, int sky2, int skytype)
   }
 }
 
+static int drawwallindex = 0;
 
 static void DrawWall(RTPWallType itemtype, RTPWall *wall)
 {
@@ -395,13 +396,12 @@ static void DrawWall(RTPWallType itemtype, RTPWall *wall)
   };
 
 
-  static uint64_t i = 10000000;
-  i++;
+  extern int currentsubsectornum;
 
 
   RgGeometryUploadInfo info =
   {
-    .uniqueID = i , //(uint64_t)wall->lineID,
+    .uniqueID = RT_GetUniqueID_Wall(wall->lineID, currentsubsectornum, drawwallindex),
     .flags = wall->invert_normal ? RG_GEOMETRY_UPLOAD_GENERATE_INVERTED_NORMALS_BIT : 0,
     .geomType = RG_GEOMETRY_TYPE_DYNAMIC,
     .passThroughType = RG_GEOMETRY_PASS_THROUGH_TYPE_ALPHA_TESTED,
@@ -434,6 +434,7 @@ static void AddDrawWallItem(RTPWallType itemtype, RTPWall *wall)
   // RT: force gl_blend_animations=false
 
   DrawWall(itemtype, wall);
+  drawwallindex++;
 }
 
 
@@ -499,10 +500,14 @@ static sector_t *FakeFlat(sector_t *sec, sector_t *tempsec,
 
 void RT_AddWall(seg_t *seg)
 {
+  drawwallindex = 0;
+
+
   const float tran_filter_pct = 66;
   // const float zCamera = (float)viewz / MAP_SCALE;
 
-  RTPWall wall;
+  RTPWall wall = { 0 };
+
   const rt_texture_t *temptex;
   sector_t *frontsector;
   sector_t *backsector;

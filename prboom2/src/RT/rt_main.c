@@ -303,3 +303,56 @@ void RT_OnToggleFullscreen()
 void RT_OnChangeScreenResolution()
 {
 }
+
+
+#define UNIQUE_TYPE_BITS_COUNT 2
+
+#define UNIQUE_TYPE_MASK_FOR_IDS ((1ULL << (uint64_t)(64 - UNIQUE_TYPE_BITS_COUNT)) - 1ULL)
+#define UNIQUE_TYPE_CHECK_IF_ID_VALID(id) assert(((id) & UNIQUE_TYPE_MASK_FOR_IDS) || ((id) == 0))
+
+#define UNIQUE_TYPE_THING (0ULL << (uint64_t)(64 - UNIQUE_TYPE_BITS_COUNT))
+#define UNIQUE_TYPE_WALL  (1ULL << (uint64_t)(64 - UNIQUE_TYPE_BITS_COUNT))
+#define UNIQUE_TYPE_FLAT  (2ULL << (uint64_t)(64 - UNIQUE_TYPE_BITS_COUNT))
+
+
+uint64_t RT_GetUniqueID_Thing(const mobj_t *thing)
+{
+  // assume that the same 'thing' doesn't change its address
+  uint64_t address = (uint64_t)thing;
+  uint64_t gid = address / sizeof(mobj_t);
+
+  UNIQUE_TYPE_CHECK_IF_ID_VALID(gid);
+
+  return UNIQUE_TYPE_THING | gid;
+}
+
+
+uint64_t RT_GetUniqueID_Wall(int lineid, int subsectornum, int drawwallindex)
+{
+  assert((uint64_t)lineid        < (1ULL << 32ULL));
+  assert((uint64_t)subsectornum  < (1ULL << (56ULL - 32ULL)));
+  assert((uint64_t)drawwallindex < (1ULL << 4ULL));
+
+  uint64_t id = 
+    ((uint64_t)lineid                ) | 
+    ((uint64_t)subsectornum  << 32ULL) |
+    ((uint64_t)drawwallindex << 56ULL);
+
+  UNIQUE_TYPE_CHECK_IF_ID_VALID(id);
+  return UNIQUE_TYPE_WALL | id;
+}
+
+
+uint64_t RT_GetUniqueID_Flat(int sectornum, dboolean ceiling)
+{
+  assert((uint64_t)sectornum < (1ULL << 32ULL));
+
+  ceiling = ceiling ? 1 : 0;
+
+  uint64_t id = 
+    ((uint64_t)sectornum) | 
+    ((uint64_t)ceiling << 32ULL);
+
+  UNIQUE_TYPE_CHECK_IF_ID_VALID(id);
+  return UNIQUE_TYPE_FLAT | id;
+}

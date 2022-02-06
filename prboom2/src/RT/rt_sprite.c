@@ -56,9 +56,6 @@ static const RgFloat3D normals[6] =
 
 static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite)
 {
-  const uint64_t uniqueId = (uint64_t)thing;
-
-
   dboolean no_depth_test            = !!(sprite->flags & MF_NO_DEPTH_TEST);
   dboolean is_partial_invisibility  = !!(sprite->flags & MF_SHADOW);
   // dboolean is_translucent           = !!(sprite->flags & MF_TRANSLUCENT);
@@ -130,7 +127,7 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite)
   {
     RgGeometryUploadInfo info =
     {
-      .uniqueID = uniqueId,
+      .uniqueID = RT_GetUniqueID_Thing(thing),
       .flags = is_partial_invisibility ? RG_GEOMETRY_UPLOAD_REFL_REFR_ALBEDO_MULTIPLY_BIT : 0,
       .geomType = RG_GEOMETRY_TYPE_DYNAMIC,
       .passThroughType = RG_GEOMETRY_PASS_THROUGH_TYPE_ALPHA_TESTED,
