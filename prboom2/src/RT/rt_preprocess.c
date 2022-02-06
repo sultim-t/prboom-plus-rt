@@ -1121,10 +1121,21 @@ rtsectordata_t RT_CreateSectorGeometryData(int sectornum, dboolean is_ceiling)
     result.index_count += 3 * GetTriangleCount(loop->mode, loop->vertexcount);
   }
 
-  result.positions = malloc((size_t)result.vertex_count * sizeof(RgFloat3D));
-  result.normals   = malloc((size_t)result.vertex_count * sizeof(RgFloat3D));
-  result.texcoords = malloc((size_t)result.vertex_count * sizeof(RgFloat2D));
-  result.indices   = malloc((size_t)result.index_count  * sizeof(uint32_t));
+  result._internal_allocated = malloc(
+    (size_t)result.vertex_count * sizeof(RgFloat3D) +
+    (size_t)result.vertex_count * sizeof(RgFloat3D) +
+    (size_t)result.vertex_count * sizeof(RgFloat2D) +
+    (size_t)result.index_count  * sizeof(uint32_t)
+  );
+
+  {
+    void *ptr = result._internal_allocated;
+
+    result.positions  = ptr; ptr = (uint8_t *)ptr + (size_t)result.vertex_count * sizeof(RgFloat3D);
+    result.normals    = ptr; ptr = (uint8_t *)ptr + (size_t)result.vertex_count * sizeof(RgFloat3D);
+    result.texcoords  = ptr; ptr = (uint8_t *)ptr + (size_t)result.vertex_count * sizeof(RgFloat2D);
+    result.indices    = ptr; ptr = (uint8_t *)ptr + (size_t)result.index_count  * sizeof(uint32_t);
+  }
 
   assert(sizeof(RTPPosition) == sizeof(RgFloat3D));
   assert(sizeof(RTPTexCoord) == sizeof(RgFloat2D));
@@ -1190,10 +1201,7 @@ rtsectordata_t RT_CreateSectorGeometryData(int sectornum, dboolean is_ceiling)
 }
 
 
-void RT_DestroySectorGeometryData(rtsectordata_t *data)
+void RT_DestroySectorGeometryData(const rtsectordata_t *data)
 {
-  free(data->positions);
-  free(data->normals);
-  free(data->texcoords);
-  free(data->indices);
+  free(data->_internal_allocated);
 }

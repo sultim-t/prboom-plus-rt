@@ -60,8 +60,9 @@ typedef struct
   RgFloat2D *texcoords;
   int index_count;
   uint32_t *indices;
+  uint8_t *_internal_allocated;
 } rtsectordata_t;
 
 void RT_PreprocessLevel(void);
 rtsectordata_t RT_CreateSectorGeometryData(int sectornum, dboolean is_ceiling);
-void RT_DestroySectorGeometryData(rtsectordata_t *data);
+void RT_DestroySectorGeometryData(const rtsectordata_t *data);
