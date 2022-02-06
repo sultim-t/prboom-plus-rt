@@ -234,11 +234,12 @@ void RT_EndFrame()
     .pDebugParams = &debug_params,
   };
 
+#define FOV_FIX 2.0f
   static const float to_vk_projection[4][4] =
   {
     { 1.0f, 0.0f, 0.0f, 0.0f },
     { 0.0f,-1.0f, 0.0f, 0.0f },
-    { 0.0f, 0.0f, 0.5f, 0.5f },
+    { 0.0f, 0.0f, 0.5f * FOV_FIX, 0.5f },
     { 0.0f, 0.0f, 0.0f, 1.0f }
   };
   float projMatrix_vk[4][4];
