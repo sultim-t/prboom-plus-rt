@@ -1094,6 +1094,10 @@ static void WRAP_RT_PlotPixel(int scrn, int x, int y, byte color)
   RT_DrawLine(x - 1, y, x + 1, y, r, g, b);
   RT_DrawLine(x, y - 1, x, y + 1, r, g, b);
 }
+static void WRAP_RT_PlotPixelWu(int scrn, int x, int y, byte color, int weight)
+{
+  WRAP_RT_PlotPixel(scrn, x, y, color);
+}
 static void WRAP_RT_DrawLine(fline_t *fl, int color)
 {
   RT_RETURN_IF_INSTANCE_NULL
@@ -1227,9 +1231,10 @@ void V_InitMode(video_mode_t mode) {
       V_FillPatch           = WRAP_RT_FillPatch;
       V_DrawBackground      = WRAP_RT_DrawBackground;
       V_PlotPixel           = WRAP_RT_PlotPixel;
-      V_PlotPixelWu         = WRAP_RT_PlotPixel;
+      V_PlotPixelWu         = WRAP_RT_PlotPixelWu;
       V_DrawLine            = WRAP_RT_DrawLine;
       V_DrawLineWu          = WRAP_RT_DrawLine;
+      current_videomode     = VID_MODERT;
       break;
   }
   R_FilterInit();
