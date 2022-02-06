@@ -43,6 +43,17 @@ static float CalcLightLevel(int lightlevel)
 }
 
 
+static const RgFloat3D normals[6] = 
+{
+  { 0, 1, 0 },
+  { 0, 1, 0 },
+  { 0, 1, 0 },
+  { 0, 1, 0 },
+  { 0, 1, 0 },
+  { 0, 1, 0 }
+};
+
+
 static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite)
 {
   const uint64_t uniqueId = (uint64_t)thing;
@@ -126,8 +137,8 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite)
       .visibilityType = RG_GEOMETRY_VISIBILITY_TYPE_WORLD_0,
       .vertexCount = 6,
       .pVertexData = positions,
-      .pNormalData = NULL,
-      .pTexCoordLayerData = texcoords,
+      .pNormalData = normals,
+      .pTexCoordLayerData = { texcoords },
       .sectorID = 0,
       .layerColors = { RG_COLOR_WHITE },
       .defaultRoughness = 0.5f,
