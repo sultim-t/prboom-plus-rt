@@ -200,6 +200,7 @@ void RT_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling)
 typedef struct
 {
   int lineID;
+  dboolean invert_normal;
   float ytop, ybottom;
   float ul, ur, vt, vb;
   float light;
@@ -317,7 +318,7 @@ void AddSkyTexture(RTPWall *wall, int sky1, int sky2, int skytype)
 }
 
 
-static void DrawWall(RTPWall *wall)
+static void DrawWall(RTPWallType itemtype, RTPWall *wall)
 {
   // RT: force has_detail=false
 
@@ -381,16 +382,16 @@ static void DrawWall(RTPWall *wall)
   RgFloat3D position_3 = { x2, wall->ybottom, z2 };
 
 
-  // RT: 2 triangle fans
+  // RT: 2 triangle fans, but in reverse order (counter clockwise)
   const RgFloat3D positions[] =
   {
-    position_1, position_2, position_0,
-    position_2, position_3, position_0,
+    position_0, position_2, position_1,
+    position_0, position_3, position_2,
   };
   const RgFloat2D texcoords[] =
   {
-    texcoord_1, texcoord_2, texcoord_0,
-    texcoord_2, texcoord_3, texcoord_0
+    texcoord_0, texcoord_2, texcoord_1,
+    texcoord_0, texcoord_3, texcoord_2,
   };
 
 
@@ -400,7 +401,8 @@ static void DrawWall(RTPWall *wall)
 
   RgGeometryUploadInfo info =
   {
-    .uniqueID = i,// (uint64_t)wall->lineID,
+    .uniqueID = i , //(uint64_t)wall->lineID,
+    .flags = wall->invert_normal ? RG_GEOMETRY_UPLOAD_GENERATE_INVERTED_NORMALS_BIT : 0,
     .geomType = RG_GEOMETRY_TYPE_DYNAMIC,
     .passThroughType = RG_GEOMETRY_PASS_THROUGH_TYPE_ALPHA_TESTED,
     .visibilityType = RG_GEOMETRY_VISIBILITY_TYPE_WORLD_0,
@@ -413,7 +415,7 @@ static void DrawWall(RTPWall *wall)
     .defaultRoughness = 0.5f,
     .defaultMetallicity = 0.2f,
     .defaultEmission = 0,
-    .geomMaterial = { wall->rttexture->rg_handle },
+    .geomMaterial = { wall->rttexture ? wall->rttexture->rg_handle : RG_NO_MATERIAL },
     .transform =
       {
         1,0,0,0,
@@ -431,7 +433,7 @@ static void AddDrawWallItem(RTPWallType itemtype, RTPWall *wall)
 {
   // RT: force gl_blend_animations=false
 
-  DrawWall(wall);
+  DrawWall(itemtype, wall);
 }
 
 
@@ -517,6 +519,7 @@ void RT_AddWall(seg_t *seg)
   linelength = lines[seg->linedef->iLineID].texel_length;
   wall.lineID = seg->linedef->iLineID;
   backseg = seg->sidedef != &sides[seg->linedef->sidenum[0]];
+  wall.invert_normal = backseg;
 
   if (!seg->frontsector)
     return;
