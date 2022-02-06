@@ -1098,7 +1098,7 @@ default_t defaults[] =
 
   {"movement_mouselook", {&movement_mouselook},  {0},0,1,
    def_bool,ss_stat},
-  {"movement_mousenovert", {&movement_mousenovert},  {0},0,1,
+  {"movement_mousenovert", {&movement_mousenovert},  {1},0,1,
    def_bool,ss_stat},
   {"movement_maxviewpitch", {&movement_maxviewpitch},  {90},0,90,
    def_int,ss_stat},
