@@ -41,7 +41,7 @@ typedef struct
 {
   float x1, x2;
   float z1, z2;
-  dboolean fracleft, fracright;
+  // dboolean fracleft, fracright;
 } RTPSeg;
 
 typedef struct
@@ -1198,6 +1198,19 @@ rtsectordata_t RT_CreateSectorGeometryData(int sectornum, dboolean is_ceiling)
   }
 
   return result;
+}
+
+
+void RT_GetLineInfo(int lineid, float *out_x1, float *out_z1, float *out_x2, float *out_z2)
+{
+  assert(lineid >= 0 && lineid < numlines);
+
+  const RTPSeg *line = &rtp_lines[lineid];
+
+  *out_x1 = line->x1;
+  *out_z1 = line->z1;
+  *out_x2 = line->x2;
+  *out_z2 = line->z2;
 }
 
 

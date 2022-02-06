@@ -65,4 +65,5 @@ typedef struct
 
 void RT_PreprocessLevel(void);
 rtsectordata_t RT_CreateSectorGeometryData(int sectornum, dboolean is_ceiling);
+void RT_GetLineInfo(int lineid, float *out_x1, float *out_z1, float *out_x2, float *out_z2);
 void RT_DestroySectorGeometryData(const rtsectordata_t *data);

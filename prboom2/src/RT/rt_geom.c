@@ -1,6 +1,12 @@
-#include "doomstat.h"
 #include "rt_main.h"
+
+#include <math.h>
+
+#include "doomstat.h"
+#include "e6y.h"
 #include "r_main.h"
+#include "r_plane.h"
+#include "r_sky.h"
 #include "r_state.h"
 
 
@@ -23,6 +29,13 @@ static float CalcLightLevel(int lightlevel)
 
   return (float)light / 255.0f;
 }
+
+
+
+// ----------- //
+//    FLAT     //
+// ----------- //
+
 
 
 static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *plane)
@@ -159,5 +172,715 @@ void RT_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling)
 }
 
 
+
+// ----------- //
+//    WALL     //
+// ----------- //
+
+
+
+#define MAXCOORD (32767.0f / MAP_COEFF)
+#define SMALLDELTA 0.001f
+
+
+#define GLDWF_TOP 1
+#define GLDWF_M1S 2
+#define GLDWF_M2S 3
+#define GLDWF_BOT 4
+#define GLDWF_TOPFLUD 5 //e6y: project the ceiling plane into the gap
+#define GLDWF_BOTFLUD 6 //e6y: project the floor plane into the gap
+#define GLDWF_SKY 7
+#define GLDWF_SKYFLIP 8
+
+#define SKY_NONE    0
+#define SKY_CEILING 1
+#define SKY_FLOOR   2
+
+
+typedef struct
+{
+  int lineID;
+  float ytop, ybottom;
+  float ul, ur, vt, vb;
+  float light;
+  //float fogdensity;
+  float alpha;
+  float skyymid;
+  float skyyaw;
+  const rt_texture_t *rttexture;
+  byte flag;
+  seg_t *seg;
+} RTPWall;
+
+
+typedef enum
+{
+  RTP_WALLTYPE_WALL,    // opaque wall
+  RTP_WALLTYPE_MWALL,   // opaque mid wall
+  RTP_WALLTYPE_FWALL,   // projected wall
+  RTP_WALLTYPE_TWALL,   // transparent walls
+  RTP_WALLTYPE_SWALL,   // sky walls
+
+  RTP_WALLTYPE_AWALL,   // animated wall
+  RTP_WALLTYPE_FAWALL,  // animated projected wall
+} RTPWallType;
+
+
+struct
+{
+  int index;
+  unsigned int type;
+  RTPWall wall;
+  float x_scale, y_scale;
+  float x_offset, y_offset;
+  // 0 - no colormap; 1 - INVUL inverse colormap
+  RgFloat3D FloorSkyColor[2];
+  RgFloat3D CeilingSkyColor[2];
+  // for BoxSkybox
+  side_t *side;
+} rt_skybox_params;
+
+
+void AddSkyTexture(RTPWall *wall, int sky1, int sky2, int skytype)
+{
+  const dboolean mlook_or_fov = true;
+
+  side_t *s = NULL;
+  line_t *l = NULL;
+  wall->rttexture = NULL;
+
+  if ((sky1)&PL_SKYFLAT)
+  {
+    l = &lines[sky1 & ~PL_SKYFLAT];
+  }
+  else
+  {
+    if ((sky2)&PL_SKYFLAT)
+    {
+      l = &lines[sky2 & ~PL_SKYFLAT];
+    }
+  }
+
+  if (l)
+  {
+    s = *l->sidenum + sides;
+    rt_skybox_params.side = s;
+    wall->rttexture = RT_Texture_GetFromTexture(texturetranslation[s->toptexture]
+                                                /*, false, texturetranslation[s->toptexture] == skytexture || l->special == 271 || l->special == 272*/);
+    if (wall->rttexture)
+    {
+      if (!mlook_or_fov)
+      {
+        wall->skyyaw = -2.0f * ((-(float)((viewangle + s->textureoffset) >> ANGLETOFINESHIFT) * 360.0f / FINEANGLES) / 90.0f);
+        wall->skyymid = 200.0f / 319.5f * (((float)s->rowoffset / (float)FRACUNIT - 28.0f) / 100.0f);
+      }
+      else
+      {
+        wall->skyyaw = -2.0f * (((270.0f - (float)((viewangle + s->textureoffset) >> ANGLETOFINESHIFT) * 360.0f / FINEANGLES) + 90.0f) / 90.0f / skyscale);
+        wall->skyymid = skyYShift + (((float)s->rowoffset / (float)FRACUNIT + 28.0f) / wall->rttexture->height) / skyscale;
+      }
+      wall->flag = (l->special == 272 ? GLDWF_SKY : GLDWF_SKYFLIP);
+    }
+  }
+  else
+  {
+    wall->rttexture = RT_Texture_GetFromTexture(skytexture);
+    if (wall->rttexture)
+    {
+      wall->skyyaw = skyXShift;
+      wall->skyymid = skyYShift;
+      wall->flag = GLDWF_SKY;
+    }
+  }
+
+  if (wall->rttexture)
+  {
+    rt_skybox_params.type |= skytype;
+
+    //wall->rttexture->flags |= GLTEXTURE_SKY;
+
+    //gld_AddDrawItem(RTP_WALLTYPE_SWALL, wall);
+
+    if (!rt_skybox_params.wall.rttexture)
+    {
+      rt_skybox_params.wall = *wall;
+
+      // RT: force gl_drawskys=skytype_skydome
+
+      if (s)
+      {
+        rt_skybox_params.x_offset = (float)s->textureoffset * 180.0f / (float)ANG180;
+        rt_skybox_params.y_offset = (float)s->rowoffset / (float)FRACUNIT;
+      }
+    }
+  }
+}
+
+
+static void DrawWall(RTPWall *wall)
+{
+  // RT: force has_detail=false
+
+  unsigned int flags;
+
+  rendered_segs++;
+
+  // Do not repeat middle texture vertically
+  // to avoid visual glitches for textures with holes
+
+  if ((wall->flag == GLDWF_M2S) && (wall->flag < GLDWF_SKY))
+  {
+    //flags = GLTEXTURE_CLAMPY;
+  }
+  else
+  {
+    flags = 0;
+  }
+
+  // not implemented
+  assert(!(wall->flag == GLDWF_TOPFLUD) && !(wall->flag == GLDWF_BOTFLUD));
+
+
+  // StaticLightAlpha(wall->light, wall->alpha);
+
+  RgFloat4D color = RG_COLOR_WHITE;
+  if (!wall->rttexture)
+  {
+    color.data[0] = 1.0f;
+    color.data[1] = 0.0f;
+    color.data[2] = 0.0f;
+  }
+
+  float x1, z1;
+  float x2, z2;
+  RT_GetLineInfo(wall->lineID, &x1, &z1, &x2, &z2);
+
+
+  // lower left corner
+  RgFloat2D texcoord_0 = { wall->ul, wall->vb };
+  RgFloat3D position_0 = { x1, wall->ybottom, z1 };
+
+  // split left edge of wall
+  //if (!wall->glseg->fracleft)
+  //  gld_SplitLeftEdge(wall, false);
+
+  // upper left corner
+  RgFloat2D texcoord_1 = { wall->ul, wall->vt };
+  RgFloat3D position_1 = { x1, wall->ytop, z1 };
+
+  // upper right corner
+  RgFloat2D texcoord_2 = { wall->ur, wall->vt };
+  RgFloat3D position_2 = { x2, wall->ytop, z2 };
+
+  // split right edge of wall
+  //if (!wall->glseg->fracright)
+  //  gld_SplitRightEdge(wall, false);
+
+  // lower right corner
+  RgFloat2D texcoord_3 = { wall->ur, wall->vb };
+  RgFloat3D position_3 = { x2, wall->ybottom, z2 };
+
+
+  // RT: 2 triangle fans
+  const RgFloat3D positions[] =
+  {
+    position_1, position_2, position_0,
+    position_2, position_3, position_0,
+  };
+  const RgFloat2D texcoords[] =
+  {
+    texcoord_1, texcoord_2, texcoord_0,
+    texcoord_2, texcoord_3, texcoord_0
+  };
+
+
+  static uint64_t i = 10000000;
+  i++;
+
+
+  RgGeometryUploadInfo info =
+  {
+    .uniqueID = i,// (uint64_t)wall->lineID,
+    .geomType = RG_GEOMETRY_TYPE_DYNAMIC,
+    .passThroughType = RG_GEOMETRY_PASS_THROUGH_TYPE_ALPHA_TESTED,
+    .visibilityType = RG_GEOMETRY_VISIBILITY_TYPE_WORLD_0,
+    .vertexCount = RG_ARRAY_SIZE(positions),
+    .pVertexData = positions,
+    .pNormalData = NULL,
+    .pTexCoordLayerData = { texcoords },
+    .sectorID = 0, // sectornum,
+    .layerColors = { color },
+    .defaultRoughness = 0.5f,
+    .defaultMetallicity = 0.2f,
+    .defaultEmission = 0,
+    .geomMaterial = { wall->rttexture->rg_handle },
+    .transform =
+      {
+        1,0,0,0,
+        0,1,0,0,
+        0,0,1,0
+      }
+  };
+
+  RgResult r = rgUploadGeometry(rtmain.instance, &info);
+  RG_CHECK(r);
+}
+
+
+static void AddDrawWallItem(RTPWallType itemtype, RTPWall *wall)
+{
+  // RT: force gl_blend_animations=false
+
+  DrawWall(wall);
+}
+
+
+#define LINE seg->linedef
+#define CALC_Y_VALUES(w, lineheight, floor_height, ceiling_height)\
+  (w).ytop=((float)(ceiling_height)/(float)MAP_SCALE)+SMALLDELTA;\
+  (w).ybottom=((float)(floor_height)/(float)MAP_SCALE)-SMALLDELTA;\
+  (lineheight)=((float)fabs(((ceiling_height)/(float)FRACUNIT)-((floor_height)/(float)FRACUNIT)))
+
+#define OU(w,seg) (((float)((seg)->sidedef->textureoffset)/(float)FRACUNIT)/(float)(w).rttexture->width)
+#define OV(w,seg) (((float)((seg)->sidedef->rowoffset)/(float)FRACUNIT)/(float)(w).rttexture->height)
+#define OV_PEG(w,seg,v_offset) (OV((w),(seg))-(((float)(v_offset)/(float)FRACUNIT)/(float)(w).rttexture->height))
+#define URUL(w, seg, backseg, linelength)\
+  if (backseg){\
+    (w).ur=OU((w),(seg));\
+    (w).ul=(w).ur+((linelength)/(float)(w).rttexture->width);\
+  }else{\
+    (w).ul=OU((w),(seg));\
+    (w).ur=(w).ul+((linelength)/(float)(w).rttexture->width);\
+  }
+
+#define CALC_TEX_VALUES_TOP(w, seg, backseg, peg, linelength, lineheight)\
+  (w).flag=GLDWF_TOP;\
+  URUL(w, seg, backseg, linelength);\
+  if (peg){\
+    (w).vb=OV((w),(seg))+(/*(w).rttexture->scaleyfac*/ 1.0f);\
+    (w).vt=((w).vb-((float)(lineheight)/(float)(w).rttexture->height));\
+  }else{\
+    (w).vt=OV((w),(seg));\
+    (w).vb=(w).vt+((float)(lineheight)/(float)(w).rttexture->height);\
+  }
+
+#define CALC_TEX_VALUES_MIDDLE1S(w, seg, backseg, peg, linelength, lineheight)\
+  (w).flag=GLDWF_M1S;\
+  URUL(w, seg, backseg, linelength);\
+  if (peg){\
+    (w).vb=OV((w),(seg))+(/*(w).rttexture->scaleyfac*/ 1.0f);\
+    (w).vt=((w).vb-((float)(lineheight)/(float)(w).rttexture->height));\
+  }else{\
+    (w).vt=OV((w),(seg));\
+    (w).vb=(w).vt+((float)(lineheight)/(float)(w).rttexture->height);\
+  }
+
+#define CALC_TEX_VALUES_BOTTOM(w, seg, backseg, peg, linelength, lineheight, v_offset)\
+  (w).flag=GLDWF_BOT;\
+  URUL(w, seg, backseg, linelength);\
+  if (peg){\
+    (w).vb=OV_PEG((w),(seg),(v_offset))+(/*(w).rttexture->scaleyfac*/ 1.0f);\
+    (w).vt=((w).vb-((float)(lineheight)/(float)(w).rttexture->height));\
+  }else{\
+    (w).vt=OV((w),(seg));\
+    (w).vb=(w).vt+((float)(lineheight)/(float)(w).rttexture->height);\
+  }
+
+
+static sector_t *FakeFlat(sector_t *sec, sector_t *tempsec,
+                            int *floorlightlevel, int *ceilinglightlevel,
+                            dboolean back)
+{
+  return sec;
+}
+
+
 void RT_AddWall(seg_t *seg)
-{}
+{
+  const float tran_filter_pct = 66;
+  // const float zCamera = (float)viewz / MAP_SCALE;
+
+  RTPWall wall;
+  const rt_texture_t *temptex;
+  sector_t *frontsector;
+  sector_t *backsector;
+  sector_t ftempsec; // needed for R_FakeFlat
+  sector_t btempsec; // needed for R_FakeFlat
+  float lineheight, linelength;
+  int rellight = 0;
+  int backseg;
+
+  int side = (seg->sidedef == &sides[seg->linedef->sidenum[0]] ? 0 : 1);
+  //if (linerendered[side][seg->linedef->iLineID] == rendermarker)
+  //  return;
+  //linerendered[side][seg->linedef->iLineID] = rendermarker;
+  linelength = lines[seg->linedef->iLineID].texel_length;
+  wall.lineID = seg->linedef->iLineID;
+  backseg = seg->sidedef != &sides[seg->linedef->sidenum[0]];
+
+  if (!seg->frontsector)
+    return;
+  frontsector = FakeFlat(seg->frontsector, &ftempsec, NULL, NULL, false); // for boom effects
+  if (!frontsector)
+    return;
+
+  // e6y: fake contrast stuff
+  // Original doom added/removed one light level ((1<<LIGHTSEGSHIFT) == 16) 
+  // for walls exactly vertical/horizontal on the map
+  if (fake_contrast)
+  {
+    //rellight = seg->linedef->dx == 0 ? +gl_rellight : seg->linedef->dy == 0 ? -gl_rellight : 0;
+  }
+  wall.light = CalcLightLevel(frontsector->lightlevel + rellight + (extralight << 5));
+  //wall.fogdensity = CalcFogDensity(frontsector,
+  //                                 frontsector->lightlevel + (gl_lightmode == gl_lightmode_fogbased ? rellight : 0),
+  //                                 RTP_WALLTYPE_WALL);
+  wall.alpha = 1.0f;
+  wall.rttexture = NULL;
+  wall.seg = seg; //e6y
+
+  if (!seg->backsector) /* onesided */
+  {
+    if (frontsector->ceilingpic == skyflatnum)
+    {
+      wall.ytop = MAXCOORD;
+      wall.ybottom = (float)frontsector->ceilingheight / MAP_SCALE;
+      AddSkyTexture(&wall, frontsector->sky, frontsector->sky, SKY_CEILING);
+    }
+    if (frontsector->floorpic == skyflatnum)
+    {
+      wall.ytop = (float)frontsector->floorheight / MAP_SCALE;
+      wall.ybottom = -MAXCOORD;
+      AddSkyTexture(&wall, frontsector->sky, frontsector->sky, SKY_FLOOR);
+    }
+    temptex = RT_Texture_GetFromTexture(texturetranslation[seg->sidedef->midtexture]);
+    if (temptex && frontsector->ceilingheight > frontsector->floorheight)
+    {
+      wall.rttexture = temptex;
+      CALC_Y_VALUES(wall, lineheight, frontsector->floorheight, frontsector->ceilingheight);
+      CALC_TEX_VALUES_MIDDLE1S(
+        wall, seg, backseg, (LINE->flags & ML_DONTPEGBOTTOM) > 0,
+        linelength, lineheight
+      );
+      AddDrawWallItem(RTP_WALLTYPE_WALL, &wall);
+    }
+  }
+  else /* twosided */
+  {
+    sector_t *fs, *bs;
+    int toptexture, midtexture, bottomtexture;
+    fixed_t floor_height, ceiling_height;
+    fixed_t max_floor, min_floor;
+    fixed_t max_ceiling, min_ceiling;
+    //fixed_t max_floor_tex, min_ceiling_tex;
+
+    backsector = FakeFlat(seg->backsector, &btempsec, NULL, NULL, true); // for boom effects
+    if (!backsector)
+      return;
+
+    if (frontsector->floorheight > backsector->floorheight)
+    {
+      max_floor = frontsector->floorheight;
+      min_floor = backsector->floorheight;
+    }
+    else
+    {
+      max_floor = backsector->floorheight;
+      min_floor = frontsector->floorheight;
+    }
+
+    if (frontsector->ceilingheight > backsector->ceilingheight)
+    {
+      max_ceiling = frontsector->ceilingheight;
+      min_ceiling = backsector->ceilingheight;
+    }
+    else
+    {
+      max_ceiling = backsector->ceilingheight;
+      min_ceiling = frontsector->ceilingheight;
+    }
+
+    //max_floor_tex = max_floor + seg->sidedef->rowoffset;
+    //min_ceiling_tex = min_ceiling + seg->sidedef->rowoffset;
+
+    if (backseg)
+    {
+      fs = backsector;
+      bs = frontsector;
+    }
+    else
+    {
+      fs = frontsector;
+      bs = backsector;
+    }
+
+    toptexture = texturetranslation[seg->sidedef->toptexture];
+    midtexture = texturetranslation[seg->sidedef->midtexture];
+    bottomtexture = texturetranslation[seg->sidedef->bottomtexture];
+
+    /* toptexture */
+    ceiling_height = frontsector->ceilingheight;
+    floor_height = backsector->ceilingheight;
+    if (frontsector->ceilingpic == skyflatnum)// || backsector->ceilingpic==skyflatnum)
+    {
+      wall.ytop = MAXCOORD;
+      if (
+        // e6y
+        // There is no more HOM in the starting area on Memento Mori map29 and on map30.
+        // Old code:
+        // (backsector->ceilingheight==backsector->floorheight) &&
+        // (backsector->ceilingpic==skyflatnum)
+        (backsector->ceilingpic == skyflatnum) &&
+        (backsector->ceilingheight <= backsector->floorheight)
+        )
+      {
+        // e6y
+        // There is no more visual glitches with sky on Icarus map14 sector 187
+        // Old code: wall.ybottom=(float)backsector->floorheight/MAP_SCALE;
+        wall.ybottom = ((float)(backsector->floorheight +
+                        (seg->sidedef->rowoffset > 0 ? seg->sidedef->rowoffset : 0))) / MAP_SCALE;
+        AddSkyTexture(&wall, frontsector->sky, backsector->sky, SKY_CEILING);
+      }
+      else
+      {
+        if (bs->ceilingpic == skyflatnum && fs->ceilingpic != skyflatnum &&
+            toptexture == NO_TEXTURE && midtexture == NO_TEXTURE)
+        {
+          wall.ybottom = (float)min_ceiling / MAP_SCALE;
+          AddSkyTexture(&wall, frontsector->sky, backsector->sky, SKY_CEILING);
+        }
+        else
+        {
+          if (((backsector->ceilingpic != skyflatnum && toptexture != NO_TEXTURE) && midtexture == NO_TEXTURE) ||
+              backsector->ceilingpic != skyflatnum ||
+              backsector->ceilingheight <= frontsector->floorheight)
+          {
+            wall.ybottom = (float)max_ceiling / MAP_SCALE;
+            AddSkyTexture(&wall, frontsector->sky, backsector->sky, SKY_CEILING);
+          }
+        }
+      }
+    }
+    if (floor_height < ceiling_height)
+    {
+      if (!((frontsector->ceilingpic == skyflatnum) && (backsector->ceilingpic == skyflatnum)))
+      {
+        temptex = RT_Texture_GetFromTexture(toptexture);
+      #if 0
+        if (!temptex && /*gl_use_stencil &&*/ backsector &&
+            !(seg->linedef->r_flags & RF_ISOLATED) &&
+            /*frontsector->ceilingpic != skyflatnum && */backsector->ceilingpic != skyflatnum &&
+            !(backsector->flags & NULL_SECTOR))
+        {
+          wall.ytop = ((float)(ceiling_height) / (float)MAP_SCALE) + SMALLDELTA;
+          wall.ybottom = ((float)(floor_height) / (float)MAP_SCALE) - SMALLDELTA;
+          if (wall.ybottom >= zCamera)
+          {
+            wall.flag = GLDWF_TOPFLUD;
+            temptex = RT_Texture_GetFromFlatLump(flattranslation[seg->backsector->ceilingpic]);
+            if (temptex)
+            {
+              wall.rttexture = temptex;
+              gld_AddDrawWallItem(RTP_WALLTYPE_FWALL, &wall);
+            }
+          }
+        }
+        else
+      #endif
+        {
+          if (temptex)
+          {
+            wall.rttexture = temptex;
+            CALC_Y_VALUES(wall, lineheight, floor_height, ceiling_height);
+            CALC_TEX_VALUES_TOP(
+              wall, seg, backseg, (LINE->flags & (/*e6y ML_DONTPEGBOTTOM | */ML_DONTPEGTOP)) == 0,
+              linelength, lineheight
+            );
+            AddDrawWallItem(RTP_WALLTYPE_WALL, &wall);
+          }
+        }
+      }
+    }
+
+    /* midtexture */
+    //e6y
+    if (comp[comp_maskedanim])
+      temptex = RT_Texture_GetFromTexture(seg->sidedef->midtexture);
+    else
+
+    // e6y
+    // Animated middle textures with a zero index should be forced
+    // See spacelab.wad (http://www.doomworld.com/idgames/index.php?id=6826)
+    temptex = RT_Texture_GetFromTexture(midtexture);
+    if (temptex && seg->sidedef->midtexture != NO_TEXTURE && backsector->ceilingheight > frontsector->floorheight)
+    {
+      int top, bottom;
+      wall.rttexture = temptex;
+
+      if ((LINE->flags & ML_DONTPEGBOTTOM) > 0)
+      {
+        //floor_height=max_floor_tex;
+        floor_height = MAX(seg->frontsector->floorheight, seg->backsector->floorheight) + (seg->sidedef->rowoffset);
+        ceiling_height = floor_height + (int)(wall.rttexture->height << FRACBITS);
+      }
+      else
+      {
+        //ceiling_height=min_ceiling_tex;
+        ceiling_height = MIN(seg->frontsector->ceilingheight, seg->backsector->ceilingheight) + (seg->sidedef->rowoffset);
+        floor_height = ceiling_height - (int)(wall.rttexture->height << FRACBITS);
+      }
+
+      // Depending on missing textures and possible plane intersections
+      // decide which planes to use for the polygon
+      if (seg->frontsector != seg->backsector ||
+          seg->frontsector->heightsec != -1)
+      {
+        sector_t *f, *b;
+
+        f = (seg->frontsector->heightsec == -1 ? seg->frontsector : &ftempsec);
+        b = (seg->backsector->heightsec == -1 ? seg->backsector : &btempsec);
+
+        // Set up the top
+        if (frontsector->ceilingpic != skyflatnum ||
+            backsector->ceilingpic != skyflatnum)
+        {
+          if (toptexture == NO_TEXTURE)
+            // texture is missing - use the higher plane
+            top = MAX(f->ceilingheight, b->ceilingheight);
+          else
+            top = MIN(f->ceilingheight, b->ceilingheight);
+        }
+        else
+          top = ceiling_height;
+
+        // Set up the bottom
+        if (frontsector->floorpic != skyflatnum ||
+            backsector->floorpic != skyflatnum ||
+            frontsector->floorheight != backsector->floorheight)
+        {
+          if (seg->sidedef->bottomtexture == NO_TEXTURE)
+            // texture is missing - use the lower plane
+            bottom = MIN(f->floorheight, b->floorheight);
+          else
+            // normal case - use the higher plane
+            bottom = MAX(f->floorheight, b->floorheight);
+        }
+        else
+        {
+          bottom = floor_height;
+        }
+
+        //let's clip away some unnecessary parts of the polygon
+        if (ceiling_height < top)
+          top = ceiling_height;
+        if (floor_height > bottom)
+          bottom = floor_height;
+      }
+      else
+      {
+        // both sides of the line are in the same sector
+        top = ceiling_height;
+        bottom = floor_height;
+      }
+
+      if (top <= bottom)
+        goto bottomtexture;
+
+      wall.ytop = (float)top / (float)MAP_SCALE;
+      wall.ybottom = (float)bottom / (float)MAP_SCALE;
+
+      wall.flag = GLDWF_M2S;
+      URUL(wall, seg, backseg, linelength);
+
+      wall.vt = (float)((-top + ceiling_height) >> FRACBITS) / (float)wall.rttexture->height;
+      wall.vb = (float)((-bottom + ceiling_height) >> FRACBITS) / (float)wall.rttexture->height;
+
+      if (seg->linedef->tranlump >= 0 && general_translucency)
+        wall.alpha = (float)tran_filter_pct / 100.0f;
+      AddDrawWallItem((wall.alpha == 1.0f ? RTP_WALLTYPE_MWALL : RTP_WALLTYPE_TWALL), &wall);
+      wall.alpha = 1.0f;
+    }
+  bottomtexture:
+    /* bottomtexture */
+    ceiling_height = backsector->floorheight;
+    floor_height = frontsector->floorheight;
+    if (frontsector->floorpic == skyflatnum)
+    {
+      wall.ybottom = -MAXCOORD;
+      if (
+        (backsector->ceilingheight == backsector->floorheight) &&
+        (backsector->floorpic == skyflatnum)
+        )
+      {
+        wall.ytop = (float)backsector->floorheight / MAP_SCALE;
+        AddSkyTexture(&wall, frontsector->sky, backsector->sky, SKY_FLOOR);
+      }
+      else
+      {
+        if (bottomtexture == NO_TEXTURE && midtexture == NO_TEXTURE)
+        {
+          wall.ytop = (float)max_floor / MAP_SCALE;
+          AddSkyTexture(&wall, frontsector->sky, backsector->sky, SKY_CEILING);
+        }
+        else
+        {
+          if ((bottomtexture != NO_TEXTURE && midtexture == NO_TEXTURE) ||
+              backsector->floorpic != skyflatnum ||
+              backsector->floorheight >= frontsector->ceilingheight)
+          {
+            wall.ytop = (float)min_floor / MAP_SCALE;
+            AddSkyTexture(&wall, frontsector->sky, backsector->sky, SKY_FLOOR);
+          }
+        }
+      }
+    }
+    if (floor_height < ceiling_height)
+    {
+      temptex = RT_Texture_GetFromTexture(bottomtexture);
+    #if 0
+      if (!temptex && /*gl_use_stencil &&*/ backsector &&
+          !(seg->linedef->r_flags & RF_ISOLATED) &&
+          /*frontsector->floorpic != skyflatnum && */backsector->floorpic != skyflatnum &&
+          !(backsector->flags & NULL_SECTOR))
+      {
+        wall.ytop = ((float)(ceiling_height) / (float)MAP_SCALE) + SMALLDELTA;
+        wall.ybottom = ((float)(floor_height) / (float)MAP_SCALE) - SMALLDELTA;
+        if (wall.ytop <= zCamera)
+        {
+          wall.flag = GLDWF_BOTFLUD;
+          temptex = RT_Texture_GetFromFlatLump(flattranslation[seg->backsector->floorpic]);
+          if (temptex)
+          {
+            wall.rttexture = temptex;
+            gld_AddDrawWallItem(RTP_WALLTYPE_FWALL, &wall);
+          }
+        }
+      }
+      else
+    #endif
+      {
+        if (temptex)
+        {
+          wall.rttexture = temptex;
+          CALC_Y_VALUES(wall, lineheight, floor_height, ceiling_height);
+          CALC_TEX_VALUES_BOTTOM(
+            wall, seg, backseg, (LINE->flags & ML_DONTPEGBOTTOM) > 0,
+            linelength, lineheight,
+            floor_height - frontsector->ceilingheight
+          );
+          AddDrawWallItem(RTP_WALLTYPE_WALL, &wall);
+        }
+      }
+    }
+  }
+}
+
+#undef LINE
+#undef CALC_Y_VALUES
+#undef OU
+#undef OV
+#undef OV_PEG
+#undef CALC_TEX_VALUES_TOP
+#undef CALC_TEX_VALUES_MIDDLE1S
+#undef CALC_TEX_VALUES_BOTTOM
+#undef ADDWALL
