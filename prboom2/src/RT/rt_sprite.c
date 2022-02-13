@@ -58,7 +58,9 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite)
 {
   dboolean no_depth_test            = !!(sprite->flags & MF_NO_DEPTH_TEST);
   dboolean is_partial_invisibility  = !!(sprite->flags & MF_SHADOW);
-  // dboolean is_translucent           = !!(sprite->flags & MF_TRANSLUCENT);
+  dboolean is_translucent           = !!(sprite->flags & MF_TRANSLUCENT);
+
+  dboolean is_rasterized = no_depth_test || is_translucent;
 
 
   RgFloat3D positions[6];
@@ -123,7 +125,7 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite)
   }
 
 
-  if (!no_depth_test)
+  if (!is_rasterized)
   {
     RgGeometryUploadInfo info =
     {
