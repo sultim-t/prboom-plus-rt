@@ -10,6 +10,7 @@
 #include "i_video.h"
 #include "lprintf.h"
 #include "m_argv.h"
+#include "p_setup.h"
 #include "r_main.h"
 
 
@@ -280,10 +281,24 @@ void RT_NewLevel(int gameepisode, int gamemap, int skytexture)
   RG_CHECK(r);
 
 
-  for (int i = 0; i < numsectors; i++)
+  for (int iSectorID_A = 0; iSectorID_A < numsectors; iSectorID_A++)
   {
-    r = rgSetPotentialVisibility(rtmain.instance, i, i);
-    RG_CHECK(r);
+    for (int iSectorID_B = 0; iSectorID_B < numsectors; iSectorID_B++)
+    {
+      // based on P_CheckSight / P_CheckSight_12
+      int pnum = iSectorID_A * numsectors + iSectorID_B;
+
+      int bytenum = pnum >> 3;
+      int bitnum = 1 << (pnum & 7);
+
+      if (rejectmatrix[bytenum] & bitnum)
+      {
+        continue;
+      }
+
+      r = rgSetPotentialVisibility(rtmain.instance, iSectorID_A, iSectorID_B);
+      RG_CHECK(r);
+    }
   }
 
   r = rgSubmitStaticGeometries(rtmain.instance);
