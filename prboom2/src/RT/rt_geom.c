@@ -145,10 +145,42 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
 
   RgResult r = rgUploadGeometry(rtmain.instance, &info);
   RG_CHECK(r);
+  // TODO RT: flat with texcoord offset
+
+
+  if (ceiling && flat.light > 0.7f)
+  {
+    RgFloat3D center = { 0 };
+
+    for (int j = 0; j < sector_geometry.vertex_count; j++)
+    {
+      float *v = sector_geometry.positions[j].data;
+      center.data[0] += v[0];
+      center.data[1] += v[1];
+      center.data[2] += v[2];
+    }
+    center.data[0] /= (float)sector_geometry.vertex_count;
+    center.data[1] /= (float)sector_geometry.vertex_count;
+    center.data[2] /= (float)sector_geometry.vertex_count;
+
+    center.data[1] += flat.z - 0.2f;
+
+    RgSphericalLightUploadInfo light_info =
+    {
+      .uniqueID = RT_GetUniqueID_Flat(sectornum, ceiling),
+      .color = {flat.light,flat.light,flat.light},
+      .position = center,
+      .sectorID = 0,
+      .radius = 0.1f,
+      .falloffDistance = 4
+    };
+
+    RgResult r = rgUploadSphericalLight(rtmain.instance, &light_info);
+    RG_CHECK(r);
+  }
+
 
   RT_DestroySectorGeometryData(&sector_geometry);
-
-  // TODO RT: flat with texcoord offset
 }
 
 
