@@ -4532,6 +4532,7 @@ void M_DrawHelp (void)
 ////////////////////////////////////////////////////////////////////////////
 
 enum {
+  prog_rt,
   prog,
   prog_stub,
   prog_stub1,
@@ -4540,8 +4541,9 @@ enum {
 };
 
 enum {
-  cr_prog=0,
-  cr_adcr=2,
+  cr_progrt=0,
+  cr_prog=2,
+  cr_adcr=4,
 };
 
 #define CR_S 9
@@ -4552,7 +4554,10 @@ enum {
 
 setup_menu_t cred_settings[]={
 
-  {"Programmers",S_SKIP|S_CREDIT|S_LEFTJUST,m_null, CR_X, CR_Y + CR_S*prog + CR_SH*cr_prog},
+  {"Ray tracing support",S_SKIP|S_CREDIT|S_LEFTJUST,m_null, CR_X, CR_Y + CR_S*prog_rt + CR_SH*cr_progrt},
+  {"Sultim Tsyrendashiev",S_SKIP|S_CREDIT|S_LEFTJUST,m_null, CR_X2, CR_Y + CR_S*(prog_rt +1) + CR_SH*cr_progrt},
+
+  {"Programmers",S_SKIP | S_CREDIT | S_LEFTJUST,m_null, CR_X, CR_Y + CR_S * prog + CR_SH * cr_prog},
   {"Florian 'Proff' Schulze",S_SKIP|S_CREDIT|S_LEFTJUST,m_null, CR_X2, CR_Y + CR_S*(prog+1) + CR_SH*cr_prog},
   {"Colin Phipps",S_SKIP|S_CREDIT|S_LEFTJUST,m_null, CR_X2, CR_Y + CR_S*(prog+2) + CR_SH*cr_prog},
   {"Neil Stevens",S_SKIP|S_CREDIT|S_LEFTJUST,m_null, CR_X2, CR_Y + CR_S*(prog+3) + CR_SH*cr_prog},
