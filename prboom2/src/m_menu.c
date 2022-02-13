@@ -1599,9 +1599,12 @@ void M_ChangeMessages(int choice)
 
 void M_SizeDisplay(int choice)
 {
+  // RT: don't make screen smaller than window size
+  int minscreensize = V_GetMode() == VID_MODERT ? 7 : 0;
+
   switch(choice) {
   case 0:
-    if (screenSize > 0) {
+    if (screenSize > minscreensize) {
       screenblocks--;
       screenSize--;
       hud_displayed = 0;
@@ -5705,15 +5708,21 @@ dboolean M_Responder (event_t* ev) {
       if ((ch == key_menu_escape) || (ch == key_menu_backspace))
   {
     M_SetSetupMenuItemOn(set_menu_itemon);
+  #if !RT_SIMPLER_MENU
     if (ch == key_menu_escape) // Clear all menus
+    {
       M_ClearMenus();
+    }
     else // key_menu_backspace = return to Setup Menu
+  #endif
+    {
       if (currentMenu->prevMenu)
-        {
-    currentMenu = currentMenu->prevMenu;
-    itemOn = currentMenu->lastOn;
-    S_StartSound(NULL,sfx_swtchn);
-        }
+      {
+        currentMenu = currentMenu->prevMenu;
+        itemOn = currentMenu->lastOn;
+        S_StartSound(NULL, sfx_swtchn);
+      }
+    }
     ptr1->m_flags &= ~(S_HILITE|S_SELECT);// phares 4/19/98
     setup_active = false;
     set_keybnd_active = false;
@@ -6342,6 +6351,9 @@ void M_Init(void)
 
   switch(gamemode)
     {
+  #if RT_SIMPLER_MENU
+    case retail:
+  #endif
     case commercial:
       // This is used because DOOM 2 had only one HELP
       //  page. I use CREDIT as second page now, but
@@ -6369,8 +6381,10 @@ void M_Init(void)
       // We need to remove the fourth episode.
       EpiDef.numitems--;
       break;
+  #if !RT_SIMPLER_MENU
     case retail:
       // We are fine.
+  #endif
     default:
       break;
     }
