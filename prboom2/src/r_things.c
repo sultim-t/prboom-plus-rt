@@ -620,7 +620,7 @@ void R_SetClipPlanes(void)
 // Generates a vissprite for a thing if it might be visible.
 //
 
-static void R_ProjectSprite (int subsectornum, mobj_t* thing, int lightlevel)
+static void R_ProjectSprite (int sectornum, mobj_t* thing, int lightlevel)
 {
   fixed_t   gzt, gzb;               // killough 3/27/98
   fixed_t   tx;
@@ -645,7 +645,7 @@ static void R_ProjectSprite (int subsectornum, mobj_t* thing, int lightlevel)
 
   if (V_GetMode() == VID_MODERT)
   {
-    RT_ProjectSprite(subsectornum, thing, lightlevel);
+    RT_ProjectSprite(sectornum, thing, lightlevel);
     return;
   }
 
@@ -856,7 +856,7 @@ static void R_ProjectSprite (int subsectornum, mobj_t* thing, int lightlevel)
 // During BSP traversal, this adds sprites by sector.
 //
 // killough 9/18/98: add lightlevel as parameter, fixing underwater lighting
-void R_AddSprites(int subsectornum, subsector_t* subsec, int lightlevel)
+void R_AddSprites(int sectornum, subsector_t* subsec, int lightlevel)
 {
   sector_t* sec=subsec->sector;
   mobj_t *thing;
@@ -874,7 +874,7 @@ void R_AddSprites(int subsectornum, subsector_t* subsec, int lightlevel)
       for (thing = sec->thinglist; thing; thing = thing->snext)
       {
         if (!ALIVE(thing))
-          R_ProjectSprite(subsectornum, thing, lightlevel);
+          R_ProjectSprite(sectornum, thing, lightlevel);
       }
     }
   }
@@ -883,7 +883,7 @@ void R_AddSprites(int subsectornum, subsector_t* subsec, int lightlevel)
   {
     for (thing = sec->thinglist; thing; thing = thing->snext)
     {
-      R_ProjectSprite(subsectornum, thing, lightlevel);
+      R_ProjectSprite(sectornum, thing, lightlevel);
     }
   }
 }
@@ -896,7 +896,7 @@ void R_AddAllAliveMonstersSprites(void)
 {
   if (V_GetMode() == VID_MODERT)
   {
-    // RT: can't resolve subsectornum here for R_ProjectSprite 
+    // RT: can't resolve sectornum here for R_ProjectSprite 
     return;
   }
 

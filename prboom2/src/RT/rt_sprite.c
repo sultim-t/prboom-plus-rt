@@ -54,7 +54,7 @@ static const RgFloat3D normals[6] =
 };
 
 
-static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int subsectornum)
+static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int sectornum)
 {
   dboolean no_depth_test            = !!(sprite->flags & MF_NO_DEPTH_TEST);
   dboolean is_partial_invisibility  = !!(sprite->flags & MF_SHADOW);
@@ -138,7 +138,7 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int subse
       .pVertexData = positions,
       .pNormalData = normals,
       .pTexCoordLayerData = { texcoords },
-      .sectorID = subsectornum,
+      .sectorID = sectornum,
       .layerColors = { RG_COLOR_WHITE },
       .defaultRoughness = 0.5f,
       .defaultMetallicity = 0.1f,
@@ -183,9 +183,9 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int subse
 }
 
 
-void RT_ProjectSprite(int subsectornum, mobj_t *thing, int lightlevel)
+void RT_ProjectSprite(int sectornum, mobj_t *thing, int lightlevel)
 {
-  if (subsectornum < 0)
+  if (sectornum < 0 || sectornum >= numsectors)
   {
     assert(0);
     return;
@@ -416,7 +416,7 @@ void RT_ProjectSprite(int subsectornum, mobj_t *thing, int lightlevel)
     sprite.ur = 0.0f;
   }
 
-  DrawSprite(thing, &sprite, subsectornum);
+  DrawSprite(thing, &sprite, sectornum);
 
 unlock_patch:
   R_UnlockPatchNum(lump);

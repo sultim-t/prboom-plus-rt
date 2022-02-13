@@ -38,7 +38,7 @@ static float CalcLightLevel(int lightlevel)
 
 
 
-static void AddFlat(const int sectornum, const int subsectornum, dboolean ceiling, const visplane_t *plane)
+static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *plane)
 {
   struct
   {
@@ -129,7 +129,7 @@ static void AddFlat(const int sectornum, const int subsectornum, dboolean ceilin
     .pTexCoordLayerData = { sector_geometry.texcoords },
     .indexCount = sector_geometry.index_count,
     .pIndexData = sector_geometry.indices,
-    .sectorID = subsectornum,
+    .sectorID = sectornum,
     .layerColors = { RG_COLOR_WHITE },
     .defaultRoughness = 0.5f,
     .defaultMetallicity = 0.2f,
@@ -170,7 +170,7 @@ static void AddFlat(const int sectornum, const int subsectornum, dboolean ceilin
       .uniqueID = RT_GetUniqueID_Flat(sectornum, ceiling),
       .color = {flat.light,flat.light,flat.light},
       .position = center,
-      .sectorID = subsectornum,
+      .sectorID = sectornum,
       .radius = 0.1f,
       .falloffDistance = 4
     };
@@ -186,7 +186,7 @@ static void AddFlat(const int sectornum, const int subsectornum, dboolean ceilin
 
 void RT_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling)
 {
-  if (subsectornum < 0)
+  if (subsectornum < 0 || subsectornum >= numsubsectors)
   {
     assert(0);
     return;
@@ -201,12 +201,12 @@ void RT_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling)
 
   if (floor != NULL)
   {
-    AddFlat(subsector->sector->iSectorID, subsectornum, false, floor);
+    AddFlat(subsector->sector->iSectorID, false, floor);
   }
 
   if (ceiling != NULL)
   {
-    AddFlat(subsector->sector->iSectorID, subsectornum, true, ceiling);
+    AddFlat(subsector->sector->iSectorID, true, ceiling);
   }
 }
 
@@ -250,6 +250,7 @@ typedef struct
   const rt_texture_t *rttexture;
   byte flag;
   seg_t *seg;
+  int sectornum;
   int subsectornum;
 } RTPWall;
 
@@ -445,7 +446,7 @@ static void DrawWall(RTPWallType itemtype, int drawwallindex, RTPWall *wall)
     .pVertexData = positions,
     .pNormalData = NULL,
     .pTexCoordLayerData = { texcoords },
-    .sectorID = wall->subsectornum,
+    .sectorID = wall->sectornum,
     .layerColors = { color },
     .defaultRoughness = 0.5f,
     .defaultMetallicity = 0.2f,
@@ -533,7 +534,7 @@ static sector_t *FakeFlat(sector_t *sec, sector_t *tempsec,
 
 void RT_AddWall(int subsectornum, seg_t *seg)
 {
-  if (subsectornum < 0)
+  if (subsectornum < 0 || subsectornum >= numsubsectors)
   {
     assert(0);
     return;
@@ -564,6 +565,7 @@ void RT_AddWall(int subsectornum, seg_t *seg)
   linelength = lines[seg->linedef->iLineID].texel_length;
   wall.lineID = seg->linedef->iLineID;
   wall.subsectornum = subsectornum;
+  wall.sectornum = subsectors[subsectornum].sector->iSectorID;
   backseg = seg->sidedef != &sides[seg->linedef->sidenum[0]];
   wall.invert_normal = backseg;
 

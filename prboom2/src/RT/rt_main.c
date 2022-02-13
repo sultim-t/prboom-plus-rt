@@ -278,8 +278,9 @@ void RT_NewLevel(int gameepisode, int gamemap, int skytexture)
 
   r = rgStartNewScene(rtmain.instance);
   RG_CHECK(r);
-  
-  for (int i = 0; i <= numnodes; i++)
+
+
+  for (int i = 0; i < numsectors; i++)
   {
     r = rgSetPotentialVisibility(rtmain.instance, i, i);
     RG_CHECK(r);
@@ -388,35 +389,16 @@ uint64_t RT_GetUniqueID_Flat(int sectornum, dboolean ceiling)
 }
 
 
-int RT_GetSubsectorNum_Fixed(fixed_t x, fixed_t y)
+int RT_GetSectorNum_Fixed(fixed_t x, fixed_t y)
 {
-  // look R_PointInSubsector
-
-  if (numnodes == 0)
-  {
-    return 0;
-  }
-
-  // The head node is the last node output.
-  int bspnum = numnodes - 1;
-
-  while (!(bspnum & NF_SUBSECTOR))  // Found a subsector?
-  {
-    const node_t *bsp = &nodes[bspnum];
-
-    // Decide which side the view point is on.
-    int side = R_PointOnSide(x, y, bsp);
-    bspnum = bsp->children[side];
-  }
-
-  return bspnum == -1 ? 0 : bspnum & ~NF_SUBSECTOR;
+  return R_PointInSubsector(x, y)->sector->iSectorID;
 }
 
 
-int RT_GetSubsectorNum_Real(float real_x, float real_y)
+int RT_GetSectorNum_Real(float real_x, float real_y)
 {
   fixed_t x = (fixed_t)(real_x * MAP_SCALE);
   fixed_t y = (fixed_t)(real_y * MAP_SCALE);
 
-  return RT_GetSubsectorNum_Fixed(x, y);
+  return RT_GetSectorNum_Fixed(x, y);
 }

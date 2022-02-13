@@ -27,7 +27,7 @@ void RT_StartDrawScene(void);
 void RT_DrawScene(player_t *player);
 void RT_EndDrawScene(void);
 
-void RT_ProjectSprite(int subsectornum, mobj_t *thing, int lightlevel);
+void RT_ProjectSprite(int sectornum, mobj_t *thing, int lightlevel);
 void RT_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel);
 
 void RT_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling);
@@ -75,5 +75,5 @@ uint64_t RT_GetUniqueID_Wall(int lineid, int subsectornum, int drawwallindex);
 uint64_t RT_GetUniqueID_Flat(int sectornum, dboolean ceiling);
 
 
-int RT_GetSubsectorNum_Fixed(fixed_t x, fixed_t y);
-int RT_GetSubsectorNum_Real(float real_x, float real_y);
+int RT_GetSectorNum_Fixed(fixed_t x, fixed_t y);
+int RT_GetSectorNum_Real(float real_x, float real_y);

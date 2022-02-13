@@ -792,7 +792,7 @@ static void R_Subsector(const int num)
   {
     sub->sector->validcount = validcount;
 
-    R_AddSprites(num, sub, (floorlightlevel+ceilinglightlevel)/2);
+    R_AddSprites(sub->sector->iSectorID, sub, (floorlightlevel+ceilinglightlevel)/2);
 
 #ifdef GL_DOOM
     if (V_GetMode() == VID_MODEGL)
