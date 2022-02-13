@@ -209,6 +209,13 @@ void RT_EndFrame()
   }
 
 
+  RgDrawFrameTonemappingParams tm_params =
+  {
+    .minLogLuminance = -4,
+    .maxLogLuminance = 0,
+    .luminanceWhitePoint = 10 
+  };
+
   RgDrawFrameSkyParams sky_params =
   {
     .skyType = RG_SKY_TYPE_COLOR,
@@ -238,6 +245,7 @@ void RT_EndFrame()
     .currentTime = GetCurrentTime_Seconds_Realtime(),
     .disableEyeAdaptation = false,
     .useSqrtRoughnessForIndirect = false,
+    .pTonemappingParams = &tm_params,
     .pSkyParams = &sky_params,
     .pDebugParams = &debug_params,
   };
