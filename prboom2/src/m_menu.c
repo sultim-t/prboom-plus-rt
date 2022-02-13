@@ -1110,16 +1110,13 @@ void M_SaveGame (int choice)
 enum
 {
   general, // killough 10/98
-  // killough 4/6/98: move setup to be a sub-menu of OPTIONs
-  setup,                                                    // phares 3/21/98
-  endgame,
-  messages,
-  /*    detail, obsolete -- killough */
+  setup,   // phares 3/21/98  // killough 4/6/98: move setup to be a sub-menu of OPTIONs
   scrnsize,
   option_empty1,
-  mousesens,
-  /* option_empty2, submenu now -- killough */
   soundvol,
+  mousesens,
+  messages,
+  endgame,
   opt_end
 } options_e;
 
@@ -1130,14 +1127,12 @@ menuitem_t OptionsMenu[]=
   // killough 4/6/98: move setup to be a sub-menu of OPTIONs
   {1,"M_GENERL", M_General, 'g', "GENERAL"},      // killough 10/98
   {1,"M_SETUP",  M_Setup,   's', "SETUP"},        // phares 3/21/98
-  {1,"M_ENDGAM", M_EndGame,'e',  "END GAME"},
-  {1,"M_MESSG",  M_ChangeMessages,'m', "MESSAGES:"},
-  /*    {1,"M_DETAIL",  M_ChangeDetail,'g'},  unused -- killough */
   {2,"M_SCRNSZ", M_SizeDisplay,'s', "SCREEN SIZE"},
   {-1,"",0},
-  {1,"M_MSENS",  M_ChangeSensitivity,'m', "MOUSE SENSITIVITY"},
-  /* {-1,"",0},  replaced with submenu -- killough */
   {1,"M_SVOL",   M_Sound,'s', "SOUND VOLUME"},
+  {1,"M_MSENS",  M_ChangeSensitivity,'m', "MOUSE SENSITIVITY"},
+  {1,"M_MESSG",  M_ChangeMessages,'m', "MESSAGES:"},
+  {1,"M_ENDGAM", M_EndGame,'e',  "END GAME"},
 };
 
 menu_t OptionsDef =
@@ -5871,7 +5866,11 @@ dboolean M_Responder (event_t* ev) {
       return true;
     }
 
-  if (ch == key_menu_escape)                           // phares 3/7/98
+  if (ch == key_menu_escape 
+#if RT_SIMPLER_MENU
+      && !currentMenu->prevMenu
+#endif
+      )                           // phares 3/7/98
     {
       currentMenu->lastOn = itemOn;
       M_ClearMenus ();
@@ -5879,7 +5878,11 @@ dboolean M_Responder (event_t* ev) {
       return true;
     }
 
-  if (ch == key_menu_backspace)                        // phares 3/7/98
+  if (ch == key_menu_backspace 
+#if RT_SIMPLER_MENU
+      || ch == key_menu_escape
+#endif
+      )                        // phares 3/7/98
     {
       currentMenu->lastOn = itemOn;
 
