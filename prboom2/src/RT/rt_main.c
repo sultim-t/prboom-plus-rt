@@ -372,3 +372,29 @@ uint64_t RT_GetUniqueID_Flat(int sectornum, dboolean ceiling)
   UNIQUE_TYPE_CHECK_IF_ID_VALID(id);
   return UNIQUE_TYPE_FLAT | id;
 }
+
+int RT_GetSubsectorNum_Fixed(fixed_t x, fixed_t y)
+{
+  // The head node is the last node output.
+  int bspnum = numnodes - 1;
+
+  while (!(bspnum & NF_SUBSECTOR))  // Found a subsector?
+  {
+    const node_t *bsp = &nodes[bspnum];
+
+    // Decide which side the view point is on.
+    int side = R_PointOnSide(x, y, bsp);
+
+    bspnum = bsp->children[side];
+  }
+
+  return bspnum == -1 ? 0 : bspnum & ~NF_SUBSECTOR;
+}
+
+int RT_GetSubsectorNum_Real(float real_x, float real_y)
+{
+  fixed_t x = (fixed_t)(real_x * MAP_SCALE);
+  fixed_t y = (fixed_t)(real_y * MAP_SCALE);
+
+  return RT_GetSubsectorNum_Fixed(x, y);
+}

@@ -72,3 +72,7 @@ void RT_DestroySectorGeometryData(const rtsectordata_t *data);
 uint64_t RT_GetUniqueID_Thing(const mobj_t *thing);
 uint64_t RT_GetUniqueID_Wall(int lineid, int subsectornum, int drawwallindex);
 uint64_t RT_GetUniqueID_Flat(int sectornum, dboolean ceiling);
+
+
+int RT_GetSubsectorNum_Fixed(fixed_t x, fixed_t y);
+int RT_GetSubsectorNum_Real(float real_x, float real_y);
