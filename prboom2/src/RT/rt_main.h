@@ -27,11 +27,11 @@ void RT_StartDrawScene(void);
 void RT_DrawScene(player_t *player);
 void RT_EndDrawScene(void);
 
-void RT_ProjectSprite(mobj_t *thing, int lightlevel);
+void RT_ProjectSprite(int subsectornum, mobj_t *thing, int lightlevel);
 void RT_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel);
 
 void RT_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling);
-void RT_AddWall(seg_t *seg);
+void RT_AddWall(int subsectornum, seg_t *seg);
 
 void RT_DrawLine(float x0, float y0, float x1, float y1, byte r, byte g, byte b);
 void RT_DrawQuad(int x, int y, int width, int height, byte r, byte g, byte b);
@@ -63,6 +63,7 @@ typedef struct
   uint8_t *_internal_allocated;
 } rtsectordata_t;
 
+// Preprocess functions do not contain RTGL1 calls
 void RT_PreprocessLevel(void);
 rtsectordata_t RT_CreateSectorGeometryData(int sectornum, dboolean is_ceiling);
 void RT_GetLineInfo(int lineid, float *out_x1, float *out_z1, float *out_x2, float *out_z2);

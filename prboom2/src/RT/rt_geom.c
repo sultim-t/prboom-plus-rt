@@ -38,7 +38,7 @@ static float CalcLightLevel(int lightlevel)
 
 
 
-static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *plane)
+static void AddFlat(const int sectornum, const int subsectornum, dboolean ceiling, const visplane_t *plane)
 {
   struct
   {
@@ -129,7 +129,7 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
     .pTexCoordLayerData = { sector_geometry.texcoords },
     .indexCount = sector_geometry.index_count,
     .pIndexData = sector_geometry.indices,
-    .sectorID = 0, // sectornum,
+    .sectorID = subsectornum,
     .layerColors = { RG_COLOR_WHITE },
     .defaultRoughness = 0.5f,
     .defaultMetallicity = 0.2f,
@@ -170,7 +170,7 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
       .uniqueID = RT_GetUniqueID_Flat(sectornum, ceiling),
       .color = {flat.light,flat.light,flat.light},
       .position = center,
-      .sectorID = 0,
+      .sectorID = subsectornum,
       .radius = 0.1f,
       .falloffDistance = 4
     };
@@ -186,6 +186,13 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
 
 void RT_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling)
 {
+  if (subsectornum < 0)
+  {
+    assert(0);
+    return;
+  }
+
+
   subsector_t *subsector = &subsectors[subsectornum];
   if (subsector == NULL)
   {
@@ -194,12 +201,12 @@ void RT_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling)
 
   if (floor != NULL)
   {
-    AddFlat(subsector->sector->iSectorID, false, floor);
+    AddFlat(subsector->sector->iSectorID, subsectornum, false, floor);
   }
 
   if (ceiling != NULL)
   {
-    AddFlat(subsector->sector->iSectorID, true, ceiling);
+    AddFlat(subsector->sector->iSectorID, subsectornum, true, ceiling);
   }
 }
 
@@ -243,6 +250,7 @@ typedef struct
   const rt_texture_t *rttexture;
   byte flag;
   seg_t *seg;
+  int subsectornum;
 } RTPWall;
 
 
@@ -349,9 +357,7 @@ void AddSkyTexture(RTPWall *wall, int sky1, int sky2, int skytype)
   }
 }
 
-static int drawwallindex = 0;
-
-static void DrawWall(RTPWallType itemtype, RTPWall *wall)
+static void DrawWall(RTPWallType itemtype, int drawwallindex, RTPWall *wall)
 {
   // RT: force has_detail=false
 
@@ -428,12 +434,9 @@ static void DrawWall(RTPWallType itemtype, RTPWall *wall)
   };
 
 
-  extern int currentsubsectornum;
-
-
   RgGeometryUploadInfo info =
   {
-    .uniqueID = RT_GetUniqueID_Wall(wall->lineID, currentsubsectornum, drawwallindex),
+    .uniqueID = RT_GetUniqueID_Wall(wall->lineID, wall->subsectornum, drawwallindex),
     .flags = wall->invert_normal ? RG_GEOMETRY_UPLOAD_GENERATE_INVERTED_NORMALS_BIT : 0,
     .geomType = RG_GEOMETRY_TYPE_DYNAMIC,
     .passThroughType = RG_GEOMETRY_PASS_THROUGH_TYPE_ALPHA_TESTED,
@@ -442,18 +445,13 @@ static void DrawWall(RTPWallType itemtype, RTPWall *wall)
     .pVertexData = positions,
     .pNormalData = NULL,
     .pTexCoordLayerData = { texcoords },
-    .sectorID = 0, // sectornum,
+    .sectorID = wall->subsectornum,
     .layerColors = { color },
     .defaultRoughness = 0.5f,
     .defaultMetallicity = 0.2f,
     .defaultEmission = 0,
     .geomMaterial = { wall->rttexture ? wall->rttexture->rg_handle : RG_NO_MATERIAL },
-    .transform =
-      {
-        1,0,0,0,
-        0,1,0,0,
-        0,0,1,0
-      }
+    .transform = RG_TRANSFORM_IDENTITY
   };
 
   RgResult r = rgUploadGeometry(rtmain.instance, &info);
@@ -461,12 +459,15 @@ static void DrawWall(RTPWallType itemtype, RTPWall *wall)
 }
 
 
+static int rt_drawwallindex = 0;
+
+
 static void AddDrawWallItem(RTPWallType itemtype, RTPWall *wall)
 {
   // RT: force gl_blend_animations=false
 
-  DrawWall(itemtype, wall);
-  drawwallindex++;
+  DrawWall(itemtype, rt_drawwallindex, wall);
+  rt_drawwallindex++;
 }
 
 
@@ -530,9 +531,16 @@ static sector_t *FakeFlat(sector_t *sec, sector_t *tempsec,
 }
 
 
-void RT_AddWall(seg_t *seg)
+void RT_AddWall(int subsectornum, seg_t *seg)
 {
-  drawwallindex = 0;
+  if (subsectornum < 0)
+  {
+    assert(0);
+    return;
+  }
+
+
+  rt_drawwallindex = 0;
 
 
   const float tran_filter_pct = 66;
@@ -555,6 +563,7 @@ void RT_AddWall(seg_t *seg)
   //linerendered[side][seg->linedef->iLineID] = rendermarker;
   linelength = lines[seg->linedef->iLineID].texel_length;
   wall.lineID = seg->linedef->iLineID;
+  wall.subsectornum = subsectornum;
   backseg = seg->sidedef != &sides[seg->linedef->sidenum[0]];
   wall.invert_normal = backseg;
 

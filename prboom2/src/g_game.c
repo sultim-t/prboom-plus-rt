@@ -936,7 +936,7 @@ static void G_DoLoadLevel (void)
 
   if (V_GetMode() == VID_MODERT)
   {
-      RT_NewLevel(gameepisode, gamemap, skytexture);
+    RT_NewLevel(gameepisode, gamemap, skytexture);
   }
 }
 

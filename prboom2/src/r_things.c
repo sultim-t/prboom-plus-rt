@@ -620,7 +620,7 @@ void R_SetClipPlanes(void)
 // Generates a vissprite for a thing if it might be visible.
 //
 
-static void R_ProjectSprite (mobj_t* thing, int lightlevel)
+static void R_ProjectSprite (int subsectornum, mobj_t* thing, int lightlevel)
 {
   fixed_t   gzt, gzb;               // killough 3/27/98
   fixed_t   tx;
@@ -645,7 +645,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
 
   if (V_GetMode() == VID_MODERT)
   {
-    RT_ProjectSprite(thing, lightlevel);
+    RT_ProjectSprite(subsectornum, thing, lightlevel);
     return;
   }
 
@@ -856,7 +856,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
 // During BSP traversal, this adds sprites by sector.
 //
 // killough 9/18/98: add lightlevel as parameter, fixing underwater lighting
-void R_AddSprites(subsector_t* subsec, int lightlevel)
+void R_AddSprites(int subsectornum, subsector_t* subsec, int lightlevel)
 {
   sector_t* sec=subsec->sector;
   mobj_t *thing;
@@ -874,7 +874,7 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
       for (thing = sec->thinglist; thing; thing = thing->snext)
       {
         if (!ALIVE(thing))
-          R_ProjectSprite(thing, lightlevel);
+          R_ProjectSprite(subsectornum, thing, lightlevel);
       }
     }
   }
@@ -883,7 +883,7 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
   {
     for (thing = sec->thinglist; thing; thing = thing->snext)
     {
-      R_ProjectSprite(thing, lightlevel);
+      R_ProjectSprite(subsectornum, thing, lightlevel);
     }
   }
 }
@@ -894,6 +894,13 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
 //
 void R_AddAllAliveMonstersSprites(void)
 {
+  if (V_GetMode() == VID_MODERT)
+  {
+    // RT: can't resolve subsectornum here for R_ProjectSprite 
+    return;
+  }
+
+
   int i;
   sector_t* sec;
   mobj_t *thing;
@@ -906,7 +913,7 @@ void R_AddAllAliveMonstersSprites(void)
       if (ALIVE(thing))
       {
         thing->flags |= MF_NO_DEPTH_TEST;
-        R_ProjectSprite(thing, 255);
+        R_ProjectSprite(-1, thing, 255);
         thing->flags &= ~MF_NO_DEPTH_TEST;
       }
     }

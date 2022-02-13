@@ -42,8 +42,6 @@
 #include "lprintf.h"
 #include "RT/rt_main.h"
 
-int currentsubsectornum;
-
 seg_t     *curline;
 side_t    *sidedef;
 line_t    *linedef;
@@ -356,7 +354,7 @@ static dboolean CheckClip(seg_t * seg, sector_t * frontsector, sector_t * backse
 // and adds any visible pieces to the line list.
 //
 
-static void R_AddLine (seg_t *line)
+static void R_AddLine(int subsectornum, seg_t *line)
 {
   int      x1;
   int      x2;
@@ -370,7 +368,7 @@ static void R_AddLine (seg_t *line)
 
   if (V_GetMode() == VID_MODERT)
   {
-    RT_AddWall(line);
+    RT_AddWall(subsectornum, line);
     return;
   }
 
@@ -390,7 +388,7 @@ static void R_AddLine (seg_t *line)
       return;
     }
 
-    map_subsectors[currentsubsectornum] = 1;
+    map_subsectors[subsectornum] = 1;
 
     if (!line->backsector)
     {
@@ -600,7 +598,7 @@ static dboolean R_CheckBBox(const fixed_t *bspcoord)
 //
 // killough 1/31/98 -- made static, polished
 
-static void R_Subsector(int num)
+static void R_Subsector(const int num)
 {
   int         count;
   seg_t       *line;
@@ -623,7 +621,6 @@ static void R_Subsector(int num)
 #endif
 
   sub = &subsectors[num];
-  currentsubsectornum = num;
 
 #ifdef GL_DOOM
   if (V_GetMode() != VID_MODEGL || !gl_use_stencil || sub->sector->validcount != validcount)
@@ -795,7 +792,7 @@ static void R_Subsector(int num)
   {
     sub->sector->validcount = validcount;
 
-    R_AddSprites(sub, (floorlightlevel+ceilinglightlevel)/2);
+    R_AddSprites(num, sub, (floorlightlevel+ceilinglightlevel)/2);
 
 #ifdef GL_DOOM
     if (V_GetMode() == VID_MODEGL)
@@ -812,7 +809,7 @@ static void R_Subsector(int num)
   while (count--)
   {
     if (line->miniseg == false)
-      R_AddLine (line);
+      R_AddLine(num, line);
     line++;
     curline = NULL; /* cph 2001/11/18 - must clear curline now we're done with it, so R_ColourMap doesn't try using it for other things */
   }

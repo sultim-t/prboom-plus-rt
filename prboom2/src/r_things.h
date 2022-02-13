@@ -86,7 +86,7 @@ void R_DrawMaskedColumn(const rpatch_t *patch,
                         const rcolumn_t *prevcolumn,
                         const rcolumn_t *nextcolumn);
 void R_SortVisSprites(void);
-void R_AddSprites(subsector_t* subsec, int lightlevel);
+void R_AddSprites(int subsectornum, subsector_t* subsec, int lightlevel);
 void R_AddAllAliveMonstersSprites(void);
 void R_DrawPlayerSprites(void);
 void R_InitSpritesRes(void);

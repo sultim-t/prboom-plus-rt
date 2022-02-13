@@ -273,6 +273,20 @@ void RT_EndFrame()
 void RT_NewLevel(int gameepisode, int gamemap, int skytexture)
 {
   // RT_PreprocessLevel was already called
+
+  RgResult r;
+
+  r = rgStartNewScene(rtmain.instance);
+  RG_CHECK(r);
+  
+  for (int i = 0; i <= numnodes; i++)
+  {
+    r = rgSetPotentialVisibility(rtmain.instance, i, i);
+    RG_CHECK(r);
+  }
+
+  r = rgSubmitStaticGeometries(rtmain.instance);
+  RG_CHECK(r);
 }
 
 
@@ -373,8 +387,16 @@ uint64_t RT_GetUniqueID_Flat(int sectornum, dboolean ceiling)
   return UNIQUE_TYPE_FLAT | id;
 }
 
+
 int RT_GetSubsectorNum_Fixed(fixed_t x, fixed_t y)
 {
+  // look R_PointInSubsector
+
+  if (numnodes == 0)
+  {
+    return 0;
+  }
+
   // The head node is the last node output.
   int bspnum = numnodes - 1;
 
@@ -384,12 +406,12 @@ int RT_GetSubsectorNum_Fixed(fixed_t x, fixed_t y)
 
     // Decide which side the view point is on.
     int side = R_PointOnSide(x, y, bsp);
-
     bspnum = bsp->children[side];
   }
 
   return bspnum == -1 ? 0 : bspnum & ~NF_SUBSECTOR;
 }
+
 
 int RT_GetSubsectorNum_Real(float real_x, float real_y)
 {

@@ -634,6 +634,14 @@ static fixed_t R_PointToDist(fixed_t x, fixed_t y)
 //
 void R_StoreWallRange(const int start, const int stop)
 {
+  if (V_GetMode() == VID_MODERT)
+  {
+    // RT: can't resolve subsectornum here for RT_AddWall 
+    assert(0);
+    return;
+  }
+
+
   const int shift_bits = 1;
   int_64_t dx, dy, dx1, dy1, len, dist;
 
@@ -652,7 +660,7 @@ void R_StoreWallRange(const int start, const int stop)
   if (V_GetMode() == VID_MODERT)
   {
     ds_p++->curline = curline;
-    RT_AddWall(curline);
+    RT_AddWall(-1, curline);
 
     return;
   }
