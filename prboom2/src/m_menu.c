@@ -312,6 +312,21 @@ void M_ChangeVideoMode(void);
 void M_ChangeUseGLSurface(void);
 void M_ChangeApplyPalette(void);
 
+
+#if RT_CUSTOM_MENU
+void M_RT_Options(int choice);
+void M_RT_Hud(int choice);
+void M_RT_ChangeSensitivity(int choice);
+void M_RT_KeyBindings(int choice);
+void M_RT_Sound(int choice);
+
+void M_RT_DrawOptions(void);
+
+const char *M_RT_GetHudSwitchName(void);
+int M_RT_GetHudSwitchStringHeight(void);
+#endif
+
+
 menu_t NewDef;                                              // phares 5/04/98
 
 // end of prototypes added to support Setup Menus and Extended HELP screens
@@ -350,7 +365,11 @@ enum
 menuitem_t MainMenu[]=
 {
   {1,"M_NGAME", M_NewGame, 'n'},
+#if RT_CUSTOM_MENU
+  {1,"M_OPTION",M_RT_Options, 'o'},
+#else
   {1,"M_OPTION",M_Options, 'o'},
+#endif
   {1,"M_LOADG", M_LoadGame,'l'},
   {1,"M_SAVEG", M_SaveGame,'s'},
   // Another hickup with Special edition.
@@ -1100,6 +1119,64 @@ void M_SaveGame (int choice)
   M_ReadSaveStrings();
 }
 
+
+
+#if RT_CUSTOM_MENU
+
+/////////////////////////////
+//
+// OPTIONS MENU - RT
+//
+
+enum
+{
+  RT_OPTIONS_GRAPHICS,
+  RT_OPTIONS_HUD,
+  RT_OPTIONS_KEYBINDINGS,
+  RT_OPTIONS_MOUSE,
+  RT_OPTIONS_SOUNDVOLUME,
+
+  RT_OPTIONS_E_COUNT
+} rt_options_e;
+
+menuitem_t RT_OptionsMenu[] =
+{
+  {1,"M_N_GFX",     M_General,              'g', "GRAPHICS"},
+  {2,"M_N_HUD",     M_RT_Hud,               's', "HUD: "},
+  {1,"M_N_KEYBND",  M_RT_KeyBindings,       'k', "KEY BINDINGS"},
+  {1,"M_N_MOUSE",   M_RT_ChangeSensitivity, 'm', "MOUSE"},
+  {1,"M_N_SND",     M_RT_Sound,             's', "SOUND"},
+};
+
+menu_t RT_OptionsDef =
+{
+  RT_OPTIONS_E_COUNT,
+  &MainDef,
+  RT_OptionsMenu,
+  M_RT_DrawOptions,
+  60,37,
+  0
+};
+
+void M_RT_DrawOptions(void)
+{
+  V_DrawNamePatch(108, 15, 0, "M_OPTTTL", CR_DEFAULT, VPT_STRETCH);
+
+  M_WriteText(RT_OptionsDef.x + M_StringWidth("HUD: "),
+              RT_OptionsDef.y + 8 - (M_RT_GetHudSwitchStringHeight() / 2) + LINEHEIGHT * RT_OPTIONS_HUD,
+              M_RT_GetHudSwitchName(), CR_DEFAULT);
+
+}
+
+void M_RT_Options(int choice)
+{
+  M_SetupNextMenu(&RT_OptionsDef);
+}
+
+#endif
+
+
+
 /////////////////////////////
 //
 // OPTIONS MENU
@@ -1288,6 +1365,18 @@ menu_t SoundDef =
   0
 };
 
+#if RT_CUSTOM_MENU
+menu_t RT_SoundDef =
+{
+  sound_end,
+  &RT_OptionsDef,
+  SoundMenu,
+  M_DrawSound,
+  80,64,
+  0
+};
+#endif
+
 //
 // Change Sfx & Music volumes
 //
@@ -1306,6 +1395,13 @@ void M_Sound(int choice)
 {
   M_SetupNextMenu(&SoundDef);
 }
+
+#if RT_CUSTOM_MENU
+void M_RT_Sound(int choice)
+{
+  M_SetupNextMenu(&RT_SoundDef);
+}
+#endif
 
 void M_SfxVol(int choice)
 {
@@ -1392,6 +1488,18 @@ menu_t MouseDef =
   0
 };
 
+#if RT_CUSTOM_MENU
+menu_t RT_MouseDef =
+{
+  mouse_end,
+  &RT_OptionsDef,
+  MouseMenu,
+  M_DrawMouse,
+  60,37,//e6y
+  0
+};
+#endif
+
 
 // I'm using a scale of 100 since I don't know what's normal -- killough.
 
@@ -1441,6 +1549,13 @@ void M_ChangeSensitivity(int choice)
   //      break;
   //      }
 }
+
+#if RT_CUSTOM_MENU
+void M_RT_ChangeSensitivity(int choice)
+{
+  M_SetupNextMenu(&RT_MouseDef);
+}
+#endif
 
 void M_MouseHoriz(int choice)
 {
@@ -1594,12 +1709,14 @@ void M_ChangeMessages(int choice)
 
 void M_SizeDisplay(int choice)
 {
-  // RT: don't make screen smaller than window size
-  int minscreensize = V_GetMode() == VID_MODERT ? 7 : 0;
+  if (V_GetMode() == VID_MODERT)
+  {
+    M_RT_Hud(choice);
+  }
 
   switch(choice) {
   case 0:
-    if (screenSize > minscreensize) {
+    if (screenSize > 0) {
       screenblocks--;
       screenSize--;
       hud_displayed = 0;
@@ -1616,6 +1733,99 @@ void M_SizeDisplay(int choice)
   }
   R_SetViewSize (screenblocks /*, detailLevel obsolete -- killough */);
 }
+
+#if RT_CUSTOM_MENU
+typedef enum
+{
+  RT_HUD_SWITCH_NONE,
+  RT_HUD_SWITCH_MINIMAL,
+  RT_HUD_SWITCH_CLASSIC,
+  RT_HUD_SWITCH_CUSTOM,
+} rt_hud_switch_e;
+
+#define RT_HUD_SWITCH_NAME_CLASSIC "CLASSIC"
+#define RT_HUD_SWITCH_NAME_MINIMAL "MINIMAL"
+#define RT_HUD_SWITCH_NAME_NONE    "NONE"
+#define RT_HUD_SWITCH_NAME_CUSTOM  "CUSTOM"
+
+static rt_hud_switch_e GetHudSwitch(void)
+{
+  return
+    screenblocks == 10 ? RT_HUD_SWITCH_CLASSIC :
+    screenblocks == 11 && hud_displayed ? RT_HUD_SWITCH_MINIMAL :
+    screenblocks == 11 && !hud_displayed ? RT_HUD_SWITCH_NONE :
+    RT_HUD_SWITCH_CUSTOM;
+}
+
+static void ApplyHudSwitch(rt_hud_switch_e h)
+{
+  switch(h)
+  {
+    case RT_HUD_SWITCH_CLASSIC:
+    case RT_HUD_SWITCH_CUSTOM:
+      screenblocks = 10;
+      hud_displayed = false;
+      break;
+
+    case RT_HUD_SWITCH_MINIMAL:
+      screenblocks = 11;
+      hud_displayed = true;
+      break;
+
+    case RT_HUD_SWITCH_NONE:
+      screenblocks = 11;
+      hud_displayed = false;
+      break;
+
+    default: 
+      break;
+  }
+
+  // make compatible with prboom options
+  screenSize = screenblocks - 3;
+
+  R_SetViewSize(screenblocks);
+}
+
+const char *M_RT_GetHudSwitchName(void)
+{
+  switch (GetHudSwitch())
+  {
+    case RT_HUD_SWITCH_CLASSIC: return RT_HUD_SWITCH_NAME_CLASSIC;
+    case RT_HUD_SWITCH_MINIMAL: return RT_HUD_SWITCH_NAME_MINIMAL;
+    case RT_HUD_SWITCH_NONE:    return RT_HUD_SWITCH_NAME_NONE;
+    default:                    return RT_HUD_SWITCH_NAME_CUSTOM;
+  }
+}
+
+int M_RT_GetHudSwitchStringHeight(void)
+{
+  return M_StringHeight(RT_HUD_SWITCH_NAME_CLASSIC RT_HUD_SWITCH_NAME_MINIMAL RT_HUD_SWITCH_NAME_NONE RT_HUD_SWITCH_NAME_CUSTOM);
+}
+
+void M_RT_Hud(int choice)
+{
+  rt_hud_switch_e h = GetHudSwitch();
+  const int count = RT_HUD_SWITCH_CUSTOM;
+
+  if (h == RT_HUD_SWITCH_CUSTOM)
+  {
+    ApplyHudSwitch(RT_HUD_SWITCH_CLASSIC);
+    return;
+  }
+
+  if (choice == 0)
+  {
+    // prev
+    ApplyHudSwitch((h - 1 + count) % count);
+  }
+  else
+  {
+    // next
+    ApplyHudSwitch((h + 1) % count);
+  }
+}
+#endif
 
 //
 // End of Original Menus
@@ -1810,6 +2020,18 @@ menu_t KeybndDef =
   34,5,      // skull drawn here
   0
 };
+
+#if RT_CUSTOM_MENU
+menu_t RT_KeybndDef =
+{
+  generic_setup_end,
+  &RT_OptionsDef,
+  Generic_Setup,
+  M_DrawKeybnd,
+  34,5,      // skull drawn here
+  0
+};
+#endif
 
 menu_t WeaponDef =
 {
@@ -2657,6 +2879,26 @@ void M_KeyBindings(int choice)
   while (current_setup_menu[set_menu_itemon++].m_flags & S_SKIP);
   current_setup_menu[--set_menu_itemon].m_flags |= S_HILITE;
 }
+
+#if RT_CUSTOM_MENU
+// copy of M_KeyBindings, but different next menu
+void M_RT_KeyBindings(int choice)
+{
+  M_SetupNextMenu(&RT_KeybndDef);
+
+  setup_active = true;
+  setup_screen = ss_keys;
+  set_keybnd_active = true;
+  setup_select = false;
+  default_verify = false;
+  setup_gather = false;
+  mult_screens_index = 0;
+  current_setup_menu = keys_settings[0];
+  set_menu_itemon = M_GetSetupMenuItemOn();
+  while (current_setup_menu[set_menu_itemon++].m_flags & S_SKIP);
+  current_setup_menu[--set_menu_itemon].m_flags |= S_HILITE;
+}
+#endif
 
 // The drawing part of the Key Bindings Setup initialization. Draw the
 // background, title, instruction line, and items.
@@ -5708,7 +5950,7 @@ dboolean M_Responder (event_t* ev) {
       if ((ch == key_menu_escape) || (ch == key_menu_backspace))
   {
     M_SetSetupMenuItemOn(set_menu_itemon);
-  #if !RT_SIMPLER_MENU
+  #if !RT_CUSTOM_MENU
     if (ch == key_menu_escape) // Clear all menus
     {
       M_ClearMenus();
@@ -5872,7 +6114,7 @@ dboolean M_Responder (event_t* ev) {
     }
 
   if (ch == key_menu_escape 
-#if RT_SIMPLER_MENU
+#if RT_CUSTOM_MENU
       && !currentMenu->prevMenu
 #endif
       )                           // phares 3/7/98
@@ -5884,7 +6126,7 @@ dboolean M_Responder (event_t* ev) {
     }
 
   if (ch == key_menu_backspace 
-#if RT_SIMPLER_MENU
+#if RT_CUSTOM_MENU
       || ch == key_menu_escape
 #endif
       )                        // phares 3/7/98
@@ -6359,7 +6601,7 @@ void M_Init(void)
 
   switch(gamemode)
     {
-  #if RT_SIMPLER_MENU
+  #if RT_CUSTOM_MENU
     case retail:
   #endif
     case commercial:
@@ -6389,7 +6631,7 @@ void M_Init(void)
       // We need to remove the fourth episode.
       EpiDef.numitems--;
       break;
-  #if !RT_SIMPLER_MENU
+  #if !RT_CUSTOM_MENU
     case retail:
       // We are fine.
   #endif
