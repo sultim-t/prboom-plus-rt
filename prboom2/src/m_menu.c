@@ -1131,10 +1131,10 @@ void M_SaveGame (int choice)
 enum
 {
   RT_OPTIONS_GRAPHICS,
-  RT_OPTIONS_HUD,
+  RT_OPTIONS_SOUNDVOLUME,
   RT_OPTIONS_KEYBINDINGS,
   RT_OPTIONS_MOUSE,
-  RT_OPTIONS_SOUNDVOLUME,
+  RT_OPTIONS_HUD,
 
   RT_OPTIONS_E_COUNT
 } rt_options_e;
@@ -1142,10 +1142,10 @@ enum
 menuitem_t RT_OptionsMenu[] =
 {
   {1,"M_N_GFX",     M_General,              'g', "GRAPHICS"},
-  {2,"M_N_HUD",     M_RT_Hud,               's', "HUD: "},
-  {1,"M_N_KEYBND",  M_RT_KeyBindings,       'k', "KEY BINDINGS"},
-  {1,"M_N_MOUSE",   M_RT_ChangeSensitivity, 'm', "MOUSE"},
   {1,"M_N_SND",     M_RT_Sound,             's', "SOUND"},
+  {1,"M_N_KEYBND",  M_RT_KeyBindings,       'k', "CONTROLS"},
+  {1,"M_N_MOUSE",   M_RT_ChangeSensitivity, 'm', "MOUSE"},
+  {2,"M_N_HUD",     M_RT_Hud,               'h', "HUD: "},
 };
 
 menu_t RT_OptionsDef =
@@ -1154,7 +1154,7 @@ menu_t RT_OptionsDef =
   &MainDef,
   RT_OptionsMenu,
   M_RT_DrawOptions,
-  60,37,
+  60,60,
   0
 };
 
@@ -1162,7 +1162,7 @@ void M_RT_DrawOptions(void)
 {
   V_DrawNamePatch(108, 15, 0, "M_OPTTTL", CR_DEFAULT, VPT_STRETCH);
 
-  M_WriteText(RT_OptionsDef.x + M_StringWidth("HUD: "),
+  M_WriteText(RT_OptionsDef.x + M_StringWidth("HUD:  "),
               RT_OptionsDef.y + 8 - (M_RT_GetHudSwitchStringHeight() / 2) + LINEHEIGHT * RT_OPTIONS_HUD,
               M_RT_GetHudSwitchName(), CR_DEFAULT);
 
