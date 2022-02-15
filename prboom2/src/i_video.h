@@ -54,6 +54,16 @@ extern int render_vsync;
 extern int render_screen_multiply;
 extern int integer_scaling;
 
+typedef struct
+{
+  // NOTE: dlss, fsr, renderscale - are mutually exclusive
+  int dlss, fsr;              // 0 - off, [1,4] - quality from highest to lowest
+  int renderscale;            // in percents
+  int bloom_intensity;        // in percents
+  int muzzleflash_intensity;  // in percents
+} rt_settings_t;
+extern rt_settings_t rt_settings;
+
 extern SDL_Window *sdl_window;
 extern SDL_Renderer *sdl_renderer;
 

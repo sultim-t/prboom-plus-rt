@@ -499,6 +499,18 @@ default_t defaults[] =
   {"patch_edges",{(int*)&drawvars.patch_edges},{RDRAW_MASKEDCOLUMNEDGE_SQUARE},
    RDRAW_MASKEDCOLUMNEDGE_SQUARE, RDRAW_MASKEDCOLUMNEDGE_SLOPED, def_int,ss_none},
 
+  {"Ray tracing settings",{NULL},{0},UL,UL,def_none,ss_none},
+  {"rt_dlss",{&rt_settings.dlss},{0},0,4,
+   def_int,ss_none },
+  {"rt_fsr",{&rt_settings.fsr},{0},0,4,
+   def_int,ss_none },
+  {"rt_renderscale",{&rt_settings.renderscale},{100},20,150,
+   def_int,ss_none },
+  {"rt_bloom_intensity",{&rt_settings.bloom_intensity},{100},0,1000,
+   def_int,ss_none },
+  {"rt_muzzleflash_intensity",{&rt_settings.muzzleflash_intensity},{100},0,200,
+   def_int,ss_none},
+
   {"OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"gl_compatibility", {&gl_compatibility},  {0},0,1,
    def_bool,ss_stat},

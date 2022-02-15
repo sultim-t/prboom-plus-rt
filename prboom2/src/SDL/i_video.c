@@ -117,6 +117,7 @@ int exclusive_fullscreen;
 int render_vsync;
 int render_screen_multiply;
 int integer_scaling;
+rt_settings_t rt_settings = { 0 };
 SDL_Surface *screen;
 static SDL_Surface *buffer;
 SDL_Window *sdl_window;

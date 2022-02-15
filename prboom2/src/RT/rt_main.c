@@ -170,6 +170,71 @@ static RgExtent2D GetCurrentHWNDSize()
 }
 
 
+static RgExtent2D GetScaledResolution(int renderscale)
+{
+  RgExtent2D window_size = GetCurrentHWNDSize();
+
+  if (95 < renderscale && renderscale < 105)
+  {
+    return window_size;
+  }
+
+  RgExtent2D scaled_size = {
+    .width  = BETWEEN(320, 3840, (int)( (float)window_size.width  * (float)renderscale / 100.0f) ),
+    .height = BETWEEN(200, 2160, (int)( (float)window_size.height * (float)renderscale / 100.0f) ),
+  };
+  return scaled_size;
+}
+
+
+static RgRenderResolutionMode GetResolutionMode(int dlss, int fsr) // 0 - off, 1-4 - from highest to lowest
+{
+  // can't be both
+  assert(dlss > 0 && fsr > 0);
+
+  switch (dlss)
+  {
+    case 1:   return RG_RENDER_RESOLUTION_MODE_QUALITY;
+    case 2:   return RG_RENDER_RESOLUTION_MODE_BALANCED;
+    case 3:   return RG_RENDER_RESOLUTION_MODE_PERFORMANCE;
+    case 4:   return RG_RENDER_RESOLUTION_MODE_ULTRA_PERFORMANCE;
+    default:  break;
+  }
+
+  switch (fsr)
+  {
+    case 1:   return RG_RENDER_RESOLUTION_MODE_ULTRA_QUALITY;
+    case 2:   return RG_RENDER_RESOLUTION_MODE_QUALITY;
+    case 3:   return RG_RENDER_RESOLUTION_MODE_BALANCED;
+    case 4:   return RG_RENDER_RESOLUTION_MODE_PERFORMANCE;
+    default:  break;
+  }
+
+  return RG_RENDER_RESOLUTION_MODE_CUSTOM;
+}
+
+
+static void NormalizeRTSettings(rt_settings_t *settings)
+{
+  // normalize resolution params
+  if (settings->dlss > 0)
+  {
+    settings->fsr = 0;
+    settings->renderscale = 100;
+  }
+  else if (settings->fsr > 0)
+  {
+    settings->dlss = 0;
+    settings->renderscale = 100;
+  }
+  else if (settings->renderscale == 100)
+  {
+    settings->fsr = 0;
+    settings->dlss = 0;
+  }
+}
+
+
 void RT_StartFrame(void)
 {
   RgStartFrameInfo info =
@@ -210,6 +275,16 @@ void RT_EndFrame()
   }
 
 
+  NormalizeRTSettings(&rt_settings);
+
+  RgDrawFrameRenderResolutionParams resolution_params =
+  {
+    .upscaleTechnique = rt_settings.dlss > 0 ? RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS : rt_settings.fsr > 0 ? RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR : RG_RENDER_UPSCALE_TECHNIQUE_LINEAR,
+    .sharpenTechnique = RG_RENDER_SHARPEN_TECHNIQUE_NONE,
+    .resolutionMode = GetResolutionMode(rt_settings.dlss, rt_settings.fsr),
+    .renderSize = GetScaledResolution(rt_settings.renderscale)
+  };
+
   RgDrawFrameTonemappingParams tm_params =
   {
     .minLogLuminance = -4,
@@ -246,6 +321,7 @@ void RT_EndFrame()
     .currentTime = GetCurrentTime_Seconds_Realtime(),
     .disableEyeAdaptation = false,
     .useSqrtRoughnessForIndirect = false,
+    .pRenderResolutionParams = &resolution_params,
     .pTonemappingParams = &tm_params,
     .pSkyParams = &sky_params,
     .pDebugParams = &debug_params,
