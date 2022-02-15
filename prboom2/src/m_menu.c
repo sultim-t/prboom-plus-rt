@@ -1141,6 +1141,7 @@ enum
   RT_OPTIONS_KEYBINDINGS,
   RT_OPTIONS_MOUSE,
   RT_OPTIONS_HUD,
+  RT_OPTIONS_PRBOOM,
 
   RT_OPTIONS_E_COUNT
 } rt_options_e;
@@ -1152,6 +1153,7 @@ menuitem_t RT_OptionsMenu[] =
   {1,"M_N_KEYBND",  M_RT_KeyBindings,       'k', "CONTROLS"},
   {1,"M_N_MOUSE",   M_RT_ChangeSensitivity, 'm', "MOUSE"},
   {2,"M_N_HUD",     M_RT_Hud,               'h', "HUD: "},
+  {1,"M_N_PRBOOM",  M_Options,              'p', "PRBOOM"},
 };
 
 menu_t RT_OptionsDef =
@@ -1160,7 +1162,7 @@ menu_t RT_OptionsDef =
   &MainDef,
   RT_OptionsMenu,
   M_RT_Options_Draw,
-  60,60,
+  80,60,
   0
 };
 
@@ -1221,7 +1223,11 @@ menuitem_t OptionsMenu[]=
 menu_t OptionsDef =
 {
   opt_end,
+#if RT_CUSTOM_MENU
+  &RT_OptionsDef,
+#else
   &MainDef,
+#endif
   OptionsMenu,
   M_DrawOptions,
   60,37,
@@ -3922,19 +3928,21 @@ static const char *RT_options_muzzleflash_intensity[] =
   NULL
 };
 
+#define RT_X 180
+#define RT_Y 56
+
 setup_menu_t RT_GraphicsSettings[] =
 {
-  // {"Video",  S_SKIP | S_TITLE,     m_null, G_X, G_Y + 1 * 8},
-  {"Video mode",  S_CHOICE, m_null, G_X, G_Y + 2 * 8, {"videomode"}, 0, 0, M_ChangeVideoMode, RT_simpler_videomodes},
-  {"Resolution",  S_CHOICE, m_null, G_X, G_Y + 3 * 8, {"screen_resolution"}, 0, 0, M_ChangeVideoMode, screen_resolutions_list},
-  {"Fullscreen",  S_YESNO,  m_null, G_X, G_Y + 4 * 8, {"use_fullscreen"}, 0, 0, M_ChangeFullScreen},
-  {"VSync",       S_YESNO,  m_null, G_X, G_Y + 5 * 8, {"render_vsync"}, 0, 0, M_ChangeVsync},
+  {"Video mode",  S_CHOICE, m_null, RT_X, RT_Y + 0 * 8, {"videomode"}, 0, 0, M_ChangeVideoMode, RT_simpler_videomodes},
+  {"Resolution",  S_CHOICE, m_null, RT_X, RT_Y + 1 * 8, {"screen_resolution"}, 0, 0, M_ChangeVideoMode, screen_resolutions_list},
+  {"Fullscreen",  S_YESNO,  m_null, RT_X, RT_Y + 2 * 8, {"use_fullscreen"}, 0, 0, M_ChangeFullScreen},
+  {"VSync",       S_YESNO,  m_null, RT_X, RT_Y + 3 * 8, {"render_vsync"}, 0, 0, M_ChangeVsync},
 
-  {"Nvidia DLSS",   S_CHOICE,  m_null, G_X, G_Y + 6 * 8, {"rt_dlss"}, 0, 0, M_RT_ResolutionSettings_DLSS, RT_options_dlss },
-  {"AMD FSR",       S_CHOICE,  m_null, G_X, G_Y + 7 * 8, {"rt_fsr"}, 0, 0, M_RT_ResolutionSettings_FSR, RT_options_fsr },
-  {"Render scale",  S_CHOICE,  m_null, G_X, G_Y + 8 * 8, {"rt_renderscale"}, 0, 0, M_RT_ResolutionSettings_RenderScale, RT_options_renderscale },
-  {"Bloom",         S_CHOICE,  m_null, G_X, G_Y + 9 * 8, {"rt_bloom_intensity"}, 0, 0, NULL, RT_options_bloom_intensity },
-  {"Muzzle flash light",         S_CHOICE,  m_null, G_X, G_Y +10 * 8, {"rt_muzzleflash_intensity"}, 0, 0, NULL, RT_options_muzzleflash_intensity },
+  {"Nvidia DLSS",   S_CHOICE,  m_null, RT_X, RT_Y + 5 * 8, {"rt_dlss"}, 0, 0, M_RT_ResolutionSettings_DLSS, RT_options_dlss },
+  {"AMD FSR",       S_CHOICE,  m_null, RT_X, RT_Y + 6 * 8, {"rt_fsr"}, 0, 0, M_RT_ResolutionSettings_FSR, RT_options_fsr },
+  {"Render scale",  S_CHOICE,  m_null, RT_X, RT_Y + 7 * 8, {"rt_renderscale"}, 0, 0, M_RT_ResolutionSettings_RenderScale, RT_options_renderscale },
+  {"Bloom",         S_CHOICE,  m_null, RT_X, RT_Y + 8 * 8, {"rt_bloom_intensity"}, 0, 0, NULL, RT_options_bloom_intensity },
+  {"Muzzle flash light",  S_CHOICE,  m_null, RT_X, RT_Y + 9 * 8, {"rt_muzzleflash_intensity"}, 0, 0, NULL, RT_options_muzzleflash_intensity },
 
   {0,S_SKIP | S_END,m_null}
 };
