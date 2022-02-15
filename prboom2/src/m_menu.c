@@ -5569,6 +5569,7 @@ dboolean M_Responder (event_t* ev) {
     return true;
     }
 
+#if !RT_CUSTOM_MENU
   if (ptr1->m_flags & S_YESNO) // yes or no setting?
     {
     if (ch == key_menu_enter) {
@@ -5602,6 +5603,7 @@ dboolean M_Responder (event_t* ev) {
     M_SelectDone(ptr1);                           // phares 4/17/98
     return true;
     }
+#endif
 
   if (ptr1->m_flags & S_CRITEM)
     {
@@ -6135,6 +6137,59 @@ dboolean M_Responder (event_t* ev) {
     ptr1->m_flags |= S_SELECT;
     setup_select = true;
     S_StartSound(NULL,sfx_itemup);
+
+#if RT_CUSTOM_MENU
+    // ----------------------------------------------------- //
+    // ----------------------------------------------------- //
+    // ----------------------------------------------------- //
+    //   RT: NOTE: THIS IS A COPY FROM LINES 5573-5605       //
+    //             SO CLICKING ON A YES-NO BUTTON WILL       //
+    //             BE APPLIED IMMEDIATELY, I.E.              //
+    //             WITHOUT CLICKING ENTER 2 TIMES            //
+    // ----------------------------------------------------- //
+    // ----------------------------------------------------- //
+    // ----------------------------------------------------- //
+    {
+      {
+        if (ptr1->m_flags & S_YESNO) // yes or no setting?
+        {
+          if (ch == key_menu_enter)
+          {
+            *ptr1->var.def->location.pi = !*ptr1->var.def->location.pi; // killough 8/15/98
+
+            // phares 4/14/98:
+            // If not in demoplayback, demorecording, or netgame,
+            // and there's a second variable in var2, set that
+            // as well
+
+            // killough 8/15/98: add warning messages
+
+            if (ptr1->m_flags & (S_LEVWARN | S_PRGWARN))
+              warn_about_changes(ptr1->m_flags &    // killough 10/98
+                                 (S_LEVWARN | S_PRGWARN));
+            else
+              M_UpdateCurrent(ptr1->var.def);
+
+            if (ptr1->action)      // killough 10/98
+              ptr1->action();
+
+            //e6y
+          #ifdef GL_DOOM
+            {
+              extern dboolean gl_arb_multitexture;
+              if ((ptr1->m_flags & S_CANT_GL_ARB_MULTITEXTURE) && !gl_arb_multitexture)
+                warn_about_changes(ptr1->m_flags & S_CANT_GL_ARB_MULTITEXTURE);
+            }
+          #endif
+          }
+          M_SelectDone(ptr1);                           // phares 4/17/98
+          setup_select = false;
+          return true;
+        }
+      }
+    }
+#endif
+
     return true;
   }
 
