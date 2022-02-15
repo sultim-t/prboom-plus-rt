@@ -190,7 +190,7 @@ static RgExtent2D GetScaledResolution(int renderscale)
 static RgRenderResolutionMode GetResolutionMode(int dlss, int fsr) // 0 - off, 1-4 - from highest to lowest
 {
   // can't be both
-  assert(dlss > 0 && fsr > 0);
+  assert(!(dlss > 0 && fsr > 0));
 
   switch (dlss)
   {

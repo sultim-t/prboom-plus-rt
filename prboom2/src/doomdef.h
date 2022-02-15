@@ -329,6 +329,9 @@ typedef enum {
   ss_chat,
   ss_gen,       /* killough 10/98 */
   ss_comp,      /* killough 10/98 */
+#ifdef RT_CUSTOM_MENU
+  ss_rtgraphics,
+#endif
   ss_max
 } ss_types;
 

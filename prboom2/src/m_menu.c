@@ -309,6 +309,7 @@ void M_DrawCompat(void);  // killough 10/98
 void M_DrawGeneral(void); // killough 10/98
 void M_ChangeFullScreen(void);
 void M_ChangeVideoMode(void);
+void M_ChangeVsync(void);
 void M_ChangeUseGLSurface(void);
 void M_ChangeApplyPalette(void);
 
@@ -319,11 +320,16 @@ void M_RT_Hud(int choice);
 void M_RT_ChangeSensitivity(int choice);
 void M_RT_KeyBindings(int choice);
 void M_RT_Sound(int choice);
+void M_RT_GraphicsSettings(int choice);
 
-void M_RT_DrawOptions(void);
+void M_RT_Options_Draw(void);
+void M_RT_GraphicsSettings_Draw(void);
 
 const char *M_RT_GetHudSwitchName(void);
 int M_RT_GetHudSwitchStringHeight(void);
+void M_RT_ResolutionSettings_DLSS(void);
+void M_RT_ResolutionSettings_FSR(void);
+void M_RT_ResolutionSettings_RenderScale(void);
 #endif
 
 
@@ -1141,7 +1147,7 @@ enum
 
 menuitem_t RT_OptionsMenu[] =
 {
-  {1,"M_N_GFX",     M_General,              'g', "GRAPHICS"},
+  {1,"M_N_GFX",     M_RT_GraphicsSettings,  'g', "GRAPHICS"},
   {1,"M_N_SND",     M_RT_Sound,             's', "SOUND"},
   {1,"M_N_KEYBND",  M_RT_KeyBindings,       'k', "CONTROLS"},
   {1,"M_N_MOUSE",   M_RT_ChangeSensitivity, 'm', "MOUSE"},
@@ -1153,12 +1159,12 @@ menu_t RT_OptionsDef =
   RT_OPTIONS_E_COUNT,
   &MainDef,
   RT_OptionsMenu,
-  M_RT_DrawOptions,
+  M_RT_Options_Draw,
   60,60,
   0
 };
 
-void M_RT_DrawOptions(void)
+void M_RT_Options_Draw(void)
 {
   V_DrawNamePatch(108, 15, 0, "M_OPTTTL", CR_DEFAULT, VPT_STRETCH);
 
@@ -1800,7 +1806,7 @@ const char *M_RT_GetHudSwitchName(void)
 
 int M_RT_GetHudSwitchStringHeight(void)
 {
-  return M_StringHeight(RT_HUD_SWITCH_NAME_CLASSIC RT_HUD_SWITCH_NAME_MINIMAL RT_HUD_SWITCH_NAME_NONE RT_HUD_SWITCH_NAME_CUSTOM);
+  return M_StringHeight("");
 }
 
 void M_RT_Hud(int choice)
@@ -2112,6 +2118,22 @@ menu_t CompatDef =                                           // killough 10/98
   34,5,      // skull drawn here
   0
 };
+
+
+#if RT_CUSTOM_MENU
+
+menu_t RT_GraphicsSettingsDef =                                       
+{
+  generic_setup_end,
+  &RT_OptionsDef,
+  Generic_Setup,
+  M_RT_GraphicsSettings_Draw,
+  34,5,      // skull drawn here
+  0
+};
+
+#endif
+
 
 /////////////////////////////
 //
@@ -3505,6 +3527,20 @@ static const char *videomodes[] = {
   "RT",
   NULL};
 
+
+#if RT_CUSTOM_MENU
+
+static const char *RT_simpler_videomodes[] = {
+  "32bit",
+#ifdef GL_DOOM
+  "OpenGL",
+#endif
+  "RT",
+  NULL };
+
+#endif
+
+
 static const char *gltexformats[] = {
   "GL_RGBA","GL_RGB5_A1", "GL_RGBA4", NULL};
 
@@ -3516,7 +3552,7 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
   {"Aspect Ratio",                   S_CHOICE,           m_null, G_X, G_Y+ 4*8, {"render_aspect"}, 0, 0, M_ChangeAspectRatio, render_aspects_list},
   {"Fullscreen Video mode",          S_YESNO,            m_null, G_X, G_Y+ 5*8, {"use_fullscreen"}, 0, 0, M_ChangeFullScreen},
   {"Status Bar and Menu Appearance", S_CHOICE,           m_null, G_X, G_Y+ 6*8, {"render_stretch_hud"}, 0, 0, M_ChangeStretch, render_stretch_list},
-  {"Vertical Sync",                  S_YESNO,            m_null, G_X, G_Y+ 7*8, {"render_vsync"}, 0, 0, M_ChangeVideoMode},
+  {"Vertical Sync",                  S_YESNO,            m_null, G_X, G_Y+ 7*8, {"render_vsync"}, 0, 0, M_ChangeVsync},
   
   {"Enable Translucency",            S_YESNO,            m_null, G_X, G_Y+ 9*8, {"translucency"}, 0, 0, M_Trans},
   {"Translucency filter percentage", S_NUM,              m_null, G_X, G_Y+10*8, {"tran_filter_pct"}, 0, 0, M_Trans},
@@ -3767,6 +3803,15 @@ void M_ChangeVideoMode(void)
   V_ChangeScreenResolution();
 }
 
+void M_ChangeVsync(void)
+{
+  // RT: with RT, vsync is just a param that is passed on frame start
+  if (V_GetMode() != VID_MODERT)
+  {
+    V_ChangeScreenResolution();
+  }
+}
+
 void M_ChangeUseGLSurface(void)
 {
   V_ChangeScreenResolution();
@@ -3829,6 +3874,87 @@ void M_DrawGeneral(void)
   if (default_verify)
     M_DrawDefVerify();
 }
+
+
+#if RT_CUSTOM_MENU
+
+static const char *RT_options_bloom_intensity[] =
+{
+  "0",
+  "50",
+  "100",
+  NULL
+};
+
+setup_menu_t RT_GraphicsSettings[] =
+{
+  // {"Video",  S_SKIP | S_TITLE,     m_null, G_X, G_Y + 1 * 8},
+  {"Video mode",  S_CHOICE, m_null, G_X, G_Y + 2 * 8, {"videomode"}, 0, 0, M_ChangeVideoMode, RT_simpler_videomodes},
+  {"Resolution",  S_CHOICE, m_null, G_X, G_Y + 3 * 8, {"screen_resolution"}, 0, 0, M_ChangeVideoMode, screen_resolutions_list},
+  {"Fullscreen",  S_YESNO,  m_null, G_X, G_Y + 4 * 8, {"use_fullscreen"}, 0, 0, M_ChangeFullScreen},
+  {"VSync",       S_YESNO,  m_null, G_X, G_Y + 5 * 8, {"render_vsync"}, 0, 0, M_ChangeVsync},
+
+  //{"Nvidia DLSS",   S_CHOICE,  m_null, G_X, G_Y + 6 * 8, {"rt_dlss"}, 0, 0, M_RT_ResolutionSettings_DLSS, RT_options_dlss },
+  //{"AMD FSR",       S_CHOICE,  m_null, G_X, G_Y + 7 * 8, {"rt_fsr"}, 0, 0, M_RT_ResolutionSettings_FSR, RT_options_fsr },
+  //{"Render scale",  S_CHOICE,  m_null, G_X, G_Y + 8 * 8, {"rt_renderscale"}, 0, 0, M_RT_ResolutionSettings_RenderScale, RT_options_renderscale },
+  //{"Bloom",         S_CHOICE,  m_null, G_X, G_Y + 9 * 8, {"rt_bloom_intensity"}, 0, 0, NULL, RT_options_bloom_intensity },
+  //{"Muzzle flash light",         S_CHOICE,  m_null, G_X, G_Y +10 * 8, {"rt_muzzleflash_intensity"}, 0, 0, NULL, RT_options_muzzleflash_intensity },
+
+  {0,S_SKIP | S_END,m_null}
+};
+
+static setup_menu_t *RT_SetupMenus[] =
+{
+  RT_GraphicsSettings,
+  NULL
+};
+
+// Copy of M_General, but with different M_SetupNextMenu
+void M_RT_GraphicsSettings(int choice)
+{
+  M_SetupNextMenu(&RT_GraphicsSettingsDef);
+
+  setup_active = true;
+  setup_screen = ss_gen;
+  set_general_active = true;
+  setup_select = false;
+  default_verify = false;
+  setup_gather = false;
+  mult_screens_index = 0;
+  current_setup_menu = RT_GraphicsSettings;
+  set_menu_itemon = M_GetSetupMenuItemOn();
+  while (current_setup_menu[set_menu_itemon++].m_flags & S_SKIP);
+  current_setup_menu[--set_menu_itemon].m_flags |= S_HILITE;
+}
+
+// Copy of M_DrawGeneral
+void M_RT_GraphicsSettings_Draw(void)
+{
+  menuactive = mnact_full;
+
+  M_DrawBackground("FLOOR4_6", 0); // Draw background
+  
+  M_DrawTitle(114, 2, "M_VIDEO", CR_DEFAULT, "Graphics", CR_GOLD);
+  M_DrawInstructions();
+  M_DrawScreenItems(current_setup_menu);
+
+  // RT: should not be
+  assert(!default_verify);
+
+  if (default_verify)
+    M_DrawDefVerify();
+}
+
+void M_RT_ResolutionSettings_DLSS(void)
+{}
+void M_RT_ResolutionSettings_FSR(void)
+{}
+void M_RT_ResolutionSettings_RenderScale(void)
+{}
+
+
+#endif
+
 
 /////////////////////////////
 //
@@ -4271,6 +4397,9 @@ static setup_menu_t **setup_screens[] =
   chat_settings,
   gen_settings,      // killough 10/98
   comp_settings,
+#if RT_CUSTOM_MENU
+  RT_SetupMenus,
+#endif
 };
 
 // phares 4/19/98:
