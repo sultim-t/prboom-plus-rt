@@ -174,14 +174,26 @@ static RgExtent2D GetScaledResolution(int renderscale)
 {
   RgExtent2D window_size = GetCurrentHWNDSize();
 
-  if (95 < renderscale && renderscale < 105)
+  if (renderscale == RT_SETTINGS_RENDERSCALE_DEFAULT)
   {
     return window_size;
   }
 
+  float f = 1.0f;
+  switch(renderscale)
+  {
+    case 0: f = 0.5f; break;
+    case 1: f = 0.6f; break;
+    case 2: f = 0.75f; break;
+    case 3: f = 0.9f; break;
+    case 5: f = 1.1f; break;
+    case 6: f = 1.25f; break;
+    default: break;
+  }
+
   RgExtent2D scaled_size = {
-    .width  = BETWEEN(320, 3840, (int)( (float)window_size.width  * (float)renderscale / 100.0f) ),
-    .height = BETWEEN(200, 2160, (int)( (float)window_size.height * (float)renderscale / 100.0f) ),
+    .width  = BETWEEN(320, 3840, (int)(f * (float)window_size.width ) ),
+    .height = BETWEEN(200, 2160, (int)(f * (float)window_size.height) ),
   };
   return scaled_size;
 }
@@ -216,22 +228,30 @@ static RgRenderResolutionMode GetResolutionMode(int dlss, int fsr) // 0 - off, 1
 
 static void NormalizeRTSettings(rt_settings_t *settings)
 {
+  RgBool32 dlss_available = false;
+  RgResult r = rgIsRenderUpscaleTechniqueAvailable(rtmain.instance, RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS, &dlss_available);
+  RG_CHECK(r);
+  if (!dlss_available)
+  {
+    settings->dlss = 0;
+  }
+
   // normalize resolution params
-  if (settings->dlss > 0)
+  /*if (settings->dlss > 0)
   {
     settings->fsr = 0;
-    settings->renderscale = 100;
+    settings->renderscale = RT_SETTINGS_RENDERSCALE_DEFAULT;
   }
   else if (settings->fsr > 0)
   {
     settings->dlss = 0;
-    settings->renderscale = 100;
+    settings->renderscale = RT_SETTINGS_RENDERSCALE_DEFAULT;
   }
-  else if (settings->renderscale == 100)
+  else if (settings->renderscale == RT_SETTINGS_RENDERSCALE_DEFAULT)
   {
     settings->fsr = 0;
     settings->dlss = 0;
-  }
+  }*/
 }
 
 
@@ -261,6 +281,9 @@ void RT_EndFrame()
   frame_started_guard = false;
 
 
+  NormalizeRTSettings(&rt_settings);
+
+
   // debug sun
   {
     RgDirectionalLightUploadInfo info = 
@@ -273,9 +296,6 @@ void RT_EndFrame()
     RgResult r = rgUploadDirectionalLight(rtmain.instance, &info);
     RG_CHECK(r);
   }
-
-
-  NormalizeRTSettings(&rt_settings);
 
   RgDrawFrameRenderResolutionParams resolution_params =
   {

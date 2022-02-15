@@ -3878,11 +3878,47 @@ void M_DrawGeneral(void)
 
 #if RT_CUSTOM_MENU
 
+static const char *RT_options_dlss[] =
+{
+  "Off",
+  "Quality",
+  "Balanced",
+  "Performance",
+  "Ultra Performance",
+  NULL
+};
+static const char *RT_options_fsr[] =
+{
+  "Off",
+  "Ultra Quality",
+  "Quality",
+  "Balanced",
+  "Performance",
+  NULL
+};
+static const char *RT_options_renderscale[] =
+{
+  "50%",
+  "60%",
+  "75%",
+  "90%",
+  "100%",
+  "110%",
+  "125%",
+  NULL
+};
 static const char *RT_options_bloom_intensity[] =
 {
-  "0",
-  "50",
-  "100",
+  "0%",
+  "30%",
+  "100%",
+  NULL
+};
+static const char *RT_options_muzzleflash_intensity[] =
+{
+  "0%",
+  "30%",
+  "100%",
   NULL
 };
 
@@ -3894,11 +3930,11 @@ setup_menu_t RT_GraphicsSettings[] =
   {"Fullscreen",  S_YESNO,  m_null, G_X, G_Y + 4 * 8, {"use_fullscreen"}, 0, 0, M_ChangeFullScreen},
   {"VSync",       S_YESNO,  m_null, G_X, G_Y + 5 * 8, {"render_vsync"}, 0, 0, M_ChangeVsync},
 
-  //{"Nvidia DLSS",   S_CHOICE,  m_null, G_X, G_Y + 6 * 8, {"rt_dlss"}, 0, 0, M_RT_ResolutionSettings_DLSS, RT_options_dlss },
-  //{"AMD FSR",       S_CHOICE,  m_null, G_X, G_Y + 7 * 8, {"rt_fsr"}, 0, 0, M_RT_ResolutionSettings_FSR, RT_options_fsr },
-  //{"Render scale",  S_CHOICE,  m_null, G_X, G_Y + 8 * 8, {"rt_renderscale"}, 0, 0, M_RT_ResolutionSettings_RenderScale, RT_options_renderscale },
-  //{"Bloom",         S_CHOICE,  m_null, G_X, G_Y + 9 * 8, {"rt_bloom_intensity"}, 0, 0, NULL, RT_options_bloom_intensity },
-  //{"Muzzle flash light",         S_CHOICE,  m_null, G_X, G_Y +10 * 8, {"rt_muzzleflash_intensity"}, 0, 0, NULL, RT_options_muzzleflash_intensity },
+  {"Nvidia DLSS",   S_CHOICE,  m_null, G_X, G_Y + 6 * 8, {"rt_dlss"}, 0, 0, M_RT_ResolutionSettings_DLSS, RT_options_dlss },
+  {"AMD FSR",       S_CHOICE,  m_null, G_X, G_Y + 7 * 8, {"rt_fsr"}, 0, 0, M_RT_ResolutionSettings_FSR, RT_options_fsr },
+  {"Render scale",  S_CHOICE,  m_null, G_X, G_Y + 8 * 8, {"rt_renderscale"}, 0, 0, M_RT_ResolutionSettings_RenderScale, RT_options_renderscale },
+  {"Bloom",         S_CHOICE,  m_null, G_X, G_Y + 9 * 8, {"rt_bloom_intensity"}, 0, 0, NULL, RT_options_bloom_intensity },
+  {"Muzzle flash light",         S_CHOICE,  m_null, G_X, G_Y +10 * 8, {"rt_muzzleflash_intensity"}, 0, 0, NULL, RT_options_muzzleflash_intensity },
 
   {0,S_SKIP | S_END,m_null}
 };
@@ -3946,11 +3982,29 @@ void M_RT_GraphicsSettings_Draw(void)
 }
 
 void M_RT_ResolutionSettings_DLSS(void)
-{}
+{
+  if (rt_settings.dlss > 0)
+  {
+    rt_settings.fsr = 0;
+    rt_settings.renderscale = RT_SETTINGS_RENDERSCALE_DEFAULT;
+  }
+}
 void M_RT_ResolutionSettings_FSR(void)
-{}
+{
+  if (rt_settings.fsr > 0)
+  {
+    rt_settings.dlss = 0;
+    rt_settings.renderscale = RT_SETTINGS_RENDERSCALE_DEFAULT;
+  } 
+}
 void M_RT_ResolutionSettings_RenderScale(void)
-{}
+{
+  if (rt_settings.renderscale != RT_SETTINGS_RENDERSCALE_DEFAULT)
+  {
+    rt_settings.dlss = 0;
+    rt_settings.fsr = 0;
+  }
+}
 
 
 #endif

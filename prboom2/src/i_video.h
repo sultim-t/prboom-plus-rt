@@ -58,10 +58,11 @@ typedef struct
 {
   // NOTE: dlss, fsr, renderscale - are mutually exclusive
   int dlss, fsr;              // 0 - off, [1,4] - quality from highest to lowest
-  int renderscale;            // in percents
-  int bloom_intensity;        // in percents
-  int muzzleflash_intensity;  // in percents
+  int renderscale;            // index in [50%,60%,75%,90%,100%,110%,125%]
+  int bloom_intensity;        // index in [0%,30%,100%]
+  int muzzleflash_intensity;  // index in [0%,30%,100%]
 } rt_settings_t;
+#define RT_SETTINGS_RENDERSCALE_DEFAULT 4
 extern rt_settings_t rt_settings;
 
 extern SDL_Window *sdl_window;
