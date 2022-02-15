@@ -1056,6 +1056,10 @@ void R_FillBackScreen (void)
 {
   int automap = ((automapmode & am_active) && !(automapmode & am_overlay));
 
+  // RT: don't fill with background flat-s with the classic HUD
+  if (!automap && V_GetMode() == VID_MODERT)
+    return;
+
   if (grnrock.lumpnum == 0)
     return;
 
