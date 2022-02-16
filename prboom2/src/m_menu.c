@@ -2149,7 +2149,7 @@ menu_t RT_GraphicsSettingsDef =
   &RT_OptionsDef,
   Generic_Setup,
   M_RT_GraphicsSettings_Draw,
-  34,5,      // skull drawn here
+  56, 15,      // skull drawn here
   0
 };
 
@@ -4005,9 +4005,9 @@ void M_RT_GraphicsSettings_Draw(void)
   menuactive = mnact_full;
 
   // M_DrawBackground("FLOOR4_6", 0); // Draw background
-  
-  M_DrawTitle(114, 2, "M_VIDEO", CR_DEFAULT, "Graphics", CR_GOLD);
-  M_DrawInstructions();
+
+  V_DrawNamePatch(56, 15, 0, "M_DISOPT", CR_DEFAULT, VPT_STRETCH);
+  // M_DrawInstructions();
   M_DrawScreenItems(current_setup_menu);
 
   // RT: should not be
