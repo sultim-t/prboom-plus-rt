@@ -231,7 +231,9 @@ void M_ChangeSensitivity(int choice);
 void M_SfxVol(int choice);
 void M_MusicVol(int choice);
 /* void M_ChangeDetail(int choice);  unused -- killough */
+#if !RT_CUSTOM_MENU
 void M_SizeDisplay(int choice);
+#endif
 void M_StartGame(int choice);
 void M_Sound(int choice);
 
@@ -1196,8 +1198,10 @@ enum
 {
   general, // killough 10/98
   setup,   // phares 3/21/98  // killough 4/6/98: move setup to be a sub-menu of OPTIONs
+#if !RT_CUSTOM_MENU
   scrnsize,
   option_empty1,
+#endif
   soundvol,
   mousesens,
   messages,
@@ -1212,8 +1216,10 @@ menuitem_t OptionsMenu[]=
   // killough 4/6/98: move setup to be a sub-menu of OPTIONs
   {1,"M_GENERL", M_General, 'g', "GENERAL"},      // killough 10/98
   {1,"M_SETUP",  M_Setup,   's', "SETUP"},        // phares 3/21/98
+#if !RT_CUSTOM_MENU
   {2,"M_SCRNSZ", M_SizeDisplay,'s', "SCREEN SIZE"},
   {-1,"",0},
+#endif
   {1,"M_SVOL",   M_Sound,'s', "SOUND VOLUME"},
   {1,"M_MSENS",  M_ChangeSensitivity,'m', "MOUSE SENSITIVITY"},
   {1,"M_MESSG",  M_ChangeMessages,'m', "MESSAGES:"},
@@ -1259,8 +1265,10 @@ void M_DrawOptions(void)
       msgNames[showMessages], CR_DEFAULT, VPT_STRETCH);
   }
 
+#if !RT_CUSTOM_MENU
   M_DrawThermo(OptionsDef.x,OptionsDef.y+LINEHEIGHT*(scrnsize+1),
    9,screenSize);
+#endif
 }
 
 void M_Options(int choice)
@@ -1719,6 +1727,7 @@ void M_ChangeMessages(int choice)
 // hud_displayed is toggled by + or = in fullscreen
 // hud_displayed is cleared by -
 
+#if !RT_CUSTOM_MENU
 void M_SizeDisplay(int choice)
 {
   if (V_GetMode() == VID_MODERT)
@@ -1745,6 +1754,7 @@ void M_SizeDisplay(int choice)
   }
   R_SetViewSize (screenblocks /*, detailLevel obsolete -- killough */);
 }
+#endif
 
 #if RT_CUSTOM_MENU
 typedef enum
@@ -1815,7 +1825,7 @@ int M_RT_GetHudSwitchStringHeight(void)
   return M_StringHeight("");
 }
 
-void M_RT_Hud(int choice)
+static void M_RT_ApplyPrevNextHud(int choice)
 {
   rt_hud_switch_e h = GetHudSwitch();
   const int count = RT_HUD_SWITCH_CUSTOM;
@@ -1836,6 +1846,11 @@ void M_RT_Hud(int choice)
     // next
     ApplyHudSwitch((h + 1) % count);
   }
+}
+
+void M_RT_Hud(int choice)
+{
+  M_RT_ApplyPrevNextHud(choice);
 }
 #endif
 
@@ -5363,7 +5378,11 @@ dboolean M_Responder (event_t* ev) {
       {
       if ((automapmode & am_active) || chat_on)
         return false;
+    #if RT_CUSTOM_MENU
+      M_RT_ApplyPrevNextHud(0);
+    #else
       M_SizeDisplay(0);
+    #endif
       S_StartSound(NULL,sfx_stnmov);
       return true;
       }
@@ -5372,7 +5391,11 @@ dboolean M_Responder (event_t* ev) {
       {                                 // jff 2/23/98
       if ((automapmode & am_active) || chat_on)     // allow
         return false;                   // key_hud==key_zoomin
-      M_SizeDisplay(1);                                             //  ^
+    #if RT_CUSTOM_MENU
+      M_RT_ApplyPrevNextHud(1);
+    #else
+      M_SizeDisplay(1);
+    #endif
       S_StartSound(NULL,sfx_stnmov);                                //  |
       return true;                                                  // phares
       }
@@ -5490,20 +5513,32 @@ dboolean M_Responder (event_t* ev) {
     }
 
     if (ch == key_hud)   // heads-up mode
-      {
+    {
       if ((automapmode & am_active) || chat_on)    // jff 2/22/98
+      {
         return false;                  // HUD mode control
-      if (screenSize<8)                // function on default F5
-        while (screenSize<8 || !hud_displayed) // make hud visible
-          M_SizeDisplay(1);            // when configuring it
-      else
+      }
+
+      if (screenSize < 8)                // function on default F5
+      {
+        while (screenSize < 8 || !hud_displayed) // make hud visible
         {
+        #if RT_CUSTOM_MENU
+          M_RT_ApplyPrevNextHud(1);
+        #else
+          M_SizeDisplay(1);     // when configuring it
+        #endif
+        }
+      }
+      else
+      {
         hud_displayed = 1;               //jff 3/3/98 turn hud on
         HU_NextHud();
         HU_MoveHud(true);                //jff 3/9/98 move it now to avoid glitch
-        }
-      return true;
       }
+
+      return true;
+    }
 
     /* killough 10/98: allow key shortcut into Setup menu */
     if (ch == key_setup) {
