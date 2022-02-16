@@ -3927,6 +3927,16 @@ static const char *RT_options_muzzleflash_intensity[] =
   "100%",
   NULL
 };
+static const char *RT_options_statusbar_scale[] =
+{
+  "25%",
+  "50%",
+  "60%",
+  "75%",
+  "90%",
+  "100%",
+  NULL
+};
 
 #define RT_X 180
 #define RT_Y 56
@@ -3941,8 +3951,11 @@ setup_menu_t RT_GraphicsSettings[] =
   {"Nvidia DLSS",   S_CHOICE,  m_null, RT_X, RT_Y + 5 * 8, {"rt_dlss"}, 0, 0, M_RT_ResolutionSettings_DLSS, RT_options_dlss },
   {"AMD FSR",       S_CHOICE,  m_null, RT_X, RT_Y + 6 * 8, {"rt_fsr"}, 0, 0, M_RT_ResolutionSettings_FSR, RT_options_fsr },
   {"Render scale",  S_CHOICE,  m_null, RT_X, RT_Y + 7 * 8, {"rt_renderscale"}, 0, 0, M_RT_ResolutionSettings_RenderScale, RT_options_renderscale },
-  {"Bloom",         S_CHOICE,  m_null, RT_X, RT_Y + 8 * 8, {"rt_bloom_intensity"}, 0, 0, NULL, RT_options_bloom_intensity },
-  {"Muzzle flash light",  S_CHOICE,  m_null, RT_X, RT_Y + 9 * 8, {"rt_muzzleflash_intensity"}, 0, 0, NULL, RT_options_muzzleflash_intensity },
+
+  {"Bloom",         S_CHOICE,  m_null, RT_X, RT_Y + 9 * 8, {"rt_bloom_intensity"}, 0, 0, NULL, RT_options_bloom_intensity },
+  {"Muzzle flash light",  S_CHOICE,  m_null, RT_X, RT_Y + 10 * 8, {"rt_muzzleflash_intensity"}, 0, 0, NULL, RT_options_muzzleflash_intensity },
+
+  {"Classic HUD scale",  S_CHOICE,  m_null, RT_X, RT_Y + 12 * 8, {"rt_statusbar_scale"}, 0, 0, NULL, RT_options_statusbar_scale },
 
   {0,S_SKIP | S_END,m_null}
 };
@@ -3976,7 +3989,7 @@ void M_RT_GraphicsSettings_Draw(void)
 {
   menuactive = mnact_full;
 
-  M_DrawBackground("FLOOR4_6", 0); // Draw background
+  // M_DrawBackground("FLOOR4_6", 0); // Draw background
   
   M_DrawTitle(114, 2, "M_VIDEO", CR_DEFAULT, "Graphics", CR_GOLD);
   M_DrawInstructions();

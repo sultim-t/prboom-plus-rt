@@ -10,8 +10,9 @@ static float GetStatusBarScale()
   {
     case 0:   return 0.25f;
     case 1:   return 0.5f;
-    case 2:   return 0.75f;
-    case 3:   return 0.9f;
+    case 2:   return 0.6f;
+    case 3:   return 0.75f;
+    case 4:   return 0.9f;
     default:  return 1.0f;
   }
 }
