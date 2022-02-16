@@ -959,10 +959,11 @@ default_t defaults[] =
    {ammo_colour_behaviour_max-1}, // whether backpack changes thresholds above
    0,ammo_colour_behaviour_max-1,def_int,ss_stat},
 
-  //jff 2/16/98 HUD and status feature controls
-  {"hud_num",    {&hud_num}, {6},0,100,
-   def_int,ss_none},
-  //jff 2/23/98
+#if RT_CUSTOM_MENU
+  {"hud_num",    {&hud_num}, {1},0,100, def_int,ss_none},
+#else
+  { "hud_num",    {&hud_num}, {6},0,100, def_int,ss_none },
+#endif
   {"hud_displayed", {&hud_displayed},  {0},0,1, // whether hud is displayed
    def_bool,ss_none}, // enables display of HUD
 

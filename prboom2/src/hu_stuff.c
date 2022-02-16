@@ -1124,6 +1124,82 @@ static hud_widget_t hud_name_widget[] =
   {NULL, 0, 0, 0, NULL, NULL, NULL}
 };
 
+
+// A nicer solution is to modify 'prboom-plus.wad'
+#if RT_CUSTOM_MENU
+
+// This array instead of lines from '-PRBHUD-' script
+static hud_cfg_item_t all_cfg_items[] =
+{
+  { "tracers",             2,   167 },
+  { "medict_icon_big",     4,  -198 },
+  { "health_big",         38,  -198 },
+  { "ammo_icon",        -100,  -198 },
+  { "ammo_big",          105,  -198 },
+  { "armor_icon_big",   -316,  -198 },
+  { "armor_big",        -283,  -198 },
+  { "gkeys",            -316,     4 },
+};
+
+void HU_LoadHUDDefs(void)
+{
+  static int init = 0;
+  if (init)
+  {
+    return;
+  }
+  init = true;
+
+
+  // [0] is empty
+  huds_count = 2;
+  huds = calloc(huds_count, sizeof(huds[0]));
+
+
+  hud_widgets_list_t *list = &huds[huds_count - 1];
+  list->items = NULL;
+  list->count = 0;
+
+  for (int c = 0; c < (int)ARRAYSIZE(all_cfg_items); c++)
+  {
+    // hud_widget x y
+    for (int i = 0; hud_name_widget[i].name; i++)
+    {
+      const hud_cfg_item_t *cfg_item = &all_cfg_items[c];
+
+      if (!strcasecmp(hud_name_widget[i].name, cfg_item->name))
+      {
+        list->count++;
+        list->items = realloc(list->items, list->count * sizeof(list->items[0]));
+
+        hud_widget_t *item = &list->items[list->count - 1];
+
+        item->hu_textline = hud_name_widget[i].hu_textline;
+
+        item->x = cfg_item->x;
+        item->y = cfg_item->y;
+
+        if (abs(cfg_item->x) < 160)
+        {
+          item->flags = (abs(cfg_item->y) > 100 ? VPT_ALIGN_LEFT_BOTTOM : VPT_ALIGN_LEFT_TOP);
+        }
+        else
+        {
+          item->flags = (abs(cfg_item->y) > 100 ? VPT_ALIGN_RIGHT_BOTTOM : VPT_ALIGN_RIGHT_TOP);
+        }
+        item->flags |= hud_name_widget[i].flags;
+
+        item->build = hud_name_widget[i].build;
+        item->draw = hud_name_widget[i].draw;
+
+        break;
+      }
+    }
+  }
+}
+
+#else
+
 void HU_LoadHUDDefs(void)
 {
   static int init = 0;
@@ -1222,6 +1298,9 @@ void HU_LoadHUDDefs(void)
     SC_Close();
   }
 }
+
+#endif
+
 
 //
 // HU_MoveHud()
