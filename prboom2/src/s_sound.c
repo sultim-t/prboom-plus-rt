@@ -310,12 +310,15 @@ static void S_StartSoundAtVolume(degenmobj_t *origin, int sfx_id, int volume)
            origin->y == players[displayplayer].mo->y)
         sep = NORM_SEP;
 
+  // RT: disable random sound pitch
+#if 0
   // hacks to vary the sfx pitches
   if (sfx_id >= sfx_sawup && sfx_id <= sfx_sawhit)
     pitch += 8 - (M_Random()&15);
   else
     if (sfx_id != sfx_itemup && sfx_id != sfx_tink)
       pitch += 16 - (M_Random()&31);
+#endif
 
   if (pitch<0)
     pitch = 0;
