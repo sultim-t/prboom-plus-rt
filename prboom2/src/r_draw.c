@@ -1157,6 +1157,11 @@ void R_DrawViewBorder(void)
 {
   int top, side, i;
 
+  if (V_GetMode() == VID_MODERT)
+  {
+    return;
+  }
+
   if (V_GetMode() == VID_MODEGL) {
     // proff 11/99: we don't have a backscreen in OpenGL from where we can copy this
     R_FillBackScreen();

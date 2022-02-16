@@ -929,13 +929,13 @@ void ST_SetResolution(void)
   R_FillBackScreen();
 }
 
-void ST_Drawer(dboolean statusbaron, dboolean refresh, dboolean fullmenu)
+void ST_Drawer(dboolean statusbaron, dboolean refresh, dboolean inmenu)
 {
   /* cph - let status bar on be controlled
    * completely by the call from D_Display
    * proff - really do it
    */
-  st_firsttime = st_firsttime || refresh || fullmenu;
+  st_firsttime = st_firsttime || refresh || inmenu;
 
   ST_doPaletteStuff();  // Do red-/gold-shifts from damage/items
 
@@ -944,15 +944,19 @@ void ST_Drawer(dboolean statusbaron, dboolean refresh, dboolean fullmenu)
     {
       /* If just after ST_Start(), refresh all */
       st_firsttime = false;
-      ST_refreshBackground(); // draw status bar background to off-screen buff
-      if (!fullmenu)
+      if (!inmenu)
+      {
+        ST_refreshBackground(); // draw status bar background to off-screen buff
         ST_drawWidgets(true); // and refresh all widgets
+      }
     }
     else
     {
       /* Otherwise, update as little as possible */
-      if (!fullmenu)
+      if (!inmenu)
+      {
         ST_drawWidgets(false); // update all widgets
+      }
     }
   }
 }

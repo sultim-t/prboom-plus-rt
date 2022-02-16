@@ -399,7 +399,7 @@ void D_Display (fixed_t frac)
         ((viewheight != SCREENHEIGHT)
          || ((automapmode & am_active) && !(automapmode & am_overlay))),
         redrawborderstuff || BorderNeedRefresh,
-        (menuactive == mnact_full));
+        (menuactive == mnact_full || menuactive == mnact_float));
 
     BorderNeedRefresh = false;
     if (V_GetMode() != VID_MODEGL)

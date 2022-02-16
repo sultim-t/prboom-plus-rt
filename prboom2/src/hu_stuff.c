@@ -2394,7 +2394,7 @@ void HU_Drawer(void)
   if (realframe) needupdate = !needupdate;
 
   // don't draw anything if there's a fullscreen menu up
-  if (menuactive == mnact_full)
+  if (menuactive == mnact_full || menuactive == mnact_float)
     return;
 
   plr = &players[displayplayer];         // killough 3/7/98
