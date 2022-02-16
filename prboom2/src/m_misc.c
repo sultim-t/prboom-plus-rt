@@ -431,7 +431,7 @@ default_t defaults[] =
    def_int,ss_none}, // select sounds driver (DOS), -1 is autodetect, 0 is none; in Linux, non-zero enables sound
   {"music_card",{&mus_card},{-1},-1,9,       //  to be set,  -1 = autodetect
    def_int,ss_none}, // select music driver (DOS), -1 is autodetect, 0 is none"; in Linux, non-zero enables music
-  {"pitched_sounds",{&pitched_sounds},{0},0,1, // killough 2/21/98
+  {"pitched_sounds",{&pitched_sounds},{1},0,1, // killough 2/21/98
    def_bool,ss_none}, // enables variable pitch in sound effects (from id's original code)
   {"samplerate",{&snd_samplerate},{44100},11025,48000, def_int,ss_none},
   {"slice_samplecount",{&snd_samplecount},{512},32,8192, def_int,ss_none},
@@ -998,7 +998,7 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"hudadd_demotime", {&hudadd_demotime},  {0},0,1,
    def_bool,ss_stat},
-  {"hudadd_secretarea", {&hudadd_secretarea},  {0},0,1,
+  {"hudadd_secretarea", {&hudadd_secretarea},  {1},0,1,
    def_bool,ss_stat},
   {"hudadd_smarttotals", {&hudadd_smarttotals},  {0},0,1,
    def_bool,ss_stat},

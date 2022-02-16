@@ -245,7 +245,12 @@ sfxinfo_t S_sfx[] = {
   { "dgpain", false,   96, 0, -1, -1, 0 },
 
   //e6y
+#if RT_CUSTOM_MENU
+  // RT: instead of the secret sound
+  { "swtchn", false, 60, &S_sfx[sfx_swtchn], 25, 0, 0 },
+#else
   { "secret", false, 60, 0, -1, -1, 0 },
+#endif
   { "gibdth", false, 60, 0, -1, -1, 0 },
   // Everything from here up to 500 is reserved for future use.
 
