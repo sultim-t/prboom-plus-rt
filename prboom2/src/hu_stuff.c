@@ -1134,10 +1134,10 @@ static hud_cfg_item_t all_cfg_items[] =
   { "tracers",             2,   167 },
   { "medict_icon_big",     4,  -198 },
   { "health_big",         38,  -198 },
-  { "ammo_icon",        -100,  -198 },
-  { "ammo_big",          105,  -198 },
-  { "armor_icon_big",   -316,  -198 },
-  { "armor_big",        -283,  -198 },
+  { "armor_icon_big",   -120,  -198 },
+  { "armor_big",         125,  -198 },
+  { "ammo_icon",        -316,  -198 },
+  { "ammo_big",         -293,  -198 },
   { "gkeys",            -316,     4 },
 };
 
