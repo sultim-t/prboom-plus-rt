@@ -1086,7 +1086,7 @@ void R_FillBackScreen (void)
 
       // RT: draw one quad that covers whole bottom of the screen,
       //     for the case, if HUD is smaller
-      if (V_GetMode() == VID_MODERT)
+      if (V_GetMode() == VID_MODERT || V_GetMode() == VID_MODEGL)
       {
         V_FillRect(1, 0, stbar_top, SCREENWIDTH, ST_SCALED_HEIGHT, 0);
         return;
@@ -1157,14 +1157,8 @@ void R_DrawViewBorder(void)
 {
   int top, side, i;
 
-  if (V_GetMode() == VID_MODERT)
+  if (V_GetMode() == VID_MODERT || V_GetMode() == VID_MODEGL)
   {
-    return;
-  }
-
-  if (V_GetMode() == VID_MODEGL) {
-    // proff 11/99: we don't have a backscreen in OpenGL from where we can copy this
-    R_FillBackScreen();
     return;
   }
 
