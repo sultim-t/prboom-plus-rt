@@ -1,5 +1,21 @@
 #include "rt_main.h"
+
+#include "i_video.h"
 #include "v_video.h"
+
+
+static float GetStatusBarScale()
+{
+  switch(rt_settings.statusbar_scale)
+  {
+    case 0:   return 0.25f;
+    case 1:   return 0.5f;
+    case 2:   return 0.75f;
+    case 3:   return 0.9f;
+    default:  return 1.0f;
+  }
+}
+
 
 static uint32_t PackColor(byte r, byte g, byte b, byte a)
 {
@@ -184,6 +200,28 @@ void RT_DrawQuad_NumPatch(float x, float y, int lump, int cm, enum patch_transla
     ypos = y - topoffset;
     width = (float)td->width;
     height = (float)td->height;
+  }
+
+  // RT: very special case for shrinking the classic status bar
+  if ((flags & VPT_ALIGN_BOTTOM) && (flags & VPT_STATUSBAR))
+  {
+    const float vw = (float)SCREENWIDTH;
+    const float vh = (float)SCREENHEIGHT;
+
+    // anchor x around center
+    float x1 =     (xpos         ) / vw * 2 - 1;
+    float x2 =     (xpos + width ) / vw * 2 - 1;
+    // anchor y around bottom
+    float y1 = 1 - (ypos         ) / vh;
+    float y2 = 1 - (ypos + height) / vh;
+
+    float f = GetStatusBarScale();
+    x1 *= f; x2 *= f; y1 *= f; y2 *= f;
+
+    xpos   = (x1 + 1) / 2 * vw;
+    width  = (x2 + 1) / 2 * vw - xpos;
+    ypos   = (1 - y1) * vh;
+    height = (1 - y2) * vh - ypos;
   }
 
   DrawQuad_Internal(td->rg_handle, xpos, ypos, width, height, 255, 255, 255);
