@@ -432,14 +432,14 @@ void ST_SetScaledWidth(void)
 static void ST_refreshBackground(void)
 {
   int y = ST_Y;
-  enum patch_translation_e flags = VPT_ALIGN_LEFT_TOP;
+  uint32_t flags = VPT_ALIGN_LEFT_TOP;
   
   if (st_statusbaron)
     {
-      flags = VPT_ALIGN_BOTTOM;
+      flags = VPT_ALIGN_BOTTOM | VPT_STATUSBAR;
 
       // Applies palette to backfill
-      if (V_GetMode() == VID_MODE15 || V_GetMode() == VID_MODE16 || V_GetMode() == VID_MODE32)
+      if (V_GetMode() == VID_MODE15 || V_GetMode() == VID_MODE16 || V_GetMode() == VID_MODE32 || V_GetMode() == VID_MODERT)
         R_FillBackScreen();
 
       V_DrawNumPatch(ST_X, y, BG, stbarbg.lumpnum, CR_DEFAULT, flags);
