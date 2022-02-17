@@ -54,6 +54,7 @@ void RT_Init(HINSTANCE hinstance, HWND hwnd)
     .primaryRaysMaxAlbedoLayers = 1,
     .indirectIlluminationMaxAlbedoLayers = 1,
     .rayCullBackFacingTriangles = 0,
+    .allowGeometryWithSkyFlag = 1,
 
     .rasterizedMaxVertexCount = 1 << 20,
     .rasterizedMaxIndexCount = 1 << 21,
@@ -333,7 +334,7 @@ void RT_EndFrame()
   RgDrawFrameInfo info = {
     .worldUpVector = { 0,1,0 },
     .fovYRadians = DEG2RAD(render_fovy),
-    .rayCullMaskWorld = 0x7,
+    .rayCullMaskWorld = RG_DRAW_FRAME_RAY_CULL_WORLD_0_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
     .rayLength = 10000.0f,
     .primaryRayMinDist = GetZNear(),
     .disableRayTracing = false,

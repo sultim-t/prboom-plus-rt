@@ -282,6 +282,7 @@ struct
   side_t *side;
 } rt_skybox_params;
 
+
 static void DrawWall(RTPWallType itemtype, int drawwallindex, RTPWall *wall)
 {
   // RT: force has_detail=false
@@ -365,7 +366,7 @@ static void DrawWall(RTPWallType itemtype, int drawwallindex, RTPWall *wall)
     .flags = wall->invert_normal ? RG_GEOMETRY_UPLOAD_GENERATE_INVERTED_NORMALS_BIT : 0,
     .geomType = RG_GEOMETRY_TYPE_DYNAMIC,
     .passThroughType = RG_GEOMETRY_PASS_THROUGH_TYPE_ALPHA_TESTED,
-    .visibilityType = RG_GEOMETRY_VISIBILITY_TYPE_WORLD_0,
+    .visibilityType = itemtype == RTP_WALLTYPE_SWALL ? RG_GEOMETRY_VISIBILITY_TYPE_SKY : RG_GEOMETRY_VISIBILITY_TYPE_WORLD_0,
     .vertexCount = RG_ARRAY_SIZE(positions),
     .pVertexData = positions,
     .pNormalData = NULL,
