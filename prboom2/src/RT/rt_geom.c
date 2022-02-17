@@ -282,82 +282,6 @@ struct
   side_t *side;
 } rt_skybox_params;
 
-
-void AddSkyTexture(RTPWall *wall, int sky1, int sky2, int skytype)
-{
-  const dboolean mlook_or_fov = true;
-
-  side_t *s = NULL;
-  line_t *l = NULL;
-  wall->rttexture = NULL;
-
-  if ((sky1)&PL_SKYFLAT)
-  {
-    l = &lines[sky1 & ~PL_SKYFLAT];
-  }
-  else
-  {
-    if ((sky2)&PL_SKYFLAT)
-    {
-      l = &lines[sky2 & ~PL_SKYFLAT];
-    }
-  }
-
-  if (l)
-  {
-    s = *l->sidenum + sides;
-    rt_skybox_params.side = s;
-    wall->rttexture = RT_Texture_GetFromTexture(texturetranslation[s->toptexture]
-                                                /*, false, texturetranslation[s->toptexture] == skytexture || l->special == 271 || l->special == 272*/);
-    if (wall->rttexture)
-    {
-      if (!mlook_or_fov)
-      {
-        wall->skyyaw = -2.0f * ((-(float)((viewangle + s->textureoffset) >> ANGLETOFINESHIFT) * 360.0f / FINEANGLES) / 90.0f);
-        wall->skyymid = 200.0f / 319.5f * (((float)s->rowoffset / (float)FRACUNIT - 28.0f) / 100.0f);
-      }
-      else
-      {
-        wall->skyyaw = -2.0f * (((270.0f - (float)((viewangle + s->textureoffset) >> ANGLETOFINESHIFT) * 360.0f / FINEANGLES) + 90.0f) / 90.0f / skyscale);
-        wall->skyymid = skyYShift + (((float)s->rowoffset / (float)FRACUNIT + 28.0f) / wall->rttexture->height) / skyscale;
-      }
-      wall->flag = (l->special == 272 ? GLDWF_SKY : GLDWF_SKYFLIP);
-    }
-  }
-  else
-  {
-    wall->rttexture = RT_Texture_GetFromTexture(skytexture);
-    if (wall->rttexture)
-    {
-      wall->skyyaw = skyXShift;
-      wall->skyymid = skyYShift;
-      wall->flag = GLDWF_SKY;
-    }
-  }
-
-  if (wall->rttexture)
-  {
-    rt_skybox_params.type |= skytype;
-
-    //wall->rttexture->flags |= GLTEXTURE_SKY;
-
-    //gld_AddDrawItem(RTP_WALLTYPE_SWALL, wall);
-
-    if (!rt_skybox_params.wall.rttexture)
-    {
-      rt_skybox_params.wall = *wall;
-
-      // RT: force gl_drawskys=skytype_skydome
-
-      if (s)
-      {
-        rt_skybox_params.x_offset = (float)s->textureoffset * 180.0f / (float)ANG180;
-        rt_skybox_params.y_offset = (float)s->rowoffset / (float)FRACUNIT;
-      }
-    }
-  }
-}
-
 static void DrawWall(RTPWallType itemtype, int drawwallindex, RTPWall *wall)
 {
   // RT: force has_detail=false
@@ -469,6 +393,82 @@ static void AddDrawWallItem(RTPWallType itemtype, RTPWall *wall)
 
   DrawWall(itemtype, rt_drawwallindex, wall);
   rt_drawwallindex++;
+}
+
+
+static void AddSkyTexture(RTPWall *wall, int sky1, int sky2, int skytype)
+{
+  const dboolean mlook_or_fov = true;
+
+  side_t *s = NULL;
+  line_t *l = NULL;
+  wall->rttexture = NULL;
+
+  if ((sky1)&PL_SKYFLAT)
+  {
+    l = &lines[sky1 & ~PL_SKYFLAT];
+  }
+  else
+  {
+    if ((sky2)&PL_SKYFLAT)
+    {
+      l = &lines[sky2 & ~PL_SKYFLAT];
+    }
+  }
+
+  if (l)
+  {
+    s = *l->sidenum + sides;
+    rt_skybox_params.side = s;
+    wall->rttexture = RT_Texture_GetFromTexture(texturetranslation[s->toptexture]
+    /*, false, texturetranslation[s->toptexture] == skytexture || l->special == 271 || l->special == 272*/);
+    if (wall->rttexture)
+    {
+      if (!mlook_or_fov)
+      {
+        wall->skyyaw = -2.0f * ((-(float)((viewangle + s->textureoffset) >> ANGLETOFINESHIFT) * 360.0f / FINEANGLES) / 90.0f);
+        wall->skyymid = 200.0f / 319.5f * (((float)s->rowoffset / (float)FRACUNIT - 28.0f) / 100.0f);
+      }
+      else
+      {
+        wall->skyyaw = -2.0f * (((270.0f - (float)((viewangle + s->textureoffset) >> ANGLETOFINESHIFT) * 360.0f / FINEANGLES) + 90.0f) / 90.0f / skyscale);
+        wall->skyymid = skyYShift + (((float)s->rowoffset / (float)FRACUNIT + 28.0f) / wall->rttexture->height) / skyscale;
+      }
+      wall->flag = (l->special == 272 ? GLDWF_SKY : GLDWF_SKYFLIP);
+    }
+  }
+  else
+  {
+    wall->rttexture = RT_Texture_GetFromTexture(skytexture);
+    if (wall->rttexture)
+    {
+      wall->skyyaw = skyXShift;
+      wall->skyymid = skyYShift;
+      wall->flag = GLDWF_SKY;
+    }
+  }
+
+  if (wall->rttexture)
+  {
+    rt_skybox_params.type |= skytype;
+
+    //wall->rttexture->flags |= GLTEXTURE_SKY;
+
+    AddDrawWallItem(RTP_WALLTYPE_SWALL, wall);
+
+    if (!rt_skybox_params.wall.rttexture)
+    {
+      rt_skybox_params.wall = *wall;
+
+      // RT: force gl_drawskys=skytype_skydome
+
+      if (s)
+      {
+        rt_skybox_params.x_offset = (float)s->textureoffset * 180.0f / (float)ANG180;
+        rt_skybox_params.y_offset = (float)s->rowoffset / (float)FRACUNIT;
+      }
+    }
+  }
 }
 
 
