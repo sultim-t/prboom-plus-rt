@@ -17,6 +17,8 @@ endif()
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+set(PRBOOM_EXTERNAL_FOLDER_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external")
+
 include(TargetArch)
 
 include(TestBigEndian)
@@ -79,9 +81,15 @@ if(BUILD_GL)
     find_package(OpenGL)
 endif()
 
-find_package(SDL2 2.0.7 REQUIRED)
+#find_package(SDL2 2.0.7 REQUIRED)
+    set( SDL2_LIBRARIES "${PRBOOM_EXTERNAL_FOLDER_PATH}/SDL2/SDL2.lib" )
+    set( SDL2_INCLUDE_DIR "${PRBOOM_EXTERNAL_FOLDER_PATH}/SDL2/include" )
+    set( SDL2_INCLUDE_DIRS "${SDL2_INCLUDE_DIR}" )
+    set( SDL2_FOUND TRUE )
+#
 
-option(WITH_IMAGE "Use SDL2_image if available" ON)
+
+option(WITH_IMAGE "Use SDL2_image if available" OFF)
 if(WITH_IMAGE)
     find_package(SDL2_image)
     if(SDL2_IMAGE_FOUND)
@@ -89,7 +97,7 @@ if(WITH_IMAGE)
     endif()
 endif()
 
-option(WITH_MIXER "Use SDL2_mixer if available" ON)
+option(WITH_MIXER "Use SDL2_mixer if available" OFF)
 if(WITH_MIXER)
     find_package(SDL2_mixer)
     if(SDL2_MIXER_FOUND)
@@ -97,7 +105,7 @@ if(WITH_MIXER)
     endif()
 endif()
 
-option(WITH_NET "Use SDL2_net if available" ON)
+option(WITH_NET "Use SDL2_net if available" OFF)
 if(WITH_NET)
     find_package(SDL2_net)
     if(SDL2_NET_FOUND)
@@ -148,9 +156,23 @@ endif()
 
 option(WITH_VORBISFILE "Use vorbisfile if available" ON)
 if(WITH_VORBISFILE)
-    find_package(Vorbis)
+    # find_package(Vorbis)
+        set( VORBISFILE_LIBRARY "${PRBOOM_EXTERNAL_FOLDER_PATH}/Vorbis/libvorbisfile.lib")
+        set( VORBIS_LIBRARY     "${PRBOOM_EXTERNAL_FOLDER_PATH}/Vorbis/libvorbis.lib" )
+        set( VORBIS_INCLUDE_DIR "${PRBOOM_EXTERNAL_FOLDER_PATH}/Vorbis/include" )
+
+        set( OGG_LIBRARIES      "${PRBOOM_EXTERNAL_FOLDER_PATH}/Ogg/libogg.lib" )
+        set( OGG_INCLUDE_DIRS   "${PRBOOM_EXTERNAL_FOLDER_PATH}/Ogg/include" )
+
+        set( VORBIS_LIBRARIES ${VORBISFILE_LIBRARY} ${VORBIS_LIBRARY} ${OGG_LIBRARIES} )
+        set( VORBIS_INCLUDE_DIRS ${VORBIS_INCLUDE_DIR} ${OGG_INCLUDE_DIRS} )
+        set( VORBIS_FOUND TRUE )
+    #
+
     if(VORBIS_FOUND)
         set(HAVE_LIBVORBISFILE TRUE)
+    else()
+      message(FATAL_ERROR "Vorbis is required (for playing .ogg files)")
     endif()
 endif()
 
