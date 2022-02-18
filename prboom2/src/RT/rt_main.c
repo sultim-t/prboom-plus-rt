@@ -403,11 +403,6 @@ void RT_NewLevel(int gameepisode, int gamemap, int skytexture)
 }
 
 
-void RT_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
-{
-}
-
-
 void RT_Wipe_DoMelt()
 {
 }
@@ -453,9 +448,20 @@ void RT_OnChangeScreenResolution()
 #define UNIQUE_TYPE_MASK_FOR_IDS ((1ULL << (uint64_t)(64 - UNIQUE_TYPE_BITS_COUNT)) - 1ULL)
 #define UNIQUE_TYPE_CHECK_IF_ID_VALID(id) assert(((id) & UNIQUE_TYPE_MASK_FOR_IDS) || ((id) == 0))
 
-#define UNIQUE_TYPE_THING (0ULL << (uint64_t)(64 - UNIQUE_TYPE_BITS_COUNT))
-#define UNIQUE_TYPE_WALL  (1ULL << (uint64_t)(64 - UNIQUE_TYPE_BITS_COUNT))
-#define UNIQUE_TYPE_FLAT  (2ULL << (uint64_t)(64 - UNIQUE_TYPE_BITS_COUNT))
+#define UNIQUE_TYPE_THING   (0ULL << (uint64_t)(64 - UNIQUE_TYPE_BITS_COUNT))
+#define UNIQUE_TYPE_WALL    (1ULL << (uint64_t)(64 - UNIQUE_TYPE_BITS_COUNT))
+#define UNIQUE_TYPE_FLAT    (2ULL << (uint64_t)(64 - UNIQUE_TYPE_BITS_COUNT))
+#define UNIQUE_TYPE_WEAPON  (3ULL << (uint64_t)(64 - UNIQUE_TYPE_BITS_COUNT))
+
+
+uint64_t RT_GetUniqueID_FirstPersonWeapon(int weaponindex)
+{
+  assert(weaponindex >= 0);
+
+  UNIQUE_TYPE_CHECK_IF_ID_VALID(weaponindex);
+
+  return UNIQUE_TYPE_WEAPON | weaponindex;
+}
 
 
 uint64_t RT_GetUniqueID_Thing(const mobj_t *thing)
@@ -472,6 +478,8 @@ uint64_t RT_GetUniqueID_Thing(const mobj_t *thing)
 
 uint64_t RT_GetUniqueID_Wall(int lineid, int subsectornum, int drawwallindex)
 {
+  assert(lineid >= 0 && subsectornum >= 0 && drawwallindex >= 0);
+
   assert((uint64_t)lineid        < (1ULL << 32ULL));
   assert((uint64_t)subsectornum  < (1ULL << (56ULL - 32ULL)));
   assert((uint64_t)drawwallindex < (1ULL << 4ULL));
@@ -488,6 +496,8 @@ uint64_t RT_GetUniqueID_Wall(int lineid, int subsectornum, int drawwallindex)
 
 uint64_t RT_GetUniqueID_Flat(int sectornum, dboolean ceiling)
 {
+  assert(sectornum >= 0);
+
   assert((uint64_t)sectornum < (1ULL << 32ULL));
 
   ceiling = ceiling ? 1 : 0;

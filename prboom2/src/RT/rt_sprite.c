@@ -132,7 +132,7 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
       .uniqueID = RT_GetUniqueID_Thing(thing),
       .flags = is_partial_invisibility ? RG_GEOMETRY_UPLOAD_REFL_REFR_ALBEDO_MULTIPLY_BIT : 0,
       .geomType = RG_GEOMETRY_TYPE_DYNAMIC,
-      .passThroughType = RG_GEOMETRY_PASS_THROUGH_TYPE_ALPHA_TESTED,
+      .passThroughType = is_partial_invisibility ? RG_GEOMETRY_PASS_THROUGH_TYPE_MIRROR : RG_GEOMETRY_PASS_THROUGH_TYPE_ALPHA_TESTED,
       .visibilityType = RG_GEOMETRY_VISIBILITY_TYPE_WORLD_0,
       .vertexCount = 6,
       .pVertexData = positions,
@@ -420,4 +420,151 @@ void RT_ProjectSprite(int sectornum, mobj_t *thing, int lightlevel)
 
 unlock_patch:
   R_UnlockPatchNum(lump);
+}
+
+
+static void Vec3_Normalize(float *v_0, float *v_1, float *v_2)
+{
+  float l = sqrtf((*v_0) * (*v_0) + (*v_1) * (*v_1) + (*v_2) * (*v_2));
+  *v_0 /= l;
+  *v_1 /= l;
+  *v_2 /= l;
+}
+
+
+void RT_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
+{
+  dboolean is_partial_invisibility = false;
+
+  float light;
+
+  const rt_texture_t *td = RT_Texture_GetFromPatchLump(firstspritelump + weaponlump);
+  if (!td)
+    return;
+
+  float fU1 = 0;
+  float fV1 = 0;
+  float fU2 = 1;
+  float fV2 = 1;
+  int ix1, iy1, ix2, iy2;
+
+  ix1 = viewwindowx + vis->x1;
+  ix2 = ix1 + (int)((float)td->width * pspritexscale_f);
+  iy1 = viewwindowy + centery - (int)(((float)vis->texturemid / (float)FRACUNIT) * pspriteyscale_f);
+  iy2 = iy1 + (int)((float)td->height * pspriteyscale_f) + 1;
+
+  float x1 = (float)ix1 / SCREENWIDTH;
+  float x2 = (float)ix2 / SCREENWIDTH;
+  float y1 = (float)iy1 / SCREENHEIGHT;
+  float y2 = (float)iy2 / SCREENHEIGHT;
+
+  x1 = x1 * 2 - 1;
+  x2 = x2 * 2 - 1;
+  y1 = y1 * 2 - 1;
+  y2 = y2 * 2 - 1;
+
+  // TODO RT: why multiplication by 2 is needed for weapons on X axis
+  x1 *= 2;
+  x2 *= 2;
+
+  y1 *= -1;
+  y2 *= -1;
+
+  // e6y: don't do the gamma table correction on the lighting
+  light = (float)lightlevel / 255.0f;
+
+  // e6y
+  // Fix of no warning (flashes between shadowed and solid)
+  // when invisibility is about to go
+  if (/*(viewplayer->mo->flags & MF_SHADOW) && */!vis->colormap)
+  {
+    is_partial_invisibility = true;
+  }
+  else
+  {
+    // dboolean is_translucent = viewplayer->mo->flags & MF_TRANSLUCENT;
+  }
+
+  RgFloat3D v_0 = { x1, y1, 0 };
+  RgFloat3D v_1 = { x1, y2, 0 };
+  RgFloat3D v_2 = { x2, y1, 0 };
+  RgFloat3D v_3 = { x2, y2, 0 };
+
+  RgFloat2D t_0 = { fU1, fV1 };
+  RgFloat2D t_1 = { fU1, fV2 };
+  RgFloat2D t_2 = { fU2, fV1 };
+  RgFloat2D t_3 = { fU2, fV2 };
+
+  RgFloat3D positions[6] = 
+  {
+    v_0, v_1, v_2,
+    v_1, v_3, v_2
+  };
+  RgFloat2D texcoords[6] =
+  {
+    t_0, t_1, t_2,
+    t_1, t_3, t_2
+  };
+
+
+  // based on R_BuildModelViewMatrix
+  const float cameraPosition[] = {
+    -(float)viewx / MAP_SCALE,
+     (float)viewz / MAP_SCALE,
+     (float)viewy / MAP_SCALE,
+  };
+
+  // modelMatrix is a view matrix in a layout:
+  // [RRR0]
+  // [RRR0]
+  // [RRR0]
+  // [TTTT]
+
+  // to get camera's rotation, need to invert the 3x3 part of view matrix,
+  // rotation matrix is orthogonal, so it can be just transposed;
+  // given the view matrix layout in memory, transposed one is [0,1,2,...]:
+  float rotation[3][3] =
+  {
+    { modelMatrix[0], modelMatrix[1], modelMatrix[2] }, 
+    { modelMatrix[4], modelMatrix[5], modelMatrix[6] },
+    { modelMatrix[8], modelMatrix[9], modelMatrix[10] },
+  };
+
+  static float z = -0.1f;
+  static float s = 0.07f;
+
+  const float forward[3] = { rotation[0][2], rotation[1][2], rotation[2][2] };
+  float weaponPosition[3] = { cameraPosition[0] + forward[0] * z, cameraPosition[1] + forward[1] * z, cameraPosition[2] + forward[2] * z };
+
+  RgTransform transform = 
+  {
+    rotation[0][0] * s, rotation[0][1] * s, rotation[0][2] * s,  weaponPosition[0],
+    rotation[1][0] * s, rotation[1][1] * s, rotation[1][2] * s,  weaponPosition[1],
+    rotation[2][0] * s, rotation[2][1] * s, rotation[2][2] * s,  weaponPosition[2],
+  };
+
+
+  RgGeometryUploadInfo info =
+  {
+    .uniqueID = RT_GetUniqueID_FirstPersonWeapon(weaponlump),
+    .flags = is_partial_invisibility ? RG_GEOMETRY_UPLOAD_REFL_REFR_ALBEDO_MULTIPLY_BIT : 0,
+    .geomType = RG_GEOMETRY_TYPE_DYNAMIC,
+    .passThroughType = is_partial_invisibility ? RG_GEOMETRY_PASS_THROUGH_TYPE_WATER_REFLECT_REFRACT : RG_GEOMETRY_PASS_THROUGH_TYPE_ALPHA_TESTED,
+    .visibilityType = RG_GEOMETRY_VISIBILITY_TYPE_FIRST_PERSON,
+    .vertexCount = 6,
+    .pVertexData = positions,
+    .pNormalData = normals,
+    .pTexCoordLayerData = { texcoords },
+    // get camera's sector
+    .sectorID = RT_GetSectorNum_Fixed(viewx, viewy),
+    .layerColors = { RG_COLOR_WHITE },
+    .defaultRoughness = 0.5f,
+    .defaultMetallicity = 0.1f,
+    .defaultEmission = 0.0f,
+    .geomMaterial = { td->rg_handle },
+    .transform = transform
+  };
+
+  RgResult r = rgUploadGeometry(rtmain.instance, &info);
+  RG_CHECK(r);
 }

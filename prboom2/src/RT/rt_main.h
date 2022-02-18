@@ -70,6 +70,7 @@ void RT_GetLineInfo(int lineid, float *out_x1, float *out_z1, float *out_x2, flo
 void RT_DestroySectorGeometryData(const rtsectordata_t *data);
 
 
+uint64_t RT_GetUniqueID_FirstPersonWeapon(int weaponindex);
 uint64_t RT_GetUniqueID_Thing(const mobj_t *thing);
 uint64_t RT_GetUniqueID_Wall(int lineid, int subsectornum, int drawwallindex);
 uint64_t RT_GetUniqueID_Flat(int sectornum, dboolean ceiling);

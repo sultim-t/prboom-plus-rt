@@ -1165,8 +1165,13 @@ void R_RenderPlayerView (player_t* player)
 
   if (V_GetMode() == VID_MODERT && !automap)
   {
-      RT_DrawScene(player);
-      RT_EndDrawScene();
+    if (!viewangleoffset && !viewpitchoffset)
+    {
+      R_DrawPlayerSprites();
+    }
+
+    RT_DrawScene(player);
+    RT_EndDrawScene();
   }
   else if (V_GetMode() == VID_MODEGL && !automap) {
 #ifdef GL_DOOM
