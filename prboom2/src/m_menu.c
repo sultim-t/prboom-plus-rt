@@ -6563,6 +6563,23 @@ void M_Drawer (void)
 {
   inhelpscreens = false;
 
+
+#if RT_CUSTOM_MENU
+  if (menuactive || messageToPrint)
+  {
+    // RT: draw menu background to make elements more visible
+    if (V_GetMode() == VID_MODEGL)
+    {
+      gld_FillBlock(0, 0, SCREENWIDTH, SCREENHEIGHT, 0, 10, 20, 200);
+    }
+    else if (V_GetMode() == VID_MODERT)
+    {
+      RT_DrawQuad(0, 0, SCREENWIDTH, SCREENHEIGHT, 20, 10, 0, 230);
+    }
+  }
+#endif
+
+
   // Horiz. & Vertically center string and print it.
   // killough 9/29/98: simplified code, removed 40-character width limit
   if (messageToPrint)
@@ -6584,25 +6601,14 @@ void M_Drawer (void)
           p++;
       }
       free(ms);
+
+      return;
     }
 
   if (!menuactive)
     {
       return;
     }
-
-
-#if RT_CUSTOM_MENU
-  // RT: draw menu background to make elements more visible
-  if (V_GetMode() == VID_MODEGL)
-  {
-    gld_FillBlock(0, 0, SCREENWIDTH, SCREENHEIGHT, 0, 10, 20, 200);
-  }
-  else if (V_GetMode() == VID_MODERT)
-  {
-    RT_DrawQuad(0, 0, SCREENWIDTH, SCREENHEIGHT, 20, 10, 0, 230);
-  }
-#endif
 
 
   int x,y,max,i;
