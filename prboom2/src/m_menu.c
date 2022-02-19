@@ -2154,7 +2154,7 @@ menu_t RT_GraphicsSettingsDef =
   &RT_OptionsDef,
   Generic_Setup,
   M_RT_GraphicsSettings_Draw,
-  56, 15,      // skull drawn here
+  -20, -20, // dont draw skull 
   0
 };
 
