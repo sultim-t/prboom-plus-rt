@@ -433,7 +433,7 @@ function(AddGameExecutable TARGET SOURCES)
     )
     target_link_libraries(${TARGET} PRIVATE RayTracedGL1)
     target_compile_definitions(${TARGET} PRIVATE RG_USE_SURFACE_WIN32)
-    target_compile_definitions(${TARGET} PRIVATE RT_CUSTOM_MENU)
+    target_compile_definitions(${TARGET} PRIVATE RT_CUSTOM_MENU=1 RT_DISABLE_SMALL_VIEWPORTS=1)
     # Copy library files
     get_target_property(RTGL1_DLL RayTracedGL1 IMPORTED_LOCATION)
     get_target_property(RTGL1_DLL_D RayTracedGL1 IMPORTED_LOCATION_DEBUG)

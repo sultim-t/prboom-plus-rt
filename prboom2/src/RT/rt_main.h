@@ -2,6 +2,7 @@
 
 #include "rt_common.h"
 #include "rt_textures.h"
+#include "rt_hud.h"
 
 #include "d_player.h"
 #include "r_defs.h"

@@ -155,6 +155,43 @@ void RT_DrawQuad_Patch(int lump, int x, int y, int width, int height, enum patch
 }
 
 
+void RT_TryApplyHUDCustomScale(enum patch_translation_e flags, float *p_xpos, float *p_ypos, float *p_width, float *p_height)
+{
+#if RT_ENABLE_STATUS_BAR_SCALE
+  float xpos = *p_xpos;
+  float ypos = *p_ypos;
+  float width = *p_width;
+  float height = *p_height;
+
+  const float vw = (float)SCREENWIDTH;
+  const float vh = (float)SCREENHEIGHT;
+
+  // RT: very special case for shrinking the classic status bar
+  if ((flags & VPT_ALIGN_BOTTOM) && (flags & VPT_STATUSBAR))
+  {
+    // anchor x around center
+    float x1 =     (xpos         ) / vw * 2 - 1;
+    float x2 =     (xpos + width ) / vw * 2 - 1;
+    // anchor y around bottom
+    float y1 = 1 - (ypos         ) / vh;
+    float y2 = 1 - (ypos + height) / vh;
+
+    float f = GetStatusBarScale();
+    x1 *= f; x2 *= f; y1 *= f; y2 *= f;
+
+    xpos   = (x1 + 1) / 2 * vw;
+    width  = (x2 + 1) / 2 * vw - xpos;
+    ypos   = (1 - y1) * vh;
+    height = (1 - y2) * vh - ypos;
+  }
+
+  *p_xpos = xpos;
+  *p_ypos = ypos;
+  *p_width = width;
+  *p_height = height;
+#endif
+}
+
 void RT_DrawQuad_NumPatch(float x, float y, int lump, int cm, enum patch_translation_e flags)
 {
   const rt_texture_t *td = RT_Texture_GetFromPatchLump(lump);
@@ -203,27 +240,7 @@ void RT_DrawQuad_NumPatch(float x, float y, int lump, int cm, enum patch_transla
     height = (float)td->height;
   }
 
-  // RT: very special case for shrinking the classic status bar
-  if ((flags & VPT_ALIGN_BOTTOM) && (flags & VPT_STATUSBAR))
-  {
-    const float vw = (float)SCREENWIDTH;
-    const float vh = (float)SCREENHEIGHT;
-
-    // anchor x around center
-    float x1 =     (xpos         ) / vw * 2 - 1;
-    float x2 =     (xpos + width ) / vw * 2 - 1;
-    // anchor y around bottom
-    float y1 = 1 - (ypos         ) / vh;
-    float y2 = 1 - (ypos + height) / vh;
-
-    float f = GetStatusBarScale();
-    x1 *= f; x2 *= f; y1 *= f; y2 *= f;
-
-    xpos   = (x1 + 1) / 2 * vw;
-    width  = (x2 + 1) / 2 * vw - xpos;
-    ypos   = (1 - y1) * vh;
-    height = (1 - y2) * vh - ypos;
-  }
+  RT_TryApplyHUDCustomScale(flags, &xpos, &ypos, &width, &height);
 
   DrawQuad_Internal(td->rg_handle, xpos, ypos, width, height, 255, 255, 255);
 }

@@ -439,8 +439,12 @@ static void ST_refreshBackground(void)
       flags = VPT_ALIGN_BOTTOM | VPT_STATUSBAR;
 
       // Applies palette to backfill
-      if (V_GetMode() == VID_MODE15 || V_GetMode() == VID_MODE16 || V_GetMode() == VID_MODE32 || V_GetMode() == VID_MODERT)
+    #if RT_DISABLE_SMALL_VIEWPORTS
+      R_FillBackScreen();
+    #else
+      if (V_GetMode() == VID_MODE15 || V_GetMode() == VID_MODE16 || V_GetMode() == VID_MODE32)
         R_FillBackScreen();
+    #endif
 
       V_DrawNumPatch(ST_X, y, BG, stbarbg.lumpnum, CR_DEFAULT, flags);
       if (!deathmatch)

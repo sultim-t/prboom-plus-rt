@@ -148,6 +148,8 @@ typedef enum {
 } complevel_t_e;
 typedef int complevel_t;
 
+#define RT_ENABLE_STATUS_BAR_SCALE 1
+
 /* cph - from v_video.h, needed by gl_struct.h */
 #define VPT_ALIGN_MASK 0xf
 #define VPT_STRETCH_MASK 0x1f
@@ -169,7 +171,9 @@ enum patch_translation_e {
   VPT_FLIP    = 256, // Flip image horizontally
   VPT_TRANS   = 512, // Translate image via a translation table
   VPT_NOOFFSET = 1024,
+#if RT_ENABLE_STATUS_BAR_SCALE
   VPT_STATUSBAR = 2048,
+#endif
 };
 
 #endif

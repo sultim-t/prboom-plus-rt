@@ -744,6 +744,13 @@ void R_ExecuteSetViewSize (void)
 
   SetRatio(SCREENWIDTH, SCREENHEIGHT);
 
+#if RT_DISABLE_SMALL_VIEWPORTS
+    {
+      scaledviewwidth = SCREENWIDTH;
+      viewheight = SCREENHEIGHT;
+      freelookviewheight = viewheight;
+    }
+#else
   if (setblocks == 11)
     {
       scaledviewwidth = SCREENWIDTH;
@@ -764,6 +771,7 @@ void R_ExecuteSetViewSize (void)
       viewheight = (setblocks*(SCREENHEIGHT-ST_SCALED_HEIGHT)/10) & ~7;
       freelookviewheight = setblocks*SCREENHEIGHT/10;
     }
+#endif
 
   viewwidth = scaledviewwidth;
 

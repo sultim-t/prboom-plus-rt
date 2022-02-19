@@ -1779,6 +1779,11 @@ static rt_hud_switch_e GetHudSwitch(void)
     RT_HUD_SWITCH_CUSTOM;
 }
 
+dboolean RT_IsClassicHUDEnabled(void)
+{
+  return GetHudSwitch() == RT_HUD_SWITCH_CLASSIC;
+}
+
 static void ApplyHudSwitch(rt_hud_switch_e h)
 {
   switch(h)

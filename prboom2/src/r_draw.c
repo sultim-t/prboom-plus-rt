@@ -1056,12 +1056,23 @@ void R_FillBackScreen (void)
 {
   int automap = ((automapmode & am_active) && !(automapmode & am_overlay));
 
-  // RT: don't fill with background flat-s with the classic HUD
-  if (!automap && V_GetMode() == VID_MODERT)
-    return;
-
   if (grnrock.lumpnum == 0)
     return;
+
+#if RT_DISABLE_SMALL_VIEWPORTS
+  if (V_GetMode() == VID_MODEGL || V_GetMode() == VID_MODERT)
+  {
+    // RT: don't fill with background flat-s with the classic HUD while not in automap
+    if (automap)
+    {
+      // RT: draw one quad that covers whole bottom of the screen
+      int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
+      V_FillRect(1, 0, stbar_top, SCREENWIDTH, ST_SCALED_HEIGHT, 0);
+    }
+
+    return;
+  }
+#endif
 
   // e6y: wide-res
   if (ratio_multiplier != ratio_scale || wide_offsety)
@@ -1083,14 +1094,6 @@ void R_FillBackScreen (void)
     if (only_stbar && ST_SCALED_OFFSETX > 0)
     {
       int stbar_top = SCREENHEIGHT - ST_SCALED_HEIGHT;
-
-      // RT: draw one quad that covers whole bottom of the screen,
-      //     for the case, if HUD is smaller
-      if (V_GetMode() == VID_MODERT || V_GetMode() == VID_MODEGL)
-      {
-        V_FillRect(1, 0, stbar_top, SCREENWIDTH, ST_SCALED_HEIGHT, 0);
-        return;
-      }
 
       V_FillFlat(grnrock.lumpnum, 1,
         0, stbar_top, ST_SCALED_OFFSETX, ST_SCALED_HEIGHT, VPT_NONE);
@@ -1157,8 +1160,12 @@ void R_DrawViewBorder(void)
 {
   int top, side, i;
 
-  if (V_GetMode() == VID_MODERT || V_GetMode() == VID_MODEGL)
+  if (V_GetMode() == VID_MODEGL || V_GetMode() == VID_MODERT)
   {
+  #if !RT_DISABLE_SMALL_VIEWPORTS
+    // proff 11/99: we don't have a backscreen in OpenGL from where we can copy this
+    R_FillBackScreen();
+  #endif
     return;
   }
 

@@ -395,9 +395,15 @@ void D_Display (fixed_t frac)
 
     R_RestoreInterpolations();
 
-    ST_Drawer(
-        ((viewheight != SCREENHEIGHT)
-         || ((automapmode & am_active) && !(automapmode & am_overlay))),
+  #if RT_DISABLE_SMALL_VIEWPORTS
+    dboolean drawclassichud = RT_IsClassicHUDEnabled();
+  #else
+    dboolean drawclassichud = viewheight != SCREENHEIGHT;
+  #endif
+    drawclassichud |= (automapmode & am_active) && !(automapmode & am_overlay);
+
+    ST_Drawer( 
+        drawclassichud,
         redrawborderstuff || BorderNeedRefresh,
         (menuactive == mnact_full || menuactive == mnact_float));
 

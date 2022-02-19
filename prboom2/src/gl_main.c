@@ -71,6 +71,7 @@
 #include "st_stuff.h"
 #include "hu_stuff.h"
 #include "e6y.h"//e6y
+#include "RT/rt_hud.h"
 
 // All OpenGL extentions will be disabled in gl_compatibility mode
 int gl_compatibility = 0;
@@ -698,6 +699,9 @@ void gld_DrawNumPatch_f(float x, float y, int lump, int cm, enum patch_translati
     width  = (float)(gltexture->realtexwidth);
     height = (float)(gltexture->realtexheight);
   }
+
+  RT_TryApplyHUDCustomScale(flags, &xpos, &ypos, &width, &height);
+
 
   bFakeColormap =
     (gltexture->flags & GLTEXTURE_HIRES) && 
