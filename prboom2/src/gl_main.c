@@ -932,21 +932,17 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   glColor3f(1.0f,1.0f,1.0f);
 }
 
-void gld_FillBlock(int x, int y, int width, int height, int col)
+void gld_FillBlock(int x, int y, int width, int height, byte r, byte g, byte b, byte a)
 {
-  const unsigned char *playpal = V_GetPlaypal();
-
   gld_EnableTexture2D(GL_TEXTURE0_ARB, false);
-  glColor3f((float)playpal[3*col]/255.0f,
-            (float)playpal[3*col+1]/255.0f,
-            (float)playpal[3*col+2]/255.0f);
+  glColor4f((float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f, (float)a / 255.0f);
   glBegin(GL_TRIANGLE_STRIP);
     glVertex2i( x, y );
     glVertex2i( x, y+height );
     glVertex2i( x+width, y );
     glVertex2i( x+width, y+height );
   glEnd();
-  glColor3f(1.0f,1.0f,1.0f);
+  glColor4f(1.0f,1.0f,1.0f,1.0f);
   gld_EnableTexture2D(GL_TEXTURE0_ARB, true);
 }
 

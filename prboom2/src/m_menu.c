@@ -70,6 +70,7 @@
 #include "e6y_launcher.h"
 #include "WIN/win_fopen.h"
 #endif
+#include "RT/rt_main.h"
 
 extern patchnum_t hu_font[HU_FONTSIZE];
 extern dboolean  message_dontfuckwithme;
@@ -6580,9 +6581,26 @@ void M_Drawer (void)
       }
       free(ms);
     }
-  else
-    if (menuactive)
-      {
+
+  if (!menuactive)
+    {
+      return;
+    }
+
+
+#if RT_CUSTOM_MENU
+  // RT: draw menu background to make elements more visible
+  if (V_GetMode() == VID_MODEGL)
+  {
+    gld_FillBlock(0, 0, SCREENWIDTH, SCREENHEIGHT, 0, 10, 20, 200);
+  }
+  else if (V_GetMode() == VID_MODERT)
+  {
+    RT_DrawQuad(0, 0, SCREENWIDTH, SCREENHEIGHT, 20, 10, 0, 230);
+  }
+#endif
+
+
   int x,y,max,i;
   int lumps_missing = 0;
 
@@ -6624,7 +6642,6 @@ void M_Drawer (void)
   // CPhipps - patch drawing updated
   V_DrawNamePatch(x + SKULLXOFF, currentMenu->y - 5 + itemOn*LINEHEIGHT,0,
       skullName[whichSkull], CR_DEFAULT, VPT_STRETCH);
-      }
 }
 
 //

@@ -997,9 +997,13 @@ static void V_PlotPixelWu16(int scrn, int x, int y, byte color, int weight);
 static void V_PlotPixelWu32(int scrn, int x, int y, byte color, int weight);
 
 #ifdef GL_DOOM
-static void WRAP_gld_FillRect(int scrn, int x, int y, int width, int height, byte colour)
+static void WRAP_gld_FillRect(int scrn, int x, int y, int width, int height, byte color)
 {
-  gld_FillBlock(x,y,width,height,colour);
+  const unsigned char *playpal = V_GetPlaypal();
+  byte r = playpal[3 * color];
+  byte g = playpal[3 * color + 1];
+  byte b = playpal[3 * color + 2];
+  gld_FillBlock(x,y,width,height,r,g,b,255);
 }
 static void WRAP_gld_CopyRect(int srcscrn, int destscrn, int x, int y, int width, int height, enum patch_translation_e flags)
 {
@@ -1050,7 +1054,7 @@ static void WRAP_RT_FillRect(int scrn, int x, int y, int width, int height, byte
   byte g = playpal[3 * color + 1];
   byte b = playpal[3 * color + 2];
 
-  RT_DrawQuad(x, y, width, height, r, g, b);
+  RT_DrawQuad(x, y, width, height, r, g, b, 255);
 }
 static void WRAP_RT_CopyRect(int srcscrn, int destscrn, int x, int y, int width, int height, enum patch_translation_e flags)
 {

@@ -50,7 +50,7 @@ static const float MATRIX_IDENTITY[] =
 static void DrawQuad_Internal_T(RgMaterial mat,
                                 float x, float y, float width, float height,
                                 float s1, float t1, float s2, float t2,
-                                byte r, byte g, byte b)
+                                byte r, byte g, byte b, byte a)
 {
   const float vw = (float)SCREENWIDTH;
   const float vh = (float)SCREENHEIGHT;
@@ -60,7 +60,7 @@ static void DrawQuad_Internal_T(RgMaterial mat,
   float x2 = (x + width) / vw * 2.0f - 1.0f;
   float y2 = (y + height) / vh * 2.0f - 1.0f;
 
-  uint32_t color = PackColor(r, g, b, 255);
+  uint32_t color = PackColor(r, g, b, a);
 
   RgRasterizedGeometryVertexStruct verts[] =
   {
@@ -92,15 +92,15 @@ static void DrawQuad_Internal_T(RgMaterial mat,
 }
 
 
-static void DrawQuad_Internal(RgMaterial mat, float x, float y, float width, float height, byte r, byte g, byte b)
+static void DrawQuad_Internal(RgMaterial mat, float x, float y, float width, float height, byte r, byte g, byte b, byte a)
 {
-  DrawQuad_Internal_T(mat, x, y, width, height, 0, 0, 1, 1, r, g, b);
+  DrawQuad_Internal_T(mat, x, y, width, height, 0, 0, 1, 1, r, g, b, a);
 }
 
 
-void RT_DrawQuad(int x, int y, int width, int height, byte r, byte g, byte b)
+void RT_DrawQuad(int x, int y, int width, int height, byte r, byte g, byte b, byte a)
 {
-  DrawQuad_Internal(RG_NO_MATERIAL, (float)x, (float)y, (float)width, (float)height, r, g, b);
+  DrawQuad_Internal(RG_NO_MATERIAL, (float)x, (float)y, (float)width, (float)height, r, g, b, a);
 }
 
 
@@ -127,7 +127,7 @@ void RT_DrawQuad_Flat(int lump_flat, int x, int y, int width, int height, enum p
   float fU2 = (float)width / (float)td->width;
   float fV2 = (float)height / (float)td->height;
 
-  DrawQuad_Internal_T(td->rg_handle, (float)x, (float)y, (float)width, (float)height, fU1, fV1, fU2, fV2, 255, 255, 255);
+  DrawQuad_Internal_T(td->rg_handle, (float)x, (float)y, (float)width, (float)height, fU1, fV1, fU2, fV2, 255, 255, 255, 255);
 }
 
 
@@ -151,7 +151,7 @@ void RT_DrawQuad_Patch(int lump, int x, int y, int width, int height, enum patch
     height = height * SCREENHEIGHT / 200;
   }
 
-  DrawQuad_Internal(td->rg_handle, (float)x, (float)y, (float)width, (float)height, 255, 255, 255);
+  DrawQuad_Internal(td->rg_handle, (float)x, (float)y, (float)width, (float)height, 255, 255, 255, 255);
 }
 
 
@@ -242,5 +242,5 @@ void RT_DrawQuad_NumPatch(float x, float y, int lump, int cm, enum patch_transla
 
   RT_TryApplyHUDCustomScale(flags, &xpos, &ypos, &width, &height);
 
-  DrawQuad_Internal(td->rg_handle, xpos, ypos, width, height, 255, 255, 255);
+  DrawQuad_Internal(td->rg_handle, xpos, ypos, width, height, 255, 255, 255, 255);
 }
