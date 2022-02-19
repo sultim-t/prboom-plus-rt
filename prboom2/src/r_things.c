@@ -645,7 +645,7 @@ static void R_ProjectSprite (int sectornum, mobj_t* thing, int lightlevel)
 
   if (V_GetMode() == VID_MODERT)
   {
-    RT_ProjectSprite(sectornum, thing, lightlevel);
+    RT_AddSprite(sectornum, thing, lightlevel);
     return;
   }
 
@@ -1131,7 +1131,7 @@ static void R_DrawPSprite (pspdef_t *psp)
 
     if (V_GetMode() == VID_MODERT)
     {
-      RT_DrawWeapon(lump, vis, lightlevel);
+      RT_AddWeaponSprite(lump, vis, lightlevel);
     }
 #ifdef GL_DOOM
     else if (V_GetMode() == VID_MODEGL)

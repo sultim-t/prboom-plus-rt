@@ -30,16 +30,13 @@ void RT_NewLevel(int gameepisode, int gamemap, int skytexture);
 void RT_StartFrame(void);
 void RT_EndFrame(void);
 
-void RT_StartDrawScene(void);
 void RT_InitMatrices(const float viewMatrix[16], const float projMatrix[16]);
-void RT_DrawScene(player_t *player);
-void RT_EndDrawScene(void);
-
-void RT_ProjectSprite(int sectornum, mobj_t *thing, int lightlevel);
-void RT_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel);
 
 void RT_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling);
 void RT_AddWall(int subsectornum, seg_t *seg);
+void RT_AddSprite(int sectornum, mobj_t *thing, int lightlevel);
+void RT_AddWeaponSprite(int weaponlump, vissprite_t *vis, int lightlevel);
+void RT_AddSkyDome(void);
 
 void RT_DrawLine(float x0, float y0, float x1, float y1, byte r, byte g, byte b);
 void RT_DrawQuad(int x, int y, int width, int height, byte r, byte g, byte b, byte a);
@@ -53,7 +50,10 @@ void RT_Wipe_ExitMelt(void);
 void RT_Wipe_StartScreen(void);
 void RT_Wipe_EndScreen(void);
 
-// ?
+// TODO RT: unnecessary functions?
+void RT_StartDrawScene(void);
+void RT_DrawScene(player_t *player);
+void RT_EndDrawScene(void);
 void RT_OnMovePlane(void);
 void RT_OnSkipDemoStop(void);
 void RT_OnToggleFullscreen(void);

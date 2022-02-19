@@ -268,6 +268,7 @@ set(
     RT/rt_preprocess.c
     RT/rt_sprite.c
     RT/rt_projection.c
+    RT/rt_skydome.c
 )
 
 set(PRBOOM_PLUS_SOURCES

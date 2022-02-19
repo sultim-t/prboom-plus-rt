@@ -183,7 +183,7 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
 }
 
 
-void RT_ProjectSprite(int sectornum, mobj_t *thing, int lightlevel)
+void RT_AddSprite(int sectornum, mobj_t *thing, int lightlevel)
 {
   if (sectornum < 0 || sectornum >= numsectors)
   {
@@ -441,7 +441,7 @@ RgFloat3D FromHomogeneous(const RgFloat4D v)
 }
 
 
-void RT_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
+void RT_AddWeaponSprite(int weaponlump, vissprite_t *vis, int lightlevel)
 {
   dboolean is_partial_invisibility = false;
 
