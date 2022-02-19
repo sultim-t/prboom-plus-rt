@@ -745,33 +745,36 @@ void R_ExecuteSetViewSize (void)
   SetRatio(SCREENWIDTH, SCREENHEIGHT);
 
 #if RT_DISABLE_SMALL_VIEWPORTS
+  if (V_GetMode() == VID_MODEGL || V_GetMode() == VID_MODERT)
+  {
+    scaledviewwidth = SCREENWIDTH;
+    viewheight = SCREENHEIGHT;
+    freelookviewheight = viewheight;
+  }
+  else
+#endif
+  {
+    if (setblocks == 11)
     {
       scaledviewwidth = SCREENWIDTH;
       viewheight = SCREENHEIGHT;
       freelookviewheight = viewheight;
     }
-#else
-  if (setblocks == 11)
+    // proff 09/24/98: Added for high-res
+    else if (setblocks == 10)
     {
       scaledviewwidth = SCREENWIDTH;
-      viewheight = SCREENHEIGHT;
-      freelookviewheight = viewheight;
-    }
-// proff 09/24/98: Added for high-res
-  else if (setblocks == 10)
-    {
-      scaledviewwidth = SCREENWIDTH;
-      viewheight = SCREENHEIGHT-ST_SCALED_HEIGHT;
+      viewheight = SCREENHEIGHT - ST_SCALED_HEIGHT;
       freelookviewheight = SCREENHEIGHT;
     }
-  else
+    else
     {
-// proff 08/17/98: Changed for high-res
-      scaledviewwidth = setblocks*SCREENWIDTH/10;
-      viewheight = (setblocks*(SCREENHEIGHT-ST_SCALED_HEIGHT)/10) & ~7;
-      freelookviewheight = setblocks*SCREENHEIGHT/10;
+      // proff 08/17/98: Changed for high-res
+      scaledviewwidth = setblocks * SCREENWIDTH / 10;
+      viewheight = (setblocks * (SCREENHEIGHT - ST_SCALED_HEIGHT) / 10) & ~7;
+      freelookviewheight = setblocks * SCREENHEIGHT / 10;
     }
-#endif
+  }
 
   viewwidth = scaledviewwidth;
 
