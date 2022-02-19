@@ -423,14 +423,20 @@ unlock_patch:
 }
 
 
-RgFloat3D ApplyMat44ToVec3(const float column_mat[4][4], const float v[3])
+RgFloat4D ApplyMat44ToVec4(const float column_mat[4][4], const float v[4])
 {
-  // assume v[3]==1.0
-  RgFloat3D r;
-  for (int i = 0; i < 3; i++)
+  RgFloat4D r;
+  for (int i = 0; i < 4; i++)
   {
-    r.data[i] = column_mat[0][i] * v[0] + column_mat[1][i] * v[1] + column_mat[2][i] * v[2] + column_mat[3][i] * 1.0f;
+    r.data[i] = column_mat[0][i] * v[0] + column_mat[1][i] * v[1] + column_mat[2][i] * v[2] + column_mat[3][i] * v[3];
   }
+  return r;
+}
+
+
+RgFloat3D FromHomogeneous(const RgFloat4D v)
+{
+  RgFloat3D r = { v.data[0] / v.data[3],v.data[1] / v.data[3],v.data[2] / v.data[3] };
   return r;
 }
 
@@ -463,23 +469,23 @@ void RT_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   RgFloat2D v2_screen = { x2, y1 };
   RgFloat2D v3_screen = { x2, y2 };
 
-  float z = 0.01f;
-  RgFloat3D v0_ndc = { v0_screen.data[0] * 2 - 1, v0_screen.data[1] * 2 - 1, z };
-  RgFloat3D v1_ndc = { v1_screen.data[0] * 2 - 1, v1_screen.data[1] * 2 - 1, z };
-  RgFloat3D v2_ndc = { v2_screen.data[0] * 2 - 1, v2_screen.data[1] * 2 - 1, z };
-  RgFloat3D v3_ndc = { v3_screen.data[0] * 2 - 1, v3_screen.data[1] * 2 - 1, z };
+  static float z = 0.1f;
+  RgFloat4D v0_ndc = { v0_screen.data[0] * 2 - 1, v0_screen.data[1] * 2 - 1, z, 1.0f };
+  RgFloat4D v1_ndc = { v1_screen.data[0] * 2 - 1, v1_screen.data[1] * 2 - 1, z, 1.0f };
+  RgFloat4D v2_ndc = { v2_screen.data[0] * 2 - 1, v2_screen.data[1] * 2 - 1, z, 1.0f };
+  RgFloat4D v3_ndc = { v3_screen.data[0] * 2 - 1, v3_screen.data[1] * 2 - 1, z, 1.0f };
 
   // assume *_ndc are the same as clip space,
   // so apply inverse projection to get view space coords
-  RgFloat3D v0_view = ApplyMat44ToVec3(rtmain.mat_projectionvk_inverse, v0_ndc.data);
-  RgFloat3D v1_view = ApplyMat44ToVec3(rtmain.mat_projectionvk_inverse, v1_ndc.data);
-  RgFloat3D v2_view = ApplyMat44ToVec3(rtmain.mat_projectionvk_inverse, v2_ndc.data);
-  RgFloat3D v3_view = ApplyMat44ToVec3(rtmain.mat_projectionvk_inverse, v3_ndc.data);
+  RgFloat4D v0_view = ApplyMat44ToVec4(rtmain.mat_projectionvk_inverse, v0_ndc.data);
+  RgFloat4D v1_view = ApplyMat44ToVec4(rtmain.mat_projectionvk_inverse, v1_ndc.data);
+  RgFloat4D v2_view = ApplyMat44ToVec4(rtmain.mat_projectionvk_inverse, v2_ndc.data);
+  RgFloat4D v3_view = ApplyMat44ToVec4(rtmain.mat_projectionvk_inverse, v3_ndc.data);
 
-  RgFloat3D v0_world = ApplyMat44ToVec3(rtmain.mat_view_inverse, v0_view.data);
-  RgFloat3D v1_world = ApplyMat44ToVec3(rtmain.mat_view_inverse, v1_view.data);
-  RgFloat3D v2_world = ApplyMat44ToVec3(rtmain.mat_view_inverse, v2_view.data);
-  RgFloat3D v3_world = ApplyMat44ToVec3(rtmain.mat_view_inverse, v3_view.data);
+  RgFloat3D v0_world = FromHomogeneous(ApplyMat44ToVec4(rtmain.mat_view_inverse, v0_view.data));
+  RgFloat3D v1_world = FromHomogeneous(ApplyMat44ToVec4(rtmain.mat_view_inverse, v1_view.data));
+  RgFloat3D v2_world = FromHomogeneous(ApplyMat44ToVec4(rtmain.mat_view_inverse, v2_view.data));
+  RgFloat3D v3_world = FromHomogeneous(ApplyMat44ToVec4(rtmain.mat_view_inverse, v3_view.data));
 
 
   if (/*(viewplayer->mo->flags & MF_SHADOW) && */!vis->colormap)
