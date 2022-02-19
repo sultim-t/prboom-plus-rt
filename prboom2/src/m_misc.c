@@ -510,7 +510,7 @@ default_t defaults[] =
    def_int,ss_none },
   {"rt_muzzleflash_intensity",{&rt_settings.muzzleflash_intensity},{2},0,2,
    def_int,ss_none},
-  {"rt_statusbar_scale",{&rt_settings.statusbar_scale},{3},0,5,
+  {"rt_statusbar_scale",{&rt_settings.statusbar_scale},{4},0,9,
    def_int,ss_none},
 
   {"OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},

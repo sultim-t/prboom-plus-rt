@@ -6,15 +6,7 @@
 
 static float GetStatusBarScale()
 {
-  switch(rt_settings.statusbar_scale)
-  {
-    case 0:   return 0.25f;
-    case 1:   return 0.5f;
-    case 2:   return 0.6f;
-    case 3:   return 0.75f;
-    case 4:   return 0.9f;
-    default:  return 1.0f;
-  }
+  return 0.1f * BETWEEN(1, 10, rt_settings.statusbar_scale + 1);
 }
 
 
