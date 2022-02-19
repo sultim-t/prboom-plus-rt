@@ -423,12 +423,15 @@ unlock_patch:
 }
 
 
-static void Vec3_Normalize(float *v_0, float *v_1, float *v_2)
+RgFloat3D ApplyMat44ToVec3(const float column_mat[4][4], const float v[3])
 {
-  float l = sqrtf((*v_0) * (*v_0) + (*v_1) * (*v_1) + (*v_2) * (*v_2));
-  *v_0 /= l;
-  *v_1 /= l;
-  *v_2 /= l;
+  // assume v[3]==1.0
+  RgFloat3D r;
+  for (int i = 0; i < 3; i++)
+  {
+    r.data[i] = column_mat[0][i] * v[0] + column_mat[1][i] * v[1] + column_mat[2][i] * v[2] + column_mat[3][i] * 1.0f;
+  }
+  return r;
 }
 
 
@@ -450,22 +453,34 @@ void RT_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   int iy1 = viewwindowy + centery - (int)(((float)vis->texturemid / (float)FRACUNIT) * pspriteyscale_f);
   int iy2 = iy1 + (int)((float)td->height * pspriteyscale_f) + 1;
 
-  float x1 = (float)ix1 / SCREENWIDTH;
-  float x2 = (float)ix2 / SCREENWIDTH;
-  float y1 = (float)iy1 / SCREENHEIGHT;
-  float y2 = (float)iy2 / SCREENHEIGHT;
+  float x1 = (float)ix1 / (float)SCREENWIDTH;
+  float x2 = (float)ix2 / (float)SCREENWIDTH;
+  float y1 = (float)iy1 / (float)SCREENHEIGHT;
+  float y2 = (float)iy2 / (float)SCREENHEIGHT;
 
-  x1 = x1 * 2 - 1;
-  x2 = x2 * 2 - 1;
-  y1 = y1 * 2 - 1;
-  y2 = y2 * 2 - 1;
+  RgFloat2D v0_screen = { x1, y1 };
+  RgFloat2D v1_screen = { x1, y2 };
+  RgFloat2D v2_screen = { x2, y1 };
+  RgFloat2D v3_screen = { x2, y2 };
 
-  // TODO RT: why multiplication by 2 is needed for weapons on X axis
-  x1 *= 2;
-  x2 *= 2;
+  float z = 0.01f;
+  RgFloat3D v0_ndc = { v0_screen.data[0] * 2 - 1, v0_screen.data[1] * 2 - 1, z };
+  RgFloat3D v1_ndc = { v1_screen.data[0] * 2 - 1, v1_screen.data[1] * 2 - 1, z };
+  RgFloat3D v2_ndc = { v2_screen.data[0] * 2 - 1, v2_screen.data[1] * 2 - 1, z };
+  RgFloat3D v3_ndc = { v3_screen.data[0] * 2 - 1, v3_screen.data[1] * 2 - 1, z };
 
-  y1 *= -1;
-  y2 *= -1;
+  // assume *_ndc are the same as clip space,
+  // so apply inverse projection to get view space coords
+  RgFloat3D v0_view = ApplyMat44ToVec3(rtmain.mat_projectionvk_inverse, v0_ndc.data);
+  RgFloat3D v1_view = ApplyMat44ToVec3(rtmain.mat_projectionvk_inverse, v1_ndc.data);
+  RgFloat3D v2_view = ApplyMat44ToVec3(rtmain.mat_projectionvk_inverse, v2_ndc.data);
+  RgFloat3D v3_view = ApplyMat44ToVec3(rtmain.mat_projectionvk_inverse, v3_ndc.data);
+
+  RgFloat3D v0_world = ApplyMat44ToVec3(rtmain.mat_view_inverse, v0_view.data);
+  RgFloat3D v1_world = ApplyMat44ToVec3(rtmain.mat_view_inverse, v1_view.data);
+  RgFloat3D v2_world = ApplyMat44ToVec3(rtmain.mat_view_inverse, v2_view.data);
+  RgFloat3D v3_world = ApplyMat44ToVec3(rtmain.mat_view_inverse, v3_view.data);
+
 
   if (/*(viewplayer->mo->flags & MF_SHADOW) && */!vis->colormap)
   {
@@ -476,45 +491,22 @@ void RT_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
     // dboolean is_translucent = viewplayer->mo->flags & MF_TRANSLUCENT;
   }
 
-  RgFloat3D v_0 = { x1, y1, 0 };
-  RgFloat3D v_1 = { x1, y2, 0 };
-  RgFloat3D v_2 = { x2, y1, 0 };
-  RgFloat3D v_3 = { x2, y2, 0 };
-
-  RgFloat2D t_0 = { fU1, fV1 };
-  RgFloat2D t_1 = { fU1, fV2 };
-  RgFloat2D t_2 = { fU2, fV1 };
-  RgFloat2D t_3 = { fU2, fV2 };
+  RgFloat2D t0 = { fU1, fV1 };
+  RgFloat2D t1 = { fU1, fV2 };
+  RgFloat2D t2 = { fU2, fV1 };
+  RgFloat2D t3 = { fU2, fV2 };
 
   RgFloat3D positions[6] = 
   {
-    v_0, v_1, v_2,
-    v_1, v_3, v_2
+    v0_world, v1_world, v2_world,
+    v1_world, v3_world, v2_world
   };
   RgFloat2D texcoords[6] =
   {
-    t_0, t_1, t_2,
-    t_1, t_3, t_2
+    t0, t1, t2,
+    t1, t3, t2
   };
-
   
-#define cam_pos (rtmain.mat_view_inverse[3])
-#define cam_rot (rtmain.mat_view_inverse) // column-major memory layout
-
-#define cam_dir (rtmain.mat_view_inverse[2])
-
-  static float z = -0.1f;
-  static float s = 0.07f;
-
-  float weaponPosition[3] = { cam_pos[0] + cam_dir[0] * z, cam_pos[1] + cam_dir[1] * z, cam_pos[2] + cam_dir[2] * z };
-
-  RgTransform transform = 
-  {
-    cam_rot[0][0] * s, cam_rot[1][0] * s, cam_rot[2][0] * s,  weaponPosition[0],
-    cam_rot[0][1] * s, cam_rot[1][1] * s, cam_rot[2][1] * s,  weaponPosition[1],
-    cam_rot[0][2] * s, cam_rot[1][2] * s, cam_rot[2][2] * s,  weaponPosition[2],
-  };
-
 
   RgGeometryUploadInfo info =
   {
@@ -534,7 +526,7 @@ void RT_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
     .defaultMetallicity = 0.1f,
     .defaultEmission = 0.0f,
     .geomMaterial = { td->rg_handle },
-    .transform = transform
+    .transform = RG_TRANSFORM_IDENTITY
   };
 
   RgResult r = rgUploadGeometry(rtmain.instance, &info);

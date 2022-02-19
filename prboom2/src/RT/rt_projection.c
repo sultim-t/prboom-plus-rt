@@ -210,5 +210,5 @@ void RT_InitMatrices(const float viewMatrix[16], const float projMatrix[16])
 
 
   Matrix_Inverse((float *)rtmain.mat_view_inverse, (float *)rtmain.mat_view);
-  Matrix_Inverse((float *)rtmain.mat_projectionvk_inverse, (float *)rtmain.mat_projectionvk_inverse);
+  Matrix_Inverse((float *)rtmain.mat_projectionvk_inverse, (float *)rtmain.mat_projectionvk);
 }
