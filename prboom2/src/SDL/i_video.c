@@ -1146,6 +1146,10 @@ video_mode_t I_GetModeFromString(const char *modestr)
     mode = VID_MODE32;
   } else if (!stricmp(modestr,"32bit")) {
     mode = VID_MODE32;
+#if RT_CUSTOM_MENU
+  } else if (!stricmp(modestr,"Software")) {
+    mode = VID_MODE32;
+#endif
   } else if (!stricmp(modestr,"gl")) {
     mode = VID_MODEGL;
   } else if (!stricmp(modestr,"OpenGL")) {

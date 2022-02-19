@@ -3558,7 +3558,7 @@ static const char *videomodes[] = {
 #if RT_CUSTOM_MENU
 
 static const char *RT_simpler_videomodes[] = {
-  "32bit",
+  "Software",
 #ifdef GL_DOOM
   "OpenGL",
 #endif
