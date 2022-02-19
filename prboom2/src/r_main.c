@@ -965,6 +965,11 @@ void R_SetupMatrix(void)
 
   R_SetupPerspective(fovy, aspect, znear);
   R_BuildModelViewMatrix();
+
+  if (V_GetMode() == VID_MODERT)
+  {
+    RT_InitMatrices(modelMatrix, projMatrix);
+  }
 }
 
 //

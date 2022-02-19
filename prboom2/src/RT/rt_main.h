@@ -10,6 +10,12 @@ typedef struct
 {
   RgInstance instance;
   HWND hwnd;
+
+  float mat_view[4][4];
+  float mat_projectionvk[4][4];
+
+  float mat_view_inverse[4][4];
+  float mat_projectionvk_inverse[4][4];
 } rtmain_t;
 
 extern rtmain_t rtmain;
@@ -24,6 +30,7 @@ void RT_StartFrame(void);
 void RT_EndFrame(void);
 
 void RT_StartDrawScene(void);
+void RT_InitMatrices(const float viewMatrix[16], const float projMatrix[16]);
 void RT_DrawScene(player_t *player);
 void RT_EndDrawScene(void);
 

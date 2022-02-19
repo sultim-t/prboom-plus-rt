@@ -267,6 +267,7 @@ set(
     RT/rt_geom.c
     RT/rt_preprocess.c
     RT/rt_sprite.c
+    RT/rt_projection.c
 )
 
 set(PRBOOM_PLUS_SOURCES

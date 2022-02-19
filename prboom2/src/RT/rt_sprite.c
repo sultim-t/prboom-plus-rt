@@ -436,8 +436,6 @@ void RT_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
 {
   dboolean is_partial_invisibility = false;
 
-  float light;
-
   const rt_texture_t *td = RT_Texture_GetFromPatchLump(firstspritelump + weaponlump);
   if (!td)
     return;
@@ -446,12 +444,11 @@ void RT_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   float fV1 = 0;
   float fU2 = 1;
   float fV2 = 1;
-  int ix1, iy1, ix2, iy2;
 
-  ix1 = viewwindowx + vis->x1;
-  ix2 = ix1 + (int)((float)td->width * pspritexscale_f);
-  iy1 = viewwindowy + centery - (int)(((float)vis->texturemid / (float)FRACUNIT) * pspriteyscale_f);
-  iy2 = iy1 + (int)((float)td->height * pspriteyscale_f) + 1;
+  int ix1 = viewwindowx + vis->x1;
+  int ix2 = ix1 + (int)((float)td->width * pspritexscale_f);
+  int iy1 = viewwindowy + centery - (int)(((float)vis->texturemid / (float)FRACUNIT) * pspriteyscale_f);
+  int iy2 = iy1 + (int)((float)td->height * pspriteyscale_f) + 1;
 
   float x1 = (float)ix1 / SCREENWIDTH;
   float x2 = (float)ix2 / SCREENWIDTH;
@@ -470,12 +467,6 @@ void RT_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   y1 *= -1;
   y2 *= -1;
 
-  // e6y: don't do the gamma table correction on the lighting
-  light = (float)lightlevel / 255.0f;
-
-  // e6y
-  // Fix of no warning (flashes between shadowed and solid)
-  // when invisibility is about to go
   if (/*(viewplayer->mo->flags & MF_SHADOW) && */!vis->colormap)
   {
     is_partial_invisibility = true;
@@ -506,41 +497,22 @@ void RT_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
     t_1, t_3, t_2
   };
 
+  
+#define cam_pos (rtmain.mat_view_inverse[3])
+#define cam_rot (rtmain.mat_view_inverse) // column-major memory layout
 
-  // based on R_BuildModelViewMatrix
-  const float cameraPosition[] = {
-    -(float)viewx / MAP_SCALE,
-     (float)viewz / MAP_SCALE,
-     (float)viewy / MAP_SCALE,
-  };
-
-  // modelMatrix is a view matrix in a layout:
-  // [RRR0]
-  // [RRR0]
-  // [RRR0]
-  // [TTTT]
-
-  // to get camera's rotation, need to invert the 3x3 part of view matrix,
-  // rotation matrix is orthogonal, so it can be just transposed;
-  // given the view matrix layout in memory, transposed one is [0,1,2,...]:
-  float rotation[3][3] =
-  {
-    { modelMatrix[0], modelMatrix[1], modelMatrix[2] }, 
-    { modelMatrix[4], modelMatrix[5], modelMatrix[6] },
-    { modelMatrix[8], modelMatrix[9], modelMatrix[10] },
-  };
+#define cam_dir (rtmain.mat_view_inverse[2])
 
   static float z = -0.1f;
   static float s = 0.07f;
 
-  const float forward[3] = { rotation[0][2], rotation[1][2], rotation[2][2] };
-  float weaponPosition[3] = { cameraPosition[0] + forward[0] * z, cameraPosition[1] + forward[1] * z, cameraPosition[2] + forward[2] * z };
+  float weaponPosition[3] = { cam_pos[0] + cam_dir[0] * z, cam_pos[1] + cam_dir[1] * z, cam_pos[2] + cam_dir[2] * z };
 
   RgTransform transform = 
   {
-    rotation[0][0] * s, rotation[0][1] * s, rotation[0][2] * s,  weaponPosition[0],
-    rotation[1][0] * s, rotation[1][1] * s, rotation[1][2] * s,  weaponPosition[1],
-    rotation[2][0] * s, rotation[2][1] * s, rotation[2][2] * s,  weaponPosition[2],
+    cam_rot[0][0] * s, cam_rot[1][0] * s, cam_rot[2][0] * s,  weaponPosition[0],
+    cam_rot[0][1] * s, cam_rot[1][1] * s, cam_rot[2][1] * s,  weaponPosition[1],
+    cam_rot[0][2] * s, cam_rot[1][2] * s, cam_rot[2][2] * s,  weaponPosition[2],
   };
 
 

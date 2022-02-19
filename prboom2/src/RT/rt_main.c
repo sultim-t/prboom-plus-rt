@@ -110,27 +110,6 @@ void RT_Destroy(void)
 }
 
 
-static void Matrix_Multiply(float out[4][4], const float in1[4][4], const float in2[4][4])
-{
-  out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] + in1[0][2] * in2[2][0] + in1[0][3] * in2[3][0];
-  out[0][1] = in1[0][0] * in2[0][1] + in1[0][1] * in2[1][1] + in1[0][2] * in2[2][1] + in1[0][3] * in2[3][1];
-  out[0][2] = in1[0][0] * in2[0][2] + in1[0][1] * in2[1][2] + in1[0][2] * in2[2][2] + in1[0][3] * in2[3][2];
-  out[0][3] = in1[0][0] * in2[0][3] + in1[0][1] * in2[1][3] + in1[0][2] * in2[2][3] + in1[0][3] * in2[3][3];
-  out[1][0] = in1[1][0] * in2[0][0] + in1[1][1] * in2[1][0] + in1[1][2] * in2[2][0] + in1[1][3] * in2[3][0];
-  out[1][1] = in1[1][0] * in2[0][1] + in1[1][1] * in2[1][1] + in1[1][2] * in2[2][1] + in1[1][3] * in2[3][1];
-  out[1][2] = in1[1][0] * in2[0][2] + in1[1][1] * in2[1][2] + in1[1][2] * in2[2][2] + in1[1][3] * in2[3][2];
-  out[1][3] = in1[1][0] * in2[0][3] + in1[1][1] * in2[1][3] + in1[1][2] * in2[2][3] + in1[1][3] * in2[3][3];
-  out[2][0] = in1[2][0] * in2[0][0] + in1[2][1] * in2[1][0] + in1[2][2] * in2[2][0] + in1[2][3] * in2[3][0];
-  out[2][1] = in1[2][0] * in2[0][1] + in1[2][1] * in2[1][1] + in1[2][2] * in2[2][1] + in1[2][3] * in2[3][1];
-  out[2][2] = in1[2][0] * in2[0][2] + in1[2][1] * in2[1][2] + in1[2][2] * in2[2][2] + in1[2][3] * in2[3][2];
-  out[2][3] = in1[2][0] * in2[0][3] + in1[2][1] * in2[1][3] + in1[2][2] * in2[2][3] + in1[2][3] * in2[3][3];
-  out[3][0] = in1[3][0] * in2[0][0] + in1[3][1] * in2[1][0] + in1[3][2] * in2[2][0] + in1[3][3] * in2[3][0];
-  out[3][1] = in1[3][0] * in2[0][1] + in1[3][1] * in2[1][1] + in1[3][2] * in2[2][1] + in1[3][3] * in2[3][1];
-  out[3][2] = in1[3][0] * in2[0][2] + in1[3][1] * in2[1][2] + in1[3][2] * in2[2][2] + in1[3][3] * in2[3][2];
-  out[3][3] = in1[3][0] * in2[0][3] + in1[3][1] * in2[1][3] + in1[3][2] * in2[2][3] + in1[3][3] * in2[3][3];
-}
-
-
 static float GetZNear()
 {
   // from R_SetupMatrix
@@ -347,21 +326,8 @@ void RT_EndFrame()
     .pSkyParams = &sky_params,
     .pDebugParams = &debug_params,
   };
-
-#define FOV_FIX 2.0f
-  static const float to_vk_projection[4][4] =
-  {
-    { 1.0f, 0.0f, 0.0f, 0.0f },
-    { 0.0f,-1.0f, 0.0f, 0.0f },
-    { 0.0f, 0.0f, 0.5f * FOV_FIX, 0.5f },
-    { 0.0f, 0.0f, 0.0f, 1.0f }
-  };
-  float projMatrix_vk[4][4];
-  Matrix_Multiply(projMatrix_vk, to_vk_projection, (const float(*)[4])projMatrix);
-
-
-  memcpy(info.view, modelMatrix, sizeof(modelMatrix));
-  memcpy(info.projection, projMatrix_vk, sizeof(projMatrix_vk));
+  memcpy(info.view, rtmain.mat_view, 16 * sizeof(float));
+  memcpy(info.projection, rtmain.mat_projectionvk, 16 * sizeof(float));
 
   RgResult r = rgDrawFrame(rtmain.instance, &info);
   RG_CHECK(r);
