@@ -10,16 +10,6 @@ static float GetStatusBarScale()
 }
 
 
-static uint32_t PackColor(byte r, byte g, byte b, byte a)
-{
-  return
-    ((uint32_t)a << 24) |
-    ((uint32_t)b << 16) |
-    ((uint32_t)g << 8) |
-    ((uint32_t)r);
-}
-
-
 void RT_DrawLine(float x0, float y0, float x1, float y1, byte r, byte g, byte b)
 {
   // TODO RT: drawing lines
@@ -52,7 +42,7 @@ static void DrawQuad_Internal_T(RgMaterial mat,
   float x2 = (x + width) / vw * 2.0f - 1.0f;
   float y2 = (y + height) / vh * 2.0f - 1.0f;
 
-  uint32_t color = PackColor(r, g, b, a);
+  uint32_t color = RT_PackColor(r, g, b, a);
 
   RgRasterizedGeometryVertexStruct verts[] =
   {

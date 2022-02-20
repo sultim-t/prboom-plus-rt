@@ -17,6 +17,15 @@ typedef struct
 
   float mat_view_inverse[4][4];
   float mat_projectionvk_inverse[4][4];
+
+  struct
+  {
+    const rt_texture_t *texture;
+    float x_offset;
+    float y_offset;
+    dboolean gldwf_skyflip;
+  } sky;
+
 } rtmain_t;
 
 extern rtmain_t rtmain;
@@ -86,3 +95,6 @@ uint64_t RT_GetUniqueID_Flat(int sectornum, dboolean ceiling);
 
 int RT_GetSectorNum_Fixed(fixed_t x, fixed_t y);
 int RT_GetSectorNum_Real(float real_x, float real_y);
+
+
+uint32_t RT_PackColor(byte r, byte g, byte b, byte a);

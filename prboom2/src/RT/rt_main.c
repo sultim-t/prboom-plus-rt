@@ -248,6 +248,9 @@ void RT_StartFrame(void)
   RgResult r = rgStartFrame(rtmain.instance, &info);
   RG_CHECK(r);
 
+  memset(&rtmain.sky, 0, sizeof(rtmain.sky));
+
+
   frame_started_guard = true;
 }
 
@@ -489,4 +492,14 @@ int RT_GetSectorNum_Real(float real_x, float real_y)
   fixed_t y = (fixed_t)(real_y * MAP_SCALE);
 
   return RT_GetSectorNum_Fixed(x, y);
+}
+
+
+uint32_t RT_PackColor(byte r, byte g, byte b, byte a)
+{
+  return
+    ((uint32_t)a << 24) |
+    ((uint32_t)b << 16) |
+    ((uint32_t)g << 8) |
+    ((uint32_t)r);
 }
