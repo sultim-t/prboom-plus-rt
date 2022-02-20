@@ -39,7 +39,7 @@ void RT_Init(HINSTANCE hinstance, HWND hwnd)
 
   RgInstanceCreateInfo info =
   {
-    .pAppName = "GZDoom",
+    .pAppName = "PRBoom",
     .pAppGUID = "297e3cc1-4076-4a60-ac7c-5904c5db1313",
 
     .pWin32SurfaceInfo = &win32Info,
@@ -79,7 +79,11 @@ void RT_Init(HINSTANCE hinstance, HWND hwnd)
   };
 
   RgResult r = rgCreateInstance(&info, &rtmain.instance);
-  RG_CHECK(r);
+  if (r != RG_SUCCESS)
+  {
+    I_Error("Can't initialize ray tracing engine");
+    return;
+  }
 
   rtmain.hwnd = hwnd;
 
