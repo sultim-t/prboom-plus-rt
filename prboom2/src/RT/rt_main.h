@@ -18,6 +18,7 @@ typedef struct
   float mat_view_inverse[4][4];
   float mat_projectionvk_inverse[4][4];
 
+  dboolean was_new_sky;
   struct
   {
     const rt_texture_t *texture;

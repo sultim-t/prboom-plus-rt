@@ -27,10 +27,10 @@ typedef struct
   int loopcount;
   RTSkyLoopDef *loops;
   RgRasterizedGeometryVertexStruct *data;
+  uint32_t vertex_count;
 } RTSkyVBO;
 
 
-static int rows, columns;
 static dboolean yflip;
 static int texw;
 static float yMult, yAdd;
@@ -43,8 +43,8 @@ static void SkyVertex(RgRasterizedGeometryVertexStruct *vbo, int r, int c, dbool
   static fixed_t scale = 10000 << FRACBITS;
   static angle_t maxSideAngle = ANG180 / 3;
 
-  angle_t topAngle = (angle_t)(c / (float)columns * ANGLE_MAX);
-  angle_t sideAngle = maxSideAngle * (rows - r) / rows;
+  angle_t topAngle = (angle_t)(c / (float)SKYCOLUMNS * ANGLE_MAX);
+  angle_t sideAngle = maxSideAngle * (SKYROWS - r) / SKYROWS;
   fixed_t height = finesine[sideAngle >> ANGLETOFINESHIFT];
   fixed_t realRadius = FixedMul(scale, finecosine[sideAngle >> ANGLETOFINESHIFT]);
   fixed_t x = FixedMul(realRadius, finecosine[topAngle >> ANGLETOFINESHIFT]);
@@ -64,13 +64,13 @@ static void SkyVertex(RgRasterizedGeometryVertexStruct *vbo, int r, int c, dbool
     // And the texture coordinates.
     if (!yflip)	// Flipped Y is for the lower hemisphere.
     {
-      vbo->texCoord[0] = (-timesRepeat * c / (float)columns);
-      vbo->texCoord[1]= (r / (float)rows) * 1.f * yMult + yAdd;
+      vbo->texCoord[0] = (-timesRepeat * c / (float)SKYCOLUMNS);
+      vbo->texCoord[1]= (r / (float)SKYROWS) * 1.f * yMult + yAdd;
     }
     else
     {
-      vbo->texCoord[0] = (-timesRepeat * c / (float)columns);
-      vbo->texCoord[1] = ((rows - r) / (float)rows) * 1.f * yMult + yAdd;
+      vbo->texCoord[0] = (-timesRepeat * c / (float)SKYCOLUMNS);
+      vbo->texCoord[1] = ((SKYROWS - r) / (float)SKYROWS) * 1.f * yMult + yAdd;
     }
 
     if (sky_gldwf_skyflip)
@@ -112,6 +112,7 @@ static void BuildSky(RTSkyVBO *vbo, const rt_texture_t *sky_texture, float sky_y
     vbo->loops = malloc((row_count * 2 + 2) * sizeof(vbo->loops[0]));
     // create vertex array
     vbo->data = malloc(vertex_count * sizeof(vbo->data[0]));
+    vbo->vertex_count = vertex_count;
   }
 
   vbo->columns = col_count;
@@ -176,9 +177,16 @@ static void BuildSky(RTSkyVBO *vbo, const rt_texture_t *sky_texture, float sky_y
 }
 
 
+static int GetTriangleCount(int mode, int vertex_count)
+{
+  assert(mode == SKY_TRIANGLE_STRIP || mode == SKY_TRIANGLE_FAN);
+  return max(0, vertex_count - 2);
+}
+
+
 void RT_AddSkyDome(void)
 {
-  if (rtmain.sky.texture == NULL)
+  if (rtmain.sky.texture == NULL || !rtmain.was_new_sky)
   {
     return;
   }
@@ -219,13 +227,75 @@ void RT_AddSkyDome(void)
     }
   }
 
+
+  int index_count = 0;
+  for (int i = 0; i < vbo->loopcount; i++)
+  {
+    RTSkyLoopDef *loop = &vbo->loops[i];
+    index_count += 3 * GetTriangleCount(loop->mode, loop->vertexcount);
+  }
+
+
+  uint32_t *const p_indices = malloc(index_count * sizeof(uint32_t));
+  int index_iter = 0;
+
+
   for (int i = 0; i < vbo->loopcount; i++)
   {
     RTSkyLoopDef *loop = &vbo->loops[i];
 
     if (!loop->use_texture)
+    {
       continue;
+    }
 
-    //glDrawArrays(loop->mode, loop->vertexindex, loop->vertexcount);
+    switch (loop->mode)
+    {
+      case SKY_TRIANGLE_STRIP:
+      {
+        for (int t = 0; t < GetTriangleCount(loop->mode, loop->vertexcount); t++)
+        {
+          p_indices[index_iter] = loop->vertexindex + t;               index_iter++;
+          p_indices[index_iter] = loop->vertexindex + t + (1 + t % 2); index_iter++;
+          p_indices[index_iter] = loop->vertexindex + t + (2 - t % 2); index_iter++;
+        }
+        break;
+      }
+      case SKY_TRIANGLE_FAN:
+      {
+        for (int t = 0; t < GetTriangleCount(loop->mode, loop->vertexcount); t++)
+        {
+          p_indices[index_iter] = loop->vertexindex + t + 1;           index_iter++;
+          p_indices[index_iter] = loop->vertexindex + t + 2;           index_iter++;
+          p_indices[index_iter] = loop->vertexindex + 0;               index_iter++;
+        }
+        break;
+      }
+      default: assert(0); break;
+    }
   }
+
+
+  RgRasterizedGeometryUploadInfo info =
+  {
+    .renderType = RG_RASTERIZED_GEOMETRY_RENDER_TYPE_SKY,
+    .vertexCount = vbo->vertex_count,
+    .pStructs = vbo->data,
+    .indexCount = index_iter,
+    .pIndexData = p_indices,
+    .transform = RG_TRANSFORM_IDENTITY,
+    .color = RG_COLOR_WHITE ,
+    .material = rtmain.sky.texture->rg_handle,
+    .blendEnable = false,
+    .depthTest = false,
+    .depthWrite = false
+  };
+
+  RgResult r = rgUploadRasterizedGeometry(rtmain.instance, &info, NULL, NULL);
+  RG_CHECK(r);
+
+
+  free(vbo->loops);
+  free(vbo->data);
+  free(p_indices);
 }

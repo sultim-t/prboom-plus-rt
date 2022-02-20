@@ -239,7 +239,7 @@ void RT_StartFrame(void)
 {
   RgStartFrameInfo info =
   {
-    .requestRasterizedSkyGeometryReuse = false,
+    .requestRasterizedSkyGeometryReuse = rtmain.was_new_sky ? false : true,
     .requestShaderReload = false,
     .requestVSync = true,
     .surfaceSize = GetCurrentHWNDSize()
@@ -265,6 +265,8 @@ void RT_EndFrame()
 
 
   NormalizeRTSettings(&rt_settings);
+  rtmain.was_new_sky = false;
+
 
 
   // debug sun
@@ -297,8 +299,8 @@ void RT_EndFrame()
 
   RgDrawFrameSkyParams sky_params =
   {
-    .skyType = RG_SKY_TYPE_COLOR,
-    .skyColorDefault = {0.2f,0.2f,0.2f},
+    .skyType = rtmain.sky.texture != NULL ? RG_SKY_TYPE_RASTERIZED_GEOMETRY : RG_SKY_TYPE_COLOR,
+    .skyColorDefault = { 0,0,0 },
     .skyColorMultiplier = 1,
     .skyColorSaturation = 1,
     .skyViewerPosition = {0,0,0},
@@ -369,6 +371,9 @@ void RT_NewLevel(int gameepisode, int gamemap, int skytexture)
 
   r = rgSubmitStaticGeometries(rtmain.instance);
   RG_CHECK(r);
+
+
+  rtmain.was_new_sky = true;
 }
 
 
