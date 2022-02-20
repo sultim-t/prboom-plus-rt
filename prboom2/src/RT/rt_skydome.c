@@ -31,14 +31,13 @@ typedef struct
 } RTSkyVBO;
 
 
-static dboolean yflip;
 static int texw;
 static float yMult, yAdd;
 static dboolean foglayer;
 static float delta = 0.0f;
 
 
-static void SkyVertex(RgRasterizedGeometryVertexStruct *vbo, int r, int c, dboolean sky_gldwf_skyflip)
+static void SkyVertex(RgRasterizedGeometryVertexStruct *vbo, int r, int c, dboolean yflip, dboolean sky_gldwf_skyflip)
 {
   static fixed_t scale = 10000 << FRACBITS;
   static angle_t maxSideAngle = ANG180 / 3;
@@ -125,7 +124,7 @@ static void BuildSky(RTSkyVBO *vbo, const rt_texture_t *sky_texture, float sky_y
 
   RgRasterizedGeometryVertexStruct *vertex_p = &vbo->data[0];
   vbo->loopcount = 0;
-  for (yflip = 0; yflip < 2; yflip++)
+  for (int yflip = 0; yflip < 2; yflip++)
   {
     vbo->loops[vbo->loopcount].mode = SKY_TRIANGLE_FAN;
     vbo->loops[vbo->loopcount].vertexindex = vertex_p - &vbo->data[0];
@@ -151,8 +150,9 @@ static void BuildSky(RTSkyVBO *vbo, const rt_texture_t *sky_texture, float sky_y
     foglayer = true;
     for (c = 0; c < col_count; c++)
     {
-      SkyVertex(vertex_p, 1, c, sky_gldwf_skyflip);
+      SkyVertex(vertex_p, 1, c, yflip, sky_gldwf_skyflip);
       vertex_p->packedColor = RT_PackColor(skyColor[0], skyColor[1], skyColor[2], 255);
+      vertex_p->texCoord[0] = vertex_p->texCoord[1] = 0; // RT: parts that are not covered just use (0,0) of the sky texture
       vertex_p++;
     }
     foglayer = false;
@@ -169,8 +169,8 @@ static void BuildSky(RTSkyVBO *vbo, const rt_texture_t *sky_texture, float sky_y
 
       for (c = 0; c <= col_count; c++)
       {
-        SkyVertex(vertex_p++, r + (yflip ? 1 : 0), (c ? c : 0), sky_gldwf_skyflip);
-        SkyVertex(vertex_p++, r + (yflip ? 0 : 1), (c ? c : 0), sky_gldwf_skyflip);
+        SkyVertex(vertex_p++, r + (yflip ? 1 : 0), (c ? c : 0), yflip, sky_gldwf_skyflip);
+        SkyVertex(vertex_p++, r + (yflip ? 0 : 1), (c ? c : 0), yflip, sky_gldwf_skyflip);
       }
     }
   }
@@ -196,10 +196,6 @@ void RT_AddSkyDome(void)
   RTSkyVBO *vbo = &v_vbo;
 
   BuildSky(vbo, rtmain.sky.texture, rtmain.sky.y_offset, rtmain.sky.gldwf_skyflip);
-
-
-
-  // TODO RT: sky caps (instead of getting average color just use (0,0) tex coords?)
 
 
   
@@ -244,10 +240,8 @@ void RT_AddSkyDome(void)
   {
     RTSkyLoopDef *loop = &vbo->loops[i];
 
-    if (!loop->use_texture)
-    {
-      continue;
-    }
+    //if (!loop->use_texture)
+    //  continue;
 
     switch (loop->mode)
     {
