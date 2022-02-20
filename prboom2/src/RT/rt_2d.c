@@ -139,6 +139,12 @@ void RT_DrawQuad_Patch(int lump, int x, int y, int width, int height, enum patch
 
 void RT_TryApplyHUDCustomScale(enum patch_translation_e flags, float *p_xpos, float *p_ypos, float *p_width, float *p_height)
 {
+  if ((flags & VPT_STATUSBAR) == 0)
+  {
+    return;
+  }
+  enum patch_translation_e algn = flags & VPT_ALIGN_MASK;
+
 #if RT_ENABLE_STATUS_BAR_SCALE
   float xpos = *p_xpos;
   float ypos = *p_ypos;
@@ -148,24 +154,133 @@ void RT_TryApplyHUDCustomScale(enum patch_translation_e flags, float *p_xpos, fl
   const float vw = (float)SCREENWIDTH;
   const float vh = (float)SCREENHEIGHT;
 
-  // RT: very special case for shrinking the classic status bar
-  if ((flags & VPT_ALIGN_BOTTOM) && (flags & VPT_STATUSBAR))
-  {
-    // anchor x around center
-    float x1 =     (xpos         ) / vw * 2 - 1;
-    float x2 =     (xpos + width ) / vw * 2 - 1;
-    // anchor y around bottom
-    float y1 = 1 - (ypos         ) / vh;
-    float y2 = 1 - (ypos + height) / vh;
+  // to [0..1]
+  float x1 = (xpos) / vw;
+  float x2 = (xpos + width) / vw;
+  float y1 = (ypos) / vh;
+  float y2 = (ypos + height) / vh;
 
+#define ANCHOR_CENTER_X   (x1)=(x1)*2-1;(x2)=(x2)*2-1
+#define ANCHOR_CENTER_Y   (y1)=(y1)*2-1;(y2)=(y2)*2-1
+#define DEANCHOR_CENTER_X (x1)=((x1)+1)/2;(x2)=((x2)+1)/2
+#define DEANCHOR_CENTER_Y (y1)=((y1)+1)/2;(y2)=((y2)+1)/2
+
+#define ANCHOR_LEFT_X     (x1)=(x1);(x2)=(x2)
+#define ANCHOR_TOP_Y      (y1)=(y1);(y2)=(y2)
+#define DEANCHOR_LEFT_X   (x1)=(x1);(x2)=(x2)
+#define DEANCHOR_TOP_Y    (y1)=(y1);(y2)=(y2)
+
+#define ANCHOR_RIGHT_X    (x1)=1-(x1);(x2)=1-(x2)
+#define ANCHOR_BOTTOM_Y   (y1)=1-(y1);(y2)=1-(y2)
+#define DEANCHOR_RIGHT_X  (x1)=1-(x1);(x2)=1-(x2)
+#define DEANCHOR_BOTTOM_Y (y1)=1-(y1);(y2)=1-(y2)
+
+  // RT: very special case for shrinking the classic status bar
+  if (algn == VPT_ALIGN_BOTTOM)
+  {
+    ANCHOR_CENTER_X;
+    ANCHOR_BOTTOM_Y;
+  }
+  else if (algn == VPT_ALIGN_TOP)
+  {
+    ANCHOR_CENTER_X;
+    ANCHOR_TOP_Y;
+  }
+  else if (algn == VPT_ALIGN_LEFT)
+  {
+    ANCHOR_LEFT_X;
+    ANCHOR_CENTER_Y;
+  }
+  else if (algn == VPT_ALIGN_RIGHT)
+  {
+    ANCHOR_RIGHT_X;
+    ANCHOR_CENTER_Y;
+  }
+  else if (algn == VPT_ALIGN_LEFT_BOTTOM)
+  {
+    ANCHOR_LEFT_X;
+    ANCHOR_BOTTOM_Y;
+  }
+  else if (algn == VPT_ALIGN_LEFT_TOP)
+  {
+    ANCHOR_LEFT_X;
+    ANCHOR_TOP_Y;
+  }
+  else if (algn == VPT_ALIGN_RIGHT_BOTTOM)
+  {
+    ANCHOR_RIGHT_X;
+    ANCHOR_BOTTOM_Y;
+  }
+  else if (algn == VPT_ALIGN_RIGHT_TOP)
+  {
+    ANCHOR_RIGHT_X;
+    ANCHOR_TOP_Y;
+  }
+  else
+  {
+    assert(0);
+    return;
+  }
+
+
+  {
     float f = GetStatusBarScale();
     x1 *= f; x2 *= f; y1 *= f; y2 *= f;
-
-    xpos   = (x1 + 1) / 2 * vw;
-    width  = (x2 + 1) / 2 * vw - xpos;
-    ypos   = (1 - y1) * vh;
-    height = (1 - y2) * vh - ypos;
   }
+
+
+  // reset anchor
+  if (algn == VPT_ALIGN_BOTTOM)
+  {
+    DEANCHOR_CENTER_X;
+    DEANCHOR_BOTTOM_Y;
+  }
+  else if (algn == VPT_ALIGN_TOP)
+  {
+    DEANCHOR_CENTER_X;
+    DEANCHOR_TOP_Y;
+  }
+  else if (algn == VPT_ALIGN_LEFT)
+  {
+    DEANCHOR_LEFT_X;
+    DEANCHOR_CENTER_Y;
+  }
+  else if (algn == VPT_ALIGN_RIGHT)
+  {
+    DEANCHOR_RIGHT_X;
+    DEANCHOR_CENTER_Y;
+  }
+  else if (algn == VPT_ALIGN_LEFT_BOTTOM)
+  {
+    DEANCHOR_LEFT_X;
+    DEANCHOR_BOTTOM_Y;
+  }
+  else if (algn == VPT_ALIGN_LEFT_TOP)
+  {
+    DEANCHOR_LEFT_X;
+    DEANCHOR_TOP_Y;
+  }
+  else if (algn == VPT_ALIGN_RIGHT_BOTTOM)
+  {
+    DEANCHOR_RIGHT_X;
+    DEANCHOR_BOTTOM_Y;
+  }
+  else if (algn == VPT_ALIGN_RIGHT_TOP)
+  {
+    DEANCHOR_RIGHT_X;
+    DEANCHOR_TOP_Y;
+  }
+  else
+  {
+    assert(0);
+    return;
+  }
+
+  // back to screen
+  xpos   = x1 * vw;
+  width  = x2 * vw - xpos;
+  ypos   = y1 * vh;
+  height = y2 * vh - ypos;
 
   *p_xpos = xpos;
   *p_ypos = ypos;
