@@ -308,6 +308,22 @@ void RT_EndFrame()
     .luminanceWhitePoint = 10 
   };
 
+  RgDrawFrameReflectRefractParams reflrefr_params =
+  {
+    .isReflRefrAlphaTested = 1,
+    .maxReflectRefractDepth = rt_settings.refl_refr_max_depth,
+    .typeOfMediaAroundCamera = RG_MEDIA_TYPE_VACUUM,
+    .reflectRefractCastShadows = 0,
+    .reflectRefractToIndirect = 1,
+    .indexOfRefractionGlass = 1.52f,
+    .indexOfRefractionWater = 1.33f,
+    .waterWaveSpeed = 0.05f, // for partial_invisibility
+    .waterWaveNormalStrength = 3.0f, // for partial_invisibility
+    .waterExtinction = { 0.030f, 0.019f, 0.013f },
+    .waterWaveTextureDerivativesMultiplier = 1.0f,
+    .waterTextureAreaScale = 1.0f
+  };
+
   RgDrawFrameSkyParams sky_params =
   {
     .skyType = rtmain.sky.texture != NULL ? RG_SKY_TYPE_RASTERIZED_GEOMETRY : RG_SKY_TYPE_COLOR,
@@ -339,6 +355,7 @@ void RT_EndFrame()
     .useSqrtRoughnessForIndirect = false,
     .pRenderResolutionParams = &resolution_params,
     .pTonemappingParams = &tm_params,
+    .pReflectRefractParams = &reflrefr_params,
     .pSkyParams = &sky_params,
     .pDebugParams = &debug_params,
   };
