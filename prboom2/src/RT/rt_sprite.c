@@ -43,15 +43,8 @@ static float CalcLightLevel(int lightlevel)
 }
 
 
-static const RgFloat3D normals[6] = 
-{
-  { 0, 1, 0 },
-  { 0, 1, 0 },
-  { 0, 1, 0 },
-  { 0, 1, 0 },
-  { 0, 1, 0 },
-  { 0, 1, 0 }
-};
+static const RgFloat3D *Get6NormalsUp(void);
+static const RgFloat3D *Get6NormalsTowardsCamera(void);
 
 
 static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int sectornum)
@@ -130,13 +123,13 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
     RgGeometryUploadInfo info =
     {
       .uniqueID = RT_GetUniqueID_Thing(thing),
-      .flags = is_partial_invisibility ? RG_GEOMETRY_UPLOAD_REFL_REFR_ALBEDO_MULTIPLY_BIT : 0,
+      .flags = is_partial_invisibility ? RG_GEOMETRY_UPLOAD_REFL_REFR_ALBEDO_ADD_BIT : 0,
       .geomType = RG_GEOMETRY_TYPE_DYNAMIC,
-      .passThroughType = is_partial_invisibility ? RG_GEOMETRY_PASS_THROUGH_TYPE_MIRROR : RG_GEOMETRY_PASS_THROUGH_TYPE_ALPHA_TESTED,
+      .passThroughType = is_partial_invisibility ? RG_GEOMETRY_PASS_THROUGH_TYPE_WATER_REFLECT_REFRACT : RG_GEOMETRY_PASS_THROUGH_TYPE_ALPHA_TESTED,
       .visibilityType = RG_GEOMETRY_VISIBILITY_TYPE_WORLD_0,
       .vertexCount = 6,
       .pVertexData = positions,
-      .pNormalData = normals,
+      .pNormalData = is_partial_invisibility ? Get6NormalsTowardsCamera() : Get6NormalsUp(),
       .pTexCoordLayerData = { texcoords },
       .sectorID = sectornum,
       .layerColors = { RG_COLOR_WHITE },
@@ -423,7 +416,7 @@ unlock_patch:
 }
 
 
-RgFloat4D ApplyMat44ToVec4(const float column_mat[4][4], const float v[4])
+static RgFloat4D ApplyMat44ToVec4(const float column_mat[4][4], const float v[4])
 {
   RgFloat4D r;
   for (int i = 0; i < 4; i++)
@@ -434,10 +427,41 @@ RgFloat4D ApplyMat44ToVec4(const float column_mat[4][4], const float v[4])
 }
 
 
-RgFloat3D FromHomogeneous(const RgFloat4D v)
+static RgFloat3D FromHomogeneous(const RgFloat4D v)
 {
   RgFloat3D r = { v.data[0] / v.data[3],v.data[1] / v.data[3],v.data[2] / v.data[3] };
   return r;
+}
+
+
+static const RgFloat3D *Get6NormalsUp(void)
+{
+  static const RgFloat3D rt_normals_up[6] =
+  {
+    { 0, 1, 0 },
+    { 0, 1, 0 },
+    { 0, 1, 0 },
+    { 0, 1, 0 },
+    { 0, 1, 0 },
+    { 0, 1, 0 }
+  };
+  return rt_normals_up;
+}
+
+
+static const RgFloat3D *Get6NormalsTowardsCamera(void)
+{
+  static RgFloat3D normals_towards_camera[6];
+  
+  const float f[4] = { 0,0,-1,0 };
+  RgFloat4D t = ApplyMat44ToVec4(rtmain.mat_view_inverse, f);
+
+  for (int i = 0; i < 6; i++)
+  {
+    memcpy(&normals_towards_camera[i], t.data, 3 * sizeof(float));
+  }
+
+  return normals_towards_camera;
 }
 
 
@@ -517,13 +541,13 @@ void RT_AddWeaponSprite(int weaponlump, vissprite_t *vis, int lightlevel)
   RgGeometryUploadInfo info =
   {
     .uniqueID = RT_GetUniqueID_FirstPersonWeapon(weaponlump),
-    .flags = is_partial_invisibility ? RG_GEOMETRY_UPLOAD_REFL_REFR_ALBEDO_MULTIPLY_BIT : 0,
+    .flags =  0,
     .geomType = RG_GEOMETRY_TYPE_DYNAMIC,
     .passThroughType = is_partial_invisibility ? RG_GEOMETRY_PASS_THROUGH_TYPE_WATER_REFLECT_REFRACT : RG_GEOMETRY_PASS_THROUGH_TYPE_ALPHA_TESTED,
     .visibilityType = RG_GEOMETRY_VISIBILITY_TYPE_FIRST_PERSON,
     .vertexCount = 6,
     .pVertexData = positions,
-    .pNormalData = normals,
+    .pNormalData = is_partial_invisibility ? Get6NormalsTowardsCamera() : Get6NormalsUp(),
     .pTexCoordLayerData = { texcoords },
     // get camera's sector
     .sectorID = RT_GetSectorNum_Fixed(viewx, viewy),
