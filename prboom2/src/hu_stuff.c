@@ -1187,7 +1187,7 @@ void HU_LoadHUDDefs(void)
         {
           item->flags = (abs(cfg_item->y) > 100 ? VPT_ALIGN_RIGHT_BOTTOM : VPT_ALIGN_RIGHT_TOP);
         }
-        item->flags |= hud_name_widget[i].flags;
+        item->flags |= hud_name_widget[i].flags| VPT_HUD;
 
         item->build = hud_name_widget[i].build;
         item->draw = hud_name_widget[i].draw;

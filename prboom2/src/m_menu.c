@@ -1766,10 +1766,10 @@ typedef enum
   RT_HUD_SWITCH_CUSTOM,
 } rt_hud_switch_e;
 
-#define RT_HUD_SWITCH_NAME_CLASSIC "CLASSIC"
-#define RT_HUD_SWITCH_NAME_MINIMAL "MINIMAL"
-#define RT_HUD_SWITCH_NAME_NONE    "NONE"
-#define RT_HUD_SWITCH_NAME_CUSTOM  "CUSTOM"
+#define RT_HUD_SWITCH_NAME_CLASSIC "Classic"
+#define RT_HUD_SWITCH_NAME_MINIMAL "Minimalistic"
+#define RT_HUD_SWITCH_NAME_NONE    "None"
+#define RT_HUD_SWITCH_NAME_CUSTOM  "Custom"
 
 static rt_hud_switch_e GetHudSwitch(void)
 {
@@ -3962,6 +3962,20 @@ static const char *RT_options_statusbar_scale[] =
   "100%",
   NULL
 };
+static const char *RT_options_hud_scale[] =
+{
+  "10%",
+  "20%",
+  "30%",
+  "40%",
+  "50%",
+  "60%",
+  "70%",
+  "80%",
+  "90%",
+  "100%",
+  NULL
+};
 
 #define RT_X 180
 #define RT_Y 56
@@ -3980,7 +3994,8 @@ setup_menu_t RT_GraphicsSettings[] =
   {"Bloom",         S_CHOICE,  m_null, RT_X, RT_Y + 9 * 8, {"rt_bloom_intensity"}, 0, 0, NULL, RT_options_bloom_intensity },
   {"Muzzle flash light",  S_CHOICE,  m_null, RT_X, RT_Y + 10 * 8, {"rt_muzzleflash_intensity"}, 0, 0, NULL, RT_options_muzzleflash_intensity },
 
-  {"HUD scale",  S_CHOICE,  m_null, RT_X, RT_Y + 12 * 8, {"rt_statusbar_scale"}, 0, 0, NULL, RT_options_statusbar_scale },
+  {"Classic HUD scale",  S_CHOICE,  m_null, RT_X, RT_Y + 12 * 8, {"rt_statusbar_scale"}, 0, 0, NULL, RT_options_statusbar_scale },
+  {"Minimalistic HUD scale",  S_CHOICE,  m_null, RT_X, RT_Y + 13 * 8, {"rt_hud_scale"}, 0, 0, NULL, RT_options_hud_scale },
 
   {0,S_SKIP | S_END,m_null}
 };

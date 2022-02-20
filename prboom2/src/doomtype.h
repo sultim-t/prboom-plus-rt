@@ -173,6 +173,7 @@ enum patch_translation_e {
   VPT_NOOFFSET = 1024,
 #if RT_ENABLE_STATUS_BAR_SCALE
   VPT_STATUSBAR = 2048,
+  VPT_HUD = 4096,
 #endif
 };
 

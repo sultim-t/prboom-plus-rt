@@ -8,6 +8,10 @@ static float GetStatusBarScale()
 {
   return 0.1f * BETWEEN(1, 10, rt_settings.statusbar_scale + 1);
 }
+static float GetHUDScale()
+{
+  return 0.1f * BETWEEN(1, 10, rt_settings.hud_scale + 1);
+}
 
 
 void RT_DrawLine(float x0, float y0, float x1, float y1, byte r, byte g, byte b)
@@ -139,7 +143,18 @@ void RT_DrawQuad_Patch(int lump, int x, int y, int width, int height, enum patch
 
 void RT_TryApplyHUDCustomScale(enum patch_translation_e flags, float *p_xpos, float *p_ypos, float *p_width, float *p_height)
 {
-  if ((flags & VPT_STATUSBAR) == 0)
+  float f = 1.0f;
+
+
+  if (flags & VPT_STATUSBAR)
+  {
+    f = GetStatusBarScale();
+  }
+  else if (flags & VPT_HUD)
+  {
+    f = GetHUDScale();
+  }
+  else
   {
     return;
   }
@@ -224,7 +239,6 @@ void RT_TryApplyHUDCustomScale(enum patch_translation_e flags, float *p_xpos, fl
 
 
   {
-    float f = GetStatusBarScale();
     x1 *= f; x2 *= f; y1 *= f; y2 *= f;
   }
 
