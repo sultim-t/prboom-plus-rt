@@ -192,23 +192,37 @@ void Matrix_Transpose(float t[4][4])
 }
 
 
+void Matrix_TransposeDst(float *dst, const float *src)
+{
+  for (int i = 0; i < 4; i++)
+  {
+    for (int j = 0; j < 4; j++)
+    {
+      dst[i * 4 + j] = src[j * 4 + i];
+    }
+  }
+}
+
+
 void RT_InitMatrices(const float viewMatrix[16], const float projMatrix[16])
 {
-#define FOV_FIX 2.0f
   static const float to_vk_projection[4][4] =
   {
     { 1.0f, 0.0f, 0.0f, 0.0f },
     { 0.0f,-1.0f, 0.0f, 0.0f },
-    { 0.0f, 0.0f, 0.5f * FOV_FIX, 0.5f },
+    { 0.0f, 0.0f, 0.5f, 0.5f },
     { 0.0f, 0.0f, 0.0f, 1.0f }
   };
-  float projMatrixvk[4][4];
-  Matrix_Multiply(projMatrixvk, to_vk_projection, (const float(*)[4])projMatrix);
 
+  float projMatrix_row[4][4]; Matrix_TransposeDst((float *)projMatrix_row, projMatrix);
+  float projMatrixvk_row[4][4]; Matrix_Multiply(projMatrixvk_row, to_vk_projection, projMatrix_row);
+
+
+  // copy
   memcpy(rtmain.mat_view, viewMatrix, 16 * sizeof(float));
-  memcpy(rtmain.mat_projectionvk, projMatrixvk, 16 * sizeof(float));
+  Matrix_TransposeDst((float*)rtmain.mat_projectionvk, (float *)projMatrixvk_row);
 
-
+  // make inverse matrices (for weapon rendering)
   Matrix_Inverse((float *)rtmain.mat_view_inverse, (float *)rtmain.mat_view);
   Matrix_Inverse((float *)rtmain.mat_projectionvk_inverse, (float *)rtmain.mat_projectionvk);
 }
