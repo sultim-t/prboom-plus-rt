@@ -450,6 +450,7 @@ static void AddSkyTexture(RTPWall *wall, int sky1, int sky2, int skytype)
       {
         rtmain.sky.x_offset = (float)s->textureoffset * 180.0f / (float)ANG180;
         rtmain.sky.y_offset = (float)s->rowoffset / (float)FRACUNIT;
+        rtmain.sky.gldwf_skyflip = wall->flag == GLDWF_SKYFLIP;
       }
     }
   }

@@ -269,8 +269,15 @@ void RT_EndFrame()
 
 
   NormalizeRTSettings(&rt_settings);
-  rtmain.was_new_sky = false;
 
+
+#if RG_SKY_REUSE_BUG_HACK
+  // TODO RT: rtgl1's 'reuse sky geomrty from prev frame' is broken for now:
+  // there's a 1 frame sky camera delay; so keep 'was_new_sky' always true for now
+  rtmain.was_new_sky = true;
+#else
+  rtmain.was_new_sky = false;
+#endif
 
 
   // debug sun

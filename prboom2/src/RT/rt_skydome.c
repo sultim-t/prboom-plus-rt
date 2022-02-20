@@ -70,6 +70,9 @@ static void SkyVertex(RgRasterizedGeometryVertexStruct *vbo, int r, int c, dbool
     {
       vbo->texCoord[0] = (-timesRepeat * c / (float)SKYCOLUMNS);
       vbo->texCoord[1] = ((SKYROWS - r) / (float)SKYROWS) * 1.f * yMult + yAdd;
+
+      // RT: why need such fix to flip uv on lower hemisphere
+      vbo->texCoord[1] *= -1;
     }
 
     if (sky_gldwf_skyflip)
@@ -184,6 +187,18 @@ static int GetTriangleCount(int mode, int vertex_count)
 }
 
 
+static int GetIndexCount(const RTSkyVBO *vbo)
+{
+  int index_count = 0;
+  for (int i = 0; i < vbo->loopcount; i++)
+  {
+    RTSkyLoopDef *loop = &vbo->loops[i];
+    index_count += 3 * GetTriangleCount(loop->mode, loop->vertexcount);
+  }
+  return index_count;
+}
+
+
 void RT_AddSkyDome(void)
 {
   if (rtmain.sky.texture == NULL || !rtmain.was_new_sky)
@@ -192,53 +207,39 @@ void RT_AddSkyDome(void)
   }
 
 
+#if RG_SKY_REUSE_BUG_HACK
+  static RTSkyVBO v_vbo = { 0 };
+  static const rt_texture_t *prev_texture = NULL;
+  static uint32_t *p_indices = NULL;
+  static int index_iter = 0;
+
+  if (rtmain.sky.texture != prev_texture)
+  {
+    free(v_vbo.loops);
+    free(v_vbo.data);
+    free(p_indices);
+    index_iter = 0;
+
+    memset(&v_vbo, 0, sizeof(v_vbo));
+    BuildSky(&v_vbo, rtmain.sky.texture, rtmain.sky.y_offset, rtmain.sky.gldwf_skyflip);
+    p_indices = malloc(GetIndexCount(&v_vbo) * sizeof(uint32_t));
+
+    prev_texture = rtmain.sky.texture;
+#else
   RTSkyVBO v_vbo = { 0 };
-  RTSkyVBO *vbo = &v_vbo;
-
-  BuildSky(vbo, rtmain.sky.texture, rtmain.sky.y_offset, rtmain.sky.gldwf_skyflip);
-
-
-  
-  // TODO: RT: rotate sky by: sky.x_offset
-  // glRotatef(-180.0f + rtmain.sky.x_offset, 0.f, 1.f, 0.f);
-  float scale[3] = { -2,2,2 };
-  float translate[3] = { 0, -1250.0f / MAP_COEFF, 0 };
-
-  if (!STRETCHSKY)
-  {
-    int texh = rtmain.sky.texture->height;
-
-    if (texh <= 180)
-    {
-      RG_VEC3_MULTIPLY(scale, 1.0f, (float)texh / 230.0f, 1.0f);
-      RG_VEC3_MULTIPLY_V(translate, scale);
-    }
-    else
-    {
-      if (texh > 190)
-      {
-        RG_VEC3_MULTIPLY(scale, 1.0f, 230.0f / 240.0f, 1.0f);
-        RG_VEC3_MULTIPLY_V(translate, scale);
-      }
-    }
-  }
+  BuildSky(&v_vbo, rtmain.sky.texture, rtmain.sky.y_offset, rtmain.sky.gldwf_skyflip);
+#endif
 
 
-  int index_count = 0;
-  for (int i = 0; i < vbo->loopcount; i++)
-  {
-    RTSkyLoopDef *loop = &vbo->loops[i];
-    index_count += 3 * GetTriangleCount(loop->mode, loop->vertexcount);
-  }
-
-
-  uint32_t *const p_indices = malloc(index_count * sizeof(uint32_t));
+#if !RG_SKY_REUSE_BUG_HACK
+  uint32_t *const p_indices = malloc(GetIndexCount(&v_vbo) * sizeof(uint32_t));
   int index_iter = 0;
+#endif
 
 
-  for (int i = 0; i < vbo->loopcount; i++)
+  for (int i = 0; i < v_vbo.loopcount; i++)
   {
-    RTSkyLoopDef *loop = &vbo->loops[i];
+    RTSkyLoopDef *loop = &v_vbo.loops[i];
 
     //if (!loop->use_texture)
     //  continue;
@@ -268,13 +269,40 @@ void RT_AddSkyDome(void)
       default: assert(0); break;
     }
   }
+#if RG_SKY_REUSE_BUG_HACK
+}
+#endif
+
+  // TODO: RT: rotate sky by: sky.x_offset
+  // glRotatef(-180.0f + rtmain.sky.x_offset, 0.f, 1.f, 0.f);
+  float scale[3] = { -2,2,2 };
+  float translate[3] = { 0, -1250.0f / MAP_COEFF, 0 };
+
+  if (!STRETCHSKY)
+  {
+    int texh = rtmain.sky.texture->height;
+
+    if (texh <= 180)
+    {
+      RG_VEC3_MULTIPLY(scale, 1.0f, (float)texh / 230.0f, 1.0f);
+      RG_VEC3_MULTIPLY_V(translate, scale);
+    }
+    else
+    {
+      if (texh > 190)
+      {
+        RG_VEC3_MULTIPLY(scale, 1.0f, 230.0f / 240.0f, 1.0f);
+        RG_VEC3_MULTIPLY_V(translate, scale);
+      }
+    }
+  }
 
 
   RgRasterizedGeometryUploadInfo info =
   {
     .renderType = RG_RASTERIZED_GEOMETRY_RENDER_TYPE_SKY,
-    .vertexCount = vbo->vertex_count,
-    .pStructs = vbo->data,
+    .vertexCount = v_vbo.vertex_count,
+    .pStructs = v_vbo.data,
     .indexCount = index_iter,
     .pIndexData = p_indices,
     .transform = 
@@ -294,7 +322,9 @@ void RT_AddSkyDome(void)
   RG_CHECK(r);
 
 
+#if !RG_SKY_REUSE_BUG_HACK
   free(vbo->loops);
   free(vbo->data);
   free(p_indices);
+#endif
 }

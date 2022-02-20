@@ -16,3 +16,6 @@
 
 #define RG_TRANSFORM_IDENTITY { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0 }
 #define RG_COLOR_WHITE { 1, 1, 1, 1 }
+
+
+#define RG_SKY_REUSE_BUG_HACK 1
