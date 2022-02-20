@@ -209,6 +209,7 @@ void RT_AddSkyDome(void)
   //glScalef(-2.0f, 2.0f, 2.0f);
   //glTranslatef(0.f, -1250.0f / MAP_COEFF, 0.f);
   //glRotatef(-180.0f + sky_x_offset, 0.f, 1.f, 0.f);
+  float scale[3] = { 1,1,1 };
 
   if (!STRETCHSKY)
   {
@@ -216,13 +217,13 @@ void RT_AddSkyDome(void)
 
     if (texh <= 180)
     {
-      //glScalef(1.0f, (float)texh / 230.0f, 1.0f);
+      RG_SET_VEC3(scale, 1.0f, (float)texh / 230.0f, 1.0f);
     }
     else
     {
       if (texh > 190)
       {
-        //glScalef(1.0f, 230.0f / 240.0f, 1.0f);
+        RG_SET_VEC3(scale, 1.0f, 230.0f / 240.0f, 1.0f);
       }
     }
   }
@@ -283,7 +284,12 @@ void RT_AddSkyDome(void)
     .pStructs = vbo->data,
     .indexCount = index_iter,
     .pIndexData = p_indices,
-    .transform = RG_TRANSFORM_IDENTITY,
+    .transform = 
+    {
+      scale[0],0,0,0,
+      0,scale[1],0,0,
+      0,0,scale[2],0,
+    },
     .color = RG_COLOR_WHITE ,
     .material = rtmain.sky.texture->rg_handle,
     .blendEnable = false,
