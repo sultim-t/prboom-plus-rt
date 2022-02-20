@@ -202,14 +202,11 @@ void RT_AddSkyDome(void)
   // TODO RT: sky caps (instead of getting average color just use (0,0) tex coords?)
 
 
-
-  //glRotatef(roll, 0.0f, 0.0f, 1.0f);
-  //glRotatef(pitch, 1.0f, 0.0f, 0.0f);
-  //glRotatef(yaw, 0.0f, 1.0f, 0.0f);
-  //glScalef(-2.0f, 2.0f, 2.0f);
-  //glTranslatef(0.f, -1250.0f / MAP_COEFF, 0.f);
-  //glRotatef(-180.0f + sky_x_offset, 0.f, 1.f, 0.f);
-  float scale[3] = { 1,1,1 };
+  
+  // TODO: RT: rotate sky by: sky.x_offset
+  // glRotatef(-180.0f + rtmain.sky.x_offset, 0.f, 1.f, 0.f);
+  float scale[3] = { -2,2,2 };
+  float translate[3] = { 0, -1250.0f / MAP_COEFF, 0 };
 
   if (!STRETCHSKY)
   {
@@ -217,13 +214,15 @@ void RT_AddSkyDome(void)
 
     if (texh <= 180)
     {
-      RG_SET_VEC3(scale, 1.0f, (float)texh / 230.0f, 1.0f);
+      RG_VEC3_MULTIPLY(scale, 1.0f, (float)texh / 230.0f, 1.0f);
+      RG_VEC3_MULTIPLY_V(translate, scale);
     }
     else
     {
       if (texh > 190)
       {
-        RG_SET_VEC3(scale, 1.0f, 230.0f / 240.0f, 1.0f);
+        RG_VEC3_MULTIPLY(scale, 1.0f, 230.0f / 240.0f, 1.0f);
+        RG_VEC3_MULTIPLY_V(translate, scale);
       }
     }
   }
@@ -286,9 +285,9 @@ void RT_AddSkyDome(void)
     .pIndexData = p_indices,
     .transform = 
     {
-      scale[0],0,0,0,
-      0,scale[1],0,0,
-      0,0,scale[2],0,
+      scale[0],0,0,translate[0],
+      0,scale[1],0,translate[1],
+      0,0,scale[2],translate[2],
     },
     .color = RG_COLOR_WHITE ,
     .material = rtmain.sky.texture->rg_handle,
