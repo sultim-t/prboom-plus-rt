@@ -5,6 +5,7 @@
 
 typedef enum
 {
+  RT_TEXTURE_FLAG_WITH_ALPHA_BIT = 1,
 } rt_texture_flag_bits_t;
 typedef uint32_t rt_texture_flags_t;
 

@@ -25,8 +25,10 @@ void RT_EndDrawScene()
 // gld_CalcLightLevel_shaders
 static float CalcLightLevel(int lightlevel)
 {
-  int light = BETWEEN(0, 255, lightlevel);
+  // muzzle flash
+  //lightlevel += extralight << 5;
 
+  int light = BETWEEN(0, 255, lightlevel);
   return (float)light / 255.0f;
 }
 
@@ -67,7 +69,7 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
     if (!flat.td)
       return;
     // get the lightlevel from floorlightlevel
-    flat.light = CalcLightLevel(plane->lightlevel + (extralight << 5));
+    flat.light = CalcLightLevel(plane->lightlevel);
     // flat.fogdensity = gld_CalcFogDensity(sector, plane->lightlevel, GLDIT_FLOOR);
     // calculate texture offsets
     if (sector->floor_xoffs | sector->floor_yoffs)
@@ -92,7 +94,7 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
     if (!flat.td)
       return;
     // get the lightlevel from ceilinglightlevel
-    flat.light = CalcLightLevel(plane->lightlevel + (extralight << 5));
+    flat.light = CalcLightLevel(plane->lightlevel);
     // flat.fogdensity = gld_CalcFogDensity(sector, plane->lightlevel, GLDIT_CEILING);
     // calculate texture offsets
     if (sector->ceiling_xoffs | sector->ceiling_yoffs)
@@ -148,7 +150,7 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
   // TODO RT: flat with texcoord offset
 
 
-  if (ceiling && flat.light > 0.7f)
+  if (ceiling && flat.light > 0.01f)
   {
     RgFloat3D center = { 0 };
 
@@ -240,6 +242,7 @@ typedef struct
 {
   int lineID;
   dboolean invert_normal;
+  dboolean double_sided;
   float ytop, ybottom;
   float ul, ur, vt, vb;
   float light;
@@ -344,12 +347,15 @@ static void DrawWall(RTPWallType itemtype, int drawwallindex, RTPWall *wall)
   };
 
 
+  dboolean alpha_tested = wall->rttexture && (wall->rttexture->flags & RT_TEXTURE_FLAG_WITH_ALPHA_BIT);
+
+
   RgGeometryUploadInfo info =
   {
     .uniqueID = RT_GetUniqueID_Wall(wall->lineID, wall->subsectornum, drawwallindex),
     .flags = wall->invert_normal ? RG_GEOMETRY_UPLOAD_GENERATE_INVERTED_NORMALS_BIT : 0,
     .geomType = RG_GEOMETRY_TYPE_DYNAMIC,
-    .passThroughType = RG_GEOMETRY_PASS_THROUGH_TYPE_ALPHA_TESTED,
+    .passThroughType = alpha_tested ? RG_GEOMETRY_PASS_THROUGH_TYPE_ALPHA_TESTED : RG_GEOMETRY_PASS_THROUGH_TYPE_OPAQUE,
     .visibilityType = itemtype == RTP_WALLTYPE_SWALL ? RG_GEOMETRY_VISIBILITY_TYPE_SKY : RG_GEOMETRY_VISIBILITY_TYPE_WORLD_0,
     .vertexCount = RG_ARRAY_SIZE(positions),
     .pVertexData = positions,
@@ -567,15 +573,16 @@ void RT_AddWall(int subsectornum, seg_t *seg)
   {
     //rellight = seg->linedef->dx == 0 ? +gl_rellight : seg->linedef->dy == 0 ? -gl_rellight : 0;
   }
-  wall.light = CalcLightLevel(frontsector->lightlevel + rellight + (extralight << 5));
+  wall.light = CalcLightLevel(frontsector->lightlevel + rellight);
   //wall.fogdensity = CalcFogDensity(frontsector,
   //                                 frontsector->lightlevel + (gl_lightmode == gl_lightmode_fogbased ? rellight : 0),
   //                                 RTP_WALLTYPE_WALL);
   wall.alpha = 1.0f;
   wall.rttexture = NULL;
   wall.seg = seg; //e6y
+  wall.double_sided = seg->backsector != NULL;
 
-  if (!seg->backsector) /* onesided */
+  if (!wall.double_sided) /* onesided */
   {
     if (frontsector->ceilingpic == skyflatnum)
     {

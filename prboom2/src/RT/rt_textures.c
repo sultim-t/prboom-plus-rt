@@ -558,6 +558,16 @@ const rt_texture_t *RT_Texture_GetFromTexture(int texture_num)
 
   td->rg_handle = BuildMaterial(td, buffer);
 
+  // check if any pixel contains alpha value < 1.0
+  for (uint32_t i = 0; i < td->width * td->height; i++)
+  {
+    if (buffer[i * 4 + 3] != 0xFF)
+    {
+      td->flags |= RT_TEXTURE_FLAG_WITH_ALPHA_BIT;
+      break;
+    }
+  }
+
   free(buffer);
   return td;
 }
