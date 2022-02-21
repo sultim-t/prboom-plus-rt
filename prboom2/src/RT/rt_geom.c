@@ -241,8 +241,8 @@ void RT_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling)
 typedef struct
 {
   int lineID;
-  dboolean invert_normal;
   dboolean double_sided;
+  dboolean is_back_side;
   float ytop, ybottom;
   float ul, ur, vt, vb;
   float light;
@@ -271,10 +271,42 @@ typedef enum
 } RTPWallType;
 
 
+static dboolean IsFacingCamera(dboolean invert_normal, const float *p0, const float *p1, const float *p2)
+{
+  const float *camera_pos = rtmain.mat_view_inverse[3];
+
+  const float e1[] = { p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2] };
+  const float e2[] = { p2[0] - p0[0], p2[1] - p0[1], p2[2] - p0[2] };
+
+  float normal[] = {
+    e1[1] * e2[2] - e1[2] * e2[1],
+    e1[2] * e2[0] - e1[0] * e2[2],
+    e1[0] * e2[1] - e1[1] * e2[0]
+  };
+
+  float len = sqrtf(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
+  if (len < 0.001f)
+  {
+    return true;
+  }
+  if (invert_normal)
+  {
+    len *= -1;
+  }
+  normal[0] /= len; normal[1] /= len; normal[2] /= len;
+
+  float d = normal[0] * p0[0] + normal[1] * p0[1] + normal[2] * p0[2];
+
+  // substite camera_pos to plane equation
+  return
+    camera_pos[0] * normal[0] +
+    camera_pos[1] * normal[1] +
+    camera_pos[2] * normal[2] - d >= 0.0f;
+}
+
+
 static void DrawWall(RTPWallType itemtype, int drawwallindex, RTPWall *wall)
 {
-  // RT: force has_detail=false
-
   rendered_segs++;
 
   // Do not repeat middle texture vertically
@@ -348,12 +380,24 @@ static void DrawWall(RTPWallType itemtype, int drawwallindex, RTPWall *wall)
 
 
   dboolean alpha_tested = wall->rttexture && (wall->rttexture->flags & RT_TEXTURE_FLAG_WITH_ALPHA_BIT);
+  dboolean invert_normal = wall->is_back_side;
+
+  if (alpha_tested && wall->double_sided)
+  {
+    // RT: don't upload alpha-tested walls from both sides
+    if (wall->is_back_side)
+    {
+      return;
+    }
+
+    invert_normal = !IsFacingCamera(invert_normal, positions[0].data, positions[1].data, positions[2].data);
+  }
 
 
   RgGeometryUploadInfo info =
   {
     .uniqueID = RT_GetUniqueID_Wall(wall->lineID, wall->subsectornum, drawwallindex),
-    .flags = wall->invert_normal ? RG_GEOMETRY_UPLOAD_GENERATE_INVERTED_NORMALS_BIT : 0,
+    .flags = invert_normal ? RG_GEOMETRY_UPLOAD_GENERATE_INVERTED_NORMALS_BIT : 0,
     .geomType = RG_GEOMETRY_TYPE_DYNAMIC,
     .passThroughType = alpha_tested ? RG_GEOMETRY_PASS_THROUGH_TYPE_ALPHA_TESTED : RG_GEOMETRY_PASS_THROUGH_TYPE_OPAQUE,
     .visibilityType = itemtype == RTP_WALLTYPE_SWALL ? RG_GEOMETRY_VISIBILITY_TYPE_SKY : RG_GEOMETRY_VISIBILITY_TYPE_WORLD_0,
@@ -558,7 +602,7 @@ void RT_AddWall(int subsectornum, seg_t *seg)
   wall.subsectornum = subsectornum;
   wall.sectornum = subsectors[subsectornum].sector->iSectorID;
   backseg = seg->sidedef != &sides[seg->linedef->sidenum[0]];
-  wall.invert_normal = backseg;
+  wall.is_back_side = backseg;
 
   if (!seg->frontsector)
     return;
