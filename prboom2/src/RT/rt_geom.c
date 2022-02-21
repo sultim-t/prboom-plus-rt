@@ -150,7 +150,7 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
   // TODO RT: flat with texcoord offset
 
 
-  if (ceiling && flat.light > 0.01f)
+  if (ceiling && flat.light > 0.8f)
   {
     RgFloat3D center = { 0 };
 
