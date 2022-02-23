@@ -631,21 +631,10 @@ void AddMuzzleFlashLight(int muzzlelight, float flash_z_offset)
 
 
 #include "p_maputl.h"
-// based on PTR_NoWayTraverse
 dboolean PTR_NoWayTraverse_RT(intercept_t *in)
 {
-  line_t *ld = in->d.line;
-                                              // This linedef
-  return ld->special || !(                    // Ignore specials
-   ld->flags & ML_BLOCKING || (               // Always blocking
-   P_LineOpening(ld),                         // Find openings
-   openrange <= 0                             // No opening
-#if 0
-   || openbottom > usething->z+24*FRACUNIT    // Too high it blocks
-   || opentop < usething->z+usething->height  // Too low it blocks
-#endif
-  )
-  );
+  // found anything => assume that it's an obstacle
+  return false;
 }
 
 
@@ -675,7 +664,7 @@ void RT_ProcessPlayer(const player_t *player)
   last_time = cur_time;
 
 
-  // no obstacles
+  // if no obstacles
   if (P_PathTraverse(x1, y1, x2, y2, PT_ADDLINES, PTR_NoWayTraverse_RT))
   {
     flash_z_offset = Lerp(flash_z_offset, max_light_z_offset, 2 * delta_time);
