@@ -1112,7 +1112,7 @@ void R_RenderPlayerView (player_t* player)
   {
     if (!automap)
     {
-      RT_StartDrawScene();
+      // RT_StartDrawScene();
     }
   }
   else if (V_GetMode() == VID_MODEGL)
@@ -1188,8 +1188,10 @@ void R_RenderPlayerView (player_t* player)
 
     RT_AddSkyDome();
 
-    RT_DrawScene(player);
-    RT_EndDrawScene();
+    RT_ProcessPlayer(player);
+
+    // RT_DrawScene(player);
+    // RT_EndDrawScene();
   }
   else if (V_GetMode() == VID_MODEGL && !automap) {
 #ifdef GL_DOOM

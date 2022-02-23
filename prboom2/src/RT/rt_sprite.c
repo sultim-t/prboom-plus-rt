@@ -452,7 +452,6 @@ static const RgFloat3D *Get6NormalsUp(void)
 
 static const RgFloat3D *Get6NormalsTowardsCamera(void)
 {
-
   const float f[4] = { 0,0,1,0 };
   RgFloat4D t = ApplyMat44ToVec4(rtmain.mat_view_inverse, f);
 
@@ -584,4 +583,108 @@ void RT_AddWeaponSprite(int weaponlump, vissprite_t *vis, int lightlevel)
 
   RgResult r = rgUploadGeometry(rtmain.instance, &info);
   RG_CHECK(r);
+}
+
+
+// muzzlelight is extralight,
+// extralight is 1 or 2 when muzzle flash is active
+void AddMuzzleFlashLight(int muzzlelight, float flash_z_offset)
+{
+  if (muzzlelight <= 0)
+  {
+    return;
+  }
+
+  float flash_intensity = muzzlelight >= 2 ? 1.0f : 0.5f;
+  float flash_y_offset = -0.15f;
+
+
+  const float f[4] = { 0,0,-1,0 };
+  RgFloat4D cam_dir = ApplyMat44ToVec4(rtmain.mat_view_inverse, f);
+  const float *cam_pos = rtmain.mat_view_inverse[3];
+
+  RgFloat3D flash_pos = 
+  {
+    cam_pos[0] + cam_dir.data[0] * flash_z_offset,
+    cam_pos[1] + cam_dir.data[1] * flash_z_offset + flash_y_offset,
+    cam_pos[2] + cam_dir.data[2] * flash_z_offset,
+  };
+
+
+  RgSphericalLightUploadInfo light_info =
+  {
+    .uniqueID = RT_GetUniqueID_FirstPersonWeapon(0),
+    .color = {
+      flash_intensity * 1.0f,
+      flash_intensity * 0.87f,
+      flash_intensity * 0.58f
+    },
+    .position = flash_pos,
+    .sectorID = RT_GetSectorNum_Real(flash_pos.data[0], flash_pos.data[2]),
+    .radius = 0.05f,
+    .falloffDistance = 6.5f
+  };
+
+  RgResult r = rgUploadSphericalLight(rtmain.instance, &light_info);
+  RG_CHECK(r);
+}
+
+
+#include "p_maputl.h"
+// based on PTR_NoWayTraverse
+dboolean PTR_NoWayTraverse_RT(intercept_t *in)
+{
+  line_t *ld = in->d.line;
+                                              // This linedef
+  return ld->special || !(                    // Ignore specials
+   ld->flags & ML_BLOCKING || (               // Always blocking
+   P_LineOpening(ld),                         // Find openings
+   openrange <= 0                             // No opening
+#if 0
+   || openbottom > usething->z+24*FRACUNIT    // Too high it blocks
+   || opentop < usething->z+usething->height  // Too low it blocks
+#endif
+  )
+  );
+}
+
+
+#define Lerp(a,b,t) ((a)*(1.0f-(t)) + (b)*(t))
+
+
+void RT_ProcessPlayer(const player_t *player)
+{
+  float max_light_z_offset = 0.75f;
+  int obstacle_check_range = 64;
+
+  // RT: based on P_UseLines
+
+  int angle = player->mo->angle >> ANGLETOFINESHIFT;
+  fixed_t x1 = player->mo->x;
+  fixed_t y1 = player->mo->y;
+  fixed_t x2 = x1 + ((obstacle_check_range * FRACUNIT) >> FRACBITS) * finecosine[angle];
+  fixed_t y2 = y1 + ((obstacle_check_range * FRACUNIT) >> FRACBITS) * finesine[angle];
+
+
+  // RT: not important timer to lerp z offset
+  static float last_time = 0;
+  static float flash_z_offset = 0;
+
+  float cur_time = (float)RT_GetCurrentTime_Seconds_Realtime();
+  float delta_time = max(cur_time - last_time, 0.001f);
+  last_time = cur_time;
+
+
+  // no obstacles
+  if (P_PathTraverse(x1, y1, x2, y2, PT_ADDLINES, PTR_NoWayTraverse_RT))
+  {
+    flash_z_offset = Lerp(flash_z_offset, max_light_z_offset, 2 * delta_time);
+  }
+  else
+  {
+    flash_z_offset = Lerp(flash_z_offset, 0, 20 * delta_time);
+  }
+
+
+  AddMuzzleFlashLight(player->extralight, flash_z_offset);
 }

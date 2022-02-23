@@ -41,6 +41,8 @@ void RT_StartFrame(void);
 void RT_EndFrame(void);
 
 void RT_InitMatrices(const float viewMatrix[16], const float projMatrix[16]);
+void RT_ProcessPlayer(const player_t *player);
+double RT_GetCurrentTime_Seconds_Realtime(void);
 
 void RT_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling);
 void RT_AddWall(int subsectornum, seg_t *seg);
@@ -61,9 +63,6 @@ void RT_Wipe_StartScreen(void);
 void RT_Wipe_EndScreen(void);
 
 // TODO RT: unnecessary functions?
-void RT_StartDrawScene(void);
-void RT_DrawScene(player_t *player);
-void RT_EndDrawScene(void);
 void RT_OnMovePlane(void);
 void RT_OnSkipDemoStop(void);
 void RT_OnToggleFullscreen(void);

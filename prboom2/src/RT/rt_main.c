@@ -122,17 +122,18 @@ static float GetZNear()
 }
 
 
+/*
 static double GetCurrentTime_Seconds()
 {
   double current_tics = I_GetTime();
   double tics_per_second = TICRATE;
-
-  // too low resolution
+  
   return current_tics / tics_per_second;
 }
+*/
 
 
-static double GetCurrentTime_Seconds_Realtime()
+double RT_GetCurrentTime_Seconds_Realtime(void)
 {
   return SDL_GetTicks() / 1000.0;
 }
@@ -402,7 +403,7 @@ void RT_EndFrame()
     .primaryRayMinDist = GetZNear(),
     .disableRayTracing = false,
     .disableRasterization = false,
-    .currentTime = GetCurrentTime_Seconds_Realtime(),
+    .currentTime = RT_GetCurrentTime_Seconds_Realtime(), // GetCurrentTime_Seconds is too low-resolution timer
     .disableEyeAdaptation = false,
     .useSqrtRoughnessForIndirect = false,
     .pRenderResolutionParams = &resolution_params,

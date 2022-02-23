@@ -10,18 +10,6 @@
 #include "r_state.h"
 
 
-void RT_StartDrawScene()
-{}
-
-
-void RT_DrawScene(player_t *player)
-{}
-
-
-void RT_EndDrawScene()
-{}
-
-
 // gld_CalcLightLevel_shaders
 static float CalcLightLevel(int lightlevel)
 {
