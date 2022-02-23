@@ -45,6 +45,7 @@ static float CalcLightLevel(int lightlevel)
 
 static const RgFloat3D *Get6NormalsUp(void);
 static const RgFloat3D *Get6NormalsTowardsCamera(void);
+static const RgFloat3D *Get6NormalsForSprite(void);
 
 
 static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int sectornum)
@@ -129,7 +130,7 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
       .visibilityType = RG_GEOMETRY_VISIBILITY_TYPE_WORLD_0,
       .vertexCount = 6,
       .pVertexData = positions,
-      .pNormalData = is_partial_invisibility ? Get6NormalsTowardsCamera() : Get6NormalsUp(),
+      .pNormalData = is_partial_invisibility ? Get6NormalsTowardsCamera() : Get6NormalsForSprite(),
       .pTexCoordLayerData = { texcoords },
       .sectorID = sectornum,
       .layerColors = { RG_COLOR_WHITE },
@@ -436,7 +437,7 @@ static RgFloat3D FromHomogeneous(const RgFloat4D v)
 
 static const RgFloat3D *Get6NormalsUp(void)
 {
-  static const RgFloat3D rt_normals_up[6] =
+  static const RgFloat3D normals_up[6] =
   {
     { 0, 1, 0 },
     { 0, 1, 0 },
@@ -445,23 +446,45 @@ static const RgFloat3D *Get6NormalsUp(void)
     { 0, 1, 0 },
     { 0, 1, 0 }
   };
-  return rt_normals_up;
+  return normals_up;
 }
 
 
 static const RgFloat3D *Get6NormalsTowardsCamera(void)
 {
-  static RgFloat3D normals_towards_camera[6];
-  
-  const float f[4] = { 0,0,-1,0 };
+
+  const float f[4] = { 0,0,1,0 };
   RgFloat4D t = ApplyMat44ToVec4(rtmain.mat_view_inverse, f);
 
+  static RgFloat3D normals_to_camera[6];
   for (int i = 0; i < 6; i++)
   {
-    memcpy(&normals_towards_camera[i], t.data, 3 * sizeof(float));
+    memcpy(&normals_to_camera[i], t.data, 3 * sizeof(float));
   }
+  return normals_to_camera;
+}
 
-  return normals_towards_camera;
+
+static const RgFloat3D *Get6NormalsForSprite(void)
+{
+#define Vec3Normalize(x) {float l=sqrtf((x)[0]*(x)[0]+(x)[1]*(x)[1]+(x)[2]*(x)[2]); (x)[0]/=l;(x)[1]/=l;(x)[2]/=l; }
+
+  const float f[4] = { 0,0,1,0 };
+  RgFloat4D t = ApplyMat44ToVec4(rtmain.mat_view_inverse, f);
+
+  // let up-down axis be some const, and then normalize the vector,
+  // so flashlight (for which normals towards camera preferable)
+  // and other illumination (normals up look better),
+  // both look consistent enough
+  t.data[1] = 1.0f;
+  Vec3Normalize(t.data);
+
+  static RgFloat3D normals[6];
+  for (int i = 0; i < 6; i++)
+  {
+    memcpy(normals[i].data, t.data, 3 * sizeof(float));
+  }
+  return normals;
 }
 
 
