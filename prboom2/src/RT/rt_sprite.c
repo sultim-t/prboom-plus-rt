@@ -633,8 +633,24 @@ void AddMuzzleFlashLight(int muzzlelight, float flash_z_offset)
 #include "p_maputl.h"
 dboolean PTR_NoWayTraverse_RT(intercept_t *in)
 {
-  // found anything => assume that it's an obstacle
-  return false;
+  if (in->isaline)
+  {
+    // found any line => assume that it's an obstacle
+    return false;
+  }
+  else
+  {
+    const mobj_t *thing = in->d.thing;
+
+    // if it's an enemy
+    if ((thing->flags & MF_COUNTKILL) && !(thing->flags & MF_CORPSE))
+    {
+      // it's an obstacle
+      return false;
+    }
+  }
+
+  return true;
 }
 
 
@@ -665,7 +681,7 @@ void RT_ProcessPlayer(const player_t *player)
 
 
   // if no obstacles
-  if (P_PathTraverse(x1, y1, x2, y2, PT_ADDLINES, PTR_NoWayTraverse_RT))
+  if (P_PathTraverse(x1, y1, x2, y2, PT_ADDLINES | PT_ADDTHINGS, PTR_NoWayTraverse_RT))
   {
     flash_z_offset = Lerp(flash_z_offset, max_light_z_offset, 2 * delta_time);
   }
