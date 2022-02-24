@@ -586,6 +586,9 @@ void RT_AddWeaponSprite(int weaponlump, vissprite_t *vis, int lightlevel)
 }
 
 
+#include <i_video.h>
+
+
 // muzzlelight is extralight,
 // extralight is 1 or 2 when muzzle flash is active
 void AddMuzzleFlashLight(int muzzlelight, float flash_z_offset)
@@ -597,6 +600,14 @@ void AddMuzzleFlashLight(int muzzlelight, float flash_z_offset)
 
   float flash_intensity = muzzlelight >= 2 ? 1.0f : 0.5f;
   float flash_y_offset = -0.15f;
+
+
+  switch (rt_settings.muzzleflash_intensity)
+  {
+    case 0: return;
+    case 1: flash_intensity *= 0.3f; break;
+    default: break;
+  }
 
 
   const float f[4] = { 0,0,-1,0 };

@@ -3925,6 +3925,7 @@ static const char *RT_options_fsr[] =
 };
 static const char *RT_options_renderscale[] =
 {
+  "320x200",
   "50%",
   "60%",
   "75%",

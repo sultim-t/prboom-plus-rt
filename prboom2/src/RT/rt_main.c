@@ -163,17 +163,25 @@ static RgExtent2D GetScaledResolution(int renderscale)
   {
     return window_size;
   }
+  
+  if (renderscale == RT_SETTINGS_RENDERSCALE_320x200)
+  {
+    RgExtent2D original_doom = { 320,200 };
+    return original_doom;
+  }
 
   float f = 1.0f;
   switch(renderscale)
   {
-    case 0: f = 0.5f; break;
-    case 1: f = 0.6f; break;
-    case 2: f = 0.75f; break;
-    case 3: f = 0.9f; break;
-    case 5: f = 1.1f; break;
-    case 6: f = 1.25f; break;
-    default: break;
+
+    case 1: f = 0.5f; break;
+    case 2: f = 0.6f; break;
+    case 3: f = 0.75f; break;
+    case 4: f = 0.9f; break;
+
+    case 6: f = 1.1f; break;
+    case 7: f = 1.25f; break;
+    default: assert(0); break;
   }
 
   RgExtent2D scaled_size = {
@@ -348,7 +356,7 @@ void RT_EndFrame()
 
   RgDrawFrameRenderResolutionParams resolution_params =
   {
-    .upscaleTechnique = rt_settings.dlss > 0 ? RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS : rt_settings.fsr > 0 ? RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR : RG_RENDER_UPSCALE_TECHNIQUE_LINEAR,
+    .upscaleTechnique = rt_settings.dlss > 0 ? RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS : rt_settings.fsr > 0 ? RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR : RG_RENDER_UPSCALE_TECHNIQUE_NEAREST,
     .sharpenTechnique = RG_RENDER_SHARPEN_TECHNIQUE_NONE,
     .resolutionMode = GetResolutionMode(rt_settings.dlss, rt_settings.fsr),
     .renderSize = GetScaledResolution(rt_settings.renderscale)
