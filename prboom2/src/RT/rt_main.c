@@ -26,10 +26,7 @@ static void RT_Print(const char *pMessage, void *pUserData)
 
 void RT_Init(HINSTANCE hinstance, HWND hwnd)
 {
-#define RESOURCES_BASE_PATH "C:\\Git\\Serious-Engine-RT\\Sources\\RTGL1\\Build\\"
-  const char pShaderPath[] = RESOURCES_BASE_PATH;
-  const char pBlueNoisePath[] = RESOURCES_BASE_PATH "BlueNoise_LDR_RGBA_128.ktx2";
-  const char pWaterTexturePath[] = RESOURCES_BASE_PATH "WaterNormal_n.ktx2";
+#define RESOURCES_FOLDER "ovrd/"
 
   RgWin32SurfaceCreateInfo win32Info =
   {
@@ -47,9 +44,9 @@ void RT_Init(HINSTANCE hinstance, HWND hwnd)
     .enableValidationLayer = M_CheckParm("-rtdebug"),
     .pfnPrint = RT_Print,
 
-    .pShaderFolderPath = pShaderPath,
-    .pBlueNoiseFilePath = pBlueNoisePath,
-    .pWaterNormalTexturePath = pWaterTexturePath,
+    .pShaderFolderPath = RESOURCES_FOLDER "shaders/",
+    .pBlueNoiseFilePath = RESOURCES_FOLDER "BlueNoise_LDR_RGBA_128.ktx2",
+    .pWaterNormalTexturePath = RESOURCES_FOLDER "WaterNormal_n.ktx2",
 
     .primaryRaysMaxAlbedoLayers = 1,
     .indirectIlluminationMaxAlbedoLayers = 1,
@@ -67,7 +64,7 @@ void RT_Init(HINSTANCE hinstance, HWND hwnd)
     .maxTextureCount = RG_MAX_TEXTURE_COUNT,
     .textureSamplerForceMinificationFilterLinear = true,
 
-    .pOverridenTexturesFolderPath = "ovrd/mat/",
+    .pOverridenTexturesFolderPath = RESOURCES_FOLDER "mat/",
     .overridenAlbedoAlphaTextureIsSRGB = true,
     .overridenRoughnessMetallicEmissionTextureIsSRGB = false,
     .overridenNormalTextureIsSRGB = false,
