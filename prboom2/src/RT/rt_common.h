@@ -7,7 +7,7 @@
 
 #define assert_always(msg) assert(0 && msg)
 
-#define RG_CHECK(x) assert((x) == RG_SUCCESS)
+#define RG_CHECK(x) {if ((x) != RG_SUCCESS){I_Error("RT: %d", (x));}}
 #define RG_ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0])) 
 
 #define RG_VEC3_SET(vec, x, y, z) (vec)[0]=(x);(vec)[1]=(y);(vec)[2]=(z)
