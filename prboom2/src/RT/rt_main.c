@@ -41,7 +41,11 @@ void RT_Init(HINSTANCE hinstance, HWND hwnd)
 
     .pWin32SurfaceInfo = &win32Info,
 
+  #ifndef NDEBUG
+    .enableValidationLayer = true,
+  #else
     .enableValidationLayer = M_CheckParm("-rtdebug"),
+  #endif
     .pfnPrint = RT_Print,
 
     .pShaderFolderPath = RESOURCES_FOLDER "shaders/",
@@ -119,6 +123,9 @@ static float GetZNear()
 }
 
 
+#define SCREEN_MELT_DURATION 1.5f
+
+
 /*
 static double GetCurrentTime_Seconds()
 {
@@ -133,6 +140,13 @@ static double GetCurrentTime_Seconds()
 double RT_GetCurrentTime_Seconds_Realtime(void)
 {
   return SDL_GetTicks() / 1000.0;
+}
+
+
+double RT_GetCurrentTime(void)
+{
+  // GetCurrentTime_Seconds is too low-resolution timer :(
+  return RT_GetCurrentTime_Seconds_Realtime();
 }
 
 
@@ -281,10 +295,11 @@ void RT_StartFrame(void)
   RgStartFrameInfo info =
   {
     .requestRasterizedSkyGeometryReuse = rtmain.was_new_sky ? false : true,
-    .requestShaderReload = false,
+    .requestShaderReload = rtmain.request_shaderreload,
     .requestVSync = true,
     .surfaceSize = GetCurrentHWNDSize()
   };
+  rtmain.request_shaderreload = 0;
 
   RgResult r = rgStartFrame(rtmain.instance, &info);
   RG_CHECK(r);
@@ -397,9 +412,10 @@ void RT_EndFrame()
   {
     .stripWidth = 1.0f / 320.0f,
     .beginNow = rtmain.request_wipe,
-    .duration = 1.5f
+    .duration = SCREEN_MELT_DURATION
   };
   rtmain.request_wipe = false;
+  rtmain.wipe_start_time = (float)RT_GetCurrentTime() + SCREEN_MELT_DURATION;
 
   RgDrawFrameDebugParams debug_params =
   {
@@ -416,7 +432,7 @@ void RT_EndFrame()
     .primaryRayMinDist = GetZNear(),
     .disableRayTracing = false,
     .disableRasterization = false,
-    .currentTime = RT_GetCurrentTime_Seconds_Realtime(), // GetCurrentTime_Seconds is too low-resolution timer
+    .currentTime = RT_GetCurrentTime(),
     .disableEyeAdaptation = false,
     .useSqrtRoughnessForIndirect = false,
     .pRenderResolutionParams = &resolution_params,
@@ -475,6 +491,12 @@ void RT_NewLevel(int gameepisode, int gamemap, int skytexture)
 void RT_StartScreenMelt()
 {
   rtmain.request_wipe = true;
+}
+
+
+dboolean RT_IsScreenMeltActive(void)
+{
+  return (float)RT_GetCurrentTime() < rtmain.wipe_start_time + SCREEN_MELT_DURATION;
 }
 
 

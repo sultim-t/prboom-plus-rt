@@ -60,7 +60,9 @@ static void DrawQuad_Internal_T(RgMaterial mat,
 
   RgRasterizedGeometryUploadInfo info =
   {
-    .renderType = RG_RASTERIZED_GEOMETRY_RENDER_TYPE_SWAPCHAIN,
+    // if melt is active, swapchain geometry will be drawn on top of melt,
+    // this prevents it
+    .renderType = RT_IsScreenMeltActive() ? RG_RASTERIZED_GEOMETRY_RENDER_TYPE_DEFAULT : RG_RASTERIZED_GEOMETRY_RENDER_TYPE_SWAPCHAIN,
     .vertexCount = RG_ARRAY_SIZE(verts),
     .pStructs = verts,
     .transform = RG_TRANSFORM_IDENTITY,

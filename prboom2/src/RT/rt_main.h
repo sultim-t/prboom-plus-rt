@@ -28,6 +28,9 @@ typedef struct
   } sky;
 
   dboolean request_wipe;
+  float wipe_start_time;
+
+  dboolean request_shaderreload;
 
 } rtmain_t;
 
@@ -44,7 +47,7 @@ void RT_EndFrame(void);
 
 void RT_InitMatrices(const float viewMatrix[16], const float projMatrix[16]);
 void RT_ProcessPlayer(const player_t *player);
-double RT_GetCurrentTime_Seconds_Realtime(void);
+double RT_GetCurrentTime(void);
 
 void RT_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling);
 void RT_AddWall(int subsectornum, seg_t *seg);
@@ -59,6 +62,7 @@ void RT_DrawQuad_NumPatch(float x, float y, int lump, int cm /* use CM2RGB table
 void RT_DrawQuad_Flat(int lump_flat, int x, int y, int width, int height, enum patch_translation_e flags);
 
 void RT_StartScreenMelt(void);
+dboolean RT_IsScreenMeltActive(void);
 
 // TODO RT: unnecessary functions?
 void RT_OnMovePlane(void);

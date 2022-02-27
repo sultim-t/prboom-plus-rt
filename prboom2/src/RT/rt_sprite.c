@@ -686,7 +686,7 @@ void RT_ProcessPlayer(const player_t *player)
   static float last_time = 0;
   static float flash_z_offset = 0;
 
-  float cur_time = (float)RT_GetCurrentTime_Seconds_Realtime();
+  float cur_time = (float)RT_GetCurrentTime();
   float delta_time = max(cur_time - last_time, 0.001f);
   last_time = cur_time;
 
