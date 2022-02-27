@@ -27,6 +27,8 @@ typedef struct
     dboolean gldwf_skyflip;
   } sky;
 
+  dboolean request_wipe;
+
 } rtmain_t;
 
 extern rtmain_t rtmain;
@@ -56,11 +58,7 @@ void RT_DrawQuad_Patch(int lump, int x, int y, int width, int height, enum patch
 void RT_DrawQuad_NumPatch(float x, float y, int lump, int cm /* use CM2RGB table for color */, enum patch_translation_e flags);
 void RT_DrawQuad_Flat(int lump_flat, int x, int y, int width, int height, enum patch_translation_e flags);
 
-// Interchange wipe effect
-void RT_Wipe_DoMelt(void);
-void RT_Wipe_ExitMelt(void);
-void RT_Wipe_StartScreen(void);
-void RT_Wipe_EndScreen(void);
+void RT_StartScreenMelt(void);
 
 // TODO RT: unnecessary functions?
 void RT_OnMovePlane(void);

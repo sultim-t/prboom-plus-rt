@@ -393,6 +393,14 @@ void RT_EndFrame()
     .skyCubemapRotationTransform = {0}
   };
 
+  RgDrawFrameWipeEffectParams wipe_params =
+  {
+    .stripWidth = 1.0f / 320.0f,
+    .beginNow = rtmain.request_wipe,
+    .duration = 1.5f
+  };
+  rtmain.request_wipe = false;
+
   RgDrawFrameDebugParams debug_params =
   {
     .showMotionVectors = 0,
@@ -413,6 +421,7 @@ void RT_EndFrame()
     .useSqrtRoughnessForIndirect = false,
     .pRenderResolutionParams = &resolution_params,
     .pTonemappingParams = &tm_params,
+    .pWipeEffectParams = &wipe_params,
     .pReflectRefractParams = &reflrefr_params,
     .pSkyParams = &sky_params,
     .pDebugParams = &debug_params,
@@ -463,23 +472,9 @@ void RT_NewLevel(int gameepisode, int gamemap, int skytexture)
 }
 
 
-void RT_Wipe_DoMelt()
+void RT_StartScreenMelt()
 {
-}
-
-
-void RT_Wipe_ExitMelt()
-{
-}
-
-
-void RT_Wipe_StartScreen()
-{
-}
-
-
-void RT_Wipe_EndScreen()
-{
+  rtmain.request_wipe = true;
 }
 
 

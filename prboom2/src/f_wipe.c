@@ -162,7 +162,7 @@ static int wipe_doMelt(int ticks)
 #endif
   if (V_GetMode() == VID_MODERT)
   {
-    RT_Wipe_DoMelt();
+    // nothing
   }
   return done;
 }
@@ -179,7 +179,6 @@ static int wipe_exitMelt(int ticks)
   }
   if (V_GetMode() == VID_MODERT)
   {
-    RT_Wipe_ExitMelt();
     return 0;
   }
 #endif
@@ -210,8 +209,8 @@ int wipe_StartScreen(void)
 #endif
   if (V_GetMode() == VID_MODERT)
   {
-      RT_Wipe_StartScreen();
-      return 0;
+    RT_StartScreenMelt();
+    return 0;
   }
 
   wipe_scr_start.width = SCREENWIDTH;
@@ -245,7 +244,6 @@ int wipe_EndScreen(void)
 #endif
   if (V_GetMode() == VID_MODERT)
   {
-    RT_Wipe_EndScreen();
     return 0;
   }
 

@@ -231,6 +231,12 @@ static void D_Wipe(void)
   dboolean done;
   int wipestart = I_GetTime () - 1;
 
+  // RT: don't wait
+  if (V_GetMode() == VID_MODERT)
+  {
+    return;
+  }
+
   if (!render_wipescreen) return;//e6y
   do
     {
