@@ -934,11 +934,6 @@ static void G_DoLoadLevel (void)
           first=0;
         }
     }
-
-  if (V_GetMode() == VID_MODERT)
-  {
-    RT_NewLevel(gameepisode, gamemap, skytexture);
-  }
 }
 
 

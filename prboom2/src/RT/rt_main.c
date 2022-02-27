@@ -450,7 +450,7 @@ void RT_EndFrame()
 }
 
 
-void RT_NewLevel(int gameepisode, int gamemap, int skytexture)
+void RT_UploadStaticScene()
 {
   // RT_PreprocessLevel was already called
 

@@ -1064,6 +1064,8 @@ void RT_PreprocessLevel(void)
   //gld_InitVertexData();
 
   // rtp_preprocessed = true;
+
+  RT_UploadStaticScene();
 }
 
 

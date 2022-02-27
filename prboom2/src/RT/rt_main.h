@@ -40,8 +40,6 @@ extern rtmain_t rtmain;
 void RT_Init(HINSTANCE hinstance, HWND hwnd);
 void RT_Destroy(void);
 
-void RT_NewLevel(int gameepisode, int gamemap, int skytexture);
-
 void RT_StartFrame(void);
 void RT_EndFrame(void);
 
@@ -82,7 +80,7 @@ typedef struct
   uint8_t *_internal_allocated;
 } rtsectordata_t;
 
-// Preprocess functions do not contain RTGL1 calls
+void RT_UploadStaticScene(void);
 void RT_PreprocessLevel(void);
 rtsectordata_t RT_CreateSectorGeometryData(int sectornum, dboolean is_ceiling);
 void RT_GetLineInfo(int lineid, float *out_x1, float *out_z1, float *out_x2, float *out_z2);
