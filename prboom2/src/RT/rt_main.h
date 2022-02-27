@@ -28,7 +28,7 @@ typedef struct
   } sky;
 
   dboolean request_wipe;
-  float wipe_start_time;
+  float wipe_end_time;
 
   dboolean request_shaderreload;
 
@@ -60,7 +60,7 @@ void RT_DrawQuad_NumPatch(float x, float y, int lump, int cm /* use CM2RGB table
 void RT_DrawQuad_Flat(int lump_flat, int x, int y, int width, int height, enum patch_translation_e flags);
 
 void RT_StartScreenMelt(void);
-dboolean RT_IsScreenMeltActive(void);
+RgRaterizedGeometryRenderType RT_Get2DRenderType(void);
 
 // TODO RT: unnecessary functions?
 void RT_OnMovePlane(void);

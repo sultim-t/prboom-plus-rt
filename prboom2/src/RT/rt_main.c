@@ -123,9 +123,6 @@ static float GetZNear()
 }
 
 
-#define SCREEN_MELT_DURATION 1.5f
-
-
 /*
 static double GetCurrentTime_Seconds()
 {
@@ -408,14 +405,19 @@ void RT_EndFrame()
     .skyCubemapRotationTransform = {0}
   };
 
+
+  #define SCREEN_MELT_DURATION 1.5f
   RgDrawFrameWipeEffectParams wipe_params =
   {
     .stripWidth = 1.0f / 320.0f,
     .beginNow = rtmain.request_wipe,
     .duration = SCREEN_MELT_DURATION
   };
-  rtmain.request_wipe = false;
-  rtmain.wipe_start_time = (float)RT_GetCurrentTime() + SCREEN_MELT_DURATION;
+  if (rtmain.request_wipe)
+  {
+    rtmain.wipe_end_time = (float)RT_GetCurrentTime() + SCREEN_MELT_DURATION;
+    rtmain.request_wipe = false;
+  }
 
   RgDrawFrameDebugParams debug_params =
   {
@@ -494,9 +496,13 @@ void RT_StartScreenMelt()
 }
 
 
-dboolean RT_IsScreenMeltActive(void)
+RgRaterizedGeometryRenderType RT_Get2DRenderType(void)
 {
-  return (float)RT_GetCurrentTime() < rtmain.wipe_start_time + SCREEN_MELT_DURATION;
+  dboolean melt_active = (float)RT_GetCurrentTime() < rtmain.wipe_end_time;
+
+  // if melt is active, swapchain geometry will be drawn on top of melt,
+  // which doesn't look right
+  return melt_active ? RG_RASTERIZED_GEOMETRY_RENDER_TYPE_DEFAULT : RG_RASTERIZED_GEOMETRY_RENDER_TYPE_SWAPCHAIN;
 }
 
 
