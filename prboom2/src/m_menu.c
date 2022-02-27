@@ -5566,6 +5566,12 @@ dboolean M_Responder (event_t* ev) {
       return true;
     }
 
+    if (ch == key_rt_reloadshaders)
+    {
+      rtmain.request_shaderreload = 1;
+      return true;
+    }
+
     /* killough 10/98: allow key shortcut into Setup menu */
     if (ch == key_setup) {
       M_StartControlPanel();

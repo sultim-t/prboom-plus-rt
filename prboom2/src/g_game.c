@@ -251,6 +251,7 @@ int     key_weapon8;                                                //    |
 int     key_weapon9;                                                // phares
 int     key_nextweapon;
 int     key_prevweapon;
+int     key_rt_reloadshaders;
 
 int     mb_weapon1;
 int     mb_weapon2;
