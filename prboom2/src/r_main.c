@@ -1186,8 +1186,6 @@ void R_RenderPlayerView (player_t* player)
       R_DrawPlayerSprites();
     }
 
-    RT_AddSkyDome();
-
     RT_ProcessPlayer(player);
 
     // RT_DrawScene(player);

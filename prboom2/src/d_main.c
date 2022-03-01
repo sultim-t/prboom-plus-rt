@@ -231,7 +231,8 @@ static void D_Wipe(void)
   dboolean done;
   int wipestart = I_GetTime () - 1;
 
-  // RT: don't wait
+  // RT: don't wait, otherwise there artifacts:
+  //     no rt data is loaded, so there's an ugly frame behind melting effect
   if (V_GetMode() == VID_MODERT)
   {
     return;
@@ -444,6 +445,11 @@ void D_Display (fixed_t frac)
 
   HU_DrawDemoProgress(true); //e6y
 
+  if (V_GetMode() == VID_MODERT)
+  {
+    RT_EndFrame();
+  }
+
   // normal update
   if (!wipe)
     I_FinishUpdate ();              // page flip or blit buffer
@@ -457,11 +463,6 @@ void D_Display (fixed_t frac)
   // Don't thrash cpu during pausing or if the window doesnt have focus
   if ( (paused && !walkcamera.type) || (!window_focused) ) {
     I_uSleep(5000);
-  }
-
-  if (V_GetMode() == VID_MODERT)
-  {
-    RT_EndFrame();
   }
 
   I_EndDisplay();

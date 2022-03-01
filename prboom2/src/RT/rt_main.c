@@ -329,6 +329,9 @@ void RT_EndFrame()
 #endif
 
 
+  RT_AddSkyDome();
+
+
   // debug light
   {
     RgFloat3D pos = { rtmain.mat_view_inverse[3][0], rtmain.mat_view_inverse[3][1],rtmain.mat_view_inverse[3][2] };
