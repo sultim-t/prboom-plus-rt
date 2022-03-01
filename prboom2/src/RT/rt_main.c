@@ -152,7 +152,7 @@ static RgExtent2D GetCurrentHWNDSize()
   RgExtent2D extent = { 0,0 };
 
   RECT rect;
-  if (GetWindowRect(rtmain.hwnd, &rect))
+  if (GetClientRect(rtmain.hwnd, &rect))
   {
     extent.width = rect.right - rect.left;
     extent.height = rect.bottom - rect.top;
