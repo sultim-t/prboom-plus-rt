@@ -501,7 +501,7 @@ void RT_StartScreenMelt()
 
 RgRaterizedGeometryRenderType RT_Get2DRenderType(void)
 {
-  dboolean melt_active = (float)RT_GetCurrentTime() < rtmain.wipe_end_time;
+  dboolean melt_active = rtmain.request_wipe || (float)RT_GetCurrentTime() < rtmain.wipe_end_time;
 
   // if melt is active, swapchain geometry will be drawn on top of melt,
   // which doesn't look right
