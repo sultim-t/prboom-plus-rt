@@ -21,13 +21,15 @@ typedef enum
 
 typedef struct rt_texture_t
 {
-  RgMaterial rg_handle;
   RgBool32 exists;
+  char name[28];
+
+  RgMaterial rg_handle;
 
   rt_texture_id_type_t id_type;
   int id;
 
-  uint32_t width,height;
+  uint32_t width, height;
   int leftoffset, topoffset;
   rt_texture_flags_t flags;
 

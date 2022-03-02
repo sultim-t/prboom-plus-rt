@@ -115,12 +115,47 @@ void RT_Texture_Destroy(void)
   memset(&rttextures, 0, sizeof(rttextures));
 }
 
+
 void RT_Texture_PrecacheTextures(void)
 {}
 
+enum rt_texture_directory_type { RT_DIR_TYPE_GFX, RT_DIR_TYPE_FLAT };
+#define FLAT_FORMAT "flat/%s"
+#define GFX_FORMAT "gfx/%s"
+#define RT_TEXTURE_PATH_FORMAT(directory_type) ((directory_type) == RT_DIR_TYPE_FLAT ? FLAT_FORMAT : GFX_FORMAT)
+
+static void SetNameFromLump(rt_texture_t *dst, const int lump, enum rt_texture_directory_type directory_type)
+{
+  assert(directory_type == RT_DIR_TYPE_GFX || directory_type == RT_DIR_TYPE_FLAT);
+  const lumpinfo_t *l = W_GetLumpInfoByNum(lump);
+
+  char safe_name[sizeof(l->name)];
+  memcpy(safe_name, l->name, sizeof(l->name));
+  safe_name[sizeof(l->name) - 1] = '\0';
+
+  // format+name+'\0' must be less
+  assert((strlen(RT_TEXTURE_PATH_FORMAT(directory_type)) - 2) + strlen(safe_name) + 1 <= sizeof(dst->name));
+
+  snprintf(dst->name, sizeof(dst->name), RT_TEXTURE_PATH_FORMAT(directory_type), safe_name);
+}
+
+static void SetNameFromTexture(rt_texture_t *dst, const texture_t *texture, enum rt_texture_directory_type directory_type)
+{
+  assert(directory_type == RT_DIR_TYPE_GFX || directory_type == RT_DIR_TYPE_FLAT);
+
+  char safe_name[sizeof(texture->name) + 1];
+  memcpy(safe_name, texture->name, sizeof(texture->name));
+  safe_name[sizeof(texture->name)] = '\0';
+
+  // format+name+'\0' must be less
+  assert((strlen(RT_TEXTURE_PATH_FORMAT(directory_type)) - 2) + strlen(safe_name) + 1 <= sizeof(dst->name));
+
+  snprintf(dst->name, sizeof(dst->name), RT_TEXTURE_PATH_FORMAT(directory_type), safe_name);
+}
+
 
 // Returns initialized rt_texture_t btu with empty 'rg_handle'
-static rt_texture_t *RT_Texture_RegisterPatch(int lump, const rpatch_t *patch)
+static rt_texture_t *RT_Texture_RegisterPatch(const int lump, const rpatch_t *patch)
 {
   if (patch->width == 0 || patch->height == 0)
   {
@@ -145,6 +180,7 @@ static rt_texture_t *RT_Texture_RegisterPatch(int lump, const rpatch_t *patch)
   td->height = patch->height;
   td->leftoffset = patch->leftoffset;
   td->topoffset = patch->topoffset;
+  SetNameFromLump(td, lump, RT_DIR_TYPE_GFX);
 
   // will be initialized by caller
   td->rg_handle = RG_NO_MATERIAL;
@@ -152,9 +188,9 @@ static rt_texture_t *RT_Texture_RegisterPatch(int lump, const rpatch_t *patch)
 }
 
 
-static rt_texture_t *RT_Texture_RegisterFlat(int lump_flat)
+static rt_texture_t *RT_Texture_RegisterFlat(const int lump_flat)
 {
-  int lump = firstflat + lump_flat;
+  const int lump = firstflat + lump_flat;
 
   assert(lump >= 0 && lump < numlumps);
   int is_static = lumpinfo[lump].flags & LUMP_STATIC;
@@ -173,6 +209,7 @@ static rt_texture_t *RT_Texture_RegisterFlat(int lump_flat)
   td->height = 64;
   td->leftoffset = 0;
   td->topoffset = 0;
+  SetNameFromLump(td, lump, RT_DIR_TYPE_FLAT);
 
   // will be initialized by caller
   td->rg_handle = RG_NO_MATERIAL;
@@ -198,6 +235,7 @@ static rt_texture_t *RT_Texture_RegisterTexture(int texture_num, const texture_t
   td->height = texture->height;
   td->leftoffset = 0;
   td->topoffset = 0;
+  SetNameFromTexture(td, texture, RT_DIR_TYPE_GFX);
 
   // will be initialized by caller
   td->rg_handle = RG_NO_MATERIAL;
@@ -435,7 +473,7 @@ RgMaterial BuildMaterial(const rt_texture_t *td, const uint8_t *rgba_buffer)
   {
     .size = { td->width, td->height },
     .textures = {.albedoAlpha = {.isSRGB = true, .pData = rgba_buffer } },
-    .pRelativePath = NULL,
+    .pRelativePath = td->name,
     .filter = RG_SAMPLER_FILTER_NEAREST,
     .addressModeU = RG_SAMPLER_ADDRESS_MODE_REPEAT,
     .addressModeV = RG_SAMPLER_ADDRESS_MODE_REPEAT,
