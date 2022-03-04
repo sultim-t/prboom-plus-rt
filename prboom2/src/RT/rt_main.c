@@ -408,6 +408,15 @@ void RT_EndFrame()
     .skyCubemapRotationTransform = {0}
   };
 
+  RgDrawFrameBloomParams bloom_params =
+  {
+    .bloomIntensity = rt_settings.bloom_intensity == 0 ? -1 : rt_settings.bloom_intensity == 1 ? 0.25f : 1.0f,
+    .inputThreshold = 1.0f,
+    .inputThresholdLength = 0.25f,
+    .upsampleRadius = 1.0f,
+    .bloomEmissionMultiplier = 10.0f,
+    .bloomSkyMultiplier = 0.05f
+  };
 
   #define SCREEN_MELT_DURATION 1.5f
   RgDrawFrameWipeEffectParams wipe_params =
@@ -442,6 +451,7 @@ void RT_EndFrame()
     .useSqrtRoughnessForIndirect = false,
     .pRenderResolutionParams = &resolution_params,
     .pTonemappingParams = &tm_params,
+    .pBloomParams = &bloom_params,
     .pWipeEffectParams = &wipe_params,
     .pReflectRefractParams = &reflrefr_params,
     .pSkyParams = &sky_params,

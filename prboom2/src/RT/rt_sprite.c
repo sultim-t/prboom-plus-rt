@@ -605,7 +605,7 @@ void AddMuzzleFlashLight(int muzzlelight, float flash_z_offset)
   switch (rt_settings.muzzleflash_intensity)
   {
     case 0: return;
-    case 1: flash_intensity *= 0.3f; break;
+    case 1: flash_intensity *= 0.25f; break;
     default: break;
   }
 
