@@ -408,7 +408,11 @@ void RT_EndFrame()
 
   RgDrawFrameBloomParams bloom_params =
   {
-    .bloomIntensity = rt_settings.bloom_intensity == 0 ? -1 : rt_settings.bloom_intensity == 1 ? 0.25f : 1.0f,
+    .bloomIntensity = 
+      rt_settings.bloom_intensity == 0 ? -1 :
+      rt_settings.bloom_intensity == 1 ? 0.25f :
+      rt_settings.bloom_intensity == 3 ? 1.0f :
+      0.5f,
     .inputThreshold = 1.0f,
     .inputThresholdLength = 0.25f,
     .upsampleRadius = 1.0f,

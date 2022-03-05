@@ -3937,16 +3937,17 @@ static const char *RT_options_renderscale[] =
 };
 static const char *RT_options_bloom_intensity[] =
 {
-  "0%",
-  "25%",
-  "100%",
+  "Disabled",
+  "Reduced",
+  "Default",
+  "Exaggerated",
   NULL
 };
 static const char *RT_options_muzzleflash_intensity[] =
 {
-  "0%",
-  "25%",
-  "100%",
+  "Disabled",
+  "Reduced",
+  "Default",
   NULL
 };
 static const char *RT_options_statusbar_scale[] =

@@ -506,7 +506,7 @@ default_t defaults[] =
    def_int,ss_none },
   {"rt_renderscale",{&rt_settings.renderscale},{RT_SETTINGS_RENDERSCALE_DEFAULT},0,7,
    def_int,ss_none },
-  {"rt_bloom_intensity",{&rt_settings.bloom_intensity},{2},0,2,
+  {"rt_bloom_intensity",{&rt_settings.bloom_intensity},{2},0,3,
    def_int,ss_none },
   {"rt_muzzleflash_intensity",{&rt_settings.muzzleflash_intensity},{2},0,2,
    def_int,ss_none},
