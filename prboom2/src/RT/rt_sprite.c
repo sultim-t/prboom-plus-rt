@@ -137,7 +137,7 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
       .layerColors = { RG_COLOR_WHITE },
       .defaultRoughness = 0.5f,
       .defaultMetallicity = 0.1f,
-      .defaultEmission = 0.0f,
+      .defaultEmission = RT_TEXTURE_EMISSION(sprite->td),
       .geomMaterial = { sprite->td->rg_handle },
       .transform = RG_TRANSFORM_IDENTITY
     };
@@ -604,7 +604,7 @@ void RT_AddWeaponSprite(int weaponlump, vissprite_t *vis, int lightlevel)
     .layerColors = { RG_COLOR_WHITE },
     .defaultRoughness = 0.5f,
     .defaultMetallicity = 0.1f,
-    .defaultEmission = 0.0f,
+    .defaultEmission = RT_TEXTURE_EMISSION(td),
     .geomMaterial = { td->rg_handle },
     .transform = RG_TRANSFORM_IDENTITY
   };

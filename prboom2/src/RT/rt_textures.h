@@ -56,6 +56,9 @@ typedef struct rt_texture_t
 } rt_texture_t;
 
 
+#define RT_TEXTURE_EMISSION(td) ((td) != NULL && ((td)->flags & RT_TEXTURE_FLAG_IS_EMISSIVE_BIT) && (td)->metainfo != NULL ? (td)->metainfo->geom_emission : 0.0f)
+
+
 void RT_Texture_Init(void);
 void RT_Texture_Destroy(void);
 void RT_Texture_PrecacheTextures(void);

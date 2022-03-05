@@ -123,7 +123,7 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
     .layerColors = { RG_COLOR_WHITE },
     .defaultRoughness = 0.5f,
     .defaultMetallicity = 0.2f,
-    .defaultEmission = 0,
+    .defaultEmission = RT_TEXTURE_EMISSION(flat.td),
     .geomMaterial = { flat.td->rg_handle },
     .transform = 
       {
@@ -397,7 +397,7 @@ static void DrawWall(RTPWallType itemtype, int drawwallindex, RTPWall *wall)
     .layerColors = { color },
     .defaultRoughness = 0.5f,
     .defaultMetallicity = 0.2f,
-    .defaultEmission = 0,
+    .defaultEmission = RT_TEXTURE_EMISSION(wall->rttexture),
     .geomMaterial = { wall->rttexture ? wall->rttexture->rg_handle : RG_NO_MATERIAL },
     .transform = RG_TRANSFORM_IDENTITY
   };
