@@ -57,8 +57,8 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
 
   dboolean is_rasterized = no_depth_test || add_lightsource;
 
-  dboolean is_player = thing->type == MT_PLAYER;
-  if (is_player && is_rasterized)
+  dboolean is_local_player = thing->type == MT_PLAYER && thing == players[displayplayer].mo;
+  if (is_local_player && is_rasterized)
   {
     return;
   }
@@ -134,7 +134,7 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
       .flags = is_partial_invisibility ? RG_GEOMETRY_UPLOAD_REFL_REFR_ALBEDO_ADD_BIT : 0,
       .geomType = RG_GEOMETRY_TYPE_DYNAMIC,
       .passThroughType = is_partial_invisibility ? RG_GEOMETRY_PASS_THROUGH_TYPE_WATER_REFLECT_REFRACT : RG_GEOMETRY_PASS_THROUGH_TYPE_ALPHA_TESTED,
-      .visibilityType = is_player ? RG_GEOMETRY_VISIBILITY_TYPE_FIRST_PERSON_VIEWER : RG_GEOMETRY_VISIBILITY_TYPE_WORLD_0,
+      .visibilityType = is_local_player ? RG_GEOMETRY_VISIBILITY_TYPE_FIRST_PERSON_VIEWER : RG_GEOMETRY_VISIBILITY_TYPE_WORLD_0,
       .vertexCount = 6,
       .pVertexData = positions,
       .pNormalData = is_partial_invisibility ? Get6NormalsTowardsCamera() : Get6NormalsForSprite(),
@@ -360,9 +360,8 @@ void RT_AddSprite(int sectornum, mobj_t *thing)
   //    goto unlock_patch;
   //}
 
-  //e6y FIXME!!!
-  // RT: don't ignore player model
-  // if (thing == players[displayplayer].mo && walkcamera.type != 2)
+  // RT: don't ignore local player model
+  // if (thing == players[displayplayer].mo && walkcamera.type != 2) // e6y FIXME!!!
   //   goto unlock_patch;
 
   sprite.x = -(float)fx / MAP_SCALE;
