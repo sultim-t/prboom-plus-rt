@@ -701,7 +701,7 @@ void AddMuzzleFlashLight(int muzzlelight, float flash_z_offset)
 }
 
 
-static void AddFlashlight(float to_left_offset)
+static void AddFlashlight(float to_left_offset, float y_multiplier)
 {
   RgFloat3D cam_dir = GetCameraDirection();
   RgFloat3D up = { 0,1,0 };
@@ -713,9 +713,10 @@ static void AddFlashlight(float to_left_offset)
     cam_dir.data[0] * up.data[1] - cam_dir.data[1] * up.data[0]
   };
 
-  RgFloat3D pos = GetCameraPosition();
+  float x = -to_left_offset;
+  float y = -0.1f * y_multiplier;
 
-  float x = -to_left_offset, y = -0.1f;
+  RgFloat3D pos = GetCameraPosition();
   for (int i = 0; i < 3; i++)
   {
     pos.data[i] += right.data[i] * x;
@@ -845,6 +846,14 @@ void RT_ProcessPlayer(const player_t *player)
     static float flashlight_to_left_offset = 0;
     flashlight_to_left_offset = Lerp(flashlight_to_left_offset, target_offset, speed * delta_time);
 
-    AddFlashlight(flashlight_to_left_offset);
+    float dy;
+    {
+      fixed_t y_min = 6 * FRACUNIT; // death cam, look p_user.c
+      fixed_t y_max = VIEWHEIGHT;
+      dy = (float)(player->viewheight - y_min) / (float)(y_max - y_min);
+      dy = BETWEEN(0.0f, 1.0f, dy);
+    }
+
+    AddFlashlight(flashlight_to_left_offset, dy);
   }
 }
