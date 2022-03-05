@@ -22,7 +22,7 @@ typedef struct
   float ul, ur;
   float x1, y1;
   float x2, y2;
-  float light;
+  // float light;
   // float fogdensity;
   fixed_t scale;
   const rt_texture_t *td;
@@ -56,6 +56,12 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
   dboolean add_lightsource = (sprite->td->flags & RT_TEXTURE_FLAG_WITH_LIGHTSOURCE_BIT) && sprite->td->metainfo != NULL;
 
   dboolean is_rasterized = no_depth_test || add_lightsource;
+
+  dboolean is_player = thing->type == MT_PLAYER;
+  if (is_player && is_rasterized)
+  {
+    return;
+  }
 
 
   RgFloat3D positions[6];
@@ -128,7 +134,7 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
       .flags = is_partial_invisibility ? RG_GEOMETRY_UPLOAD_REFL_REFR_ALBEDO_ADD_BIT : 0,
       .geomType = RG_GEOMETRY_TYPE_DYNAMIC,
       .passThroughType = is_partial_invisibility ? RG_GEOMETRY_PASS_THROUGH_TYPE_WATER_REFLECT_REFRACT : RG_GEOMETRY_PASS_THROUGH_TYPE_ALPHA_TESTED,
-      .visibilityType = RG_GEOMETRY_VISIBILITY_TYPE_WORLD_0,
+      .visibilityType = is_player ? RG_GEOMETRY_VISIBILITY_TYPE_FIRST_PERSON_VIEWER : RG_GEOMETRY_VISIBILITY_TYPE_WORLD_0,
       .vertexCount = 6,
       .pVertexData = positions,
       .pNormalData = is_partial_invisibility ? Get6NormalsTowardsCamera() : Get6NormalsForSprite(),
@@ -205,7 +211,7 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
 }
 
 
-void RT_AddSprite(int sectornum, mobj_t *thing, int lightlevel)
+void RT_AddSprite(int sectornum, mobj_t *thing)
 {
   if (sectornum < 0 || sectornum >= numsectors)
   {
@@ -355,8 +361,9 @@ void RT_AddSprite(int sectornum, mobj_t *thing, int lightlevel)
   //}
 
   //e6y FIXME!!!
-  if (thing == players[displayplayer].mo && walkcamera.type != 2)
-    goto unlock_patch;
+  // RT: don't ignore player model
+  // if (thing == players[displayplayer].mo && walkcamera.type != 2)
+  //   goto unlock_patch;
 
   sprite.x = -(float)fx / MAP_SCALE;
   sprite.y =  (float)fz / MAP_SCALE;
@@ -399,11 +406,11 @@ void RT_AddSprite(int sectornum, mobj_t *thing, int lightlevel)
   if ((thing->frame & FF_FULLBRIGHT) || show_alive)
   {
     //sprite.fogdensity = 0.0f;
-    sprite.light = 1.0f;
+    //sprite.light = 1.0f;
   }
   else
   {
-    sprite.light = CalcLightLevel(lightlevel + (extralight << 5));
+    //sprite.light = CalcLightLevel(lightlevel + (extralight << 5));
     //sprite.fogdensity = CalcFogDensity(thing->subsector->sector, lightlevel, GLDIT_SPRITE);
   }
   sprite.cm = CR_LIMIT + (int)((thing->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
@@ -515,7 +522,7 @@ static const RgFloat3D *Get6NormalsForSprite(void)
 }
 
 
-void RT_AddWeaponSprite(int weaponlump, vissprite_t *vis, int lightlevel)
+void RT_AddWeaponSprite(int weaponlump, vissprite_t *vis)
 {
   dboolean is_partial_invisibility = false;
 
@@ -787,7 +794,6 @@ static dboolean AreNoObstacles(const fixed_t src[2], const fixed_t dst[2])
 
 void RT_ProcessPlayer(const player_t *player)
 {
-
   // RT: based on P_UseLines
 
   fixed_t position[] = { player->mo->x, player->mo->y };
