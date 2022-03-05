@@ -184,6 +184,7 @@ static rt_texture_t *RT_Texture_RegisterPatch(const int lump, const rpatch_t *pa
   td->topoffset = patch->topoffset;
   SetNameFromLump(td, lump, RT_DIR_TYPE_GFX);
   td->metainfo = RT_TextureMetaInfo_Find(td->name);
+  td->flags |= td->metainfo ? td->metainfo->additional_flags : 0;
 
   // will be initialized by caller
   td->rg_handle = RG_NO_MATERIAL;
@@ -214,6 +215,7 @@ static rt_texture_t *RT_Texture_RegisterFlat(const int lump_flat)
   td->topoffset = 0;
   SetNameFromLump(td, lump, RT_DIR_TYPE_FLAT);
   td->metainfo = RT_TextureMetaInfo_Find(td->name);
+  td->flags |= td->metainfo ? td->metainfo->additional_flags : 0;
 
   // will be initialized by caller
   td->rg_handle = RG_NO_MATERIAL;
@@ -241,6 +243,7 @@ static rt_texture_t *RT_Texture_RegisterTexture(int texture_num, const texture_t
   td->topoffset = 0;
   SetNameFromTexture(td, texture, RT_DIR_TYPE_GFX);
   td->metainfo = RT_TextureMetaInfo_Find(td->name);
+  td->flags |= td->metainfo ? td->metainfo->additional_flags : 0;
 
   // will be initialized by caller
   td->rg_handle = RG_NO_MATERIAL;

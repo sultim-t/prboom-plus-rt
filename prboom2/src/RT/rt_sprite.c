@@ -52,9 +52,10 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
 {
   dboolean no_depth_test            = !!(sprite->flags & MF_NO_DEPTH_TEST);
   dboolean is_partial_invisibility  = !!(sprite->flags & MF_SHADOW);
-  dboolean is_translucent           = !!(sprite->flags & MF_TRANSLUCENT);
+  // dboolean is_translucent           = !!(sprite->flags & MF_TRANSLUCENT);
+  dboolean add_lightsource = (sprite->td->flags & RT_TEXTURE_FLAG_WITH_LIGHTSOURCE_BIT) && sprite->td->metainfo != NULL;
 
-  dboolean is_rasterized = no_depth_test || is_translucent;
+  dboolean is_rasterized = no_depth_test || add_lightsource;
 
 
   RgFloat3D positions[6];
@@ -172,6 +173,33 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
     };
 
     RgResult r = rgUploadRasterizedGeometry(rtmain.instance, &info, NULL, NULL);
+    RG_CHECK(r);
+  }
+
+  if (add_lightsource)
+  {
+    RgFloat3D c = { 0,0,0 };
+    for (int i = 0; i < 6; i++)
+    {
+      c.data[0] += positions[i].data[0];
+      c.data[1] += positions[i].data[1];
+      c.data[2] += positions[i].data[2];
+    }
+    c.data[0] /= 6;
+    c.data[1] /= 6;
+    c.data[2] /= 6;
+
+    RgSphericalLightUploadInfo light_info =
+    {
+      .uniqueID = RT_GetUniqueID_Thing(thing),
+      .color = sprite->td->metainfo->light_color,
+      .position = c,
+      .sectorID = sectornum,
+      .radius = 0.01f,
+      .falloffDistance = 7
+    };
+
+    RgResult r = rgUploadSphericalLight(rtmain.instance, &light_info);
     RG_CHECK(r);
   }
 }

@@ -134,8 +134,8 @@ void RT_TextureMetaInfo_Init(void)
       }
       case STATE_RASTERIZED_WITH_LIGHT:
       {
-        char str_hexcolor[32];
-        int c = sscanf(curr_line, "%s %s", name, str_hexcolor);
+        char str_hexcolor[8];
+        int c = sscanf(curr_line, "%s %6s", name, str_hexcolor);
         if (c == 2)
         {
           const char red[] = { str_hexcolor[0], str_hexcolor[1], '\0' };
@@ -238,6 +238,8 @@ void RT_TextureMetaInfo_Init(void)
       break;
     }
   }
+
+  Z_Free(buffer);
 }
 
 
