@@ -764,17 +764,15 @@ dboolean PTR_NoWayTraverse_RT(intercept_t *in)
 }
 
 
-// True, if there are no obstacles
-static dboolean AreNoObstacles(const fixed_t p[2], const fixed_t direction[2], fixed_t range)
+static dboolean AreNoObstacles(const fixed_t src[2], const fixed_t dst[2])
 {
-  fixed_t p_dst[] =
-  {
-    p[0] + ((range * FRACUNIT) >> FRACBITS) * direction[0],
-    p[1] + ((range * FRACUNIT) >> FRACBITS) * direction[1]
-  };
-
-  return P_PathTraverse(p[0], p[1], p_dst[0], p_dst[1], PT_ADDLINES | PT_ADDTHINGS, PTR_NoWayTraverse_RT);
+  return P_PathTraverse(src[0], src[1], dst[0], dst[1], PT_ADDLINES | PT_ADDTHINGS, PTR_NoWayTraverse_RT);
 }
+
+
+#define Fixed2_AddMultiplied(p, dir, range) \
+  { (p)[0] + (((range) * FRACUNIT) >> FRACBITS) * (dir)[0], \
+    (p)[1] + (((range) * FRACUNIT) >> FRACBITS) * (dir)[1] } 
 
 
 #define Lerp(a,b,t) ((a)*(1.0f-(t)) + (b)*(t))
@@ -783,7 +781,6 @@ static dboolean AreNoObstacles(const fixed_t p[2], const fixed_t direction[2], f
 #define MUZZLEFLASH_MAX_ZOFFSET 0.75f
 #define MUZZLEFLASH_OBSTACLE_CHECKRANGE 64
 
-#define FLASHLIGHT_MAX_XOFFSET 0.2f
 #define FLASHLIGHT_OBSTACLE_CHECKRANGE 32
 
 
@@ -810,8 +807,9 @@ void RT_ProcessPlayer(const player_t *player)
 
   {
     static float muzzleflash_z_offset = 0;
+    fixed_t p_dst[] = Fixed2_AddMultiplied(position, forward, MUZZLEFLASH_OBSTACLE_CHECKRANGE);
 
-    muzzleflash_z_offset = AreNoObstacles(position, forward, MUZZLEFLASH_OBSTACLE_CHECKRANGE) ?
+    muzzleflash_z_offset = AreNoObstacles(position, p_dst) ?
       Lerp(muzzleflash_z_offset, MUZZLEFLASH_MAX_ZOFFSET, 2 * delta_time) :
       Lerp(muzzleflash_z_offset, 0, 20 * delta_time);
 
@@ -819,11 +817,33 @@ void RT_ProcessPlayer(const player_t *player)
   }
 
   {
-    static float flashlight_to_left_offset = 0;
+    fixed_t dst_fwd[]  = Fixed2_AddMultiplied(position, forward, FLASHLIGHT_OBSTACLE_CHECKRANGE * 3);
+    fixed_t dst_left[] = Fixed2_AddMultiplied(position, left, FLASHLIGHT_OBSTACLE_CHECKRANGE);
 
-    flashlight_to_left_offset = AreNoObstacles(position, left, FLASHLIGHT_OBSTACLE_CHECKRANGE) ?
-      Lerp(flashlight_to_left_offset, FLASHLIGHT_MAX_XOFFSET, 2 * delta_time) :
-      Lerp(flashlight_to_left_offset, 0, 20 * delta_time);
+    float target_offset, speed;
+    
+    if (AreNoObstacles(position, dst_left))
+    {
+      if (AreNoObstacles(dst_left, dst_fwd))
+      {
+        // default
+        target_offset = 0.2f;
+        speed = 2;
+      }
+      else
+      {
+        target_offset = -0.02f;
+        speed = 2;
+      }
+    }
+    else
+    {
+      target_offset = -0.02f;
+      speed = 20;
+    }
+
+    static float flashlight_to_left_offset = 0;
+    flashlight_to_left_offset = Lerp(flashlight_to_left_offset, target_offset, speed * delta_time);
 
     AddFlashlight(flashlight_to_left_offset);
   }
