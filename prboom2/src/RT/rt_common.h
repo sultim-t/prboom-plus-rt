@@ -3,6 +3,8 @@
 #include "RTGL1/RTGL1.h"
 #include <assert.h>
 
+#define RG_RESOURCES_FOLDER "ovrd/"
+
 #define RG_MAX_TEXTURE_COUNT 4096
 
 #define assert_always(msg) assert(0 && msg)

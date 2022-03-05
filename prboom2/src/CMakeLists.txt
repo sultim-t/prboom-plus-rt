@@ -263,6 +263,7 @@ set(
     RT/rt_main.c
     RT/rt_textures.h
     RT/rt_textures.c
+    RT/rt_textures_metainfo.c
     RT/rt_2d.c
     RT/rt_geom.c
     RT/rt_preprocess.c

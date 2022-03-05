@@ -26,8 +26,6 @@ static void RT_Print(const char *pMessage, void *pUserData)
 
 void RT_Init(HINSTANCE hinstance, HWND hwnd)
 {
-#define RESOURCES_FOLDER "ovrd/"
-
   RgWin32SurfaceCreateInfo win32Info =
   {
     .hinstance = hinstance,
@@ -48,9 +46,9 @@ void RT_Init(HINSTANCE hinstance, HWND hwnd)
   #endif
     .pfnPrint = RT_Print,
 
-    .pShaderFolderPath = RESOURCES_FOLDER "shaders/",
-    .pBlueNoiseFilePath = RESOURCES_FOLDER "BlueNoise_LDR_RGBA_128.ktx2",
-    .pWaterNormalTexturePath = RESOURCES_FOLDER "WaterNormal_n.ktx2",
+    .pShaderFolderPath = RG_RESOURCES_FOLDER "shaders/",
+    .pBlueNoiseFilePath = RG_RESOURCES_FOLDER "BlueNoise_LDR_RGBA_128.ktx2",
+    .pWaterNormalTexturePath = RG_RESOURCES_FOLDER "WaterNormal_n.ktx2",
 
     .primaryRaysMaxAlbedoLayers = 1,
     .indirectIlluminationMaxAlbedoLayers = 1,
@@ -68,7 +66,7 @@ void RT_Init(HINSTANCE hinstance, HWND hwnd)
     .maxTextureCount = RG_MAX_TEXTURE_COUNT,
     .textureSamplerForceMinificationFilterLinear = true,
 
-    .pOverridenTexturesFolderPath = RESOURCES_FOLDER "mat/",
+    .pOverridenTexturesFolderPath = RG_RESOURCES_FOLDER "mat/",
     .overridenAlbedoAlphaTextureIsSRGB = true,
     .overridenRoughnessMetallicEmissionTextureIsSRGB = false,
     .overridenNormalTextureIsSRGB = false,
