@@ -617,6 +617,39 @@ void RT_AddWeaponSprite(int weaponlump, vissprite_t *vis, int lightlevel)
 #include <i_video.h>
 
 
+static RgFloat3D GetCameraDirection(void)
+{
+  const float f[4] = { 0,0,-1,0 };
+  RgFloat4D cam_dir = ApplyMat44ToVec4(rtmain.mat_view_inverse, f);
+  const float *d = cam_dir.data;
+
+  float len = sqrtf(d[0] * d[0] + d[1] * d[1] + d[2] * d[2]);
+  RgFloat3D r;
+  if (len > 0.0001f)
+  {
+    r.data[0] = d[0] / len;
+    r.data[1] = d[1] / len;
+    r.data[2] = d[2] / len;
+  }
+  else
+  {
+    //assert(0);
+    r.data[0] = 1;
+    r.data[1] = 0;
+    r.data[2] = 0;
+  }
+  return r;
+}
+
+
+static RgFloat3D GetCameraPosition(void)
+{
+  const float *cam_pos = rtmain.mat_view_inverse[3];
+  RgFloat3D r = { cam_pos[0], cam_pos[1], cam_pos[2] };
+  return r;
+}
+
+
 // muzzlelight is extralight,
 // extralight is 1 or 2 when muzzle flash is active
 void AddMuzzleFlashLight(int muzzlelight, float flash_z_offset)
@@ -637,16 +670,15 @@ void AddMuzzleFlashLight(int muzzlelight, float flash_z_offset)
     default: break;
   }
 
-
-  const float f[4] = { 0,0,-1,0 };
-  RgFloat4D cam_dir = ApplyMat44ToVec4(rtmain.mat_view_inverse, f);
-  const float *cam_pos = rtmain.mat_view_inverse[3];
+  
+  RgFloat3D cam_pos = GetCameraPosition();
+  RgFloat3D cam_dir = GetCameraDirection();
 
   RgFloat3D flash_pos = 
   {
-    cam_pos[0] + cam_dir.data[0] * flash_z_offset,
-    cam_pos[1] + cam_dir.data[1] * flash_z_offset + flash_y_offset,
-    cam_pos[2] + cam_dir.data[2] * flash_z_offset,
+    cam_pos.data[0] + cam_dir.data[0] * flash_z_offset,
+    cam_pos.data[1] + cam_dir.data[1] * flash_z_offset + flash_y_offset,
+    cam_pos.data[2] + cam_dir.data[2] * flash_z_offset,
   };
 
 
@@ -665,6 +697,45 @@ void AddMuzzleFlashLight(int muzzlelight, float flash_z_offset)
   };
 
   RgResult r = rgUploadSphericalLight(rtmain.instance, &light_info);
+  RG_CHECK(r);
+}
+
+
+static void AddFlashlight(float to_left_offset)
+{
+  RgFloat3D cam_dir = GetCameraDirection();
+  RgFloat3D up = { 0,1,0 };
+
+  // cross
+  RgFloat3D right = {
+    cam_dir.data[1] * up.data[2] - cam_dir.data[2] * up.data[1],
+    cam_dir.data[2] * up.data[0] - cam_dir.data[0] * up.data[2],
+    cam_dir.data[0] * up.data[1] - cam_dir.data[1] * up.data[0]
+  };
+
+  RgFloat3D pos = GetCameraPosition();
+
+  float x = -to_left_offset, y = -0.1f;
+  for (int i = 0; i < 3; i++)
+  {
+    pos.data[i] += right.data[i] * x;
+    pos.data[i] += up.data[i] * y;
+  }
+
+
+  RgSpotlightUploadInfo info =
+  {
+    .position = pos,
+    .direction = cam_dir,
+    .upVector = up,
+    .color = {0.8f, 0.8f, 1.0f},
+    .radius = 0.01f,
+    .angleOuter = DEG2RAD(25),
+    .angleInner = DEG2RAD(5),
+    .falloffDistance = 7
+  };
+
+  RgResult r = rgUploadSpotlightLight(rtmain.instance, &info);
   RG_CHECK(r);
 }
 
@@ -693,42 +764,67 @@ dboolean PTR_NoWayTraverse_RT(intercept_t *in)
 }
 
 
+// True, if there are no obstacles
+static dboolean AreNoObstacles(const fixed_t p[2], const fixed_t direction[2], fixed_t range)
+{
+  fixed_t p_dst[] =
+  {
+    p[0] + ((range * FRACUNIT) >> FRACBITS) * direction[0],
+    p[1] + ((range * FRACUNIT) >> FRACBITS) * direction[1]
+  };
+
+  return P_PathTraverse(p[0], p[1], p_dst[0], p_dst[1], PT_ADDLINES | PT_ADDTHINGS, PTR_NoWayTraverse_RT);
+}
+
+
 #define Lerp(a,b,t) ((a)*(1.0f-(t)) + (b)*(t))
+
+
+#define MUZZLEFLASH_MAX_ZOFFSET 0.75f
+#define MUZZLEFLASH_OBSTACLE_CHECKRANGE 64
+
+#define FLASHLIGHT_MAX_XOFFSET 0.2f
+#define FLASHLIGHT_OBSTACLE_CHECKRANGE 32
 
 
 void RT_ProcessPlayer(const player_t *player)
 {
-  float max_light_z_offset = 0.75f;
-  int obstacle_check_range = 64;
 
   // RT: based on P_UseLines
 
+  fixed_t position[] = { player->mo->x, player->mo->y };
+
   int angle = player->mo->angle >> ANGLETOFINESHIFT;
-  fixed_t x1 = player->mo->x;
-  fixed_t y1 = player->mo->y;
-  fixed_t x2 = x1 + ((obstacle_check_range * FRACUNIT) >> FRACBITS) * finecosine[angle];
-  fixed_t y2 = y1 + ((obstacle_check_range * FRACUNIT) >> FRACBITS) * finesine[angle];
+
+  fixed_t forward[] = { finecosine[angle], finesine[angle] }; // angle
+  fixed_t left[] = { -finesine[angle], finecosine[angle] };   // angle + pi/2
 
 
   // RT: not important timer to lerp z offset
   static float last_time = 0;
-  static float flash_z_offset = 0;
 
   float cur_time = (float)RT_GetCurrentTime();
   float delta_time = max(cur_time - last_time, 0.001f);
   last_time = cur_time;
 
 
-  // if no obstacles
-  if (P_PathTraverse(x1, y1, x2, y2, PT_ADDLINES | PT_ADDTHINGS, PTR_NoWayTraverse_RT))
   {
-    flash_z_offset = Lerp(flash_z_offset, max_light_z_offset, 2 * delta_time);
-  }
-  else
-  {
-    flash_z_offset = Lerp(flash_z_offset, 0, 20 * delta_time);
+    static float muzzleflash_z_offset = 0;
+
+    muzzleflash_z_offset = AreNoObstacles(position, forward, MUZZLEFLASH_OBSTACLE_CHECKRANGE) ?
+      Lerp(muzzleflash_z_offset, MUZZLEFLASH_MAX_ZOFFSET, 2 * delta_time) :
+      Lerp(muzzleflash_z_offset, 0, 20 * delta_time);
+
+    AddMuzzleFlashLight(player->extralight, muzzleflash_z_offset);
   }
 
+  {
+    static float flashlight_to_left_offset = 0;
 
-  AddMuzzleFlashLight(player->extralight, flash_z_offset);
+    flashlight_to_left_offset = AreNoObstacles(position, left, FLASHLIGHT_OBSTACLE_CHECKRANGE) ?
+      Lerp(flashlight_to_left_offset, FLASHLIGHT_MAX_XOFFSET, 2 * delta_time) :
+      Lerp(flashlight_to_left_offset, 0, 20 * delta_time);
+
+    AddFlashlight(flashlight_to_left_offset);
+  }
 }

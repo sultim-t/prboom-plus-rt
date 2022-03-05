@@ -254,37 +254,6 @@ static void NormalizeRTSettings(rt_settings_t *settings)
 }
 
 
-static RgFloat3D GetCameraDirection(void)
-{
-  float d[4];
-  const float v[4] = { 0,0,-1,0 };
-  for (int i = 0; i < 4; i++)
-  {
-    d[i] = 
-      rtmain.mat_view_inverse[0][i] * v[0] + 
-      rtmain.mat_view_inverse[1][i] * v[1] + 
-      rtmain.mat_view_inverse[2][i] * v[2] + 
-      rtmain.mat_view_inverse[3][i] * v[3];
-  }
-  float len = sqrtf(d[0] * d[0] + d[1] * d[1] + d[2] * d[2]);
-  RgFloat3D r;
-  if (len > 0.0001f)
-  {
-    r.data[0] = d[0] / len;
-    r.data[1] = d[1] / len;
-    r.data[2] = d[2] / len;
-  }
-  else
-  {
-    //assert(0);
-    r.data[0] = 1;
-    r.data[1] = 0;
-    r.data[2] = 0;
-  }
-  return r;
-}
-
-
 void RT_StartFrame(void)
 {
   RgStartFrameInfo info =
@@ -329,40 +298,6 @@ void RT_EndFrame()
 
   RT_AddSkyDome();
 
-
-  // debug light
-  {
-    RgFloat3D pos = { rtmain.mat_view_inverse[3][0], rtmain.mat_view_inverse[3][1],rtmain.mat_view_inverse[3][2] };
-    RgFloat3D dir = GetCameraDirection();
-    RgFloat3D up = { 0,1,0 };
-    RgFloat3D right = {
-      dir.data[1] * up.data[2] - dir.data[2] * up.data[1],
-      dir.data[2] * up.data[0] - dir.data[0] * up.data[2],
-      dir.data[0] * up.data[1] - dir.data[1] * up.data[0]
-    };
-    float x = -0.2f, y = -0.1f;
-    for (int i = 0; i < 3; i++)
-    {
-      pos.data[i] += right.data[i] * x;
-      pos.data[i] += up.data[i] * y;
-    }
-
-
-    RgSpotlightUploadInfo info =
-    {
-      .position = pos,
-      .direction = dir,
-      .upVector = up,
-      .color = {0.9f, 0.9f, 1.0f},
-      .radius = 0.01f,
-      .angleOuter = DEG2RAD(25),
-      .angleInner = DEG2RAD(5),
-      .falloffDistance = 7
-    };
-
-    RgResult r = rgUploadSpotlightLight(rtmain.instance, &info);
-    RG_CHECK(r);
-  }
 
   RgDrawFrameRenderResolutionParams resolution_params =
   {
