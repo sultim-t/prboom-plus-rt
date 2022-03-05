@@ -133,6 +133,13 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
       }
   };
 
+  if (flat.td->flags & RT_TEXTURE_FLAG_IS_WATER_BIT)
+  {
+    // const rt_texture_t *bottom_td = RT_Texture_GetFromFlatLump(R_FlatNumForName("MFLR8_3"));
+    info.flags = RG_GEOMETRY_UPLOAD_REFL_REFR_ALBEDO_MULTIPLY_BIT;
+    info.passThroughType = RG_GEOMETRY_PASS_THROUGH_TYPE_MIRROR;
+  }
+
   RgResult r = rgUploadGeometry(rtmain.instance, &info);
   RG_CHECK(r);
   // TODO RT: flat with texcoord offset
