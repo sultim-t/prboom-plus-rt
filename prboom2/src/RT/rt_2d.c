@@ -14,16 +14,6 @@ static float GetHUDScale()
 }
 
 
-void RT_DrawLine(float x0, float y0, float x1, float y1, byte r, byte g, byte b)
-{
-  // TODO RT: drawing lines
-}
-
-
-//  0 -- 3
-//  |    |
-//  1 -- 2
-static const uint32_t QUAD_INDICES[] = { 0, 1, 3, 3, 1, 2 };
 static const float MATRIX_IDENTITY[] =
 {
   1,0,0,0,
@@ -31,6 +21,54 @@ static const float MATRIX_IDENTITY[] =
   0,0,1,0,
   0,0,0,1,
 };
+
+
+static void Swap(float *a, float *b)
+{
+  float t = *a;
+  *a = *b;
+  *b = t;
+}
+
+
+void RT_DrawLine(float x1, float y1, float x2, float y2, byte r, byte g, byte b)
+{
+  const float vw = (float)SCREENWIDTH;
+  const float vh = (float)SCREENHEIGHT;
+  
+  x1 = x1 / vw * 2.0f - 1.0f;
+  y1 = y1 / vh * 2.0f - 1.0f;
+  x2 = x2 / vw * 2.0f - 1.0f;
+  y2 = y2 / vh * 2.0f - 1.0f;
+
+  uint32_t color = RT_PackColor(r, g, b, 255);
+
+  // quad:  0 -- 3
+  //        |    |
+  //        1 -- 2
+  RgRasterizedGeometryVertexStruct verts[] =
+  {
+    { { x1, y1, 0 }, color, { 0 } },
+    { { x2, y2, 0 }, color, { 0 } },
+  };
+
+  RgRasterizedGeometryUploadInfo info =
+  {
+    .renderType = RT_Get2DRenderType(),
+    .vertexCount = RG_ARRAY_SIZE(verts),
+    .pStructs = verts,
+    .transform = RG_TRANSFORM_IDENTITY,
+    .color = RG_COLOR_WHITE,
+    .material = RG_NO_MATERIAL,
+    .depthTest = false,
+    .depthWrite = false,
+    .blendEnable = false,
+    .useAsLineList = true
+  };
+
+  RgResult _r = rgUploadRasterizedGeometry(rtmain.instance, &info, MATRIX_IDENTITY, NULL);
+  RG_CHECK(_r);
+}
 
 
 static void DrawQuad_Internal_T(RgMaterial mat,
@@ -48,6 +86,9 @@ static void DrawQuad_Internal_T(RgMaterial mat,
 
   uint32_t color = RT_PackColor(r, g, b, a);
 
+  // quad:  0 -- 3
+  //        |    |
+  //        1 -- 2
   RgRasterizedGeometryVertexStruct verts[] =
   {
     { { x1, y1, 0 }, color, { s1, t1 } },

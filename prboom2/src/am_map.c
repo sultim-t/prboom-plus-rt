@@ -2125,7 +2125,7 @@ static void AM_drawMarks(void)
         p.fy = CYMTOF_F(p.fy) - (float)markpoints[i].h * SCREENHEIGHT / 200.0f / 2.0f;
       }
 
-      if (V_GetMode() == VID_MODEGL ? 
+      if (V_GetMode() == VID_MODEGL || V_GetMode() == VID_MODERT ?
           p.y < f_y + f_h && p.y + markpoints[i].h * SCREENHEIGHT / 200 >= f_y :
           p.y < f_y + f_h && p.y >= f_y)
       {
@@ -2306,7 +2306,7 @@ static void AM_setFrameVariables(void)
     am_frame.bbox[BOXTOP] = m_y2;
   }
 
-  am_frame.precise = (V_GetMode() == VID_MODEGL);
+  am_frame.precise = (V_GetMode() == VID_MODEGL || V_GetMode() == VID_MODERT);
 }
 
 //

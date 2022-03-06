@@ -53,7 +53,7 @@ void RT_AddSprite(int sectornum, mobj_t *thing);
 void RT_AddWeaponSprite(int weaponlump, vissprite_t *vis);
 void RT_AddSkyDome(void);
 
-void RT_DrawLine(float x0, float y0, float x1, float y1, byte r, byte g, byte b);
+void RT_DrawLine(float x1, float y1, float x2, float y2, byte r, byte g, byte b);
 void RT_DrawQuad(int x, int y, int width, int height, byte r, byte g, byte b, byte a);
 void RT_DrawQuad_Patch(int lump, int x, int y, int width, int height, enum patch_translation_e flags);
 void RT_DrawQuad_NumPatch(float x, float y, int lump, int cm /* use CM2RGB table for color */, enum patch_translation_e flags);
