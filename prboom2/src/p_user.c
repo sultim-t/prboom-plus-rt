@@ -581,9 +581,13 @@ void P_PlayerThink (player_t* player)
     player->bonuscount--;
 
   // Handling colormaps.
-  // killough 3/20/98: reformat to terse C syntax
-  player->fixedcolormap = palette_onpowers &&
-    (player->powers[pw_invulnerability] > 4*32 ||
-    player->powers[pw_invulnerability] & 8) ? INVERSECOLORMAP :
-    player->powers[pw_infrared] > 4*32 || player->powers[pw_infrared] & 8;
+
+  if (palette_onpowers && (player->powers[pw_invulnerability] > 4 * 32 || player->powers[pw_invulnerability] & 8))
+  {
+    player->fixedcolormap = INVERSECOLORMAP;
+  }
+  else
+  {
+    player->fixedcolormap = player->powers[pw_infrared] > 4 * 32 || player->powers[pw_infrared] & 8;
+  }
 }

@@ -1223,7 +1223,7 @@ void gld_StartDrawScene(void)
   gld_InitFrameSky();
   
   invul_method = 0;
-  if (players[displayplayer].fixedcolormap == 32)
+  if (players[displayplayer].fixedcolormap == INVERSECOLORMAP)
   {
     if (gl_boom_colormaps && !gl_has_hires)
     {

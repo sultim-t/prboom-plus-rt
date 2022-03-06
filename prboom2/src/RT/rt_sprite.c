@@ -868,4 +868,6 @@ void RT_SetPowerupPalette(uint32_t powerupflags)
 {
   rtmain.radialblur_active = powerupflags & RT_POWERUP_FLAG_BERSERK_BIT;
   rtmain.chraberration_active = powerupflags & RT_POWERUP_FLAG_DAMAGE_BIT;
+  rtmain.inversecolor_active = players[displayplayer].fixedcolormap == INVERSECOLORMAP;
+  rtmain.fullbright_active = players[displayplayer].fixedcolormap > 0 && players[displayplayer].fixedcolormap != INVERSECOLORMAP;
 }

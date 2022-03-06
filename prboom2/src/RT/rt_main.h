@@ -31,6 +31,8 @@ typedef struct
   float wipe_end_time;
   dboolean radialblur_active;
   dboolean chraberration_active;
+  dboolean inversecolor_active;
+  dboolean fullbright_active;
 
   dboolean request_shaderreload;
 
