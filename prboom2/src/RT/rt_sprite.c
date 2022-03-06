@@ -795,9 +795,6 @@ static dboolean AreNoObstacles(const fixed_t src[2], const fixed_t dst[2])
 // Called for local player
 void RT_ProcessPlayer(const player_t *player)
 {
-  rtmain.radialblur_active = player->powers[pw_strength];
-
-
   fixed_t position[] = { player->mo->x, player->mo->y };
 
   int angle = player->mo->angle >> ANGLETOFINESHIFT;
@@ -864,4 +861,10 @@ void RT_ProcessPlayer(const player_t *player)
 
     AddFlashlight(flashlight_to_left_offset, dy);
   }
+}
+
+
+void RT_SetPowerupPalette(uint32_t powerupflags)
+{
+  rtmain.radialblur_active = powerupflags & RT_POWERUP_FLAG_BERSERK_BIT;
 }

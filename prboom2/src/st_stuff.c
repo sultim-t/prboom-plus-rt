@@ -48,6 +48,7 @@
 #include "dstrings.h"
 #include "r_draw.h"
 #include "e6y.h"//e6y
+#include "RT/rt_main.h"
 
 //
 // STATUS BAR DATA
@@ -780,42 +781,66 @@ int st_palette = 0;
 
 static void ST_doPaletteStuff(void)
 {
-  int         palette;
+  uint32_t rt_powerupflags = 0;
+
+  int palette;
   int cnt = palette_ondamage ? plyr->damagecount : 0;
 
+  if (cnt > 0)
+  {
+    rt_powerupflags |= RT_POWERUP_FLAG_DAMAGE_BIT;
+  }
+
   if (palette_onpowers && plyr->powers[pw_strength])
+  {
+    // slowly fade the berzerk out
+    int bzc = 12 - (plyr->powers[pw_strength] >> 6);
+    if (bzc > cnt)
+      cnt = bzc;
+
+    if (bzc > 0)
     {
-      // slowly fade the berzerk out
-      int bzc = 12 - (plyr->powers[pw_strength]>>6);
-      if (bzc > cnt)
-        cnt = bzc;
+      rt_powerupflags |= RT_POWERUP_FLAG_BERSERK_BIT;
     }
+  }
 
   if (cnt)
-    {
-      palette = (cnt+7)>>3;
-      if (palette >= NUMREDPALS)
-        palette = NUMREDPALS-1;
+  {
+    palette = (cnt + 7) >> 3;
+    if (palette >= NUMREDPALS)
+      palette = NUMREDPALS - 1;
 
-      /* cph 2006/08/06 - if in the menu, reduce the red tint - navigating to
-       * load a game can be tricky if the screen is all red */
-      if (menuactive) palette >>=1;
+    /* cph 2006/08/06 - if in the menu, reduce the red tint - navigating to
+     * load a game can be tricky if the screen is all red */
+    if (menuactive) palette >>= 1;
 
-      palette += STARTREDPALS;
-    }
+    palette += STARTREDPALS;
+  }
   else
+  {
     if (palette_onbonus && plyr->bonuscount)
-      {
-        palette = (plyr->bonuscount+7)>>3;
-        if (palette >= NUMBONUSPALS)
-          palette = NUMBONUSPALS-1;
-        palette += STARTBONUSPALS;
-      }
+    {
+      palette = (plyr->bonuscount + 7) >> 3;
+      if (palette >= NUMBONUSPALS)
+        palette = NUMBONUSPALS - 1;
+      palette += STARTBONUSPALS;
+
+      rt_powerupflags |= RT_POWERUP_FLAG_BONUS_BIT;
+    }
     else
-      if (palette_onpowers && (plyr->powers[pw_ironfeet] > 4*32 || plyr->powers[pw_ironfeet] & 8))
+    {
+      if (palette_onpowers && (plyr->powers[pw_ironfeet] > 4 * 32 || plyr->powers[pw_ironfeet] & 8))
+      {
         palette = RADIATIONPAL;
+
+        rt_powerupflags |= RT_POWERUP_FLAG_RADIATIONSUIT_BIT;
+      }
       else
+      {
         palette = 0;
+      }
+    }
+  }
 
   // In Chex Quest, the player never sees red.  Instead, the
   // radiation suit palette is used to tint the screen green,
@@ -823,18 +848,33 @@ static void ST_doPaletteStuff(void)
   // attacking flemoid.
 
   if (palette_onpowers && gamemission == chex
-    && palette >= STARTREDPALS && palette < STARTREDPALS + NUMREDPALS)
+      && palette >= STARTREDPALS && palette < STARTREDPALS + NUMREDPALS)
   {
     palette = RADIATIONPAL;
   }
 
-  if (palette != st_palette) {
-    V_SetPalette(st_palette = palette); // CPhipps - use new palette function
+  if (palette != st_palette)
+  {
+    st_palette = palette;
+
+    if (V_GetMode() != VID_MODERT)
+    {
+      V_SetPalette(palette); // CPhipps - use new palette function
+    }
 
     // have to redraw the entire status bar when the palette changes
     // in truecolor modes - POPE
     if (V_GetMode() == VID_MODE15 || V_GetMode() == VID_MODE16 || V_GetMode() == VID_MODE32)
       st_firsttime = true;
+  }
+
+
+  if (V_GetMode() == VID_MODERT)
+  {
+    if (palette == 0) assert(rt_powerupflags == 0);
+    if (rt_powerupflags == 0) assert(palette == 0);
+
+    RT_SetPowerupPalette(rt_powerupflags);
   }
 }
 

@@ -46,6 +46,7 @@ void RT_EndFrame(void);
 
 void RT_InitMatrices(const float viewMatrix[16], const float projMatrix[16]);
 void RT_ProcessPlayer(const player_t *player);
+
 double RT_GetCurrentTime(void);
 
 void RT_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling);
@@ -61,6 +62,13 @@ void RT_DrawQuad_NumPatch(float x, float y, int lump, int cm /* use CM2RGB table
 void RT_DrawQuad_Flat(int lump_flat, int x, int y, int width, int height, enum patch_translation_e flags);
 
 void RT_StartScreenMelt(void);
+enum rt_powerupflag_t {
+  RT_POWERUP_FLAG_BERSERK_BIT = 1,
+  RT_POWERUP_FLAG_DAMAGE_BIT = 2,
+  RT_POWERUP_FLAG_RADIATIONSUIT_BIT = 4,
+  RT_POWERUP_FLAG_BONUS_BIT = 8
+};
+void RT_SetPowerupPalette(uint32_t powerupflags);
 RgRaterizedGeometryRenderType RT_Get2DRenderType(void);
 
 // TODO RT: unnecessary functions?

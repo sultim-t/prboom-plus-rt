@@ -911,7 +911,10 @@ void V_SetPalette(int pal)
 
   if (V_GetMode() == VID_MODERT)
   {
-    // do nothing
+    // RT: use V_SetPalette only for disabling pallete,
+    // enabling them is handled in st_stuff.c
+    assert(pal == 0);
+    RT_SetPowerupPalette(0);
   }
   else if (V_GetMode() == VID_MODEGL)
   {

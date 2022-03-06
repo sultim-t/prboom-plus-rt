@@ -374,7 +374,6 @@ void RT_EndFrame()
     .transitionDurationIn = 0.4f,
     .transitionDurationOut = 3.0f
   };
-  rtmain.radialblur_active = false;
 
   RgDrawFrameDebugParams debug_params =
   {
