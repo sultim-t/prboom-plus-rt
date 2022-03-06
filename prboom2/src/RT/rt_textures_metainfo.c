@@ -49,6 +49,7 @@ void RT_TextureMetaInfo_Init(void)
     STATE_RASTERIZED_WITH_LIGHT,
     STATE_EMISSIVE,
     STATE_EMISSIVE_WITHOUT_INDIRECT_ILLUMINATION,
+    STATE_MONOCHROME_FOR_COLORMAPS,
   };
   enum state_t state = STATE_NONE;
 
@@ -112,6 +113,11 @@ void RT_TextureMetaInfo_Init(void)
       state = STATE_EMISSIVE_WITHOUT_INDIRECT_ILLUMINATION;
       continue;
     }
+    else if (strcmp(curr_line, "@MONOCHROME_FOR_COLORMAPS") == 0)
+    {
+      state = STATE_MONOCHROME_FOR_COLORMAPS;
+      continue;
+    }
 
 
     dboolean valid = false;
@@ -124,6 +130,7 @@ void RT_TextureMetaInfo_Init(void)
     switch (state)
     {
       case STATE_WATER:
+      case STATE_MONOCHROME_FOR_COLORMAPS:
       {
         int c = sscanf(curr_line, "%s", name);
         if (c == 1)
@@ -225,6 +232,10 @@ void RT_TextureMetaInfo_Init(void)
       case STATE_EMISSIVE_WITHOUT_INDIRECT_ILLUMINATION: 
         dst->additional_flags = RT_TEXTURE_FLAG_IS_EMISSIVE_BIT | RT_TEXTURE_FLAG_WITHOUT_INDIR_ILLUMINATION_BIT;
         dst->geom_emission = geom_emission;
+        break;
+
+      case STATE_MONOCHROME_FOR_COLORMAPS:
+        dst->additional_flags = RT_TEXTURE_FLAG_MONOCHROME_FOR_COLORMAPS_BIT;
         break;
 
       default: 

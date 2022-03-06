@@ -475,6 +475,37 @@ static void DT_AddPatchToTexture(unsigned char *buffer, const rpatch_t *patch)
 }
 
 
+static void MakeMonochrome(uint8_t *buffer, uint32_t w, uint32_t h)
+{
+  for (uint32_t i = 0; i < w * h; i++)
+  {
+    uint8_t r = buffer[i * 4 + 0];
+    uint8_t g = buffer[i * 4 + 1];
+    uint8_t b = buffer[i * 4 + 2];
+
+    // get HSV's value
+    uint8_t mono = max(max(r, g), b);
+
+    buffer[i * 4 + 0] = mono;
+    buffer[i * 4 + 1] = mono;
+    buffer[i * 4 + 2] = mono;
+  }
+}
+
+
+static dboolean HasAlpha(const uint8_t *buffer, uint32_t w, uint32_t h)
+{
+  for (uint32_t i = 0; i < w * h; i++)
+  {
+    if (buffer[i * 4 + 3] != 0xFF)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+
 RgMaterial BuildMaterial(const rt_texture_t *td, const uint8_t *rgba_buffer)
 {
   RgStaticMaterialCreateInfo info =
@@ -526,6 +557,13 @@ const rt_texture_t *RT_Texture_GetFromPatchLump(int lump)
   DT_AddPatchToTexture(buffer, patch);
   R_UnlockPatchNum(lump);
 
+
+  if (td->flags & RT_TEXTURE_FLAG_MONOCHROME_FOR_COLORMAPS_BIT)
+  {
+    MakeMonochrome(buffer, td->width, td->height);
+  }
+
+
   td->rg_handle = BuildMaterial(td, buffer);
 
   free(buffer);
@@ -563,6 +601,13 @@ const rt_texture_t *RT_Texture_GetFromFlatLump(int lump_flat)
   memset(buffer, 0, texture_buffer_size);
   DT_AddFlatToTexture(buffer, flat, td->width, td->height);
   W_UnlockLumpNum(lump);
+
+
+  if (td->flags & RT_TEXTURE_FLAG_MONOCHROME_FOR_COLORMAPS_BIT)
+  {
+    MakeMonochrome(buffer, td->width, td->height);
+  }
+
 
   td->rg_handle = BuildMaterial(td, buffer);
 
@@ -602,17 +647,18 @@ const rt_texture_t *RT_Texture_GetFromTexture(int texture_num)
   DT_AddPatchToTexture(buffer, patch);
   R_UnlockTextureCompositePatchNum(texture_num);
 
-  td->rg_handle = BuildMaterial(td, buffer);
 
-  // check if any pixel contains alpha value < 1.0
-  for (uint32_t i = 0; i < td->width * td->height; i++)
+  if (td->flags & RT_TEXTURE_FLAG_MONOCHROME_FOR_COLORMAPS_BIT)
   {
-    if (buffer[i * 4 + 3] != 0xFF)
-    {
-      td->flags |= RT_TEXTURE_FLAG_WITH_ALPHA_BIT;
-      break;
-    }
+    MakeMonochrome(buffer, td->width, td->height);
   }
+  if (HasAlpha(buffer, td->width, td->height))
+  {
+    td->flags |= RT_TEXTURE_FLAG_WITH_ALPHA_BIT;
+  }
+
+
+  td->rg_handle = BuildMaterial(td, buffer);
 
   free(buffer);
   return td;

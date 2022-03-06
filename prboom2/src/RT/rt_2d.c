@@ -344,6 +344,10 @@ void RT_TryApplyHUDCustomScale(enum patch_translation_e flags, float *p_xpos, fl
 #endif
 }
 
+
+extern GLfloat cm2RGB[][4];
+
+
 void RT_DrawQuad_NumPatch(float x, float y, int lump, int cm, enum patch_translation_e flags)
 {
   const rt_texture_t *td = RT_Texture_GetFromPatchLump(lump);
@@ -394,5 +398,17 @@ void RT_DrawQuad_NumPatch(float x, float y, int lump, int cm, enum patch_transla
 
   RT_TryApplyHUDCustomScale(flags, &xpos, &ypos, &width, &height);
 
-  DrawQuad_Internal(td->rg_handle, xpos, ypos, width, height, 255, 255, 255, 255);
+
+  uint8_t rgb[4] = { 255,255,255 };
+  if (td->flags & RT_TEXTURE_FLAG_MONOCHROME_FOR_COLORMAPS_BIT)
+  {
+    const float *d = cm2RGB[cm];
+
+    rgb[0] = (uint8_t)BETWEEN(0, 255, (int)(d[0] * 255));
+    rgb[1] = (uint8_t)BETWEEN(0, 255, (int)(d[1] * 255));
+    rgb[2] = (uint8_t)BETWEEN(0, 255, (int)(d[2] * 255));
+  }
+
+
+  DrawQuad_Internal(td->rg_handle, xpos, ypos, width, height, rgb[0], rgb[1], rgb[2], 255);
 }
