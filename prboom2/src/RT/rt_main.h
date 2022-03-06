@@ -30,6 +30,7 @@ typedef struct
   dboolean request_wipe;
   float wipe_end_time;
   dboolean radialblur_active;
+  dboolean chraberration_active;
 
   dboolean request_shaderreload;
 

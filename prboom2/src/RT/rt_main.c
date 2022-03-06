@@ -375,6 +375,14 @@ void RT_EndFrame()
     .transitionDurationOut = 3.0f
   };
 
+  RgDrawFrameChromaticAberrationEffectParams chrabr_params =
+  {
+    .isActive = rtmain.chraberration_active,
+    .transitionDurationIn = 0.05f,
+    .transitionDurationOut = 0.3f,
+    .intensity = 0.5f
+  };
+
   RgDrawFrameDebugParams debug_params =
   {
     .showMotionVectors = 0,
@@ -398,6 +406,7 @@ void RT_EndFrame()
     .pBloomParams = &bloom_params,
     .pWipeEffectParams = &wipe_params,
     .pRadialBlurEffectParams = &radialblur_params,
+    .pChromaticAberrationEffectParams = &chrabr_params,
     .pReflectRefractParams = &reflrefr_params,
     .pSkyParams = &sky_params,
     .pDebugParams = &debug_params,
