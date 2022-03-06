@@ -524,8 +524,13 @@ static const int checkcoord[12][4] = // killough -- static const
 };
 
 // killough 1/28/98: static // CPhipps - const parameter, reformatted
-static dboolean R_CheckBBox(const fixed_t *bspcoord)
+static dboolean R_CheckBBox_T(const fixed_t *bspcoord, dboolean for_rt_automap)
 {
+  if (for_rt_automap)
+  {
+    assert(V_GetMode() == VID_MODERT);
+  }
+
   angle_t angle1, angle2;
   int        boxpos;
   const int* check;
@@ -541,7 +546,7 @@ static dboolean R_CheckBBox(const fixed_t *bspcoord)
   check = checkcoord[boxpos];
 
 #ifdef GL_DOOM
-  if (V_GetMode() == VID_MODEGL)
+  if (V_GetMode() == VID_MODEGL || for_rt_automap)
   {
     angle1 = R_PointToPseudoAngle(bspcoord[check[0]], bspcoord[check[1]]);
     angle2 = R_PointToPseudoAngle(bspcoord[check[2]], bspcoord[check[3]]);
@@ -589,6 +594,15 @@ static dboolean R_CheckBBox(const fixed_t *bspcoord)
 
   return true;
 }
+static dboolean R_CheckBBox(const fixed_t *bspcoord)
+{
+  return R_CheckBBox_T(bspcoord, false);
+}
+static dboolean RT_AutoMap_CheckBBox(const fixed_t *bspcoord)
+{
+  return R_CheckBBox_T(bspcoord, true);
+}
+
 
 //
 // R_Subsector
@@ -815,7 +829,77 @@ static void R_Subsector(const int num)
   }
 }
 
-static void AddAllSubsectors(int bspnum)
+
+// Based on R_AddLine
+static void RT_Automap_AddLine(seg_t *line)
+{
+  angle_t angle1 = R_PointToPseudoAngle(line->v1->x, line->v1->y);
+  angle_t angle2 = R_PointToPseudoAngle(line->v2->x, line->v2->y);
+
+  if (angle2 - angle1 < ANG180 || !line->linedef)
+  {
+    return;
+  }
+  if (!gld_clipper_SafeCheckRange(angle2, angle1))
+  {
+    return;
+  }
+
+  if (!line->backsector)
+  {
+    gld_clipper_SafeAddClipRange(angle2, angle1);
+  }
+  else
+  {
+    if (line->frontsector == line->backsector)
+    {
+      if (texturetranslation[line->sidedef->midtexture] == NO_TEXTURE)
+      {
+        //e6y: nothing to do here!
+        return;
+      }
+    }
+    if (CheckClip(line, line->frontsector, line->backsector))
+    {
+      gld_clipper_SafeAddClipRange(angle2, angle1);
+    }
+  }
+
+  if (line->miniseg == false) // figgi -- skip minisegs
+    line->linedef->flags |= ML_MAPPED;
+}
+// Based on R_Subsector / R_AddLine
+static void RT_AutoMap_Subsector(const int num)
+{
+  subsector_t *sub = &subsectors[num];
+  int count = sub->numlines;
+  seg_t *line = &segs[sub->firstline];
+  while (count--)
+  {
+    if (line->miniseg == false)
+    {
+      RT_Automap_AddLine(line);
+    }
+    line++;
+  }
+}
+// Based on R_RenderBSPNode
+static void RT_AutoMap_MarkVisible(int bspnum)
+{
+  while (!(bspnum & NF_SUBSECTOR)) 
+  {
+    const node_t *bsp = &nodes[bspnum];
+    int side = R_PointOnSide(viewx, viewy, bsp);
+    RT_AutoMap_MarkVisible(bsp->children[side]);
+    if (!RT_AutoMap_CheckBBox(bsp->bbox[side ^ 1]))
+      return;
+    bspnum = bsp->children[side ^ 1];
+  }
+  RT_AutoMap_Subsector(bspnum == -1 ? 0 : bspnum & ~NF_SUBSECTOR);
+}
+
+
+static void RT_AddAllSubsectors(int bspnum)
 {
   if (bspnum & NF_SUBSECTOR)
   {
@@ -825,10 +909,11 @@ static void AddAllSubsectors(int bspnum)
   {
     const node_t *bsp = &nodes[bspnum];
 
-    AddAllSubsectors(bsp->children[0]);
-    AddAllSubsectors(bsp->children[1]);
+    RT_AddAllSubsectors(bsp->children[0]);
+    RT_AddAllSubsectors(bsp->children[1]);
   }
 }
+
 
 //
 // RenderBSPNode
@@ -842,7 +927,8 @@ void R_RenderBSPNode(int bspnum)
 {
   if (V_GetMode() == VID_MODERT)
   {
-    AddAllSubsectors(bspnum);
+    RT_AddAllSubsectors(bspnum);
+    RT_AutoMap_MarkVisible(bspnum);
     return;
   }
 

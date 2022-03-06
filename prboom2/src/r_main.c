@@ -1142,7 +1142,7 @@ void R_RenderPlayerView (player_t* player)
 #endif
 
 #ifdef GL_DOOM
-  if (V_GetMode() == VID_MODEGL) {
+  if (V_GetMode() == VID_MODEGL || V_GetMode() == VID_MODERT /* for automap */) {
     {
       angle_t a1 = gld_FrustumAngle();
       gld_clipper_Clear();
