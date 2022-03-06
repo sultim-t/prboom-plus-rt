@@ -368,6 +368,14 @@ void RT_EndFrame()
     rtmain.request_wipe = false;
   }
 
+  RgDrawFrameRadialBlurEffectParams radialblur_params =
+  {
+    .isActive = rtmain.radialblur_active,
+    .transitionDurationIn = 0.4f,
+    .transitionDurationOut = 3.0f
+  };
+  rtmain.radialblur_active = false;
+
   RgDrawFrameDebugParams debug_params =
   {
     .showMotionVectors = 0,
@@ -390,6 +398,7 @@ void RT_EndFrame()
     .pTonemappingParams = &tm_params,
     .pBloomParams = &bloom_params,
     .pWipeEffectParams = &wipe_params,
+    .pRadialBlurEffectParams = &radialblur_params,
     .pReflectRefractParams = &reflrefr_params,
     .pSkyParams = &sky_params,
     .pDebugParams = &debug_params,

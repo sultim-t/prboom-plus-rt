@@ -773,6 +773,7 @@ dboolean PTR_NoWayTraverse_RT(intercept_t *in)
 
 static dboolean AreNoObstacles(const fixed_t src[2], const fixed_t dst[2])
 {
+  // RT: based on P_UseLines
   return P_PathTraverse(src[0], src[1], dst[0], dst[1], PT_ADDLINES | PT_ADDTHINGS, PTR_NoWayTraverse_RT);
 }
 
@@ -791,9 +792,11 @@ static dboolean AreNoObstacles(const fixed_t src[2], const fixed_t dst[2])
 #define FLASHLIGHT_OBSTACLE_CHECKRANGE 32
 
 
+// Called for local player
 void RT_ProcessPlayer(const player_t *player)
 {
-  // RT: based on P_UseLines
+  rtmain.radialblur_active = player->powers[pw_strength];
+
 
   fixed_t position[] = { player->mo->x, player->mo->y };
 
