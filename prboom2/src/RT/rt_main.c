@@ -370,14 +370,14 @@ void RT_EndFrame()
 
   RgPostEffectRadialBlur radialblur_params =
   {
-    .isActive = rtmain.radialblur_active,
+    .isActive = rtmain.powerupflags & RT_POWERUP_FLAG_BERSERK_BIT,
     .transitionDurationIn = 0.4f,
     .transitionDurationOut = 3.0f
   };
 
   RgPostEffectChromaticAberration chrabr_params =
   {
-    .isActive = rtmain.chraberration_active,
+    .isActive = rtmain.powerupflags & RT_POWERUP_FLAG_DAMAGE_BIT,
     .transitionDurationIn = 0.05f,
     .transitionDurationOut = 0.3f,
     .intensity = 0.5f
@@ -385,9 +385,17 @@ void RT_EndFrame()
 
   RgPostEffectInverseBlackAndWhite invbw_params =
   {
-    .isActive = rtmain.inversecolor_active,
+    .isActive = rtmain.powerupflags & RT_POWERUP_FLAG_INVUNERABILITY_BIT,
     .transitionDurationIn = 0.05f,
     .transitionDurationOut = 1.0f,
+  };
+
+  RgPostEffectDistortedSides distortedsides_params =
+  {
+    .isActive = rtmain.powerupflags & RT_POWERUP_FLAG_RADIATIONSUIT_BIT,
+    .transitionDurationIn = 0.5f,
+    .transitionDurationOut = 1.0f,
+    .colorTint = { 0.2f, 1.0f, 0.4f, 1.0f }
   };
 
   RgDrawFrameDebugParams debug_params =
@@ -420,6 +428,7 @@ void RT_EndFrame()
       .pRadialBlur = &radialblur_params,
       .pChromaticAberration = &chrabr_params,
       .pInverseBlackAndWhite = &invbw_params,
+      .pDistortedSides = &distortedsides_params,
     },
   };
   memcpy(info.view, rtmain.mat_view, 16 * sizeof(float));

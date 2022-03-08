@@ -866,8 +866,34 @@ void RT_ProcessPlayer(const player_t *player)
 
 void RT_SetPowerupPalette(uint32_t powerupflags)
 {
-  rtmain.radialblur_active = powerupflags & RT_POWERUP_FLAG_BERSERK_BIT;
-  rtmain.chraberration_active = powerupflags & RT_POWERUP_FLAG_DAMAGE_BIT;
-  rtmain.inversecolor_active = players[displayplayer].fixedcolormap == INVERSECOLORMAP;
-  rtmain.fullbright_active = players[displayplayer].fixedcolormap > 0 && players[displayplayer].fixedcolormap != INVERSECOLORMAP;
+  rtmain.powerupflags = 0;
+
+  if (powerupflags & RT_POWERUP_FLAG_BERSERK_BIT)
+  {
+    rtmain.powerupflags |= RT_POWERUP_FLAG_BERSERK_BIT;
+  }
+
+  if (powerupflags & RT_POWERUP_FLAG_DAMAGE_BIT)
+  {
+    rtmain.powerupflags |= RT_POWERUP_FLAG_DAMAGE_BIT;
+  }
+
+  if (powerupflags & RT_POWERUP_FLAG_RADIATIONSUIT_BIT)
+  {
+    rtmain.powerupflags |= RT_POWERUP_FLAG_RADIATIONSUIT_BIT;
+  }
+
+  if (powerupflags & RT_POWERUP_FLAG_BONUS_BIT)
+  {
+    rtmain.powerupflags |= RT_POWERUP_FLAG_BONUS_BIT;
+  }
+
+  if (players[displayplayer].fixedcolormap == INVERSECOLORMAP)
+  {
+    rtmain.powerupflags |= RT_POWERUP_FLAG_INVUNERABILITY_BIT;
+  }
+  else if (players[displayplayer].fixedcolormap > 0)
+  {
+    rtmain.powerupflags |= RT_POWERUP_FLAG_MORELIGHT_BIT;
+  }
 }

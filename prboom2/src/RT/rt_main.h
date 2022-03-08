@@ -29,10 +29,7 @@ typedef struct
 
   dboolean request_wipe;
   float wipe_end_time;
-  dboolean radialblur_active;
-  dboolean chraberration_active;
-  dboolean inversecolor_active;
-  dboolean fullbright_active;
+  uint32_t powerupflags;
 
   dboolean request_shaderreload;
 
@@ -69,7 +66,9 @@ enum rt_powerupflag_t {
   RT_POWERUP_FLAG_BERSERK_BIT = 1,
   RT_POWERUP_FLAG_DAMAGE_BIT = 2,
   RT_POWERUP_FLAG_RADIATIONSUIT_BIT = 4,
-  RT_POWERUP_FLAG_BONUS_BIT = 8
+  RT_POWERUP_FLAG_BONUS_BIT = 8,
+  RT_POWERUP_FLAG_INVUNERABILITY_BIT = 16,
+  RT_POWERUP_FLAG_MORELIGHT_BIT = 32,
 };
 void RT_SetPowerupPalette(uint32_t powerupflags);
 RgRaterizedGeometryRenderType RT_Get2DRenderType(void);

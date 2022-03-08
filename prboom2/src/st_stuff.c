@@ -818,27 +818,36 @@ static void ST_doPaletteStuff(void)
   }
   else
   {
-    if (palette_onbonus && plyr->bonuscount)
+    dboolean enable_bonus = palette_onbonus && plyr->bonuscount;
+    dboolean enable_ironfeet = palette_onpowers && (plyr->powers[pw_ironfeet] > 4 * 32 || plyr->powers[pw_ironfeet] & 8);
+
+    if (enable_bonus)
     {
       palette = (plyr->bonuscount + 7) >> 3;
       if (palette >= NUMBONUSPALS)
         palette = NUMBONUSPALS - 1;
       palette += STARTBONUSPALS;
-
-      rt_powerupflags |= RT_POWERUP_FLAG_BONUS_BIT;
     }
     else
     {
-      if (palette_onpowers && (plyr->powers[pw_ironfeet] > 4 * 32 || plyr->powers[pw_ironfeet] & 8))
+      if (enable_ironfeet)
       {
         palette = RADIATIONPAL;
-
-        rt_powerupflags |= RT_POWERUP_FLAG_RADIATIONSUIT_BIT;
       }
       else
       {
         palette = 0;
       }
+    }
+
+    // RT: enable_bonus / enable_ironfeet are not mutually exclusive with new renderer
+    if (enable_bonus)
+    {
+      rt_powerupflags |= RT_POWERUP_FLAG_BONUS_BIT;
+    }
+    if (enable_ironfeet)
+    {
+      rt_powerupflags |= RT_POWERUP_FLAG_RADIATIONSUIT_BIT;
     }
   }
 
