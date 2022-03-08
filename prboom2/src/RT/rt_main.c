@@ -356,7 +356,7 @@ void RT_EndFrame()
   };
 
   #define SCREEN_MELT_DURATION 1.5f
-  RgDrawFrameWipeEffectParams wipe_params =
+  RgPostEffectWipe wipe_params =
   {
     .stripWidth = 1.0f / 320.0f,
     .beginNow = rtmain.request_wipe,
@@ -368,19 +368,26 @@ void RT_EndFrame()
     rtmain.request_wipe = false;
   }
 
-  RgDrawFrameRadialBlurEffectParams radialblur_params =
+  RgPostEffectRadialBlur radialblur_params =
   {
     .isActive = rtmain.radialblur_active,
     .transitionDurationIn = 0.4f,
     .transitionDurationOut = 3.0f
   };
 
-  RgDrawFrameChromaticAberrationEffectParams chrabr_params =
+  RgPostEffectChromaticAberration chrabr_params =
   {
     .isActive = rtmain.chraberration_active,
     .transitionDurationIn = 0.05f,
     .transitionDurationOut = 0.3f,
     .intensity = 0.5f
+  };
+
+  RgPostEffectInverseBlackAndWhite invbw_params =
+  {
+    .isActive = rtmain.inversecolor_active,
+    .transitionDurationIn = 0.05f,
+    .transitionDurationOut = 1.0f,
   };
 
   RgDrawFrameDebugParams debug_params =
@@ -404,12 +411,16 @@ void RT_EndFrame()
     .pRenderResolutionParams = &resolution_params,
     .pTonemappingParams = &tm_params,
     .pBloomParams = &bloom_params,
-    .pWipeEffectParams = &wipe_params,
-    .pRadialBlurEffectParams = &radialblur_params,
-    .pChromaticAberrationEffectParams = &chrabr_params,
     .pReflectRefractParams = &reflrefr_params,
     .pSkyParams = &sky_params,
     .pDebugParams = &debug_params,
+    .postEffectParams =
+    {
+      .pWipe = &wipe_params ,
+      .pRadialBlur = &radialblur_params,
+      .pChromaticAberration = &chrabr_params,
+      .pInverseBlackAndWhite = &invbw_params,
+    },
   };
   memcpy(info.view, rtmain.mat_view, 16 * sizeof(float));
   memcpy(info.projection, rtmain.mat_projectionvk, 16 * sizeof(float));
