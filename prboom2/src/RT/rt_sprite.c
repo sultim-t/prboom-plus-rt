@@ -742,6 +742,14 @@ static void AddFlashlight(float to_left_offset, float y_multiplier)
     .falloffDistance = 7
   };
 
+  if (rtmain.powerupflags & RT_POWERUP_FLAG_MORELIGHT_BIT)
+  {
+    info.angleOuter *= 1.5f;
+    info.falloffDistance *= 2;
+    info.color.data[0] *= 0.5f;
+    info.color.data[1] *= 0.75f;
+  }
+
   RgResult r = rgUploadSpotlightLight(rtmain.instance, &info);
   RG_CHECK(r);
 }

@@ -393,10 +393,15 @@ void RT_EndFrame()
   RgPostEffectDistortedSides distortedsides_params =
   {
     .isActive = rtmain.powerupflags & RT_POWERUP_FLAG_RADIATIONSUIT_BIT,
-    .transitionDurationIn = 0.5f,
+    .transitionDurationIn = 1.0f,
     .transitionDurationOut = 1.0f,
     .colorTint = { 0.2f, 1.0f, 0.4f, 1.0f }
   };
+
+  if (rtmain.powerupflags & RT_POWERUP_FLAG_BONUS_BIT)
+  {
+    RT_DrawQuad(0, 0, SCREENWIDTH, SCREENHEIGHT, 255, 233, 107, 2);
+  }
 
   RgDrawFrameDebugParams debug_params =
   {
