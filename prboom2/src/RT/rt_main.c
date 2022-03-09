@@ -589,7 +589,7 @@ int RT_GetSectorNum_Fixed(fixed_t x, fixed_t y)
 
 int RT_GetSectorNum_Real(float real_x, float real_y)
 {
-  fixed_t x = (fixed_t)(real_x * MAP_SCALE);
+  fixed_t x = (fixed_t)(-real_x * MAP_SCALE);
   fixed_t y = (fixed_t)(real_y * MAP_SCALE);
 
   return RT_GetSectorNum_Fixed(x, y);
