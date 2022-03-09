@@ -781,15 +781,9 @@ int st_palette = 0;
 
 static void ST_doPaletteStuff(void)
 {
-  uint32_t rt_powerupflags = 0;
-
   int palette;
   int cnt = palette_ondamage ? plyr->damagecount : 0;
 
-  if (cnt > 0)
-  {
-    rt_powerupflags |= RT_POWERUP_FLAG_DAMAGE_BIT;
-  }
 
   if (palette_onpowers && plyr->powers[pw_strength])
   {
@@ -797,11 +791,6 @@ static void ST_doPaletteStuff(void)
     int bzc = 12 - (plyr->powers[pw_strength] >> 6);
     if (bzc > cnt)
       cnt = bzc;
-
-    if (bzc > 0)
-    {
-      rt_powerupflags |= RT_POWERUP_FLAG_BERSERK_BIT;
-    }
   }
 
   if (cnt)
@@ -818,10 +807,7 @@ static void ST_doPaletteStuff(void)
   }
   else
   {
-    dboolean enable_bonus = palette_onbonus && plyr->bonuscount;
-    dboolean enable_ironfeet = palette_onpowers && (plyr->powers[pw_ironfeet] > 4 * 32 || plyr->powers[pw_ironfeet] & 8);
-
-    if (enable_bonus)
+    if (palette_onbonus && plyr->bonuscount)
     {
       palette = (plyr->bonuscount + 7) >> 3;
       if (palette >= NUMBONUSPALS)
@@ -830,7 +816,7 @@ static void ST_doPaletteStuff(void)
     }
     else
     {
-      if (enable_ironfeet)
+      if (palette_onpowers && (plyr->powers[pw_ironfeet] > 4 * 32 || plyr->powers[pw_ironfeet] & 8))
       {
         palette = RADIATIONPAL;
       }
@@ -838,16 +824,6 @@ static void ST_doPaletteStuff(void)
       {
         palette = 0;
       }
-    }
-
-    // RT: enable_bonus / enable_ironfeet are not mutually exclusive with new renderer
-    if (enable_bonus)
-    {
-      rt_powerupflags |= RT_POWERUP_FLAG_BONUS_BIT;
-    }
-    if (enable_ironfeet)
-    {
-      rt_powerupflags |= RT_POWERUP_FLAG_RADIATIONSUIT_BIT;
     }
   }
 
@@ -880,6 +856,32 @@ static void ST_doPaletteStuff(void)
 
   if (V_GetMode() == VID_MODERT)
   {
+    uint32_t rt_powerupflags = 0;
+
+    if (palette_ondamage && plyr->damagecount)
+    {
+      rt_powerupflags |= RT_POWERUP_FLAG_DAMAGE_BIT;
+    }
+
+    if (palette_onbonus && plyr->bonuscount)
+    {
+      rt_powerupflags |= RT_POWERUP_FLAG_BONUS_BIT;
+    }
+
+    if (palette_onpowers && plyr->powers[pw_ironfeet])
+    {
+      rt_powerupflags |= RT_POWERUP_FLAG_RADIATIONSUIT_BIT;
+    }
+
+    if (palette_onpowers && plyr->powers[pw_strength])
+    {
+      int bzc = 12 - (plyr->powers[pw_strength] >> 6);
+      if (bzc > 0)
+      {
+        rt_powerupflags |= RT_POWERUP_FLAG_BERSERK_BIT;
+      }
+    }
+
     if (palette == 0) assert(rt_powerupflags == 0);
     if (rt_powerupflags == 0) assert(palette == 0);
 

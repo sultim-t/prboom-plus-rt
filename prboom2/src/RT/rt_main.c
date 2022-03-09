@@ -386,8 +386,8 @@ void RT_EndFrame()
   RgPostEffectInverseBlackAndWhite invbw_params =
   {
     .isActive = rtmain.powerupflags & RT_POWERUP_FLAG_INVUNERABILITY_BIT,
-    .transitionDurationIn = 0.05f,
-    .transitionDurationOut = 1.0f,
+    .transitionDurationIn = 1.0f,
+    .transitionDurationOut = 1.5f,
   };
 
   RgPostEffectDistortedSides distortedsides_params =
