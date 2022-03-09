@@ -125,6 +125,7 @@ void RT_TextureMetaInfo_Init(void)
     RgFloat3D light_color = { 0 };
     rt_texture_flags_t additional_flags = 0;
     float geom_emission = 0;
+    float falloff_mult = 1.0f;
 
 
     switch (state)
@@ -142,8 +143,8 @@ void RT_TextureMetaInfo_Init(void)
       case STATE_RASTERIZED_WITH_LIGHT:
       {
         char str_hexcolor[8];
-        int c = sscanf(curr_line, "%s %6s", name, str_hexcolor);
-        if (c == 2)
+        int c = sscanf(curr_line, "%s %6s %f", name, str_hexcolor, &falloff_mult);
+        if (c >= 2)
         {
           const char red[] = { str_hexcolor[0], str_hexcolor[1], '\0' };
           uint32_t ir = strtoul(red, NULL, 16);
@@ -157,6 +158,11 @@ void RT_TextureMetaInfo_Init(void)
           light_color.data[0] = (float)ir / 255.0f;
           light_color.data[1] = (float)ig / 255.0f;
           light_color.data[2] = (float)ib / 255.0f;
+
+          if (c == 3)
+          {
+            falloff_mult = BETWEEN(0.01f, 10.0f, falloff_mult);
+          }
 
           valid = true;
         }
@@ -222,6 +228,7 @@ void RT_TextureMetaInfo_Init(void)
       case STATE_RASTERIZED_WITH_LIGHT:
         dst->additional_flags = RT_TEXTURE_FLAG_WITH_LIGHTSOURCE_BIT;
         dst->light_color = light_color;
+        dst->falloff_multiplier = falloff_mult;
         break;
 
       case STATE_EMISSIVE:

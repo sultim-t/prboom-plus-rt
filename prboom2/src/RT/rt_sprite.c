@@ -184,25 +184,25 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
 
   if (add_lightsource)
   {
-    RgFloat3D c = { 0,0,0 };
+    const rt_texture_metainfo_t *mt = sprite->td->metainfo;
+    
+    RgFloat3D center = { 0,0,0 };
     for (int i = 0; i < 6; i++)
     {
-      c.data[0] += positions[i].data[0];
-      c.data[1] += positions[i].data[1];
-      c.data[2] += positions[i].data[2];
+      center.data[0] += positions[i].data[0];
+      center.data[1] += positions[i].data[1];
+      center.data[2] += positions[i].data[2];
     }
-    c.data[0] /= 6;
-    c.data[1] /= 6;
-    c.data[2] /= 6;
+    center.data[0] /= 6; center.data[1] /= 6; center.data[2] /= 6;
 
     RgSphericalLightUploadInfo light_info =
     {
       .uniqueID = RT_GetUniqueID_Thing(thing),
-      .color = sprite->td->metainfo->light_color,
-      .position = c,
+      .color = mt->light_color,
+      .position = center,
       .sectorID = sectornum,
       .radius = 0.01f,
-      .falloffDistance = 7
+      .falloffDistance = 7 * mt->falloff_multiplier
     };
 
     RgResult r = rgUploadSphericalLight(rtmain.instance, &light_info);

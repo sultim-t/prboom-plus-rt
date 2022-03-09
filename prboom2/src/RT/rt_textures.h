@@ -35,6 +35,7 @@ typedef struct rt_texture_metainfo_t
   // Only use these values
   RgFloat3D light_color;
   float geom_emission;
+  float falloff_multiplier;
 } rt_texture_metainfo_t;
 
 
