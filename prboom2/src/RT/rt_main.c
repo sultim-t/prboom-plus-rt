@@ -395,13 +395,28 @@ void RT_EndFrame()
     .isActive = rtmain.powerupflags & RT_POWERUP_FLAG_RADIATIONSUIT_BIT,
     .transitionDurationIn = 1.0f,
     .transitionDurationOut = 1.0f,
-    .colorTint = { 0.2f, 1.0f, 0.4f, 1.0f }
   };
 
-  if (rtmain.powerupflags & RT_POWERUP_FLAG_BONUS_BIT)
+  RgPostEffectColorTint tint_params_radsuit =
   {
-    RT_DrawQuad(0, 0, SCREENWIDTH, SCREENHEIGHT, 255, 233, 107, 2);
-  }
+    .isActive = true,
+    .transitionDurationIn = 1.0f,
+    .transitionDurationOut = 1.0f,
+    .intensity = 1.0f,
+    .color = { 0.2f, 1.0f, 0.4f }
+  };
+  RgPostEffectColorTint tint_params_bonus =
+  {
+    .isActive = true,
+    .transitionDurationIn = 0.0f,
+    .transitionDurationOut = 0.7f,
+    .intensity = 0.5f,
+    .color = { 1.0f, 0.91f, 0.42f }
+  };
+  static RgPostEffectColorTint tint_params = { 0 }; // static, so prev state's transition durations are preserved
+  tint_params.isActive = false;
+  if (rtmain.powerupflags & RT_POWERUP_FLAG_RADIATIONSUIT_BIT) tint_params = tint_params_radsuit;
+  else if (rtmain.powerupflags & RT_POWERUP_FLAG_BONUS_BIT) tint_params = tint_params_bonus;
 
   RgDrawFrameDebugParams debug_params =
   {
@@ -434,6 +449,7 @@ void RT_EndFrame()
       .pChromaticAberration = &chrabr_params,
       .pInverseBlackAndWhite = &invbw_params,
       .pDistortedSides = &distortedsides_params,
+      .pColorTint = &tint_params,
     },
   };
   memcpy(info.view, rtmain.mat_view, 16 * sizeof(float));
