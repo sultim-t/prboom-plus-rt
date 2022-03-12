@@ -313,9 +313,7 @@ void RT_AddSkyDome(void)
     },
     .color = RG_COLOR_WHITE ,
     .material = rtmain.sky.texture->rg_handle,
-    .blendEnable = false,
-    .depthTest = false,
-    .depthWrite = false
+    .pipelineState = 0
   };
 
   RgResult r = rgUploadRasterizedGeometry(rtmain.instance, &info, NULL, NULL);

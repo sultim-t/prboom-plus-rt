@@ -171,11 +171,10 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
       .transform = RG_TRANSFORM_IDENTITY,
       .color = RG_COLOR_WHITE,
       .material = sprite->td->rg_handle,
-      .blendEnable = true,
+      // should be alpha test, but works too:
+      .pipelineState = RG_RASTERIZED_GEOMETRY_STATE_ALPHA_TEST | (no_depth_test ? 0 : (RG_RASTERIZED_GEOMETRY_STATE_DEPTH_TEST | RG_RASTERIZED_GEOMETRY_STATE_DEPTH_WRITE)),
       .blendFuncSrc = RG_BLEND_FACTOR_SRC_ALPHA,
       .blendFuncDst = RG_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
-      .depthTest = !no_depth_test,
-      .depthWrite = !no_depth_test
     };
 
     RgResult r = rgUploadRasterizedGeometry(rtmain.instance, &info, NULL, NULL);

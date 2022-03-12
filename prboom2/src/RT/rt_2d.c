@@ -60,10 +60,7 @@ void RT_DrawLine(float x1, float y1, float x2, float y2, byte r, byte g, byte b)
     .transform = RG_TRANSFORM_IDENTITY,
     .color = RG_COLOR_WHITE,
     .material = RG_NO_MATERIAL,
-    .depthTest = false,
-    .depthWrite = false,
-    .blendEnable = false,
-    .useAsLineList = true
+    .pipelineState = RG_RASTERIZED_GEOMETRY_STATE_FORCE_LINE_LIST
   };
 
   RgResult _r = rgUploadRasterizedGeometry(rtmain.instance, &info, MATRIX_IDENTITY, NULL);
@@ -107,9 +104,7 @@ static void DrawQuad_Internal_T(RgMaterial mat,
     .transform = RG_TRANSFORM_IDENTITY,
     .color = RG_COLOR_WHITE,
     .material = mat,
-    .depthTest = false,
-    .depthWrite = false,
-    .blendEnable = true,
+    .pipelineState = RG_RASTERIZED_GEOMETRY_STATE_BLEND_ENABLE,
     .blendFuncSrc = RG_BLEND_FACTOR_SRC_ALPHA,
     .blendFuncDst = RG_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
   };

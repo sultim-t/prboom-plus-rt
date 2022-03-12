@@ -504,7 +504,7 @@ void RT_StartScreenMelt()
 }
 
 
-RgRaterizedGeometryRenderType RT_Get2DRenderType(void)
+RgRasterizedGeometryRenderType RT_Get2DRenderType(void)
 {
   dboolean melt_active = rtmain.request_wipe || (float)RT_GetCurrentTime() < rtmain.wipe_end_time;
 
