@@ -866,7 +866,10 @@ void RT_ProcessPlayer(const player_t *player)
       dy = BETWEEN(0.0f, 1.0f, dy);
     }
 
-    AddFlashlight(flashlight_to_left_offset, dy);
+    if (rtmain.request_flashlight)
+    {
+      AddFlashlight(flashlight_to_left_offset, dy);
+    }
   }
 }
 

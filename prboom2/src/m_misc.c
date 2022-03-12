@@ -672,6 +672,8 @@ default_t defaults[] =
    0,MAX_KEY,def_key,ss_keys}, // key to fly down
   {"key_flydown", {&key_flydown}, {','},
    0,MAX_KEY,def_key,ss_keys}, // key to strafe right
+  {"key_rt_flashlight", {&key_rt_flashlight}, {'f'},
+   0,MAX_KEY,def_key,ss_keys}, // key to enable flashlight
 
   {"key_fire",        {&key_fire},           {KEYD_RCTRL}     ,
    0,MAX_KEY,def_key,ss_keys}, // duh
@@ -732,7 +734,7 @@ default_t defaults[] =
    0,MAX_KEY,def_key,ss_keys}, // key to reduce automap
   {"key_map_gobig",   {&key_map_gobig},       {'0'}           ,
    0,MAX_KEY,def_key,ss_keys},  // key to get max zoom for automap
-  {"key_map_follow",  {&key_map_follow},      {'f'}           ,
+  {"key_map_follow",  {&key_map_follow},      {'l'}           ,
    0,MAX_KEY,def_key,ss_keys}, // key to toggle follow mode
   {"key_map_mark",    {&key_map_mark},        {'m'}           ,
    0,MAX_KEY,def_key,ss_keys}, // key to drop a marker on automap

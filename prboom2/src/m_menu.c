@@ -2732,10 +2732,17 @@ setup_menu_t keys_settings1[] =  // Key Binding screen strings
   {"STRAFE RIGHT",S_KEY       ,m_scrn,KB_X,KB_Y+7*8,{&key_straferight},0,&joybstraferight},
   {"STRAFE"      ,S_KEY       ,m_scrn,KB_X,KB_Y+8*8,{&key_strafe},&mousebstrafe,&joybstrafe},
   {"AUTORUN"     ,S_KEY       ,m_scrn,KB_X,KB_Y+9*8,{&key_autorun}},
+#if RT_CUSTOM_MENU
+  {"USE"         ,S_KEY       ,m_scrn,KB_X,KB_Y + 10 * 8,{&key_use},&mousebuse,&joybuse},
+  {"JUMP/FLY UP" ,S_KEY       ,m_scrn,KB_X,KB_Y + 11 * 8,{&key_flyup}},
+  {"FLY DOWN"    ,S_KEY       ,m_scrn,KB_X,KB_Y + 12 * 8,{&key_flydown}},
+  {"FLASHLIGHT"  ,S_KEY       ,m_scrn,KB_X,KB_Y + 14 * 8,{&key_rt_flashlight}},
+#else
   {"180 TURN"    ,S_KEY       ,m_scrn,KB_X,KB_Y+10*8,{&key_reverse}},
   {"USE"         ,S_KEY       ,m_scrn,KB_X,KB_Y+11*8,{&key_use},&mousebuse,&joybuse},
   {"JUMP/FLY UP" ,S_KEY       ,m_scrn,KB_X,KB_Y+12*8,{&key_flyup}},
   {"FLY DOWN"    ,S_KEY       ,m_scrn,KB_X,KB_Y+13*8,{&key_flydown}},
+#endif
   {"MOUSE LOOK"  ,S_KEY       ,m_scrn,KB_X,KB_Y+16*8,{&key_mlook}},
   {"NO VERTICAL MOUSE",S_KEY  ,m_scrn,KB_X,KB_Y+17*8,{&key_novert}},
 
@@ -5521,6 +5528,14 @@ dboolean M_Responder (event_t* ev) {
       }
     }
 #endif
+
+    // RT: it's a bad place for such control,
+    // it should've been in player logic, but it could break some compatibility
+    if (ch == key_rt_flashlight)
+    {
+      rtmain.request_flashlight = !rtmain.request_flashlight;
+      return true;
+    }
 
     if (ch == key_mlook) // mouse look
     {

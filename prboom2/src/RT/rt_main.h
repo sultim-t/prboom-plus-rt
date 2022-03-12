@@ -32,6 +32,7 @@ typedef struct
   uint32_t powerupflags;
 
   dboolean request_shaderreload;
+  dboolean request_flashlight;
 
 } rtmain_t;
 
