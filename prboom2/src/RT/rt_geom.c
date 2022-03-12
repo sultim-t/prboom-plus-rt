@@ -105,11 +105,12 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
   // ---
 
 
-  rtsectordata_t sector_geometry = RT_CreateSectorGeometryData(sectornum, ceiling);
+  rtsectordata_t sector_geometry = RT_GetSectorGeometryData(sectornum, ceiling);
 
   RgGeometryUploadInfo info =
   {
-    .uniqueID = RT_GetUniqueID_Flat(sectornum, ceiling), 
+    .uniqueID = RT_GetUniqueID_Flat(sectornum, ceiling),
+    .flags = 0,
     .geomType = RG_GEOMETRY_TYPE_DYNAMIC,
     .passThroughType = RG_GEOMETRY_PASS_THROUGH_TYPE_OPAQUE,
     .visibilityType = RG_GEOMETRY_VISIBILITY_TYPE_WORLD_0,
@@ -175,9 +176,6 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
     RgResult r = rgUploadSphericalLight(rtmain.instance, &light_info);
     RG_CHECK(r);
   }
-
-
-  RT_DestroySectorGeometryData(&sector_geometry);
 }
 
 
