@@ -878,6 +878,10 @@ void RT_ProcessPlayer(const player_t *player)
     AddMuzzleFlashLight(player->extralight, muzzleflash_z_offset);
   }
 
+
+  static float flashlight_to_left_offset = 0;
+  const float offset_bound = 0.3f;
+  if (rtmain.request_flashlight)
   {
     fixed_t dst_fwd[]  = Fixed2_AddMultiplied(position, forward, FLASHLIGHT_OBSTACLE_CHECKRANGE * 3);
     fixed_t dst_left[] = Fixed2_AddMultiplied(position, left, FLASHLIGHT_OBSTACLE_CHECKRANGE);
@@ -903,8 +907,10 @@ void RT_ProcessPlayer(const player_t *player)
       target_offset = -0.02f;
       speed = 20;
     }
-
-    static float flashlight_to_left_offset = 0;
+    // check if not too much
+    assert(fabs(target_offset) < fabs(offset_bound));
+    flashlight_to_left_offset = BETWEEN(-offset_bound, offset_bound, flashlight_to_left_offset);
+    
     flashlight_to_left_offset = Lerp(flashlight_to_left_offset, target_offset, speed * delta_time);
 
     float dy;
@@ -915,10 +921,13 @@ void RT_ProcessPlayer(const player_t *player)
       dy = BETWEEN(0.0f, 1.0f, dy);
     }
 
-    if (rtmain.request_flashlight)
-    {
-      AddFlashlight(flashlight_to_left_offset, dy);
-    }
+    AddFlashlight(flashlight_to_left_offset, dy);
+  }
+  else
+  {
+    // when flashlight is disabled, instantly move it to default position,
+    // for some animation on enabling a flashlight
+    flashlight_to_left_offset = 0;
   }
 }
 
