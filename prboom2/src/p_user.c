@@ -597,6 +597,6 @@ void P_PlayerThink (player_t* player)
   // RT: local player's flashlight
   if (player == &players[consoleplayer])
   {
-    rtmain.request_flashlight = rt_localplayer_flashlight;
+    rtmain.request_flashlight = rt_flashlight;
   }
 }

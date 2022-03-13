@@ -2866,8 +2866,8 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   P_SyncWalkcam(true, true);
   R_SmoothPlaying_Reset(NULL);
   // RT: disable flashlight on new game/load/restart
-  rt_localplayer_flashlight = false;
-  rt_localplayer_flashlight_lasttic = 0;
+  rt_flashlight = false;
+  rt_flashlight_ready = true;
 }
 
 //
