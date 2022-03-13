@@ -355,6 +355,16 @@ void RT_EndFrame()
     .bloomSkyMultiplier = 0.05f
   };
 
+  RgDrawFrameShadowParams shadow_params =
+  {
+    .maxBounceShadowsDirectionalLights = 8,
+    .maxBounceShadowsSphereLights = 1, // no indir illumination 
+    .maxBounceShadowsSpotlights = 2,
+    .maxBounceShadowsPolygonalLights = 1, // no indir illumination 
+    .polygonalLightSpotlightFactor = 0.5f,
+    .sphericalPolygonalLightsFirefliesClamp = 3.0f
+  };
+
   #define SCREEN_MELT_DURATION 1.5f
   RgPostEffectWipe wipe_params =
   {
@@ -437,6 +447,7 @@ void RT_EndFrame()
     .disableEyeAdaptation = false,
     .useSqrtRoughnessForIndirect = false,
     .pRenderResolutionParams = &resolution_params,
+    .pShadowParams = &shadow_params,
     .pTonemappingParams = &tm_params,
     .pBloomParams = &bloom_params,
     .pReflectRefractParams = &reflrefr_params,

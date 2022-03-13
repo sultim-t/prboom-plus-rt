@@ -48,12 +48,37 @@ static const RgFloat3D *Get6NormalsTowardsCamera(void);
 static const RgFloat3D *Get6NormalsForSprite(void);
 
 
+static RgFloat3D GetCenter(const RgFloat3D positions[6])
+{
+  RgFloat3D center = { 0,0,0 };
+  for (int i = 0; i < 6; i++)
+  {
+    center.data[0] += positions[i].data[0];
+    center.data[1] += positions[i].data[1];
+    center.data[2] += positions[i].data[2];
+  }
+  center.data[0] /= 6; center.data[1] /= 6; center.data[2] /= 6;
+
+  return center;
+}
+static float GetMaxY(const RgFloat3D positions[6])
+{
+  float maxy = positions[0].data[1];
+  for (int i = 1; i < 6; i++)
+  {
+    maxy = max(maxy, positions[i].data[1]);
+  }
+  return maxy;
+}
+
+
 static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int sectornum)
 {
   dboolean no_depth_test            = !!(sprite->flags & MF_NO_DEPTH_TEST);
   dboolean is_partial_invisibility  = !!(sprite->flags & MF_SHADOW);
   // dboolean is_translucent           = !!(sprite->flags & MF_TRANSLUCENT);
-  dboolean add_lightsource = (sprite->td->flags & RT_TEXTURE_FLAG_WITH_LIGHTSOURCE_BIT) && sprite->td->metainfo != NULL;
+  dboolean add_lightsource = (sprite->td->flags & RT_TEXTURE_FLAG_WITH_LIGHTSOURCE_BIT)        && sprite->td->metainfo != NULL;
+  dboolean add_conelight   = (sprite->td->flags & RT_TEXTURE_FLAG_WITH_VERTICAL_CONELIGHT_BIT) && sprite->td->metainfo != NULL;
 
   dboolean is_rasterized = no_depth_test || add_lightsource;
 
@@ -184,21 +209,12 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
   if (add_lightsource)
   {
     const rt_texture_metainfo_t *mt = sprite->td->metainfo;
-    
-    RgFloat3D center = { 0,0,0 };
-    for (int i = 0; i < 6; i++)
-    {
-      center.data[0] += positions[i].data[0];
-      center.data[1] += positions[i].data[1];
-      center.data[2] += positions[i].data[2];
-    }
-    center.data[0] /= 6; center.data[1] /= 6; center.data[2] /= 6;
 
     RgSphericalLightUploadInfo light_info =
     {
       .uniqueID = RT_GetUniqueID_Thing(thing),
       .color = mt->light_color,
-      .position = center,
+      .position = GetCenter(positions),
       .sectorID = sectornum,
       .radius = 0.01f,
       .falloffDistance = 7 * mt->falloff_multiplier
@@ -206,6 +222,39 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
 
     RgResult r = rgUploadSphericalLight(rtmain.instance, &light_info);
     RG_CHECK(r);
+  }
+  else if (add_conelight)
+  {
+    const rt_texture_metainfo_t *mt = sprite->td->metainfo;
+
+    RgPolygonalLightUploadInfo p_info =
+    {
+      .uniqueID = RT_GetUniqueID_Thing(thing),
+      .color = mt->light_color,
+      .sectorID = sectornum
+    };
+
+    p_info.positions[0] = p_info.positions[1] = p_info.positions[2] = GetCenter(positions);
+    p_info.positions[0].data[1] = p_info.positions[1].data[1] = p_info.positions[2].data[1] = GetMaxY(positions);
+
+    float x_radius = (sprite->x2 - sprite->x1) * 0.5f;
+
+    if (x_radius > 0)
+    {
+      x_radius = min(x_radius, 0.2f);
+
+      p_info.positions[0].data[0] += 0;
+      p_info.positions[0].data[2] -= x_radius;
+
+      p_info.positions[1].data[0] -= x_radius * 0.87f; // sin 30
+      p_info.positions[1].data[2] += x_radius * 0.5f;  // cos 30
+
+      p_info.positions[2].data[0] += x_radius * 0.87f; // sin 30
+      p_info.positions[2].data[2] += x_radius * 0.5f;  // cos 30
+
+      RgResult r = rgUploadPolygonalLight(rtmain.instance, &p_info);
+      RG_CHECK(r);
+    }
   }
 }
 

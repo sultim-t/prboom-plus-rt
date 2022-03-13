@@ -47,6 +47,7 @@ void RT_TextureMetaInfo_Init(void)
     STATE_NONE,
     STATE_WATER,
     STATE_RASTERIZED_WITH_LIGHT,
+    STATE_VERTICAL_CONELIGHT,
     STATE_EMISSIVE,
     STATE_EMISSIVE_WITHOUT_INDIRECT_ILLUMINATION,
     STATE_MONOCHROME_FOR_COLORMAPS,
@@ -103,6 +104,11 @@ void RT_TextureMetaInfo_Init(void)
       state = STATE_RASTERIZED_WITH_LIGHT;
       continue;
     }
+    else if (strcmp(curr_line, "@VERTICAL_CONELIGHT") == 0)
+    {
+      state = STATE_VERTICAL_CONELIGHT;
+      continue;
+    }
     else if (strcmp(curr_line, "@EMISSIVE") == 0)
     {
       state = STATE_EMISSIVE;
@@ -141,6 +147,7 @@ void RT_TextureMetaInfo_Init(void)
         break;
       }
       case STATE_RASTERIZED_WITH_LIGHT:
+      case STATE_VERTICAL_CONELIGHT:
       {
         char str_hexcolor[8];
         int c = sscanf(curr_line, "%s %6s %f", name, str_hexcolor, &falloff_mult);
@@ -227,6 +234,12 @@ void RT_TextureMetaInfo_Init(void)
 
       case STATE_RASTERIZED_WITH_LIGHT:
         dst->additional_flags = RT_TEXTURE_FLAG_WITH_LIGHTSOURCE_BIT;
+        dst->light_color = light_color;
+        dst->falloff_multiplier = falloff_mult;
+        break;
+
+      case STATE_VERTICAL_CONELIGHT:
+        dst->additional_flags = RT_TEXTURE_FLAG_WITH_VERTICAL_CONELIGHT_BIT;
         dst->light_color = light_color;
         dst->falloff_multiplier = falloff_mult;
         break;
