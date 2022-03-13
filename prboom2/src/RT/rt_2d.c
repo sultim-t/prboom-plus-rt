@@ -407,3 +407,110 @@ void RT_DrawQuad_NumPatch(float x, float y, int lump, int cm, enum patch_transla
 
   DrawQuad_Internal(td->rg_handle, xpos, ypos, width, height, rgb[0], rgb[1], rgb[2], 255);
 }
+
+
+// Based on M_GetKeyString
+static int GetKeyString(char text_buffer[128], int c)
+{
+  int offset = 0;
+  const char *s;
+
+  if (c >= 33 && c <= 126)
+  {
+
+    // The '=', ',', and '.' keys originally meant the shifted
+    // versions of those keys, but w/o having to shift them in
+    // the game. Any actions that are mapped to these keys will
+    // still mean their shifted versions. Could be changed later
+    // if someone can come up with a better way to deal with them.
+
+    if (c == '=')      // probably means the '+' key?
+      c = '+';
+    else if (c == ',') // probably means the '<' key?
+      c = '<';
+    else if (c == '.') // probably means the '>' key?
+      c = '>';
+    text_buffer[offset++] = (char)toupper(c); // Just insert the ascii key
+    text_buffer[offset] = 0;
+  }
+  else
+  {
+
+    // Retrieve 4-letter (max) string representing the key
+
+    // cph - Keypad keys, general code reorganisation to
+    //  make this smaller and neater.
+    if ((0x100 <= c) && (c < 0x200))
+    {
+      if (c == KEYD_KEYPADENTER)
+        s = "PADE";
+      else
+      {
+        strcpy(&text_buffer[offset], "PAD");
+        offset += 4;
+        text_buffer[offset - 1] = c & 0xff;
+        text_buffer[offset] = 0;
+      }
+    }
+    else if ((KEYD_F1 <= c) && (c < KEYD_F10))
+    {
+      text_buffer[offset++] = 'F';
+      text_buffer[offset++] = '1' + c - KEYD_F1;
+      text_buffer[offset] = 0;
+    }
+    else
+    {
+      switch (c)
+      {
+        case KEYD_TAB:      s = "TAB";  break;
+        case KEYD_ENTER:      s = "ENTR"; break;
+        case KEYD_ESCAPE:     s = "ESC";  break;
+        case KEYD_SPACEBAR:   s = "SPAC"; break;
+        case KEYD_BACKSPACE:  s = "BACK"; break;
+        case KEYD_RCTRL:      s = "CTRL"; break;
+        case KEYD_LEFTARROW:  s = "LARR"; break;
+        case KEYD_UPARROW:    s = "UARR"; break;
+        case KEYD_RIGHTARROW: s = "RARR"; break;
+        case KEYD_DOWNARROW:  s = "DARR"; break;
+        case KEYD_RSHIFT:     s = "SHFT"; break;
+        case KEYD_RALT:       s = "ALT";  break;
+        case KEYD_CAPSLOCK:   s = "CAPS"; break;
+        case KEYD_SCROLLLOCK: s = "SCRL"; break;
+        case KEYD_HOME:       s = "HOME"; break;
+        case KEYD_PAGEUP:     s = "PGUP"; break;
+        case KEYD_END:        s = "END";  break;
+        case KEYD_PAGEDOWN:   s = "PGDN"; break;
+        case KEYD_INSERT:     s = "INST"; break;
+        case KEYD_DEL:        s = "DEL"; break;
+        case KEYD_F10:        s = "F10";  break;
+        case KEYD_F11:        s = "F11";  break;
+        case KEYD_F12:        s = "F12";  break;
+        case KEYD_PAUSE:      s = "PAUS"; break;
+        case KEYD_MWHEELDOWN: s = "MWDN"; break;
+        case KEYD_MWHEELUP:   s = "MWUP"; break;
+        case KEYD_PRINTSC:    s = "PRSC"; break;
+        case 0:               s = "NONE"; break;
+        default:              s = "JUNK"; break;
+      }
+
+      if (s)
+      { // cph - Slight code change
+        strcpy(&text_buffer[offset], s); // string to display
+        offset += strlen(s);
+      }
+    }
+  }
+  return offset;
+}
+
+const char *RT_GetFlashlightHintString(int key_flashlight)
+{
+  char key_text[128];
+  GetKeyString(key_text, key_flashlight);
+  key_text[sizeof(key_text) - 1] = '\0';
+
+  static char hint_text[256];
+  snprintf(hint_text, sizeof(hint_text), RG_STR_FLASHLIGHT_HINT, key_text);
+
+  return hint_text;
+}

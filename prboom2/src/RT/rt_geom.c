@@ -173,7 +173,7 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
       .falloffDistance = 4
     };
 
-    RgResult r = rgUploadSphericalLight(rtmain.instance, &light_info);
+    // RgResult r = rgUploadSphericalLight(rtmain.instance, &light_info);
     RG_CHECK(r);
   }
 }
