@@ -360,7 +360,7 @@ void RT_EndFrame()
     .maxBounceShadowsDirectionalLights = 8,
     .maxBounceShadowsSphereLights = 1, // no indir illumination 
     .maxBounceShadowsSpotlights = 2,
-    .maxBounceShadowsPolygonalLights = 1, // no indir illumination 
+    .maxBounceShadowsPolygonalLights = 2, 
     .polygonalLightSpotlightFactor = 0.5f,
     .sphericalPolygonalLightsFirefliesClamp = 3.0f
   };

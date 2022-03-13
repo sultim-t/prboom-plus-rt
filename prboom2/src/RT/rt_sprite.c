@@ -247,6 +247,7 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
         p_info.positions[0].data[1] = p_info.positions[1].data[1] = p_info.positions[2].data[1] = y_max;
 
         RG_VEC3_SCALE(p_info.color.data, 1.0f / x_radius);
+        RG_VEC3_SCALE(p_info.color.data, mt->falloff_multiplier);
 
         x_radius = min(x_radius, 0.2f);
 
@@ -276,7 +277,7 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
           .position = p,
           .sectorID = sectornum,
           .radius = 0.01f,
-          .falloffDistance = 7 * mt->falloff_multiplier
+          .falloffDistance = 0.2f * mt->falloff_multiplier
         };
 
         RgResult r = rgUploadSphericalLight(rtmain.instance, &light_info);
