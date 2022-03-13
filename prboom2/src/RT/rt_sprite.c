@@ -166,8 +166,8 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
       .pTexCoordLayerData = { texcoords },
       .sectorID = sectornum,
       .layerColors = { RG_COLOR_WHITE },
-      .defaultRoughness = 0.5f,
-      .defaultMetallicity = 0.1f,
+      .defaultRoughness = RG_SPRITE_ROUGHNESS,
+      .defaultMetallicity = RG_SPRITE_METALLICITY,
       .defaultEmission = RT_TEXTURE_EMISSION(sprite->td),
       .geomMaterial = { sprite->td->rg_handle },
       .transform = RG_TRANSFORM_IDENTITY
@@ -656,8 +656,8 @@ void RT_AddWeaponSprite(int weaponlump, vissprite_t *vis)
     // get camera's sector
     .sectorID = RT_GetSectorNum_Fixed(viewx, viewy),
     .layerColors = { RG_COLOR_WHITE },
-    .defaultRoughness = 0.5f,
-    .defaultMetallicity = 0.1f,
+    .defaultRoughness = RG_SPRITE_ROUGHNESS,
+    .defaultMetallicity = RG_SPRITE_METALLICITY,
     .defaultEmission = RT_TEXTURE_EMISSION(td),
     .geomMaterial = { td->rg_handle },
     .transform = RG_TRANSFORM_IDENTITY

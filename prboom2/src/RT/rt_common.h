@@ -22,5 +22,10 @@
 
 #define RG_STR_FLASHLIGHT_HINT "Press \'%s\' to turn flashlight on"
 
+#define RG_WORLD_METALLICITY  0.05f
+#define RG_WORLD_ROUGHNESS    0.7f
+#define RG_SPRITE_METALLICITY 0.05f
+#define RG_SPRITE_ROUGHNESS   0.7f
+
 
 #define RG_SKY_REUSE_BUG_HACK 1
