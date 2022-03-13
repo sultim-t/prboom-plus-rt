@@ -10,7 +10,11 @@ static float GetStatusBarScale()
 }
 static float GetHUDScale()
 {
+#if RT_SEPARATE_HUD_SCALE
   return 0.1f * BETWEEN(1, 10, rt_settings.hud_scale + 1);
+#else
+  return GetStatusBarScale();
+#endif
 }
 
 

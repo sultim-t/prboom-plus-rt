@@ -512,8 +512,10 @@ default_t defaults[] =
    def_int,ss_none},
   {"rt_statusbar_scale",{&rt_settings.statusbar_scale},{5},0,9,
    def_int,ss_none},
+#if RT_SEPARATE_HUD_SCALE
   {"rt_hud_scale",{&rt_settings.hud_scale},{7},0,9,
    def_int,ss_none},
+#endif
   {"rt_refl_refr_max_depth",{&rt_settings.refl_refr_max_depth},{2},0,3,
    def_int,ss_none},
 

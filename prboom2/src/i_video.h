@@ -62,7 +62,9 @@ typedef struct
   int bloom_intensity;        // index in [0,Reduced,Default,Exaggerated]
   int muzzleflash_intensity;  // index in [0,Reduced,Default]
   int statusbar_scale;        // to calculate procents: 10*(statusbar_scale+1)
+#if RT_SEPARATE_HUD_SCALE
   int hud_scale;              // to calculate procents: 10*(hud_scale+1)
+#endif
   int refl_refr_max_depth;
 } rt_settings_t;
 #define RT_SETTINGS_RENDERSCALE_320x200 0

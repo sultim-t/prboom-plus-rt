@@ -3954,7 +3954,7 @@ static const char *RT_options_muzzleflash_intensity[] =
 {
   "Disabled",
   "Reduced",
-  "Default",
+  "Enabled",
   NULL
 };
 static const char *RT_options_statusbar_scale[] =
@@ -4003,8 +4003,12 @@ setup_menu_t RT_GraphicsSettings[] =
   {"Bloom",         S_CHOICE,  m_null, RT_X, RT_Y + 9 * 8, {"rt_bloom_intensity"}, 0, 0, NULL, RT_options_bloom_intensity },
   {"Muzzle flash light",  S_CHOICE,  m_null, RT_X, RT_Y + 10 * 8, {"rt_muzzleflash_intensity"}, 0, 0, NULL, RT_options_muzzleflash_intensity },
 
+#if RT_SEPARATE_HUD_SCALE
   {"Classic HUD scale",  S_CHOICE,  m_null, RT_X, RT_Y + 12 * 8, {"rt_statusbar_scale"}, 0, 0, NULL, RT_options_statusbar_scale },
   {"Minimalistic HUD scale",  S_CHOICE,  m_null, RT_X, RT_Y + 13 * 8, {"rt_hud_scale"}, 0, 0, NULL, RT_options_hud_scale },
+#else
+  {"HUD scale",  S_CHOICE,  m_null, RT_X, RT_Y + 12 * 8, {"rt_statusbar_scale"}, 0, 0, NULL, RT_options_statusbar_scale },
+#endif
 
   {0,S_SKIP | S_END,m_null}
 };

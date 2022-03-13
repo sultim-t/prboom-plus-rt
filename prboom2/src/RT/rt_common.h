@@ -30,3 +30,6 @@
 
 
 #define RG_SKY_REUSE_BUG_HACK 1
+
+
+#define RT_SEPARATE_HUD_SCALE 0
