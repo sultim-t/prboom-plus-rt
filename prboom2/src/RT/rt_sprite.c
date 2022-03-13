@@ -225,35 +225,63 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
   }
   else if (add_conelight)
   {
-    const rt_texture_metainfo_t *mt = sprite->td->metainfo;
-
-    RgPolygonalLightUploadInfo p_info =
-    {
-      .uniqueID = RT_GetUniqueID_Thing(thing),
-      .color = mt->light_color,
-      .sectorID = sectornum
-    };
-
-    p_info.positions[0] = p_info.positions[1] = p_info.positions[2] = GetCenter(positions);
-    p_info.positions[0].data[1] = p_info.positions[1].data[1] = p_info.positions[2].data[1] = GetMaxY(positions);
-
     float x_radius = (sprite->x2 - sprite->x1) * 0.5f;
+    float y_max = GetMaxY(positions);
 
     if (x_radius > 0)
     {
-      x_radius = min(x_radius, 0.2f);
+      const dboolean use_poly_light = true;
 
-      p_info.positions[0].data[0] += 0;
-      p_info.positions[0].data[2] -= x_radius;
+      if (use_poly_light)
+      {
+        const rt_texture_metainfo_t *mt = sprite->td->metainfo;
 
-      p_info.positions[1].data[0] -= x_radius * 0.87f; // sin 30
-      p_info.positions[1].data[2] += x_radius * 0.5f;  // cos 30
+        RgPolygonalLightUploadInfo p_info =
+        {
+          .uniqueID = RT_GetUniqueID_Thing(thing),
+          .color = mt->light_color,
+          .sectorID = sectornum
+        };
 
-      p_info.positions[2].data[0] += x_radius * 0.87f; // sin 30
-      p_info.positions[2].data[2] += x_radius * 0.5f;  // cos 30
+        p_info.positions[0] = p_info.positions[1] = p_info.positions[2] = GetCenter(positions);
+        p_info.positions[0].data[1] = p_info.positions[1].data[1] = p_info.positions[2].data[1] = y_max;
 
-      RgResult r = rgUploadPolygonalLight(rtmain.instance, &p_info);
-      RG_CHECK(r);
+        RG_VEC3_SCALE(p_info.color.data, 1.0f / x_radius);
+
+        x_radius = min(x_radius, 0.2f);
+
+        p_info.positions[0].data[0] += 0;
+        p_info.positions[0].data[2] -= x_radius;
+
+        p_info.positions[1].data[0] -= x_radius * 0.87f; // sin 30
+        p_info.positions[1].data[2] += x_radius * 0.5f;  // cos 30
+
+        p_info.positions[2].data[0] += x_radius * 0.87f; // sin 30
+        p_info.positions[2].data[2] += x_radius * 0.5f;  // cos 30
+
+        RgResult r = rgUploadPolygonalLight(rtmain.instance, &p_info);
+        RG_CHECK(r);
+      }
+      else
+      {
+        RgFloat3D p = GetCenter(positions);
+        p.data[1] = y_max + 0.25f;
+
+        const rt_texture_metainfo_t *mt = sprite->td->metainfo;
+
+        RgSphericalLightUploadInfo light_info =
+        {
+          .uniqueID = RT_GetUniqueID_Thing(thing),
+          .color = mt->light_color,
+          .position = p,
+          .sectorID = sectornum,
+          .radius = 0.01f,
+          .falloffDistance = 7 * mt->falloff_multiplier
+        };
+
+        RgResult r = rgUploadSphericalLight(rtmain.instance, &light_info);
+        RG_CHECK(r);
+      }
     }
   }
 }

@@ -14,6 +14,7 @@
 #define RG_ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0])) 
 
 #define RG_VEC3_SET(vec, x, y, z) (vec)[0]=(x);(vec)[1]=(y);(vec)[2]=(z)
+#define RG_VEC3_SCALE(vec, f) (vec)[0]*=(f);(vec)[1]*=(f);(vec)[2]*=(f)
 #define RG_VEC3_MULTIPLY(vec, x, y, z) (vec)[0]*=(x);(vec)[1]*=(y);(vec)[2]*=(z)
 #define RG_VEC3_MULTIPLY_V(vec1, vec2) (vec1)[0]*=(vec2)[0];(vec1)[1]*=(vec2)[1];(vec1)[2]*=(vec2)[2]
 
