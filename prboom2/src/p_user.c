@@ -425,6 +425,9 @@ void P_DeathThink (player_t* player)
 }
 
 
+#include "RT/rt_main.h"
+
+
 //
 // P_PlayerThink
 //
@@ -589,5 +592,11 @@ void P_PlayerThink (player_t* player)
   else
   {
     player->fixedcolormap = player->powers[pw_infrared] > 4 * 32 || player->powers[pw_infrared] & 8;
+  }
+
+  // RT: local player's flashlight
+  if (player == &players[consoleplayer])
+  {
+    rtmain.request_flashlight = rt_localplayer_flashlight;
   }
 }

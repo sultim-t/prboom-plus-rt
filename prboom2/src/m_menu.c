@@ -5529,14 +5529,6 @@ dboolean M_Responder (event_t* ev) {
     }
 #endif
 
-    // RT: it's a bad place for such control,
-    // it should've been in player logic, but it could break some compatibility
-    if (ch == key_rt_flashlight)
-    {
-      rtmain.request_flashlight = !rtmain.request_flashlight;
-      return true;
-    }
-
     if (ch == key_mlook) // mouse look
     {
       movement_mouselook = !movement_mouselook;

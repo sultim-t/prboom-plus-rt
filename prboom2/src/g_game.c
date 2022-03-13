@@ -140,6 +140,9 @@ dboolean         netgame;       // only true if packets are broadcast
 dboolean         playeringame[MAXPLAYERS];
 player_t        players[MAXPLAYERS];
 int             upmove;
+#define RT_LOCAL_PLAYER_FLASHLIGHT_ONOFF_TICS 15 // RT: how many tics it takes to activate/deactivate
+int             rt_localplayer_flashlight;
+int             rt_localplayer_flashlight_lasttic; // RT: when flashlight was activated/deactivated last time, in tics
 int             consoleplayer; // player taking events and displaying
 int             displayplayer; // view being displayed
 int             gametic;
@@ -785,6 +788,13 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     upmove += flyspeed[speed];
   if (gamekeydown[key_flydown])
     upmove -= flyspeed[speed];
+
+  // RT: variable like upmove, which is also not recorded to cmd
+  if (gamekeydown[key_rt_flashlight] && I_GetTime() - rt_localplayer_flashlight_lasttic > RT_LOCAL_PLAYER_FLASHLIGHT_ONOFF_TICS)
+  {
+    rt_localplayer_flashlight = !rt_localplayer_flashlight;
+    rt_localplayer_flashlight_lasttic = I_GetTime();
+  }
 
   // CPhipps - special events (game new/load/save/pause)
   if (special_event & BT_SPECIAL) {
