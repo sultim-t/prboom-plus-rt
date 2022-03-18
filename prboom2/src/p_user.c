@@ -585,13 +585,31 @@ void P_PlayerThink (player_t* player)
 
   // Handling colormaps.
 
-  if (palette_onpowers && (player->powers[pw_invulnerability] > 4 * 32 || player->powers[pw_invulnerability] & 8))
+  if (palette_onpowers)
   {
-    player->fixedcolormap = INVERSECOLORMAP;
-  }
-  else
-  {
-    player->fixedcolormap = player->powers[pw_infrared] > 4 * 32 || player->powers[pw_infrared] & 8;
+    dboolean invuln;
+    int infra_cm;
+
+    // RT: don't blink
+    if (V_GetMode() == VID_MODERT)
+    {
+      invuln = player->powers[pw_invulnerability] > 0;
+      infra_cm = player->powers[pw_infrared] > 0;
+    }
+    else
+    {
+      invuln = player->powers[pw_invulnerability] > 4 * 32 || player->powers[pw_invulnerability] & 8;;
+      infra_cm = player->powers[pw_infrared] > 4 * 32 || player->powers[pw_infrared] & 8;
+    }
+
+    if (invuln)
+    {
+      player->fixedcolormap = INVERSECOLORMAP;
+    }
+    else
+    {
+      player->fixedcolormap = infra_cm;
+    }
   }
 
   // RT: local player's flashlight
