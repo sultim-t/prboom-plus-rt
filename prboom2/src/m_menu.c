@@ -331,6 +331,7 @@ void M_RT_ResolutionSettings_DLSS(void);
 void M_RT_ResolutionSettings_FSR(void);
 void M_RT_ResolutionSettings_RenderScale(void);
 void M_RT_ApplyHUD(void);
+void M_RT_UpdateGfxItems(void);
 #endif
 
 
@@ -3816,6 +3817,10 @@ void M_ChangeFullScreen(void)
 void M_ChangeVideoMode(void)
 {
   V_ChangeScreenResolution();
+
+#if RT_CUSTOM_MENU
+  M_RT_UpdateGfxItems();
+#endif
 }
 
 void M_ChangeVsync(void)
@@ -3971,8 +3976,25 @@ static const char *RT_options_hud_scale[] =
 #define RT_X 180
 #define RT_Y 56
 
-#define DLSS_MENU_ITEM_INDEX 5
-#define DLSS_MENU_ITEM_NAME "Nvidia DLSS"
+typedef enum
+{
+  // order must be in sync with RT_GraphicsSettings!
+  gfxset_videomode,
+  gfxset_vsync,
+  gfxset_resolution,
+  gfxset_renderscale,
+  gfxset_fsr,
+  gfxset_dlss,
+  gfxset_bloom,
+  gfxset_muzzleflash,
+  gfxset_hudstyle,
+#if RT_SEPARATE_HUD_SCALE
+  gfxset_statusbarscale,
+  gfxset_hudscale,
+#endif
+  gfxset_hudsize,
+  gfxset_end
+} gfxset_e;
 setup_menu_t RT_GraphicsSettings[] =
 {
   {"Video mode",  S_CHOICE, m_null, RT_X, RT_Y + 0 * 8, {"videomode"}, 0, 0, M_ChangeVideoMode, RT_simpler_videomodes},
@@ -3982,7 +4004,7 @@ setup_menu_t RT_GraphicsSettings[] =
 //{"Fullscreen",  S_YESNO,  m_null, RT_X, RT_Y + 2 * 8, {"use_fullscreen"}, 0, 0, M_ChangeFullScreen},
   {"Render scale",  S_CHOICE,  m_null, RT_X, RT_Y + 4 * 8, {"rt_renderscale"}, 0, 0, M_RT_ResolutionSettings_RenderScale, RT_options_renderscale },
   {"AMD FSR",       S_CHOICE,  m_null, RT_X, RT_Y + 5 * 8, {"rt_fsr"}, 0, 0, M_RT_ResolutionSettings_FSR, RT_options_fsr },
-  {DLSS_MENU_ITEM_NAME, S_CHOICE,  m_null, RT_X, RT_Y + 6 * 8, {"rt_dlss"}, 0, 0, M_RT_ResolutionSettings_DLSS, RT_options_dlss_ptr },
+  {"Nvidia DLSS", S_CHOICE,  m_null, RT_X, RT_Y + 6 * 8, {"rt_dlss"}, 0, 0, M_RT_ResolutionSettings_DLSS, RT_options_dlss_ptr },
 
   {"Bloom",         S_CHOICE,  m_null, RT_X, RT_Y + 8 * 8, {"rt_bloom_intensity"}, 0, 0, NULL, RT_options_bloom_intensity },
   {"Muzzle flash light",  S_CHOICE,  m_null, RT_X, RT_Y + 9 * 8, {"rt_muzzleflash_intensity"}, 0, 0, NULL, RT_options_muzzleflash_intensity },
@@ -4004,31 +4026,51 @@ static setup_menu_t *RT_SetupMenus[] =
   NULL
 };
 
-// Copy of M_General, but with different M_SetupNextMenu
-void M_RT_GraphicsSettings(int choice)
+static void SetGfxItemEnabled(gfxset_e item, dboolean enable)
 {
+  const int unavailable_flags = S_DISABLE | S_SKIP;
+
+  if (enable)
+  {
+    RT_GraphicsSettings[item].m_flags &= ~unavailable_flags;
+  }
+  else
+  {
+    RT_GraphicsSettings[item].m_flags |= unavailable_flags;
+  }
+}
+
+static void M_RT_UpdateGfxItems(void)
+{
+  if (V_GetMode() == VID_MODERT)
   {
     assert(RG_ARRAY_SIZE(RT_options_dlss_ptr) == RG_ARRAY_SIZE(RT_options_dlss_ok));
-    const int unavailable_flags = S_DISABLE | S_SKIP;
-    assert(strcmp(RT_GraphicsSettings[DLSS_MENU_ITEM_INDEX].m_text, DLSS_MENU_ITEM_NAME) == 0); // DLSS_MENU_ITEM_INDEX must point to dlss setting
 
-
+    // disable dlss button if not available
     for (int i = 0; i < (int)RG_ARRAY_SIZE(RT_options_dlss_ptr); i++)
     {
       RT_options_dlss_ptr[i] = rtmain.is_dlss_available ? RT_options_dlss_ok[i] : "Unavailable";
     }
     RT_options_dlss_ptr[RG_ARRAY_SIZE(RT_options_dlss_ptr) - 1] = NULL;
 
-
-    if (rtmain.is_dlss_available)
-    {
-      RT_GraphicsSettings[DLSS_MENU_ITEM_INDEX].m_flags &= ~unavailable_flags;
-    }
-    else
-    {
-      RT_GraphicsSettings[DLSS_MENU_ITEM_INDEX].m_flags |= unavailable_flags;
-    }
+    SetGfxItemEnabled(gfxset_dlss, rtmain.is_dlss_available);
   }
+  else
+  {
+    SetGfxItemEnabled(gfxset_dlss, false);
+  }
+
+  // disable some options if not RT
+  SetGfxItemEnabled(gfxset_renderscale, V_GetMode() == VID_MODERT);
+  SetGfxItemEnabled(gfxset_fsr, V_GetMode() == VID_MODERT);
+  SetGfxItemEnabled(gfxset_bloom, V_GetMode() == VID_MODERT);
+  SetGfxItemEnabled(gfxset_muzzleflash, V_GetMode() == VID_MODERT);
+}
+
+// Copy of M_General, but with different M_SetupNextMenu
+void M_RT_GraphicsSettings(int choice)
+{
+  M_RT_UpdateGfxItems();
 
   M_SetupNextMenu(&RT_GraphicsSettingsDef);
 
