@@ -3973,23 +3973,23 @@ static const char *RT_options_hud_scale[] =
 setup_menu_t RT_GraphicsSettings[] =
 {
   {"Video mode",  S_CHOICE, m_null, RT_X, RT_Y + 0 * 8, {"videomode"}, 0, 0, M_ChangeVideoMode, RT_simpler_videomodes},
-  {"Resolution",  S_CHOICE, m_null, RT_X, RT_Y + 1 * 8, {"screen_resolution"}, 0, 0, M_ChangeVideoMode, screen_resolutions_list},
-  {"Fullscreen",  S_YESNO,  m_null, RT_X, RT_Y + 2 * 8, {"use_fullscreen"}, 0, 0, M_ChangeFullScreen},
-  {"VSync",       S_YESNO,  m_null, RT_X, RT_Y + 3 * 8, {"render_vsync"}, 0, 0, M_ChangeVsync},
+  {"VSync",       S_YESNO,  m_null, RT_X, RT_Y + 1 * 8, {"render_vsync"}, 0, 0, M_ChangeVsync},
 
-  {"Nvidia DLSS",   S_CHOICE,  m_null, RT_X, RT_Y + 5 * 8, {"rt_dlss"}, 0, 0, M_RT_ResolutionSettings_DLSS, RT_options_dlss },
-  {"AMD FSR",       S_CHOICE,  m_null, RT_X, RT_Y + 6 * 8, {"rt_fsr"}, 0, 0, M_RT_ResolutionSettings_FSR, RT_options_fsr },
-  {"Render scale",  S_CHOICE,  m_null, RT_X, RT_Y + 7 * 8, {"rt_renderscale"}, 0, 0, M_RT_ResolutionSettings_RenderScale, RT_options_renderscale },
+  {"Resolution",  S_CHOICE, m_null, RT_X, RT_Y + 3 * 8, {"screen_resolution"}, 0, 0, M_ChangeVideoMode, screen_resolutions_list},
+//{"Fullscreen",  S_YESNO,  m_null, RT_X, RT_Y + 2 * 8, {"use_fullscreen"}, 0, 0, M_ChangeFullScreen},
+  {"Render scale",  S_CHOICE,  m_null, RT_X, RT_Y + 4 * 8, {"rt_renderscale"}, 0, 0, M_RT_ResolutionSettings_RenderScale, RT_options_renderscale },
+  {"AMD FSR",       S_CHOICE,  m_null, RT_X, RT_Y + 5 * 8, {"rt_fsr"}, 0, 0, M_RT_ResolutionSettings_FSR, RT_options_fsr },
+  {"Nvidia DLSS",   S_CHOICE,  m_null, RT_X, RT_Y + 6 * 8, {"rt_dlss"}, 0, 0, M_RT_ResolutionSettings_DLSS, RT_options_dlss },
 
-  {"Bloom",         S_CHOICE,  m_null, RT_X, RT_Y + 9 * 8, {"rt_bloom_intensity"}, 0, 0, NULL, RT_options_bloom_intensity },
-  {"Muzzle flash light",  S_CHOICE,  m_null, RT_X, RT_Y + 10 * 8, {"rt_muzzleflash_intensity"}, 0, 0, NULL, RT_options_muzzleflash_intensity },
+  {"Bloom",         S_CHOICE,  m_null, RT_X, RT_Y + 8 * 8, {"rt_bloom_intensity"}, 0, 0, NULL, RT_options_bloom_intensity },
+  {"Muzzle flash light",  S_CHOICE,  m_null, RT_X, RT_Y + 9 * 8, {"rt_muzzleflash_intensity"}, 0, 0, NULL, RT_options_muzzleflash_intensity },
 
-  {"HUD style",  S_CHOICE,  m_null, RT_X, RT_Y + 12 * 8, {"rt_hud_style"}, 0, 0, M_RT_ApplyHUD, RT_options_hud_style},
+  {"HUD style",  S_CHOICE,  m_null, RT_X, RT_Y + 11 * 8, {"rt_hud_style"}, 0, 0, M_RT_ApplyHUD, RT_options_hud_style},
 #if RT_SEPARATE_HUD_SCALE
-  {"Classic HUD scale",  S_CHOICE,  m_null, RT_X, RT_Y + 13 * 8, {"rt_statusbar_scale"}, 0, 0, NULL, RT_options_statusbar_scale },
-  {"Minimalistic HUD scale",  S_CHOICE,  m_null, RT_X, RT_Y + 14 * 8, {"rt_hud_scale"}, 0, 0, NULL, RT_options_hud_scale },
+  {"Classic HUD scale",  S_CHOICE,  m_null, RT_X, RT_Y + 12 * 8, {"rt_statusbar_scale"}, 0, 0, NULL, RT_options_statusbar_scale },
+  {"Minimalistic HUD scale",  S_CHOICE,  m_null, RT_X, RT_Y + 13 * 8, {"rt_hud_scale"}, 0, 0, NULL, RT_options_hud_scale },
 #else
-  {"HUD size",  S_CHOICE,  m_null, RT_X, RT_Y + 13 * 8, {"rt_statusbar_scale"}, 0, 0, NULL, RT_options_statusbar_scale },
+  {"HUD size",  S_CHOICE,  m_null, RT_X, RT_Y + 12 * 8, {"rt_statusbar_scale"}, 0, 0, NULL, RT_options_statusbar_scale },
 #endif
 
   {0,S_SKIP | S_END,m_null}

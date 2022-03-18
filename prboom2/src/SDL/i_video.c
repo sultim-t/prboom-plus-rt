@@ -642,6 +642,8 @@ static void I_InitBuffersRes(void)
 const char *screen_resolutions_list[MAX_RESOLUTIONS_COUNT] = {NULL};
 const char *screen_resolution = NULL;
 
+#define FULLSCREEN_NAME "Fullscreen"
+
 //
 // I_GetScreenResolution
 // Get current resolution from the config variable (WIDTHxHEIGHT format)
@@ -660,6 +662,12 @@ static void I_GetScreenResolution(void)
     {
       desired_screenwidth = width;
       desired_screenheight = height;
+    }
+
+    if (strcmp(screen_resolution, FULLSCREEN_NAME) == 0)
+    {
+      desired_screenwidth = desktop_mode.w;
+      desired_screenheight = desktop_mode.h;
     }
   }
 
@@ -699,10 +707,16 @@ static void I_FillScreenResolutionsList(void)
   int i, j, list_size, current_resolution_index, count;
   char mode_name[256];
 
-  // do it only once
-  if (screen_resolutions_list[0])
+  // RT: dealloc previous
   {
-    return;
+    int iter = 0;
+    while (screen_resolutions_list[iter] != NULL)
+    {
+      free((void*)screen_resolutions_list[iter]);
+      screen_resolutions_list[iter] = NULL;
+
+      iter++;
+    }
   }
 
   if (desired_screenwidth == 0 || desired_screenheight == 0)
@@ -748,7 +762,16 @@ static void I_FillScreenResolutionsList(void)
         if (mode.w > desktop_mode.w || mode.h > desktop_mode.h)
           continue;
 
-      doom_snprintf(mode_name, sizeof(mode_name), "%dx%d", mode.w, mode.h);
+      // RT - rename desktop mode to fullscreen
+      if (mode.w == desktop_mode.w && mode.h == desktop_mode.h)
+      {
+        strcpy(mode_name, FULLSCREEN_NAME);
+      }
+      else
+      {
+        doom_snprintf(mode_name, sizeof(mode_name), "%dx%d", mode.w, mode.h);
+      }
+      // RT
 
       for(j = 0; j < list_size; j++)
       {
@@ -1325,6 +1348,8 @@ void I_UpdateVideoMode(void)
 
   display_index = SDL_GetWindowDisplayIndex(sdl_window);
   SDL_GetDesktopDisplayMode(display_index, &desktop_mode);
+  // RT: update resolution list every time new window is created
+  I_FillScreenResolutionsList();
 
   if (sdl_video_window_pos)
   {
