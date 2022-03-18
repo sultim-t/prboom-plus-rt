@@ -1735,6 +1735,11 @@ void M_LoadDefaults (void)
 
     fclose (f);
     }
+  else
+    {
+    I_Warning("Running 'Doom: Ray Traced' for the first time.\nEnsure that the latest drivers are used.");
+    makefullscreen_on_firststart = true;
+    }
 
   free(strparm);
   free(cfgline);

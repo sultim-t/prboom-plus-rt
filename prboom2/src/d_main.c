@@ -1377,6 +1377,7 @@ const char *wad_files[MAXLOADFILES], *deh_files[MAXLOADFILES];
 
 // CPhipps - misc screen stuff
 int desired_screenwidth, desired_screenheight;
+dboolean makefullscreen_on_firststart = false;
 
 static void L_SetupConsoleMasks(void) {
   int p;

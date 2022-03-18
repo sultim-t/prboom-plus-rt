@@ -191,6 +191,7 @@ extern int snd_MusicVolume;    // maximum volume for music
 
 // CPhipps - screen parameters
 extern int desired_screenwidth, desired_screenheight;
+extern dboolean makefullscreen_on_firststart;
 
 // -------------------------
 // Status flags for refresh.

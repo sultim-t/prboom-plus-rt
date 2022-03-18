@@ -707,6 +707,11 @@ static void I_FillScreenResolutionsList(void)
   int i, j, list_size, current_resolution_index, count;
   char mode_name[256];
 
+  if (desired_screenwidth == 0 || desired_screenheight == 0)
+  {
+    I_GetScreenResolution();
+  }
+
   // RT: dealloc previous
   {
     int iter = 0;
@@ -717,11 +722,7 @@ static void I_FillScreenResolutionsList(void)
 
       iter++;
     }
-  }
-
-  if (desired_screenwidth == 0 || desired_screenheight == 0)
-  {
-    I_GetScreenResolution();
+    screen_resolution = NULL;
   }
 
   // Don't call SDL_ListModes if SDL has not been initialized
@@ -979,6 +980,18 @@ void I_InitScreenResolution(void)
   char c, x;
   video_mode_t mode;
   int init = (sdl_window == NULL);
+
+
+  // RT: prepare args for I_GetScreenResolution
+  if (makefullscreen_on_firststart)
+  {
+    // use first display
+    SDL_GetDesktopDisplayMode(0, &desktop_mode);
+    screen_resolution = FULLSCREEN_NAME;
+
+    makefullscreen_on_firststart = false;
+  }
+
 
   I_GetScreenResolution();
 
