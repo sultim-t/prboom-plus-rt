@@ -344,7 +344,25 @@ void RT_TryApplyHUDCustomScale(enum patch_translation_e flags, float *p_xpos, fl
 }
 
 
-extern GLfloat cm2RGB[][4];
+// based on cm2RGB from gl_main
+static float rt_cm2RGB[CR_LIMIT + 1][4] =
+{
+  {0.50f ,0.00f, 0.00f, 1.00f}, //CR_BRICK
+  {1.00f ,1.00f, 1.00f, 1.00f}, //CR_TAN
+  {0.85f ,0.85f, 0.85f, 1.00f}, //CR_GRAY     // RT: darker
+  {0.40f ,1.00f, 0.25f, 1.00f}, //CR_GREEN    // RT: match original green 
+  {0.50f ,0.20f, 1.00f, 1.00f}, //CR_BROWN
+  {1.00f ,1.00f, 0.00f, 1.00f}, //CR_GOLD
+  {1.00f ,0.00f, 0.00f, 1.00f}, //CR_RED
+  {0.80f ,0.80f, 1.00f, 1.00f}, //CR_BLUE
+  {1.00f ,0.50f, 0.25f, 1.00f}, //CR_ORANGE
+  {1.00f ,1.00f, 0.00f, 1.00f}, //CR_YELLOW
+  {0.50f ,0.50f, 1.00f, 1.00f}, //CR_BLUE2
+  {0.00f ,0.00f, 0.00f, 1.00f}, //CR_BLACK
+  {0.50f ,0.00f, 0.50f, 1.00f}, //CR_PURPLE
+  {1.00f ,1.00f, 1.00f, 1.00f}, //CR_WHITE
+  {1.00f ,1.00f, 1.00f, 1.00f}, //CR_LIMIT
+};
 
 
 void RT_DrawQuad_NumPatch(float x, float y, int lump, int cm, enum patch_translation_e flags)
@@ -398,18 +416,19 @@ void RT_DrawQuad_NumPatch(float x, float y, int lump, int cm, enum patch_transla
   RT_TryApplyHUDCustomScale(flags, &xpos, &ypos, &width, &height);
 
 
-  uint8_t rgb[4] = { 255,255,255 };
+  uint8_t rgba[4] = { 255,255,255,255 };
   if (td->flags & RT_TEXTURE_FLAG_MONOCHROME_FOR_COLORMAPS_BIT)
   {
-    const float *d = cm2RGB[cm];
+    const float *d = rt_cm2RGB[cm];
 
-    rgb[0] = (uint8_t)BETWEEN(0, 255, (int)(d[0] * 255));
-    rgb[1] = (uint8_t)BETWEEN(0, 255, (int)(d[1] * 255));
-    rgb[2] = (uint8_t)BETWEEN(0, 255, (int)(d[2] * 255));
+    rgba[0] = (uint8_t)BETWEEN(0, 255, (int)(d[0] * 255));
+    rgba[1] = (uint8_t)BETWEEN(0, 255, (int)(d[1] * 255));
+    rgba[2] = (uint8_t)BETWEEN(0, 255, (int)(d[2] * 255));
+    rgba[3] = (uint8_t)BETWEEN(0, 255, (int)(d[3] * 255));
   }
 
 
-  DrawQuad_Internal(td->rg_handle, xpos, ypos, width, height, rgb[0], rgb[1], rgb[2], 255);
+  DrawQuad_Internal(td->rg_handle, xpos, ypos, width, height, rgba[0], rgba[1], rgba[2], rgba[3]);
 }
 
 

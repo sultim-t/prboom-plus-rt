@@ -2822,7 +2822,7 @@ void G_DoNewGame (void)
 
     for (int i = 0; i < 6; i++)
     {
-      SetCustomMessage(consoleplayer, hint_text, ticks_startdelay + ticks * i, ticks + 1, i % 2 ? CR_WHITE : CR_GREEN, i == 0 || i == 2 ? sfx_tink : sfx_None);
+      SetCustomMessage(consoleplayer, hint_text, ticks_startdelay + ticks * i, ticks + 1, i % 2 ? CR_WHITE : CR_ORANGE, i == 0 || i == 2 ? sfx_tink : sfx_None);
     }
   }
 #endif
