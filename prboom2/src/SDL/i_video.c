@@ -127,7 +127,8 @@ static SDL_GLContext sdl_glcontext;
 static unsigned int windowid = 0;
 static SDL_Rect src_rect = { 0, 0, 0, 0 };
 static int display_index;
-static SDL_DisplayMode desktop_mode = {.w = 16384, .h = 16384};
+#define INVALID_DESKTOP_MODE 16384
+static SDL_DisplayMode desktop_mode = {.w = INVALID_DESKTOP_MODE, .h = INVALID_DESKTOP_MODE };
 
 ////////////////////////////////////////////////////////////////////////////
 // Input code
@@ -653,6 +654,13 @@ static void I_GetScreenResolution(void)
 {
   int width, height;
 
+  // RT: extra safety, so desktop_mode is always initted
+  if (desktop_mode.w == INVALID_DESKTOP_MODE || desktop_mode.h == INVALID_DESKTOP_MODE)
+  {
+    // use first monitor
+    SDL_GetDesktopDisplayMode(0, &desktop_mode);
+  }
+
   desired_screenwidth = 640;
   desired_screenheight = 480;
 
@@ -986,7 +994,7 @@ void I_InitScreenResolution(void)
   if (makefullscreen_on_firststart)
   {
     // use first display
-    SDL_GetDesktopDisplayMode(0, &desktop_mode);
+    desktop_mode.w = desktop_mode.h = INVALID_DESKTOP_MODE;
     screen_resolution = FULLSCREEN_NAME;
 
     makefullscreen_on_firststart = false;
