@@ -319,7 +319,6 @@ void M_ChangeApplyPalette(void);
 
 #if RT_CUSTOM_MENU
 void M_RT_Options(int choice);
-void M_RT_Hud(int choice);
 void M_RT_ChangeSensitivity(int choice);
 void M_RT_KeyBindings(int choice);
 void M_RT_Sound(int choice);
@@ -328,11 +327,10 @@ void M_RT_GraphicsSettings(int choice);
 void M_RT_Options_Draw(void);
 void M_RT_GraphicsSettings_Draw(void);
 
-const char *M_RT_GetHudSwitchName(void);
-int M_RT_GetHudSwitchStringHeight(void);
 void M_RT_ResolutionSettings_DLSS(void);
 void M_RT_ResolutionSettings_FSR(void);
 void M_RT_ResolutionSettings_RenderScale(void);
+void M_RT_ApplyHUD(void);
 #endif
 
 
@@ -1143,7 +1141,6 @@ enum
   RT_OPTIONS_SOUNDVOLUME,
   RT_OPTIONS_KEYBINDINGS,
   RT_OPTIONS_MOUSE,
-  RT_OPTIONS_HUD,
   RT_OPTIONS_PRBOOM,
 
   RT_OPTIONS_E_COUNT
@@ -1155,7 +1152,6 @@ menuitem_t RT_OptionsMenu[] =
   {1,"M_N_SND",     M_RT_Sound,             's', "SOUND"},
   {1,"M_N_KEYBND",  M_RT_KeyBindings,       'k', "CONTROLS"},
   {1,"M_N_MOUSE",   M_RT_ChangeSensitivity, 'm', "MOUSE"},
-  {2,"M_N_HUD",     M_RT_Hud,               'h', "HUD: "},
   {1,"M_N_PRBOOM",  M_Options,              'p', "PRBOOM"},
 };
 
@@ -1172,10 +1168,6 @@ menu_t RT_OptionsDef =
 void M_RT_Options_Draw(void)
 {
   V_DrawNamePatch(108, 15, 0, "M_OPTTTL", CR_DEFAULT, VPT_STRETCH);
-
-  M_WriteText(RT_OptionsDef.x + M_StringWidth("HUD:  "),
-              RT_OptionsDef.y + 8 - (M_RT_GetHudSwitchStringHeight() / 2) + LINEHEIGHT * RT_OPTIONS_HUD,
-              M_RT_GetHudSwitchName(), CR_DEFAULT);
 
 }
 
@@ -1733,7 +1725,7 @@ void M_SizeDisplay(int choice)
 {
   if (V_GetMode() == VID_MODERT)
   {
-    M_RT_Hud(choice);
+    M_RT_ApplyPrevNextHud(choice);
   }
 
   switch(choice) {
@@ -1766,10 +1758,13 @@ typedef enum
   RT_HUD_SWITCH_CUSTOM,
 } rt_hud_switch_e;
 
-#define RT_HUD_SWITCH_NAME_CLASSIC "Classic"
-#define RT_HUD_SWITCH_NAME_MINIMAL "Minimalistic"
-#define RT_HUD_SWITCH_NAME_NONE    "None"
-#define RT_HUD_SWITCH_NAME_CUSTOM  "Custom"
+static const char *RT_options_hud_style[] =
+{
+  "None",
+  "Minimalistic",
+  "Classic",
+  NULL
+};
 
 static rt_hud_switch_e GetHudSwitch(void)
 {
@@ -1815,22 +1810,6 @@ static void ApplyHudSwitch(rt_hud_switch_e h)
   R_SetViewSize(screenblocks);
 }
 
-const char *M_RT_GetHudSwitchName(void)
-{
-  switch (GetHudSwitch())
-  {
-    case RT_HUD_SWITCH_CLASSIC: return RT_HUD_SWITCH_NAME_CLASSIC;
-    case RT_HUD_SWITCH_MINIMAL: return RT_HUD_SWITCH_NAME_MINIMAL;
-    case RT_HUD_SWITCH_NONE:    return RT_HUD_SWITCH_NAME_NONE;
-    default:                    return RT_HUD_SWITCH_NAME_CUSTOM;
-  }
-}
-
-int M_RT_GetHudSwitchStringHeight(void)
-{
-  return M_StringHeight("");
-}
-
 static void M_RT_ApplyPrevNextHud(int choice)
 {
   rt_hud_switch_e h = GetHudSwitch();
@@ -1854,9 +1833,11 @@ static void M_RT_ApplyPrevNextHud(int choice)
   }
 }
 
-void M_RT_Hud(int choice)
+void M_RT_ApplyHUD(void)
 {
-  M_RT_ApplyPrevNextHud(choice);
+  // rt_settings.hud_style is just a value for a menu,
+  // actual style is controlled by screenblocks / hud_displayed / etc :(
+  ApplyHudSwitch((rt_hud_switch_e)rt_settings.hud_style);
 }
 #endif
 
@@ -4003,11 +3984,12 @@ setup_menu_t RT_GraphicsSettings[] =
   {"Bloom",         S_CHOICE,  m_null, RT_X, RT_Y + 9 * 8, {"rt_bloom_intensity"}, 0, 0, NULL, RT_options_bloom_intensity },
   {"Muzzle flash light",  S_CHOICE,  m_null, RT_X, RT_Y + 10 * 8, {"rt_muzzleflash_intensity"}, 0, 0, NULL, RT_options_muzzleflash_intensity },
 
+  {"HUD style",  S_CHOICE,  m_null, RT_X, RT_Y + 12 * 8, {"rt_hud_style"}, 0, 0, M_RT_ApplyHUD, RT_options_hud_style},
 #if RT_SEPARATE_HUD_SCALE
-  {"Classic HUD scale",  S_CHOICE,  m_null, RT_X, RT_Y + 12 * 8, {"rt_statusbar_scale"}, 0, 0, NULL, RT_options_statusbar_scale },
-  {"Minimalistic HUD scale",  S_CHOICE,  m_null, RT_X, RT_Y + 13 * 8, {"rt_hud_scale"}, 0, 0, NULL, RT_options_hud_scale },
+  {"Classic HUD scale",  S_CHOICE,  m_null, RT_X, RT_Y + 13 * 8, {"rt_statusbar_scale"}, 0, 0, NULL, RT_options_statusbar_scale },
+  {"Minimalistic HUD scale",  S_CHOICE,  m_null, RT_X, RT_Y + 14 * 8, {"rt_hud_scale"}, 0, 0, NULL, RT_options_hud_scale },
 #else
-  {"HUD scale",  S_CHOICE,  m_null, RT_X, RT_Y + 12 * 8, {"rt_statusbar_scale"}, 0, 0, NULL, RT_options_statusbar_scale },
+  {"HUD size",  S_CHOICE,  m_null, RT_X, RT_Y + 13 * 8, {"rt_statusbar_scale"}, 0, 0, NULL, RT_options_statusbar_scale },
 #endif
 
   {0,S_SKIP | S_END,m_null}

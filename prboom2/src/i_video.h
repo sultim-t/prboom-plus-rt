@@ -65,6 +65,7 @@ typedef struct
 #if RT_SEPARATE_HUD_SCALE
   int hud_scale;              // to calculate procents: 10*(hud_scale+1)
 #endif
+  int hud_style;
   int refl_refr_max_depth;
 } rt_settings_t;
 #define RT_SETTINGS_RENDERSCALE_320x200 0

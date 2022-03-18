@@ -516,6 +516,8 @@ default_t defaults[] =
   {"rt_hud_scale",{&rt_settings.hud_scale},{7},0,9,
    def_int,ss_none},
 #endif
+  { "rt_hud_style",{&rt_settings.hud_style},{2},0,2,
+ def_int,ss_none },
   {"rt_refl_refr_max_depth",{&rt_settings.refl_refr_max_depth},{2},0,3,
    def_int,ss_none},
 
