@@ -240,7 +240,7 @@ void RT_StartFrame(void)
   {
     .requestRasterizedSkyGeometryReuse = rtmain.was_new_sky ? false : true,
     .requestShaderReload = rtmain.request_shaderreload,
-    .requestVSync = true,
+    .requestVSync = render_vsync,
     .surfaceSize = GetCurrentHWNDSize()
   };
   rtmain.request_shaderreload = 0;
