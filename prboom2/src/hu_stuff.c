@@ -2472,9 +2472,11 @@ void HU_Drawer(void)
   static dboolean needupdate = false;
   if (realframe) needupdate = !needupdate;
 
+#if !RT_CUSTOM_MENU
   // don't draw anything if there's a fullscreen menu up
   if (menuactive == mnact_full || menuactive == mnact_float)
     return;
+#endif
 
   plr = &players[displayplayer];         // killough 3/7/98
   // draw the automap widgets if automap is displayed

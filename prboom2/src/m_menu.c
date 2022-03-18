@@ -4042,7 +4042,6 @@ static void SetGfxItemEnabled(gfxset_e item, dboolean enable)
 
 static void M_RT_UpdateGfxItems(void)
 {
-  if (V_GetMode() == VID_MODERT)
   {
     assert(RG_ARRAY_SIZE(RT_options_dlss_ptr) == RG_ARRAY_SIZE(RT_options_dlss_ok));
 
@@ -4053,18 +4052,17 @@ static void M_RT_UpdateGfxItems(void)
     }
     RT_options_dlss_ptr[RG_ARRAY_SIZE(RT_options_dlss_ptr) - 1] = NULL;
 
-    SetGfxItemEnabled(gfxset_dlss, rtmain.is_dlss_available);
-  }
-  else
-  {
-    SetGfxItemEnabled(gfxset_dlss, false);
+    SetGfxItemEnabled(gfxset_dlss, rtmain.is_dlss_available && V_GetMode() == VID_MODERT);
   }
 
   // disable some options if not RT
   SetGfxItemEnabled(gfxset_renderscale, V_GetMode() == VID_MODERT);
-  SetGfxItemEnabled(gfxset_fsr, V_GetMode() == VID_MODERT);
-  SetGfxItemEnabled(gfxset_bloom, V_GetMode() == VID_MODERT);
+  SetGfxItemEnabled(gfxset_fsr,         V_GetMode() == VID_MODERT);
+  SetGfxItemEnabled(gfxset_bloom,       V_GetMode() == VID_MODERT);
   SetGfxItemEnabled(gfxset_muzzleflash, V_GetMode() == VID_MODERT);
+
+  SetGfxItemEnabled(gfxset_vsync,       V_GetMode() == VID_MODERT || V_GetMode() == VID_MODEGL);
+  SetGfxItemEnabled(gfxset_hudsize,     V_GetMode() == VID_MODERT || V_GetMode() == VID_MODEGL);
 }
 
 // Copy of M_General, but with different M_SetupNextMenu

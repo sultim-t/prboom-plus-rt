@@ -2814,6 +2814,7 @@ void G_DoNewGame (void)
   walkcamera.type=0; //e6y
 
 #if RT_CUSTOM_MENU
+  if (V_GetMode() == VID_MODERT)
   {
     const char *hint_text = RT_GetFlashlightHintString(key_rt_flashlight);
 

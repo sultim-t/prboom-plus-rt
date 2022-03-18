@@ -986,6 +986,10 @@ void ST_SetResolution(void)
 
 void ST_Drawer(dboolean statusbaron, dboolean refresh, dboolean inmenu)
 {
+#if RT_CUSTOM_MENU
+  inmenu = false;
+#endif
+
   /* cph - let status bar on be controlled
    * completely by the call from D_Display
    * proff - really do it

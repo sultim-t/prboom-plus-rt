@@ -472,7 +472,7 @@ default_t defaults[] =
   def_bool,ss_none},
   {"render_vsync",{&render_vsync},{1},0,1,
    def_bool,ss_none},
-  {"translucency",{&default_translucency},{1},0,1,   // phares
+  {"translucency",{&default_translucency},{0},0,1,   // phares
    def_bool,ss_none}, // enables translucency
   {"tran_filter_pct",{&tran_filter_pct},{100},0,100,         // killough 2/21/98
    def_int,ss_none}, // set percentage of foreground/background translucency mix
