@@ -34,6 +34,8 @@ typedef struct
   dboolean request_shaderreload;
   dboolean request_flashlight;
 
+  dboolean is_dlss_available;
+
 } rtmain_t;
 
 extern rtmain_t rtmain;

@@ -227,30 +227,10 @@ static RgRenderResolutionMode GetResolutionMode(int dlss, int fsr) // 0 - off, 1
 
 static void NormalizeRTSettings(rt_settings_t *settings)
 {
-  RgBool32 dlss_available = false;
-  RgResult r = rgIsRenderUpscaleTechniqueAvailable(rtmain.instance, RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS, &dlss_available);
-  RG_CHECK(r);
-  if (!dlss_available)
+  if (!rtmain.is_dlss_available)
   {
     settings->dlss = 0;
   }
-
-  // normalize resolution params
-  /*if (settings->dlss > 0)
-  {
-    settings->fsr = 0;
-    settings->renderscale = RT_SETTINGS_RENDERSCALE_DEFAULT;
-  }
-  else if (settings->fsr > 0)
-  {
-    settings->dlss = 0;
-    settings->renderscale = RT_SETTINGS_RENDERSCALE_DEFAULT;
-  }
-  else if (settings->renderscale == RT_SETTINGS_RENDERSCALE_DEFAULT)
-  {
-    settings->fsr = 0;
-    settings->dlss = 0;
-  }*/
 }
 
 
@@ -269,6 +249,14 @@ void RT_StartFrame(void)
   RG_CHECK(r);
 
   memset(&rtmain.sky, 0, sizeof(rtmain.sky));
+
+
+  {
+    RgBool32 dlss_available = false;
+    r = rgIsRenderUpscaleTechniqueAvailable(rtmain.instance, RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS, &dlss_available);
+    RG_CHECK(r);
+    rtmain.is_dlss_available = dlss_available;
+  }
 
 
   frame_started_guard = true;

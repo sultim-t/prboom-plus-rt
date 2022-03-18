@@ -3893,7 +3893,7 @@ void M_DrawGeneral(void)
 
 #if RT_CUSTOM_MENU
 
-static const char *RT_options_dlss[] =
+static const char *RT_options_dlss_ok[] =
 {
   "Off",
   "Quality",
@@ -3902,6 +3902,7 @@ static const char *RT_options_dlss[] =
   "Ultra Performance",
   NULL
 };
+static const char *RT_options_dlss_ptr[RG_ARRAY_SIZE(RT_options_dlss_ok)] = { NULL };
 static const char *RT_options_fsr[] =
 {
   "Off",
@@ -3970,6 +3971,8 @@ static const char *RT_options_hud_scale[] =
 #define RT_X 180
 #define RT_Y 56
 
+#define DLSS_MENU_ITEM_INDEX 5
+#define DLSS_MENU_ITEM_NAME "Nvidia DLSS"
 setup_menu_t RT_GraphicsSettings[] =
 {
   {"Video mode",  S_CHOICE, m_null, RT_X, RT_Y + 0 * 8, {"videomode"}, 0, 0, M_ChangeVideoMode, RT_simpler_videomodes},
@@ -3979,7 +3982,7 @@ setup_menu_t RT_GraphicsSettings[] =
 //{"Fullscreen",  S_YESNO,  m_null, RT_X, RT_Y + 2 * 8, {"use_fullscreen"}, 0, 0, M_ChangeFullScreen},
   {"Render scale",  S_CHOICE,  m_null, RT_X, RT_Y + 4 * 8, {"rt_renderscale"}, 0, 0, M_RT_ResolutionSettings_RenderScale, RT_options_renderscale },
   {"AMD FSR",       S_CHOICE,  m_null, RT_X, RT_Y + 5 * 8, {"rt_fsr"}, 0, 0, M_RT_ResolutionSettings_FSR, RT_options_fsr },
-  {"Nvidia DLSS",   S_CHOICE,  m_null, RT_X, RT_Y + 6 * 8, {"rt_dlss"}, 0, 0, M_RT_ResolutionSettings_DLSS, RT_options_dlss },
+  {DLSS_MENU_ITEM_NAME, S_CHOICE,  m_null, RT_X, RT_Y + 6 * 8, {"rt_dlss"}, 0, 0, M_RT_ResolutionSettings_DLSS, RT_options_dlss_ptr },
 
   {"Bloom",         S_CHOICE,  m_null, RT_X, RT_Y + 8 * 8, {"rt_bloom_intensity"}, 0, 0, NULL, RT_options_bloom_intensity },
   {"Muzzle flash light",  S_CHOICE,  m_null, RT_X, RT_Y + 9 * 8, {"rt_muzzleflash_intensity"}, 0, 0, NULL, RT_options_muzzleflash_intensity },
@@ -4004,6 +4007,29 @@ static setup_menu_t *RT_SetupMenus[] =
 // Copy of M_General, but with different M_SetupNextMenu
 void M_RT_GraphicsSettings(int choice)
 {
+  {
+    assert(RG_ARRAY_SIZE(RT_options_dlss_ptr) == RG_ARRAY_SIZE(RT_options_dlss_ok));
+    const int unavailable_flags = S_DISABLE | S_SKIP;
+    assert(strcmp(RT_GraphicsSettings[DLSS_MENU_ITEM_INDEX].m_text, DLSS_MENU_ITEM_NAME) == 0); // DLSS_MENU_ITEM_INDEX must point to dlss setting
+
+
+    for (int i = 0; i < (int)RG_ARRAY_SIZE(RT_options_dlss_ptr); i++)
+    {
+      RT_options_dlss_ptr[i] = rtmain.is_dlss_available ? RT_options_dlss_ok[i] : "Unavailable";
+    }
+    RT_options_dlss_ptr[RG_ARRAY_SIZE(RT_options_dlss_ptr) - 1] = NULL;
+
+
+    if (rtmain.is_dlss_available)
+    {
+      RT_GraphicsSettings[DLSS_MENU_ITEM_INDEX].m_flags &= ~unavailable_flags;
+    }
+    else
+    {
+      RT_GraphicsSettings[DLSS_MENU_ITEM_INDEX].m_flags |= unavailable_flags;
+    }
+  }
+
   M_SetupNextMenu(&RT_GraphicsSettingsDef);
 
   setup_active = true;
