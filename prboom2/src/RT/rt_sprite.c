@@ -733,6 +733,30 @@ static RgFloat3D GetCameraPosition(void)
 }
 
 
+static RgFloat3D GetOffsetFromCameraPosition(const RgFloat3D dir, float x, float y, float z)
+{
+  const static RgFloat3D up = { 0,1,0 };
+
+  // cross
+  const RgFloat3D right = {
+    dir.data[1] * up.data[2] - dir.data[2] * up.data[1],
+    dir.data[2] * up.data[0] - dir.data[0] * up.data[2],
+    dir.data[0] * up.data[1] - dir.data[1] * up.data[0]
+  };
+
+  RgFloat3D r = GetCameraPosition();
+
+  for (int i = 0; i < 3; i++)
+  {
+    r.data[i] += right.data[i] * x;
+    r.data[i] +=    up.data[i] * y;
+    r.data[i] +=   dir.data[i] * z;
+  }
+
+  return r;
+}
+
+
 // muzzlelight is extralight,
 // extralight is 1 or 2 when muzzle flash is active
 void AddMuzzleFlashLight(int muzzlelight, float flash_z_offset)
@@ -745,7 +769,6 @@ void AddMuzzleFlashLight(int muzzlelight, float flash_z_offset)
   float flash_intensity = muzzlelight >= 2 ? 1.0f : 0.5f;
   float flash_y_offset = -0.15f;
 
-
   switch (rt_settings.muzzleflash_intensity)
   {
     case 0: return;
@@ -753,17 +776,7 @@ void AddMuzzleFlashLight(int muzzlelight, float flash_z_offset)
     default: break;
   }
 
-  
-  RgFloat3D cam_pos = GetCameraPosition();
-  RgFloat3D cam_dir = GetCameraDirection();
-
-  RgFloat3D flash_pos = 
-  {
-    cam_pos.data[0] + cam_dir.data[0] * flash_z_offset,
-    cam_pos.data[1] + cam_dir.data[1] * flash_z_offset + flash_y_offset,
-    cam_pos.data[2] + cam_dir.data[2] * flash_z_offset,
-  };
-
+  RgFloat3D flash_pos = GetOffsetFromCameraPosition(GetCameraDirection(), 0, flash_y_offset, flash_z_offset);
 
   RgSphericalLightUploadInfo light_info =
   {
@@ -786,32 +799,19 @@ void AddMuzzleFlashLight(int muzzlelight, float flash_z_offset)
 
 static void AddFlashlight(float to_left_offset, float y_multiplier)
 {
-  RgFloat3D cam_dir = GetCameraDirection();
-  RgFloat3D up = { 0,1,0 };
-
-  // cross
-  RgFloat3D right = {
-    cam_dir.data[1] * up.data[2] - cam_dir.data[2] * up.data[1],
-    cam_dir.data[2] * up.data[0] - cam_dir.data[0] * up.data[2],
-    cam_dir.data[0] * up.data[1] - cam_dir.data[1] * up.data[0]
-  };
+  assert(!(rtmain.powerupflags & RT_POWERUP_FLAG_MORELIGHT_BIT));
 
   float x = -to_left_offset;
   float y = -0.1f * y_multiplier;
 
-  RgFloat3D pos = GetCameraPosition();
-  for (int i = 0; i < 3; i++)
-  {
-    pos.data[i] += right.data[i] * x;
-    pos.data[i] += up.data[i] * y;
-  }
-
+  RgFloat3D cam_dir = GetCameraDirection();
+  RgFloat3D pos = GetOffsetFromCameraPosition(cam_dir, x, y, 0);
 
   RgSpotlightUploadInfo info =
   {
     .position = pos,
     .direction = cam_dir,
-    .upVector = up,
+    .upVector = { 0,1,0 },
     .color = {0.8f, 0.8f, 1.0f},
     .radius = 0.01f,
     .angleOuter = DEG2RAD(25),
@@ -819,15 +819,33 @@ static void AddFlashlight(float to_left_offset, float y_multiplier)
     .falloffDistance = 7
   };
 
-  if (rtmain.powerupflags & RT_POWERUP_FLAG_MORELIGHT_BIT)
-  {
-    info.angleOuter *= 1.5f;
-    info.falloffDistance *= 2;
-    info.color.data[0] *= 0.5f;
-    info.color.data[1] *= 0.75f;
-  }
-
   RgResult r = rgUploadSpotlightLight(rtmain.instance, &info);
+  RG_CHECK(r);
+}
+
+
+static void AddClassicPlayerLight(void)
+{
+  const float intensity = 0.07f;
+  const float falloff = 3;
+
+  const float x = 0.05f;
+  const float y = -0.12f;
+  const float z = 0.05f;
+  
+  RgFloat3D pos = GetOffsetFromCameraPosition(GetCameraDirection(), x, y, z);
+
+  RgSphericalLightUploadInfo light_info =
+  {
+    .uniqueID = RT_GetUniqueID_FirstPersonWeapon(1),
+    .color = {intensity, intensity, intensity},
+    .position = pos,
+    .sectorID = RT_GetSectorNum_Real(pos.data[0], pos.data[2]),
+    .radius = 0.01f,
+    .falloffDistance = falloff
+  };
+
+  RgResult r = rgUploadSphericalLight(rtmain.instance, &light_info);
   RG_CHECK(r);
 }
 
@@ -910,7 +928,7 @@ void RT_ProcessPlayer(const player_t *player)
 
   static float flashlight_to_left_offset = 0;
   const float offset_bound = 0.3f;
-  if (rtmain.request_flashlight && !(rtmain.powerupflags & RT_POWERUP_FLAG_MORELIGHT_BIT))
+  if (rtmain.request_flashlight && !(rtmain.powerupflags & RT_POWERUP_FLAG_MORELIGHT_BIT) && !rt_settings.classic_flashlight)
   {
     fixed_t dst_fwd[]  = Fixed2_AddMultiplied(position, forward, FLASHLIGHT_OBSTACLE_CHECKRANGE * 3);
     fixed_t dst_left[] = Fixed2_AddMultiplied(position, left, FLASHLIGHT_OBSTACLE_CHECKRANGE);
@@ -957,6 +975,11 @@ void RT_ProcessPlayer(const player_t *player)
     // when flashlight is disabled, instantly move it to default position,
     // for some animation on enabling a flashlight
     flashlight_to_left_offset = 0;
+  }
+
+  if (rtmain.request_flashlight && !(rtmain.powerupflags & RT_POWERUP_FLAG_MORELIGHT_BIT) && rt_settings.classic_flashlight)
+  {
+    AddClassicPlayerLight();
   }
 }
 

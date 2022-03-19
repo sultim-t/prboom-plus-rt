@@ -67,6 +67,7 @@ typedef struct
 #endif
   int hud_style;
   int refl_refr_max_depth;
+  int classic_flashlight;
 } rt_settings_t;
 #define RT_SETTINGS_RENDERSCALE_320x200 0
 #define RT_SETTINGS_RENDERSCALE_DEFAULT 5

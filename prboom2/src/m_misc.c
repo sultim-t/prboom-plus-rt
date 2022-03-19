@@ -520,6 +520,8 @@ default_t defaults[] =
  def_int,ss_none },
   {"rt_refl_refr_max_depth",{&rt_settings.refl_refr_max_depth},{2},0,3,
    def_int,ss_none},
+  {"rt_classic_flashlight",{&rt_settings.classic_flashlight},{0},0,1,
+   def_bool,ss_none},
 
   {"OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"gl_compatibility", {&gl_compatibility},  {0},0,1,
