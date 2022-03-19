@@ -368,7 +368,6 @@ void G_SkipDemoStop(void)
 #endif
   if (V_GetMode() == VID_MODERT)
   {
-    RT_OnSkipDemoStop();
     RT_PreprocessLevel();
   }
 }

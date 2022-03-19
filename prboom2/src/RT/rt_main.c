@@ -521,26 +521,6 @@ RgRasterizedGeometryRenderType RT_Get2DRenderType(void)
 }
 
 
-void RT_OnMovePlane()
-{
-}
-
-
-void RT_OnSkipDemoStop()
-{
-}
-
-
-void RT_OnToggleFullscreen()
-{
-}
-
-
-void RT_OnChangeScreenResolution()
-{
-}
-
-
 #define UNIQUE_TYPE_BITS_COUNT 2
 
 #define UNIQUE_TYPE_MASK_FOR_IDS ((1ULL << (uint64_t)(64 - UNIQUE_TYPE_BITS_COUNT)) - 1ULL)

@@ -90,7 +90,7 @@ result_e T_MovePlane
 #endif
   if (V_GetMode() == VID_MODERT)
   {
-      RT_OnMovePlane();
+    // nothing
   }
 
   switch(floorOrCeiling)

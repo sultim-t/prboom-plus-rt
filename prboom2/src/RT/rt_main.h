@@ -76,12 +76,6 @@ enum rt_powerupflag_t {
 void RT_SetPowerupPalette(uint32_t powerupflags);
 RgRasterizedGeometryRenderType RT_Get2DRenderType(void);
 
-// TODO RT: unnecessary functions?
-void RT_OnMovePlane(void);
-void RT_OnSkipDemoStop(void);
-void RT_OnToggleFullscreen(void);
-void RT_OnChangeScreenResolution(void);
-
 
 typedef struct
 {

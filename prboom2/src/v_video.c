@@ -1938,7 +1938,6 @@ void V_ToggleFullscreen(void)
 #endif
   if (V_GetMode() == VID_MODERT)
   {
-    RT_OnToggleFullscreen();
     RT_PreprocessLevel();
   }
 }
@@ -1955,7 +1954,6 @@ void V_ChangeScreenResolution(void)
 #endif
   if (V_GetMode() == VID_MODERT)
   {
-    RT_OnChangeScreenResolution();
     RT_PreprocessLevel();
   }
 }
