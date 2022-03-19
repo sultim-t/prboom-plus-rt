@@ -950,7 +950,7 @@ static void R_ApplyWeaponBob (fixed_t *sx, dboolean bobx, fixed_t *sy, dboolean 
 // R_DrawPSprite
 //
 
-static void R_DrawPSprite (pspdef_t *psp)
+static void R_DrawPSprite (pspdef_t *psp, int psp_index)
 {
   int           x1, x2;
   spritedef_t   *sprdef;
@@ -1131,7 +1131,8 @@ static void R_DrawPSprite (pspdef_t *psp)
 
     if (V_GetMode() == VID_MODERT)
     {
-      RT_AddWeaponSprite(lump, vis, lightlevel);
+      // RT: slight z offset for flash - so there's no clipping between flash and weapon sprites
+      RT_AddWeaponSprite(lump, vis, -0.02f * psp_index); 
     }
 #ifdef GL_DOOM
     else if (V_GetMode() == VID_MODEGL)
@@ -1168,7 +1169,7 @@ void R_DrawPlayerSprites(void)
   // add all active psprites
   for (i=0, psp=viewplayer->psprites; i<NUMPSPRITES; i++,psp++)
     if (psp->state)
-      R_DrawPSprite (psp);
+      R_DrawPSprite (psp, i);
 }
 
 //

@@ -598,7 +598,7 @@ static const RgFloat3D *Get6NormalsForSprite(void)
 }
 
 
-void RT_AddWeaponSprite(int weaponlump, vissprite_t *vis)
+void RT_AddWeaponSprite(int weaponlump, const vissprite_t *vis, float zoffset)
 {
   dboolean is_partial_invisibility = false;
 
@@ -626,7 +626,7 @@ void RT_AddWeaponSprite(int weaponlump, vissprite_t *vis)
   RgFloat2D v2_screen = { x2, y1 };
   RgFloat2D v3_screen = { x2, y2 };
 
-  static float z = 0.1f;
+  float z = 0.1f + zoffset;
   RgFloat4D v0_ndc = { v0_screen.data[0] * 2 - 1, v0_screen.data[1] * 2 - 1, z, 1.0f };
   RgFloat4D v1_ndc = { v1_screen.data[0] * 2 - 1, v1_screen.data[1] * 2 - 1, z, 1.0f };
   RgFloat4D v2_ndc = { v2_screen.data[0] * 2 - 1, v2_screen.data[1] * 2 - 1, z, 1.0f };
