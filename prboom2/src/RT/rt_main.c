@@ -3,6 +3,7 @@
 #include <SDL_timer.h>
 #include <GL/glu.h>
 
+#include "doomstat.h"
 #include "doomtype.h"
 #include "e6y.h"
 #include "i_main.h"
@@ -328,6 +329,10 @@ void RT_EndFrame()
     .skyCubemap = RG_NO_MATERIAL,
     .skyCubemapRotationTransform = {0}
   };
+#if RT_DOOM1_HACKS
+  // make E3M1 less red
+  if (gamemission == doom && gameepisode == 3 && gamemap == 1) sky_params.skyColorSaturation = 0.7f;
+#endif
 
   RgDrawFrameBloomParams bloom_params =
   {
