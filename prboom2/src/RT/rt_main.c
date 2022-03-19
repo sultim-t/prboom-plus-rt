@@ -388,6 +388,13 @@ void RT_EndFrame()
     .transitionDurationOut = 1.5f,
   };
 
+  RgPostEffectHueShift hueshift_params =
+  {
+    .isActive = rtmain.request_flashlight && (rtmain.powerupflags & RT_POWERUP_FLAG_MORELIGHT_BIT),
+    .transitionDurationIn = 0.5f,
+    .transitionDurationOut = 0.5f,
+  };
+
   RgPostEffectDistortedSides distortedsides_params =
   {
     .isActive = rtmain.powerupflags & RT_POWERUP_FLAG_RADIATIONSUIT_BIT,
@@ -447,6 +454,7 @@ void RT_EndFrame()
       .pRadialBlur = &radialblur_params,
       .pChromaticAberration = &chrabr_params,
       .pInverseBlackAndWhite = &invbw_params,
+      .pHueShift = &hueshift_params,
       .pDistortedSides = &distortedsides_params,
       .pColorTint = &tint_params,
     },

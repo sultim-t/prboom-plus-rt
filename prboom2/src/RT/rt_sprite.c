@@ -910,7 +910,7 @@ void RT_ProcessPlayer(const player_t *player)
 
   static float flashlight_to_left_offset = 0;
   const float offset_bound = 0.3f;
-  if (rtmain.request_flashlight)
+  if (rtmain.request_flashlight && !(rtmain.powerupflags & RT_POWERUP_FLAG_MORELIGHT_BIT))
   {
     fixed_t dst_fwd[]  = Fixed2_AddMultiplied(position, forward, FLASHLIGHT_OBSTACLE_CHECKRANGE * 3);
     fixed_t dst_left[] = Fixed2_AddMultiplied(position, left, FLASHLIGHT_OBSTACLE_CHECKRANGE);
