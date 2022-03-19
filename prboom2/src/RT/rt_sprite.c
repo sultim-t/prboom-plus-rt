@@ -827,7 +827,7 @@ static void AddFlashlight(float to_left_offset, float y_multiplier)
 static void AddClassicPlayerLight(void)
 {
   const float intensity = 0.07f;
-  const float falloff = 3;
+  const float falloff = 4;
 
   const float x = 0.05f;
   const float y = -0.12f;
