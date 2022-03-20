@@ -28,6 +28,7 @@
 
 #include "rt_textures.h"
 
+#include "e6y.h"
 #include "lprintf.h"
 #include "m_misc.h"
 #include "z_zone.h"
@@ -62,7 +63,7 @@ void RT_TextureMetaInfo_Init(void)
     }
     else
     {
-      I_Error("Couldn't read file %s. %s", RT_TEXTURE_METAINFO_FILE, "Textures won't have RT effects.");
+      I_Warning("Couldn't read file "RT_TEXTURE_METAINFO_FILE". Textures won't have RT effects.");
     }
     return;
   }
@@ -119,6 +120,8 @@ void RT_TextureMetaInfo_Init(void)
     {
       continue;
     }
+
+    // ---
 
     if (strcmp(curr_line, "@WATER") == 0)
     {
@@ -288,6 +291,9 @@ void RT_TextureMetaInfo_Init(void)
         continue;
       }
     }
+
+    // ---
+
     rt_metainfo_count++;
 
     if (rt_metainfo_count >= (int)RG_ARRAY_SIZE(rt_metainfo))

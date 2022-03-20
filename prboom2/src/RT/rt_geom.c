@@ -172,35 +172,43 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
   // TODO RT: flat with texcoord offset
 
 
-  if (ceiling && flat.light > 0.8f)
+  if (ceiling && flat.light > 0.0f)
   {
-    RgFloat3D center = { 0 };
+    float w = RT_GetSectorLightLevelWeight(sectornum);
 
-    for (int j = 0; j < sector_geometry.vertex_count; j++)
+    if (w > 0.0f)
     {
-      float *v = sector_geometry.positions[j].data;
-      center.data[0] += v[0];
-      center.data[1] += v[1];
-      center.data[2] += v[2];
+      RgFloat3D center = { 0 };
+
+      for (int j = 0; j < sector_geometry.vertex_count; j++)
+      {
+        float *v = sector_geometry.positions[j].data;
+        center.data[0] += v[0];
+        center.data[1] += v[1];
+        center.data[2] += v[2];
+      }
+      center.data[0] /= (float)sector_geometry.vertex_count;
+      center.data[1] /= (float)sector_geometry.vertex_count;
+      center.data[2] /= (float)sector_geometry.vertex_count;
+
+      center.data[1] += flat.z - 0.2f;
+
+      RgSphericalLightUploadInfo light_info =
+      {
+        .uniqueID = RT_GetUniqueID_Flat(sectornum, ceiling),
+        .color = { 1,1,1 },
+        .position = center,
+        .sectorID = sectornum,
+        .radius = 0.1f,
+        .falloffDistance = 4
+      };
+
+      RG_VEC3_SCALE(light_info.color.data, flat.light);
+      RG_VEC3_SCALE(light_info.color.data, w);
+
+      RgResult r = rgUploadSphericalLight(rtmain.instance, &light_info);
+      RG_CHECK(r);
     }
-    center.data[0] /= (float)sector_geometry.vertex_count;
-    center.data[1] /= (float)sector_geometry.vertex_count;
-    center.data[2] /= (float)sector_geometry.vertex_count;
-
-    center.data[1] += flat.z - 0.2f;
-
-    RgSphericalLightUploadInfo light_info =
-    {
-      .uniqueID = RT_GetUniqueID_Flat(sectornum, ceiling),
-      .color = {flat.light,flat.light,flat.light},
-      .position = center,
-      .sectorID = sectornum,
-      .radius = 0.1f,
-      .falloffDistance = 4
-    };
-
-    // RgResult r = rgUploadSphericalLight(rtmain.instance, &light_info);
-    RG_CHECK(r);
   }
 }
 

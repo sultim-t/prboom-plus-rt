@@ -270,7 +270,7 @@ set(
     RT/rt_sprite.c
     RT/rt_projection.c
     RT/rt_skydome.c
-    RT/rt_mapdata.c
+    RT/rt_maps_metainfo.c
 )
 
 set(PRBOOM_PLUS_SOURCES
