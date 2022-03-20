@@ -698,8 +698,6 @@ default_t defaults[] =
    0,MAX_KEY,def_key,ss_keys}, // key to bring up sound controls
   {"key_hud",         {&key_hud},            {KEYD_F5}        ,
    0,MAX_KEY,def_key,ss_keys}, // key to adjust HUD
-  { "key_rt_reloadshaders", {&key_rt_reloadshaders}, {KEYD_PAGEUP} ,
-   0,MAX_KEY,def_key,ss_keys },
   {"key_quicksave",   {&key_quicksave},      {KEYD_F6}        ,
    0,MAX_KEY,def_key,ss_keys}, // key to to quicksave
   {"key_endgame",     {&key_endgame},        {KEYD_F7}        ,

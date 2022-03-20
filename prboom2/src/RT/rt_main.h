@@ -62,6 +62,8 @@ typedef struct
 
   dboolean is_dlss_available;
 
+  dboolean devmode;
+
 } rtmain_t;
 
 extern rtmain_t rtmain;
@@ -118,6 +120,11 @@ void RT_PreprocessLevel(void);
 rtsectordata_t RT_GetSectorGeometryData(int sectornum, dboolean is_ceiling);
 void RT_GetLineInfo(int lineid, float *out_x1, float *out_z1, float *out_x2, float *out_z2);
 void RT_DestroySectorGeometryData(const rtsectordata_t *data);
+
+void RT_MapMetaInfo_Init(int mission);
+void RT_MapMetaInfo_AddDelta(float delta);
+void RT_MapMetaInfo_WriteToFile(void);
+float RT_GetSectorLightLevelWeight(int sectornum);
 
 
 uint64_t RT_GetUniqueID_FirstPersonWeapon(int weaponindex);

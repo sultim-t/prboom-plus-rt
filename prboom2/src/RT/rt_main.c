@@ -113,7 +113,17 @@ void RT_Init(HINSTANCE hinstance, HWND hwnd)
 
   rtmain.hwnd = hwnd;
 
+
+#ifndef NDEBUG
+  rtmain.devmode = true;
+#else
+  rtmain.devmode = M_CheckParm("-rtdevmode");
+#endif
+
+
   RT_Texture_Init();
+  RT_MapMetaInfo_Init(gamemission);
+
 
   I_AtExit(RT_Destroy, true);
 }

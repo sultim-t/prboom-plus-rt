@@ -5628,10 +5628,28 @@ dboolean M_Responder (event_t* ev) {
       return true;
     }
 
-    if (ch == key_rt_reloadshaders)
+    if (rtmain.devmode)
     {
-      rtmain.request_shaderreload = 1;
-      return true;
+      if (ch == KEYD_PAGEUP)
+      {
+        rtmain.request_shaderreload = 1;
+        return true;
+      }
+      if (ch == KEYD_KEYPADMULTIPLY)
+      {
+        RT_MapMetaInfo_WriteToFile();
+        return true;
+      }
+      if (ch == KEYD_KEYPADPLUS)
+      {
+        RT_MapMetaInfo_AddDelta(0.25f);
+        return true;
+      }
+      if (ch == KEYD_KEYPADMINUS)
+      {
+        RT_MapMetaInfo_AddDelta(-0.25f);
+        return true;
+      }
     }
 
     /* killough 10/98: allow key shortcut into Setup menu */
