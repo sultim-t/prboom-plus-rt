@@ -105,13 +105,13 @@ static void Parse(const char *text, int length)
       cur_em = &rt_maps[rt_maps_count];
       memset(cur_em, 0, sizeof(*cur_em));
 
-      rt_maps_count++;
-      if (rt_maps_count >= (int)RG_ARRAY_SIZE(rt_maps))
+      if (strcmp(curr_line, "@END") == 0)
       {
         break;
       }
 
-      if (strcmp(curr_line, "@END") == 0)
+      rt_maps_count++;
+      if (rt_maps_count >= (int)RG_ARRAY_SIZE(rt_maps))
       {
         break;
       }
