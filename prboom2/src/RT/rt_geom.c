@@ -36,14 +36,12 @@
 #include "r_state.h"
 
 
-// gld_CalcLightLevel_shaders
 static float CalcLightLevel(int lightlevel)
 {
-  // muzzle flash
-  //lightlevel += extralight << 5;
+  float mult = (float)BETWEEN(0, 255, lightlevel) / 255.0f;
 
-  int light = BETWEEN(0, 255, lightlevel);
-  return (float)light / 255.0f;
+  // to make lower values less significant
+  return mult * mult * mult;
 }
 
 
@@ -54,7 +52,7 @@ static float CalcLightLevel(int lightlevel)
 
 
 
-static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *plane)
+static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *plane, float floor_ceiling_zdiff)
 {
   struct
   {
@@ -182,7 +180,7 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
 
       for (int j = 0; j < sector_geometry.vertex_count; j++)
       {
-        float *v = sector_geometry.positions[j].data;
+        const float *v = sector_geometry.positions[j].data;
         center.data[0] += v[0];
         center.data[1] += v[1];
         center.data[2] += v[2];
@@ -191,7 +189,12 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
       center.data[1] /= (float)sector_geometry.vertex_count;
       center.data[2] /= (float)sector_geometry.vertex_count;
 
-      center.data[1] += flat.z - 0.2f;
+      float offset = 0.2f;
+      if (floor_ceiling_zdiff > 0.0f)
+      {
+        offset = min(offset, floor_ceiling_zdiff * 0.5f);
+      }
+      center.data[1] += flat.z - offset;
 
       RgSphericalLightUploadInfo light_info =
       {
@@ -199,12 +202,16 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
         .color = { 1,1,1 },
         .position = center,
         .sectorID = sectornum,
-        .radius = 0.1f,
+        .radius = 0.05f,
         .falloffDistance = 4
       };
 
       RG_VEC3_SCALE(light_info.color.data, flat.light);
       RG_VEC3_SCALE(light_info.color.data, w);
+
+      light_info.color.data[0] = max(light_info.color.data[0], 0.0005f);
+      light_info.color.data[1] = max(light_info.color.data[1], 0.0005f);
+      light_info.color.data[2] = max(light_info.color.data[2], 0.0005f);
 
       RgResult r = rgUploadSphericalLight(rtmain.instance, &light_info);
       RG_CHECK(r);
@@ -227,15 +234,21 @@ void RT_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling)
   {
     return;
   }
-
+  
   if (floor != NULL)
   {
-    AddFlat(subsector->sector->iSectorID, false, floor);
+    AddFlat(subsector->sector->iSectorID, false, floor, -1);
   }
 
   if (ceiling != NULL)
   {
-    AddFlat(subsector->sector->iSectorID, true, ceiling);
+    float zdiff = -1;
+    if (floor != NULL)
+    {
+      zdiff = (float)(ceiling->height - floor->height) / MAP_SCALE;
+    }
+
+    AddFlat(subsector->sector->iSectorID, true, ceiling, zdiff);
   }
 }
 

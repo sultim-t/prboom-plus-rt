@@ -30,6 +30,7 @@
 #include "m_misc.h"
 
 #define RT_MAX_MAPS 512
+#define RT_MAX_WEIGHT 3.0f
 
 typedef struct
 {
@@ -177,7 +178,7 @@ void RT_MapMetaInfo_WriteToFile(void)
     for (int s = 0; s < rt_maps[i].sectorcount; s++)
     {
       float w = rt_maps[i].sectorweights[s];
-      w = BETWEEN(0, 1, w);
+      w = BETWEEN(0, RT_MAX_WEIGHT, w);
 
       fprintf(fp, "%f\n", w);
     }
@@ -297,6 +298,15 @@ void RT_MapMetaInfo_AddDelta(float delta)
     assert(0);
     return;
   }
-  
-  mp->sectorweights[sectornum] = BETWEEN(0, 1, mp->sectorweights[sectornum] + delta);
+
+
+  if (mp->sectorweights[sectornum] <= 1.01f)
+  {
+    mp->sectorweights[sectornum] = BETWEEN(0, RT_MAX_WEIGHT, mp->sectorweights[sectornum] + delta);
+  }
+  else
+  {
+    // if >1 then jump to max value
+    mp->sectorweights[sectornum] = delta > 0 ? RT_MAX_WEIGHT : 1.0f;
+  }
 }
