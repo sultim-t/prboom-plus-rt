@@ -83,6 +83,7 @@ typedef enum
   RT_SETTINGS_RENDERSCALE_1600,
   RT_SETTINGS_RENDERSCALE_1920,
   RT_SETTINGS_RENDERSCALE_2160,
+  RT_SETTINGS_RENDERSCALE_NUM,
 } rt_settings_renderscale_e;
 extern rt_settings_t rt_settings;
 

@@ -198,9 +198,9 @@ static RgExtent2D GetCurrentHWNDSize()
 }
 
 
-static dboolean IsCRTModeEnabled()
+static dboolean IsCRTModeEnabled(rt_settings_renderscale_e renderscale)
 {
-  return rt_settings.renderscale == RT_SETTINGS_RENDERSCALE_320x200;
+  return renderscale == RT_SETTINGS_RENDERSCALE_320x200;
 }
 
 
@@ -270,6 +270,32 @@ static void NormalizeRTSettings(rt_settings_t *settings)
   {
     settings->dlss = 0;
   }
+
+  {
+    RgExtent2D window_size = GetCurrentHWNDSize();
+    rt_settings_renderscale_e max_allowed = RT_SETTINGS_RENDERSCALE_NUM - 1;
+
+    // must be in sync with rt_settings_renderscale_e
+    static const int rs_height[] =
+    {
+      -1,-1,480,600,720,900,1080,1200,1440,1600,1920,2160
+    };
+    assert(RT_SETTINGS_RENDERSCALE_NUM == RG_ARRAY_SIZE(rs_height));
+    assert(RT_SETTINGS_RENDERSCALE_480 == 2);
+    assert(RT_SETTINGS_RENDERSCALE_2160 == 11);
+
+    for (int i = RT_SETTINGS_RENDERSCALE_NUM - 1; i >= 0; i--)
+    {
+      if ((int)window_size.height >= rs_height[i])
+      {
+        // next after closest
+        max_allowed = min(i + 1, RT_SETTINGS_RENDERSCALE_NUM - 1);
+        break;
+      }
+    }
+
+    settings->renderscale = min(settings->renderscale, max_allowed);
+  }
 }
 
 
@@ -296,6 +322,9 @@ void RT_StartFrame(void)
     RG_CHECK(r);
     rtmain.is_dlss_available = dlss_available;
   }
+
+
+  NormalizeRTSettings(&rt_settings);
 
 
   frame_started_guard = true;
@@ -468,7 +497,7 @@ void RT_EndFrame()
 
   RgPostEffectCRT crt_params =
   {
-    .isActive = IsCRTModeEnabled()
+    .isActive = IsCRTModeEnabled(rt_settings.renderscale)
   };
 
   RgDrawFrameDebugParams debug_params =
