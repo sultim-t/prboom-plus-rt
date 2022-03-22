@@ -198,40 +198,42 @@ static RgExtent2D GetCurrentHWNDSize()
 }
 
 
-static RgExtent2D GetScaledResolution(int renderscale)
+static dboolean IsCRTModeEnabled()
+{
+  return rt_settings.renderscale == RT_SETTINGS_RENDERSCALE_320x200;
+}
+
+
+static RgExtent2D GetScaledResolution(rt_settings_renderscale_e renderscale)
 {
   RgExtent2D window_size = GetCurrentHWNDSize();
+  double window_aspect = (double)window_size.width / (double)window_size.height;
 
-  if (renderscale == RT_SETTINGS_RENDERSCALE_DEFAULT)
+  int y = SCREENHEIGHT;
+
+  switch (renderscale)
   {
-    return window_size;
-  }
-  
-  if (renderscale == RT_SETTINGS_RENDERSCALE_320x200)
-  {
-    RgExtent2D original_doom = { 320,200 };
-    return original_doom;
-  }
-
-  float f = 1.0f;
-  switch(renderscale)
-  {
-
-    case 1: f = 0.5f; break;
-    case 2: f = 0.6f; break;
-    case 3: f = 0.75f; break;
-    case 4: f = 0.9f; break;
-
-    case 6: f = 1.1f; break;
-    case 7: f = 1.25f; break;
-    default: assert(0); break;
+    case RT_SETTINGS_RENDERSCALE_320x200:
+    {
+      // double the resolution, to simulate interlacing
+      RgExtent2D original_doom = { 320 * 2, 200 * 2 };
+      return original_doom;
+    }
+    case RT_SETTINGS_RENDERSCALE_480:   y = 480; break;
+    case RT_SETTINGS_RENDERSCALE_600:   y = 600; break;
+    case RT_SETTINGS_RENDERSCALE_720:   y = 720; break;
+    case RT_SETTINGS_RENDERSCALE_900:   y = 900; break;
+    case RT_SETTINGS_RENDERSCALE_1080:  y = 1080; break;
+    case RT_SETTINGS_RENDERSCALE_1200:  y = 1200; break;
+    case RT_SETTINGS_RENDERSCALE_1440:  y = 1440; break;
+    case RT_SETTINGS_RENDERSCALE_1600:  y = 1600; break;
+    case RT_SETTINGS_RENDERSCALE_1920:  y = 1920; break;
+    case RT_SETTINGS_RENDERSCALE_2160:  y = 2160; break;
+    default: break;
   }
 
-  RgExtent2D scaled_size = {
-    .width  = BETWEEN(320, 3840, (int)(f * (float)window_size.width ) ),
-    .height = BETWEEN(200, 2160, (int)(f * (float)window_size.height) ),
-  };
-  return scaled_size;
+  RgExtent2D r = { (int)(window_aspect * (double)y), y };
+  return r;
 }
 
 
@@ -464,6 +466,11 @@ void RT_EndFrame()
   if (rtmain.powerupflags & RT_POWERUP_FLAG_RADIATIONSUIT_BIT) tint_params = tint_params_radsuit;
   else if (rtmain.powerupflags & RT_POWERUP_FLAG_BONUS_BIT) tint_params = tint_params_bonus;
 
+  RgPostEffectCRT crt_params =
+  {
+    .isActive = IsCRTModeEnabled()
+  };
+
   RgDrawFrameDebugParams debug_params =
   {
     .showMotionVectors = 0,
@@ -498,6 +505,7 @@ void RT_EndFrame()
       .pHueShift = &hueshift_params,
       .pDistortedSides = &distortedsides_params,
       .pColorTint = &tint_params,
+      .pCRT = &crt_params,
     },
   };
   memcpy(info.view, rtmain.mat_view, 16 * sizeof(float));

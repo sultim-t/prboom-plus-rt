@@ -58,7 +58,7 @@ typedef struct
 {
   // NOTE: dlss, fsr, renderscale - are mutually exclusive
   int dlss, fsr;              // 0 - off, [1,4] - quality from highest to lowest
-  int renderscale;            // index in [320x200,50%,60%,75%,90%,100%,110%,125%]
+  int renderscale;            // index in rt_settings_renderscale_e
   int bloom_intensity;        // index in [0,Reduced,Default,Exaggerated]
   int muzzleflash_intensity;  // index in [0,Reduced,Default]
   int statusbar_scale;        // to calculate procents: 10*(statusbar_scale+1)
@@ -69,8 +69,21 @@ typedef struct
   int refl_refr_max_depth;
   int classic_flashlight;
 } rt_settings_t;
-#define RT_SETTINGS_RENDERSCALE_320x200 0
-#define RT_SETTINGS_RENDERSCALE_DEFAULT 5
+typedef enum 
+{
+  RT_SETTINGS_RENDERSCALE_DEFAULT, // 100%
+  RT_SETTINGS_RENDERSCALE_320x200,
+  RT_SETTINGS_RENDERSCALE_480,
+  RT_SETTINGS_RENDERSCALE_600,
+  RT_SETTINGS_RENDERSCALE_720,
+  RT_SETTINGS_RENDERSCALE_900,
+  RT_SETTINGS_RENDERSCALE_1080,
+  RT_SETTINGS_RENDERSCALE_1200,
+  RT_SETTINGS_RENDERSCALE_1440,
+  RT_SETTINGS_RENDERSCALE_1600,
+  RT_SETTINGS_RENDERSCALE_1920,
+  RT_SETTINGS_RENDERSCALE_2160,
+} rt_settings_renderscale_e;
 extern rt_settings_t rt_settings;
 
 extern SDL_Window *sdl_window;

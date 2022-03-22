@@ -3919,14 +3919,18 @@ static const char *RT_options_fsr[] =
 };
 static const char *RT_options_renderscale[] =
 {
-  "320x200",
-  "50%",
-  "60%",
-  "75%",
-  "90%",
-  "100%",
-  "110%",
-  "125%",
+  "As resolution",
+  "320x200 (CRT)",
+  "480p",
+  "600p",
+  "720p",
+  "900p",
+  "1080p",
+  "1200p",
+  "1440p",
+  "1600p",
+  "1920p",
+  "2160p",
   NULL
 };
 static const char *RT_options_bloom_intensity[] =
@@ -4003,7 +4007,7 @@ setup_menu_t RT_GraphicsSettings[] =
 
   {"Resolution",  S_CHOICE, m_null, RT_X, RT_Y + 3 * 8, {"screen_resolution"}, 0, 0, M_ChangeVideoMode, screen_resolutions_list},
 //{"Fullscreen",  S_YESNO,  m_null, RT_X, RT_Y + 2 * 8, {"use_fullscreen"}, 0, 0, M_ChangeFullScreen},
-  {"Render scale",  S_CHOICE,  m_null, RT_X, RT_Y + 4 * 8, {"rt_renderscale"}, 0, 0, M_RT_ResolutionSettings_RenderScale, RT_options_renderscale },
+  {"Render size",  S_CHOICE,  m_null, RT_X, RT_Y + 4 * 8, {"rt_renderscale"}, 0, 0, M_RT_ResolutionSettings_RenderScale, RT_options_renderscale },
   {"AMD FSR",       S_CHOICE,  m_null, RT_X, RT_Y + 5 * 8, {"rt_fsr"}, 0, 0, M_RT_ResolutionSettings_FSR, RT_options_fsr },
   {"Nvidia DLSS", S_CHOICE,  m_null, RT_X, RT_Y + 6 * 8, {"rt_dlss"}, 0, 0, M_RT_ResolutionSettings_DLSS, RT_options_dlss_ptr },
 
