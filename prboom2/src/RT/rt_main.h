@@ -102,7 +102,6 @@ enum rt_powerupflag_t {
   RT_POWERUP_FLAG_MORELIGHT_BIT = 32,
 };
 void RT_SetPowerupPalette(uint32_t powerupflags);
-RgRasterizedGeometryRenderType RT_Get2DRenderType(void);
 
 
 typedef struct

@@ -589,16 +589,6 @@ void RT_StartScreenMelt()
 }
 
 
-RgRasterizedGeometryRenderType RT_Get2DRenderType(void)
-{
-  dboolean melt_active = rtmain.request_wipe || (float)RT_GetCurrentTime() < rtmain.wipe_end_time;
-
-  // if melt is active, swapchain geometry will be drawn on top of melt,
-  // which doesn't look right
-  return melt_active ? RG_RASTERIZED_GEOMETRY_RENDER_TYPE_DEFAULT : RG_RASTERIZED_GEOMETRY_RENDER_TYPE_SWAPCHAIN;
-}
-
-
 #define UNIQUE_TYPE_BITS_COUNT 2
 
 #define UNIQUE_TYPE_MASK_FOR_IDS ((1ULL << (uint64_t)(64 - UNIQUE_TYPE_BITS_COUNT)) - 1ULL)

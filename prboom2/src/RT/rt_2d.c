@@ -84,7 +84,7 @@ void RT_DrawLine(float x1, float y1, float x2, float y2, byte r, byte g, byte b)
 
   RgRasterizedGeometryUploadInfo info =
   {
-    .renderType = RT_Get2DRenderType(),
+    .renderType = RG_RASTERIZED_GEOMETRY_RENDER_TYPE_SWAPCHAIN,
     .vertexCount = RG_ARRAY_SIZE(verts),
     .pStructs = verts,
     .transform = RG_TRANSFORM_IDENTITY,
@@ -128,7 +128,7 @@ static void DrawQuad_Internal_T(RgMaterial mat,
 
   RgRasterizedGeometryUploadInfo info =
   {
-    .renderType = RT_Get2DRenderType(),
+    .renderType = RG_RASTERIZED_GEOMETRY_RENDER_TYPE_SWAPCHAIN,
     .vertexCount = RG_ARRAY_SIZE(verts),
     .pStructs = verts,
     .transform = RG_TRANSFORM_IDENTITY,
