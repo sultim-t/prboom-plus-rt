@@ -412,6 +412,7 @@ void RT_EndFrame()
     .inputThresholdLength = 0.25f,
     .upsampleRadius = 1.0f,
     .bloomEmissionMultiplier = 10.0f,
+    .bloomEmissionSaturationBias = 4.0f,
     .bloomSkyMultiplier = 0.05f
   };
 
