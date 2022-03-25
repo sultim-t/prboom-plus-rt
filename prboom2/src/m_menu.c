@@ -5249,6 +5249,7 @@ dboolean M_Responder (event_t* ev) {
    // Process mouse input
     if (ev->type == ev_mouse && mousewait < I_GetTime()) {
 
+#if !RT_CUSTOM_MENU
       if (ev->data1&1)
   {
     ch = key_menu_enter;                           // phares 3/7/98
@@ -5260,6 +5261,7 @@ dboolean M_Responder (event_t* ev) {
     ch = key_menu_backspace;                       // phares 3/7/98
     mousewait = I_GetTime() + 15;
   }
+#endif
 
       // phares 4/4/98:
       // Handle mouse button 3, and allow it to pass down
