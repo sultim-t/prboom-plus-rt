@@ -5085,18 +5085,19 @@ void M_DrawHelp (void)
 ////////////////////////////////////////////////////////////////////////////
 
 enum {
-  prog_rt,
+  progrt,
+  testrt,
+  testrt_stub,
   prog,
   prog_stub,
-  prog_stub1,
-  prog_stub2,
   adcr
 };
 
 enum {
   cr_progrt=0,
+  cr_testrt=1,
   cr_prog=2,
-  cr_adcr=4,
+  cr_adcr=3,
 };
 
 #define CR_S 9
@@ -5107,14 +5108,16 @@ enum {
 
 setup_menu_t cred_settings[]={
 
-  {"Ray tracing support",S_SKIP|S_CREDIT|S_LEFTJUST,m_null, CR_X, CR_Y + CR_S*prog_rt + CR_SH*cr_progrt},
-  {"Sultim Tsyrendashiev",S_SKIP|S_CREDIT|S_LEFTJUST,m_null, CR_X2, CR_Y + CR_S*(prog_rt +1) + CR_SH*cr_progrt},
+  {"Ray tracing support",S_SKIP|S_CREDIT|S_LEFTJUST,m_null, CR_X, CR_Y + CR_S*progrt + CR_SH*cr_progrt},
+  {"Sultim Tsyrendashiev",S_SKIP|S_CREDIT|S_LEFTJUST,m_null, CR_X2, CR_Y + CR_S*(progrt+1) + CR_SH*cr_progrt},
 
-  {"Programmers",S_SKIP | S_CREDIT | S_LEFTJUST,m_null, CR_X, CR_Y + CR_S * prog + CR_SH * cr_prog},
-  {"Florian 'Proff' Schulze",S_SKIP|S_CREDIT|S_LEFTJUST,m_null, CR_X2, CR_Y + CR_S*(prog+1) + CR_SH*cr_prog},
-  {"Colin Phipps",S_SKIP|S_CREDIT|S_LEFTJUST,m_null, CR_X2, CR_Y + CR_S*(prog+2) + CR_SH*cr_prog},
-  {"Neil Stevens",S_SKIP|S_CREDIT|S_LEFTJUST,m_null, CR_X2, CR_Y + CR_S*(prog+3) + CR_SH*cr_prog},
-  {"Andrey Budko",S_SKIP|S_CREDIT|S_LEFTJUST,m_null, CR_X2, CR_Y + CR_S*(prog+4) + CR_SH*cr_prog},
+  {"Testers",S_SKIP|S_CREDIT|S_LEFTJUST,m_null, CR_X, CR_Y + CR_S*(testrt) + CR_SH* cr_testrt},
+  {"BeyondNecroDome, puddingtopf,",S_SKIP|S_CREDIT|S_LEFTJUST,m_null, CR_X2, CR_Y + CR_S*(testrt +1) + CR_SH* cr_testrt},
+  {"NightFox, ThanadraxCream",S_SKIP|S_CREDIT|S_LEFTJUST,m_null, CR_X2, CR_Y + CR_S*(testrt +2) + CR_SH* cr_testrt},
+
+  {"PrBoom Programmers",S_SKIP | S_CREDIT | S_LEFTJUST,m_null, CR_X, CR_Y + CR_S * prog + CR_SH * cr_prog},
+  {"Florian 'Proff' Schulze, Colin Phipps,",S_SKIP|S_CREDIT|S_LEFTJUST,m_null, CR_X2, CR_Y + CR_S*(prog+1) + CR_SH*cr_prog},
+  {"Neil Stevens, Andrey Budko",S_SKIP|S_CREDIT|S_LEFTJUST,m_null, CR_X2, CR_Y + CR_S*(prog+2) + CR_SH*cr_prog},
 
   {"Additional Credit To",S_SKIP|S_CREDIT|S_LEFTJUST,m_null, CR_X, CR_Y + CR_S*adcr + CR_SH*cr_adcr},
   {"id Software for DOOM",S_SKIP|S_CREDIT|S_LEFTJUST,m_null, CR_X2, CR_Y + CR_S*(adcr+1)+CR_SH*cr_adcr},
