@@ -339,8 +339,13 @@ while (SDL_PollEvent(Event))
     break;
 
   case SDL_QUIT:
+#if RT_CUSTOM_MENU
+    // RT: quit immediately without asking
+    I_SafeExit(0);
+#else
     S_StartSound(NULL, sfx_swtchn);
     M_QuitDOOM(0);
+#endif
 
   default:
     break;
