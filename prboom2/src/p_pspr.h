@@ -126,5 +126,8 @@ void A_BFGsound();
 void A_FireBFG();
 void A_BFGSpray();
 void A_FireOldBFG();
+#if RT_DOOM1_HACKS
+void A_Light1_NoRT();
+#endif
 
 #endif

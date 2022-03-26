@@ -887,6 +887,18 @@ void A_Light2 (player_t *player, pspdef_t *psp)
   player->extralight = 2;
 }
 
+#if RT_DOOM1_HACKS
+void A_Light1_NoRT (player_t *player, pspdef_t *psp)
+{
+  CHECK_WEAPON_CODEPOINTER("A_Light1_NoRT", player);
+
+  if (V_GetMode() != VID_MODERT)
+  {
+    player->extralight = 1;
+  }
+}
+#endif
+
 //
 // A_BFGSpray
 // Spawn a BFG explosion on every monster in view
