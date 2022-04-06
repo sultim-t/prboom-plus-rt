@@ -224,6 +224,13 @@ Internals
 
 Other Tips
 ----------
+On Windows, using laptops that have both an AMD iGPU and dedicated Nvidia GPU,
+Windows may not have vulkin extentions installed for the Nvidia GPU by 
+default. Installing the latest iGPU driver package (Something like: 
+"Advanced Micro Devices, Inc. - Extension - 30.0.13002.23" ) should enable 
+Vulkin support for both the iGPU, and Nvidia GPU.
+More details here: https://nvidia.custhelp.com/app/answers/detail/a_id/5182
+
 
 On Linux, SDL tries to detect an appropriate video device automatically.
 If you want to overrite the default, you can set the SDL_VIDEODRIVER
