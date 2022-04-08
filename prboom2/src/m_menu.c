@@ -4021,7 +4021,7 @@ setup_menu_t RT_GraphicsSettings[] =
   {"Light GI bounces", S_CHOICE,  m_null, RT_X, RT_Y + 8 * 8, {"rt_bounce_quality"}, 0, 0, NULL, RT_options_bounce },
   {"Bloom",         S_CHOICE,  m_null, RT_X, RT_Y + 9 * 8, {"rt_bloom_intensity"}, 0, 0, NULL, RT_options_bloom_intensity },
   {"Muzzle flash light",  S_CHOICE,  m_null, RT_X, RT_Y + 10 * 8, {"rt_muzzleflash_intensity"}, 0, 0, NULL, RT_options_muzzleflash_intensity },
-  {"Classic player light",  S_YESNO,  m_null, RT_X, RT_Y + 11 * 8, {"rt_classic_flashlight"}, 0, 0, NULL, NULL },
+  {"Classic flashlight",  S_YESNO,  m_null, RT_X, RT_Y + 11 * 8, {"rt_classic_flashlight"}, 0, 0, NULL, NULL },
 
   {"HUD style",  S_CHOICE,  m_null, RT_X, RT_Y + 13 * 8, {"rt_hud_style"}, 0, 0, M_RT_ApplyHUD, RT_options_hud_style},
 #if RT_SEPARATE_HUD_SCALE

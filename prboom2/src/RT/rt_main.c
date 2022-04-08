@@ -435,7 +435,7 @@ void RT_EndFrame()
       rt_settings.bloom_intensity == 0 ? -1 :
       rt_settings.bloom_intensity == 1 ? 0.25f :
       0.5f,
-    .inputThreshold = 2.0f,
+    .inputThreshold = 3.0f,
     .inputThresholdLength = 0.25f,
     .upsampleRadius = 1.0f,
     .bloomEmissionMultiplier = rt_settings.bloom_intensity == 3 ? 8.0f : 1.0f,
