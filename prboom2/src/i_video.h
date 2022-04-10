@@ -70,6 +70,7 @@ typedef struct
   int hud_style;
   int refl_refr_max_depth;
   int classic_flashlight;
+  int bounce_quality;         // 0 - one bounce, 1 - two bounces for poly lights and flashlight, 2 - two bounces 
 } rt_settings_t;
 typedef enum
 {

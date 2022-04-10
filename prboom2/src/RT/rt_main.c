@@ -143,6 +143,14 @@ void RT_Init()
 #endif
 
 
+  {
+    RgBool32 dlss_available = false;
+    r = rgIsRenderUpscaleTechniqueAvailable(rtmain.instance, RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS, &dlss_available);
+    RG_CHECK(r);
+    rtmain.is_dlss_available = dlss_available;
+  }
+
+
   RT_Texture_Init();
   RT_MapMetaInfo_Init(gamemission);
 
@@ -290,6 +298,26 @@ static RgRenderResolutionMode GetResolutionMode(int dlss, int fsr) // 0 - off, 1
 }
 
 
+static int GetMaxBounceSpherical(int bounce_quality)
+{
+  switch (bounce_quality)
+  {
+    case 1:   return 1;
+    case 2:   return 2;
+    default:  return 1;
+  }
+}
+static int  GetMaxBounceSpotAndPoly(int bounce_quality)
+{
+  switch (bounce_quality)
+  {
+    case 1:   return 2;
+    case 2:   return 2;
+    default:  return 1;
+  }
+}
+
+
 static void NormalizeRTSettings(rt_settings_t *settings)
 {
   if (!rtmain.is_dlss_available)
@@ -432,12 +460,11 @@ void RT_EndFrame()
     .bloomIntensity =
       rt_settings.bloom_intensity == 0 ? -1 :
       rt_settings.bloom_intensity == 1 ? 0.25f :
-      rt_settings.bloom_intensity == 3 ? 1.0f :
       0.5f,
-    .inputThreshold = 1.0f,
+    .inputThreshold = 3.0f,
     .inputThresholdLength = 0.25f,
     .upsampleRadius = 1.0f,
-    .bloomEmissionMultiplier = 10.0f,
+    .bloomEmissionMultiplier = rt_settings.bloom_intensity == 3 ? 8.0f : 1.0f,
     .bloomEmissionSaturationBias = 4.0f,
     .bloomSkyMultiplier = 0.05f
   };
@@ -445,9 +472,9 @@ void RT_EndFrame()
   RgDrawFrameShadowParams shadow_params =
   {
     .maxBounceShadowsDirectionalLights = 8,
-    .maxBounceShadowsSphereLights = 1, // no indir illumination
-    .maxBounceShadowsSpotlights = 2,
-    .maxBounceShadowsPolygonalLights = 2,
+    .maxBounceShadowsSphereLights = GetMaxBounceSpherical(rt_settings.bounce_quality),
+    .maxBounceShadowsSpotlights = GetMaxBounceSpotAndPoly(rt_settings.bounce_quality),
+    .maxBounceShadowsPolygonalLights = GetMaxBounceSpotAndPoly(rt_settings.bounce_quality),
     .polygonalLightSpotlightFactor = 0.5f,
     .sphericalPolygonalLightsFirefliesClamp = 3.0f
   };
