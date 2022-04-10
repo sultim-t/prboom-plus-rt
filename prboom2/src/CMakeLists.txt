@@ -424,30 +424,45 @@ function(AddGameExecutable TARGET SOURCES)
             ${OPENGL_glu_LIBRARY}
         )
     endif()
-    
+
     # RT library
     add_library(RayTracedGL1 SHARED IMPORTED)
-    set_target_properties(RayTracedGL1 PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES "$ENV{RTGL1_SDK_PATH}/Include"
-        IMPORTED_LOCATION       "$ENV{RTGL1_SDK_PATH}/Build/x64-Release/RayTracedGL1.dll"
-        IMPORTED_LOCATION_DEBUG "$ENV{RTGL1_SDK_PATH}/Build/x64-Debug/RayTracedGL1.dll"
-        IMPORTED_IMPLIB         "$ENV{RTGL1_SDK_PATH}/Build/x64-Release/RayTracedGL1.lib"
-        IMPORTED_IMPLIB_DEBUG   "$ENV{RTGL1_SDK_PATH}/Build/x64-Debug/RayTracedGL1.lib"
-    )
+
+    if(WIN32)
+        set_target_properties(RayTracedGL1 PROPERTIES
+            INTERFACE_INCLUDE_DIRECTORIES "$ENV{RTGL1_SDK_PATH}/Include"
+            IMPORTED_LOCATION       "$ENV{RTGL1_SDK_PATH}/Build/x64-Release/RayTracedGL1.dll"
+            IMPORTED_LOCATION_DEBUG "$ENV{RTGL1_SDK_PATH}/Build/x64-Debug/RayTracedGL1.dll"
+            IMPORTED_IMPLIB         "$ENV{RTGL1_SDK_PATH}/Build/x64-Release/RayTracedGL1.lib"
+            IMPORTED_IMPLIB_DEBUG   "$ENV{RTGL1_SDK_PATH}/Build/x64-Debug/RayTracedGL1.lib"
+        )
+        target_compile_definitions(${TARGET} PRIVATE RG_USE_SURFACE_WIN32)
+    endif()
+    if(UNIX)
+        set_target_properties(RayTracedGL1 PROPERTIES
+            INTERFACE_INCLUDE_DIRECTORIES "$ENV{RTGL1_SDK_PATH}/Include"
+            IMPORTED_LOCATION       "$ENV{RTGL1_SDK_PATH}/bld/libRayTracedGL1.so"
+        )
+        target_compile_definitions(${TARGET} PRIVATE RG_USE_SURFACE_XLIB)
+        target_compile_definitions(${TARGET} PRIVATE ZLIB_CONST)
+    endif()
+
     target_link_libraries(${TARGET} PRIVATE RayTracedGL1)
-    target_compile_definitions(${TARGET} PRIVATE RG_USE_SURFACE_WIN32)
-    target_compile_definitions(${TARGET} PRIVATE RT_CUSTOM_MENU=1 RT_DISABLE_SMALL_VIEWPORTS=1 
+    target_compile_definitions(${TARGET} PRIVATE RT_CUSTOM_MENU=1 RT_DISABLE_SMALL_VIEWPORTS=1
       RT_DOOM1_HACKS=1 RT_CUSTOM_MAP_DATA=1)
+
     # Copy library files
-    get_target_property(RTGL1_DLL RayTracedGL1 IMPORTED_LOCATION)
-    get_target_property(RTGL1_DLL_D RayTracedGL1 IMPORTED_LOCATION_DEBUG)
-    add_custom_command(TARGET ${TARGET} POST_BUILD
-	    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-	    "$<$<CONFIG:Debug>:${RTGL1_DLL_D}>"
-	    "$<$<CONFIG:MinSizeRel>:${RTGL1_DLL}>"
-	    "$<$<CONFIG:RelWithDebInfo>:${RTGL1_DLL}>"
-	    "$<$<CONFIG:Release>:${RTGL1_DLL}>"
-	$<TARGET_FILE_DIR:${TARGET}>/RayTracedGL1.dll)
+    if(WIN32)
+        get_target_property(RTGL1_DLL RayTracedGL1 IMPORTED_LOCATION)
+        get_target_property(RTGL1_DLL_D RayTracedGL1 IMPORTED_LOCATION_DEBUG)
+        add_custom_command(TARGET ${TARGET} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<$<CONFIG:Debug>:${RTGL1_DLL_D}>"
+            "$<$<CONFIG:MinSizeRel>:${RTGL1_DLL}>"
+            "$<$<CONFIG:RelWithDebInfo>:${RTGL1_DLL}>"
+            "$<$<CONFIG:Release>:${RTGL1_DLL}>"
+        $<TARGET_FILE_DIR:${TARGET}>/RayTracedGL1.dll)
+    endif()
 
 endfunction()
 

@@ -331,7 +331,7 @@ void M_RT_ResolutionSettings_DLSS(void);
 void M_RT_ResolutionSettings_FSR(void);
 void M_RT_ResolutionSettings_RenderScale(void);
 void M_RT_ApplyHUD(void);
-void M_RT_UpdateGfxItems(void);
+static void M_RT_UpdateGfxItems(void);
 #endif
 
 

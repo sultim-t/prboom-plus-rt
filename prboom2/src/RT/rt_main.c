@@ -27,6 +27,9 @@
 #include "rt_main.h"
 
 #include <SDL_timer.h>
+#ifndef WIN32
+#include <SDL_syswm.h>
+#endif
 #include <GL/glu.h>
 
 #include "doomstat.h"
@@ -51,20 +54,36 @@ static void RT_Print(const char *pMessage, void *pUserData)
 }
 
 
-void RT_Init(HINSTANCE hinstance, HWND hwnd)
+void RT_Init()
 {
-  RgWin32SurfaceCreateInfo win32Info =
-  {
-    .hinstance = hinstance,
-    .hwnd = hwnd
-  };
+#ifdef WIN32
+  RgWin32SurfaceCreateInfo win32Info;
+#else
+  RgXlibSurfaceCreateInfo x11Info;
+#endif
+
+  SDL_SysWMinfo wmInfo;
+  SDL_VERSION(&wmInfo.version);
+  SDL_GetWindowWMInfo(sdl_window, &wmInfo);
+
+#ifdef WIN32
+  win32Info.hinstance = wmInfo.info.win.hinstance;
+  win32Info.hwnd = wmInfo.info.win.window;
+#else
+  x11Info.dpy = wmInfo.info.x11.display;
+  x11Info.window = wmInfo.info.x11.window;
+#endif
 
   RgInstanceCreateInfo info =
   {
     .pAppName = "PRBoom",
     .pAppGUID = "297e3cc1-4076-4a60-ac7c-5904c5db1313",
 
+  #if WIN32
     .pWin32SurfaceInfo = &win32Info,
+  #else
+    .pXlibSurfaceCreateInfo = &x11Info,
+  #endif
 
   #ifndef NDEBUG
     .enableValidationLayer = true,
@@ -111,8 +130,11 @@ void RT_Init(HINSTANCE hinstance, HWND hwnd)
     return;
   }
 
-  rtmain.hwnd = hwnd;
-
+#ifdef WIN32
+  rtmain.hwnd = win32Info.hwnd;
+#else
+  rtmain.window = x11Info.window;
+#endif
 
 #ifndef NDEBUG
   rtmain.devmode = true;
@@ -163,7 +185,7 @@ static double GetCurrentTime_Seconds()
 {
   double current_tics = I_GetTime();
   double tics_per_second = TICRATE;
-  
+
   return current_tics / tics_per_second;
 }
 */
@@ -182,16 +204,20 @@ double RT_GetCurrentTime(void)
 }
 
 
-static RgExtent2D GetCurrentHWNDSize()
+static RgExtent2D GetCurrentWindowSize()
 {
   RgExtent2D extent = { 0,0 };
 
+#ifdef WIN32
   RECT rect;
   if (GetClientRect(rtmain.hwnd, &rect))
   {
     extent.width = rect.right - rect.left;
     extent.height = rect.bottom - rect.top;
   }
+#else
+  SDL_GetWindowSize(rtmain.window, &extent.width, &extent.height);
+#endif
 
   assert(extent.width > 0 && extent.height > 0);
   return extent;
@@ -206,7 +232,7 @@ static dboolean IsCRTModeEnabled(rt_settings_renderscale_e renderscale)
 
 static RgExtent2D GetScaledResolution(rt_settings_renderscale_e renderscale)
 {
-  RgExtent2D window_size = GetCurrentHWNDSize();
+  RgExtent2D window_size = GetCurrentWindowSize();
   double window_aspect = (double)window_size.width / (double)window_size.height;
 
   int y = SCREENHEIGHT;
@@ -272,7 +298,7 @@ static void NormalizeRTSettings(rt_settings_t *settings)
   }
 
   {
-    RgExtent2D window_size = GetCurrentHWNDSize();
+    RgExtent2D window_size = GetCurrentWindowSize();
     rt_settings_renderscale_e max_allowed = RT_SETTINGS_RENDERSCALE_NUM - 1;
 
     // must be in sync with rt_settings_renderscale_e
@@ -289,12 +315,12 @@ static void NormalizeRTSettings(rt_settings_t *settings)
       if ((int)window_size.height >= rs_height[i])
       {
         // next after closest
-        max_allowed = min(i + 1, RT_SETTINGS_RENDERSCALE_NUM - 1);
+        max_allowed = i_min(i + 1, RT_SETTINGS_RENDERSCALE_NUM - 1);
         break;
       }
     }
 
-    settings->renderscale = min(settings->renderscale, max_allowed);
+    settings->renderscale = i_min(settings->renderscale, max_allowed);
   }
 }
 
@@ -306,7 +332,7 @@ void RT_StartFrame(void)
     .requestRasterizedSkyGeometryReuse = rtmain.was_new_sky ? false : true,
     .requestShaderReload = rtmain.request_shaderreload,
     .requestVSync = render_vsync,
-    .surfaceSize = GetCurrentHWNDSize()
+    .surfaceSize = GetCurrentWindowSize()
   };
   rtmain.request_shaderreload = 0;
 
@@ -367,7 +393,7 @@ void RT_EndFrame()
   {
     .minLogLuminance = -4,
     .maxLogLuminance = 0,
-    .luminanceWhitePoint = 10 
+    .luminanceWhitePoint = 10
   };
 
   RgDrawFrameReflectRefractParams reflrefr_params =
@@ -403,7 +429,7 @@ void RT_EndFrame()
 
   RgDrawFrameBloomParams bloom_params =
   {
-    .bloomIntensity = 
+    .bloomIntensity =
       rt_settings.bloom_intensity == 0 ? -1 :
       rt_settings.bloom_intensity == 1 ? 0.25f :
       rt_settings.bloom_intensity == 3 ? 1.0f :
@@ -419,9 +445,9 @@ void RT_EndFrame()
   RgDrawFrameShadowParams shadow_params =
   {
     .maxBounceShadowsDirectionalLights = 8,
-    .maxBounceShadowsSphereLights = 1, // no indir illumination 
+    .maxBounceShadowsSphereLights = 1, // no indir illumination
     .maxBounceShadowsSpotlights = 2,
-    .maxBounceShadowsPolygonalLights = 2, 
+    .maxBounceShadowsPolygonalLights = 2,
     .polygonalLightSpotlightFactor = 0.5f,
     .sphericalPolygonalLightsFirefliesClamp = 3.0f
   };
@@ -631,8 +657,8 @@ uint64_t RT_GetUniqueID_Wall(int lineid, int subsectornum, int drawwallindex)
   assert((uint64_t)subsectornum  < (1ULL << (56ULL - 32ULL)));
   assert((uint64_t)drawwallindex < (1ULL << 4ULL));
 
-  uint64_t id = 
-    ((uint64_t)lineid                ) | 
+  uint64_t id =
+    ((uint64_t)lineid                ) |
     ((uint64_t)subsectornum  << 32ULL) |
     ((uint64_t)drawwallindex << 56ULL);
 
@@ -649,8 +675,8 @@ uint64_t RT_GetUniqueID_Flat(int sectornum, dboolean ceiling)
 
   ceiling = ceiling ? 1 : 0;
 
-  uint64_t id = 
-    ((uint64_t)sectornum) | 
+  uint64_t id =
+    ((uint64_t)sectornum) |
     ((uint64_t)ceiling << 32ULL);
 
   UNIQUE_TYPE_CHECK_IF_ID_VALID(id);

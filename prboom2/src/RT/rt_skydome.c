@@ -209,7 +209,7 @@ static void BuildSky(RTSkyVBO *vbo, const rt_texture_t *sky_texture, float sky_y
 static int GetTriangleCount(int mode, int vertex_count)
 {
   assert(mode == SKY_TRIANGLE_STRIP || mode == SKY_TRIANGLE_FAN);
-  return max(0, vertex_count - 2);
+  return i_max(0, vertex_count - 2);
 }
 
 

@@ -54,6 +54,8 @@
 #include "e6y.h" //e6y
 #include "g_overflow.h"
 
+#define ARRAYSIZE(x) (sizeof(x)/sizeof(x[0]))
+
 // global heads up display controls
 
 int hud_displayed;    //jff 2/23/98 turns heads-up display on/off

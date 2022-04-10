@@ -50,6 +50,8 @@
 #pragma interface
 #endif
 
+#include "RT/rt_common.h"
+
 extern int render_vsync;
 extern int render_screen_multiply;
 extern int integer_scaling;
@@ -69,7 +71,7 @@ typedef struct
   int refl_refr_max_depth;
   int classic_flashlight;
 } rt_settings_t;
-typedef enum 
+typedef enum
 {
   RT_SETTINGS_RENDERSCALE_DEFAULT, // 100%
   RT_SETTINGS_RENDERSCALE_320x200,

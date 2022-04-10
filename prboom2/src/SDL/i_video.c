@@ -49,11 +49,8 @@
 #include <unistd.h>
 #endif
 
-#include "SDL.h"
-//e6y
-#ifdef _WIN32
+#include <SDL.h>
 #include <SDL_syswm.h>
-#endif
 
 #include "m_argv.h"
 #include "doomstat.h"
@@ -1495,19 +1492,7 @@ void I_UpdateVideoMode(void)
 
   if (V_GetMode() == VID_MODERT)
   {
-    // get raw WinAPI handles from SDL
-    HINSTANCE hinstance;
-    HWND hwnd;
-    {
-      SDL_SysWMinfo wmInfo;
-      SDL_VERSION(&wmInfo.version);
-      SDL_GetWindowWMInfo(sdl_window, &wmInfo);
-      hwnd = wmInfo.info.win.window;
-      hinstance = wmInfo.info.win.hinstance;
-    }
-
-    RT_Init(hinstance, hwnd);
-
+    RT_Init();
     M_ChangeFOV();
     deh_changeCompTranslucency();
   }

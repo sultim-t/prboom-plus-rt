@@ -645,7 +645,7 @@ static void R_ProjectSprite (int sectornum, mobj_t* thing, int lightlevel)
 
   if (V_GetMode() == VID_MODERT)
   {
-    RT_AddSprite(sectornum, thing, lightlevel);
+    RT_AddSprite(sectornum, thing/*, lightlevel*/);
     return;
   }
 
