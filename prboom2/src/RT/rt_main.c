@@ -126,7 +126,7 @@ void RT_Init()
   RgResult r = rgCreateInstance(&info, &rtmain.instance);
   if (r != RG_SUCCESS)
   {
-    I_Error("Can't initialize ray tracing engine");
+    I_Error("Can't initialize ray tracing engine: %s", rgGetResultDescription(r));
     return;
   }
 

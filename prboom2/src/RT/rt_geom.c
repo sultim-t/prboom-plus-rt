@@ -62,10 +62,6 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
     const rt_texture_t *td;
   } flat = { 0 };
 
-  sector_t tempsec; // needed for R_FakeFlat
-  int floorlightlevel;      // killough 3/16/98: set floor lightlevel
-  int ceilinglightlevel;    // killough 4/11/98
-
   if (sectornum < 0)
     return;
   sector_t *sector = &sectors[sectornum]; // get the sector
