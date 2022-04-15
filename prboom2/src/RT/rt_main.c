@@ -133,7 +133,7 @@ void RT_Init()
 #ifdef WIN32
   rtmain.hwnd = win32Info.hwnd;
 #else
-  rtmain.window = x11Info.window;
+  rtmain.window = sdl_window;
 #endif
 
 #ifndef NDEBUG
