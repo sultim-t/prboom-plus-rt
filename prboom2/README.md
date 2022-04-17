@@ -99,8 +99,6 @@ Assume that `CRATELIT` texture needs to be modified.
 *The system currently is very limited: `map_metainfo_doom1.txt` can be used with only one specific game, as it doesn't contain info about WAD.*
 
 1. Pass `-rtdevmode` argument to `prboom-plus`
-1. Use `Numpad +` and `Numpad -` to increase/decrease intensity of a light source at the center of a map sector.
-1. To save light data to `map_metainfo_doom1.txt`, use `Numpad *`
-
-
-
+1. Use `Numpad +` / `Numpad -` keys (or `[` / `]` keys) to increase/decrease intensity of a light source at the center of a map sector.
+2. Use `I` `O` `P` / `K` `L` `;` keys to increase/decrease RGB values of a light source
+3. To save light data to `map_metainfo_doom1.txt`, use `Numpad *`
