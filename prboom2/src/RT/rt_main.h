@@ -33,19 +33,13 @@
 #include "d_player.h"
 #include "r_defs.h"
 
-#ifndef WIN32
 typedef struct SDL_Window SDL_Window;
-#endif
 
 typedef struct
 {
   RgInstance instance;
 
-#ifdef WIN32
-  HWND hwnd;
-#else
   SDL_Window *window;
-#endif
 
   float mat_view[4][4];
   float mat_projectionvk[4][4];

@@ -27,9 +27,7 @@
 #include "rt_main.h"
 
 #include <SDL_timer.h>
-#ifndef WIN32
 #include <SDL_syswm.h>
-#endif
 #include <GL/glu.h>
 
 #include "doomstat.h"
@@ -56,22 +54,22 @@ static void RT_Print(const char *pMessage, void *pUserData)
 
 void RT_Init()
 {
-#ifdef WIN32
-  RgWin32SurfaceCreateInfo win32Info;
-#else
-  RgXlibSurfaceCreateInfo x11Info;
-#endif
-
   SDL_SysWMinfo wmInfo;
   SDL_VERSION(&wmInfo.version);
   SDL_GetWindowWMInfo(sdl_window, &wmInfo);
 
 #ifdef WIN32
-  win32Info.hinstance = wmInfo.info.win.hinstance;
-  win32Info.hwnd = wmInfo.info.win.window;
+  RgWin32SurfaceCreateInfo win32Info =
+  {
+    .hinstance = wmInfo.info.win.hinstance,
+    .hwnd = wmInfo.info.win.window
+  };
 #else
-  x11Info.dpy = wmInfo.info.x11.display;
-  x11Info.window = wmInfo.info.x11.window;
+  RgXlibSurfaceCreateInfo x11Info =
+  {
+    .dpy = wmInfo.info.x11.display,
+    .window = wmInfo.info.x11.window
+  }
 #endif
 
   RgInstanceCreateInfo info =
@@ -130,11 +128,7 @@ void RT_Init()
     return;
   }
 
-#ifdef WIN32
-  rtmain.hwnd = win32Info.hwnd;
-#else
   rtmain.window = sdl_window;
-#endif
 
 #ifndef NDEBUG
   rtmain.devmode = true;
@@ -214,20 +208,11 @@ double RT_GetCurrentTime(void)
 
 static RgExtent2D GetCurrentWindowSize()
 {
-  RgExtent2D extent = { 0,0 };
+  int w, h;
+  SDL_GetWindowSize(rtmain.window, &w, &h);
+  assert(w > 0 && h > 0);
 
-#ifdef WIN32
-  RECT rect;
-  if (GetClientRect(rtmain.hwnd, &rect))
-  {
-    extent.width = rect.right - rect.left;
-    extent.height = rect.bottom - rect.top;
-  }
-#else
-  SDL_GetWindowSize(rtmain.window, &extent.width, &extent.height);
-#endif
-
-  assert(extent.width > 0 && extent.height > 0);
+  RgExtent2D extent = { w,h };
   return extent;
 }
 

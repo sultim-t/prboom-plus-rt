@@ -158,17 +158,14 @@ endif()
 option(WITH_VORBISFILE "Use vorbisfile if available" ON)
 if(WITH_VORBISFILE)
     if(WIN32)
-        set( VORBISFILE_LIBRARY "${PRBOOM_EXTERNAL_FOLDER_PATH}/Vorbis/libvorbi
-sfile.lib")
-        set( VORBIS_LIBRARY     "${PRBOOM_EXTERNAL_FOLDER_PATH}/Vorbis/libvorbi
-s.lib" )
+        set( VORBISFILE_LIBRARY "${PRBOOM_EXTERNAL_FOLDER_PATH}/Vorbis/libvorbisfile.lib")
+        set( VORBIS_LIBRARY     "${PRBOOM_EXTERNAL_FOLDER_PATH}/Vorbis/libvorbis.lib" )
         set( VORBIS_INCLUDE_DIR "${PRBOOM_EXTERNAL_FOLDER_PATH}/Vorbis/include")
 
         set( OGG_LIBRARIES      "${PRBOOM_EXTERNAL_FOLDER_PATH}/Ogg/libogg.lib")
         set( OGG_INCLUDE_DIRS   "${PRBOOM_EXTERNAL_FOLDER_PATH}/Ogg/include" )
 
-        set( VORBIS_LIBRARIES ${VORBISFILE_LIBRARY} ${VORBIS_LIBRARY} ${OGG_LIB
-RARIES} )
+        set( VORBIS_LIBRARIES ${VORBISFILE_LIBRARY} ${VORBIS_LIBRARY} ${OGG_LIBRARIES} )
         set( VORBIS_INCLUDE_DIRS ${VORBIS_INCLUDE_DIR} ${OGG_INCLUDE_DIRS} )
         set( VORBIS_FOUND TRUE )
     else()
