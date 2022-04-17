@@ -124,7 +124,7 @@ void RT_GetLineInfo(int lineid, float *out_x1, float *out_z1, float *out_x2, flo
 void RT_DestroySectorGeometryData(const rtsectordata_t *data);
 
 void RT_MapMetaInfo_Init(int mission);
-void RT_MapMetaInfo_AddDelta(float delta);
+void RT_MapMetaInfo_AddDelta(float deltaweight, int deltared, int deltagreen, int deltablue);
 void RT_MapMetaInfo_WriteToFile(void);
 dboolean RT_GetSectorLightLevelWeight(int sectornum, float *out_weight, RgFloat3D *out_color);
 

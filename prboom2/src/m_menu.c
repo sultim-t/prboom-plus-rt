@@ -5657,15 +5657,40 @@ dboolean M_Responder (event_t* ev) {
         RT_MapMetaInfo_WriteToFile();
         return true;
       }
-      if (ch == KEYD_KEYPADPLUS)
+
+      const float deltaweight = 0.25f;
+      const int deltargb = 17;
+      if (ch == KEYD_KEYPADPLUS || ch == ']')
       {
-        RT_MapMetaInfo_AddDelta(0.25f);
-        return true;
+        RT_MapMetaInfo_AddDelta(deltaweight, 0, 0, 0); return true;
       }
-      if (ch == KEYD_KEYPADMINUS)
+      if (ch == KEYD_KEYPADMINUS || ch == '[')
       {
-        RT_MapMetaInfo_AddDelta(-0.25f);
-        return true;
+        RT_MapMetaInfo_AddDelta(-deltaweight, 0, 0, 0); return true;
+      }
+      if (ch == 'i')
+      {
+        RT_MapMetaInfo_AddDelta(0, deltargb, 0, 0); return true;
+      }
+      if (ch == 'k')
+      {
+        RT_MapMetaInfo_AddDelta(0, -deltargb, 0, 0); return true;
+      }
+      if (ch == 'o')
+      {
+        RT_MapMetaInfo_AddDelta(0, 0, deltargb, 0); return true;
+      }
+      if (ch == 'l')
+      {
+        RT_MapMetaInfo_AddDelta(0, 0, -deltargb, 0); return true;
+      }
+      if (ch == 'p')
+      {
+        RT_MapMetaInfo_AddDelta(0, 0, 0, deltargb); return true;
+      }
+      if (ch == ';')
+      {
+        RT_MapMetaInfo_AddDelta(0, 0, 0, -deltargb); return true;
       }
     }
 

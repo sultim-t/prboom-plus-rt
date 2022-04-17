@@ -324,7 +324,7 @@ dboolean RT_GetSectorLightLevelWeight(int sectornum, float *out_weight, RgFloat3
 }
 
 
-void RT_MapMetaInfo_AddDelta(float delta)
+void RT_MapMetaInfo_AddDelta(float deltaweight, int deltared, int deltagreen, int deltablue)
 {
   rt_map_metainfo_t *mp = GetMapMetaInfo(gamemission, gameepisode, gamemap);
 
@@ -354,13 +354,20 @@ void RT_MapMetaInfo_AddDelta(float delta)
   }
 
 
-  if (mp->sectors[sectornum].weight <= 1.01f)
+  rt_sector_metainfo_t *dst = &mp->sectors[sectornum];
+
+
+  if (dst->weight <= 1.01f)
   {
-    mp->sectors[sectornum].weight = BETWEEN(0, RT_MAX_WEIGHT, mp->sectors[sectornum].weight + delta);
+    dst->weight = BETWEEN(0, RT_MAX_WEIGHT, dst->weight + deltaweight);
   }
   else
   {
     // if >1 then jump to max value
-    mp->sectors[sectornum].weight = delta > 0 ? RT_MAX_WEIGHT : 1.0f;
+    dst->weight = deltaweight > 0 ? RT_MAX_WEIGHT : 1.0f;
   }
+
+  dst->r = (uint8_t)BETWEEN(0, 255, dst->r + deltared);
+  dst->g = (uint8_t)BETWEEN(0, 255, dst->g + deltagreen);
+  dst->b = (uint8_t)BETWEEN(0, 255, dst->b + deltablue);
 }
