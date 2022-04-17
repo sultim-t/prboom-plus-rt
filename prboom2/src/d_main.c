@@ -842,9 +842,11 @@ void CheckIWAD(const char *iwadname,GameMode_t *gmode,dboolean *hassec)
         length = header.numlumps;
         fileinfo = malloc(length*sizeof(filelump_t));
         if (fseek (fp, header.infotableofs, SEEK_SET) ||
-            fread (fileinfo, sizeof(filelump_t), length, fp) != length ||
-            fclose(fp))
+            fread (fileinfo, sizeof(filelump_t), length, fp) != length )
+        {
+          fclose(fp);
           I_Error("CheckIWAD: failed to read directory %s",iwadname);
+        }
 
         // scan directory for levelname lumps
         while (length--)
