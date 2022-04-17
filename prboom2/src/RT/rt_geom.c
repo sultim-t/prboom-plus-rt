@@ -168,9 +168,10 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
 
   if (ceiling && flat.light > 0.0f)
   {
-    float w = RT_GetSectorLightLevelWeight(sectornum);
+    float w;
+    RgFloat3D c;
 
-    if (w > 0.0f)
+    if (RT_GetSectorLightLevelWeight(sectornum, &w, &c))
     {
       RgFloat3D center = { 0 };
 
@@ -195,7 +196,7 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
       RgSphericalLightUploadInfo light_info =
       {
         .uniqueID = RT_GetUniqueID_Flat(sectornum, ceiling),
-        .color = { 1,1,1 },
+        .color = c,
         .position = center,
         .sectorID = sectornum,
         .radius = 0.05f,

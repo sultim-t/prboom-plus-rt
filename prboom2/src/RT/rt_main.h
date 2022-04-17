@@ -126,7 +126,7 @@ void RT_DestroySectorGeometryData(const rtsectordata_t *data);
 void RT_MapMetaInfo_Init(int mission);
 void RT_MapMetaInfo_AddDelta(float delta);
 void RT_MapMetaInfo_WriteToFile(void);
-float RT_GetSectorLightLevelWeight(int sectornum);
+dboolean RT_GetSectorLightLevelWeight(int sectornum, float *out_weight, RgFloat3D *out_color);
 
 
 uint64_t RT_GetUniqueID_FirstPersonWeapon(int weaponindex);

@@ -34,10 +34,16 @@
 
 typedef struct
 {
+  float weight;
+  uint8_t r, g, b;
+} rt_sector_metainfo_t;
+
+typedef struct
+{
   int episode;
   int map;
   int sectorcount;
-  float *sectorweights;
+  rt_sector_metainfo_t *sectors;
 } rt_map_metainfo_t;
 
 
@@ -132,13 +138,45 @@ static void Parse(const char *text, int length)
         assert(rt_maps[rt_maps_count - 2].sectorcount == sector_iter);
       }
 
-      cur_em->sectorweights = calloc(cur_em->sectorcount, sizeof(float));
+      cur_em->sectors = calloc(cur_em->sectorcount, sizeof(rt_sector_metainfo_t));
       sector_iter = 0;
     }
     else if (cur_em != NULL)
     {
-      cur_em->sectorweights[sector_iter] = strtof(curr_line, NULL);
+      rt_sector_metainfo_t *dst = &cur_em->sectors[sector_iter];
       sector_iter++;
+
+      float weight = 0;
+      char str_hexcolor[8] = { 0 };
+      int c = sscanf(curr_line, "%f %6s", &weight, str_hexcolor);
+
+      if (c == 1)
+      {
+        dst->weight = strtof(curr_line, NULL);
+        dst->r = 255;
+        dst->g = 255;
+        dst->b = 255;
+      }
+      else if (c == 2)
+      {
+        const char red[] = { str_hexcolor[0], str_hexcolor[1], '\0' };
+        uint32_t ir = strtoul(red, NULL, 16);
+
+        const char green[] = { str_hexcolor[2], str_hexcolor[3], '\0' };
+        uint32_t ig = strtoul(green, NULL, 16);
+
+        const char blue[] = { str_hexcolor[4], str_hexcolor[5], '\0' };
+        uint32_t ib = strtoul(blue, NULL, 16);
+
+        dst->weight = strtof(curr_line, NULL);
+        dst->r = (uint8_t)BETWEEN(0, 255, ir);
+        dst->g = (uint8_t)BETWEEN(0, 255, ig);
+        dst->b = (uint8_t)BETWEEN(0, 255, ib);
+      }
+      else
+      {
+        I_Error("Map metainfo: wrong format for sectors");
+      }
     }
 
     // ---
@@ -173,14 +211,18 @@ void RT_MapMetaInfo_WriteToFile(void)
   {
     fprintf(fp, "@%d %d %d\n", rt_maps[i].episode, rt_maps[i].map, rt_maps[i].sectorcount);
 
-    assert(rt_maps[i].sectorcount > 0 && rt_maps[i].sectorweights != NULL);
+    assert(rt_maps[i].sectorcount > 0 && rt_maps[i].sectors != NULL);
 
     for (int s = 0; s < rt_maps[i].sectorcount; s++)
     {
-      float w = rt_maps[i].sectorweights[s];
-      w = BETWEEN(0, RT_MAX_WEIGHT, w);
+      const rt_sector_metainfo_t *src = &rt_maps[i].sectors[s];
 
-      fprintf(fp, "%f\n", w);
+      float lightweight = BETWEEN(0, RT_MAX_WEIGHT, src->weight);
+      int r = src->r;
+      int g = src->g;
+      int b = src->b;
+
+      fprintf(fp, "%f %02x%02x%02x\n", lightweight, r, g, b);
     }
   }
 
@@ -251,22 +293,34 @@ static rt_map_metainfo_t *GetMapMetaInfo(int mission, int episode, int map)
 #include "doomstat.h"
 
 
-float RT_GetSectorLightLevelWeight(int sectornum)
+dboolean RT_GetSectorLightLevelWeight(int sectornum, float *out_weight, RgFloat3D *out_color)
 {
   const rt_map_metainfo_t *mp = GetMapMetaInfo(gamemission, gameepisode, gamemap);
 
   if (mp == NULL)
   {
-    return 0;
+    return false;
   }
 
-  if (mp->sectorweights == NULL || sectornum >= mp->sectorcount)
+  if (mp->sectors == NULL || sectornum >= mp->sectorcount)
   {
     assert(0);
-    return 0;
+    return false;
   }
 
-  return mp->sectorweights[sectornum];
+  const rt_sector_metainfo_t *src = &mp->sectors[sectornum];
+
+  if (src->weight <= 0.0f)
+  {
+    return false;
+  }
+
+  *out_weight = src->weight;
+  out_color->data[0] = (float)src->r / 255.0f;
+  out_color->data[1] = (float)src->g / 255.0f;
+  out_color->data[2] = (float)src->b / 255.0f;
+
+  return true;
 }
 
 
@@ -288,25 +342,25 @@ void RT_MapMetaInfo_AddDelta(float delta)
     mp->episode = gameepisode;
     mp->map = gamemap;
     mp->sectorcount = numsectors;
-    mp->sectorweights = calloc(numsectors, sizeof(float));
+    mp->sectors = calloc(numsectors, sizeof(rt_sector_metainfo_t));
   }
 
   int sectornum = RT_GetSectorNum_Fixed(viewx, viewy);
 
-  if (mp->sectorweights == NULL || sectornum >= mp->sectorcount)
+  if (mp->sectors == NULL || sectornum >= mp->sectorcount)
   {
     assert(0);
     return;
   }
 
 
-  if (mp->sectorweights[sectornum] <= 1.01f)
+  if (mp->sectors[sectornum].weight <= 1.01f)
   {
-    mp->sectorweights[sectornum] = BETWEEN(0, RT_MAX_WEIGHT, mp->sectorweights[sectornum] + delta);
+    mp->sectors[sectornum].weight = BETWEEN(0, RT_MAX_WEIGHT, mp->sectors[sectornum].weight + delta);
   }
   else
   {
     // if >1 then jump to max value
-    mp->sectorweights[sectornum] = delta > 0 ? RT_MAX_WEIGHT : 1.0f;
+    mp->sectors[sectornum].weight = delta > 0 ? RT_MAX_WEIGHT : 1.0f;
   }
 }
