@@ -188,7 +188,7 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
       float offset = 0.2f;
       if (floor_ceiling_zdiff > 0.0f)
       {
-        offset = min(offset, floor_ceiling_zdiff * 0.5f);
+        offset = i_min(offset, floor_ceiling_zdiff * 0.5f);
       }
       center.data[1] += flat.z - offset;
 
@@ -205,9 +205,9 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
       RG_VEC3_SCALE(light_info.color.data, flat.light);
       RG_VEC3_SCALE(light_info.color.data, w);
 
-      light_info.color.data[0] = max(light_info.color.data[0], 0.0005f);
-      light_info.color.data[1] = max(light_info.color.data[1], 0.0005f);
-      light_info.color.data[2] = max(light_info.color.data[2], 0.0005f);
+      light_info.color.data[0] = i_max(light_info.color.data[0], 0.0005f);
+      light_info.color.data[1] = i_max(light_info.color.data[1], 0.0005f);
+      light_info.color.data[2] = i_max(light_info.color.data[2], 0.0005f);
 
       RgResult r = rgUploadSphericalLight(rtmain.instance, &light_info);
       RG_CHECK(r);

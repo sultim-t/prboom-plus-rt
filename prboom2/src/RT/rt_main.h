@@ -33,10 +33,19 @@
 #include "d_player.h"
 #include "r_defs.h"
 
+#ifndef WIN32
+typedef struct SDL_Window SDL_Window;
+#endif
+
 typedef struct
 {
   RgInstance instance;
+
+#ifdef WIN32
   HWND hwnd;
+#else
+  SDL_Window *window;
+#endif
 
   float mat_view[4][4];
   float mat_projectionvk[4][4];
@@ -69,7 +78,7 @@ typedef struct
 extern rtmain_t rtmain;
 
 
-void RT_Init(HINSTANCE hinstance, HWND hwnd);
+void RT_Init(void);
 void RT_Destroy(void);
 
 void RT_StartFrame(void);
@@ -137,3 +146,6 @@ int RT_GetSectorNum_Real(float real_x, float real_y);
 
 
 uint32_t RT_PackColor(byte r, byte g, byte b, byte a);
+
+#define i_min(a,b) ((a) < (b) ? (a) : (b))
+#define i_max(a,b) ((a) < (b) ? (b) : (a))

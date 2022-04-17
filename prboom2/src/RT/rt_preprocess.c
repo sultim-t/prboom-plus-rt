@@ -40,7 +40,7 @@
 #include "WIN/win_fopen.h"
 #endif
 
-#include <gl/GLU.h>
+#include <GL/glu.h>
 
 #include "doomtype.h"
 #include "lprintf.h"
@@ -397,7 +397,7 @@ static RTPTriangleMode GLenumToRTPTriangleMode(GLenum type)
       return RTP_TRIANGLE_MODE_TRIANGLE_STRIP;
     case GL_TRIANGLE_FAN:
       return RTP_TRIANGLE_MODE_TRIANGLE_FAN;
-    default: 
+    default:
       assert_always("RTP: Incorrect GLenum");
       return 0;
   }
@@ -1140,7 +1140,7 @@ static int GetTriangleCount(RTPTriangleMode mode, int vertex_count)
     case RTP_TRIANGLE_MODE_TRIANGLE_STRIP:
     case RTP_TRIANGLE_MODE_TRIANGLE_FAN:
     {
-      return max(0, vertex_count - 2);
+      return i_max(0, vertex_count - 2);
     }
     default:
     {
@@ -1343,7 +1343,7 @@ static void RTP_PreprocesSectorGeometryData(void)
   int max_vertcount = 0;
   for (int i = 0; i < numsectors; i++)
   {
-    max_vertcount = max(max_vertcount, RTP_GetVertexCount(i));
+    max_vertcount = i_max(max_vertcount, RTP_GetVertexCount(i));
   }
   rtp_all_sharednormals_up = calloc(max_vertcount, sizeof(*rtp_all_sharednormals_up));
   rtp_all_sharednormals_down = calloc(max_vertcount, sizeof(*rtp_all_sharednormals_down));

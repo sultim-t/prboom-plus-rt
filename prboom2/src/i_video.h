@@ -50,6 +50,8 @@
 #pragma interface
 #endif
 
+#include "RT/rt_common.h"
+
 extern int render_vsync;
 extern int render_screen_multiply;
 extern int integer_scaling;
@@ -70,7 +72,7 @@ typedef struct
   int classic_flashlight;
   int bounce_quality;         // 0 - one bounce, 1 - two bounces for poly lights and flashlight, 2 - two bounces 
 } rt_settings_t;
-typedef enum 
+typedef enum
 {
   RT_SETTINGS_RENDERSCALE_DEFAULT, // 100%
   RT_SETTINGS_RENDERSCALE_320x200,

@@ -510,7 +510,7 @@ static void MakeMonochrome(uint8_t *buffer, uint32_t w, uint32_t h)
     uint8_t b = buffer[i * 4 + 2];
 
     // get HSV's value
-    uint8_t mono = max(max(r, g), b);
+    uint8_t mono = i_max(i_max(r, g), b);
 
     buffer[i * 4 + 0] = mono;
     buffer[i * 4 + 1] = mono;

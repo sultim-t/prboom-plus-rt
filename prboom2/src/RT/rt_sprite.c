@@ -92,7 +92,7 @@ static float GetMaxY(const RgFloat3D positions[6])
   float maxy = positions[0].data[1];
   for (int i = 1; i < 6; i++)
   {
-    maxy = max(maxy, positions[i].data[1]);
+    maxy = i_max(maxy, positions[i].data[1]);
   }
   return maxy;
 }
@@ -275,7 +275,7 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
         RG_VEC3_SCALE(p_info.color.data, 1.0f / x_radius);
         RG_VEC3_SCALE(p_info.color.data, mt->falloff_multiplier);
 
-        x_radius = min(x_radius, 0.2f);
+        x_radius = i_min(x_radius, 0.2f);
 
         p_info.positions[0].data[0] += 0;
         p_info.positions[0].data[2] -= x_radius;
@@ -936,7 +936,7 @@ void RT_ProcessPlayer(const player_t *player)
   static float last_time = 0;
 
   float cur_time = (float)RT_GetCurrentTime();
-  float delta_time = max(cur_time - last_time, 0.001f);
+  float delta_time = i_max(cur_time - last_time, 0.001f);
   last_time = cur_time;
 
 
