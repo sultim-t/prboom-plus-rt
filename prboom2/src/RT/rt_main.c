@@ -69,7 +69,7 @@ void RT_Init()
   {
     .dpy = wmInfo.info.x11.display,
     .window = wmInfo.info.x11.window
-  }
+  };
 #endif
 
   RgInstanceCreateInfo info =
