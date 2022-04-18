@@ -870,7 +870,10 @@ static void ST_doPaletteStuff(void)
 
     if (palette_onpowers && plyr->powers[pw_ironfeet])
     {
-      rt_powerupflags |= RT_POWERUP_FLAG_RADIATIONSUIT_BIT;
+      if ((plyr->powers[pw_ironfeet] > 4 * 32 || plyr->powers[pw_ironfeet] & 8))
+      {
+        rt_powerupflags |= RT_POWERUP_FLAG_RADIATIONSUIT_BIT;
+      }
     }
 
     if (palette_onpowers && plyr->powers[pw_strength])
