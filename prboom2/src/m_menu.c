@@ -3924,6 +3924,7 @@ static const char *RT_options_renderscale[] =
 {
   "As resolution",
   "320x200 (CRT)",
+  "320x200",
   "480p",
   "600p",
   "720p",

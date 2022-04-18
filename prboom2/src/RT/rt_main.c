@@ -219,14 +219,16 @@ static RgExtent2D GetCurrentWindowSize()
 
 static dboolean IsCRTModeEnabled(rt_settings_renderscale_e renderscale)
 {
-  return renderscale == RT_SETTINGS_RENDERSCALE_320x200;
+  return renderscale == RT_SETTINGS_RENDERSCALE_320x200_CRT;
 }
 
 
 static RgExtent2D GetScaledResolution(rt_settings_renderscale_e renderscale)
 {
-  RgExtent2D window_size = GetCurrentWindowSize();
-  double window_aspect = (double)window_size.width / (double)window_size.height;
+  const RgExtent2D window_size = GetCurrentWindowSize();
+  const double window_aspect = (double)window_size.width / (double)window_size.height;
+
+  RgExtent2D original_doom = { 320, 200 };
 
   int y = SCREENHEIGHT;
 
@@ -234,8 +236,13 @@ static RgExtent2D GetScaledResolution(rt_settings_renderscale_e renderscale)
   {
     case RT_SETTINGS_RENDERSCALE_320x200:
     {
+      return original_doom;
+    }
+    case RT_SETTINGS_RENDERSCALE_320x200_CRT:
+    {
       // double the resolution, to simulate interlacing
-      RgExtent2D original_doom = { 320 * 2, 200 * 2 };
+      original_doom.width *= 2;
+      original_doom.height *= 2;
       return original_doom;
     }
     case RT_SETTINGS_RENDERSCALE_480:   y = 480; break;
@@ -317,11 +324,10 @@ static void NormalizeRTSettings(rt_settings_t *settings)
     // must be in sync with rt_settings_renderscale_e
     static const int rs_height[] =
     {
-      -1,-1,480,600,720,900,1080,1200,1440,1600,1920,2160
+      -1,-1,-1,480,600,720,900,1080,1200,1440,1600,1920,2160
     };
-    assert(RT_SETTINGS_RENDERSCALE_NUM == RG_ARRAY_SIZE(rs_height));
-    assert(RT_SETTINGS_RENDERSCALE_480 == 2);
-    assert(RT_SETTINGS_RENDERSCALE_2160 == 11);
+    // just to check that rs_height in sync with enum
+    assert(RT_SETTINGS_RENDERSCALE_NUM == RG_ARRAY_SIZE(rs_height)); assert(RT_SETTINGS_RENDERSCALE_480 == 3 && RT_SETTINGS_RENDERSCALE_2160 == 12);
 
     for (int i = RT_SETTINGS_RENDERSCALE_NUM - 1; i >= 0; i--)
     {
