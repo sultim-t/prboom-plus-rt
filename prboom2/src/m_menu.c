@@ -333,7 +333,7 @@ void M_RT_ResolutionSettings_RenderScale(void);
 void M_RT_ApplyHUD(void);
 static void M_RT_UpdateGfxItems(void);
 #endif
-#define RT_NO_UPSCALERS 1
+#define RT_NO_UPSCALERS 0
 
 
 menu_t NewDef;                                              // phares 5/04/98
