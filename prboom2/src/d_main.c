@@ -1752,13 +1752,6 @@ static void D_DoomMainSetup(void)
   }
 
 
-  // RT: allow only Doom 1 for now
-  if (gamemission != doom)
-  {
-    I_Warning("Running unsupported WAD.\nExpect visual artifacts/inconsistent lighting.");
-  }
-
-
   if (devparm)
     //jff 9/3/98 use logical output routine
     lprintf(LO_CONFIRM,"%s",D_DEVSTR);
