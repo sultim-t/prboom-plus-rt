@@ -104,5 +104,8 @@ Assume that `CRATELIT` texture needs to be modified.
     * each WAD must correspond to its own mapmetainfo (as episode-map indices might not be unique in different WADs)
     * default value: `ovrd/map_metainfo_doom1.txt`
 4. Use `Numpad +` / `Numpad -` keys (or `[` / `]` keys) to increase/decrease intensity of a light source at the center of a map sector.
-5. Use `I` `O` `P` / `K` `L` `;` keys to increase/decrease RGB values of a light source
-6. To save light data to the mapmetainfo file, use `Numpad *`
+6. Use `I` `O` `P` / `K` `L` `;` keys to increase/decrease RGB values of a light source
+    * (!) by default, **both** RGB and intensity values of a sector are 0; so when a sector is touched for the first time, increase both its values
+8. To save light data to the mapmetainfo file, use `Numpad *`
+    * players can use your mapmetainfo file by passing the `-iwadrt` argument
+    
