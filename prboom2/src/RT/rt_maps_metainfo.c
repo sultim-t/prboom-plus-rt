@@ -26,7 +26,9 @@
 
 #include "rt_main.h"
 
+#include "doomstat.h"
 #include "e6y.h"
+#include "m_argv.h"
 #include "m_misc.h"
 
 #define RT_MAX_MAPS 512
@@ -47,18 +49,26 @@ typedef struct
 } rt_map_metainfo_t;
 
 
-static int rt_mission = -1;
 static rt_map_metainfo_t rt_maps[RT_MAX_MAPS];
 static int rt_maps_count = 0;
 
 
-static const char *GetMissionFile(int mission)
+static const char *GetMapMetaInfoFile()
 {
-  switch (mission)
+  int i = M_CheckParm("-iwadrt");
+
+  if (i && (++i < myargc))
   {
-    case doom: return RG_RESOURCES_FOLDER"map_metainfo_doom1.txt";
-    default: return NULL;
+    return myargv[i];
   }
+
+  // use default one if Doom 1993
+  if (gamemission == doom)
+  {
+    return RG_RESOURCES_FOLDER"map_metainfo_doom1.txt";
+  }
+
+  return NULL;
 }
 
 
@@ -193,10 +203,11 @@ void RT_MapMetaInfo_WriteToFile(void)
   // "0"
   // "@END"
 
-  const char *filepath = GetMissionFile(rt_mission);
+  const char *filepath = GetMapMetaInfoFile();
 
   if (filepath == NULL)
   {
+    I_Warning("Specify -iwadrt to save map meta info.\n", filepath);
     return;
   }
 
@@ -234,32 +245,37 @@ void RT_MapMetaInfo_WriteToFile(void)
 
 void RT_MapMetaInfo_Init(int mission)
 {
-  rt_mission = mission;
   rt_maps_count = 0;
   
 
-  const char *filepath = GetMissionFile(mission);
+  const char *filepath = GetMapMetaInfoFile();
 
   if (filepath == NULL)
   {
-    lprintf(LO_ERROR, "Unknown map pack. Maps won't have additional light sources.\n", filepath);
+    I_Warning("Maps won't have additional light sources: can't find a map meta info file. Specify \"-iwadrt <file>\".\n");
     return;
   }
 
   byte *buffer = NULL;
   int length = M_ReadFile(filepath, &buffer);
 
-  if (length <= 0 || buffer == NULL)
+  if (length < 0)
+  {
+    I_Warning("Maps won't have additional light sources: can't find the file \"%s\".\n", filepath);
+    return;
+  }
+
+  if (length == 0 || buffer == NULL)
   {
     Z_Free(buffer);
 
     if (length == 0)
     {
-      lprintf(LO_WARN, "%s is empty. Maps won't have additional light sources.\n", filepath);
+      I_Warning("%s is empty. Maps won't have additional light sources.\n", filepath);
     }
     else
     {
-      lprintf(LO_ERROR, "%s wasn't found. Maps won't have additional light sources.\n", filepath);
+      I_Warning("%s wasn't found. Maps won't have additional light sources.\n", filepath);
     }
     return;
   }
@@ -270,19 +286,13 @@ void RT_MapMetaInfo_Init(int mission)
 }
 
 
-static rt_map_metainfo_t *GetMapMetaInfo(int mission, int episode, int map)
+static rt_map_metainfo_t *GetMapMetaInfo(int episode, int map)
 {
-  if (rt_mission != mission)
-  {
-    return NULL;
-  }
-
   for (int i = 0; i < rt_maps_count; i++)
   {
     if (rt_maps[i].episode == episode && rt_maps[i].map == map)
     {
       return &rt_maps[i];
-
     }
   }
 
@@ -290,12 +300,9 @@ static rt_map_metainfo_t *GetMapMetaInfo(int mission, int episode, int map)
 }
 
 
-#include "doomstat.h"
-
-
 dboolean RT_GetSectorLightLevelWeight(int sectornum, float *out_weight, RgFloat3D *out_color)
 {
-  const rt_map_metainfo_t *mp = GetMapMetaInfo(gamemission, gameepisode, gamemap);
+  const rt_map_metainfo_t *mp = GetMapMetaInfo(gameepisode, gamemap);
 
   if (mp == NULL)
   {
@@ -326,7 +333,7 @@ dboolean RT_GetSectorLightLevelWeight(int sectornum, float *out_weight, RgFloat3
 
 void RT_MapMetaInfo_AddDelta(float deltaweight, int deltared, int deltagreen, int deltablue)
 {
-  rt_map_metainfo_t *mp = GetMapMetaInfo(gamemission, gameepisode, gamemap);
+  rt_map_metainfo_t *mp = GetMapMetaInfo(gameepisode, gamemap);
 
   if (mp == NULL)
   {
