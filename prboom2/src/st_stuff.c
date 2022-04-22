@@ -870,10 +870,7 @@ static void ST_doPaletteStuff(void)
 
     if (palette_onpowers && plyr->powers[pw_ironfeet])
     {
-      if ((plyr->powers[pw_ironfeet] > 4 * 32 || plyr->powers[pw_ironfeet] & 8))
-      {
-        rt_powerupflags |= RT_POWERUP_FLAG_RADIATIONSUIT_BIT;
-      }
+      rt_powerupflags |= RT_POWERUP_FLAG_RADIATIONSUIT_BIT;
     }
 
     if (palette_onpowers && plyr->powers[pw_strength])
@@ -884,9 +881,6 @@ static void ST_doPaletteStuff(void)
         rt_powerupflags |= RT_POWERUP_FLAG_BERSERK_BIT;
       }
     }
-
-    if (palette == 0) assert(rt_powerupflags == 0);
-    if (rt_powerupflags == 0) assert(palette == 0);
 
     RT_SetPowerupPalette(rt_powerupflags);
   }
