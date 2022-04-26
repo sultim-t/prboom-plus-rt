@@ -3952,11 +3952,22 @@ static const char *RT_options_bloom_intensity[] =
   "Exaggerated",
   NULL
 };
+static const char *RT_options_crt_interlacing[] =
+{
+  "Off",
+  "On",
+  NULL
+};
 static const char *RT_options_muzzleflash_intensity[] =
 {
-  "Disabled",
-  "Reduced",
-  "Enabled",
+  "Off",
+  "On",
+  NULL
+};
+static const char *RT_options_classic_flashlight[] =
+{
+  "Default",
+  "Classic",
   NULL
 };
 static const char *RT_options_statusbar_scale[] =
@@ -4002,7 +4013,9 @@ typedef enum
   gfxset_fsr,
   gfxset_dlss,
 #endif
+  gfxset_lightgibounces,
   gfxset_bloom,
+  gfxset_crtinterlacing,
   gfxset_muzzleflash,
   gfxset_classicflashlight,
   gfxset_hudstyle,
@@ -4030,16 +4043,17 @@ setup_menu_t RT_GraphicsSettings[] =
 #endif
 
   {"Light GI bounces", S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+0) * 8, {"rt_bounce_quality"}, 0, 0, NULL, RT_options_bounce },
-  {"Bloom",         S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+1) * 8, {"rt_bloom_intensity"}, 0, 0, NULL, RT_options_bloom_intensity},
-  {"Muzzle flash light",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+2) * 8, {"rt_muzzleflash_intensity"}, 0, 0, NULL, RT_options_muzzleflash_intensity },
-  {"Classic flashlight",  S_YESNO,  m_null, RT_X, RT_Y + (RT_U+3) * 8, {"rt_classic_flashlight"}, 0, 0, NULL, NULL },
+  {"Bloom",         S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+1) * 8, {"rt_bloom_intensity"}, 0, 0, NULL, RT_options_bloom_intensity },
+  {"CRT Interlacing", S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+2) * 8, {"rt_crt_interlacing"}, 0, 0, NULL, RT_options_crt_interlacing },
+  {"Muzzle flash",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+3) * 8, {"rt_muzzleflash_intensity"}, 0, 0, NULL, RT_options_muzzleflash_intensity },
+  {"Flashlight",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+4) * 8, {"rt_classic_flashlight"}, 0, 0, NULL, RT_options_classic_flashlight },
 
-  {"HUD style",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+5) * 8, {"rt_hud_style"}, 0, 0, M_RT_ApplyHUD, RT_options_hud_style},
+  {"HUD style",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+6) * 8, {"rt_hud_style"}, 0, 0, M_RT_ApplyHUD, RT_options_hud_style},
 #if RT_SEPARATE_HUD_SCALE
-  {"Classic HUD scale",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+6) * 8, {"rt_statusbar_scale"}, 0, 0, NULL, RT_options_statusbar_scale },
-  {"Minimalistic HUD scale",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+7) * 8, {"rt_hud_scale"}, 0, 0, NULL, RT_options_hud_scale },
+  {"Classic HUD scale",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+7) * 8, {"rt_statusbar_scale"}, 0, 0, NULL, RT_options_statusbar_scale },
+  {"Minimalistic HUD scale",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+8) * 8, {"rt_hud_scale"}, 0, 0, NULL, RT_options_hud_scale },
 #else
-  {"HUD size",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+6) * 8, {"rt_statusbar_scale"}, 0, 0, NULL, RT_options_statusbar_scale },
+  {"HUD size",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+7) * 8, {"rt_statusbar_scale"}, 0, 0, NULL, RT_options_statusbar_scale },
 #endif
 
   {0,S_SKIP | S_END,m_null}
@@ -4083,15 +4097,21 @@ static void M_RT_UpdateGfxItems(void)
 #endif
 
   // disable some options if not RT
-  SetGfxItemEnabled(gfxset_renderscale, V_GetMode() == VID_MODERT);
+  SetGfxItemEnabled(gfxset_renderscale,       V_GetMode() == VID_MODERT);
 #if !RT_NO_UPSCALERS
-  SetGfxItemEnabled(gfxset_fsr,         V_GetMode() == VID_MODERT);
+  SetGfxItemEnabled(gfxset_fsr,               V_GetMode() == VID_MODERT);
 #endif
-  SetGfxItemEnabled(gfxset_bloom,       V_GetMode() == VID_MODERT);
-  SetGfxItemEnabled(gfxset_muzzleflash, V_GetMode() == VID_MODERT);
+  SetGfxItemEnabled(gfxset_lightgibounces,    V_GetMode() == VID_MODERT);
+  SetGfxItemEnabled(gfxset_bloom,             V_GetMode() == VID_MODERT);
+  SetGfxItemEnabled(gfxset_crtinterlacing,    V_GetMode() == VID_MODERT);
+  SetGfxItemEnabled(gfxset_muzzleflash,       V_GetMode() == VID_MODERT);
+  SetGfxItemEnabled(gfxset_classicflashlight, V_GetMode() == VID_MODERT);
 
-  SetGfxItemEnabled(gfxset_vsync,       V_GetMode() == VID_MODERT || V_GetMode() == VID_MODEGL);
-  SetGfxItemEnabled(gfxset_hudsize,     V_GetMode() == VID_MODERT || V_GetMode() == VID_MODEGL);
+  SetGfxItemEnabled(gfxset_vsync,             V_GetMode() == VID_MODERT || V_GetMode() == VID_MODEGL);
+  SetGfxItemEnabled(gfxset_hudstyle,          V_GetMode() == VID_MODERT || V_GetMode() == VID_MODEGL);
+  SetGfxItemEnabled(gfxset_hudsize,           V_GetMode() == VID_MODERT || V_GetMode() == VID_MODEGL);
+
+  assert(gfxset_end == RG_ARRAY_SIZE(RT_GraphicsSettings) - 1);
 }
 
 // Copy of M_General, but with different M_SetupNextMenu
