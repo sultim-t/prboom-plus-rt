@@ -441,8 +441,8 @@ function(AddGameExecutable TARGET SOURCES)
     if(UNIX)
         set_target_properties(RayTracedGL1 PROPERTIES
             INTERFACE_INCLUDE_DIRECTORIES "$ENV{RTGL1_SDK_PATH}/Include"
-            IMPORTED_LOCATION       "$ENV{RTGL1_SDK_PATH}/Build/RelWithDebInfo/libRayTracedGL1.so"
-            IMPORTED_LOCATION_DEBUG "$ENV{RTGL1_SDK_PATH}/Build/Debug/libRayTracedGL1.so"
+            IMPORTED_LOCATION       "$ENV{RTGL1_SDK_PATH}/build/libRayTracedGL1.so"
+            IMPORTED_LOCATION_DEBUG "$ENV{RTGL1_SDK_PATH}/build/libRayTracedGL1.so"
         )
         target_compile_definitions(${TARGET} PRIVATE RG_USE_SURFACE_XLIB)
         target_compile_definitions(${TARGET} PRIVATE ZLIB_CONST)
