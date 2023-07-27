@@ -389,11 +389,11 @@ void RT_EndFrame()
       .sType                = RG_STRUCTURE_TYPE_DRAW_FRAME_TONEMAPPING_PARAMS,
       .pNext                = &resolution_params,
       .disableEyeAdaptation = false,
-      .ev100Min             = -4,
+      .ev100Min             = 2,
       .ev100Max             = 10,
       .luminanceWhitePoint  = 10,
       .saturation           = { 0, 0, 0 },
-      .crosstalk            = { 1.0f, 1.0f, 1.0f },
+      .crosstalk            = { 1.0f, 0.8f, 0.9f },
   };
 
   RgDrawFrameReflectRefractParams reflrefr_params = {
@@ -416,7 +416,7 @@ void RT_EndFrame()
       .pNext   = &reflrefr_params,
       .skyType = rtmain.sky.texture != NULL ? RG_SKY_TYPE_RASTERIZED_GEOMETRY : RG_SKY_TYPE_COLOR,
       .skyColorDefault    = { 0, 0, 0 },
-      .skyColorMultiplier = 1.0f,
+      .skyColorMultiplier = 50,
       .skyColorSaturation = 1.0f,
       .skyViewerPosition  = { 0, 0, 0 },
   };
@@ -431,11 +431,9 @@ void RT_EndFrame()
   RgDrawFrameBloomParams bloom_params = {
       .sType                   = RG_STRUCTURE_TYPE_DRAW_FRAME_BLOOM_PARAMS,
       .pNext                   = &sky_params,
-      .bloomIntensity          = rt_settings.bloom_intensity == 0   ? -1
-                                 : rt_settings.bloom_intensity == 1 ? 0.25f
-                                                                    : 0.5f,
-      .inputThreshold          = 4.0f,
-      .bloomEmissionMultiplier = 9.0f,
+      .bloomIntensity          = rt_settings.bloom_enable ? 1.0f : 0.0f,
+      .inputThreshold          = 10.0f,
+      .bloomEmissionMultiplier = 8.0f,
       .lensDirtIntensity       = 1.0f,
   };
 

@@ -61,8 +61,8 @@ typedef struct
   // NOTE: dlss, fsr, renderscale - are mutually exclusive
   int dlss, fsr;              // 0 - off, [1,4] - quality from highest to lowest
   int renderscale;            // index in rt_settings_renderscale_e
-  int bloom_intensity;        // index in [0,Reduced,Default,Exaggerated]
-  int muzzleflash_intensity;  // index in [0,Reduced,Default]
+  int bloom_enable;
+  int muzzleflash_enable;
   int statusbar_scale;        // to calculate procents: 10*(statusbar_scale+1)
 #if RT_SEPARATE_HUD_SCALE
   int hud_scale;              // to calculate procents: 10*(hud_scale+1)

@@ -3937,21 +3937,13 @@ static const char *RT_options_renderscale[] =
   "2160p",
   NULL
 };
-static const char *RT_options_bloom_intensity[] =
-{
-  "Disabled",
-  "Reduced",
-  "Default",
-  "Exaggerated",
-  NULL
-};
-static const char *RT_options_crt_interlacing[] =
+static const char *RT_options_bloom_enable[] =
 {
   "Off",
   "On",
   NULL
 };
-static const char *RT_options_muzzleflash_intensity[] =
+static const char *RT_options_muzzleflash_enable[] =
 {
   "Off",
   "On",
@@ -4028,13 +4020,13 @@ setup_menu_t RT_GraphicsSettings[] =
 #if !RT_NO_UPSCALERS
   {"AMD FSR 2",       S_CHOICE,  m_null, RT_X, RT_Y + 5 * 8, {"rt_fsr"}, 0, 0, M_RT_ResolutionSettings_FSR, RT_options_fsr },
   {"Nvidia DLSS 2", S_CHOICE,  m_null, RT_X, RT_Y + 6 * 8, {"rt_dlss"}, 0, 0, M_RT_ResolutionSettings_DLSS, RT_options_dlss_ptr },
-#define RT_U 8
+#define RT_U 7
 #else 
 #define RT_U 6
 #endif
 
-  {"Bloom",         S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+1) * 8, {"rt_bloom_intensity"}, 0, 0, NULL, RT_options_bloom_intensity },
-  {"Muzzle flash",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+3) * 8, {"rt_muzzleflash_intensity"}, 0, 0, NULL, RT_options_muzzleflash_intensity },
+  {"Bloom",         S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+1) * 8, {"rt_bloom_enable"}, 0, 0, NULL, RT_options_bloom_enable },
+  {"Muzzle flash",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+3) * 8, {"rt_muzzleflash_enable"}, 0, 0, NULL, RT_options_muzzleflash_enable },
   {"Flashlight",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+4) * 8, {"rt_classic_flashlight"}, 0, 0, NULL, RT_options_classic_flashlight },
 
   {"HUD style",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+6) * 8, {"rt_hud_style"}, 0, 0, M_RT_ApplyHUD, RT_options_hud_style},

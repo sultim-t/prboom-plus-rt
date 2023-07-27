@@ -782,11 +782,9 @@ void AddMuzzleFlashLight(int muzzlelight, float flash_z_offset)
   float flash_intensity = muzzlelight >= 2 ? 1.0f : 0.5f;
   float flash_y_offset = -0.15f;
 
-  switch (rt_settings.muzzleflash_intensity)
+  if (!rt_settings.muzzleflash_enable)
   {
-    case 0: return;
-    // case 1: flash_intensity *= 0.25f; break;
-    default: break;
+    return;
   }
 
   RgFloat3D flash_pos = GetOffsetFromCameraPosition(GetCameraDirection(), 0, flash_y_offset, flash_z_offset);
