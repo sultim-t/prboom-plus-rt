@@ -47,7 +47,6 @@ typedef struct
   float mat_view_inverse[4][4];
   float mat_projectionvk_inverse[4][4];
 
-  dboolean was_new_sky;
   struct
   {
     const rt_texture_t *texture;
@@ -60,7 +59,6 @@ typedef struct
   float wipe_end_time;
   uint32_t powerupflags;
 
-  dboolean request_shaderreload;
   dboolean request_flashlight;
 
   dboolean is_dlss_available;
@@ -109,15 +107,12 @@ void RT_SetPowerupPalette(uint32_t powerupflags);
 
 typedef struct
 {
-  int vertex_count;
-  RgFloat3D *positions;
-  RgFloat3D *normals;
-  RgFloat2D *texcoords;
-  int index_count;
-  uint32_t *indices;
+  int                vertex_count;
+  RgPrimitiveVertex* vertices;
+  int                index_count;
+  uint32_t*          indices;
 } rtsectordata_t;
 
-void RT_UploadStaticScene(void);
 void RT_PreprocessLevel(void);
 rtsectordata_t RT_GetSectorGeometryData(int sectornum, dboolean is_ceiling);
 void RT_GetLineInfo(int lineid, float *out_x1, float *out_z1, float *out_x2, float *out_z2);
@@ -126,20 +121,15 @@ void RT_DestroySectorGeometryData(const rtsectordata_t *data);
 void RT_MapMetaInfo_Init(int mission);
 void RT_MapMetaInfo_AddDelta(float deltaweight, int deltared, int deltagreen, int deltablue);
 void RT_MapMetaInfo_WriteToFile(void);
-dboolean RT_GetSectorLightLevelWeight(int sectornum, float *out_weight, RgFloat3D *out_color);
+dboolean RT_GetSectorLightLevelWeight(int sectornum, float *out_weight, RgColor4DPacked32 *out_color);
 
 
 uint64_t RT_GetUniqueID_FirstPersonWeapon(int weaponindex);
 uint64_t RT_GetUniqueID_Thing(const mobj_t *thing);
 uint64_t RT_GetUniqueID_Wall(int lineid, int subsectornum, int drawwallindex);
 uint64_t RT_GetUniqueID_Flat(int sectornum, dboolean ceiling);
+uint64_t RT_GetUniqueID_Sky(void);
 
-
-int RT_GetSectorNum_Fixed(fixed_t x, fixed_t y);
-int RT_GetSectorNum_Real(float real_x, float real_y);
-
-
-uint32_t RT_PackColor(byte r, byte g, byte b, byte a);
 
 #define i_min(a,b) ((a) < (b) ? (a) : (b))
 #define i_max(a,b) ((a) < (b) ? (b) : (a))

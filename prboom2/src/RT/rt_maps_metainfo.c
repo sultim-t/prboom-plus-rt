@@ -300,7 +300,9 @@ static rt_map_metainfo_t *GetMapMetaInfo(int episode, int map)
 }
 
 
-dboolean RT_GetSectorLightLevelWeight(int sectornum, float *out_weight, RgFloat3D *out_color)
+dboolean RT_GetSectorLightLevelWeight(int                sectornum,
+                                      float*             out_weight,
+                                      RgColor4DPacked32* out_color)
 {
   const rt_map_metainfo_t *mp = GetMapMetaInfo(gameepisode, gamemap);
 
@@ -323,11 +325,17 @@ dboolean RT_GetSectorLightLevelWeight(int sectornum, float *out_weight, RgFloat3
   }
 
   *out_weight = src->weight;
-  out_color->data[0] = (float)src->r / 255.0f;
-  out_color->data[1] = (float)src->g / 255.0f;
-  out_color->data[2] = (float)src->b / 255.0f;
+  *out_color  = rgUtilPackColorByte4D(src->r, src->g, src->b, 255);
 
   return true;
+}
+
+
+extern subsector_t* R_PointInSubsector(fixed_t x, fixed_t y);
+
+static int RT_GetSectorNum_Fixed(fixed_t x, fixed_t y)
+{
+  return R_PointInSubsector(x, y)->sector->iSectorID;
 }
 
 

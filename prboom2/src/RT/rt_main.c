@@ -46,9 +46,20 @@ rtmain_t rtmain = { 0 };
 static RgBool32 frame_started_guard = 0;
 
 
-static void RT_Print(const char *pMessage, void *pUserData)
+static void RT_Print(const char* pMessage, RgMessageSeverityFlags flags, void* pUserData)
 {
-  lprintf(LO_ERROR, "%s\n", pMessage);
+    if (flags & RG_MESSAGE_SEVERITY_ERROR)
+    {
+        lprintf(LO_ERROR, "%s\n", pMessage);
+    }
+    else if (flags & RG_MESSAGE_SEVERITY_WARNING)
+    {
+        lprintf(LO_WARN, "%s\n", pMessage);
+    }
+    else
+    {
+        lprintf(LO_INFO, "%s\n", pMessage);
+    }
 }
 
 
@@ -72,60 +83,63 @@ void RT_Init()
   };
 #endif
 
-  RgInstanceCreateInfo info =
-  {
-    .pAppName = "PRBoom",
-    .pAppGUID = "297e3cc1-4076-4a60-ac7c-5904c5db1313",
+  RgInstanceCreateInfo info = {
+      .sType = RG_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+      .pNext = NULL,
 
-  #if WIN32
-    .pWin32SurfaceInfo = &win32Info,
-  #else
-    .pXlibSurfaceCreateInfo = &x11Info,
-  #endif
+      .pAppName = "PRBoom",
+      .pAppGUID = "297e3cc1-4076-4a60-ac7c-5904c5db1313",
 
-  #ifndef NDEBUG
-    .enableValidationLayer = true,
-  #else
-    .enableValidationLayer = M_CheckParm("-rtdebug"),
-  #endif
-    .pfnPrint = RT_Print,
+#if WIN32
+      .pWin32SurfaceInfo = &win32Info,
+#else
+      .pXlibSurfaceCreateInfo = &x11Info,
+#endif
 
-    .pShaderFolderPath = RG_RESOURCES_FOLDER "shaders/",
-    .pBlueNoiseFilePath = RG_RESOURCES_FOLDER "BlueNoise_LDR_RGBA_128.ktx2",
-    .pWaterNormalTexturePath = RG_RESOURCES_FOLDER "WaterNormal_n.ktx2",
+      .pOverrideFolderPath = RG_RESOURCES_FOLDER,
 
-    .primaryRaysMaxAlbedoLayers = 1,
-    .indirectIlluminationMaxAlbedoLayers = 1,
-    .rayCullBackFacingTriangles = 0,
-    .allowGeometryWithSkyFlag = 1,
+      .pfnPrint        = RT_Print,
+      .allowedMessages = M_CheckParm("-rtdebug")
+                             ? (RG_MESSAGE_SEVERITY_VERBOSE | RG_MESSAGE_SEVERITY_INFO |
+                                RG_MESSAGE_SEVERITY_WARNING | RG_MESSAGE_SEVERITY_ERROR)
+                             : 0,
 
-    .rasterizedMaxVertexCount = 1 << 20,
-    .rasterizedMaxIndexCount = 1 << 21,
-    .rasterizedVertexColorGamma = true,
+      .primaryRaysMaxAlbedoLayers          = 1,
+      .indirectIlluminationMaxAlbedoLayers = 1,
+      .rayCullBackFacingTriangles          = 0,
+      .allowGeometryWithSkyFlag            = 1,
 
-    .rasterizedSkyMaxVertexCount = 1 << 16,
-    .rasterizedSkyMaxIndexCount = 1 << 16,
-    .rasterizedSkyCubemapSize = 256,
+      .lightmapTexCoordLayerIndex = 1,
 
-    .maxTextureCount = RG_MAX_TEXTURE_COUNT,
-    .textureSamplerForceMinificationFilterLinear = true,
+      .rasterizedMaxVertexCount   = 1 << 20,
+      .rasterizedMaxIndexCount    = 1 << 21,
+      .rasterizedVertexColorGamma = true,
 
-    .pOverridenTexturesFolderPath = RG_RESOURCES_FOLDER "mat/",
-    .overridenAlbedoAlphaTextureIsSRGB = true,
-    .overridenRoughnessMetallicEmissionTextureIsSRGB = false,
-    .overridenNormalTextureIsSRGB = false,
+      .rasterizedSkyCubemapSize = 256,
 
-    .vertexPositionStride = 3 * sizeof(float),
-    .vertexNormalStride = 3 * sizeof(float),
-    .vertexTexCoordStride = 2 * sizeof(float),
-    .vertexColorStride = sizeof(uint32_t)
+      .textureSamplerForceMinificationFilterLinear = true,
+      .textureSamplerForceNormalMapFilterLinear    = true,
+
+      .pbrTextureSwizzling = RG_TEXTURE_SWIZZLING_ROUGHNESS_METALLIC,
+
+      .effectWipeIsUsed = true,
+
+      .worldUp      = { 0, 1, 0 },
+      .worldForward = { 0, 0, 1 },
+      .worldScale   = 1.0f,
   };
 
   RgResult r = rgCreateInstance(&info, &rtmain.instance);
-  if (r != RG_SUCCESS)
+  if (r != RG_RESULT_SUCCESS)
   {
-    I_Error("Can't initialize ray tracing engine: %s", rgGetResultDescription(r));
-    return;
+     I_Error("Can't initialize ray tracing engine: %s", rgUtilGetResultDescription(r));
+     return;
+  }
+
+  if (rgUtilPackColorByte4D(255, 255, 255, 255) != RG_PACKED_COLOR_WHITE)
+  {
+     I_Error("Can't initialize ray tracing engine: Mismatching RG_PACKED_COLOR_WHITE constant");
+     return;
   }
 
   rtmain.window = sdl_window;
@@ -138,10 +152,8 @@ void RT_Init()
 
 
   {
-    RgBool32 dlss_available = false;
-    r = rgIsRenderUpscaleTechniqueAvailable(rtmain.instance, RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS, &dlss_available);
-    RG_CHECK(r);
-    rtmain.is_dlss_available = dlss_available;
+        rtmain.is_dlss_available = rgUtilIsUpscaleTechniqueAvailable(
+            rtmain.instance, RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS);
   }
 
 
@@ -171,14 +183,6 @@ void RT_Destroy(void)
   RG_CHECK(r);
 
   memset(&rtmain, 0, sizeof(rtmain));
-}
-
-
-static float GetZNear()
-{
-  // from R_SetupMatrix
-  extern int gl_nearclip;
-  return (float)gl_nearclip / 100.0f;
 }
 
 
@@ -279,34 +283,14 @@ static RgRenderResolutionMode GetResolutionMode(int dlss, int fsr) // 0 - off, 1
 
   switch (fsr)
   {
-    case 1:   return RG_RENDER_RESOLUTION_MODE_ULTRA_QUALITY;
-    case 2:   return RG_RENDER_RESOLUTION_MODE_QUALITY;
-    case 3:   return RG_RENDER_RESOLUTION_MODE_BALANCED;
-    case 4:   return RG_RENDER_RESOLUTION_MODE_PERFORMANCE;
+    case 1:   return RG_RENDER_RESOLUTION_MODE_QUALITY;
+    case 2:   return RG_RENDER_RESOLUTION_MODE_BALANCED;
+    case 3:   return RG_RENDER_RESOLUTION_MODE_PERFORMANCE;
+    case 4:   return RG_RENDER_RESOLUTION_MODE_ULTRA_PERFORMANCE;
     default:  break;
   }
 
   return RG_RENDER_RESOLUTION_MODE_CUSTOM;
-}
-
-
-static int GetMaxBounceSpherical(int bounce_quality)
-{
-  switch (bounce_quality)
-  {
-    case 1:   return 1;
-    case 2:   return 2;
-    default:  return 1;
-  }
-}
-static int  GetMaxBounceSpotAndPoly(int bounce_quality)
-{
-  switch (bounce_quality)
-  {
-    case 1:   return 2;
-    case 2:   return 2;
-    default:  return 1;
-  }
 }
 
 
@@ -346,14 +330,13 @@ static void NormalizeRTSettings(rt_settings_t *settings)
 
 void RT_StartFrame(void)
 {
-  RgStartFrameInfo info =
-  {
-    .requestRasterizedSkyGeometryReuse = rtmain.was_new_sky ? false : true,
-    .requestShaderReload = rtmain.request_shaderreload,
-    .requestVSync = render_vsync,
-    .surfaceSize = GetCurrentWindowSize()
+  RgStartFrameInfo info = {
+    .sType                  = RG_STRUCTURE_TYPE_START_FRAME_INFO,
+    .pNext                  = NULL,
+    .pMapName               = NULL,
+    .ignoreExternalGeometry = false,
+    .vsync                  = render_vsync,
   };
-  rtmain.request_shaderreload = 0;
 
   RgResult r = rgStartFrame(rtmain.instance, &info);
   RG_CHECK(r);
@@ -362,10 +345,8 @@ void RT_StartFrame(void)
 
 
   {
-    RgBool32 dlss_available = false;
-    r = rgIsRenderUpscaleTechniqueAvailable(rtmain.instance, RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS, &dlss_available);
-    RG_CHECK(r);
-    rtmain.is_dlss_available = dlss_available;
+    rtmain.is_dlss_available =
+        rgUtilIsUpscaleTechniqueAvailable(rtmain.instance, RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS);
   }
 
 
@@ -388,91 +369,91 @@ void RT_EndFrame()
   NormalizeRTSettings(&rt_settings);
 
 
-#if RG_SKY_REUSE_BUG_HACK
-  // TODO RT: rtgl1's 'reuse sky geomrty from prev frame' is broken for now:
-  // there's a 1 frame sky camera delay; so keep 'was_new_sky' always true for now
-  rtmain.was_new_sky = true;
-#else
-  rtmain.was_new_sky = false;
-#endif
-
-
   RT_AddSkyDome();
 
 
-  RgDrawFrameRenderResolutionParams resolution_params =
-  {
-    .upscaleTechnique = rt_settings.dlss > 0 ? RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS : rt_settings.fsr > 0 ? RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR : RG_RENDER_UPSCALE_TECHNIQUE_NEAREST,
-    .sharpenTechnique = RG_RENDER_SHARPEN_TECHNIQUE_NONE,
-    .resolutionMode = GetResolutionMode(rt_settings.dlss, rt_settings.fsr),
-    .renderSize = GetScaledResolution(rt_settings.renderscale),
-    .interlacing = rt_settings.crt_interlacing
+  RgDrawFrameRenderResolutionParams resolution_params = {
+      .sType                = RG_STRUCTURE_TYPE_DRAW_FRAME_RENDER_RESOLUTION_PARAMS,
+      .pNext                = NULL,
+      .upscaleTechnique     = rt_settings.dlss > 0  ? RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS
+                              : rt_settings.fsr > 0 ? RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR2
+                                                    : RG_RENDER_UPSCALE_TECHNIQUE_NEAREST,
+      .sharpenTechnique     = RG_RENDER_SHARPEN_TECHNIQUE_NONE,
+      .resolutionMode       = GetResolutionMode(rt_settings.dlss, rt_settings.fsr),
+      .customRenderSize     = GetScaledResolution(rt_settings.renderscale),
+      .pPixelizedRenderSize = NULL,
+      .resetUpscalerHistory = false,
   };
 
-  RgDrawFrameTonemappingParams tm_params =
-  {
-    .minLogLuminance = -4,
-    .maxLogLuminance = 0,
-    .luminanceWhitePoint = 10
+  RgDrawFrameTonemappingParams tm_params = {
+      .sType                = RG_STRUCTURE_TYPE_DRAW_FRAME_TONEMAPPING_PARAMS,
+      .pNext                = &resolution_params,
+      .disableEyeAdaptation = false,
+      .ev100Min             = -4,
+      .ev100Max             = 10,
+      .luminanceWhitePoint  = 10,
+      .saturation           = { 0, 0, 0 },
+      .crosstalk            = { 1.0f, 1.0f, 1.0f },
   };
 
-  RgDrawFrameReflectRefractParams reflrefr_params =
-  {
-    .isReflRefrAlphaTested = 1,
-    .maxReflectRefractDepth = rt_settings.refl_refr_max_depth,
-    .typeOfMediaAroundCamera = RG_MEDIA_TYPE_VACUUM,
-    .reflectRefractCastShadows = 0,
-    .reflectRefractToIndirect = 1,
-    .indexOfRefractionGlass = 1.52f,
-    .indexOfRefractionWater = 1.33f,
-    .waterWaveSpeed = 0.05f, // for partial_invisibility
-    .waterWaveNormalStrength = 3.0f, // for partial_invisibility
-    .waterExtinction = { 0.030f, 0.019f, 0.013f },
-    .waterWaveTextureDerivativesMultiplier = 1.0f,
-    .waterTextureAreaScale = 1.0f
+  RgDrawFrameReflectRefractParams reflrefr_params = {
+      .sType                                 = RG_STRUCTURE_TYPE_DRAW_FRAME_REFLECT_REFRACT_PARAMS,
+      .pNext                                 = &tm_params,
+      .maxReflectRefractDepth                = rt_settings.refl_refr_max_depth,
+      .typeOfMediaAroundCamera               = RG_MEDIA_TYPE_VACUUM,
+      .indexOfRefractionGlass                = 1.52f,
+      .indexOfRefractionWater                = 1.33f,
+      .waterWaveSpeed                        = 0.05f, // for partial_invisibility
+      .waterWaveNormalStrength               = 3.0f,  // for partial_invisibility
+      .waterColor                            = { 0.25f, 0.4f, 0.6f },
+      .waterWaveTextureDerivativesMultiplier = 1.0f,
+      .waterTextureAreaScale                 = 1.0f,
+      .portalNormalTwirl                     = false,
   };
 
-  RgDrawFrameSkyParams sky_params =
-  {
-    .skyType = rtmain.sky.texture != NULL ? RG_SKY_TYPE_RASTERIZED_GEOMETRY : RG_SKY_TYPE_COLOR,
-    .skyColorDefault = { 0,0,0 },
-    .skyColorMultiplier = 1,
-    .skyColorSaturation = 1,
-    .skyViewerPosition = {0,0,0},
-    .skyCubemap = RG_NO_MATERIAL,
-    .skyCubemapRotationTransform = {0}
+  RgDrawFrameSkyParams sky_params = {
+      .sType   = RG_STRUCTURE_TYPE_DRAW_FRAME_SKY_PARAMS,
+      .pNext   = &reflrefr_params,
+      .skyType = rtmain.sky.texture != NULL ? RG_SKY_TYPE_RASTERIZED_GEOMETRY : RG_SKY_TYPE_COLOR,
+      .skyColorDefault    = { 0, 0, 0 },
+      .skyColorMultiplier = 1.0f,
+      .skyColorSaturation = 1.0f,
+      .skyViewerPosition  = { 0, 0, 0 },
   };
 #if RT_DOOM1_HACKS
   // make E3M1 less red
-  if (gamemission == doom && gameepisode == 3 && gamemap == 1) sky_params.skyColorSaturation = 0.7f;
+  if (gamemission == doom && gameepisode == 3 && gamemap == 1)
+  {
+    sky_params.skyColorSaturation = 0.7f;
+  }
 #endif
 
-  RgDrawFrameBloomParams bloom_params =
-  {
-    .bloomIntensity =
-      rt_settings.bloom_intensity == 0 ? -1 :
-      rt_settings.bloom_intensity == 1 ? 0.25f :
-      0.5f,
-    .inputThreshold = 3.0f,
-    .inputThresholdLength = 0.25f,
-    .upsampleRadius = 1.0f,
-    .bloomEmissionMultiplier = rt_settings.bloom_intensity == 3 ? 8.0f : 1.0f,
-    .bloomEmissionSaturationBias = 4.0f,
-    .bloomSkyMultiplier = 0.05f
+  RgDrawFrameBloomParams bloom_params = {
+      .sType                   = RG_STRUCTURE_TYPE_DRAW_FRAME_BLOOM_PARAMS,
+      .pNext                   = &sky_params,
+      .bloomIntensity          = rt_settings.bloom_intensity == 0   ? -1
+                                 : rt_settings.bloom_intensity == 1 ? 0.25f
+                                                                    : 0.5f,
+      .inputThreshold          = 4.0f,
+      .bloomEmissionMultiplier = 9.0f,
+      .lensDirtIntensity       = 1.0f,
   };
 
-  RgDrawFrameShadowParams shadow_params =
-  {
-    .maxBounceShadowsDirectionalLights = 8,
-    .maxBounceShadowsSphereLights = GetMaxBounceSpherical(rt_settings.bounce_quality),
-    .maxBounceShadowsSpotlights = GetMaxBounceSpotAndPoly(rt_settings.bounce_quality),
-    .maxBounceShadowsPolygonalLights = GetMaxBounceSpotAndPoly(rt_settings.bounce_quality),
-    .polygonalLightSpotlightFactor = 0.5f,
-    .sphericalPolygonalLightsFirefliesClamp = 3.0f
+  RgDrawFrameIlluminationParams illum_params = {
+      .sType                              = RG_STRUCTURE_TYPE_DRAW_FRAME_ILLUMINATION_PARAMS,
+      .pNext                              = &bloom_params,
+      .maxBounceShadows                   = 4,
+      .enableSecondBounceForIndirect      = true,
+      .cellWorldSize                      = 2.0f,
+      .directDiffuseSensitivityToChange   = 1.0f,
+      .indirectDiffuseSensitivityToChange = 0.75f,
+      .specularSensitivityToChange        = 1.0f,
+      .polygonalLightSpotlightFactor      = 2.0f,
+      .lightUniqueIdIgnoreFirstPersonViewerShadows = NULL,
   };
 
   #define SCREEN_MELT_DURATION 1.5f
-  RgPostEffectWipe wipe_params =
+  RgPostEffectWipe ef_wipe =
   {
     .stripWidth = 1.0f / 320.0f,
     .beginNow = rtmain.request_wipe,
@@ -484,14 +465,14 @@ void RT_EndFrame()
     rtmain.request_wipe = false;
   }
 
-  RgPostEffectRadialBlur radialblur_params =
+  RgPostEffectRadialBlur ef_radialblur =
   {
     .isActive = rtmain.powerupflags & RT_POWERUP_FLAG_BERSERK_BIT,
     .transitionDurationIn = 0.4f,
     .transitionDurationOut = 3.0f
   };
 
-  RgPostEffectChromaticAberration chrabr_params =
+  RgPostEffectChromaticAberration ef_chrabr =
   {
     .isActive = rtmain.powerupflags & RT_POWERUP_FLAG_DAMAGE_BIT,
     .transitionDurationIn = 0.05f,
@@ -499,28 +480,28 @@ void RT_EndFrame()
     .intensity = 0.5f
   };
 
-  RgPostEffectInverseBlackAndWhite invbw_params =
+  RgPostEffectInverseBlackAndWhite ef_invbw =
   {
     .isActive = rtmain.powerupflags & RT_POWERUP_FLAG_INVUNERABILITY_BIT,
     .transitionDurationIn = 1.0f,
     .transitionDurationOut = 1.5f,
   };
 
-  RgPostEffectHueShift hueshift_params =
+  RgPostEffectHueShift ef_hueshift =
   {
     .isActive = rtmain.request_flashlight && (rtmain.powerupflags & RT_POWERUP_FLAG_MORELIGHT_BIT),
     .transitionDurationIn = 0.5f,
     .transitionDurationOut = 0.5f,
   };
 
-  RgPostEffectDistortedSides distortedsides_params =
+  RgPostEffectDistortedSides ef_distortedsides =
   {
     .isActive = rtmain.powerupflags & RT_POWERUP_FLAG_RADIATIONSUIT_BIT,
     .transitionDurationIn = 1.0f,
     .transitionDurationOut = 1.0f,
   };
 
-  RgPostEffectColorTint tint_params_radsuit =
+  RgPostEffectColorTint ef_tint_radsuit =
   {
     .isActive = true,
     .transitionDurationIn = 1.0f,
@@ -528,7 +509,7 @@ void RT_EndFrame()
     .intensity = 1.0f,
     .color = { 0.2f, 1.0f, 0.4f }
   };
-  RgPostEffectColorTint tint_params_bonus =
+  RgPostEffectColorTint ef_tint_bonus =
   {
     .isActive = true,
     .transitionDurationIn = 0.0f,
@@ -536,96 +517,51 @@ void RT_EndFrame()
     .intensity = 0.5f,
     .color = { 1.0f, 0.91f, 0.42f }
   };
-  static RgPostEffectColorTint tint_params = { 0 }; // static, so prev state's transition durations are preserved
-  tint_params.isActive = false;
-  if (rtmain.powerupflags & RT_POWERUP_FLAG_RADIATIONSUIT_BIT) tint_params = tint_params_radsuit;
-  else if (rtmain.powerupflags & RT_POWERUP_FLAG_BONUS_BIT) tint_params = tint_params_bonus;
+  // static, so prev state's transition durations are preserved
+  static RgPostEffectColorTint ef_tint = { 0 };
+  {
+    ef_tint.isActive = false;
+    if (rtmain.powerupflags & RT_POWERUP_FLAG_RADIATIONSUIT_BIT)
+    {
+      ef_tint = ef_tint_radsuit;
+    }
+    else if (rtmain.powerupflags & RT_POWERUP_FLAG_BONUS_BIT)
+    {
+      ef_tint = ef_tint_bonus;
+    }
+  }
 
-  RgPostEffectCRT crt_params =
+  RgPostEffectCRT ef_crt =
   {
     .isActive = IsCRTModeEnabled(rt_settings.renderscale)
   };
 
-  RgDrawFrameDebugParams debug_params =
-  {
-    .showMotionVectors = 0,
-    .showGradients = 0,
-    .showSectors = 0
+  RgDrawFramePostEffectsParams post_params = {
+      .sType                 = RG_STRUCTURE_TYPE_DRAW_FRAME_POST_EFFECTS_PARAMS,
+      .pNext                 = &illum_params,
+      .pWipe                 = &ef_wipe,
+      .pRadialBlur           = &ef_radialblur,
+      .pChromaticAberration  = &ef_chrabr,
+      .pInverseBlackAndWhite = &ef_invbw,
+      .pHueShift             = &ef_hueshift,
+      .pDistortedSides       = &ef_distortedsides,
+      .pColorTint            = &ef_tint,
+      .pCRT                  = &ef_crt,
   };
 
   RgDrawFrameInfo info = {
-    .worldUpVector = { 0,1,0 },
-    .fovYRadians = DEG2RAD(render_fovy),
-    .rayCullMaskWorld = RG_DRAW_FRAME_RAY_CULL_WORLD_0_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
-    .rayLength = 10000.0f,
-    .primaryRayMinDist = GetZNear(),
-    .disableRayTracing = false,
-    .disableRasterization = false,
-    .currentTime = RT_GetCurrentTime(),
-    .disableEyeAdaptation = false,
-    .useSqrtRoughnessForIndirect = false,
-    .pRenderResolutionParams = &resolution_params,
-    .pShadowParams = &shadow_params,
-    .pTonemappingParams = &tm_params,
-    .pBloomParams = &bloom_params,
-    .pReflectRefractParams = &reflrefr_params,
-    .pSkyParams = &sky_params,
-    .pDebugParams = &debug_params,
-    .postEffectParams =
-    {
-      .pWipe = &wipe_params ,
-      .pRadialBlur = &radialblur_params,
-      .pChromaticAberration = &chrabr_params,
-      .pInverseBlackAndWhite = &invbw_params,
-      .pHueShift = &hueshift_params,
-      .pDistortedSides = &distortedsides_params,
-      .pColorTint = &tint_params,
-      .pCRT = &crt_params,
-    },
+      .sType            = RG_STRUCTURE_TYPE_DRAW_FRAME_INFO,
+      .pNext            = &post_params,
+      .rayLength        = 10000.0f,
+      .rayCullMaskWorld = RG_DRAW_FRAME_RAY_CULL_WORLD_0_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
+      .disableRayTracedGeometry = false,
+      .disableRasterization     = false,
+      .presentPrevFrame         = false,
+      .currentTime              = RT_GetCurrentTime(),
   };
-  memcpy(info.view, rtmain.mat_view, 16 * sizeof(float));
-  memcpy(info.projection, rtmain.mat_projectionvk, 16 * sizeof(float));
 
   RgResult r = rgDrawFrame(rtmain.instance, &info);
   RG_CHECK(r);
-}
-
-
-void RT_UploadStaticScene()
-{
-  // RT_PreprocessLevel was already called
-
-  RgResult r;
-
-  r = rgStartNewScene(rtmain.instance);
-  RG_CHECK(r);
-
-
-  for (int iSectorID_A = 0; iSectorID_A < numsectors; iSectorID_A++)
-  {
-    for (int iSectorID_B = 0; iSectorID_B < numsectors; iSectorID_B++)
-    {
-      // based on P_CheckSight / P_CheckSight_12
-      int pnum = iSectorID_A * numsectors + iSectorID_B;
-
-      int bytenum = pnum >> 3;
-      int bitnum = 1 << (pnum & 7);
-
-      if (rejectmatrix[bytenum] & bitnum)
-      {
-        continue;
-      }
-
-      r = rgSetPotentialVisibility(rtmain.instance, iSectorID_A, iSectorID_B);
-      RG_CHECK(r);
-    }
-  }
-
-  r = rgSubmitStaticGeometries(rtmain.instance);
-  RG_CHECK(r);
-
-
-  rtmain.was_new_sky = true;
 }
 
 
@@ -702,27 +638,6 @@ uint64_t RT_GetUniqueID_Flat(int sectornum, dboolean ceiling)
   return UNIQUE_TYPE_FLAT | id;
 }
 
-
-int RT_GetSectorNum_Fixed(fixed_t x, fixed_t y)
-{
-  return R_PointInSubsector(x, y)->sector->iSectorID;
-}
-
-
-int RT_GetSectorNum_Real(float real_x, float real_y)
-{
-  fixed_t x = (fixed_t)(-real_x * MAP_SCALE);
-  fixed_t y = (fixed_t)(real_y * MAP_SCALE);
-
-  return RT_GetSectorNum_Fixed(x, y);
-}
-
-
-uint32_t RT_PackColor(byte r, byte g, byte b, byte a)
-{
-  return
-    ((uint32_t)a << 24) |
-    ((uint32_t)b << 16) |
-    ((uint32_t)g << 8) |
-    ((uint32_t)r);
+uint64_t RT_GetUniqueID_Sky(void) {
+  return UNIQUE_TYPE_WEAPON | UINT32_MAX;
 }

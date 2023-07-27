@@ -508,8 +508,6 @@ default_t defaults[] =
    def_int,ss_none },
   {"rt_bloom_intensity",{&rt_settings.bloom_intensity},{2},0,3,
    def_int,ss_none },
-  {"rt_crt_interlacing",{&rt_settings.crt_interlacing},{0},0,1,
-   def_int,ss_none },
   {"rt_muzzleflash_intensity",{&rt_settings.muzzleflash_intensity},{1},0,1,
    def_int,ss_none},
   {"rt_statusbar_scale",{&rt_settings.statusbar_scale},{5},0,9,
@@ -520,8 +518,6 @@ default_t defaults[] =
 #endif
   { "rt_hud_style",{&rt_settings.hud_style},{2},0,2,
  def_int,ss_none },
-  {"rt_bounce_quality",{&rt_settings.bounce_quality},{1},0,2,
-   def_int,ss_none},
   {"rt_refl_refr_max_depth",{&rt_settings.refl_refr_max_depth},{2},0,3,
    def_int,ss_none},
   {"rt_classic_flashlight",{&rt_settings.classic_flashlight},{0},0,1,

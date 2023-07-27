@@ -69,30 +69,30 @@ static float CalcLightLevel(int lightlevel)
 }
 
 
-static const RgFloat3D *Get6NormalsUp(void);
-static const RgFloat3D *Get6NormalsTowardsCamera(void);
-static const RgFloat3D *Get6NormalsForSprite(void);
+static RgFloat3D GetNormalUp(void);
+static RgFloat3D GetNormalTowardsCamera(void);
+static RgFloat3D GetNormalForSprite(void);
 
 
-static RgFloat3D GetCenter(const RgFloat3D positions[6])
+static RgFloat3D GetCenter(const RgPrimitiveVertex vs[6])
 {
   RgFloat3D center = { 0,0,0 };
   for (int i = 0; i < 6; i++)
   {
-    center.data[0] += positions[i].data[0];
-    center.data[1] += positions[i].data[1];
-    center.data[2] += positions[i].data[2];
+    center.data[0] += vs[i].position[0];
+    center.data[1] += vs[i].position[1];
+    center.data[2] += vs[i].position[2];
   }
   center.data[0] /= 6; center.data[1] /= 6; center.data[2] /= 6;
 
   return center;
 }
-static float GetMaxY(const RgFloat3D positions[6])
+static float GetMaxY(const RgPrimitiveVertex vs[6])
 {
-  float maxy = positions[0].data[1];
+  float maxy = vs[0].position[1];
   for (int i = 1; i < 6; i++)
   {
-    maxy = i_max(maxy, positions[i].data[1]);
+    maxy = i_max(maxy, vs[i].position[1]);
   }
   return maxy;
 }
@@ -114,10 +114,16 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
     return;
   }
 
+  
+  RgPrimitiveVertex vertices[ 6 ];
 
-  RgFloat3D positions[6];
-  RgFloat2D texcoords[6];
 
+  RgFloat3D normal = is_partial_invisibility ? GetNormalTowardsCamera() : GetNormalForSprite();
+  // TODO RT: tangent
+  RgFloat4D tangent = { 1, 0, 0, 1 };
+
+  #define RG_UNPACK_3(v) { (v).data[0], (v).data[1], (v).data[2] }
+  #define RG_UNPACK_4(v) { (v).data[0], (v).data[1], (v).data[2], (v).data[3] }
 
   float yaw = 270.0f - (float)(viewangle >> ANGLETOFINESHIFT) * 360.0f / FINEANGLES;
   float inv_yaw = 180.0f - yaw;
@@ -135,12 +141,19 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
     float z2 = -(sprite->x1 * sin_inv_yaw) + sprite->z;
     float z1 = -(sprite->x2 * sin_inv_yaw) + sprite->z;
 
-    SET_RGVEC3(positions[0], x1, y1, z2); SET_RGVEC2(texcoords[0], sprite->ul, sprite->vt); // 0
-    SET_RGVEC3(positions[1], x2, y1, z1); SET_RGVEC2(texcoords[1], sprite->ur, sprite->vt); // 1
-    SET_RGVEC3(positions[2], x1, y2, z2); SET_RGVEC2(texcoords[2], sprite->ul, sprite->vb); // 2
-    SET_RGVEC3(positions[3], x2, y1, z1); SET_RGVEC2(texcoords[3], sprite->ur, sprite->vt); // 1
-    SET_RGVEC3(positions[4], x2, y2, z1); SET_RGVEC2(texcoords[4], sprite->ur, sprite->vb); // 3
-    SET_RGVEC3(positions[5], x1, y2, z2); SET_RGVEC2(texcoords[5], sprite->ul, sprite->vb); // 2
+    // clang-format off
+    RgPrimitiveVertex v0 = { .position = { x1, y1, z2 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ul, sprite->vt }, .color = RG_PACKED_COLOR_WHITE };
+    RgPrimitiveVertex v1 = { .position = { x2, y1, z1 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ur, sprite->vt }, .color = RG_PACKED_COLOR_WHITE };
+    RgPrimitiveVertex v2 = { .position = { x1, y2, z2 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ul, sprite->vb }, .color = RG_PACKED_COLOR_WHITE };
+    RgPrimitiveVertex v3 = { .position = { x2, y2, z1 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ur, sprite->vb }, .color = RG_PACKED_COLOR_WHITE };
+    // clang-format on
+
+    vertices[0] = v0;
+    vertices[1] = v1;
+    vertices[2] = v2;
+    vertices[3] = v1;
+    vertices[4] = v3;
+    vertices[5] = v2;
   }
   else
   {
@@ -167,148 +180,116 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
     float z2 = -(sprite->x2 * sin_inv_yaw + y1z2_y * cos_inv_yaw) + sprite->z;
     float z3 = -(sprite->x1 * sin_inv_yaw + y2z2_y * cos_inv_yaw) + sprite->z;
     float z4 = -(sprite->x2 * sin_inv_yaw + y2z2_y * cos_inv_yaw) + sprite->z;
-    
-    SET_RGVEC3(positions[0], x1, y1, z1); SET_RGVEC2(texcoords[0], sprite->ul, sprite->vt); // 0
-    SET_RGVEC3(positions[1], x2, y1, z2); SET_RGVEC2(texcoords[1], sprite->ur, sprite->vt); // 1
-    SET_RGVEC3(positions[2], x3, y2, z3); SET_RGVEC2(texcoords[2], sprite->ul, sprite->vb); // 2
-    SET_RGVEC3(positions[3], x2, y1, z2); SET_RGVEC2(texcoords[3], sprite->ur, sprite->vt); // 1
-    SET_RGVEC3(positions[4], x4, y2, z4); SET_RGVEC2(texcoords[4], sprite->ur, sprite->vb); // 3
-    SET_RGVEC3(positions[5], x3, y2, z3); SET_RGVEC2(texcoords[5], sprite->ul, sprite->vb); // 2
+
+    // clang-format off
+    RgPrimitiveVertex v0 = { .position = { x1, y1, z1 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ul, sprite->vt }, .color = RG_PACKED_COLOR_WHITE };
+    RgPrimitiveVertex v1 = { .position = { x2, y1, z2 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ur, sprite->vt }, .color = RG_PACKED_COLOR_WHITE };
+    RgPrimitiveVertex v2 = { .position = { x3, y2, z3 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ul, sprite->vb }, .color = RG_PACKED_COLOR_WHITE };
+    RgPrimitiveVertex v3 = { .position = { x4, y2, z4 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ur, sprite->vb }, .color = RG_PACKED_COLOR_WHITE };
+    // clang-format on
+
+    vertices[0] = v0;
+    vertices[1] = v1;
+    vertices[2] = v2;
+    vertices[3] = v1;
+    vertices[4] = v3;
+    vertices[5] = v2;
   }
 
+  #undef RG_UNPACK_3
+  #undef RG_UNPACK_4
 
-  if (!is_rasterized)
-  {
-    RgGeometryUploadInfo info =
-    {
-      .uniqueID = RT_GetUniqueID_Thing(thing),
-      .flags = is_partial_invisibility ? RG_GEOMETRY_UPLOAD_REFL_REFR_ALBEDO_ADD_BIT : 0,
-      .geomType = RG_GEOMETRY_TYPE_DYNAMIC,
-      .passThroughType = is_partial_invisibility ? RG_GEOMETRY_PASS_THROUGH_TYPE_WATER_REFLECT_REFRACT : RG_GEOMETRY_PASS_THROUGH_TYPE_ALPHA_TESTED,
-      .visibilityType = is_local_player ? RG_GEOMETRY_VISIBILITY_TYPE_FIRST_PERSON_VIEWER : RG_GEOMETRY_VISIBILITY_TYPE_WORLD_0,
-      .vertexCount = 6,
-      .pVertexData = positions,
-      .pNormalData = is_partial_invisibility ? Get6NormalsTowardsCamera() : Get6NormalsForSprite(),
-      .pTexCoordLayerData = { texcoords },
-      .sectorID = sectornum,
-      .layerColors = { RG_COLOR_WHITE },
-      .defaultRoughness = RG_SPRITE_ROUGHNESS,
-      .defaultMetallicity = RG_SPRITE_METALLICITY,
-      .defaultEmission = RT_TEXTURE_EMISSION(sprite->td),
-      .geomMaterial = { sprite->td->rg_handle },
-      .transform = RG_TRANSFORM_IDENTITY
-    };
 
-    RgResult r = rgUploadGeometry(rtmain.instance, &info);
-    RG_CHECK(r);
-  }
-  else
-  {
-    RgRasterizedGeometryVertexArrays arr =
-    {
-      .pVertexData = positions,
-      .pTexCoordData = texcoords,
-      .pColorData = NULL,
-      .vertexStride = sizeof(RgFloat3D),
-      .texCoordStride = sizeof(RgFloat2D),
-      .colorStride = 0
-    };
+  RgMeshPrimitiveInfo prim = {
+      .sType = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_INFO,
+      .pNext = NULL,
+      .flags = RG_MESH_PRIMITIVE_ALPHA_TESTED | RG_MESH_PRIMITIVE_DONT_GENERATE_NORMALS |
+               (is_partial_invisibility ? RG_MESH_PRIMITIVE_WATER : 0) |
+               (is_local_player ? RG_MESH_PRIMITIVE_FIRST_PERSON_VIEWER : 0) |
+               (is_rasterized ? RG_MESH_PRIMITIVE_TRANSLUCENT : 0),
+      .pPrimitiveNameInMesh = NULL,
+      .primitiveIndexInMesh = 0,
+      .pVertices            = vertices,
+      .vertexCount          = RG_ARRAY_SIZE(vertices),
+      .pIndices             = NULL,
+      .indexCount           = 0,
+      .pTextureName         = sprite->td->name,
+      .color                = RG_PACKED_COLOR_WHITE,
+      .emissive             = RT_TEXTURE_EMISSION(sprite->td),
+  };
 
-    RgRasterizedGeometryUploadInfo info =
-    {
-      .renderType = RG_RASTERIZED_GEOMETRY_RENDER_TYPE_DEFAULT,
-      .vertexCount = 6,
-      .pArrays = &arr,
-      .transform = RG_TRANSFORM_IDENTITY,
-      .color = RG_COLOR_WHITE,
-      .material = sprite->td->rg_handle,
-      // should be alpha test, but works too:
-      .pipelineState = RG_RASTERIZED_GEOMETRY_STATE_ALPHA_TEST | (no_depth_test ? 0 : (RG_RASTERIZED_GEOMETRY_STATE_DEPTH_TEST | RG_RASTERIZED_GEOMETRY_STATE_DEPTH_WRITE)),
-      .blendFuncSrc = RG_BLEND_FACTOR_SRC_ALPHA,
-      .blendFuncDst = RG_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
-    };
+  RgMeshInfo info = {
+      .sType          = RG_STRUCTURE_TYPE_MESH_INFO,
+      .pNext          = NULL,
+      .uniqueObjectID = RT_GetUniqueID_Thing(thing),
+      .pMeshName      = NULL,
+      .transform      = RG_TRANSFORM_IDENTITY,
+      .isExportable   = false,
+      .animationName  = NULL,
+      .animationTime  = 0.0f,
+  };
 
-    RgResult r = rgUploadRasterizedGeometry(rtmain.instance, &info, NULL, NULL);
-    RG_CHECK(r);
-  }
+  RgResult r = rgUploadMeshPrimitive(rtmain.instance, &info, &prim);
+  RG_CHECK(r);
+
 
   if (add_lightsource)
   {
     const rt_texture_metainfo_t *mt = sprite->td->metainfo;
 
-    RgSphericalLightUploadInfo light_info =
-    {
-      .uniqueID = RT_GetUniqueID_Thing(thing),
-      .color = mt->light_color,
-      .position = GetCenter(positions),
-      .sectorID = sectornum,
-      .radius = 0.01f,
-      .falloffDistance = 7 * mt->falloff_multiplier
+    float falloff = 7 * mt->falloff_multiplier;
+
+    RgLightSphericalEXT ext = {
+        .sType     = RG_STRUCTURE_TYPE_LIGHT_SPHERICAL_EXT,
+        .pNext     = NULL,
+        .color     = mt->light_color,
+        .intensity = falloff * RG_LIGHT_INTENSITY_MULT,
+        .position  = GetCenter(vertices),
+        .radius    = 0.01f,
     };
 
-    RgResult r = rgUploadSphericalLight(rtmain.instance, &light_info);
+    RgLightInfo lt = {
+        .sType        = RG_STRUCTURE_TYPE_LIGHT_INFO,
+        .pNext        = &ext,
+        .uniqueID     = RT_GetUniqueID_Thing(thing),
+        .isExportable = false,
+    };
+
+    r = rgUploadLight(rtmain.instance, &lt);
     RG_CHECK(r);
   }
   else if (add_conelight)
   {
     float x_radius = (sprite->x2 - sprite->x1) * 0.5f;
-    float y_max = GetMaxY(positions);
 
     if (x_radius > 0)
     {
-      const dboolean use_poly_light = true;
-
-      if (use_poly_light)
-      {
         const rt_texture_metainfo_t *mt = sprite->td->metainfo;
 
-        RgPolygonalLightUploadInfo p_info =
-        {
-          .uniqueID = RT_GetUniqueID_Thing(thing),
-          .color = mt->light_color,
-          .sectorID = sectornum
+        RgFloat3D pos = GetCenter(vertices);
+        pos.data[1]   = GetMaxY(vertices);
+
+        RgLightSpotEXT ext = {
+            .sType      = RG_STRUCTURE_TYPE_LIGHT_SPOT_EXT,
+            .pNext      = NULL,
+            .color      = mt->light_color,
+            .intensity  = mt->falloff_multiplier * RG_LIGHT_INTENSITY_MULT,
+            .position   = pos,
+            .direction  = { 0, 1, 0 },
+            .radius     = x_radius,
+            .angleOuter = DEG2RAD(85),
+            .angleInner = DEG2RAD(50),
         };
 
-        p_info.positions[0] = p_info.positions[1] = p_info.positions[2] = GetCenter(positions);
-        p_info.positions[0].data[1] = p_info.positions[1].data[1] = p_info.positions[2].data[1] = y_max;
-
-        RG_VEC3_SCALE(p_info.color.data, 1.0f / x_radius);
-        RG_VEC3_SCALE(p_info.color.data, mt->falloff_multiplier);
-
-        x_radius = i_min(x_radius, 0.2f);
-
-        p_info.positions[0].data[0] += 0;
-        p_info.positions[0].data[2] -= x_radius;
-
-        p_info.positions[1].data[0] -= x_radius * 0.87f; // sin 30
-        p_info.positions[1].data[2] += x_radius * 0.5f;  // cos 30
-
-        p_info.positions[2].data[0] += x_radius * 0.87f; // sin 30
-        p_info.positions[2].data[2] += x_radius * 0.5f;  // cos 30
-
-        RgResult r = rgUploadPolygonalLight(rtmain.instance, &p_info);
-        RG_CHECK(r);
-      }
-      else
-      {
-        RgFloat3D p = GetCenter(positions);
-        p.data[1] = y_max + 0.25f;
-
-        const rt_texture_metainfo_t *mt = sprite->td->metainfo;
-
-        RgSphericalLightUploadInfo light_info =
-        {
-          .uniqueID = RT_GetUniqueID_Thing(thing),
-          .color = mt->light_color,
-          .position = p,
-          .sectorID = sectornum,
-          .radius = 0.01f,
-          .falloffDistance = 0.2f * mt->falloff_multiplier
+        RgLightInfo lt = {
+            .sType        = RG_STRUCTURE_TYPE_LIGHT_INFO,
+            .pNext        = &ext,
+            .uniqueID     = RT_GetUniqueID_Thing(thing),
+            .isExportable = false,
         };
 
-        RgResult r = rgUploadSphericalLight(rtmain.instance, &light_info);
+        r = rgUploadLight(rtmain.instance, &lt);
         RG_CHECK(r);
-      }
     }
   }
 }
@@ -565,6 +546,17 @@ static RgFloat4D ApplyMat44ToVec4(const float column_mat[4][4], const float v[4]
 }
 
 
+static RgFloat3D ApplyMat44ToDirection(const float column_mat[4][4], const float dir[3])
+{
+  RgFloat3D r;
+  for (int i = 0; i < 3; i++)
+  {
+    r.data[i] = column_mat[0][i] * dir[0] + column_mat[1][i] * dir[1] + column_mat[2][i] * dir[2];
+  }
+  return r;
+}
+
+
 static RgFloat3D FromHomogeneous(const RgFloat4D v)
 {
   RgFloat3D r = { v.data[0] / v.data[3],v.data[1] / v.data[3],v.data[2] / v.data[3] };
@@ -572,41 +564,26 @@ static RgFloat3D FromHomogeneous(const RgFloat4D v)
 }
 
 
-static const RgFloat3D *Get6NormalsUp(void)
+static RgFloat3D GetNormalUp(void)
 {
-  static const RgFloat3D normals_up[6] =
-  {
-    { 0, 1, 0 },
-    { 0, 1, 0 },
-    { 0, 1, 0 },
-    { 0, 1, 0 },
-    { 0, 1, 0 },
-    { 0, 1, 0 }
-  };
-  return normals_up;
+  RgFloat3D r = { 0, 1, 0 };
+  return r;
 }
 
 
-static const RgFloat3D *Get6NormalsTowardsCamera(void)
+static RgFloat3D GetNormalTowardsCamera(void)
 {
-  const float f[4] = { 0,0,1,0 };
-  RgFloat4D t = ApplyMat44ToVec4(rtmain.mat_view_inverse, f);
-
-  static RgFloat3D normals_to_camera[6];
-  for (int i = 0; i < 6; i++)
-  {
-    memcpy(&normals_to_camera[i], t.data, 3 * sizeof(float));
-  }
-  return normals_to_camera;
+  const float f[3] = { 0, 0, 1 };
+  return ApplyMat44ToDirection(rtmain.mat_view_inverse, f);
 }
 
 
-static const RgFloat3D *Get6NormalsForSprite(void)
+static RgFloat3D GetNormalForSprite(void)
 {
 #define Vec3Normalize(x) {float l=sqrtf((x)[0]*(x)[0]+(x)[1]*(x)[1]+(x)[2]*(x)[2]); (x)[0]/=l;(x)[1]/=l;(x)[2]/=l; }
 
-  const float f[4] = { 0,0,1,0 };
-  RgFloat4D t = ApplyMat44ToVec4(rtmain.mat_view_inverse, f);
+  const float f[3] = { 0,0,1 };
+  RgFloat3D t = ApplyMat44ToDirection(rtmain.mat_view_inverse, f);
 
   // let up-down axis be some const, and then normalize the vector,
   // so flashlight (for which normals towards camera preferable)
@@ -615,12 +592,7 @@ static const RgFloat3D *Get6NormalsForSprite(void)
   t.data[1] = 1.0f;
   Vec3Normalize(t.data);
 
-  static RgFloat3D normals[6];
-  for (int i = 0; i < 6; i++)
-  {
-    memcpy(normals[i].data, t.data, 3 * sizeof(float));
-  }
-  return normals;
+  return t;
 }
 
 
@@ -684,41 +656,56 @@ void RT_AddWeaponSprite(int weaponlump, const vissprite_t *vis, float zoffset)
   RgFloat2D t1 = { fU1, fV2 };
   RgFloat2D t2 = { fU2, fV1 };
   RgFloat2D t3 = { fU2, fV2 };
-
-  RgFloat3D positions[6] = 
-  {
-    v0_world, v1_world, v2_world,
-    v1_world, v3_world, v2_world
-  };
-  RgFloat2D texcoords[6] =
-  {
-    t0, t1, t2,
-    t1, t3, t2
-  };
   
+  RgFloat3D normal = is_partial_invisibility ? GetNormalTowardsCamera() : GetNormalUp();
+  // TODO RT: tangent
+  RgFloat4D tangent = { 1, 0, 0, 1 };
 
-  RgGeometryUploadInfo info =
-  {
-    .uniqueID = RT_GetUniqueID_FirstPersonWeapon(weaponlump),
-    .flags =  0,
-    .geomType = RG_GEOMETRY_TYPE_DYNAMIC,
-    .passThroughType = is_partial_invisibility ? RG_GEOMETRY_PASS_THROUGH_TYPE_WATER_REFLECT_REFRACT : RG_GEOMETRY_PASS_THROUGH_TYPE_ALPHA_TESTED,
-    .visibilityType = RG_GEOMETRY_VISIBILITY_TYPE_FIRST_PERSON,
-    .vertexCount = 6,
-    .pVertexData = positions,
-    .pNormalData = is_partial_invisibility ? Get6NormalsTowardsCamera() : Get6NormalsUp(),
-    .pTexCoordLayerData = { texcoords },
-    // get camera's sector
-    .sectorID = RT_GetSectorNum_Fixed(viewx, viewy),
-    .layerColors = { RG_COLOR_WHITE },
-    .defaultRoughness = RG_SPRITE_ROUGHNESS,
-    .defaultMetallicity = RG_SPRITE_METALLICITY,
-    .defaultEmission = RT_TEXTURE_EMISSION(td),
-    .geomMaterial = { td->rg_handle },
-    .transform = RG_TRANSFORM_IDENTITY
+  // clang-format off
+  #define RG_UNPACK_2( v ) { (v).data[0], (v).data[1] }
+  #define RG_UNPACK_3( v ) { (v).data[0], (v).data[1], (v).data[2] }
+  #define RG_UNPACK_4( v ) { (v).data[0], (v).data[1], (v).data[2], (v).data[3] }
+  RgPrimitiveVertex vertices[] = {
+      { .position = RG_UNPACK_3(v0_world), .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = RG_UNPACK_2(t0), .color = RG_PACKED_COLOR_WHITE },
+      { .position = RG_UNPACK_3(v1_world), .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = RG_UNPACK_2(t1), .color = RG_PACKED_COLOR_WHITE },
+      { .position = RG_UNPACK_3(v2_world), .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = RG_UNPACK_2(t2), .color = RG_PACKED_COLOR_WHITE },
+      { .position = RG_UNPACK_3(v1_world), .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = RG_UNPACK_2(t1), .color = RG_PACKED_COLOR_WHITE },
+      { .position = RG_UNPACK_3(v3_world), .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = RG_UNPACK_2(t3), .color = RG_PACKED_COLOR_WHITE },
+      { .position = RG_UNPACK_3(v2_world), .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = RG_UNPACK_2(t2), .color = RG_PACKED_COLOR_WHITE },
+  };
+  #undef RG_UNPACK_2
+  #undef RG_UNPACK_3
+  #undef RG_UNPACK_4
+  // clang-format on
+
+  RgMeshPrimitiveInfo prim = {
+      .sType = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_INFO,
+      .pNext = NULL,
+      .flags = RG_MESH_PRIMITIVE_ALPHA_TESTED | RG_MESH_PRIMITIVE_DONT_GENERATE_NORMALS |
+               (is_partial_invisibility ? RG_MESH_PRIMITIVE_WATER : 0),
+      .pPrimitiveNameInMesh = NULL,
+      .primitiveIndexInMesh = 0,
+      .pVertices            = vertices,
+      .vertexCount          = RG_ARRAY_SIZE(vertices),
+      .pIndices             = NULL,
+      .indexCount           = 0,
+      .pTextureName         = td->name,
+      .color                = RG_PACKED_COLOR_WHITE,
+      .emissive             = RT_TEXTURE_EMISSION(td),
   };
 
-  RgResult r = rgUploadGeometry(rtmain.instance, &info);
+  RgMeshInfo info = {
+      .sType          = RG_STRUCTURE_TYPE_MESH_INFO,
+      .pNext          = NULL,
+      .uniqueObjectID = RT_GetUniqueID_FirstPersonWeapon(weaponlump),
+      .pMeshName      = NULL,
+      .transform      = RG_TRANSFORM_IDENTITY,
+      .isExportable   = false,
+      .animationName  = NULL,
+      .animationTime  = 0.0f,
+  };
+
+  RgResult r = rgUploadMeshPrimitive(rtmain.instance, &info, &prim);
   RG_CHECK(r);
 }
 
@@ -804,21 +791,25 @@ void AddMuzzleFlashLight(int muzzlelight, float flash_z_offset)
 
   RgFloat3D flash_pos = GetOffsetFromCameraPosition(GetCameraDirection(), 0, flash_y_offset, flash_z_offset);
 
-  RgSphericalLightUploadInfo light_info =
-  {
-    .uniqueID = RT_GetUniqueID_FirstPersonWeapon(0),
-    .color = {
-      flash_intensity * 1.0f,
-      flash_intensity * 0.87f,
-      flash_intensity * 0.58f
-    },
-    .position = flash_pos,
-    .sectorID = RT_GetSectorNum_Real(flash_pos.data[0], flash_pos.data[2]),
-    .radius = 0.05f,
-    .falloffDistance = 6.5f
+  float falloff = 6.5f;
+
+  RgLightSphericalEXT ext = {
+      .sType     = RG_STRUCTURE_TYPE_LIGHT_SPHERICAL_EXT,
+      .pNext     = NULL,
+      .color     = rgUtilPackColorByte4D(255, 222, 148, 255),
+      .intensity = flash_intensity * falloff * RG_LIGHT_INTENSITY_MULT,
+      .position  = flash_pos,
+      .radius    = 0.05f,
   };
 
-  RgResult r = rgUploadSphericalLight(rtmain.instance, &light_info);
+  RgLightInfo info = {
+      .sType        = RG_STRUCTURE_TYPE_LIGHT_INFO,
+      .pNext        = &ext,
+      .uniqueID     = RT_GetUniqueID_FirstPersonWeapon(0),
+      .isExportable = false,
+  };
+
+  RgResult r = rgUploadLight(rtmain.instance, &info);
   RG_CHECK(r);
 }
 
@@ -833,19 +824,28 @@ static void AddFlashlight(float to_left_offset, float y_multiplier)
   RgFloat3D cam_dir = GetCameraDirection();
   RgFloat3D pos = GetOffsetFromCameraPosition(cam_dir, x, y, 0);
 
-  RgSpotlightUploadInfo info =
-  {
-    .position = pos,
-    .direction = cam_dir,
-    .upVector = { 0,1,0 },
-    .color = {0.8f, 0.8f, 1.0f},
-    .radius = 0.01f,
-    .angleOuter = DEG2RAD(25),
-    .angleInner = DEG2RAD(5),
-    .falloffDistance = 7
+  float falloff = 7;
+
+  RgLightSpotEXT ext = {
+      .sType      = RG_STRUCTURE_TYPE_LIGHT_SPOT_EXT,
+      .pNext      = NULL,
+      .position   = pos,
+      .direction  = cam_dir,
+      .color      = rgUtilPackColorByte4D(204, 204, 255, 255),
+      .intensity  = falloff * RG_LIGHT_INTENSITY_MULT,
+      .radius     = 0.01f,
+      .angleOuter = DEG2RAD(25),
+      .angleInner = DEG2RAD(5),
   };
 
-  RgResult r = rgUploadSpotlightLight(rtmain.instance, &info);
+  RgLightInfo info = {
+      .sType        = RG_STRUCTURE_TYPE_LIGHT_INFO,
+      .pNext        = &ext,
+      .uniqueID     = RT_GetUniqueID_FirstPersonWeapon(2),
+      .isExportable = false,
+  };
+
+  RgResult r = rgUploadLight(rtmain.instance, &info);
   RG_CHECK(r);
 }
 
@@ -861,17 +861,23 @@ static void AddClassicPlayerLight(void)
   
   RgFloat3D pos = GetOffsetFromCameraPosition(GetCameraDirection(), x, y, z);
 
-  RgSphericalLightUploadInfo light_info =
-  {
-    .uniqueID = RT_GetUniqueID_FirstPersonWeapon(1),
-    .color = {intensity, intensity, intensity},
-    .position = pos,
-    .sectorID = RT_GetSectorNum_Real(pos.data[0], pos.data[2]),
-    .radius = 0.01f,
-    .falloffDistance = falloff
+  RgLightSphericalEXT ext = {
+      .sType     = RG_STRUCTURE_TYPE_LIGHT_SPHERICAL_EXT,
+      .pNext     = NULL,
+      .color     = rgUtilPackColorByte4D(255, 222, 255, 255),
+      .intensity = intensity * falloff * RG_LIGHT_INTENSITY_MULT,
+      .position  = pos,
+      .radius    = 0.01f,
   };
 
-  RgResult r = rgUploadSphericalLight(rtmain.instance, &light_info);
+  RgLightInfo info = {
+      .sType        = RG_STRUCTURE_TYPE_LIGHT_INFO,
+      .pNext        = &ext,
+      .uniqueID     = RT_GetUniqueID_FirstPersonWeapon(1),
+      .isExportable = false,
+  };
+
+  RgResult r = rgUploadLight(rtmain.instance, &info);
   RG_CHECK(r);
 }
 

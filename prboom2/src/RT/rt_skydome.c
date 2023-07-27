@@ -49,11 +49,11 @@ typedef struct
 
 typedef struct
 {
-  int rows, columns;
-  int loopcount;
-  RTSkyLoopDef *loops;
-  RgRasterizedGeometryVertexStruct *data;
-  uint32_t vertex_count;
+  int                rows, columns;
+  int                loopcount;
+  RTSkyLoopDef*      loops;
+  RgPrimitiveVertex* data;
+  uint32_t           vertex_count;
 } RTSkyVBO;
 
 
@@ -63,7 +63,8 @@ static dboolean foglayer;
 static float delta = 0.0f;
 
 
-static void SkyVertex(RgRasterizedGeometryVertexStruct *vbo, int r, int c, dboolean yflip, dboolean sky_gldwf_skyflip)
+static void SkyVertex(
+    RgPrimitiveVertex* vbo, int r, int c, dboolean yflip, dboolean sky_gldwf_skyflip)
 {
   static fixed_t scale = 10000 << FRACBITS;
   static angle_t maxSideAngle = ANG180 / 3;
@@ -84,7 +85,7 @@ static void SkyVertex(RgRasterizedGeometryVertexStruct *vbo, int r, int c, dbool
 
   if (!foglayer)
   {
-    vbo->packedColor = RT_PackColor(255, 255, 255, r == 0 ? 0 : 255);
+    vbo->color = rgUtilPackColorByte4D(255, 255, 255, r == 0 ? 0 : 255);
 
     // And the texture coordinates.
     if (!yflip)	// Flipped Y is for the lower hemisphere.
@@ -151,7 +152,7 @@ static void BuildSky(RTSkyVBO *vbo, const rt_texture_t *sky_texture, float sky_y
     texh = 190;
   texw = sky_texture->width;
 
-  RgRasterizedGeometryVertexStruct *vertex_p = &vbo->data[0];
+  RgPrimitiveVertex *vertex_p = &vbo->data[0];
   vbo->loopcount = 0;
   for (int yflip = 0; yflip < 2; yflip++)
   {
@@ -180,7 +181,7 @@ static void BuildSky(RTSkyVBO *vbo, const rt_texture_t *sky_texture, float sky_y
     for (c = 0; c < col_count; c++)
     {
       SkyVertex(vertex_p, 1, c, yflip, sky_gldwf_skyflip);
-      vertex_p->packedColor = RT_PackColor(skyColor[0], skyColor[1], skyColor[2], 255);
+      vertex_p->color = rgUtilPackColorByte4D(skyColor[0], skyColor[1], skyColor[2], 255);
       vertex_p->texCoord[0] = vertex_p->texCoord[1] = 0; // RT: parts that are not covered just use (0,0) of the sky texture
       vertex_p++;
     }
@@ -227,13 +228,11 @@ static int GetIndexCount(const RTSkyVBO *vbo)
 
 void RT_AddSkyDome(void)
 {
-  if (rtmain.sky.texture == NULL || !rtmain.was_new_sky)
+  if (rtmain.sky.texture == NULL)
   {
     return;
   }
 
-
-#if RG_SKY_REUSE_BUG_HACK
   static RTSkyVBO v_vbo = { 0 };
   static const rt_texture_t *prev_texture = NULL;
   static uint32_t *p_indices = NULL;
@@ -251,53 +250,41 @@ void RT_AddSkyDome(void)
     p_indices = malloc(GetIndexCount(&v_vbo) * sizeof(uint32_t));
 
     prev_texture = rtmain.sky.texture;
-#else
-  RTSkyVBO v_vbo = { 0 };
-  BuildSky(&v_vbo, rtmain.sky.texture, rtmain.sky.y_offset, rtmain.sky.gldwf_skyflip);
-#endif
 
 
-#if !RG_SKY_REUSE_BUG_HACK
-  uint32_t *const p_indices = malloc(GetIndexCount(&v_vbo) * sizeof(uint32_t));
-  int index_iter = 0;
-#endif
-
-
-  for (int i = 0; i < v_vbo.loopcount; i++)
-  {
-    RTSkyLoopDef *loop = &v_vbo.loops[i];
-
-    //if (!loop->use_texture)
-    //  continue;
-
-    switch (loop->mode)
+    for (int i = 0; i < v_vbo.loopcount; i++)
     {
-      case SKY_TRIANGLE_STRIP:
+      RTSkyLoopDef *loop = &v_vbo.loops[i];
+    
+      //if (!loop->use_texture)
+      //  continue;
+    
+      switch (loop->mode)
       {
-        for (int t = 0; t < GetTriangleCount(loop->mode, loop->vertexcount); t++)
+        case SKY_TRIANGLE_STRIP:
         {
-          p_indices[index_iter] = loop->vertexindex + t;               index_iter++;
-          p_indices[index_iter] = loop->vertexindex + t + (1 + t % 2); index_iter++;
-          p_indices[index_iter] = loop->vertexindex + t + (2 - t % 2); index_iter++;
+          for (int t = 0; t < GetTriangleCount(loop->mode, loop->vertexcount); t++)
+          {
+            p_indices[index_iter] = loop->vertexindex + t;               index_iter++;
+            p_indices[index_iter] = loop->vertexindex + t + (1 + t % 2); index_iter++;
+            p_indices[index_iter] = loop->vertexindex + t + (2 - t % 2); index_iter++;
+          }
+          break;
         }
-        break;
-      }
-      case SKY_TRIANGLE_FAN:
-      {
-        for (int t = 0; t < GetTriangleCount(loop->mode, loop->vertexcount); t++)
+        case SKY_TRIANGLE_FAN:
         {
-          p_indices[index_iter] = loop->vertexindex + t + 1;           index_iter++;
-          p_indices[index_iter] = loop->vertexindex + t + 2;           index_iter++;
-          p_indices[index_iter] = loop->vertexindex + 0;               index_iter++;
+          for (int t = 0; t < GetTriangleCount(loop->mode, loop->vertexcount); t++)
+          {
+            p_indices[index_iter] = loop->vertexindex + t + 1;           index_iter++;
+            p_indices[index_iter] = loop->vertexindex + t + 2;           index_iter++;
+            p_indices[index_iter] = loop->vertexindex + 0;               index_iter++;
+          }
+          break;
         }
-        break;
+        default: assert(0); break;
       }
-      default: assert(0); break;
     }
   }
-#if RG_SKY_REUSE_BUG_HACK
-}
-#endif
 
   // TODO: RT: rotate sky by: sky.x_offset
   // glRotatef(-180.0f + rtmain.sky.x_offset, 0.f, 1.f, 0.f);
@@ -323,32 +310,36 @@ void RT_AddSkyDome(void)
     }
   }
 
-
-  RgRasterizedGeometryUploadInfo info =
-  {
-    .renderType = RG_RASTERIZED_GEOMETRY_RENDER_TYPE_SKY,
-    .vertexCount = v_vbo.vertex_count,
-    .pStructs = v_vbo.data,
-    .indexCount = index_iter,
-    .pIndexData = p_indices,
-    .transform = 
-    {
-      scale[0],0,0,translate[0],
-      0,scale[1],0,translate[1],
-      0,0,scale[2],translate[2],
-    },
-    .color = RG_COLOR_WHITE ,
-    .material = rtmain.sky.texture->rg_handle,
-    .pipelineState = 0
+  RgMeshPrimitiveInfo prim = {
+      .sType                = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_INFO,
+      .pNext                = NULL,
+      .flags                = RG_MESH_PRIMITIVE_SKY,
+      .pPrimitiveNameInMesh = NULL,
+      .primitiveIndexInMesh = 0,
+      .pVertices            = v_vbo.data,
+      .vertexCount          = v_vbo.vertex_count,
+      .pIndices             = p_indices,
+      .indexCount           = index_iter,
+      .pTextureName         = rtmain.sky.texture->name,
+      .color                = RG_PACKED_COLOR_WHITE,
+      .emissive             = 0.0f,
   };
 
-  RgResult r = rgUploadRasterizedGeometry(rtmain.instance, &info, NULL, NULL);
+  RgMeshInfo info = {
+      .sType          = RG_STRUCTURE_TYPE_MESH_INFO,
+      .pNext          = NULL,
+      .uniqueObjectID = RT_GetUniqueID_Sky(),
+      .pMeshName      = NULL,
+      .transform      = { {
+          { scale[0], 0, 0, translate[0] },
+          { 0, scale[1], 0, translate[1] },
+          { 0, 0, scale[2], translate[2] },
+      } },
+      .isExportable   = false,
+      .animationName  = NULL,
+      .animationTime  = 0.0f,
+  };
+
+  RgResult r = rgUploadMeshPrimitive(rtmain.instance, &info, &prim);
   RG_CHECK(r);
-
-
-#if !RG_SKY_REUSE_BUG_HACK
-  free(vbo->loops);
-  free(vbo->data);
-  free(p_indices);
-#endif
 }

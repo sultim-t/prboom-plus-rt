@@ -258,6 +258,8 @@ static void D_Wipe(void)
   while (!done);
 }
 
+dboolean RT_IsClassicHUDEnabled(void);
+
 //
 // D_Display
 //  draw current display, possibly wiping it from the previous

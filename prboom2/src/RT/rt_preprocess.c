@@ -1105,26 +1105,24 @@ void RT_PreprocessLevel(void)
   //gld_InitVertexData();
 
   // rtp_preprocessed = true;
-
-  RT_UploadStaticScene();
 }
 
 
-static const float *GetPreprocessedPositions(int vertex_index)
+static const RTPPosition* GetPreprocessedPositions(int vertex_index)
 {
   assert(rtp_flats_vbo.positions != NULL);
   assert(vertex_index < rtp_num_vertexes);
 
-  return (const float *)&rtp_flats_vbo.positions[vertex_index];
+  return &rtp_flats_vbo.positions[vertex_index];
 }
 
 
-static const float *GetPreprocessedTexCoords(int vertex_index)
+static const RTPTexCoord *GetPreprocessedTexCoords(int vertex_index)
 {
   assert(rtp_flats_vbo.texCoords != NULL);
   assert(vertex_index < rtp_num_vertexes);
 
-  return (const float *)&rtp_flats_vbo.texCoords[vertex_index];
+  return &rtp_flats_vbo.texCoords[vertex_index];
 }
 
 
@@ -1153,12 +1151,10 @@ static int GetTriangleCount(RTPTriangleMode mode, int vertex_count)
 
 typedef struct
 {
-  int vertex_count;
-  RgFloat3D *positions;
-  RgFloat2D *texcoords;
-  int index_count;
-  uint32_t *indices;
-  uint8_t *_internal_allocated;
+  int                vertex_count;
+  RgPrimitiveVertex* vertices;
+  int                index_count;
+  uint32_t*          indices;
 } rttempdata_t;
 
 
@@ -1198,23 +1194,8 @@ static rttempdata_t RTP_CreateSectorGeometryData(int sectornum)
   result.vertex_count = RTP_GetVertexCount(sectornum);
   result.index_count = RTP_GetIndexCount(sectornum);
 
-  result._internal_allocated = malloc(
-    (size_t)result.vertex_count * sizeof(RgFloat3D) +
-    (size_t)result.vertex_count * sizeof(RgFloat3D) +
-    (size_t)result.vertex_count * sizeof(RgFloat2D) +
-    (size_t)result.index_count  * sizeof(uint32_t)
-  );
-
-  {
-    void *ptr = result._internal_allocated;
-
-    result.positions  = ptr; ptr = (uint8_t *)ptr + (size_t)result.vertex_count * sizeof(RgFloat3D);
-    result.texcoords  = ptr; ptr = (uint8_t *)ptr + (size_t)result.vertex_count * sizeof(RgFloat2D);
-    result.indices    = ptr; ptr = (uint8_t *)ptr + (size_t)result.index_count  * sizeof(uint32_t);
-  }
-
-  assert(sizeof(RTPPosition) == sizeof(RgFloat3D));
-  assert(sizeof(RTPTexCoord) == sizeof(RgFloat2D));
+  result.vertices = calloc(sizeof(RgPrimitiveVertex), result.vertex_count);
+  result.indices = calloc(sizeof(uint32_t), result.index_count);
 
   int vertex_iter = 0;
   int index_iter = 0;
@@ -1224,9 +1205,24 @@ static rttempdata_t RTP_CreateSectorGeometryData(int sectornum)
     const RTPLoopDef *loop = &rtp_sectorloops[sectornum].loops[loopnum];
 
     {
-      memcpy(&result.positions[vertex_iter], GetPreprocessedPositions(loop->vertexindex), loop->vertexcount * sizeof(RgFloat3D));
-      memcpy(&result.texcoords[vertex_iter], GetPreprocessedTexCoords(loop->vertexindex), loop->vertexcount * sizeof(RgFloat2D));
+      {
+        const RTPPosition* pos = GetPreprocessedPositions(loop->vertexindex);
+        const RTPTexCoord* tex = GetPreprocessedTexCoords(loop->vertexindex);
 
+        for (int i = 0; i < loop->vertexcount; i++)
+        {
+          RgPrimitiveVertex v = {
+              .position = { pos[i].x, pos[i].y, pos[i].z },
+              .normal   = { 0, 1, 0 },
+              .tangent  = { 1, 0, 0, 1 },
+              .texCoord = { tex[i].u, tex[i].v },
+              .color    = RG_PACKED_COLOR_WHITE,
+          };
+
+          result.vertices[vertex_iter + i] = v;
+        } 
+      }
+      
       switch (loop->mode)
       {
         case RTP_TRIANGLE_MODE_TRIANGLES:
@@ -1272,31 +1268,25 @@ static rttempdata_t RTP_CreateSectorGeometryData(int sectornum)
 
 static void RTP_DestroySectorGeometryData(const rttempdata_t *data)
 {
-  free(data->_internal_allocated);
+  free(data->vertices);
+  free(data->indices);
 }
 
 
 static struct
 {
-  RgFloat3D *positions;
-  RgFloat2D *texcoords;
-  uint32_t *indices;
-}
-rtp_all_buffer = { 0 };
-static RgFloat3D *rtp_all_sharednormals_up = NULL;
-static RgFloat3D *rtp_all_sharednormals_down = NULL;
+  RgPrimitiveVertex* vertices;
+  uint32_t*          indices;
+} rtp_all_buffer = { 0 };
 
 static rtsectordata_t *rtp_all_sectorinfos = NULL;
 
 
 static void RTP_PreprocesSectorGeometryData(void)
 {
-  free(rtp_all_buffer.positions);
-  free(rtp_all_buffer.texcoords);
+  free(rtp_all_buffer.vertices);
   free(rtp_all_buffer.indices);
   free(rtp_all_sectorinfos);
-  free(rtp_all_sharednormals_up);
-  free(rtp_all_sharednormals_down);
 
 
   int all_vertcount = 0, all_indexcount = 0;
@@ -1306,34 +1296,29 @@ static void RTP_PreprocesSectorGeometryData(void)
     all_indexcount += RTP_GetIndexCount(i);
   }
 
-  rtp_all_buffer.positions    = calloc(all_vertcount, sizeof(*rtp_all_buffer.positions));
-  rtp_all_buffer.texcoords    = calloc(all_vertcount, sizeof(*rtp_all_buffer.texcoords));
-  rtp_all_buffer.indices      = calloc(all_indexcount, sizeof(*rtp_all_buffer.indices));
-  rtp_all_sectorinfos         = calloc(numsectors, sizeof(*rtp_all_sectorinfos));
+  rtp_all_buffer.vertices         = calloc(all_vertcount, sizeof(*rtp_all_buffer.vertices));
+  rtp_all_buffer.indices          = calloc(all_indexcount, sizeof(*rtp_all_buffer.indices));
+  rtp_all_sectorinfos             = calloc(numsectors, sizeof(*rtp_all_sectorinfos));
 
 
-  RgFloat3D *positions_iter = rtp_all_buffer.positions;
-  RgFloat2D *texcoords_iter = rtp_all_buffer.texcoords;
-  uint32_t *indices_iter = rtp_all_buffer.indices;
+  RgPrimitiveVertex* vertices_iter = rtp_all_buffer.vertices;
+  uint32_t*          indices_iter  = rtp_all_buffer.indices;
 
   for (int i = 0; i < numsectors; i++)
   {
     const rttempdata_t data = RTP_CreateSectorGeometryData(i);
 
-    memcpy(positions_iter, data.positions, data.vertex_count * sizeof(*data.positions));
-    memcpy(texcoords_iter, data.texcoords, data.vertex_count * sizeof(*data.texcoords));
+    memcpy(vertices_iter, data.vertices, data.vertex_count * sizeof(*data.vertices));
     memcpy(indices_iter, data.indices, data.index_count * sizeof(*data.indices));
 
 
     rtp_all_sectorinfos[i].vertex_count = data.vertex_count;
-    rtp_all_sectorinfos[i].positions = positions_iter;
-    rtp_all_sectorinfos[i].texcoords = texcoords_iter;
-    rtp_all_sectorinfos[i].index_count = data.index_count;
-    rtp_all_sectorinfos[i].indices = indices_iter;
+    rtp_all_sectorinfos[i].vertices     = vertices_iter;
+    rtp_all_sectorinfos[i].index_count  = data.index_count;
+    rtp_all_sectorinfos[i].indices      = indices_iter;
 
 
-    positions_iter += data.vertex_count;
-    texcoords_iter += data.vertex_count;
+    vertices_iter += data.vertex_count;
     indices_iter += data.index_count;
 
     RTP_DestroySectorGeometryData(&data);
@@ -1345,28 +1330,12 @@ static void RTP_PreprocesSectorGeometryData(void)
   {
     max_vertcount = i_max(max_vertcount, RTP_GetVertexCount(i));
   }
-  rtp_all_sharednormals_up = calloc(max_vertcount, sizeof(*rtp_all_sharednormals_up));
-  rtp_all_sharednormals_down = calloc(max_vertcount, sizeof(*rtp_all_sharednormals_down));
-
-  for (int i = 0; i < max_vertcount; i++)
-  {
-    rtp_all_sharednormals_up[i].data[0] = 0;
-    rtp_all_sharednormals_up[i].data[1] = +1;
-    rtp_all_sharednormals_up[i].data[2] = 0;
-
-    rtp_all_sharednormals_down[i].data[0] = 0;
-    rtp_all_sharednormals_down[i].data[1] = -1;
-    rtp_all_sharednormals_down[i].data[2] = 0;
-  }
 }
 
 
 rtsectordata_t RT_GetSectorGeometryData(int sectornum, dboolean is_ceiling)
 {
-  rtsectordata_t r = rtp_all_sectorinfos[sectornum];
-  r.normals = is_ceiling ? rtp_all_sharednormals_down : rtp_all_sharednormals_up;
-
-  return r;
+  return rtp_all_sectorinfos[sectornum];
 }
 
 

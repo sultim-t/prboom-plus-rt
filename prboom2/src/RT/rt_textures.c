@@ -104,9 +104,9 @@ static void FreeRgHandles(const rt_texture_t *all, int count)
   {
     const rt_texture_t *td = &all[i];
 
-    if (td->exists && td->rg_handle != RG_NO_MATERIAL)
+    if (td->exists)
     {
-      RgResult r = rgDestroyMaterial(rtmain.instance, td->rg_handle);
+      RgResult r = rgMarkOriginalTextureAsDeleted(rtmain.instance, td->name);
       RG_CHECK(r);
     }
   }
@@ -211,9 +211,7 @@ static rt_texture_t *RT_Texture_RegisterPatch(const int lump, const rpatch_t *pa
   SetNameFromLump(td, lump, RT_DIR_TYPE_GFX);
   td->metainfo = RT_TextureMetaInfo_Find(td->name);
   td->flags |= td->metainfo ? td->metainfo->additional_flags : 0;
-
-  // will be initialized by caller
-  td->rg_handle = RG_NO_MATERIAL;
+  
   return td;
 }
 
@@ -242,9 +240,7 @@ static rt_texture_t *RT_Texture_RegisterFlat(const int lump_flat)
   SetNameFromLump(td, lump, RT_DIR_TYPE_FLAT);
   td->metainfo = RT_TextureMetaInfo_Find(td->name);
   td->flags |= td->metainfo ? td->metainfo->additional_flags : 0;
-
-  // will be initialized by caller
-  td->rg_handle = RG_NO_MATERIAL;
+  
   return td;
 }
 
@@ -270,9 +266,7 @@ static rt_texture_t *RT_Texture_RegisterTexture(int texture_num, const texture_t
   SetNameFromTexture(td, texture, RT_DIR_TYPE_GFX);
   td->metainfo = RT_TextureMetaInfo_Find(td->name);
   td->flags |= td->metainfo ? td->metainfo->additional_flags : 0;
-
-  // will be initialized by caller
-  td->rg_handle = RG_NO_MATERIAL;
+  
   return td;
 }
 
@@ -532,23 +526,21 @@ static dboolean HasAlpha(const uint8_t *buffer, uint32_t w, uint32_t h)
 }
 
 
-RgMaterial BuildMaterial(const rt_texture_t *td, const uint8_t *rgba_buffer)
+static void BuildMaterial(const rt_texture_t* td, const uint8_t* rgba_buffer)
 {
-  RgStaticMaterialCreateInfo info =
-  {
-    .size = { td->width, td->height },
-    .textures = {.albedoAlpha = {.isSRGB = true, .pData = rgba_buffer } },
-    .pRelativePath = td->name,
-    .filter = RG_SAMPLER_FILTER_NEAREST,
-    .addressModeU = RG_SAMPLER_ADDRESS_MODE_REPEAT,
-    .addressModeV = RG_SAMPLER_ADDRESS_MODE_REPEAT,
+  RgOriginalTextureInfo info = {
+      .sType        = RG_STRUCTURE_TYPE_ORIGINAL_TEXTURE_INFO,
+      .pNext        = NULL,
+      .pTextureName = td->name,
+      .pPixels      = rgba_buffer,
+      .size         = { td->width, td->height },
+      .filter       = RG_SAMPLER_FILTER_NEAREST,
+      .addressModeU = RG_SAMPLER_ADDRESS_MODE_REPEAT,
+      .addressModeV = RG_SAMPLER_ADDRESS_MODE_REPEAT,
   };
 
-  RgMaterial m = RG_NO_MATERIAL;
-  RgResult r = rgCreateStaticMaterial(rtmain.instance, &info, &m);
+  RgResult r = rgProvideOriginalTexture(rtmain.instance, &info);
   RG_CHECK(r);
-
-  return m;
 }
 
 
@@ -589,8 +581,7 @@ const rt_texture_t *RT_Texture_GetFromPatchLump(int lump)
     MakeMonochrome(buffer, td->width, td->height);
   }
 
-
-  td->rg_handle = BuildMaterial(td, buffer);
+  BuildMaterial(td, buffer);
 
   free(buffer);
   return td;
@@ -635,7 +626,7 @@ const rt_texture_t *RT_Texture_GetFromFlatLump(int lump_flat)
   }
 
 
-  td->rg_handle = BuildMaterial(td, buffer);
+  BuildMaterial(td, buffer);
 
   free(buffer);
   return td;
@@ -684,7 +675,7 @@ const rt_texture_t *RT_Texture_GetFromTexture(int texture_num)
   }
 
 
-  td->rg_handle = BuildMaterial(td, buffer);
+  BuildMaterial(td, buffer);
 
   free(buffer);
   return td;

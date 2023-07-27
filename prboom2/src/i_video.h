@@ -62,7 +62,6 @@ typedef struct
   int dlss, fsr;              // 0 - off, [1,4] - quality from highest to lowest
   int renderscale;            // index in rt_settings_renderscale_e
   int bloom_intensity;        // index in [0,Reduced,Default,Exaggerated]
-  int crt_interlacing;        // bool
   int muzzleflash_intensity;  // index in [0,Reduced,Default]
   int statusbar_scale;        // to calculate procents: 10*(statusbar_scale+1)
 #if RT_SEPARATE_HUD_SCALE
@@ -71,7 +70,6 @@ typedef struct
   int hud_style;
   int refl_refr_max_depth;
   int classic_flashlight;
-  int bounce_quality;         // 0 - one bounce, 1 - two bounces for poly lights and flashlight, 2 - two bounces 
 } rt_settings_t;
 typedef enum
 {

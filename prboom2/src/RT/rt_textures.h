@@ -57,30 +57,28 @@ typedef enum
 typedef struct rt_texture_metainfo_t
 {
   // These fields are internal
-  char name[RT_TEXTURE_NAME_MAX_LENGTH];
+  char               name[RT_TEXTURE_NAME_MAX_LENGTH];
   rt_texture_flags_t additional_flags;
   // Only use these values
-  RgFloat3D light_color;
-  float geom_emission;
-  float falloff_multiplier;
+  RgColor4DPacked32  light_color;
+  float              geom_emission;
+  float              falloff_multiplier;
 } rt_texture_metainfo_t;
 
 
 typedef struct rt_texture_t
 {
   RgBool32 exists;
-  char name[RT_TEXTURE_NAME_MAX_LENGTH];
-
-  RgMaterial rg_handle;
+  char     name[RT_TEXTURE_NAME_MAX_LENGTH];
 
   rt_texture_id_type_t id_type;
-  int id;
+  int                  id;
 
-  uint32_t width, height;
-  int leftoffset, topoffset;
+  uint32_t           width, height;
+  int                leftoffset, topoffset;
   rt_texture_flags_t flags;
 
-  const rt_texture_metainfo_t *metainfo;
+  const rt_texture_metainfo_t* metainfo;
 
 } rt_texture_t;
 

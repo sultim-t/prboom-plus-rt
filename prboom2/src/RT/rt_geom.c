@@ -127,49 +127,48 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
 
   rtsectordata_t sector_geometry = RT_GetSectorGeometryData(sectornum, ceiling);
 
-  RgGeometryUploadInfo info =
-  {
-    .uniqueID = RT_GetUniqueID_Flat(sectornum, ceiling),
-    .flags = 0,
-    .geomType = RG_GEOMETRY_TYPE_DYNAMIC,
-    .passThroughType = RG_GEOMETRY_PASS_THROUGH_TYPE_OPAQUE,
-    .visibilityType = RG_GEOMETRY_VISIBILITY_TYPE_WORLD_0,
-    .vertexCount = sector_geometry.vertex_count,
-    .pVertexData = sector_geometry.positions,
-    .pNormalData = sector_geometry.normals,
-    .pTexCoordLayerData = { sector_geometry.texcoords },
-    .indexCount = sector_geometry.index_count,
-    .pIndexData = sector_geometry.indices,
-    .sectorID = sectornum,
-    .layerColors = { RG_COLOR_WHITE },
-    .defaultRoughness = RG_WORLD_ROUGHNESS,
-    .defaultMetallicity = RG_WORLD_METALLICITY,
-    .defaultEmission = RT_TEXTURE_EMISSION(flat.td),
-    .geomMaterial = { flat.td->rg_handle },
-    .transform = 
-      {
-        1,0,0,0,
-        0,1,0,flat.z,
-        0,0,1,0
-      }
+  RgMeshPrimitiveInfo prim = {
+      .sType = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_INFO,
+      .pNext = NULL,
+      .flags = ((flat.td->flags & RT_TEXTURE_FLAG_IS_WATER_BIT) ? RG_MESH_PRIMITIVE_MIRROR : 0) |
+               RG_MESH_PRIMITIVE_DONT_GENERATE_NORMALS,
+      .pPrimitiveNameInMesh = NULL,
+      .primitiveIndexInMesh = 0,
+      .pVertices            = sector_geometry.vertices,
+      .vertexCount          = sector_geometry.vertex_count,
+      .pIndices             = sector_geometry.indices,
+      .indexCount           = sector_geometry.index_count,
+      .pTextureName         = flat.td->name,
+      .color                = RG_PACKED_COLOR_WHITE,
+      .emissive             = RT_TEXTURE_EMISSION(flat.td),
   };
 
-  if (flat.td->flags & RT_TEXTURE_FLAG_IS_WATER_BIT)
-  {
-    // const rt_texture_t *bottom_td = RT_Texture_GetFromFlatLump(R_FlatNumForName("MFLR8_3"));
-    info.flags = RG_GEOMETRY_UPLOAD_REFL_REFR_ALBEDO_MULTIPLY_BIT;
-    info.passThroughType = RG_GEOMETRY_PASS_THROUGH_TYPE_MIRROR;
-  }
+  RgMeshInfo info = {
+      .sType          = RG_STRUCTURE_TYPE_MESH_INFO,
+      .pNext          = NULL,
+      .uniqueObjectID = RT_GetUniqueID_Flat(sectornum, ceiling),
+      .pMeshName      = NULL,
+      .transform      = { {
+          { 1, 0, 0, 0 },
+          { 0, ceiling ? -1 : 1, 0, flat.z },
+          { 0, 0, 1, 0 },
+      } },
+      .isExportable   = false,
+      .animationName  = NULL,
+      .animationTime  = 0.0f,
+  };
 
-  RgResult r = rgUploadGeometry(rtmain.instance, &info);
+  RgResult r = rgUploadMeshPrimitive(rtmain.instance, &info, &prim);
   RG_CHECK(r);
+
+
   // TODO RT: flat with texcoord offset
 
 
   if (ceiling && flat.light > 0.0f)
   {
     float w;
-    RgFloat3D c;
+    RgColor4DPacked32 c;
 
     if (RT_GetSectorLightLevelWeight(sectornum, &w, &c))
     {
@@ -177,7 +176,7 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
 
       for (int j = 0; j < sector_geometry.vertex_count; j++)
       {
-        const float *v = sector_geometry.positions[j].data;
+        const float *v = sector_geometry.vertices[j].position;
         center.data[0] += v[0];
         center.data[1] += v[1];
         center.data[2] += v[2];
@@ -193,24 +192,28 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
       }
       center.data[1] += flat.z - offset;
 
-      RgSphericalLightUploadInfo light_info =
-      {
-        .uniqueID = RT_GetUniqueID_Flat(sectornum, ceiling),
-        .color = c,
-        .position = center,
-        .sectorID = sectornum,
-        .radius = 0.05f,
-        .falloffDistance = 4
+      float falloff = 4;
+
+      RgLightSphericalEXT ext = {
+          .sType     = RG_STRUCTURE_TYPE_LIGHT_SPHERICAL_EXT,
+          .pNext     = NULL,
+          .color     = c,
+          .intensity = w * flat.light * falloff * RG_LIGHT_INTENSITY_MULT,
+          .position  = center,
+          .radius    = 0.05f,
       };
 
-      RG_VEC3_SCALE(light_info.color.data, flat.light);
-      RG_VEC3_SCALE(light_info.color.data, w);
+      // TODO RT: remove?
+      ext.intensity = i_max(ext.intensity, 0.0005f);
 
-      light_info.color.data[0] = i_max(light_info.color.data[0], 0.0005f);
-      light_info.color.data[1] = i_max(light_info.color.data[1], 0.0005f);
-      light_info.color.data[2] = i_max(light_info.color.data[2], 0.0005f);
+      RgLightInfo light_info = {
+          .sType        = RG_STRUCTURE_TYPE_LIGHT_INFO,
+          .pNext        = &ext,
+          .uniqueID     = RT_GetUniqueID_Flat(sectornum, ceiling),
+          .isExportable = true,
+      };
 
-      RgResult r = rgUploadSphericalLight(rtmain.instance, &light_info);
+      r = rgUploadLight(rtmain.instance, &light_info);
       RG_CHECK(r);
     }
   }
@@ -365,13 +368,8 @@ static void DrawWall(RTPWallType itemtype, int drawwallindex, RTPWall *wall)
 
   // StaticLightAlpha(wall->light, wall->alpha);
 
-  RgFloat4D color = RG_COLOR_WHITE;
-  if (!wall->rttexture)
-  {
-    color.data[0] = 1.0f;
-    color.data[1] = 0.0f;
-    color.data[2] = 0.0f;
-  }
+  RgColor4DPacked32 color =
+      wall->rttexture ? RG_PACKED_COLOR_WHITE : rgUtilPackColorByte4D(255, 0, 0, 255);
 
   float x1, z1;
   float x2, z2;
@@ -403,17 +401,23 @@ static void DrawWall(RTPWallType itemtype, int drawwallindex, RTPWall *wall)
   RgFloat3D position_3 = { x2, wall->ybottom, z2 };
 
 
+  // clang-format off
+  #define RG_UNPACK_2(v) { (v).data[0], (v).data[1] }
+  #define RG_UNPACK_3(v) { (v).data[0], (v).data[1], (v).data[2] }
+  
   // RT: 2 triangle fans, but in reverse order (counter clockwise)
-  const RgFloat3D positions[] =
-  {
-    position_0, position_2, position_1,
-    position_0, position_3, position_2,
+  RgPrimitiveVertex vertices[] = {
+      { .position = RG_UNPACK_3(position_0), .normal = { 0 }, .tangent = { 0 }, .texCoord = RG_UNPACK_2(texcoord_0), .color = RG_PACKED_COLOR_WHITE },
+      { .position = RG_UNPACK_3(position_2), .normal = { 0 }, .tangent = { 0 }, .texCoord = RG_UNPACK_2(texcoord_2), .color = RG_PACKED_COLOR_WHITE },
+      { .position = RG_UNPACK_3(position_1), .normal = { 0 }, .tangent = { 0 }, .texCoord = RG_UNPACK_2(texcoord_1), .color = RG_PACKED_COLOR_WHITE },
+      { .position = RG_UNPACK_3(position_0), .normal = { 0 }, .tangent = { 0 }, .texCoord = RG_UNPACK_2(texcoord_0), .color = RG_PACKED_COLOR_WHITE },
+      { .position = RG_UNPACK_3(position_3), .normal = { 0 }, .tangent = { 0 }, .texCoord = RG_UNPACK_2(texcoord_3), .color = RG_PACKED_COLOR_WHITE },
+      { .position = RG_UNPACK_3(position_2), .normal = { 0 }, .tangent = { 0 }, .texCoord = RG_UNPACK_2(texcoord_2), .color = RG_PACKED_COLOR_WHITE },
   };
-  const RgFloat2D texcoords[] =
-  {
-    texcoord_0, texcoord_2, texcoord_1,
-    texcoord_0, texcoord_3, texcoord_2,
-  };
+
+  #undef RG_UNPACK_2
+  #undef RG_UNPACK_3
+  // clang-format on
 
 
   dboolean alpha_tested = wall->rttexture && (wall->rttexture->flags & RT_TEXTURE_FLAG_WITH_ALPHA_BIT);
@@ -427,31 +431,39 @@ static void DrawWall(RTPWallType itemtype, int drawwallindex, RTPWall *wall)
       return;
     }
 
-    invert_normal = !IsFacingCamera(invert_normal, positions[0].data, positions[1].data, positions[2].data);
+    invert_normal = !IsFacingCamera(
+        invert_normal, vertices[0].position, vertices[1].position, vertices[2].position);
   }
 
-
-  RgGeometryUploadInfo info =
-  {
-    .uniqueID = RT_GetUniqueID_Wall(wall->lineID, wall->subsectornum, drawwallindex),
-    .flags = invert_normal ? RG_GEOMETRY_UPLOAD_GENERATE_INVERTED_NORMALS_BIT : 0,
-    .geomType = RG_GEOMETRY_TYPE_DYNAMIC,
-    .passThroughType = alpha_tested ? RG_GEOMETRY_PASS_THROUGH_TYPE_ALPHA_TESTED : RG_GEOMETRY_PASS_THROUGH_TYPE_OPAQUE,
-    .visibilityType = itemtype == RTP_WALLTYPE_SWALL ? RG_GEOMETRY_VISIBILITY_TYPE_SKY : RG_GEOMETRY_VISIBILITY_TYPE_WORLD_0,
-    .vertexCount = RG_ARRAY_SIZE(positions),
-    .pVertexData = positions,
-    .pNormalData = NULL,
-    .pTexCoordLayerData = { texcoords },
-    .sectorID = wall->sectornum,
-    .layerColors = { color },
-    .defaultRoughness = RG_WORLD_ROUGHNESS,
-    .defaultMetallicity = RG_WORLD_METALLICITY,
-    .defaultEmission = RT_TEXTURE_EMISSION(wall->rttexture),
-    .geomMaterial = { wall->rttexture ? wall->rttexture->rg_handle : RG_NO_MATERIAL },
-    .transform = RG_TRANSFORM_IDENTITY
+  
+  RgMeshPrimitiveInfo prim = {
+      .sType = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_INFO,
+      .pNext = NULL,
+      .flags = (alpha_tested ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0) |
+               (itemtype == RTP_WALLTYPE_SWALL ? RG_MESH_PRIMITIVE_SKY : 0),
+      .pPrimitiveNameInMesh = NULL,
+      .primitiveIndexInMesh = 0,
+      .pVertices            = vertices,
+      .vertexCount          = RG_ARRAY_SIZE(vertices),
+      .pIndices             = NULL,
+      .indexCount           = 0,
+      .pTextureName         = wall->rttexture ? wall->rttexture->name : NULL,
+      .color                = color,
+      .emissive             = RT_TEXTURE_EMISSION(wall->rttexture),
   };
 
-  RgResult r = rgUploadGeometry(rtmain.instance, &info);
+  RgMeshInfo info = {
+      .sType          = RG_STRUCTURE_TYPE_MESH_INFO,
+      .pNext          = NULL,
+      .uniqueObjectID = RT_GetUniqueID_Wall(wall->lineID, wall->subsectornum, drawwallindex),
+      .pMeshName      = NULL,
+      .transform      = RG_TRANSFORM_IDENTITY,
+      .isExportable   = false,
+      .animationName  = NULL,
+      .animationTime  = 0.0f,
+  };
+
+  RgResult r = rgUploadMeshPrimitive(rtmain.instance, &info, &prim);
   RG_CHECK(r);
 }
 

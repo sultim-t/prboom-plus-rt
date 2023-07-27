@@ -71,34 +71,21 @@ void RT_DrawLine(float x1, float y1, float x2, float y2, byte r, byte g, byte b)
   x2 = x2 / vw * 2.0f - 1.0f;
   y2 = y2 / vh * 2.0f - 1.0f;
 
-  uint32_t color = RT_PackColor(r, g, b, 255);
+  uint32_t color = rgUtilPackColorByte4D(r, g, b, 255);
 
   // quad:  0 -- 3
   //        |    |
   //        1 -- 2
-  RgRasterizedGeometryVertexStruct verts[] =
-  {
-    { { x1, y1, 0 }, color, { 0 } },
-    { { x2, y2, 0 }, color, { 0 } },
+  RgPrimitiveVertex verts[] = {
+      { .position = { x1, y1, 0 }, .color = color },
+      { .position = { x2, y2, 0 }, .color = color },
   };
 
-  RgRasterizedGeometryUploadInfo info =
-  {
-    .renderType = RG_RASTERIZED_GEOMETRY_RENDER_TYPE_SWAPCHAIN,
-    .vertexCount = RG_ARRAY_SIZE(verts),
-    .pStructs = verts,
-    .transform = RG_TRANSFORM_IDENTITY,
-    .color = RG_COLOR_WHITE,
-    .material = RG_NO_MATERIAL,
-    .pipelineState = RG_RASTERIZED_GEOMETRY_STATE_FORCE_LINE_LIST
-  };
-
-  RgResult _r = rgUploadRasterizedGeometry(rtmain.instance, &info, MATRIX_IDENTITY, NULL);
-  RG_CHECK(_r);
+    // TODO RT: draw line
 }
 
 
-static void DrawQuad_Internal_T(RgMaterial mat,
+static void DrawQuad_Internal_T(const char* tex,
                                 float x, float y, float width, float height,
                                 float s1, float t1, float s2, float t2,
                                 byte r, byte g, byte b, byte a)
@@ -111,48 +98,59 @@ static void DrawQuad_Internal_T(RgMaterial mat,
   float x2 = (x + width) / vw * 2.0f - 1.0f;
   float y2 = (y + height) / vh * 2.0f - 1.0f;
 
-  uint32_t color = RT_PackColor(r, g, b, a);
+  uint32_t color = rgUtilPackColorByte4D(r, g, b, a);
 
   // quad:  0 -- 3
   //        |    |
   //        1 -- 2
-  RgRasterizedGeometryVertexStruct verts[] =
-  {
-    { { x1, y1, 0 }, color, { s1, t1 } },
-    { { x1, y2, 0 }, color, { s1, t2 } },
-    { { x2, y1, 0 }, color, { s2, t1 } },
-    { { x2, y1, 0 }, color, { s2, t1 } },
-    { { x1, y2, 0 }, color, { s1, t2 } },
-    { { x2, y2, 0 }, color, { s2, t2 } },
+  RgPrimitiveVertex verts[] = {
+      { .position = { x1, y1, 0 }, .texCoord = { s1, t1 }, .color = color },
+      { .position = { x1, y2, 0 }, .texCoord = { s1, t2 }, .color = color },
+      { .position = { x2, y1, 0 }, .texCoord = { s2, t1 }, .color = color },
+      { .position = { x2, y1, 0 }, .texCoord = { s2, t1 }, .color = color },
+      { .position = { x1, y2, 0 }, .texCoord = { s1, t2 }, .color = color },
+      { .position = { x2, y2, 0 }, .texCoord = { s2, t2 }, .color = color },
   };
 
-  RgRasterizedGeometryUploadInfo info =
-  {
-    .renderType = RG_RASTERIZED_GEOMETRY_RENDER_TYPE_SWAPCHAIN,
-    .vertexCount = RG_ARRAY_SIZE(verts),
-    .pStructs = verts,
-    .transform = RG_TRANSFORM_IDENTITY,
-    .color = RG_COLOR_WHITE,
-    .material = mat,
-    .pipelineState = RG_RASTERIZED_GEOMETRY_STATE_BLEND_ENABLE,
-    .blendFuncSrc = RG_BLEND_FACTOR_SRC_ALPHA,
-    .blendFuncDst = RG_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+  RgMeshPrimitiveForceRasterizedEXT raster = {
+      .sType           = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_FORCE_RASTERIZED_EXT,
+      .pNext           = NULL,
+      .pViewport       = NULL,
+      .pView           = NULL,
+      .pProjection     = NULL,
+      .pViewProjection = MATRIX_IDENTITY,
   };
 
-  RgResult _r = rgUploadRasterizedGeometry(rtmain.instance, &info, MATRIX_IDENTITY, NULL);
+  RgMeshPrimitiveInfo info = {
+      .sType                = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_INFO,
+      .pNext                = &raster,
+      .flags                = RG_MESH_PRIMITIVE_TRANSLUCENT,
+      .pPrimitiveNameInMesh = NULL,
+      .primitiveIndexInMesh = 0,
+      .pVertices            = verts,
+      .vertexCount          = RG_ARRAY_SIZE(verts),
+      .pIndices             = NULL,
+      .indexCount           = 0,
+      .pTextureName         = tex,
+      .textureFrame         = 0,
+      .color                = RG_PACKED_COLOR_WHITE,
+      .emissive             = 0.0f,
+  };
+
+  RgResult _r = rgUploadMeshPrimitive(rtmain.instance, NULL, &info);
   RG_CHECK(_r);
 }
 
 
-static void DrawQuad_Internal(RgMaterial mat, float x, float y, float width, float height, byte r, byte g, byte b, byte a)
+static void DrawQuad_Internal(const char *tex, float x, float y, float width, float height, byte r, byte g, byte b, byte a)
 {
-  DrawQuad_Internal_T(mat, x, y, width, height, 0, 0, 1, 1, r, g, b, a);
+  DrawQuad_Internal_T(tex, x, y, width, height, 0, 0, 1, 1, r, g, b, a);
 }
 
 
 void RT_DrawQuad(int x, int y, int width, int height, byte r, byte g, byte b, byte a)
 {
-  DrawQuad_Internal(RG_NO_MATERIAL, (float)x, (float)y, (float)width, (float)height, r, g, b, a);
+  DrawQuad_Internal(NULL, (float)x, (float)y, (float)width, (float)height, r, g, b, a);
 }
 
 
@@ -179,7 +177,7 @@ void RT_DrawQuad_Flat(int lump_flat, int x, int y, int width, int height, enum p
   float fU2 = (float)width / (float)td->width;
   float fV2 = (float)height / (float)td->height;
 
-  DrawQuad_Internal_T(td->rg_handle, (float)x, (float)y, (float)width, (float)height, fU1, fV1, fU2, fV2, 255, 255, 255, 255);
+  DrawQuad_Internal_T(td->name, (float)x, (float)y, (float)width, (float)height, fU1, fV1, fU2, fV2, 255, 255, 255, 255);
 }
 
 
@@ -203,7 +201,7 @@ void RT_DrawQuad_Patch(int lump, int x, int y, int width, int height, enum patch
     height = height * SCREENHEIGHT / 200;
   }
 
-  DrawQuad_Internal(td->rg_handle, (float)x, (float)y, (float)width, (float)height, 255, 255, 255, 255);
+  DrawQuad_Internal(td->name, (float)x, (float)y, (float)width, (float)height, 255, 255, 255, 255);
 }
 
 
@@ -454,7 +452,7 @@ void RT_DrawQuad_NumPatch(float x, float y, int lump, int cm, enum patch_transla
   }
 
 
-  DrawQuad_Internal(td->rg_handle, xpos, ypos, width, height, rgba[0], rgba[1], rgba[2], rgba[3]);
+  DrawQuad_Internal(td->name, xpos, ypos, width, height, rgba[0], rgba[1], rgba[2], rgba[3]);
 }
 
 

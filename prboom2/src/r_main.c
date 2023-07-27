@@ -980,6 +980,20 @@ void R_SetupMatrix(void)
   if (V_GetMode() == VID_MODERT)
   {
     RT_InitMatrices(modelMatrix, projMatrix);
+
+    RgCameraInfo info = {
+        .sType       = RG_STRUCTURE_TYPE_CAMERA_INFO,
+        .pNext       = NULL,
+        .flags       = 0,
+        .fovYRadians = DEG2RAD(render_fovy),
+        .aspect      = aspect,
+        .cameraNear  = znear,
+        .cameraFar   = 10000.0f,
+    };
+    memcpy(info.view, rtmain.mat_view, sizeof(float) * 16);
+
+    RgResult r = rgUploadCamera(rtmain.instance, &info);
+    RG_CHECK(r);
   }
 }
 

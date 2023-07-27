@@ -30,13 +30,19 @@
 #include <assert.h>
 #include <lprintf.h>
 
-#define RG_RESOURCES_FOLDER "ovrd/"
+#define RG_RESOURCES_FOLDER "rt/"
 
 #define RG_MAX_TEXTURE_COUNT 4096
 
 #define assert_always(msg) assert(0 && msg)
 
-#define RG_CHECK(x) do{if ((x) != RG_SUCCESS){I_Error("RT: %d", (x));}}while(0)
+#define RG_CHECK(x) do{ \
+if (!((x) == RG_RESULT_SUCCESS || (x) == RG_RESULT_SUCCESS_FOUND_MESH || (x) == RG_RESULT_SUCCESS_FOUND_TEXTURE)) \
+{ \
+  I_Error("RT: %d", (x)); \
+}}while (0)
+
+
 #define RG_ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0])) 
 
 #define RG_VEC3_SET(vec, x, y, z) (vec)[0]=(x);(vec)[1]=(y);(vec)[2]=(z)
@@ -46,6 +52,7 @@
 
 #define RG_TRANSFORM_IDENTITY { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0 }
 #define RG_COLOR_WHITE { 1, 1, 1, 1 }
+#define RG_PACKED_COLOR_WHITE 0xFFFFFFFF
 
 #define RG_STR_FLASHLIGHT_HINT "Press \'%s\' to turn flashlight on"
 
@@ -54,8 +61,6 @@
 #define RG_SPRITE_METALLICITY 0.05f
 #define RG_SPRITE_ROUGHNESS   0.7f
 
-
-#define RG_SKY_REUSE_BUG_HACK 1
-
+#define RG_LIGHT_INTENSITY_MULT 0.2f
 
 #define RT_SEPARATE_HUD_SCALE 0

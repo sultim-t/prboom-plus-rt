@@ -3913,10 +3913,10 @@ static const char *RT_options_dlss_ptr[RG_ARRAY_SIZE(RT_options_dlss_ok)] = { NU
 static const char *RT_options_fsr[] =
 {
   "Off",
-  "Ultra Quality",
   "Quality",
   "Balanced",
   "Performance",
+  "Ultra Performance",
   NULL
 };
 #endif
@@ -3935,13 +3935,6 @@ static const char *RT_options_renderscale[] =
   "1600p",
   "1920p",
   "2160p",
-  NULL
-};
-static const char *RT_options_bounce[] =
-{
-  "1",
-  "2 for poly lights",
-  "2 for all lights",
   NULL
 };
 static const char *RT_options_bloom_intensity[] =
@@ -4013,9 +4006,7 @@ typedef enum
   gfxset_fsr,
   gfxset_dlss,
 #endif
-  gfxset_lightgibounces,
   gfxset_bloom,
-  gfxset_crtinterlacing,
   gfxset_muzzleflash,
   gfxset_classicflashlight,
   gfxset_hudstyle,
@@ -4035,16 +4026,14 @@ setup_menu_t RT_GraphicsSettings[] =
 //{"Fullscreen",  S_YESNO,  m_null, RT_X, RT_Y + 2 * 8, {"use_fullscreen"}, 0, 0, M_ChangeFullScreen},
   {"Render size",  S_CHOICE,  m_null, RT_X, RT_Y + 4 * 8, {"rt_renderscale"}, 0, 0, M_RT_ResolutionSettings_RenderScale, RT_options_renderscale },
 #if !RT_NO_UPSCALERS
-  {"AMD FSR",       S_CHOICE,  m_null, RT_X, RT_Y + 5 * 8, {"rt_fsr"}, 0, 0, M_RT_ResolutionSettings_FSR, RT_options_fsr },
-  {"Nvidia DLSS", S_CHOICE,  m_null, RT_X, RT_Y + 6 * 8, {"rt_dlss"}, 0, 0, M_RT_ResolutionSettings_DLSS, RT_options_dlss_ptr },
+  {"AMD FSR 2",       S_CHOICE,  m_null, RT_X, RT_Y + 5 * 8, {"rt_fsr"}, 0, 0, M_RT_ResolutionSettings_FSR, RT_options_fsr },
+  {"Nvidia DLSS 2", S_CHOICE,  m_null, RT_X, RT_Y + 6 * 8, {"rt_dlss"}, 0, 0, M_RT_ResolutionSettings_DLSS, RT_options_dlss_ptr },
 #define RT_U 8
 #else 
 #define RT_U 6
 #endif
 
-  {"Light GI bounces", S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+0) * 8, {"rt_bounce_quality"}, 0, 0, NULL, RT_options_bounce },
   {"Bloom",         S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+1) * 8, {"rt_bloom_intensity"}, 0, 0, NULL, RT_options_bloom_intensity },
-  {"CRT Interlacing", S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+2) * 8, {"rt_crt_interlacing"}, 0, 0, NULL, RT_options_crt_interlacing },
   {"Muzzle flash",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+3) * 8, {"rt_muzzleflash_intensity"}, 0, 0, NULL, RT_options_muzzleflash_intensity },
   {"Flashlight",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+4) * 8, {"rt_classic_flashlight"}, 0, 0, NULL, RT_options_classic_flashlight },
 
@@ -4101,9 +4090,7 @@ static void M_RT_UpdateGfxItems(void)
 #if !RT_NO_UPSCALERS
   SetGfxItemEnabled(gfxset_fsr,               V_GetMode() == VID_MODERT);
 #endif
-  SetGfxItemEnabled(gfxset_lightgibounces,    V_GetMode() == VID_MODERT);
   SetGfxItemEnabled(gfxset_bloom,             V_GetMode() == VID_MODERT);
-  SetGfxItemEnabled(gfxset_crtinterlacing,    V_GetMode() == VID_MODERT);
   SetGfxItemEnabled(gfxset_muzzleflash,       V_GetMode() == VID_MODERT);
   SetGfxItemEnabled(gfxset_classicflashlight, V_GetMode() == VID_MODERT);
 
@@ -5682,11 +5669,6 @@ dboolean M_Responder (event_t* ev) {
 
     if (rtmain.devmode)
     {
-      if (ch == KEYD_PAGEUP)
-      {
-        rtmain.request_shaderreload = 1;
-        return true;
-      }
       if (ch == KEYD_KEYPADMULTIPLY)
       {
         RT_MapMetaInfo_WriteToFile();

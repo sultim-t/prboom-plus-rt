@@ -156,12 +156,12 @@ void RT_TextureMetaInfo_Init(void)
     }
 
 
-    dboolean valid = false;
-    char name[256];
-    RgFloat3D light_color = { 0 };
+    dboolean           valid = false;
+    char               name[256];
+    RgColor4DPacked32  light_color      = rgUtilPackColorByte4D(0, 0, 0, 0);
     rt_texture_flags_t additional_flags = 0;
-    float geom_emission = 0;
-    float falloff_mult = 1.0f;
+    float              geom_emission    = 0;
+    float              falloff_mult     = 1.0f;
 
 
     switch (state)
@@ -192,9 +192,7 @@ void RT_TextureMetaInfo_Init(void)
           const char blue[] = { str_hexcolor[4], str_hexcolor[5], '\0' };
           uint32_t ib = strtoul(blue, NULL, 16);
 
-          light_color.data[0] = (float)ir / 255.0f;
-          light_color.data[1] = (float)ig / 255.0f;
-          light_color.data[2] = (float)ib / 255.0f;
+          light_color = rgUtilPackColorByte4D((uint8_t)ir, (uint8_t)ig, (uint8_t)ib, 255);
 
           if (c == 3)
           {
