@@ -440,7 +440,7 @@ static void DrawWall(RTPWallType itemtype, int drawwallindex, RTPWall *wall)
       .sType = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_INFO,
       .pNext = NULL,
       .flags = (alpha_tested ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0) |
-               (itemtype == RTP_WALLTYPE_SWALL ? RG_MESH_PRIMITIVE_SKY : 0),
+               (itemtype == RTP_WALLTYPE_SWALL ? RG_MESH_PRIMITIVE_SKY_VISIBILITY : 0),
       .pPrimitiveNameInMesh = NULL,
       .primitiveIndexInMesh = 0,
       .pVertices            = vertices,

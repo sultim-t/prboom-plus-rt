@@ -428,12 +428,22 @@ void RT_EndFrame()
   }
 #endif
 
+  RgDrawFrameTexturesParams texture_params = {
+      .sType                  = RG_STRUCTURE_TYPE_DRAW_FRAME_TEXTURES_PARAMS,
+      .pNext                  = &sky_params,
+      .dynamicSamplerFilter   = RG_SAMPLER_FILTER_NEAREST,
+      .normalMapStrength      = 1.0f,
+      .emissionMapBoost       = 100.0f,
+      .emissionMaxScreenColor = 16.0f,
+      .minRoughness           = 0.0f,
+  };
+
   RgDrawFrameBloomParams bloom_params = {
       .sType                   = RG_STRUCTURE_TYPE_DRAW_FRAME_BLOOM_PARAMS,
-      .pNext                   = &sky_params,
-      .bloomIntensity          = rt_settings.bloom_enable ? 1.0f : 0.0f,
-      .inputThreshold          = 10.0f,
-      .bloomEmissionMultiplier = 8.0f,
+      .pNext                   = &texture_params,
+      .bloomIntensity          = rt_settings.bloom_enable ? 0.05f : 0.0f,
+      .inputThreshold          = 4.0f,
+      .bloomEmissionMultiplier = 9.0f,
       .lensDirtIntensity       = 1.0f,
   };
 
