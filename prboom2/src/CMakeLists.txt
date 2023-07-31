@@ -425,6 +425,12 @@ function(AddGameExecutable TARGET SOURCES)
         )
     endif()
 
+    # VS hot reload
+    if (MSVC AND WIN32 AND NOT MSVC_VERSION VERSION_LESS 142)
+        target_link_options(${TARGET} PRIVATE $<$<CONFIG:Debug>:/INCREMENTAL>)
+        target_compile_options(${TARGET} PRIVATE $<$<CONFIG:Debug>:/ZI>)
+    endif()
+
     # RT library
     add_library(RayTracedGL1 SHARED IMPORTED)
 
