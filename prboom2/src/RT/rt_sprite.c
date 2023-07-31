@@ -54,8 +54,10 @@ typedef struct
   const rt_texture_t *td;
   uint_64_t flags;
   // int index;
-  int xy;
-  fixed_t fx, fy;
+  // int xy;
+  // fixed_t fx, fy;
+
+  dboolean has_rotation_frames;
 } rt_sprite_t;
 
 
@@ -98,22 +100,44 @@ static float GetMaxY(const RgPrimitiveVertex vs[6])
 }
 
 
+#define Vec3Normalize(x)                                                      \
+    do                                                                        \
+    {                                                                         \
+        float l = sqrtf((x)[0] * (x)[0] + (x)[1] * (x)[1] + (x)[2] * (x)[2]); \
+        (x)[0] /= l;                                                          \
+        (x)[1] /= l;                                                          \
+        (x)[2] /= l;                                                          \
+    } while (0)
+
+
+static RgFloat3D GetWorldDirection(const mobj_t* thing)
+{
+  fixed_t forward[] = {
+      finecosine[thing->angle >> ANGLETOFINESHIFT],
+      finesine[thing->angle >> ANGLETOFINESHIFT],
+  };
+
+  RgFloat3D r = {
+      -(float)forward[0],
+      0,
+      (float)forward[1],
+  };
+  Vec3Normalize(r.data);
+  return r;
+}
+
+
 static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int sectornum)
 {
-  dboolean no_depth_test            = !!(sprite->flags & MF_NO_DEPTH_TEST);
   dboolean is_partial_invisibility  = !!(sprite->flags & MF_SHADOW);
   // dboolean is_translucent           = !!(sprite->flags & MF_TRANSLUCENT);
   dboolean add_lightsource = (sprite->td->flags & RT_TEXTURE_FLAG_WITH_LIGHTSOURCE_BIT)        && sprite->td->metainfo != NULL;
   dboolean add_conelight   = (sprite->td->flags & RT_TEXTURE_FLAG_WITH_VERTICAL_CONELIGHT_BIT) && sprite->td->metainfo != NULL;
-
-  dboolean is_rasterized = no_depth_test || add_lightsource;
+  
+  dboolean can_offset = sprite->has_rotation_frames;
+  dboolean noshadows  = (add_lightsource && !can_offset);
 
   dboolean is_local_player = thing->type == MT_PLAYER && thing == players[displayplayer].mo;
-  if (is_local_player && is_rasterized)
-  {
-    return;
-  }
-
   
   RgPrimitiveVertex vertices[ 6 ];
 
@@ -205,8 +229,7 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
       .pNext = NULL,
       .flags = RG_MESH_PRIMITIVE_ALPHA_TESTED | RG_MESH_PRIMITIVE_DONT_GENERATE_NORMALS |
                (is_partial_invisibility ? RG_MESH_PRIMITIVE_WATER : 0) |
-               (is_local_player ? RG_MESH_PRIMITIVE_FIRST_PERSON_VIEWER : 0) |
-               (is_rasterized ? RG_MESH_PRIMITIVE_TRANSLUCENT : 0),
+               (is_local_player ? RG_MESH_PRIMITIVE_FIRST_PERSON_VIEWER : 0),
       .pPrimitiveNameInMesh = NULL,
       .primitiveIndexInMesh = 0,
       .pVertices            = vertices,
@@ -237,6 +260,17 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
   {
     const rt_texture_metainfo_t *mt = sprite->td->metainfo;
 
+    RgFloat3D pos = GetCenter(vertices);
+    if (can_offset)
+    {
+        RgFloat3D dir    = GetWorldDirection(thing);
+        float     offset = 0.3f;
+
+        pos.data[0] += offset * dir.data[0];
+        pos.data[1] += offset * dir.data[1];
+        pos.data[2] += offset * dir.data[2];
+    }
+
     float falloff = 7 * mt->falloff_multiplier;
 
     RgLightSphericalEXT ext = {
@@ -244,7 +278,7 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
         .pNext     = NULL,
         .color     = mt->light_color,
         .intensity = falloff * RG_LIGHT_INTENSITY_MULT,
-        .position  = GetCenter(vertices),
+        .position  = pos,
         .radius    = 0.01f,
     };
 
@@ -511,9 +545,9 @@ void RT_AddSprite(int sectornum, mobj_t *thing)
   //  scene_has_overlapped_sprites = true;
 
   //sprite.index = gl_spriteindex++;
-  sprite.xy = thing->x + (thing->y >> 16);
-  sprite.fx = thing->x;
-  sprite.fy = thing->y;
+  //sprite.xy = thing->x + (thing->y >> 16);
+  //sprite.fx = thing->x;
+  //sprite.fy = thing->y;
 
   sprite.vt = 0.0f;
   sprite.vb = 1.0f;
@@ -527,6 +561,8 @@ void RT_AddSprite(int sectornum, mobj_t *thing)
     sprite.ul = 1.0f;
     sprite.ur = 0.0f;
   }
+
+  sprite.has_rotation_frames = sprframe->rotate;
 
   DrawSprite(thing, &sprite, sectornum);
 
@@ -580,8 +616,6 @@ static RgFloat3D GetNormalTowardsCamera(void)
 
 static RgFloat3D GetNormalForSprite(void)
 {
-#define Vec3Normalize(x) {float l=sqrtf((x)[0]*(x)[0]+(x)[1]*(x)[1]+(x)[2]*(x)[2]); (x)[0]/=l;(x)[1]/=l;(x)[2]/=l; }
-
   const float f[3] = { 0,0,1 };
   RgFloat3D t = ApplyMat44ToDirection(rtmain.mat_view_inverse, f);
 
