@@ -405,7 +405,7 @@ void RT_EndFrame()
       .indexOfRefractionWater                = 1.33f,
       .waterWaveSpeed                        = 0.05f, // for partial_invisibility
       .waterWaveNormalStrength               = 3.0f,  // for partial_invisibility
-      .waterColor                            = { 0.25f, 0.4f, 0.6f },
+      .waterColor                            = { 0.7f, 0.5f, 0.4f },
       .waterWaveTextureDerivativesMultiplier = 1.0f,
       .waterTextureAreaScale                 = 1.0f,
       .portalNormalTwirl                     = false,
@@ -476,7 +476,7 @@ void RT_EndFrame()
   RgPostEffectChromaticAberration ef_chrabr =
   {
     .isActive = rtmain.powerupflags & RT_POWERUP_FLAG_DAMAGE_BIT,
-    .transitionDurationIn = 0.05f,
+    .transitionDurationIn = 0.01f,
     .transitionDurationOut = 0.3f,
     .intensity = 0.5f
   };
