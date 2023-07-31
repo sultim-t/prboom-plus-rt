@@ -77,7 +77,6 @@ void RT_TextureMetaInfo_Init(void)
     STATE_RASTERIZED_WITH_LIGHT,
     STATE_VERTICAL_CONELIGHT,
     STATE_EMISSIVE,
-    STATE_EMISSIVE_WITHOUT_INDIRECT_ILLUMINATION,
     STATE_MONOCHROME_FOR_COLORMAPS,
   };
   enum state_t state = STATE_NONE;
@@ -139,14 +138,10 @@ void RT_TextureMetaInfo_Init(void)
       state = STATE_VERTICAL_CONELIGHT;
       continue;
     }
-    else if (strcmp(curr_line, "@EMISSIVE") == 0)
+    else if (strcmp(curr_line, "@EMISSIVE") == 0 ||
+             strcmp(curr_line, "@EMISSIVE_WITHOUT_INDIRECT_ILLUMINATION") == 0)
     {
       state = STATE_EMISSIVE;
-      continue;
-    }
-    else if (strcmp(curr_line, "@EMISSIVE_WITHOUT_INDIRECT_ILLUMINATION") == 0)
-    {
-      state = STATE_EMISSIVE_WITHOUT_INDIRECT_ILLUMINATION;
       continue;
     }
     else if (strcmp(curr_line, "@MONOCHROME_FOR_COLORMAPS") == 0)
@@ -204,7 +199,6 @@ void RT_TextureMetaInfo_Init(void)
         break;
       }
       case STATE_EMISSIVE:
-      case STATE_EMISSIVE_WITHOUT_INDIRECT_ILLUMINATION:
       {
         int c = sscanf(curr_line, "%s %f", name, &geom_emission);
         if (c == 2)
@@ -261,9 +255,10 @@ void RT_TextureMetaInfo_Init(void)
         break;
 
       case STATE_RASTERIZED_WITH_LIGHT:
-        dst->additional_flags = RT_TEXTURE_FLAG_WITH_LIGHTSOURCE_BIT;
+        dst->additional_flags = RT_TEXTURE_FLAG_WITH_LIGHTSOURCE_BIT | RT_TEXTURE_FLAG_IS_EMISSIVE_BIT;
         dst->light_color = light_color;
         dst->falloff_multiplier = falloff_mult;
+        dst->geom_emission = falloff_mult;
         break;
 
       case STATE_VERTICAL_CONELIGHT:
@@ -274,11 +269,6 @@ void RT_TextureMetaInfo_Init(void)
 
       case STATE_EMISSIVE:
         dst->additional_flags = RT_TEXTURE_FLAG_IS_EMISSIVE_BIT;
-        dst->geom_emission = geom_emission;
-        break;
-
-      case STATE_EMISSIVE_WITHOUT_INDIRECT_ILLUMINATION: 
-        dst->additional_flags = RT_TEXTURE_FLAG_IS_EMISSIVE_BIT | RT_TEXTURE_FLAG_WITHOUT_INDIR_ILLUMINATION_BIT;
         dst->geom_emission = geom_emission;
         break;
 
