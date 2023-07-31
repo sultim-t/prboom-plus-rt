@@ -420,13 +420,6 @@ void RT_EndFrame()
       .skyColorSaturation = 1.0f,
       .skyViewerPosition  = { 0, 0, 0 },
   };
-#if RT_DOOM1_HACKS
-  // make E3M1 less red
-  if (gamemission == doom && gameepisode == 3 && gamemap == 1)
-  {
-    sky_params.skyColorSaturation = 0.7f;
-  }
-#endif
 
   RgDrawFrameTexturesParams texture_params = {
       .sType                  = RG_STRUCTURE_TYPE_DRAW_FRAME_TEXTURES_PARAMS,
