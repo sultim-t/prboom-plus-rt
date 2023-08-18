@@ -432,7 +432,20 @@ static void DrawWall(RTPWallType itemtype, int drawwallindex, RTPWall *wall)
         invert_normal, vertices[0].position, vertices[1].position, vertices[2].position);
   }
 
-  
+  if (invert_normal)
+  {
+    RgPrimitiveVertex t;
+
+    t           = vertices[0];
+    vertices[0] = vertices[2];
+    vertices[2] = t;
+
+    t           = vertices[3];
+    vertices[3] = vertices[5];
+    vertices[5] = t;
+  }
+
+
   RgMeshPrimitiveInfo prim = {
       .sType = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_INFO,
       .pNext = NULL,
