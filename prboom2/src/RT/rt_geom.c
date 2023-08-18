@@ -203,9 +203,6 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
           .radius    = 0.05f,
       };
 
-      // TODO RT: remove?
-      ext.intensity = i_max(ext.intensity, 0.0005f);
-
       RgLightInfo light_info = {
           .sType        = RG_STRUCTURE_TYPE_LIGHT_INFO,
           .pNext        = &ext,
