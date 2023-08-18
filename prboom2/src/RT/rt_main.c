@@ -120,7 +120,7 @@ void RT_Init()
       .textureSamplerForceMinificationFilterLinear = true,
       .textureSamplerForceNormalMapFilterLinear    = true,
 
-      .pbrTextureSwizzling = RG_TEXTURE_SWIZZLING_ROUGHNESS_METALLIC,
+      .pbrTextureSwizzling = RG_TEXTURE_SWIZZLING_NULL_ROUGHNESS_METALLIC,
 
       .effectWipeIsUsed = true,
 
@@ -390,10 +390,10 @@ void RT_EndFrame()
       .pNext                = &resolution_params,
       .disableEyeAdaptation = false,
       .ev100Min             = 2,
-      .ev100Max             = 10,
+      .ev100Max             = 7.7f,
       .luminanceWhitePoint  = 10,
       .saturation           = { 0, 0, 0 },
-      .crosstalk            = { 1.0f, 0.8f, 0.9f },
+      .crosstalk            = { 0.75f, 1.0f, 1.0f },
   };
 
   RgDrawFrameReflectRefractParams reflrefr_params = {
@@ -437,7 +437,7 @@ void RT_EndFrame()
       .bloomIntensity          = rt_settings.bloom_enable ? 0.05f : 0.0f,
       .inputThreshold          = 4.0f,
       .bloomEmissionMultiplier = 9.0f,
-      .lensDirtIntensity       = 1.0f,
+      .lensDirtIntensity       = 0.75f,
   };
 
   RgDrawFrameIlluminationParams illum_params = {
