@@ -137,7 +137,7 @@ static void BuildSky(RTSkyVBO *vbo, const rt_texture_t *sky_texture, float sky_y
   if (!vbo->data)
   {
     memset(vbo, 0, sizeof(vbo[0]));
-    vbo->loops = malloc((row_count * 2 + 2) * sizeof(vbo->loops[0]));
+    vbo->loops = malloc((row_count * 2 /*+ 2*/) * sizeof(vbo->loops[0]));
     // create vertex array
     vbo->data = malloc(vertex_count * sizeof(vbo->data[0]));
     vbo->vertex_count = vertex_count;
@@ -155,13 +155,13 @@ static void BuildSky(RTSkyVBO *vbo, const rt_texture_t *sky_texture, float sky_y
   vbo->loopcount = 0;
   for (int yflip = 0; yflip < 2; yflip++)
   {
+    /*
     vbo->loops[vbo->loopcount].mode = SKY_TRIANGLE_FAN;
     vbo->loops[vbo->loopcount].vertexindex = vertex_p - &vbo->data[0];
     vbo->loops[vbo->loopcount].vertexcount = col_count;
     vbo->loops[vbo->loopcount].use_texture = false;
     vbo->loopcount++;
-
-    byte skyColor[3] = { 255,255,255 };
+    */
 
     yAdd = sky_y_offset / texh;
     yMult = (texh <= 180 ? 1.0f : 180.0f / texh);
@@ -180,7 +180,7 @@ static void BuildSky(RTSkyVBO *vbo, const rt_texture_t *sky_texture, float sky_y
     for (c = 0; c < col_count; c++)
     {
       SkyVertex(vertex_p, 0, c, yflip, sky_gldwf_skyflip);
-      vertex_p->color = rgUtilPackColorByte4D(skyColor[0], skyColor[1], skyColor[2], 255);
+      vertex_p->color = rgUtilPackColorByte4D(0, 0, 0, 0);
       vertex_p->texCoord[0] = vertex_p->texCoord[1] = 0; // RT: parts that are not covered just use (0,0) of the sky texture
       vertex_p++;
     }
