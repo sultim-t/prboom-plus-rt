@@ -107,8 +107,7 @@ static void SkyVertex(
       vbo->texCoord[0] *= -1;
     }
   }
-
-  if (r != 4)
+  
   {
     y += FRACUNIT * 300;
   }
@@ -180,14 +179,15 @@ static void BuildSky(RTSkyVBO *vbo, const rt_texture_t *sky_texture, float sky_y
     foglayer = true;
     for (c = 0; c < col_count; c++)
     {
-      SkyVertex(vertex_p, 1, c, yflip, sky_gldwf_skyflip);
+      SkyVertex(vertex_p, 0, c, yflip, sky_gldwf_skyflip);
       vertex_p->color = rgUtilPackColorByte4D(skyColor[0], skyColor[1], skyColor[2], 255);
       vertex_p->texCoord[0] = vertex_p->texCoord[1] = 0; // RT: parts that are not covered just use (0,0) of the sky texture
       vertex_p++;
     }
     foglayer = false;
 
-    delta = (yflip ? 5.0f : -5.0f) / MAP_COEFF;
+    // delta = (yflip ? 5.0f : -5.0f) / MAP_COEFF;
+    delta = 0.0f;
 
     for (r = 0; r < row_count; r++)
     {
@@ -289,7 +289,7 @@ void RT_AddSkyDome(void)
   // TODO: RT: rotate sky by: sky.x_offset
   // glRotatef(-180.0f + rtmain.sky.x_offset, 0.f, 1.f, 0.f);
   float scale[3] = { -2,2,2 };
-  float translate[3] = { 0, -1250.0f / MAP_COEFF, 0 };
+  float translate[3] = { 0, 2 * -1250.0f / MAP_COEFF, 0 };
 
   if (!STRETCHSKY)
   {

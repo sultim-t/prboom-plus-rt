@@ -985,7 +985,7 @@ void R_SetupMatrix(void)
         .sType       = RG_STRUCTURE_TYPE_CAMERA_INFO,
         .pNext       = NULL,
         .flags       = 0,
-        .fovYRadians = DEG2RAD(render_fovy),
+        .fovYRadians = DEG2RAD(fovy),
         .aspect      = aspect,
         .cameraNear  = znear,
         .cameraFar   = 10000.0f,
