@@ -1217,6 +1217,8 @@ void I_UpdateVideoMode(void)
   const dboolean novsync = M_CheckParm("-timedemo") || \
                            M_CheckParm("-fastdemo");
 
+  dboolean just_change_size = false;
+
   if(sdl_window)
   {
     // video capturing cannot be continued with new screen settings
@@ -1230,26 +1232,37 @@ void I_UpdateVideoMode(void)
       gld_CleanStaticMemory();
     }
 #endif
-    if (V_GetMode() == VID_MODERT)
+    int oldmode = V_GetMode();
+    I_InitScreenResolution();
+    int newmode = V_GetMode();
+
+    // RT: don't destroy window if just changing window size within RT renderer
+    just_change_size = (oldmode == VID_MODERT && newmode == VID_MODERT);
+
+    if (!just_change_size)
     {
+      if (oldmode == VID_MODERT)
+      {
         RT_Destroy();
+      }
     }
 
-    I_InitScreenResolution();
-
-    if (sdl_glcontext) SDL_GL_DeleteContext(sdl_glcontext);
-    if (screen) SDL_FreeSurface(screen);
-    if (buffer) SDL_FreeSurface(buffer);
-    if (sdl_texture) SDL_DestroyTexture(sdl_texture);
-    if (sdl_renderer) SDL_DestroyRenderer(sdl_renderer);
-    SDL_DestroyWindow(sdl_window);
-    
-    sdl_renderer = NULL;
-    sdl_window = NULL;
-    sdl_glcontext = NULL;
-    screen = NULL;
-    buffer = NULL;
-    sdl_texture = NULL;
+    if (!just_change_size)
+    {
+      if (sdl_glcontext) SDL_GL_DeleteContext(sdl_glcontext);
+      if (screen) SDL_FreeSurface(screen);
+      if (buffer) SDL_FreeSurface(buffer);
+      if (sdl_texture) SDL_DestroyTexture(sdl_texture);
+      if (sdl_renderer) SDL_DestroyRenderer(sdl_renderer);
+      SDL_DestroyWindow(sdl_window);
+      
+      sdl_renderer = NULL;
+      sdl_window = NULL;
+      sdl_glcontext = NULL;
+      screen = NULL;
+      buffer = NULL;
+      sdl_texture = NULL;
+    }
   }
 
   // e6y: initialisation of screen_multiply
@@ -1309,11 +1322,18 @@ void I_UpdateVideoMode(void)
   }
   else if (V_GetMode() == VID_MODERT)
   {
-    sdl_window = SDL_CreateWindow(
-        PACKAGE_NAME " " PACKAGE_VERSION,
-        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        SCREENWIDTH, SCREENHEIGHT,
-        init_flags);
+    if (!just_change_size)
+    {
+      sdl_window = SDL_CreateWindow(
+          PACKAGE_NAME " " PACKAGE_VERSION,
+          SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+          SCREENWIDTH, SCREENHEIGHT,
+          init_flags);
+    }
+    else
+    {
+      SDL_SetWindowSize(sdl_window, SCREENWIDTH, SCREENHEIGHT);
+    }
     sdl_renderer = NULL;
   }
   else
@@ -1492,7 +1512,10 @@ void I_UpdateVideoMode(void)
 
   if (V_GetMode() == VID_MODERT)
   {
-    RT_Init();
+    if (!just_change_size)
+    {
+      RT_Init();
+    }
     M_ChangeFOV();
     deh_changeCompTranslucency();
   }
