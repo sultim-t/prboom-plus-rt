@@ -5175,6 +5175,160 @@ static inline int GetButtons(const unsigned int max, int data)
   return -1;
 }
 
+
+#if RT_CUSTOM_MENU
+static dboolean RT_IsImmediateApply(setup_menu_t* ptr1) {
+  for (int i = 0; i < RG_ARRAY_SIZE(RT_GraphicsSettings) - 1; i++)
+  {
+    // window size should not be applied immediately
+    if (i != gfxset_resolution)
+    {
+      if (ptr1 == &RT_GraphicsSettings[i])
+      {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+// FROM LINE 6020-6100
+// UX: USER SHOULD BE ABLE TO SWITCH IN GRAPHICS MENU WITH ARROWS / ENTER
+static dboolean RT_LeftRightEnterImmediateApply(setup_menu_t* ptr1, int ch)
+{
+  if (!RT_IsImmediateApply(ptr1))
+  {
+    return false;
+  }
+
+  if (ptr1->m_flags & S_CHOICE) // selection of choices?
+  {
+    if (ch == key_menu_left)
+    {
+      if (ptr1->var.def->type == def_int)
+      {
+  int value = *ptr1->var.def->location.pi;
+
+  value = value - 1;
+  if ((ptr1->var.def->minvalue != UL && value < ptr1->var.def->minvalue))
+          value = ptr1->var.def->minvalue;
+  if ((ptr1->var.def->maxvalue != UL && value > ptr1->var.def->maxvalue))
+          value = ptr1->var.def->maxvalue;
+  if (*ptr1->var.def->location.pi != value)
+          S_StartSound(NULL, sfx_pstop);
+  *ptr1->var.def->location.pi = value;
+      }
+      if (ptr1->var.def->type == def_str)
+      {
+  int old_value, value;
+
+  old_value = M_IndexInChoices(*ptr1->var.def->location.ppsz, ptr1->selectstrings);
+  value     = old_value - 1;
+  if (value < 0)
+          value = 0;
+  if (old_value != value)
+          S_StartSound(NULL, sfx_pstop);
+  *ptr1->var.def->location.ppsz = ptr1->selectstrings[value];
+      }
+    }
+    if (ch == key_menu_right)
+    {
+      if (ptr1->var.def->type == def_int)
+      {
+  int value = *ptr1->var.def->location.pi;
+
+  value = value + 1;
+  if ((ptr1->var.def->minvalue != UL && value < ptr1->var.def->minvalue))
+          value = ptr1->var.def->minvalue;
+  if ((ptr1->var.def->maxvalue != UL && value > ptr1->var.def->maxvalue))
+          value = ptr1->var.def->maxvalue;
+  if (*ptr1->var.def->location.pi != value)
+          S_StartSound(NULL, sfx_pstop);
+  *ptr1->var.def->location.pi = value;
+      }
+      if (ptr1->var.def->type == def_str)
+      {
+  int old_value, value;
+
+  old_value = M_IndexInChoices(*ptr1->var.def->location.ppsz, ptr1->selectstrings);
+  value     = old_value + 1;
+  if (ptr1->selectstrings[value] == NULL)
+          value = old_value;
+  if (old_value != value)
+          S_StartSound(NULL, sfx_pstop);
+  *ptr1->var.def->location.ppsz = ptr1->selectstrings[value];
+      }
+    }
+#if !RT_CUSTOM_MENU
+    if (ch == key_menu_enter)
+#else
+    if (ch == key_menu_enter || ch == key_menu_right || ch == key_menu_left)
+#endif
+    {
+      // phares 4/14/98:
+      // If not in demoplayback, demorecording, or netgame,
+      // and there's a second variable in var2, set that
+      // as well
+
+      // killough 8/15/98: add warning messages
+
+      if (ptr1->m_flags & (S_LEVWARN | S_PRGWARN))
+  warn_about_changes(ptr1->m_flags & // killough 10/98
+                     (S_LEVWARN | S_PRGWARN));
+      else
+  M_UpdateCurrent(ptr1->var.def);
+
+      if (ptr1->action) // killough 10/98
+  ptr1->action();
+      M_SelectDone(ptr1); // phares 4/17/98
+    }
+    return true;
+  }
+
+  if (ptr1->m_flags & S_YESNO) // yes or no setting?
+  {
+#if !RT_CUSTOM_MENU
+    if (ch == key_menu_enter)
+#else
+    if (ch == key_menu_enter || ch == key_menu_right || ch == key_menu_left)
+#endif
+    {
+      *ptr1->var.def->location.pi = !*ptr1->var.def->location.pi; // killough 8/15/98
+
+      // phares 4/14/98:
+      // If not in demoplayback, demorecording, or netgame,
+      // and there's a second variable in var2, set that
+      // as well
+
+      // killough 8/15/98: add warning messages
+
+      if (ptr1->m_flags & (S_LEVWARN | S_PRGWARN))
+  warn_about_changes(ptr1->m_flags & // killough 10/98
+                     (S_LEVWARN | S_PRGWARN));
+      else
+  M_UpdateCurrent(ptr1->var.def);
+
+      if (ptr1->action) // killough 10/98
+  ptr1->action();
+
+  // e6y
+    #ifdef GL_DOOM
+      {
+  extern dboolean gl_arb_multitexture;
+  if ((ptr1->m_flags & S_CANT_GL_ARB_MULTITEXTURE) && !gl_arb_multitexture)
+          warn_about_changes(ptr1->m_flags & S_CANT_GL_ARB_MULTITEXTURE);
+      }
+    #endif
+    }
+    M_SelectDone(ptr1); // phares 4/17/98
+    return true;
+  }
+
+  return false;
+}
+#endif
+
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // M_Responder
@@ -5755,6 +5909,9 @@ dboolean M_Responder (event_t* ev) {
 
 #if !RT_CUSTOM_MENU
   if (ptr1->m_flags & S_YESNO) // yes or no setting?
+#else
+  if ((ptr1->m_flags & S_YESNO) && !RT_IsImmediateApply(ptr1))
+#endif
     {
     if (ch == key_menu_enter) {
       *ptr1->var.def->location.pi = !*ptr1->var.def->location.pi; // killough 8/15/98
@@ -5787,7 +5944,6 @@ dboolean M_Responder (event_t* ev) {
     M_SelectDone(ptr1);                           // phares 4/17/98
     return true;
     }
-#endif
 
   if (ptr1->m_flags & S_CRITEM)
     {
@@ -5867,7 +6023,12 @@ dboolean M_Responder (event_t* ev) {
       return true;
     }
 
+#if !RT_CUSTOM_MENU
   if (ptr1->m_flags & S_CHOICE) // selection of choices?
+#else
+  if ((ptr1->m_flags & S_CHOICE) && !RT_IsImmediateApply(ptr1))
+#endif
+
     {
     if (ch == key_menu_left) {
       if (ptr1->var.def->type == def_int) {
@@ -6262,6 +6423,36 @@ dboolean M_Responder (event_t* ev) {
     return true;
   }
 
+
+#if RT_CUSTOM_MENU
+  if (RT_IsImmediateApply(ptr1))
+  {
+    dboolean startselect = false;
+
+    if ((ptr1->m_flags & S_CHOICE) || (ptr1->m_flags & S_YESNO))
+    {
+      if (ch == key_menu_left || ch == key_menu_right || ch == key_menu_enter)
+      {
+        startselect = true;
+      }
+    }
+
+    if (startselect)
+    {
+      ptr1->m_flags |= S_SELECT;
+      setup_select = true;
+      S_StartSound(NULL, sfx_itemup);
+
+      dboolean d = RT_LeftRightEnterImmediateApply(ptr1, ch);
+      assert(d && "Result must match startselect");
+      if (d)
+      {
+        return true;
+      }
+    }
+  }
+#endif
+
       if (ch == key_menu_enter)
   {
     int flags = ptr1->m_flags;
@@ -6321,58 +6512,6 @@ dboolean M_Responder (event_t* ev) {
     ptr1->m_flags |= S_SELECT;
     setup_select = true;
     S_StartSound(NULL,sfx_itemup);
-
-#if RT_CUSTOM_MENU
-    // ----------------------------------------------------- //
-    // ----------------------------------------------------- //
-    // ----------------------------------------------------- //
-    //   RT: NOTE: THIS IS A COPY FROM LINES 5573-5605       //
-    //             SO CLICKING ON A YES-NO BUTTON WILL       //
-    //             BE APPLIED IMMEDIATELY, I.E.              //
-    //             WITHOUT CLICKING ENTER 2 TIMES            //
-    // ----------------------------------------------------- //
-    // ----------------------------------------------------- //
-    // ----------------------------------------------------- //
-    {
-      {
-        if (ptr1->m_flags & S_YESNO) // yes or no setting?
-        {
-          if (ch == key_menu_enter)
-          {
-            *ptr1->var.def->location.pi = !*ptr1->var.def->location.pi; // killough 8/15/98
-
-            // phares 4/14/98:
-            // If not in demoplayback, demorecording, or netgame,
-            // and there's a second variable in var2, set that
-            // as well
-
-            // killough 8/15/98: add warning messages
-
-            if (ptr1->m_flags & (S_LEVWARN | S_PRGWARN))
-              warn_about_changes(ptr1->m_flags &    // killough 10/98
-                                 (S_LEVWARN | S_PRGWARN));
-            else
-              M_UpdateCurrent(ptr1->var.def);
-
-            if (ptr1->action)      // killough 10/98
-              ptr1->action();
-
-            //e6y
-          #ifdef GL_DOOM
-            {
-              extern dboolean gl_arb_multitexture;
-              if ((ptr1->m_flags & S_CANT_GL_ARB_MULTITEXTURE) && !gl_arb_multitexture)
-                warn_about_changes(ptr1->m_flags & S_CANT_GL_ARB_MULTITEXTURE);
-            }
-          #endif
-          }
-          M_SelectDone(ptr1);                           // phares 4/17/98
-          setup_select = false;
-          return true;
-        }
-      }
-    }
-#endif
 
     return true;
   }
