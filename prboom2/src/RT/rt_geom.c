@@ -36,12 +36,26 @@
 #include "r_state.h"
 
 
-static float CalcLightLevel(int lightlevel)
+float RT_CalcLightLevel(int lightlevel)
 {
-  float mult = (float)BETWEEN(0, 255, lightlevel) / 255.0f;
+    lightlevel = BETWEEN(0, 255, lightlevel);
 
-  // to make lower values less significant
-  return mult * mult * mult;
+    switch (gl_lightmode)
+    {
+        case gl_lightmode_glboom: {
+            float gamma_0 = -0.2f;
+            return (float)((1.0f - exp(pow(lightlevel / 255.0f, 3) * gamma_0)) /
+                              (1.0f - exp(1.0f * gamma_0)));
+        }
+        case gl_lightmode_gzdoom: {
+            float a = lightlevel < 192 ? (192.0f - (192 - lightlevel) * 1.95f) : lightlevel;
+            return a / 255.0f;
+        }
+        default: {
+            float d = (lightlevel / 255.0f);
+            return d * d;
+        }
+    }
 }
 
 
@@ -77,7 +91,7 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
     if (!flat.td)
       return;
     // get the lightlevel from floorlightlevel
-    flat.light = CalcLightLevel(plane->lightlevel);
+    flat.light = RT_CalcLightLevel(plane->lightlevel);
     // flat.fogdensity = gld_CalcFogDensity(sector, plane->lightlevel, GLDIT_FLOOR);
     // calculate texture offsets
     if (sector->floor_xoffs | sector->floor_yoffs)
@@ -102,7 +116,7 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
     if (!flat.td)
       return;
     // get the lightlevel from ceilinglightlevel
-    flat.light = CalcLightLevel(plane->lightlevel);
+    flat.light = RT_CalcLightLevel(plane->lightlevel);
     // flat.fogdensity = gld_CalcFogDensity(sector, plane->lightlevel, GLDIT_CEILING);
     // calculate texture offsets
     if (sector->ceiling_xoffs | sector->ceiling_yoffs)
@@ -121,11 +135,17 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
   // get height from plane
   flat.z = (float)plane->height / MAP_SCALE;
 
+  RgColor4DPacked32 lightcolor = rgUtilPackColorFloat4D(flat.light, flat.light, flat.light, 1.0f);
 
   // ---
 
 
   rtsectordata_t sector_geometry = RT_GetSectorGeometryData(sectornum, ceiling);
+
+  for (int i = 0; i < sector_geometry.vertex_count; i++)
+  {
+    sector_geometry.vertices[i].color = lightcolor;
+  }
 
   RgMeshPrimitiveInfo prim = {
       .sType = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_INFO,
@@ -397,6 +417,8 @@ static void DrawWall(RTPWallType itemtype, int drawwallindex, RTPWall *wall)
   RgFloat2D texcoord_3 = { wall->ur, wall->vb };
   RgFloat3D position_3 = { x2, wall->ybottom, z2 };
 
+  RgColor4DPacked32 lightcolor =
+      rgUtilPackColorFloat4D(wall->light, wall->light, wall->light, 1.0f);
 
   // clang-format off
   #define RG_UNPACK_2(v) { (v).data[0], (v).data[1] }
@@ -404,12 +426,12 @@ static void DrawWall(RTPWallType itemtype, int drawwallindex, RTPWall *wall)
   
   // RT: 2 triangle fans, but in reverse order (counter clockwise)
   RgPrimitiveVertex vertices[] = {
-      { .position = RG_UNPACK_3(position_0), .normal = { 0 }, .tangent = { 0 }, .texCoord = RG_UNPACK_2(texcoord_0), .color = RG_PACKED_COLOR_WHITE },
-      { .position = RG_UNPACK_3(position_2), .normal = { 0 }, .tangent = { 0 }, .texCoord = RG_UNPACK_2(texcoord_2), .color = RG_PACKED_COLOR_WHITE },
-      { .position = RG_UNPACK_3(position_1), .normal = { 0 }, .tangent = { 0 }, .texCoord = RG_UNPACK_2(texcoord_1), .color = RG_PACKED_COLOR_WHITE },
-      { .position = RG_UNPACK_3(position_0), .normal = { 0 }, .tangent = { 0 }, .texCoord = RG_UNPACK_2(texcoord_0), .color = RG_PACKED_COLOR_WHITE },
-      { .position = RG_UNPACK_3(position_3), .normal = { 0 }, .tangent = { 0 }, .texCoord = RG_UNPACK_2(texcoord_3), .color = RG_PACKED_COLOR_WHITE },
-      { .position = RG_UNPACK_3(position_2), .normal = { 0 }, .tangent = { 0 }, .texCoord = RG_UNPACK_2(texcoord_2), .color = RG_PACKED_COLOR_WHITE },
+      { .position = RG_UNPACK_3(position_0), .normal = { 0 }, .tangent = { 0 }, .texCoord = RG_UNPACK_2(texcoord_0), .color = lightcolor },
+      { .position = RG_UNPACK_3(position_2), .normal = { 0 }, .tangent = { 0 }, .texCoord = RG_UNPACK_2(texcoord_2), .color = lightcolor },
+      { .position = RG_UNPACK_3(position_1), .normal = { 0 }, .tangent = { 0 }, .texCoord = RG_UNPACK_2(texcoord_1), .color = lightcolor },
+      { .position = RG_UNPACK_3(position_0), .normal = { 0 }, .tangent = { 0 }, .texCoord = RG_UNPACK_2(texcoord_0), .color = lightcolor },
+      { .position = RG_UNPACK_3(position_3), .normal = { 0 }, .tangent = { 0 }, .texCoord = RG_UNPACK_2(texcoord_3), .color = lightcolor },
+      { .position = RG_UNPACK_3(position_2), .normal = { 0 }, .tangent = { 0 }, .texCoord = RG_UNPACK_2(texcoord_2), .color = lightcolor },
   };
 
   #undef RG_UNPACK_2
@@ -676,7 +698,7 @@ void RT_AddWall(int subsectornum, seg_t *seg)
   {
     //rellight = seg->linedef->dx == 0 ? +gl_rellight : seg->linedef->dy == 0 ? -gl_rellight : 0;
   }
-  wall.light = CalcLightLevel(frontsector->lightlevel + rellight);
+  wall.light = RT_CalcLightLevel(frontsector->lightlevel + rellight);
   //wall.fogdensity = CalcFogDensity(frontsector,
   //                                 frontsector->lightlevel + (gl_lightmode == gl_lightmode_fogbased ? rellight : 0),
   //                                 RTP_WALLTYPE_WALL);

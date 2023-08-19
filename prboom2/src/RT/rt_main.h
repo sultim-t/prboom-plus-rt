@@ -84,7 +84,7 @@ double RT_GetCurrentTime(void);
 
 void RT_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling);
 void RT_AddWall(int subsectornum, seg_t *seg);
-void RT_AddSprite(int sectornum, mobj_t *thing);
+void RT_AddSprite(int sectornum, mobj_t* thing, int lightlevel);
 void RT_AddWeaponSprite(int weaponlump, const vissprite_t *vis, float zoffset);
 void RT_AddSkyDome(void);
 

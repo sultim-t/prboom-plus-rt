@@ -48,7 +48,7 @@ typedef struct
   float ul, ur;
   float x1, y1;
   float x2, y2;
-  // float light;
+  float light;
   // float fogdensity;
   fixed_t scale;
   const rt_texture_t *td;
@@ -61,14 +61,7 @@ typedef struct
 } rt_sprite_t;
 
 
-
-// gld_CalcLightLevel_shaders
-static float CalcLightLevel(int lightlevel)
-{
-  int light = BETWEEN(0, 255, lightlevel);
-
-  return (float)light / 255.0f;
-}
+extern float RT_CalcLightLevel(int lightlevel);
 
 
 static RgFloat3D GetNormalUp(void);
@@ -154,6 +147,9 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
   float cos_inv_yaw = cosf(inv_yaw * (float)M_PI / 180.f);
   float sin_inv_yaw = sinf(inv_yaw * (float)M_PI / 180.f);
 
+  RgColor4DPacked32 lightcolor =
+      rgUtilPackColorFloat4D(sprite->light, sprite->light, sprite->light, 1.0f);
+
   if (sprite->flags & (MF_SOLID | MF_SPAWNCEILING))
   {
     float x1 = +(sprite->x1 * cos_inv_yaw) + sprite->x;
@@ -166,10 +162,10 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
     float z1 = -(sprite->x2 * sin_inv_yaw) + sprite->z;
 
     // clang-format off
-    RgPrimitiveVertex v0 = { .position = { x1, y1, z2 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ul, sprite->vt }, .color = RG_PACKED_COLOR_WHITE };
-    RgPrimitiveVertex v1 = { .position = { x2, y1, z1 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ur, sprite->vt }, .color = RG_PACKED_COLOR_WHITE };
-    RgPrimitiveVertex v2 = { .position = { x1, y2, z2 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ul, sprite->vb }, .color = RG_PACKED_COLOR_WHITE };
-    RgPrimitiveVertex v3 = { .position = { x2, y2, z1 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ur, sprite->vb }, .color = RG_PACKED_COLOR_WHITE };
+    RgPrimitiveVertex v0 = { .position = { x1, y1, z2 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ul, sprite->vt }, .color = lightcolor };
+    RgPrimitiveVertex v1 = { .position = { x2, y1, z1 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ur, sprite->vt }, .color = lightcolor };
+    RgPrimitiveVertex v2 = { .position = { x1, y2, z2 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ul, sprite->vb }, .color = lightcolor };
+    RgPrimitiveVertex v3 = { .position = { x2, y2, z1 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ur, sprite->vb }, .color = lightcolor };
     // clang-format on
 
     vertices[0] = v0;
@@ -206,10 +202,10 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
     float z4 = -(sprite->x2 * sin_inv_yaw + y2z2_y * cos_inv_yaw) + sprite->z;
 
     // clang-format off
-    RgPrimitiveVertex v0 = { .position = { x1, y1, z1 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ul, sprite->vt }, .color = RG_PACKED_COLOR_WHITE };
-    RgPrimitiveVertex v1 = { .position = { x2, y1, z2 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ur, sprite->vt }, .color = RG_PACKED_COLOR_WHITE };
-    RgPrimitiveVertex v2 = { .position = { x3, y2, z3 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ul, sprite->vb }, .color = RG_PACKED_COLOR_WHITE };
-    RgPrimitiveVertex v3 = { .position = { x4, y2, z4 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ur, sprite->vb }, .color = RG_PACKED_COLOR_WHITE };
+    RgPrimitiveVertex v0 = { .position = { x1, y1, z1 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ul, sprite->vt }, .color = lightcolor };
+    RgPrimitiveVertex v1 = { .position = { x2, y1, z2 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ur, sprite->vt }, .color = lightcolor };
+    RgPrimitiveVertex v2 = { .position = { x3, y2, z3 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ul, sprite->vb }, .color = lightcolor };
+    RgPrimitiveVertex v3 = { .position = { x4, y2, z4 }, .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = { sprite->ur, sprite->vb }, .color = lightcolor };
     // clang-format on
 
     vertices[0] = v0;
@@ -329,7 +325,7 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
 }
 
 
-void RT_AddSprite(int sectornum, mobj_t *thing)
+void RT_AddSprite(int sectornum, mobj_t* thing, int lightlevel)
 {
   if (sectornum < 0 || sectornum >= numsectors)
   {
@@ -523,11 +519,11 @@ void RT_AddSprite(int sectornum, mobj_t *thing)
   if ((thing->frame & FF_FULLBRIGHT) || show_alive)
   {
     //sprite.fogdensity = 0.0f;
-    //sprite.light = 1.0f;
+    sprite.light = 1.0f;
   }
   else
   {
-    //sprite.light = CalcLightLevel(lightlevel + (extralight << 5));
+    sprite.light = RT_CalcLightLevel(lightlevel + (extralight << 5));
     //sprite.fogdensity = CalcFogDensity(thing->subsector->sector, lightlevel, GLDIT_SPRITE);
   }
   sprite.cm = CR_LIMIT + (int)((thing->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
@@ -630,7 +626,7 @@ static RgFloat3D GetNormalForSprite(void)
 }
 
 
-void RT_AddWeaponSprite(int weaponlump, const vissprite_t *vis, float zoffset)
+void RT_AddWeaponSprite(int weaponlump, const vissprite_t* vis, float zoffset, int lightlevel)
 {
   dboolean is_partial_invisibility = false;
 
@@ -695,17 +691,20 @@ void RT_AddWeaponSprite(int weaponlump, const vissprite_t *vis, float zoffset)
   // TODO RT: tangent
   RgFloat4D tangent = { 1, 0, 0, 1 };
 
+  float ll = RT_CalcLightLevel(lightlevel + (extralight << 5));
+  RgColor4DPacked32 lightcolor = rgUtilPackColorFloat4D(ll, ll, ll, 1.0f);
+
   // clang-format off
   #define RG_UNPACK_2( v ) { (v).data[0], (v).data[1] }
   #define RG_UNPACK_3( v ) { (v).data[0], (v).data[1], (v).data[2] }
   #define RG_UNPACK_4( v ) { (v).data[0], (v).data[1], (v).data[2], (v).data[3] }
   RgPrimitiveVertex vertices[] = {
-      { .position = RG_UNPACK_3(v0_world), .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = RG_UNPACK_2(t0), .color = RG_PACKED_COLOR_WHITE },
-      { .position = RG_UNPACK_3(v1_world), .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = RG_UNPACK_2(t1), .color = RG_PACKED_COLOR_WHITE },
-      { .position = RG_UNPACK_3(v2_world), .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = RG_UNPACK_2(t2), .color = RG_PACKED_COLOR_WHITE },
-      { .position = RG_UNPACK_3(v1_world), .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = RG_UNPACK_2(t1), .color = RG_PACKED_COLOR_WHITE },
-      { .position = RG_UNPACK_3(v3_world), .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = RG_UNPACK_2(t3), .color = RG_PACKED_COLOR_WHITE },
-      { .position = RG_UNPACK_3(v2_world), .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = RG_UNPACK_2(t2), .color = RG_PACKED_COLOR_WHITE },
+      { .position = RG_UNPACK_3(v0_world), .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = RG_UNPACK_2(t0), .color = lightcolor },
+      { .position = RG_UNPACK_3(v1_world), .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = RG_UNPACK_2(t1), .color = lightcolor },
+      { .position = RG_UNPACK_3(v2_world), .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = RG_UNPACK_2(t2), .color = lightcolor },
+      { .position = RG_UNPACK_3(v1_world), .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = RG_UNPACK_2(t1), .color = lightcolor },
+      { .position = RG_UNPACK_3(v3_world), .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = RG_UNPACK_2(t3), .color = lightcolor },
+      { .position = RG_UNPACK_3(v2_world), .normal = RG_UNPACK_3(normal), .tangent = RG_UNPACK_4(tangent), .texCoord = RG_UNPACK_2(t2), .color = lightcolor },
   };
   #undef RG_UNPACK_2
   #undef RG_UNPACK_3

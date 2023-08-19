@@ -645,7 +645,7 @@ static void R_ProjectSprite (int sectornum, mobj_t* thing, int lightlevel)
 
   if (V_GetMode() == VID_MODERT)
   {
-    RT_AddSprite(sectornum, thing);
+    RT_AddSprite(sectornum, thing, lightlevel);
     return;
   }
 
@@ -1132,7 +1132,7 @@ static void R_DrawPSprite (pspdef_t *psp, int psp_index)
     if (V_GetMode() == VID_MODERT)
     {
       // RT: slight z offset for flash - so there's no clipping between flash and weapon sprites
-      RT_AddWeaponSprite(lump, vis, -0.02f * psp_index); 
+      RT_AddWeaponSprite(lump, vis, -0.02f * psp_index, lightlevel); 
     }
 #ifdef GL_DOOM
     else if (V_GetMode() == VID_MODEGL)
