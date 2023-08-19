@@ -131,6 +131,13 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
   dboolean noshadows  = (add_lightsource && !can_offset);
 
   dboolean is_local_player = thing->type == MT_PLAYER && thing == players[displayplayer].mo;
+
+  // don't add lights to local player sprites
+  if (is_local_player)
+  {
+    add_lightsource = false;
+    add_conelight   = false;
+  }
   
   RgPrimitiveVertex vertices[ 6 ];
 
@@ -715,7 +722,8 @@ void RT_AddWeaponSprite(int weaponlump, const vissprite_t* vis, float zoffset, i
       .sType = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_INFO,
       .pNext = NULL,
       .flags = RG_MESH_PRIMITIVE_ALPHA_TESTED | RG_MESH_PRIMITIVE_DONT_GENERATE_NORMALS |
-               (is_partial_invisibility ? RG_MESH_PRIMITIVE_WATER : 0),
+               (is_partial_invisibility ? RG_MESH_PRIMITIVE_WATER : 0) |
+               RG_MESH_PRIMITIVE_FIRST_PERSON,
       .pPrimitiveNameInMesh = NULL,
       .primitiveIndexInMesh = 0,
       .pVertices            = vertices,
@@ -886,11 +894,15 @@ static void AddClassicPlayerLight(void)
   const float intensity = 0.07f;
   const float falloff = 4;
 
-  const float x = 0.05f;
+  const float x = 0;
   const float y = -0.12f;
-  const float z = 0.05f;
+  const float z = 0.07f;
+
+  RgFloat3D dir = GetCameraDirection();
+  dir.data[1]   = 0;
+  Vec3Normalize(dir.data);
   
-  RgFloat3D pos = GetOffsetFromCameraPosition(GetCameraDirection(), x, y, z);
+  RgFloat3D pos = GetOffsetFromCameraPosition(dir, x, y, z);
 
   RgLightSphericalEXT ext = {
       .sType     = RG_STRUCTURE_TYPE_LIGHT_SPHERICAL_EXT,
