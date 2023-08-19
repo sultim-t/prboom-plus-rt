@@ -62,6 +62,7 @@ typedef struct
   int dlss;        // 0 - off, [1,5] - quality from DLAA to ULTRA_PERF
   int fsr;         // 0 - off, [1,4] - quality from QUALITY to ULTRA_PERF
   int renderscale; // index in rt_settings_renderscale_e
+  int classic;     // defines how much of the screen should be in classic mode
   int bloom_enable;
   int muzzleflash_enable;
   int statusbar_scale;        // to calculate procents: 10*(statusbar_scale+1)

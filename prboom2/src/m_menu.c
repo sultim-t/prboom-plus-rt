@@ -333,7 +333,6 @@ void M_RT_ResolutionSettings_RenderScale(void);
 void M_RT_ApplyHUD(void);
 static void M_RT_UpdateGfxItems(void);
 #endif
-#define RT_NO_UPSCALERS 0
 
 
 menu_t NewDef;                                              // phares 5/04/98
@@ -1763,7 +1762,7 @@ typedef enum
 static const char *RT_options_hud_style[] =
 {
   "None",
-  "Minimalistic",
+  "Simple",
   "Classic",
   NULL
 };
@@ -3545,19 +3544,6 @@ static const char *videomodes[] = {
   NULL};
 
 
-#if RT_CUSTOM_MENU
-
-static const char *RT_simpler_videomodes[] = {
-  "Software",
-#ifdef GL_DOOM
-  "OpenGL",
-#endif
-  "RT",
-  NULL };
-
-#endif
-
-
 static const char *gltexformats[] = {
   "GL_RGBA","GL_RGB5_A1", "GL_RGBA4", NULL};
 
@@ -3899,7 +3885,6 @@ void M_DrawGeneral(void)
 
 #if RT_CUSTOM_MENU
 
-#if !RT_NO_UPSCALERS
 static const char *RT_options_dlss_ok[] =
 {
   "Off",
@@ -3920,32 +3905,25 @@ static const char *RT_options_fsr[] =
   "Ultra Performance",
   NULL
 };
-#endif
 static const char *RT_options_renderscale[] =
 {
-  "As resolution",
+  "Off",
   "320x200 (CRT)",
   "320x200",
   "480p",
   NULL
 };
-static const char *RT_options_bloom_enable[] =
+static const char *RT_options_off_on[] =
 {
   "Off",
   "On",
-  NULL
-};
-static const char *RT_options_muzzleflash_enable[] =
-{
-  "Off",
-  "On",
-  NULL
+  NULL,
 };
 static const char *RT_options_classic_flashlight[] =
 {
   "Default",
   "Classic",
-  NULL
+  NULL,
 };
 static const char *RT_options_statusbar_scale[] =
 {
@@ -3975,6 +3953,14 @@ static const char *RT_options_hud_scale[] =
   "100%",
   NULL
 };
+static const char* RT_options_classic[] = {
+  "Off",
+  "30%",
+  "50%",
+  "70%",
+  "On",
+  NULL
+};
 
 #define RT_X 170
 #define RT_Y 56
@@ -3982,14 +3968,13 @@ static const char *RT_options_hud_scale[] =
 typedef enum
 {
   // order must be in sync with RT_GraphicsSettings!
-  gfxset_videomode,
-  gfxset_vsync,
   gfxset_resolution,
-  gfxset_renderscale,
-#if !RT_NO_UPSCALERS
-  gfxset_fsr,
+//gfxset_fullscreen,
+  gfxset_vsync,
   gfxset_dlss,
-#endif
+  gfxset_fsr,
+  gfxset_renderscale,
+  gfxset_classic,
   gfxset_bloom,
   gfxset_muzzleflash,
   gfxset_classicflashlight,
@@ -4001,36 +3986,33 @@ typedef enum
   gfxset_hudsize,
   gfxset_end
 } gfxset_e;
+// clang-format off
 setup_menu_t RT_GraphicsSettings[] =
 {
-  {"Video mode",  S_CHOICE, m_null, RT_X, RT_Y + 0 * 8, {"videomode"}, 0, 0, M_ChangeVideoMode, RT_simpler_videomodes},
-  {"VSync",       S_YESNO,  m_null, RT_X, RT_Y + 1 * 8, {"render_vsync"}, 0, 0, M_ChangeVsync},
+  {"Window",             S_CHOICE, m_null, RT_X, RT_Y +  0 * 8, {"screen_resolution"},     0, 0, M_ChangeVideoMode, screen_resolutions_list },
+//{"Fullscreen",         S_YESNO,  m_null, RT_X, RT_Y +  1 * 8, {"use_fullscreen"},        0, 0, M_ChangeFullScreen, RT_options_off_on},
+  {"VSync",              S_YESNO,  m_null, RT_X, RT_Y +  1 * 8, {"render_vsync"},          0, 0, M_ChangeVsync, RT_options_off_on },
 
-  {"Resolution",  S_CHOICE, m_null, RT_X, RT_Y + 3 * 8, {"screen_resolution"}, 0, 0, M_ChangeVideoMode, screen_resolutions_list},
-//{"Fullscreen",  S_YESNO,  m_null, RT_X, RT_Y + 2 * 8, {"use_fullscreen"}, 0, 0, M_ChangeFullScreen},
-  {"Render size",  S_CHOICE,  m_null, RT_X, RT_Y + 4 * 8, {"rt_renderscale"}, 0, 0, M_RT_ResolutionSettings_RenderScale, RT_options_renderscale },
-#if !RT_NO_UPSCALERS
-  {"AMD FSR 2",       S_CHOICE,  m_null, RT_X, RT_Y + 5 * 8, {"rt_fsr"}, 0, 0, M_RT_ResolutionSettings_FSR, RT_options_fsr },
-  {"Nvidia DLSS 2", S_CHOICE,  m_null, RT_X, RT_Y + 6 * 8, {"rt_dlss"}, 0, 0, M_RT_ResolutionSettings_DLSS, RT_options_dlss_ptr },
-#define RT_U 7
-#else 
-#define RT_U 6
-#endif
+  {"Nvidia DLSS 2",      S_CHOICE, m_null, RT_X, RT_Y +  3 * 8, {"rt_dlss"},               0, 0, M_RT_ResolutionSettings_DLSS, RT_options_dlss_ptr },
+  {"AMD FSR 2",          S_CHOICE, m_null, RT_X, RT_Y +  4 * 8, {"rt_fsr"},                0, 0, M_RT_ResolutionSettings_FSR, RT_options_fsr },
+  {"Render size",        S_CHOICE, m_null, RT_X, RT_Y +  5 * 8, {"rt_renderscale"},        0, 0, M_RT_ResolutionSettings_RenderScale, RT_options_renderscale },
 
-  {"Bloom",         S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+1) * 8, {"rt_bloom_enable"}, 0, 0, NULL, RT_options_bloom_enable },
-  {"Muzzle flash",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+3) * 8, {"rt_muzzleflash_enable"}, 0, 0, NULL, RT_options_muzzleflash_enable },
-  {"Flashlight",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+4) * 8, {"rt_classic_flashlight"}, 0, 0, NULL, RT_options_classic_flashlight },
+  {"Classic mode",       S_CHOICE, m_null, RT_X, RT_Y +  7 * 8, {"rt_classic"},            0, 0, NULL, RT_options_classic },
 
-  {"HUD style",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+6) * 8, {"rt_hud_style"}, 0, 0, M_RT_ApplyHUD, RT_options_hud_style},
+  {"Bloom",              S_YESNO,  m_null, RT_X, RT_Y +  9 * 8, {"rt_bloom_enable"},       0, 0, NULL, RT_options_off_on },
+  {"Muzzle flash",       S_YESNO,  m_null, RT_X, RT_Y + 10 * 8, {"rt_muzzleflash_enable"}, 0, 0, NULL, RT_options_off_on },
+  {"Classic flashlight", S_YESNO,  m_null, RT_X, RT_Y + 11 * 8, {"rt_classic_flashlight"}, 0, 0, NULL, RT_options_off_on },
+
+  {"HUD style",          S_CHOICE, m_null, RT_X, RT_Y + 13 * 8, {"rt_hud_style"},          0, 0, M_RT_ApplyHUD, RT_options_hud_style},
 #if RT_SEPARATE_HUD_SCALE
-  {"Classic HUD scale",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+7) * 8, {"rt_statusbar_scale"}, 0, 0, NULL, RT_options_statusbar_scale },
-  {"Minimalistic HUD scale",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+8) * 8, {"rt_hud_scale"}, 0, 0, NULL, RT_options_hud_scale },
+  {"Classic HUD scale",  S_CHOICE, m_null, RT_X, RT_Y + 14 * 8, {"rt_statusbar_scale"},    0, 0, NULL, RT_options_statusbar_scale },
+  {"Simple HUD scale",   S_CHOICE, m_null, RT_X, RT_Y + 15 * 8, {"rt_hud_scale"},          0, 0, NULL, RT_options_hud_scale },
 #else
-  {"HUD size",  S_CHOICE,  m_null, RT_X, RT_Y + (RT_U+7) * 8, {"rt_statusbar_scale"}, 0, 0, NULL, RT_options_statusbar_scale },
+  {"HUD size",           S_CHOICE, m_null, RT_X, RT_Y + 14 * 8, {"rt_statusbar_scale"},    0, 0, NULL, RT_options_statusbar_scale },
 #endif
-
   {0,S_SKIP | S_END,m_null}
 };
+// clang-format on
 
 static setup_menu_t *RT_SetupMenus[] =
 {
@@ -4054,7 +4036,6 @@ static void SetGfxItemEnabled(gfxset_e item, dboolean enable)
 
 static void M_RT_UpdateGfxItems(void)
 {
-#if !RT_NO_UPSCALERS
   {
     assert(RG_ARRAY_SIZE(RT_options_dlss_ptr) == RG_ARRAY_SIZE(RT_options_dlss_ok));
 
@@ -4067,13 +4048,11 @@ static void M_RT_UpdateGfxItems(void)
 
     SetGfxItemEnabled(gfxset_dlss, rtmain.is_dlss_available && V_GetMode() == VID_MODERT);
   }
-#endif
 
   // disable some options if not RT
+  SetGfxItemEnabled(gfxset_classic,           V_GetMode() == VID_MODERT);
   SetGfxItemEnabled(gfxset_renderscale,       V_GetMode() == VID_MODERT);
-#if !RT_NO_UPSCALERS
   SetGfxItemEnabled(gfxset_fsr,               V_GetMode() == VID_MODERT);
-#endif
   SetGfxItemEnabled(gfxset_bloom,             V_GetMode() == VID_MODERT);
   SetGfxItemEnabled(gfxset_muzzleflash,       V_GetMode() == VID_MODERT);
   SetGfxItemEnabled(gfxset_classicflashlight, V_GetMode() == VID_MODERT);
