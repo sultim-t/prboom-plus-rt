@@ -78,6 +78,7 @@ void RT_TextureMetaInfo_Init(void)
     STATE_VERTICAL_CONELIGHT,
     STATE_EMISSIVE,
     STATE_MONOCHROME_FOR_COLORMAPS,
+    STATE_NEED_AVERAGE_COLOR,
   };
   enum state_t state = STATE_NONE;
 
@@ -150,6 +151,11 @@ void RT_TextureMetaInfo_Init(void)
       state = STATE_MONOCHROME_FOR_COLORMAPS;
       continue;
     }
+    else if (strcmp(curr_line, "@NEED_AVERAGE_COLOR") == 0)
+    {
+      state = STATE_NEED_AVERAGE_COLOR;
+      continue;
+    }
 
 
     dboolean           valid = false;
@@ -164,6 +170,7 @@ void RT_TextureMetaInfo_Init(void)
     {
       case STATE_WATER:
       case STATE_MONOCHROME_FOR_COLORMAPS:
+      case STATE_NEED_AVERAGE_COLOR:
       {
         int c = sscanf(curr_line, "%s", name);
         if (c == 1)
@@ -275,6 +282,10 @@ void RT_TextureMetaInfo_Init(void)
 
       case STATE_MONOCHROME_FOR_COLORMAPS:
         dst->additional_flags = RT_TEXTURE_FLAG_MONOCHROME_FOR_COLORMAPS_BIT;
+        break;
+
+      case STATE_NEED_AVERAGE_COLOR:
+        dst->additional_flags = RT_TEXTURE_FLAG_HAS_AVERAGE_COLOR;
         break;
 
       default: 

@@ -310,10 +310,83 @@ void RT_AddSkyDome(void)
     }
   }
 
+  {
+    // clang-format off
+    const static RgPrimitiveVertex cube_verts[] = {
+        { .position = { -0.5f, -0.5f, -0.5f }, .color = RG_PACKED_COLOR_WHITE },
+        { .position = {  0.5f, -0.5f, -0.5f }, .color = RG_PACKED_COLOR_WHITE },
+        { .position = {  0.5f, -0.5f,  0.5f }, .color = RG_PACKED_COLOR_WHITE },
+        { .position = { -0.5f, -0.5f,  0.5f }, .color = RG_PACKED_COLOR_WHITE },
+        { .position = { -0.5f,  0.5f, -0.5f }, .color = RG_PACKED_COLOR_WHITE },
+        { .position = {  0.5f,  0.5f, -0.5f }, .color = RG_PACKED_COLOR_WHITE },
+        { .position = {  0.5f,  0.5f,  0.5f }, .color = RG_PACKED_COLOR_WHITE },
+        { .position = { -0.5f,  0.5f,  0.5f }, .color = RG_PACKED_COLOR_WHITE },
+    };
+    const static uint32_t cube_indices[] = {
+        0, 1, 2,
+        0, 2, 3,
+        4, 5, 1,
+        4, 1, 0,
+        7, 6, 5,
+        7, 5, 4,
+        3, 2, 6,
+        3, 6, 7,
+        1, 5, 6,
+        1, 6, 2,
+        4, 0, 3,
+        4, 3, 7,
+    };
+    // clang-format on
+
+    RgColor4DPacked32 average_sky_color = RG_PACKED_COLOR_WHITE;
+    if (rtmain.sky.texture->flags & RT_TEXTURE_FLAG_HAS_AVERAGE_COLOR)
+    {
+      average_sky_color = rtmain.sky.texture->average_color;
+    }
+    else
+    {
+      assert(0 && "Sky texture is not marked as @NEED_AVERAGE_COLOR in textures_metainfo.txt");
+    }
+
+    RgMeshPrimitiveInfo prim_background = {
+        .sType                = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_INFO,
+        .pNext                = NULL,
+        .flags                = RG_MESH_PRIMITIVE_SKY,
+        .pPrimitiveNameInMesh = NULL,
+        .primitiveIndexInMesh = 0,
+        .pVertices            = cube_verts,
+        .vertexCount          = RG_ARRAY_SIZE(cube_verts),
+        .pIndices             = cube_indices,
+        .indexCount           = RG_ARRAY_SIZE(cube_indices),
+        .pTextureName         = NULL,
+        .color                = average_sky_color,
+        .emissive             = 0.0f,
+    };
+
+    // 10000 matches cameraFar
+    RgMeshInfo info_background = {
+        .sType          = RG_STRUCTURE_TYPE_MESH_INFO,
+        .pNext          = NULL,
+        .uniqueObjectID = RT_GetUniqueID_Sky(),
+        .pMeshName      = NULL,
+        .transform      = { {
+            { 10000, 0, 0, 0 },
+            { 0, 10000, 0, 0 },
+            { 0, 0, 10000, 0 },
+        } },
+        .isExportable   = false,
+        .animationName  = NULL,
+        .animationTime  = 0.0f,
+    };
+
+    RgResult r = rgUploadMeshPrimitive(rtmain.instance, &info_background, &prim_background);
+    RG_CHECK(r);
+  }
+
   RgMeshPrimitiveInfo prim = {
       .sType                = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_INFO,
       .pNext                = NULL,
-      .flags                = RG_MESH_PRIMITIVE_SKY,
+      .flags                = RG_MESH_PRIMITIVE_SKY | RG_MESH_PRIMITIVE_TRANSLUCENT,
       .pPrimitiveNameInMesh = NULL,
       .primitiveIndexInMesh = 0,
       .pVertices            = v_vbo.data,

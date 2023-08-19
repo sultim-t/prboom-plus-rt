@@ -37,6 +37,7 @@ typedef enum
   RT_TEXTURE_FLAG_WITH_VERTICAL_CONELIGHT_BIT = 8,
   RT_TEXTURE_FLAG_IS_EMISSIVE_BIT = 16,
   RT_TEXTURE_FLAG_MONOCHROME_FOR_COLORMAPS_BIT = 32,
+  RT_TEXTURE_FLAG_HAS_AVERAGE_COLOR = 64,
 } rt_texture_flag_bits_t;
 typedef uint32_t rt_texture_flags_t;
 
@@ -76,6 +77,7 @@ typedef struct rt_texture_t
   uint32_t           width, height;
   int                leftoffset, topoffset;
   rt_texture_flags_t flags;
+  RgColor4DPacked32  average_color; // valid if RT_TEXTURE_FLAG_HAS_AVERAGE_COLOR
 
   const rt_texture_metainfo_t* metainfo;
 

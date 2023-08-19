@@ -53,6 +53,7 @@ typedef struct
     float x_offset;
     float y_offset;
     dboolean gldwf_skyflip;
+    RgColor4DPacked32 color_back;
   } sky;
 
   dboolean request_wipe;

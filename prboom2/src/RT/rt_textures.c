@@ -513,6 +513,29 @@ static void MakeMonochrome(uint8_t *buffer, uint32_t w, uint32_t h)
 }
 
 
+static RgColor4DPacked32 CalculateAverage(const uint8_t* buffer, uint32_t w, uint32_t h)
+{
+  double sum[] = { 0.0, 0.0, 0.0 };
+
+  for (uint32_t i = 0; i < w * h; i++)
+  {
+    uint8_t r = buffer[i * 4 + 0];
+    uint8_t g = buffer[i * 4 + 1];
+    uint8_t b = buffer[i * 4 + 2];
+
+    sum[0] += (double)r / 255.0;
+    sum[1] += (double)g / 255.0;
+    sum[2] += (double)b / 255.0;
+  }
+
+  sum[0] /= w * h;
+  sum[1] /= w * h;
+  sum[2] /= w * h;
+
+  return rgUtilPackColorFloat4D((float)sum[0], (float)sum[1], (float)sum[2], 1.0f);
+}
+
+
 static dboolean HasAlpha(const uint8_t *buffer, uint32_t w, uint32_t h)
 {
   for (uint32_t i = 0; i < w * h; i++)
@@ -580,6 +603,10 @@ const rt_texture_t *RT_Texture_GetFromPatchLump(int lump)
   {
     MakeMonochrome(buffer, td->width, td->height);
   }
+  if (td->flags & RT_TEXTURE_FLAG_HAS_AVERAGE_COLOR)
+  {
+    td->average_color = CalculateAverage(buffer, td->width, td->height);
+  }
 
   BuildMaterial(td, buffer);
 
@@ -623,6 +650,10 @@ const rt_texture_t *RT_Texture_GetFromFlatLump(int lump_flat)
   if (td->flags & RT_TEXTURE_FLAG_MONOCHROME_FOR_COLORMAPS_BIT)
   {
     MakeMonochrome(buffer, td->width, td->height);
+  }
+  if (td->flags & RT_TEXTURE_FLAG_HAS_AVERAGE_COLOR)
+  {
+    td->average_color = CalculateAverage(buffer, td->width, td->height);
   }
 
 
@@ -668,6 +699,10 @@ const rt_texture_t *RT_Texture_GetFromTexture(int texture_num)
   if (td->flags & RT_TEXTURE_FLAG_MONOCHROME_FOR_COLORMAPS_BIT)
   {
     MakeMonochrome(buffer, td->width, td->height);
+  }
+  if (td->flags & RT_TEXTURE_FLAG_HAS_AVERAGE_COLOR)
+  {
+    td->average_color = CalculateAverage(buffer, td->width, td->height);
   }
   if (HasAlpha(buffer, td->width, td->height))
   {
