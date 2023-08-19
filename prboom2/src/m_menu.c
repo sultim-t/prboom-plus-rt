@@ -2298,9 +2298,16 @@ static void M_DrawSetting(const setup_menu_t* s)
   // Is the item a YES/NO item?
 
   if (flags & S_YESNO) {
-    strcpy(menu_buffer,*s->var.def->location.pi ? "YES" : "NO");
-    if (s == current_setup_menu + set_menu_itemon && whichSkull && !setup_select)
-      strcat(menu_buffer, " <");
+    if (s->selectstrings == NULL)
+    {
+      strcpy(menu_buffer,*s->var.def->location.pi ? "YES" : "NO");
+      if (s == current_setup_menu + set_menu_itemon && whichSkull && !setup_select)
+        strcat(menu_buffer, " <");
+    }
+    else
+    {
+      strcpy(menu_buffer, s->selectstrings[*s->var.def->location.pi ? 1 : 0]);
+    }
     M_DrawMenuString(x,y,color);
     return;
   }
