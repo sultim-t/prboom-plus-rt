@@ -227,43 +227,78 @@ static dboolean IsCRTModeEnabled(rt_settings_renderscale_e renderscale)
 }
 
 
+static RgExtent2D MakeResolutionFromHeight(uint32_t height)
+{
+  const RgExtent2D window_size   = GetCurrentWindowSize();
+  const double     window_aspect = (double)window_size.width / (double)window_size.height;
+
+  RgExtent2D r = {
+      (int)(window_aspect * (double)height),
+      height,
+  };
+  return r;
+}
+
+
+#define ORIGINAL_DOOM_RESOLUTION_HEIGHT 200
+
+
 static RgExtent2D GetScaledResolution(rt_settings_renderscale_e renderscale)
 {
-  const RgExtent2D window_size = GetCurrentWindowSize();
-  const double window_aspect = (double)window_size.width / (double)window_size.height;
+  switch (renderscale)
+  {
+    case RT_SETTINGS_RENDERSCALE_DEFAULT: return GetCurrentWindowSize();
 
-  RgExtent2D original_doom = { 320, 200 };
+    case RT_SETTINGS_RENDERSCALE_320x200:
+        // double the resolution, for downscaling (less artifacts)
+        return MakeResolutionFromHeight(ORIGINAL_DOOM_RESOLUTION_HEIGHT * 2);
 
-  int y = SCREENHEIGHT;
+    case RT_SETTINGS_RENDERSCALE_320x200_CRT:
+        // double the resolution, to simulate interlacing
+        return MakeResolutionFromHeight(ORIGINAL_DOOM_RESOLUTION_HEIGHT * 2);
+
+    case RT_SETTINGS_RENDERSCALE_480: return MakeResolutionFromHeight(480);
+
+    default: assert(0); return GetCurrentWindowSize();
+  }
+}
+
+
+static boolean IsPixelizationEnabled(rt_settings_renderscale_e renderscale)
+{
+  switch (renderscale)
+  {
+    case RT_SETTINGS_RENDERSCALE_320x200: return true;
+    default: return false;
+  }
+}
+
+
+static RgExtent2D GetPixelizedRenderSize(rt_settings_renderscale_e renderscale)
+{
+  if (!IsPixelizationEnabled(renderscale))
+  {
+    return GetCurrentWindowSize();
+  }
 
   switch (renderscale)
   {
     case RT_SETTINGS_RENDERSCALE_320x200:
-    {
-      return original_doom;
-    }
-    case RT_SETTINGS_RENDERSCALE_320x200_CRT:
-    {
-      // double the resolution, to simulate interlacing
-      original_doom.width *= 2;
-      original_doom.height *= 2;
-      return original_doom;
-    }
-    case RT_SETTINGS_RENDERSCALE_480:   y = 480; break;
-    case RT_SETTINGS_RENDERSCALE_600:   y = 600; break;
-    case RT_SETTINGS_RENDERSCALE_720:   y = 720; break;
-    case RT_SETTINGS_RENDERSCALE_900:   y = 900; break;
-    case RT_SETTINGS_RENDERSCALE_1080:  y = 1080; break;
-    case RT_SETTINGS_RENDERSCALE_1200:  y = 1200; break;
-    case RT_SETTINGS_RENDERSCALE_1440:  y = 1440; break;
-    case RT_SETTINGS_RENDERSCALE_1600:  y = 1600; break;
-    case RT_SETTINGS_RENDERSCALE_1920:  y = 1920; break;
-    case RT_SETTINGS_RENDERSCALE_2160:  y = 2160; break;
-    default: break;
-  }
+        return MakeResolutionFromHeight(ORIGINAL_DOOM_RESOLUTION_HEIGHT);
 
-  RgExtent2D r = { (int)(window_aspect * (double)y), y };
-  return r;
+    default: assert(0); return GetCurrentWindowSize();
+  }
+}
+
+
+static RgRenderSharpenTechnique GetSharpen(rt_settings_renderscale_e renderscale)
+{
+  if (IsPixelizationEnabled(renderscale))
+  {
+    return RG_RENDER_SHARPEN_TECHNIQUE_AMD_CAS;
+  }
+  return RG_RENDER_SHARPEN_TECHNIQUE_NONE;
+
 }
 
 
@@ -274,10 +309,11 @@ static RgRenderResolutionMode GetResolutionMode(int dlss, int fsr) // 0 - off, 1
 
   switch (dlss)
   {
-    case 1:   return RG_RENDER_RESOLUTION_MODE_QUALITY;
-    case 2:   return RG_RENDER_RESOLUTION_MODE_BALANCED;
-    case 3:   return RG_RENDER_RESOLUTION_MODE_PERFORMANCE;
-    case 4:   return RG_RENDER_RESOLUTION_MODE_ULTRA_PERFORMANCE;
+    case 1:   return RG_RENDER_RESOLUTION_MODE_DLAA;
+    case 2:   return RG_RENDER_RESOLUTION_MODE_QUALITY;
+    case 3:   return RG_RENDER_RESOLUTION_MODE_BALANCED;
+    case 4:   return RG_RENDER_RESOLUTION_MODE_PERFORMANCE;
+    case 5:   return RG_RENDER_RESOLUTION_MODE_ULTRA_PERFORMANCE;
     default:  break;
   }
 
@@ -294,7 +330,7 @@ static RgRenderResolutionMode GetResolutionMode(int dlss, int fsr) // 0 - off, 1
 }
 
 
-static void NormalizeRTSettings(rt_settings_t *settings)
+static void NormalizeRTSettings(rt_settings_t* settings)
 {
   if (!rtmain.is_dlss_available)
   {
@@ -302,25 +338,28 @@ static void NormalizeRTSettings(rt_settings_t *settings)
   }
 
   {
-    RgExtent2D window_size = GetCurrentWindowSize();
+    const RgExtent2D          window_size = GetCurrentWindowSize();
     rt_settings_renderscale_e max_allowed = RT_SETTINGS_RENDERSCALE_NUM - 1;
 
     // must be in sync with rt_settings_renderscale_e
-    static const int rs_height[] =
-    {
-      -1,-1,-1,480,600,720,900,1080,1200,1440,1600,1920,2160
+    static const int rs_height[] = {
+        -1,
+        -1,
+        -1,
+        480,
     };
     // just to check that rs_height in sync with enum
-    assert(RT_SETTINGS_RENDERSCALE_NUM == RG_ARRAY_SIZE(rs_height)); assert(RT_SETTINGS_RENDERSCALE_480 == 3 && RT_SETTINGS_RENDERSCALE_2160 == 12);
+    assert(RT_SETTINGS_RENDERSCALE_NUM == RG_ARRAY_SIZE(rs_height));
+    assert(RT_SETTINGS_RENDERSCALE_480 == 3);
 
     for (int i = RT_SETTINGS_RENDERSCALE_NUM - 1; i >= 0; i--)
     {
-      if ((int)window_size.height >= rs_height[i])
-      {
-        // next after closest
-        max_allowed = i_min(i + 1, RT_SETTINGS_RENDERSCALE_NUM - 1);
-        break;
-      }
+        if ((int)window_size.height >= rs_height[i])
+        {
+            // next after closest
+            max_allowed = i_min(i + 1, RT_SETTINGS_RENDERSCALE_NUM - 1);
+            break;
+        }
     }
 
     settings->renderscale = i_min(settings->renderscale, max_allowed);
@@ -373,16 +412,17 @@ void RT_EndFrame()
 
 
   RgDrawFrameRenderResolutionParams resolution_params = {
-      .sType                = RG_STRUCTURE_TYPE_DRAW_FRAME_RENDER_RESOLUTION_PARAMS,
-      .pNext                = NULL,
-      .upscaleTechnique     = rt_settings.dlss > 0  ? RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS
-                              : rt_settings.fsr > 0 ? RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR2
-                                                    : RG_RENDER_UPSCALE_TECHNIQUE_NEAREST,
-      .sharpenTechnique     = RG_RENDER_SHARPEN_TECHNIQUE_NONE,
-      .resolutionMode       = GetResolutionMode(rt_settings.dlss, rt_settings.fsr),
-      .customRenderSize     = GetScaledResolution(rt_settings.renderscale),
-      .pPixelizedRenderSize = NULL,
-      .resetUpscalerHistory = false,
+      .sType                     = RG_STRUCTURE_TYPE_DRAW_FRAME_RENDER_RESOLUTION_PARAMS,
+      .pNext                     = NULL,
+      .upscaleTechnique          = rt_settings.dlss > 0  ? RG_RENDER_UPSCALE_TECHNIQUE_NVIDIA_DLSS
+                                   : rt_settings.fsr > 0 ? RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR2
+                                                         : RG_RENDER_UPSCALE_TECHNIQUE_NEAREST,
+      .sharpenTechnique          = GetSharpen(rt_settings.renderscale),
+      .resolutionMode            = GetResolutionMode(rt_settings.dlss, rt_settings.fsr),
+      .customRenderSize          = GetScaledResolution(rt_settings.renderscale),
+      .pixelizedRenderSizeEnable = IsPixelizationEnabled(rt_settings.renderscale),
+      .pixelizedRenderSize       = GetPixelizedRenderSize(rt_settings.renderscale),
+      .resetUpscalerHistory      = false,
   };
 
   RgDrawFrameTonemappingParams tm_params = {

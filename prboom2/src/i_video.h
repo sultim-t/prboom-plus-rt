@@ -59,8 +59,9 @@ extern int integer_scaling;
 typedef struct
 {
   // NOTE: dlss, fsr, renderscale - are mutually exclusive
-  int dlss, fsr;              // 0 - off, [1,4] - quality from highest to lowest
-  int renderscale;            // index in rt_settings_renderscale_e
+  int dlss;        // 0 - off, [1,5] - quality from DLAA to ULTRA_PERF
+  int fsr;         // 0 - off, [1,4] - quality from QUALITY to ULTRA_PERF
+  int renderscale; // index in rt_settings_renderscale_e
   int bloom_enable;
   int muzzleflash_enable;
   int statusbar_scale;        // to calculate procents: 10*(statusbar_scale+1)
@@ -77,15 +78,6 @@ typedef enum
   RT_SETTINGS_RENDERSCALE_320x200_CRT,
   RT_SETTINGS_RENDERSCALE_320x200,
   RT_SETTINGS_RENDERSCALE_480,
-  RT_SETTINGS_RENDERSCALE_600,
-  RT_SETTINGS_RENDERSCALE_720,
-  RT_SETTINGS_RENDERSCALE_900,
-  RT_SETTINGS_RENDERSCALE_1080,
-  RT_SETTINGS_RENDERSCALE_1200,
-  RT_SETTINGS_RENDERSCALE_1440,
-  RT_SETTINGS_RENDERSCALE_1600,
-  RT_SETTINGS_RENDERSCALE_1920,
-  RT_SETTINGS_RENDERSCALE_2160,
   RT_SETTINGS_RENDERSCALE_NUM,
 } rt_settings_renderscale_e;
 extern rt_settings_t rt_settings;

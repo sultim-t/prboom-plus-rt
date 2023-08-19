@@ -3903,6 +3903,7 @@ void M_DrawGeneral(void)
 static const char *RT_options_dlss_ok[] =
 {
   "Off",
+  "DLAA",
   "Quality",
   "Balanced",
   "Performance",
@@ -3926,15 +3927,6 @@ static const char *RT_options_renderscale[] =
   "320x200 (CRT)",
   "320x200",
   "480p",
-  "600p",
-  "720p",
-  "900p",
-  "1080p",
-  "1200p",
-  "1440p",
-  "1600p",
-  "1920p",
-  "2160p",
   NULL
 };
 static const char *RT_options_bloom_enable[] =
