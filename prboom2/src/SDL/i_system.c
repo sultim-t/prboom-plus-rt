@@ -95,7 +95,6 @@
 #include "config.h"
 #endif
 
-#include "i_video.h"
 #include "z_zone.h"
 
 #ifdef _WIN32
@@ -115,10 +114,6 @@ dboolean realframe = false;
 dboolean I_StartDisplay(void)
 {
   if (InDisplay)
-    return false;
-
-  // RT: skip if window is minimized
-  if (!window_focused)
     return false;
 
   realframe = (!movement_smooth) || (gametic > saved_gametic);
