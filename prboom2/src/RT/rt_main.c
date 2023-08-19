@@ -221,6 +221,20 @@ static RgExtent2D GetCurrentWindowSize()
 }
 
 
+static float ClassicModeToFloat(int classicmode)
+{
+  switch (classicmode)
+  {
+    case 0: return 0.0f;
+    case 1: return 0.3f;
+    case 2: return 0.5f;
+    case 3: return 0.7f;
+    case 4: return 1.0f;
+    default: assert(0); return 0.0f;
+  }
+}
+
+
 static dboolean IsCRTModeEnabled(rt_settings_renderscale_e renderscale)
 {
   return renderscale == RT_SETTINGS_RENDERSCALE_320x200_CRT;
@@ -590,9 +604,15 @@ void RT_EndFrame()
       .pCRT                  = &ef_crt,
   };
 
+  RgDrawFrameLightmapParams lightmap_params = {
+      .sType                  = RG_STRUCTURE_TYPE_DRAW_FRAME_LIGHTMAP_PARAMS,
+      .pNext                  = &post_params,
+      .lightmapScreenCoverage = ClassicModeToFloat(rt_settings.classic),
+  };
+
   RgDrawFrameInfo info = {
       .sType            = RG_STRUCTURE_TYPE_DRAW_FRAME_INFO,
-      .pNext            = &post_params,
+      .pNext            = &lightmap_params,
       .rayLength        = 10000.0f,
       .rayCullMaskWorld = RG_DRAW_FRAME_RAY_CULL_WORLD_0_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
       .disableRayTracedGeometry = false,

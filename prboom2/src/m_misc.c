@@ -506,7 +506,7 @@ default_t defaults[] =
    def_int,ss_none },
   {"rt_renderscale",{&rt_settings.renderscale},{RT_SETTINGS_RENDERSCALE_DEFAULT},0,RT_SETTINGS_RENDERSCALE_NUM-1,
    def_int,ss_none },
-  {"rt_classic",{&rt_settings.renderscale},{0},0,4,
+  {"rt_classic",{&rt_settings.classic},{0},0,4,
    def_int,ss_none },
   {"rt_bloom_enable",{&rt_settings.bloom_enable},{1},0,1,
    def_int,ss_none },
