@@ -5177,6 +5177,11 @@ static inline int GetButtons(const unsigned int max, int data)
 
 
 #if RT_CUSTOM_MENU
+static dboolean RT_AllowLeftRightArrowsAsEnter(setup_menu_t* ptr1)
+{
+  return ptr1 == &RT_GraphicsSettings[gfxset_resolution];
+}
+
 static dboolean RT_IsImmediateApply(setup_menu_t* ptr1) {
   for (int i = 0; i < RG_ARRAY_SIZE(RT_GraphicsSettings) - 1; i++)
   {
@@ -6453,7 +6458,12 @@ dboolean M_Responder (event_t* ev) {
   }
 #endif
 
+#if !RT_CUSTOM_MENU
       if (ch == key_menu_enter)
+#else
+  if (ch == key_menu_enter ||
+      ((ch == key_menu_left || ch == key_menu_right) && RT_AllowLeftRightArrowsAsEnter(ptr1)))
+#endif
   {
     int flags = ptr1->m_flags;
 
