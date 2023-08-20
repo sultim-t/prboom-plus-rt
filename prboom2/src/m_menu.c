@@ -354,9 +354,16 @@ menu_t NewDef;                                              // phares 5/04/98
 enum
 {
   newgame = 0,
+#if !RT_CUSTOM_MENU
   loadgame,
   savegame,
   options,
+#else
+  loadgame,
+  savegame,
+  graphics,
+  options,
+#endif
   readthis,
   quitdoom,
   main_end
@@ -373,13 +380,16 @@ enum
 menuitem_t MainMenu[]=
 {
   {1,"M_NGAME", M_NewGame, 'n'},
-#if RT_CUSTOM_MENU
-  {1,"M_OPTION",M_RT_Options, 'o'},
-#else
+#if !RT_CUSTOM_MENU
   {1,"M_OPTION",M_Options, 'o'},
-#endif
   {1,"M_LOADG", M_LoadGame,'l'},
   {1,"M_SAVEG", M_SaveGame,'s'},
+#else
+  {1,"M_LOADG", M_LoadGame,'l'},
+  {1,"M_SAVEG", M_SaveGame,'s'},
+  {1,"M_DISP",  M_RT_GraphicsSettings, 'g'},
+  {1,"M_OPTION",M_RT_Options, 'o'},
+#endif
   // Another hickup with Special edition.
   {1,"M_RDTHIS",M_ReadThis,'r'},
   {1,"M_QUITG", M_QuitDOOM,'q'}
@@ -1138,7 +1148,6 @@ void M_SaveGame (int choice)
 
 enum
 {
-  RT_OPTIONS_GRAPHICS,
   RT_OPTIONS_SOUNDVOLUME,
   RT_OPTIONS_KEYBINDINGS,
   RT_OPTIONS_MOUSE,
@@ -1149,7 +1158,6 @@ enum
 
 menuitem_t RT_OptionsMenu[] =
 {
-  {1,"M_N_GFX",     M_RT_GraphicsSettings,  'g', "GRAPHICS"},
   {1,"M_N_SND",     M_RT_Sound,             's', "SOUND"},
   {1,"M_N_KEYBND",  M_RT_KeyBindings,       'k', "CONTROLS"},
   {1,"M_N_MOUSE",   M_RT_ChangeSensitivity, 'm', "MOUSE"},
@@ -2127,21 +2135,6 @@ menu_t CompatDef =                                           // killough 10/98
   34,5,      // skull drawn here
   0
 };
-
-
-#if RT_CUSTOM_MENU
-
-menu_t RT_GraphicsSettingsDef =                                       
-{
-  generic_setup_end,
-  &RT_OptionsDef,
-  Generic_Setup,
-  M_RT_GraphicsSettings_Draw,
-  -20, -20, // dont draw skull 
-  0
-};
-
-#endif
 
 
 /////////////////////////////
@@ -4070,6 +4063,16 @@ static void M_RT_UpdateGfxItems(void)
 
   assert(gfxset_end == RG_ARRAY_SIZE(RT_GraphicsSettings) - 1);
 }
+
+menu_t RT_GraphicsSettingsDef =                                       
+{
+  generic_setup_end,
+  &MainDef,
+  Generic_Setup,
+  M_RT_GraphicsSettings_Draw,
+  -20, -20, // dont draw skull 
+  0
+};
 
 // Copy of M_General, but with different M_SetupNextMenu
 void M_RT_GraphicsSettings(int choice)
