@@ -48,7 +48,7 @@ typedef struct
   float ul, ur;
   float x1, y1;
   float x2, y2;
-  float light;
+  // float light;
   // float fogdensity;
   fixed_t scale;
   const rt_texture_t *td;
@@ -58,10 +58,11 @@ typedef struct
   // fixed_t fx, fy;
 
   dboolean has_rotation_frames;
+  RgColor4DPacked32 classiclight;
 } rt_sprite_t;
 
 
-extern float RT_CalcLightLevel(int lightlevel);
+RgColor4DPacked32 RT_CalcLightLevelForClassic(int lightlevel);
 
 
 static RgFloat3D GetNormalUp(void);
@@ -154,8 +155,7 @@ static void DrawSprite(const mobj_t *thing, const rt_sprite_t *sprite, int secto
   float cos_inv_yaw = cosf(inv_yaw * (float)M_PI / 180.f);
   float sin_inv_yaw = sinf(inv_yaw * (float)M_PI / 180.f);
 
-  RgColor4DPacked32 lightcolor =
-      rgUtilPackColorFloat4D(sprite->light, sprite->light, sprite->light, 1.0f);
+  RgColor4DPacked32 lightcolor = sprite->classiclight;
 
   if (sprite->flags & (MF_SOLID | MF_SPAWNCEILING))
   {
@@ -526,11 +526,11 @@ void RT_AddSprite(int sectornum, mobj_t* thing, int lightlevel)
   if ((thing->frame & FF_FULLBRIGHT) || show_alive)
   {
     //sprite.fogdensity = 0.0f;
-    sprite.light = 1.0f;
+    sprite.classiclight = RG_PACKED_COLOR_WHITE;
   }
   else
   {
-    sprite.light = RT_CalcLightLevel(lightlevel + (extralight << 5));
+    sprite.classiclight = RT_CalcLightLevelForClassic(lightlevel);
     //sprite.fogdensity = CalcFogDensity(thing->subsector->sector, lightlevel, GLDIT_SPRITE);
   }
   sprite.cm = CR_LIMIT + (int)((thing->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
@@ -697,9 +697,8 @@ void RT_AddWeaponSprite(int weaponlump, const vissprite_t* vis, float zoffset, i
   RgFloat3D normal = is_partial_invisibility ? GetNormalTowardsCamera() : GetNormalUp();
   // TODO RT: tangent
   RgFloat4D tangent = { 1, 0, 0, 1 };
-
-  float ll = RT_CalcLightLevel(lightlevel + (extralight << 5));
-  RgColor4DPacked32 lightcolor = rgUtilPackColorFloat4D(ll, ll, ll, 1.0f);
+  
+  RgColor4DPacked32 lightcolor = RT_CalcLightLevelForClassic(lightlevel);
 
   // clang-format off
   #define RG_UNPACK_2( v ) { (v).data[0], (v).data[1] }

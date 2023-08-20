@@ -36,26 +36,40 @@
 #include "r_state.h"
 
 
-float RT_CalcLightLevel(int lightlevel)
+static float RT_CalcLightLevelForLightSources(int lightlevel)
 {
     lightlevel = BETWEEN(0, 255, lightlevel);
 
+    float d = (float)lightlevel / 255.0f;
+    return d * d;
+}
+
+RgColor4DPacked32 RT_CalcLightLevelForClassic(int lightlevel)
+{
+    lightlevel = BETWEEN(0, 255, lightlevel + (extralight << 5));
+
+    float floatlightlevel;
     switch (gl_lightmode)
     {
         case gl_lightmode_glboom: {
-            float gamma_0 = -0.2f;
-            return (float)((1.0f - exp(pow(lightlevel / 255.0f, 3) * gamma_0)) /
-                              (1.0f - exp(1.0f * gamma_0)));
+            float gamma_0   = -0.2f;
+            floatlightlevel = (float)((1.0f - exp(pow(lightlevel / 255.0f, 3) * gamma_0)) /
+                                      (1.0f - exp(1.0f * gamma_0)));
+            break;
         }
         case gl_lightmode_gzdoom: {
-            float a = lightlevel < 192 ? (192.0f - (192 - lightlevel) * 1.95f) : lightlevel;
-            return a / 255.0f;
+            float a         = lightlevel < 192 ? (192.0f - (192 - lightlevel) * 1.95f) : lightlevel;
+            floatlightlevel = a / 255.0f;
+            break;
         }
         default: {
-            float d = (lightlevel / 255.0f);
-            return d * d;
+            float d         = (float)lightlevel / 255.0f;
+            floatlightlevel = d * d;
+            break;
         }
     }
+
+    return rgUtilPackColorFloat4D(floatlightlevel, floatlightlevel, floatlightlevel, 1.0f);
 }
 
 
@@ -91,7 +105,7 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
     if (!flat.td)
       return;
     // get the lightlevel from floorlightlevel
-    flat.light = RT_CalcLightLevel(plane->lightlevel);
+    flat.light = RT_CalcLightLevelForLightSources(plane->lightlevel);
     // flat.fogdensity = gld_CalcFogDensity(sector, plane->lightlevel, GLDIT_FLOOR);
     // calculate texture offsets
     if (sector->floor_xoffs | sector->floor_yoffs)
@@ -116,7 +130,7 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
     if (!flat.td)
       return;
     // get the lightlevel from ceilinglightlevel
-    flat.light = RT_CalcLightLevel(plane->lightlevel);
+    flat.light = RT_CalcLightLevelForLightSources(plane->lightlevel);
     // flat.fogdensity = gld_CalcFogDensity(sector, plane->lightlevel, GLDIT_CEILING);
     // calculate texture offsets
     if (sector->ceiling_xoffs | sector->ceiling_yoffs)
@@ -135,7 +149,7 @@ static void AddFlat(const int sectornum, dboolean ceiling, const visplane_t *pla
   // get height from plane
   flat.z = (float)plane->height / MAP_SCALE;
 
-  RgColor4DPacked32 lightcolor = rgUtilPackColorFloat4D(flat.light, flat.light, flat.light, 1.0f);
+  RgColor4DPacked32 lightcolor = RT_CalcLightLevelForClassic(plane->lightlevel);
 
   // ---
 
@@ -302,7 +316,8 @@ typedef struct
   dboolean is_back_side;
   float ytop, ybottom;
   float ul, ur, vt, vb;
-  float light;
+  //float light;
+  RgColor4DPacked32 classiclight;
   //float fogdensity;
   float alpha;
   float skyymid;
@@ -417,8 +432,7 @@ static void DrawWall(RTPWallType itemtype, int drawwallindex, RTPWall *wall)
   RgFloat2D texcoord_3 = { wall->ur, wall->vb };
   RgFloat3D position_3 = { x2, wall->ybottom, z2 };
 
-  RgColor4DPacked32 lightcolor =
-      rgUtilPackColorFloat4D(wall->light, wall->light, wall->light, 1.0f);
+  RgColor4DPacked32 lightcolor = wall->classiclight;
 
   // clang-format off
   #define RG_UNPACK_2(v) { (v).data[0], (v).data[1] }
@@ -698,7 +712,7 @@ void RT_AddWall(int subsectornum, seg_t *seg)
   {
     //rellight = seg->linedef->dx == 0 ? +gl_rellight : seg->linedef->dy == 0 ? -gl_rellight : 0;
   }
-  wall.light = RT_CalcLightLevel(frontsector->lightlevel + rellight);
+  wall.classiclight = RT_CalcLightLevelForClassic(frontsector->lightlevel + rellight);
   //wall.fogdensity = CalcFogDensity(frontsector,
   //                                 frontsector->lightlevel + (gl_lightmode == gl_lightmode_fogbased ? rellight : 0),
   //                                 RTP_WALLTYPE_WALL);
