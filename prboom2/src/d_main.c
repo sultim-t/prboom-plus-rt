@@ -1918,6 +1918,20 @@ static void D_DoomMainSetup(void)
     }
   }
 
+#if RT_DOOM1_HACKS
+  {
+    char* rtwad = I_FindFile("rt.wad", "");
+    if (rtwad)
+    {
+      D_AddFile(rtwad, source_pwad);
+    }
+    else
+    {
+      I_Error("rt.wad not found. Place it around prboom-plus.exe");
+    }
+  }
+#endif
+
   // add wad files from autoload directory before wads from -file parameter
 
   D_AutoloadIWadDir();
